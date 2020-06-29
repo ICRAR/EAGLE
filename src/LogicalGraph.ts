@@ -1,0 +1,436 @@
+/*
+#
+#    ICRAR - International Centre for Radio Astronomy Research
+#    (c) UWA - The University of Western Australia, 2016
+#    Copyright by UWA (in the framework of the ICRAR)
+#    All rights reserved
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+#    MA 02111-1307  USA
+#
+*/
+
+import * as ko from "knockout";
+
+import {Utils} from './Utils';
+import {GraphUpdater} from './GraphUpdater';
+
+import {Eagle} from './Eagle';
+import {Node} from './Node';
+import {Edge} from './Edge';
+import {Port} from './Port';
+import {FileInfo} from './FileInfo';
+
+export class LogicalGraph {
+    fileInfo : ko.Observable<FileInfo>;
+    private nodes : Node[];
+    private edges : Edge[];
+
+    constructor(){
+        this.fileInfo = ko.observable(new FileInfo());
+        this.fileInfo().type = Eagle.FileType.Graph;
+        this.nodes = [];
+        this.edges = [];
+    }
+
+    static toOJSJson = (graph : LogicalGraph) : object => {
+        var result : any = {};
+
+        //result.class = "go.GraphLinksModel";
+
+        result.modelData = FileInfo.toOJSJson(graph.fileInfo());
+
+        // add nodes
+        result.nodeDataArray = [];
+        for (var i = 0 ; i < graph.getNodes().length ; i++){
+            var node : Node = graph.getNodes()[i];
+            var nodeData : any = Node.toOJSJson(node);
+
+            result.nodeDataArray.push(nodeData);
+        }
+
+        // add links
+        result.linkDataArray = [];
+        for (var i = 0 ; i < graph.getEdges().length ; i++){
+            var edge : Edge = graph.getEdges()[i];
+            var linkData : any = Edge.toOJSJson(edge);
+            linkData.from = edge.getSrcNodeKey();
+            linkData.to   = edge.getDestNodeKey();
+
+            result.linkDataArray.push(linkData);
+        }
+
+        return result;
+    }
+
+    static fromOJSJson = (data : string) : LogicalGraph => {
+        // parse the JSON first
+        var dataObject : any = JSON.parse(data);
+        var errors : string[] = [];
+
+        // create new logical graph object
+        var result : LogicalGraph = new LogicalGraph();
+
+        // copy modelData into fileInfo
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData));
+
+        // add nodes
+        for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            var nodeData = dataObject.nodeDataArray[i];
+            result.nodes.push(Node.fromOJSJson(nodeData));
+        }
+
+        // make sure to set parentId for all nodes
+        for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            var nodeData = dataObject.nodeDataArray[i];
+            var parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.group);
+
+            if (parentIndex !== -1){
+                result.nodes[i].setParentKey(result.nodes[parentIndex].getKey());
+            }
+        }
+
+        // add edges
+        for (var i = 0 ; i < dataObject.linkDataArray.length ; i++){
+            var linkData = dataObject.linkDataArray[i];
+
+            // find source node
+            var srcNode : Node  = result.nodes[GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, linkData.from)];
+
+            // abort if source node not found
+            if (typeof srcNode === 'undefined'){
+                var error : string = "Unable to find node with key " + linkData.from + " used as source node in link " + i + ". Discarding link!";
+                console.warn(error);
+                errors.push(error);
+                continue;
+            }
+
+            // find source port on source node
+            var srcPort : Port = srcNode.findPortById(linkData.fromPort);
+
+            // abort if source port not found
+            if (srcPort === null){
+                var error : string = "Unable to find port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i;
+                console.warn(error);
+                errors.push(error);
+                continue;
+            }
+
+            // find destination node
+            var destNode : Node  = result.nodes[GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, linkData.to)];
+
+            // abort if dest node not found
+            if (typeof destNode === 'undefined'){
+                var error : string = "Unable to find node with key " + linkData.to + " used as destination node in link " + i + ". Discarding link!";
+                console.warn(error);
+                errors.push(error);
+                continue;
+            }
+
+            // find dest port on dest node
+            var destPort : Port = destNode.findPortById(linkData.toPort);
+
+            // abort if dest port not found
+            if (destPort === null){
+                var error : string = "Unable to find port " + linkData.toPort + " on node " + linkData.to + " used in link " + i;
+                console.warn(error);
+                errors.push(error);
+                continue;
+            }
+
+            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName()));
+        }
+
+        var hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(result);
+        if (hadNegativePositions){
+            console.log("Adjusting position of all nodes to move to positive quadrant.");
+        }
+
+        // show errors (if found)
+        if (errors.length > 0){
+            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+        }
+
+        return result;
+    }
+
+    addNodeComplete = (node : Node) => {
+        this.nodes.push(node);
+    }
+
+    getNodes = () : Node[] => {
+        return this.nodes;
+    }
+
+    getNumNodes = () : number => {
+        return this.nodes.length;
+    }
+
+    addEdgeComplete = (edge : Edge) => {
+        this.edges.push(edge);
+    }
+
+    getEdges = () : Edge[] => {
+        return this.edges;
+    }
+
+    clear = () : void => {
+        this.fileInfo().clear();
+        this.fileInfo().type = Eagle.FileType.Graph;
+        this.nodes = [];
+        this.edges = [];
+    }
+
+    clone = () : LogicalGraph => {
+        var result : LogicalGraph = new LogicalGraph();
+
+        result.fileInfo(this.fileInfo().clone());
+
+        // copy nodes
+        for (var i = 0 ; i < this.nodes.length ; i++){
+            var n_clone = this.nodes[i].clone();
+            result.nodes.push(n_clone);
+        }
+
+        // copy edges
+        for (var i = 0 ; i < this.edges.length ; i++){
+            result.edges.push(this.edges[i].clone());
+        }
+
+        return result;
+    }
+
+    addNode = (node : Node, callback : (node: Node) => void) : void => {
+        console.log("addNodeToLogicalGraph()", node.getName());
+
+        // copy node
+        var newNode : Node = node.clone();
+
+        // set appropriate key for node (one that is not already in use)
+        newNode.setKey(Utils.newKey(this.getNodes()));
+
+        // convert start of end nodes to data components
+        if (node.getCategory() === Eagle.Category.Start || node.getCategory() === Eagle.Category.End) {
+            // Store the node's location.
+            var nodePosition = newNode.getPosition();
+
+            // ask the user which data type should be added
+            this.addDataComponentDialog((category : string) : void => {
+                if (category !== "") {
+                    // Add a data component to the graph.
+                    newNode = this.addDataComponentToGraph(category, nodePosition);
+
+                    // Remove the redundant input/output port.
+                    switch(node.getCategory()){
+                        case Eagle.Category.Start:
+                            newNode.removePortByIndex(0, true, false);
+                            break;
+                        case Eagle.Category.End:
+                            newNode.removePortByIndex(0, false, false);
+                            break;
+                    }
+
+                    // flag that the logical graph has been modified
+                    this.fileInfo().modified = true;
+                    this.fileInfo.valueHasMutated();
+
+                    if (callback !== null) callback(newNode);
+                }
+            });
+        } else {
+            this.nodes.push(newNode);
+
+            // flag that the logical graph has been modified
+            this.fileInfo().modified = true;
+            this.fileInfo.valueHasMutated();
+
+            if (callback !== null) callback(newNode);
+        }
+    }
+
+    /**
+     * Opens a dialog for selecting a data component type.
+     */
+    addDataComponentDialog = (callback : (dataType: string) => void) : void => {
+        Utils.requestUserChoice("Add Data Component", "Select data component type", Eagle.dataCategories, 0, false, "", (completed : boolean, userString : string) => {
+            if (!completed)
+                return;
+            callback(userString);
+        });
+    }
+
+    // TODO: rather than pass just the category, perhaps we should pass the nodeData
+    //       then we won't need a reference to Eagle.dataNodes
+    /**
+     * Adds data component to the graph
+     */
+    addDataComponentToGraph = (category : Eagle.Category, location : {x: number, y:number}) : Node => {
+        // select the correct data component based on the category
+        var templateNode : Node;
+        for (var i = 0 ; i < Eagle.dataNodes.length ; i++){
+            if (Eagle.dataNodes[i].getCategory() === category){
+                templateNode = Eagle.dataNodes[i];
+            }
+        }
+
+        // error if we could not find a node with the correct category in the dataNodes list
+        if (templateNode === null){
+            console.error("Could not find node with category", category, "in the dataNodes list");
+            return null;
+        }
+
+        // clone the template node, set position and add to logicalGraph
+        var newNode: Node = templateNode.clone();
+        newNode.setKey(Utils.newKey(this.getNodes()));
+        newNode.setPosition(location.x, location.y);
+        this.nodes.push(newNode);
+
+        return newNode;
+    }
+
+    findNodeByKey = (key : number) : Node => {
+        for (var i = this.nodes.length - 1; i >= 0 ; i--){
+            if (this.nodes[i].getKey() === key){
+                return this.nodes[i];
+            }
+        }
+        return null;
+    }
+
+    removeNodeByKey = (key : number) : void => {
+        // delete edges that start from or end at this node
+        for (var i = this.edges.length - 1 ; i >= 0; i--){
+            var edge : Edge = this.edges[i];
+            if (edge.getSrcNodeKey() === key || edge.getDestNodeKey() === key){
+                this.edges.splice(i, 1);
+            }
+        }
+
+        // delete the node
+        for (var i = this.nodes.length - 1; i >= 0 ; i--){
+            if (this.nodes[i].getKey() === key){
+                this.nodes.splice(i, 1);
+            }
+        }
+    }
+
+    addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, callback : (edge: Edge) => void) : void => {
+        // check if edge is connecting two application components, if so, we should insert a data component (of type chosen by user)
+        var srcNode : Node = this.findNodeByKey(srcNodeKey);
+        var destNode : Node = this.findNodeByKey(destNodeKey);
+
+        var srcPort : Port = srcNode.findPortById(srcPortId);
+        var destPort : Port = destNode.findPortById(destPortId);
+
+        var edgeConnectsTwoApplications : boolean =
+            (srcNode.getCategoryType() === Eagle.CategoryType.Application || srcNode.getCategoryType() === Eagle.CategoryType.Group) &&
+            (destNode.getCategoryType() === Eagle.CategoryType.Application || destNode.getCategoryType() === Eagle.CategoryType.Group);
+
+        var twoEventPorts : boolean = srcPort.isEventPort() && destPort.isEventPort();
+
+        // if edge DOES NOT connect two applications, process normally
+        if (!edgeConnectsTwoApplications || twoEventPorts){
+            var edge : Edge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType);
+            this.edges.push(edge);
+            if (callback !== null) callback(edge);
+            return;
+        }
+
+        // calculate a position for a new data component, halfway between the srcPort and destPort
+        var dataComponentPosition = {
+            x: (srcNode.findNodePortPosition(srcPortId).x + destNode.findNodePortPosition(destPortId).x) / 2.0,
+            y: (srcNode.findNodePortPosition(srcPortId).y + destNode.findNodePortPosition(destPortId).y) / 2.0
+        };
+
+        // if edge DOES connect two applications, insert data component (of type chosen by user)
+        this.addDataComponentDialog((category : string) : void => {
+            if (category !== "") {
+                // Add a data component to the graph.
+                var newNode : Node = this.addDataComponentToGraph(category, dataComponentPosition);
+                var newNodeKey : number = newNode.getKey();
+
+                // set name of new node
+                newNode.setName(dataType);
+
+                // add input port and output port for dataType (if they don't exist)
+                if (!newNode.hasPortWithName(dataType, true, false)){
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType), true, false);
+                }
+                if (!newNode.hasPortWithName(dataType, false, false)){
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType), false, false);
+                }
+
+                // set the parent of the new node
+                if (srcNode.getParentKey() === destNode.getParentKey()){
+                    newNode.setParentKey(srcNode.getParentKey());
+                } else {
+                    // if source node is a child of dest node, make the new node a child too
+                    if (srcNode.getParentKey() === destNode.getKey()){
+                        newNode.setParentKey(destNode.getKey());
+                    }
+
+                    // if dest node is a child of source node, make the new node a child too
+                    if (destNode.getParentKey() === srcNode.getKey()){
+                        newNode.setParentKey(srcNode.getKey());
+                    }
+                }
+
+                // get references to input port and output port
+                var newInputPortId : string = newNode.findPortByName(dataType, true, false).getId();
+                var newOutputPortId : string = newNode.findPortByName(dataType, false, false).getId();
+
+                // create TWO edges, one from src to data component, one from data component to dest
+                var firstEdge : Edge = new Edge(srcNodeKey, srcPortId, newNodeKey, newInputPortId, dataType);
+                var secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNodeKey, destPortId, dataType);
+
+                this.edges.push(firstEdge);
+                this.edges.push(secondEdge);
+
+                // reply with one of the edges
+                if (callback !== null) callback(firstEdge);
+            }
+        });
+    }
+
+    findEdgeById = (id: string) : Edge => {
+        for (var i = this.edges.length - 1; i >= 0 ; i--){
+            if (this.edges[i].getId() === id){
+                return this.edges[i];
+            }
+        }
+        return null;
+    }
+
+    removeEdgeById = (id: string) : void => {
+        for (var i = this.edges.length - 1; i >= 0 ; i--){
+            if (this.edges[i].getId() === id){
+                this.edges.splice(i, 1);
+            }
+        }
+    }
+
+    portIsLinked = (nodeKey : number, portId : string) : boolean => {
+        for (var i = 0 ; i < this.edges.length; i++){
+            var edge : Edge = this.edges[i];
+
+            if (edge.getSrcNodeKey() === nodeKey && edge.getSrcPortId() === portId ||
+                edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
+                return true;
+            }
+        }
+
+        return false;
+    }
+}

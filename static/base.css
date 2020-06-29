@@ -1,0 +1,261 @@
+#graphArea {
+    /*background-color: rgb(222,222,222);*/
+    height: calc(100% - 56px);
+    position: absolute;
+    bottom: 0px;
+
+    overflow: hidden;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+#graphArea #filenameArea {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    text-align: center;
+    pointer-events: none;
+}
+
+#graphArea #filenameArea #filename {
+    display: inline-block;
+}
+
+.navbar-light .navbar-brand {
+    color: rgba(230, 230, 230, 0.9);
+}
+
+.navbar-light .navbar-brand:hover {
+    color: rgb(255, 255, 255);
+}
+
+.navbar-light .version-number {
+    color: rgba(230, 230, 230, 0.9);
+    font-size: 1.25rem;
+    margin-right: 0.6rem;
+}
+
+.rightWindow {
+    background-color: rgba(202, 202, 202, 0.75);
+    z-index: 2;
+    position:absolute;
+    top: 0px;
+    right: -300px;
+    height: 100%;
+    transition: right 0.25s linear;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    padding-left: 4px;
+    padding-right: 4px;
+    width: 300px;
+}
+
+.rightWindow.show {
+    right: 0px;
+}
+
+.rightWindowDisplay {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.rightWindow .input-group-prepend span.input-group-text {
+    min-width: 140px;
+}
+
+.rightWindow .rightWindowHandle {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    top: 0px;
+    left: -48px;
+    background-color: rgba(202, 202, 202, 0.75);
+    z-index: 2;
+    text-align: center;
+    line-height: 48px;
+    border-bottom-left-radius: 0.5rem;
+    border-top-left-radius: 0.5rem;
+    cursor: pointer;
+}
+
+.rightWindow .rightWindowHandle span i {
+    position: relative;
+    top: 5px;
+}
+
+.rightWindowSizeAdjuster {
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 8px;
+    position: absolute;
+    background-color: rgba(0,0,0,0);
+    cursor: col-resize;
+}
+
+.leftWindow {
+    background-color: rgba(202, 202, 202, 0.75);
+    z-index: 100;
+    position: absolute;
+    top: 0px;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    transition: left 0.25s linear;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.leftWindow.show {
+    left: 0px;
+}
+
+.leftWindowDisplay {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.leftWindowDisplay span.input-group-text{
+    color: white;
+}
+
+#paletteDiv {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.leftWindow .leftWindowHandle {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    top: 0px;
+    right: -48px;
+    background-color: rgba(202, 202, 202, 0.75);
+    z-index: 2;
+    text-align: center;
+    line-height: 48px;
+    border-bottom-right-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    cursor: pointer;
+}
+
+.leftWindow .leftWindowHandle span i {
+    position: relative;
+    top: 5px;
+}
+
+.leftWindowSizeAdjuster {
+    top: 0px;
+    right: 0px;
+    height: 100%;
+    width: 8px;
+    position: absolute;
+    background-color: rgba(0,0,0,0);
+    cursor: col-resize;
+}
+
+#graphArea #logicalGraphParent {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+#logicalGraphParent > div {
+    width: 100%;
+    height: 100%;
+}
+
+#logicalGraphDiv {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#logicalGraphD3Div {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+}
+
+#paletteD3Div {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #dddddd;
+}
+
+.navbar-btn i.material-icons.md-18 {
+    position: relative;
+    top: 3px;
+}
+
+#repositoryList ul.repositories {
+    list-style-type: none;
+    padding: 0px;
+    color:black;
+}
+
+#repositoryList ul.repositories a{
+    /*color:#f8f9fa;*/
+}
+
+#repositoryList ul.files {
+    list-style-type: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow:  hidden;
+}
+
+#repositoryList ul.folders {
+    list-style-type: none;
+}
+
+#repositoryList ul.repositories i.material-icons.md-18 {
+    position: relative;
+    top: 4px;
+}
+
+#nodeList ul.nodes {
+    list-style-type: none;
+}
+
+.rightWindow h5 i.material-icons {
+    position: relative;
+    top: 5px;
+}
+
+.rightWindow i.material-icons.interactive {
+    cursor: pointer;
+}
+
+.rightWindow button i.material-icons.md-18 {
+    position: relative;
+    top: 2px;
+}
+
+.btn-outline-secondary {
+    border-color: #dadada;
+    color:white;
+}
+
+.bg-light{
+    background: #004085 !important;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.55);
+}
+.navbar-light .navbar-nav .nav-link:focus, .navbar-light .navbar-nav .nav-link:hover {
+    color: rgb(255, 255, 255);
+}
+
+.ports-row h5 {
+    margin-top: 5px;
+}

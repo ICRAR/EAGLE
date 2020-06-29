@@ -1,0 +1,149 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+
+    <a class="navbar-brand" href="">
+        <img src="static/assets/img/favicon.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        EAGLE
+    </a>
+
+    <div class="version-number">
+        <span>{{version}}</span>
+    </div>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <!-- ko if: isPaletteEditorModeEnabled() -->
+            <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
+                <li class="nav-item">
+                    <a class="nav-link" id="enterPaletteEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.PaletteEditor);}">
+                        <img src="static/assets/img/palette.png" width="24" height="24" class="d-inline-block align-top" alt="">
+                    </a>
+                </li>
+            </div>
+            <div style="display: none" data-bind="visible: userMode() === Eagle.UserMode.PaletteEditor">
+                <li class="nav-item">
+                    <a class="nav-link" href="" data-bind="click: function(){};">
+                        <img src="static/assets/img/palette_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
+                    </a>
+                </li>
+            </div>
+            <!-- /ko -->
+            <div style="display: none" data-bind="visible: userMode() !== Eagle.UserMode.LogicalGraphEditor">
+                <li class="nav-item">
+                    <a class="nav-link" id="enterLogicalGraphEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.LogicalGraphEditor);}">
+                        <img src="static/assets/img/editor.png" width="24" height="24" class="d-inline-block align-top" alt="">
+                    </a>
+                </li>
+            </div>
+            <div data-bind="visible: userMode() === Eagle.UserMode.LogicalGraphEditor">
+                <li class="nav-item">
+                    <a class="nav-link" href="" data-bind="click: function(){};">
+                        <img src="static/assets/img/editor_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
+                    </a>
+                </li>
+            </div>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    New
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
+                    <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: newLogicalGraph">Create New Graph</a>
+                    <!-- /ko -->
+                    <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
+                    <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette</a>
+                    <!-- /ko -->
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownGit" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Git Storage
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownGit">
+                    <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
+                    <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Graph)}">Save Graph</a>
+                    <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Graph)}">Save Graph As</a>
+                    <!-- /ko -->
+                    <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
+                    <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Palette)}">Save Palette</a>
+                    <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Palette)}">Save Palette As</a>
+                    <!-- /ko -->
+                    <a class="dropdown-item" id="addCustomRepository" href="#" data-bind="click: addCustomRepository">Add Custom Repo</a>
+                    <a class="dropdown-item" id="setGitHubAccessToken" href="#" data-bind="click: setGitHubAccessToken">Set GitHub Access Token</a>
+                    <a class="dropdown-item" id="setGitLabAccessToken" href="#" data-bind="click: setGitLabAccessToken">Set GitLab Access Token</a>
+                    <a class="dropdown-item" id="setTranslatorUrl" href="#" data-bind="click: setTranslatorUrl">Set Translator Url</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownDisk" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Local Disk Storage
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownDisk">
+                    <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
+                    <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load Graph</a>
+                    <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save Graph</a>
+                    <!-- /ko -->
+                    <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
+                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Palette</a>
+                    <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save Palette</a>
+                    <!-- /ko -->
+                </div>
+            </li>
+        </ul>
+
+        <ul class="navbar-nav ml-auto">
+            <form class="form-inline">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <!--
+                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom In" data-bind="click: zoomIn">
+                        <i class="material-icons md-18">zoom_in</i>
+                    </button>
+                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom Out" data-bind="click: zoomOut">
+                        <i class="material-icons md-18">zoom_out</i>
+                    </button>
+                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom To Fit" data-bind="click: zoomToFit">
+                        <i class="material-icons md-18">zoom_out_map</i>
+                    </button>
+                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Toggle Grid" data-bind="click: toggleGrid">
+                        <i class="material-icons md-18">grid_on</i>
+                    </button>
+                    -->
+                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Save as PNG" data-bind="click: saveAsPNG">
+                        <i class="material-icons md-18">image</i>
+                    </button>
+                </div>
+            </form>
+        </ul>
+
+        <ul class="navbar-nav ml-auto">
+            <form class="form-inline">
+                <div class="btn-group" role="group" aria-label="RightWindowModeSelect">
+                    <button class="btn btn-secondary navbar-btn" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.Repository);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.Repository}">
+                        Repositories
+                    </button>
+                    <!-- ko if: selectedNode() !== null -->
+                        <button class="btn btn-secondary navbar-btn" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.NodeInspector);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.NodeInspector}">
+                            Node
+                        </button>
+                    <!-- /ko -->
+                    <!-- ko if: selectedEdge() !== null -->
+                        <button class="btn btn-secondary navbar-btn" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.EdgeInspector);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.EdgeInspector}">
+                            Edge
+                        </button>
+                    <!-- /ko -->
+                    <!-- ko if: userMode() === Eagle.UserMode.LogicalGraphEditor -->
+                        <button class="btn btn-secondary navbar-btn" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.TranslationMenu);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.TranslationMenu}">
+                            Translation
+                        </button>
+                        <button class="btn btn-secondary navbar-btn" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.Hierarchy);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.Hierarchy}">
+                            Hierarchy
+                        </button>
+                    <!-- /ko -->
+                </div>
+            </form>
+        </ul>
+    </div>
+</nav>

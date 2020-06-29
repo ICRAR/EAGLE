@@ -1,0 +1,11 @@
+<div id="repositoryList" class="container">
+    <div class="row">
+        <div class="col">
+            <ul class="repositories" data-bind="foreach: repositories">
+                <li>
+                    <repository params="data: $data, parent: $parent"></repository>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

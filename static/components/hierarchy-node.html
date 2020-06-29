@@ -1,0 +1,23 @@
+<!--<span>hierarchy-node</span>-->
+<!-- ko if: $data.parentKey === parentKey -->
+    <li>
+        <span>&nbsp;</span>
+        <!-- ko if: expanded -->
+        <i class="material-icons md-18">expand_more</i>
+        <!-- /ko -->
+        <!-- ko ifnot: expanded -->
+        <i class="material-icons md-18">chevron_right</i>
+        <!-- /ko -->
+        <span>&nbsp;</span>
+        <span data-bind="text: name, click: select, style: {color: selected() ? 'white' : 'black', backgroundColor: selected() ? 'black' : 'transparent'}"></span>
+
+        <!-- ko if: $data.expanded -->
+            <ul class="nodes" data-bind="foreach: $root.logicalGraph().getNodes()">
+                <!--<li><span data-bind="text: parentKey + ' ' + key + ' ' + $parentContext.key + ' ' + $component.key"></span></li>-->
+                <!-- ko if: parentKey === $component.key -->
+                    <hierarchy-node params="data: $data, parentKey: key, select: $root.selectNodeInHierarchy"></hierarchy-node>
+                <!-- /ko -->
+            </ul>
+        <!-- /ko -->
+    </li>
+<!-- /ko -->

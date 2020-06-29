@@ -1,0 +1,236 @@
+<!-- Message Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messageModalTitle">Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="messageModalMessage">Message</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request User Input Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog" aria-labelledby="inputModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inputModalTitle">Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <p id="inputModalMessage">Message</p>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="inputModalInput">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request User Choice Modal -->
+<div class="modal fade" id="choiceModal" tabindex="-1" role="dialog" aria-labelledby="choiceModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="choiceModalTitle">Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <p id="choiceModalMessage">Message</p>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="choiceModalSelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="choiceModalStringRow">
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="choiceModalCustomChoiceText">Custom Choice</span>
+                                </div>
+                                <input type="text" class="form-control" aria-label="Custom Port Name" aria-describedby="choiceModalCustomChoiceText" id="choiceModalString">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request User Confirm Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalTitle">Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <p id="confirmModalMessage">Message</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="confirmModalNegativeButton" data-dismiss="modal"><span id="confirmModalNegativeAnswer">No</span></button>
+                <button type="button" class="btn btn-primary" id="confirmModalAffirmativeButton" data-dismiss="modal"><span id="confirmModalAffirmativeAnswer">Yes</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request User Git Commit Modal -->
+<div class="modal fade" id="gitCommitModal" tabindex="-1" role="dialog" aria-labelledby="gitCommitModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gitCommitModalTitle">Git Commit</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Repository Service:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="gitCommitModalRepositoryServiceSelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Repository Name:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="gitCommitModalRepositoryNameSelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>File Path:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="gitCommitModalFilePathInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>File Name:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="gitCommitModalFileNameInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Commit Message:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="gitCommitModalCommitMessageInput">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="gitCommitModalNegativeButton" data-dismiss="modal"><span id="gitCommitModalNegativeAnswer">Cancel</span></button>
+                <button type="button" class="btn btn-primary" id="gitCommitModalAffirmativeButton" data-dismiss="modal"><span id="gitCommitModalAffirmativeAnswer">Commit</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request User Custom Repository Modal -->
+<div class="modal fade" id="gitCustomRepositoryModal" tabindex="-1" role="dialog" aria-labelledby="gitCustomRepositoryModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gitCustomRepositoryModalTitle">Add Custom Git Repository</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Service:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="gitCustomRepositoryModalRepositoryServiceSelect">
+                                    <option>GitHub</option>
+                                    <option>GitLab</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Path:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryNameInput">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="gitCustomRepositoryModalNegativeButton" data-dismiss="modal"><span id="gitCustomRepositoryModalNegativeAnswer">Cancel</span></button>
+                <button type="button" class="btn btn-primary" id="gitCustomRepositoryModalAffirmativeButton" data-dismiss="modal"><span id="gitCustomRepositoryModalAffirmativeAnswer">Commit</span></button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "sourceMap": false,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es5",
+        "lib": ["es5", "es6", "dom"],
+        "allowJs": false
+    },
+    "files": [
+        "./updateGraph.ts"
+    ]
+}

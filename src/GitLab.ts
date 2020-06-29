@@ -1,0 +1,196 @@
+/*
+#
+#    ICRAR - International Centre for Radio Astronomy Research
+#    (c) UWA - The University of Western Australia, 2016
+#    Copyright by UWA (in the framework of the ICRAR)
+#    All rights reserved
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+#    MA 02111-1307  USA
+#
+*/
+
+import {Eagle} from './Eagle';
+import {Utils} from './Utils';
+import {Repository} from './Repository';
+import {RepositoryFolder} from './RepositoryFolder';
+import {RepositoryFile} from './RepositoryFile';
+
+export class GitLab {
+    /**
+     * Shows the repository list.
+     */
+    static loadRepoList(eagle : Eagle) : void {
+        Utils.httpPostJSON("/getGitLabRepositoryList", null, function(error : string, data: string){
+            if (error != null){
+                console.error(error);
+                return;
+            }
+
+            // remove all GitLab repos from the list of repositories
+            for (var i = eagle.repositories().length - 1 ; i >= 0 ; i--){
+                if (eagle.repositories()[i].service === Eagle.RepositoryService.GitLab)
+                eagle.repositories.splice(i, 1);
+            }
+
+            // add the repositories from the POST response
+            for (var i = 0 ; i < data.length ; i++){
+                eagle.repositories.push(new Repository(data[i], Eagle.RepositoryService.GitLab, true));
+            }
+
+            // search for custom repositories, and add them into the list.
+            for(var i = 0, len = localStorage.length; i < len; i++) {
+                var key = localStorage.key(i);
+                var keyExtension = key.substring(key.lastIndexOf('.') + 1);
+                if (keyExtension == "gitlab_repository") {
+                    // Add repository to the list.
+                    eagle.repositories.push(new Repository(localStorage.getItem(key), Eagle.RepositoryService.GitLab, false));
+                }
+            }
+        });
+    }
+
+    /**
+     * Returns the access token.
+     */
+    static getAccessToken() : string {
+        return localStorage[Utils.GITLAB_ACCESS_TOKEN_KEY];
+    }
+
+    /**
+     * Shows the remote files
+     */
+    static loadRepoContent(repository : Repository) : void {
+        var token = GitLab.getAccessToken();
+        if (token == undefined) {
+            Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
+            return;
+        }
+
+        // flag the repository as being fetched
+        repository.isFetching(true);
+
+        // Add parameters in json data.
+        var jsonData = {
+            repository: repository.name,
+            token: token,
+        };
+
+        Utils.httpPostJSON('/getGitLabFilesAll', jsonData, function(error:string, data:any){
+            repository.isFetching(false);
+
+            if (error != null){
+                console.error(error);
+                Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
+                return;
+            }
+
+            // flag the repository as fetched and expand by default
+            repository.fetched(true);
+            repository.expanded(true);
+
+            // delete current file list for this repository
+            repository.files.removeAll();
+            repository.folders.removeAll();
+
+            console.log("/getGitLabFiles reply", data, typeof data);
+
+            var fileNames : string[] = data[""];
+
+            // sort the fileNames
+            fileNames.sort(Repository.fileSortFunc);
+
+            // add files to repo
+            for (var i = 0 ; i < fileNames.length ; i++){
+                var fileName : string = fileNames[i];
+
+                // Show only the files with allowed extenstion.
+                if (!Utils.verifyFileExtension(fileName)) {
+                    continue;
+                }
+
+                repository.files.push(new RepositoryFile(repository, "", fileName));
+            }
+
+
+            // add folders to repo
+            for (var path in data){
+                // skip the root directory
+                if (path === "")
+                    continue;
+
+                repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
+            }
+        });
+    }
+
+    private static parseFolder = (repository : Repository, path : string, data : any) : RepositoryFolder => {
+        var folderName : string = path.substring(path.lastIndexOf('/') + 1);
+        var folder = new RepositoryFolder(folderName);
+
+        var fileNames : string[] = data[""];
+
+        // sort the fileNames
+        fileNames.sort(Repository.fileSortFunc);
+
+        // add files to repo
+        for (var i = 0 ; i < fileNames.length ; i++){
+            var fileName : string = fileNames[i];
+
+            // Show only the files with allowed extenstion.
+            if (!Utils.verifyFileExtension(fileName)) {
+                continue;
+            }
+
+            folder.files.push(new RepositoryFile(repository, path, fileName));
+        }
+
+        // add folders to repo
+        for (var subdir in data){
+            // skip the root directory
+            if (subdir === "")
+                continue;
+
+            folder.folders.push(GitLab.parseFolder(repository, subdir, data[subdir]));
+        }
+
+        return folder;
+    }
+
+    /**
+     * Gets the specified remote file from the server
+     * @param filePath File path.
+     */
+    static openRemoteFile(diagramRepository : string, repositoryService : Eagle.RepositoryService, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
+        var token = GitLab.getAccessToken();
+
+        if (token == undefined) {
+            Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");
+            return;
+        }
+
+        var fullFileName : string = Utils.joinPath(filePath, fileName);
+
+        // Add parameters in json data.
+        var jsonData = {
+            repositoryName: diagramRepository,
+            repositoryService: repositoryService,
+            token: token,
+            filename: fullFileName
+        };
+
+        Utils.httpPostJSON('/openRemoteGitlabFile', jsonData, callback);
+    }
+}

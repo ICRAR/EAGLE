@@ -1,0 +1,30 @@
+<div class="input-group mb-1">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="group-addon" data-bind="text: $data.text, attr: {title: $data.getDescriptionText()}" data-toggle="tooltip" data-html="true" data-placement="left"></span>
+    </div>
+
+    <!-- ko if: $data.type === Eagle.FieldType.Field -->
+        <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.selectionReadOnly(), attr: {id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedNode.valueHasMutated();}}">
+    <!-- /ko -->
+    <!-- ko if: $data.type === Eagle.FieldType.AppField -->
+        <!-- ko if: $data.input -->
+            <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.selectionReadOnly(), attr: {id: 'nodeInspectorInputAppFieldValue' + $index()}">
+        <!-- /ko -->
+        <!-- ko ifnot: $data.input -->
+            <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.selectionReadOnly(), attr: {id: 'nodeInspectorOutputAppFieldValue' + $index()}">
+        <!-- /ko -->
+    <!-- /ko -->
+
+    <div class="input-group-append">
+        <!-- ko if: $data.type === Eagle.FieldType.Field -->
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index()}">
+                <i class="material-icons md-18">remove</i>
+            </button>
+        <!-- /ko -->
+        <!-- ko if: $data.type === Eagle.FieldType.AppField -->
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeAppFieldByIndex($index(), $data.input);$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveAppField' + $index()}">
+                <i class="material-icons md-18">remove</i>
+            </button>
+        <!-- /ko -->
+    </div>
+</div>

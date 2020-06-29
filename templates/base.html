@@ -1,0 +1,132 @@
+<!DOCTYPE html> <!-- HTML5 document -->
+<html>
+
+<!--
+#
+#    ICRAR - International Centre for Radio Astronomy Research
+#    (c) UWA - The University of Western Australia, 2016
+#    Copyright by UWA (in the framework of the ICRAR)
+#    All rights reserved
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+#    MA 02111-1307  USA
+#
+//-->
+
+    <head>
+        <title id="tabTitle" data-bind="text: getTabTitle"></title>
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="static/base.css">
+        <link rel="stylesheet" href="static/svg.css">
+        <link rel="stylesheet" href="static/fonts.css">
+
+        <link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon">
+
+        <script src="static/externals/require.js"></script>
+        <script src="static/built/require-config.js"></script>
+        <script>
+            require(["bootstrap"]);
+            require(["bootstrap-notify"]);
+            require(["bindingHandlers/readonly"]);
+            require(["bindingHandlers/disabled"]);
+            require(["bindingHandlers/graphRenderer"]);
+            require(["bindingHandlers/paletteRenderer"]);
+            require(["bindingHandlers/nodeDataProperty"]);
+            require(["components"]);
+            require(["main"]);
+        </script>
+    </head>
+
+    <body>
+        <!-- hidden area -->
+        <div style="display:none;">
+            <input id="uploadedGraphFile" class="fileSelector" type="file" name="file" data-bind="event: { change: uploadGraphFile }">
+            <input id="uploadedPaletteFile" class="fileSelector" type="file" name="file" data-bind="event: { change: function(){uploadPaletteFile();} }">
+        </div>
+
+        {% include 'navbar.html' %}
+
+        <div class="container-fluid" id="graphArea" data-bind="event: { dragover: sideWindowAdjust }">
+            <div class="leftWindow" data-bind="style: { width: leftWindowWidth(), left: leftWindowShown() ? 0 : -leftWindowWidth()}">
+                <div class="leftWindowHandle" data-bind="click: toggleLeftWindow">
+                    <span style="display: none" data-bind="visible: leftWindowShown()">
+                        <i class="material-icons">arrow_back</i>
+                    </span>
+                    <span data-bind="visible: !leftWindowShown()">
+                        <i class="material-icons">arrow_forward</i>
+                    </span>
+                </div>
+
+                <div class="leftWindowDisplay palette" data-bind="visible: leftWindowMode() === Eagle.LeftWindowMode.Palette">
+                    {% include 'palette.html' %}
+                </div>
+                <div class="leftWindowDisplay templatePalette" data-bind="visible: leftWindowMode() === Eagle.LeftWindowMode.TemplatePalette">
+                    {% include 'templatePalette.html' %}
+                </div>
+
+                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart }">
+                </div>
+            </div>
+
+            <div id="logicalGraphParent">
+                <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
+                    <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
+                    </div>
+                </div>
+                <div data-bind="visible: userMode() === Eagle.UserMode.PaletteEditor">
+                    <div id="paletteD3Div" data-bind="paletteRenderer: $root.palette">
+                    </div>
+                </div>
+            </div>
+
+            <div id="filenameArea">
+                <span id="filename" data-bind="text: repositoryFileName"></span>
+            </div>
+
+            <div class="rightWindow" data-bind="style: { width: rightWindowWidth(), right: rightWindowShown() ? 0 : -rightWindowWidth()}">
+                <div class="rightWindowHandle" data-bind="click: toggleRightWindow">
+                    <span data-bind="visible: rightWindowShown()">
+                        <i class="material-icons">arrow_forward</i>
+                    </span>
+                    <span style="display: none" data-bind="visible: !rightWindowShown()">
+                        <i class="material-icons">arrow_back</i>
+                    </span>
+                </div>
+
+                <div class="rightWindowDisplay repository" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.Repository">
+                    {% include 'repositories.html' %}
+                </div>
+                <div class="rightWindowDisplay nodeInspector" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.NodeInspector">
+                    {% include 'node_inspector.html' %}
+                </div>
+                <div class="rightWindowDisplay edgeInspector" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.EdgeInspector">
+                    {% include 'edge_inspector.html' %}
+                </div>
+                <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.TranslationMenu">
+                    {% include 'translation_menu.html' %}
+                </div>
+                <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.Hierarchy">
+                    {% include 'hierarchy.html' %}
+                </div>
+
+                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart }">
+                </div>
+            </div>
+        </div>
+
+        {% include 'modals.html' %}
+    </body>
+</html>

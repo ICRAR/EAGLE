@@ -1,0 +1,18 @@
+<div class="card">
+    <h5 class="card-header">
+        <i class="material-icons">arrow_back</i>
+        <span>Input Ports</span>
+    </h5>
+    <div class="card-body">
+
+        <!-- ko foreach: selectedNode().getInputPorts() -->
+        <port params="id: $data.getId(), name: $data.getName(), multiplicity: $root.selectedNode().getInputMultiplicity(), isEventPort: $data.isEventPort(), input: true, local: false"></port>
+        <!-- /ko -->
+
+        <!-- ko ifnot: $root.selectionReadOnly -->
+        <button class="btn btn-secondary btn-block" id="nodeInspectorAddInputPort" type="button" data-bind="click: $root.addInputPortHTML">
+            <i class="material-icons md-18">add</i>
+        </button>
+        <!-- /ko -->
+    </div>
+</div>

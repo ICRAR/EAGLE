@@ -1,0 +1,5 @@
+<ul class="nodes" data-bind="foreach: $root.logicalGraph().nodes">
+    <!-- ko if: $data.parentKey === null -->
+        <hierarchy-node params="data: $data, parentKey: null, select: $root.selectNodeInHierarchy"></hierarchy-node>
+    <!-- /ko -->
+</ul>

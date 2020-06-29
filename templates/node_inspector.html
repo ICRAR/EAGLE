@@ -1,0 +1,56 @@
+<div id="nodeInspector" class="container">
+    <!-- ko if: selectedNode() != null -->
+
+        {% include 'node_inspector_attributes.html' %}
+
+        <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
+        <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
+        {% include 'node_inspector_description.html' %}
+        <!-- /ko -->
+        <!-- /ko -->
+
+        <!-- node component parameters list -->
+        <!-- ko if: nodeHasDataComponentParams() -->
+        {% include 'node_inspector_parameters.html' %}
+        <!-- /ko -->
+
+        <!-- input application type (scatter, gather and mkn only) -->
+        <!-- ko if: selectedNode().isGather() || selectedNode().isScatter() || selectedNode().isMKN() -->
+        {% include 'node_inspector_input_application.html' %}
+        <!-- /ko -->
+
+        <!-- output application type (mkn only) -->
+        <!-- ko if: selectedNode().isMKN() -->
+        {% include 'node_inspector_output_application.html' %}
+        <!-- /ko -->
+
+        <!-- exit application type (loop only) -->
+        <!-- ko if: selectedNode().isLoop() -->
+        {% include 'node_inspector_exit_application.html' %}
+        <!-- /ko -->
+
+        <!-- input ports area -->
+        <!-- ko if: selectedNode().canHaveInputs() -->
+        {% include 'node_inspector_inputs.html' %}
+        <!-- /ko -->
+
+        <!-- output ports area -->
+        <!-- ko if: selectedNode().canHaveOutputs() -->
+        {% include 'node_inspector_outputs.html' %}
+        <!-- /ko -->
+
+        <!-- ko if: selectedNode().getCategory() === "Description" -->
+        {% include 'node_inspector_graph_description.html' %}
+        <!-- /ko -->
+
+        <!-- ko if: selectedNode().getCategory() === "Comment" -->
+        {% include 'node_inspector_graph_comment.html' %}
+        <!-- /ko -->
+
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-danger btn-block" data-bind="click: deleteSelectedNode">Delete Node</button>
+            </div>
+        </div>
+    <!-- /ko -->
+</div>

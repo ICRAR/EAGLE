@@ -1,0 +1,33 @@
+{
+  "name": "eagle",
+  "version": "1.0.0",
+  "description": "The Advanced Graph Language is a visual programming language used to develop\r complex processing pipelines or workflows. EAGLE is the visual editor for this\r environment. EAGLE is coupled to the [DALiuGE](http://github.com/ICRAR/daliuge)\r execution framework, which also provides the actual translation and execution\r of the workflows.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ICRAR/EAGLE.git"
+  },
+  "author": "",
+  "license": "LGPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/ICRAR/EAGLE/issues"
+  },
+  "homepage": "https://github.com/ICRAR/EAGLE#readme",
+  "dependencies": {
+    "@types/bootstrap": "^4.3.1",
+    "@types/bootstrap-notify": "^3.1.34",
+    "@types/d3": "^5.7.2",
+    "@types/jquery": "^3.3.38",
+    "@types/node": "^14.0.11",
+    "bootstrap": "^4.3.1",
+    "easy-pie-chart": "^2.1.7",
+    "jquery": "^3.5.1",
+    "knockout": "^3.5.1"
+  }
+}

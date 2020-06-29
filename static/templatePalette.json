@@ -1,0 +1,506 @@
+{
+    "class": "go.GraphLinksModel",
+    "modelData": {
+        "fileType": "templatePalette"
+    },
+    "nodeDataArray": [
+        {
+            "category": "Start",
+            "outputPorts": [],
+            "isData": false,
+            "fields": [],
+            "canHaveOutputs": true,
+            "canHaveInputs": false,
+            "isGroup": false,
+            "key": -1,
+            "text": "Start",
+            "description": "The starting point for workflow execution",
+            "categoryType": "ControlComponent",
+            "inputPorts": []
+        },
+        {
+            "category": "End",
+            "outputPorts": [],
+            "isData": false,
+            "fields": [],
+            "canHaveOutputs": false,
+            "canHaveInputs": true,
+            "isGroup": false,
+            "key": -10,
+            "text": "End",
+            "description": "The end of workflow execution",
+            "categoryType": "ControlComponent",
+            "inputPorts": []
+        },
+        {
+            "category": "BashShellApp",
+            "outputPorts": [],
+            "isData": false,
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": "5"
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": "1"
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": "0"
+            },{
+                "text": "Arg01",
+                "name": "Arg01",
+                "value": "",
+                "description": "The command line to be executed"
+            }],
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "isGroup": false,
+            "key": -3,
+            "text": "Bash Shell App",
+            "description": "An application component run within the Bash Shell",
+            "categoryType": "Application",
+            "inputPorts": []
+        },
+        {
+            "category": "DynlibApp",
+            "outputPorts": [],
+            "isData": false,
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": "5"
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": "1"
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": "0"
+            }, {
+                "text": "Library path",
+                "name": "libpath",
+                "value": ""
+            }],
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "isGroup": false,
+            "key": -13,
+            "text": "Dynlib App",
+            "description": "An application component run from a dynamic library",
+            "categoryType": "Application",
+            "inputPorts": []
+        },
+        {
+            "category": "mpi",
+            "outputPorts": [],
+            "isData": false,
+            "fields": [{
+                "text": "Group end",
+                "name": "group_end",
+                "value": "0"
+            }, {
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": "5"
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": "1"
+            }, {
+                "text": "Num procs",
+                "name": "num_of_procs",
+                "value": "4"
+            }],
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "isGroup": false,
+            "key": -9,
+            "text": "MPI",
+            "description":"An application component using the Message Passing Interface (MPI)",
+            "categoryType": "Application",
+            "inputPorts": []
+        },
+        {
+            "category": "docker",
+            "outputPorts": [],
+            "isData": false,
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": "5"
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": "1"
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": "0"
+            }, {
+                "text": "Image",
+                "name": "image",
+                "value": ""
+            }, {
+                "text": "Command",
+                "name": "command",
+                "value": ""
+            }, {
+                "text": "User",
+                "name": "user",
+                "value": ""
+            }, {
+                "text": "Ensure User And Switch",
+                "name": "ensureUserAndSwitch",
+                "value": "0"
+            }, {
+                "text": "Remove Container",
+                "name": "removeContainer",
+                "value": "1"
+            }, {
+                "text": "Additional Bindings",
+                "name": "additionalBindings",
+                "value": ""
+            }],
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "isGroup": false,
+            "key": -11,
+            "text": "Docker",
+            "description":"An application component run from a Docker image",
+            "categoryType": "Application",
+            "inputPorts": []
+        },
+        {
+            "category": "Component",
+            "isData": false,
+            "outputPorts": [],
+            "text": "Python App",
+            "description": "An application component in the form of a Python app",
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "isGroup": false,
+            "key": -2,
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": "5"
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": "1"
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": "0"
+            }, {
+                "text": "Appclass",
+                "name": "appclass",
+                "value": "test.graphsRepository"
+            }],
+            "categoryType": "Application",
+            "inputPorts": []
+        },
+        {
+            "category": "memory",
+            "outputPorts": [],
+            "isData": true,
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": "5"
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": "0"
+            }],
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "shape": "Card",
+            "isGroup": false,
+            "key": -4,
+            "text": "Memory",
+            "categoryType": "Data",
+            "inputPorts": []
+        },
+        {
+            "category": "file",
+            "outputPorts": [],
+            "isData": true,
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": "5"
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": "0"
+            }, {
+                "text": "Check file path exists",
+                "name": "check_filepath_exists",
+                "value": "1"
+            }, {
+                "text": "File path",
+                "name": "filepath",
+                "value": ""
+            }, {
+                "text": "Directory name",
+                "name": "dirname",
+                "value": ""
+            }],
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "shape": "Card",
+            "isGroup": false,
+            "key": -5,
+            "text": "File",
+            "categoryType": "Data",
+            "inputPorts": []
+        },
+        {
+            "category": "s3",
+            "outputPorts": [],
+            "isData": true,
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": "5"
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": "0"
+            }],
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "shape": "Card",
+            "isGroup": false,
+            "key": -6,
+            "text": "S3",
+            "categoryType": "Data",
+            "inputPorts": []
+        },
+        {
+            "category": "ngas",
+            "outputPorts": [],
+            "isData": true,
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": "5"
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": "0"
+            }],
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "shape": "Card",
+            "isGroup": false,
+            "key": -7,
+            "text": "NGAS",
+            "categoryType": "Data",
+            "inputPorts": []
+        },
+        {
+            "category": "GroupBy",
+            "isData": false,
+            "text": "Group By",
+            "description": "Placeholder 'group by' description",
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "inputApplication": "",
+            "inputPorts": [],
+            "inputLocalPorts": [],
+            "outputApplication": "",
+            "outputPorts": [],
+            "outputLocalPorts": [],
+            "isGroup": true,
+            "key": -16,
+            "fields": [{
+                "text": "Group key",
+                "name": "group_key",
+                "value": "None"
+            }, {
+                "text": "Group axis",
+                "name": "group_axis",
+                "value": "frequency"
+            }],
+            "categoryType": "GroupComponent"
+        },
+        {
+            "category": "Gather",
+            "isData": false,
+            "text": "Gather",
+            "description": "Placeholder 'gather' description",
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "inputApplication": "",
+            "inputPorts": [],
+            "inputLocalPorts": [],
+            "outputApplication": "",
+            "outputPorts": [],
+            "outputLocalPorts": [],
+            "isGroup": true,
+            "key": -15,
+            "fields": [{
+                "text": "Number of inputs",
+                "name": "num_of_inputs",
+                "value": "2"
+            }, {
+                "text": "Gather axis",
+                "name": "gather_axis",
+                "value": "frequency"
+            }],
+            "categoryType": "GroupComponent"
+        },
+        {
+            "category": "Scatter",
+            "isData": false,
+            "text": "Scatter",
+            "description": "Placeholder 'scatter' description",
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "inputApplication": "",
+            "inputPorts": [],
+            "inputLocalPorts": [],
+            "outputApplication": "",
+            "outputPorts": [],
+            "outputLocalPorts": [],
+            "isGroup": true,
+            "key": -14,
+            "fields": [{
+                "text": "Number of copies",
+                "name": "num_of_copies",
+                "value": "4"
+            }, {
+                "text": "Scatter axis",
+                "name": "scatter_axis",
+                "value": "time"
+            }],
+            "categoryType": "GroupComponent"
+        },
+        {
+            "category": "MKN",
+            "isData": false,
+            "text": "MKN",
+            "description": "Placeholder 'mkn' description",
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "inputApplication": "",
+            "inputPorts": [],
+            "inputLocalPorts": [],
+            "outputApplication": "",
+            "outputPorts": [],
+            "outputLocalPorts": [],
+            "isGroup": true,
+            "key": -18,
+            "fields": [{
+                "text": "M",
+                "name": "m",
+                "value": "1"
+            }, {
+                "text": "K",
+                "name": "k",
+                "value": "1"
+            }, {
+                "text": "N",
+                "name": "n",
+                "value": "1"
+            }],
+            "categoryType": "GroupComponent"
+        },
+        {
+            "category": "Loop",
+            "isData": false,
+            "text": "Loop",
+            "description": "Placeholder 'loop' description",
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "inputApplication": "",
+            "inputPorts": [],
+            "inputLocalPorts": [],
+            "outputApplication": "",
+            "outputPorts": [],
+            "outputLocalPorts": [],
+            "isGroup": true,
+            "key": -17,
+            "fields": [{
+                "text": "Number loops",
+                "name": "num_of_iter",
+                "value": "5"
+            }],
+            "categoryType": "GroupComponent"
+        },
+        {
+            "category": "Service",
+            "text": "Service",
+            "description": "An external service (e.g. a database)",
+            "canHaveOutputs": false,
+            "canHaveInputs": false,
+            "inputApplication": "",
+            "inputPorts": [],
+            "inputLocalPorts": [],
+            "outputApplication": "",
+            "outputPorts": [],
+            "outputLocalPorts": [],
+            "isGroup": false,
+            "isData": false,
+            "key": -19,
+            "fields": [],
+            "categoryType": "Other"
+        },
+        {
+            "category": "Comment",
+            "outputPorts": [],
+            "isData": false,
+            "fields": [],
+            "canHaveOutputs": false,
+            "canHaveInputs": false,
+            "shape": "File",
+            "isGroup": false,
+            "key": -12,
+            "text": "Comment",
+            "description": "A node that places a comment in the graph. The comment can be used to communicate important information or intention",
+            "categoryType": "Other",
+            "inputPorts": []
+        },
+        {
+            "category": "Description",
+            "outputPorts": [],
+            "isData": false,
+            "fields": [{
+                "text": "Description",
+                "value": ""
+            }],
+            "canHaveOutputs": false,
+            "canHaveInputs": false,
+            "isGroup": false,
+            "key": -21,
+            "text": "Description",
+            "description": "A node that places a description in the graph. The description should be used to communicate the purpose of the graph",
+            "categoryType": "Other",
+            "inputPorts": []
+        },
+        {
+            "category": "ExclusiveForceNode",
+            "isData": false,
+            "text": "Exclusive Force Node",
+            "description": "A group that completely specifies the computation on a single node. All child components must be deployed to a single node, and no other components can be deployed to the same node.",
+            "canHaveOutputs": false,
+            "canHaveInputs": false,
+            "inputApplication": "",
+            "inputPorts": [],
+            "inputLocalPorts": [],
+            "outputApplication": "",
+            "outputPorts": [],
+            "outputLocalPorts": [],
+            "isGroup": true,
+            "key": -19,
+            "fields": [],
+            "categoryType": "Control"
+        }
+    ],
+    "linkDataArray": []
+}

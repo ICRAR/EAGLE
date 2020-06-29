@@ -1,0 +1,25 @@
+<span>&nbsp;</span>
+<!-- ko if: expanded -->
+<i class="material-icons md-18">folder_open</i>
+<!-- /ko -->
+<!-- ko ifnot: expanded -->
+<i class="material-icons md-18">folder</i>
+<!-- /ko -->
+<span>&nbsp;</span>
+<a href="#" data-bind="attr: {id: htmlId}, click: $root.selectFolder">
+    <span data-bind="text: $data.name"></span>
+</a>
+<!-- ko if: expanded -->
+<ul class="folders" data-bind="foreach: folders">
+    <li>
+        <repository-folder params="data: $data"></repository-folder>
+    </li>
+</ul>
+<ul class="files" data-bind="foreach: files">
+    <!-- ko if: $root.fileIsVisible($data) -->
+        <li>
+            <repository-file params="data: $data"></repository-file>
+        </li>
+    <!-- /ko -->
+</ul>
+<!-- /ko -->

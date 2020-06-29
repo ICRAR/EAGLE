@@ -1,0 +1,13 @@
+<span>&nbsp;</span>
+<!-- ko if: isFetching -->
+<div class="spinner-border spinner-border-sm" role="status">
+    <span class="sr-only">Loading...</span>
+</div>
+<!-- /ko -->
+<!-- ko ifnot: isFetching -->
+<i class="material-icons md-18" data-bind="text: getIconUrl"></i>
+<!-- /ko -->
+<span>&nbsp;</span>
+<a href="#" data-bind="click: $root.selectFile, attr: {id: htmlId}">
+    <span data-bind="text: $data.name"></span>
+</a>

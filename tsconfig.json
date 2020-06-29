@@ -1,0 +1,41 @@
+{
+    "compilerOptions": {
+        "outDir": "./static/built",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "module": "umd",
+        "moduleResolution": "node",
+        "target": "es5",
+        "lib": ["es5", "es6", "dom"],
+        "allowJs": false,
+        "types": ["jquery", "bootstrap", "bootstrap-notify"]
+    },
+    "files": [
+        "./src/require-config.ts",
+        "./src/bindingHandlers/readonly.ts",
+        "./src/bindingHandlers/disabled.ts",
+        "./src/bindingHandlers/graphRenderer.ts",
+        "./src/bindingHandlers/paletteRenderer.ts",
+        "./src/bindingHandlers/nodeDataProperty.ts",
+        "./src/components.ts",
+        "./src/main.ts",
+        "./src/Config.ts",
+        "./src/Eagle.ts",
+        "./src/GitHub.ts",
+        "./src/GitLab.ts",
+        "./src/Repository.ts",
+        "./src/RepositoryFile.ts",
+        "./src/RepositoryFolder.ts",
+        "./src/Translator.ts",
+        "./src/Utils.ts",
+        "./src/GraphUpdater.ts",
+        "./src/LogicalGraph.ts",
+        "./src/Palette.ts",
+        "./src/Node.ts",
+        "./src/Field.ts",
+        "./src/Edge.ts",
+        "./src/Port.ts",
+        "./src/FileInfo.ts"
+    ]
+}

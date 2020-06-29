@@ -1,0 +1,27 @@
+<div class="container">
+    <!-- ko if: palette() != null -->
+        <!-- ko foreach: palette().nodes -->
+            <!-- ko if: $data.getCategoryType() !== Eagle.CategoryType.Data -->
+                <div class="row">
+                    <div class="col">
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" data-bind="style: {'background-color': $data.getColor()}">
+                                    <i class="material-icons" data-bind="text: $data.getIcon()"></i>
+                                </span>
+                            </div>
+
+                            <input type="text" class="form-control" readonly data-bind="value: $root.palette().nodes[$index()].name">
+
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $root.addNodeToLogicalGraph, attr: {id: 'addPaletteNode' + $index(), title: $data.getHelpHTML()}" data-toggle="tooltip" data-html="true" data-placement="right">
+                                    <i class="material-icons md-18">add</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <!-- /ko -->
+        <!-- /ko -->
+    <!-- /ko -->
+</div>

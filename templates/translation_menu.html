@@ -1,0 +1,228 @@
+<div id="translationMenu" class="container">
+
+    <div class="accordion" id="accordionExample">
+
+        <div class="card">
+            <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                <h5>Algorithm 0 (none)</h5>
+            </div>
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body">
+                    <p class="card-text">Base PGT Generation</p>
+                    <button id="alg0PGT" class="btn btn-primary" data-bind="click: function(){genPGT(0);}">Generate PGT</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingTwo" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                <h5>Algorithm 1 (metis)</h5>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                <div class="card-body">
+                    <p class="card-text">Minimise data movement while subject to load balancing (direct graph partitioning)</p>
+
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg1-islands">No. of islands</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-islands" data-bind="value: translator().numberOfIslands">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg1-nodes">No. of nodes</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-nodes" data-bind="value: translator().numberOfNodes">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg1-partition-label">Partition label</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-partition-label" data-bind="value: translator().partitionLabel">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg1-load-balancing">Load balancing</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-load-balancing" data-bind="value: translator().loadBalancing">
+                        <div class="input-group-append">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+
+                    <p class="card-text"></p>
+
+                    <button id="alg1PGT" class="btn btn-primary" data-bind="click: function(){genPGT(1);}">Generate PGT</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingThree" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                <h5>Algorithm 2 (mysarkar)</h5>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+                <div class="card-body">
+                    <p class="card-text">Minimise execution time whilst subject to each partition's degree of parallelism (DoP) (edgezeroing)</p>
+
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg2-islands">No. of islands</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg2-islands" data-bind="value: translator().numberOfIslands">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg2-partition-label">Partition label</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg2-partition-label" data-bind="value: translator().partitionLabel">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg2-max-cpus-per-partition">Max CPUs per partition</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg2-max-cpus-per-partition" data-bind="value: translator().maxCPUsPerPartition">
+                    </div>
+
+                    <p class="card-text"></p>
+
+                    <button id="alg2PGT" class="btn btn-primary" data-bind="click: function(){genPGT(2);}">Generate PGT</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingFour" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+                <h5>Algorithm 3 (min_num_parts)</h5>
+            </div>
+            <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionExample">
+                <div class="card-body">
+                    <p class="card-text">Minimise number of partitions whilst subject to completion deadline (lookahead)</p>
+
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg3-islands">No. of islands</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-islands" data-bind="value: translator().numberOfIslands">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg3-greediness">Greediness of deadline pursuit</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-greediness" data-bind="value: translator().greediness">
+                        <div class="input-group-append">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg3-deadline">Deadline</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-deadline" data-bind="value: translator().deadline">
+                        <div class="input-group-append">
+                            <span class="input-group-text">time unit</span>
+                        </div>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg3-partition-label">Partition label</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-partition-label" data-bind="value: translator().partitionLabel">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg3-max-cpus-per-partition">Max CPUs per partition</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-max-cpus-per-partition" data-bind="value: translator().maxCPUsPerPartition">
+                    </div>
+
+                    <p class="card-text"></p>
+
+                    <button id="alg3PGT" class="btn btn-primary" data-bind="click: function(){genPGT(3);}">Generate PGT</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingFive" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+                <h5>Algorithm 4 (pso)</h5>
+            </div>
+            <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionExample">
+                <div class="card-body">
+                    <p class="card-text">Minimise number of partitions whilst optionally subject to completion deadline (warning PSO is 10 times slower, a larger swarm size or dimension further decreases speed)</p>
+
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg4-islands">No. of islands</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-islands" data-bind="value: translator().numberOfIslands">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg4-swarm-size">Swarm size</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-swarm-size" data-bind="value: translator().swarmSize">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg4-dimension-search-space">Dimension of search space</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-dimensionSearchSpace" data-bind="value: translator().searchSpaceDimension">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg4-deadline">Deadline</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-deadline" data-bind="value: translator().deadline">
+                        <div class="input-group-append">
+                            <span class="input-group-text">time unit</span>
+                        </div>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg4-partition-label">Partition label</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-partition-label" data-bind="value: translator().partitionLabel">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg4-max-cpus-per-partition">Max CPUs per partition</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-max-cpus-per-partition" data-bind="value: translator().maxCPUsPerPartition">
+                    </div>
+
+                    <p class="card-text"></p>
+
+                    <button id="alg4PGT" class="btn btn-primary" data-bind="click: function(){genPGT(4);}">Generate PGT</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingSix" data-toggle="collapse" data-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
+                <h5>Algorithm 5 (simple)</h5>
+            </div>
+            <div id="collapseSix" class="collapse show" aria-labelledby="headingSix" data-parent="#accordionExample">
+                <div class="card-body">
+                    <!--<p class="card-text">Base PGT Generation</p>-->
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg5-nodes">No. of nodes</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg5-nodes" data-bind="value: translator().numberOfNodes">
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="alg5-parallel-task-streams">No. of parallel task streams</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg5-parallel-task-streams" data-bind="value: translator().numberOfParallelTaskStreams">
+                    </div>
+
+                    <p class="card-text"></p>
+
+                    <button id="alg5PGT" class="btn btn-primary" data-bind="click: function(){genPGT(5);}">Generate PGT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
