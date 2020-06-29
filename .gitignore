@@ -1,0 +1,11 @@
+.DS_Store
+*.pyc
+*.egg-info
+build/*
+docs/build
+docs/static
+*.swp
+.vscode/*
+node_modules
+static/built
+venv
