@@ -49,7 +49,8 @@ if sys.version_info[0] == 2:
         def __init__(self, msg):
             super(FileExistsError, self).__init__(errno.EEXIST, msg)
 
-
+#NOTE: this global variable is copied rather than imported
+#      because it can be overwritten by the user's command line
 TEMP_FILE_FOLDER = config.config.TEMP_FILE_FOLDER
 
 templdir = pkg_resources.resource_filename(__name__, "../templates")
@@ -112,9 +113,8 @@ def save():
 
 @app.route("/openRemoteFileLocalServer/<filetype>/<path:filename>", methods=["POST"])
 def open_file(filetype, filename):
-    file_folder = TEMP_FILE_FOLDER
     path = request.data.decode().strip("/")
-    path = os.path.join(file_folder, path)
+    path = os.path.join(TEMP_FILE_FOLDER, path)
     norm_path = os.path.join(os.path.normpath(path), filename)
 
     json_data = open(norm_path, "r+")
@@ -530,8 +530,7 @@ def save_to_temp(lg_name, logical_graph):
     Saves graph to temp folder.
     """
     try:
-        root_dir = TEMP_FILE_FOLDER
-        new_path = os.path.join(root_dir, lg_name)
+        new_path = os.path.join(TEMP_FILE_FOLDER, lg_name)
 
         # Overwrite file on disks.
         with open(new_path, "w") as outfile:
