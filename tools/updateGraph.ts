@@ -108,6 +108,12 @@ function readNode(nodeData : any) : Node {
         x = parseInt(nodeData.loc.substring(0, nodeData.loc.indexOf(' ')), 10);
         y = parseInt(nodeData.loc.substring(nodeData.loc.indexOf(' ')), 10);
     }
+    if (typeof nodeData.x !== 'undefined'){
+        x = nodeData.x;
+    }
+    if (typeof nodeData.y !== 'undefined'){
+        y = nodeData.y;
+    }
 
     // translate categories if required
     var category : string = GraphUpdater.translateOldCategory(nodeData.category);
@@ -132,9 +138,19 @@ function readNode(nodeData : any) : Node {
         node.setWidth(nodeData.desiredSize.width);
         node.setHeight(nodeData.desiredSize.height);
     } else {
-        logMessage("Using default width/height for node " + i);
-        node.setWidth(Node.DEFAULT_WIDTH);
-        node.setHeight(Node.DEFAULT_HEIGHT);
+        if (typeof nodeData.width !== 'undefined'){
+            node.setWidth(nodeData.width);
+        } else {
+            logMessage("Using default width for node " + i);
+            node.setWidth(Node.DEFAULT_WIDTH);
+        }
+
+        if (typeof nodeData.height !== 'undefined'){
+            node.setHeight(nodeData.height);
+        } else {
+            logMessage("Using default height for node " + i);
+            node.setHeight(Node.DEFAULT_HEIGHT);
+        }
     }
 
     node.setIsData(nodeData.isData);

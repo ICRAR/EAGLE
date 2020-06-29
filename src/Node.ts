@@ -1258,6 +1258,8 @@ export class Node {
         result.description = node.description;
         result.x = node.x;
         result.y = node.y;
+        result.width = node.width;
+        result.height = node.height;
         result.collapsed = node.collapsed;
         result.showPorts = node.showPorts;
         result.streaming = node.streaming;
@@ -1364,14 +1366,6 @@ export class Node {
         for (var i = 0 ; i < node.fields.length ; i++){
             var field = node.fields[i];
             result.fields.push(Field.toOJSJson(field));
-        }
-
-        // add desiredSize (if the node is resizable)
-        if (node.isResizable()){
-            result.desiredSize = {
-                width: node.width,
-                height: node.height
-            }
         }
 
         return result;
