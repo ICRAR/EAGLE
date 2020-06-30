@@ -9,6 +9,7 @@ export class Repository {
     _id : number
     name : string
     service : Eagle.RepositoryService
+    branch : string
     isBuiltIn : boolean
     isFetching: ko.Observable<boolean>
     fetched : ko.Observable<boolean>
@@ -16,10 +17,11 @@ export class Repository {
     files : ko.ObservableArray<RepositoryFile>
     folders : ko.ObservableArray<RepositoryFolder>
 
-    constructor(name : string, service : Eagle.RepositoryService, isBuiltIn : boolean){
+    constructor(service : Eagle.RepositoryService, name : string, branch : string, isBuiltIn : boolean){
         this._id = Math.floor(Math.random() * 1000000000000);
         this.name = name;
         this.service = service;
+        this.branch = branch;
         this.isBuiltIn = isBuiltIn;
         this.isFetching = ko.observable(false);
         this.fetched = ko.observable(false);

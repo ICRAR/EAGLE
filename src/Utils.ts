@@ -403,21 +403,22 @@ export class Utils {
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
             console.log("addCustomRepo hidden");
 
-            var callback : (completed : boolean, repositoryService : string, repositoryName : string) => void = $('#gitCustomRepositoryModal').data('callback');
+            var callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
             var completed : boolean = $('#gitCustomRepositoryModal').data('completed');
             console.log("completed", completed);
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
-                callback(false, "", "");
+                callback(false, "", "", "");
                 return;
             }
 
             // check selected option in select tag
             var repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
             var repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
+            var repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
 
-            callback(true, repositoryService, repositoryName);
+            callback(true, repositoryService, repositoryName, repositoryBranch);
         });
     }
 
@@ -573,10 +574,11 @@ export class Utils {
 
     }
 
-    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string) => void){
+    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void){
         console.log("requestUserAddCustomRepository()");
 
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
+        $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
         $('#gitCustomRepositoryModal').data('completed', false);
         $('#gitCustomRepositoryModal').data('callback', callback);

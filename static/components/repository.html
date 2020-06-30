@@ -24,7 +24,7 @@
 <!-- /ko -->
 <span>&nbsp;</span>
 <a href="" data-bind="attr: {id: htmlId}, click: select">
-    <span data-bind="text: name"></span>
+    <span data-bind="text: name + ' (' + branch + ')'"></span>
 </a>
 <!-- ko ifnot: isBuiltIn -->
 <i class="material-icons md-18 interactive" data-bind="click: remove">eject</i>

@@ -30,10 +30,10 @@ import {RepositoryFile} from './RepositoryFile';
 
 export class GitLab {
     /**
-     * Shows the repository list.
+     * Loads the GitLab repository list.
      */
     static loadRepoList(eagle : Eagle) : void {
-        Utils.httpPostJSON("/getGitLabRepositoryList", null, function(error : string, data: string){
+        Utils.httpPostJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);
                 return;
@@ -42,21 +42,30 @@ export class GitLab {
             // remove all GitLab repos from the list of repositories
             for (var i = eagle.repositories().length - 1 ; i >= 0 ; i--){
                 if (eagle.repositories()[i].service === Eagle.RepositoryService.GitLab)
-                eagle.repositories.splice(i, 1);
+                    eagle.repositories.splice(i, 1);
             }
 
             // add the repositories from the POST response
             for (var i = 0 ; i < data.length ; i++){
-                eagle.repositories.push(new Repository(data[i], Eagle.RepositoryService.GitLab, true));
+                eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, data[i].repository, data[i].branch, true));
             }
 
             // search for custom repositories, and add them into the list.
-            for(var i = 0, len = localStorage.length; i < len; i++) {
-                var key = localStorage.key(i);
-                var keyExtension = key.substring(key.lastIndexOf('.') + 1);
-                if (keyExtension == "gitlab_repository") {
-                    // Add repository to the list.
-                    eagle.repositories.push(new Repository(localStorage.getItem(key), Eagle.RepositoryService.GitLab, false));
+            for (var i = 0; i < localStorage.length; i++) {
+                var key : string = localStorage.key(i);
+                var value : string = localStorage.getItem(key);
+                var keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
+
+                // handle legacy repositories where the branch is not specified (assume master)
+                if (keyExtension === "gitlab_repository"){
+                    eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, value, "master", false));
+                }
+
+                // handle the current method of storing repositories where both the service and branch are specified
+                if (keyExtension === "gitlab_repository_and_branch") {
+                    var repositoryName = value.split("|")[0];
+                    var repositoryBranch = value.split("|")[1];
+                    eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, repositoryName, repositoryBranch, false));
                 }
             }
         });

@@ -891,7 +891,7 @@ export class Eagle {
 
     // TODO: update with custom modal to ask user for repository service and url at the same time
     addCustomRepository = () : void => {
-        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : string, repositoryName : string) : void => {
+        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) : void => {
             console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
 
             if (!completed){
@@ -904,17 +904,22 @@ export class Eagle {
                 return;
             }
 
+            if (repositoryBranch.trim() == ""){
+                Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
+                return;
+            }
+
             // debug
-            console.log("User entered new repo name:", repositoryService, repositoryName);
+            console.log("User entered new repo name:", repositoryService, repositoryName, repositoryBranch);
 
             // add extension to userString to indicate repository service
             var localStorageKey : string;
             switch (repositoryService){
                 case Eagle.RepositoryService.GitHub:
-                    localStorageKey = repositoryName + ".github_repository";
+                    localStorageKey = repositoryName + ".github_repository_and_branch";
                     break;
                 case Eagle.RepositoryService.GitLab:
-                    localStorageKey = repositoryName + ".gitlab_repository";
+                    localStorageKey = repositoryName + ".gitlab_repository_and_branch";
                     break;
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
@@ -922,7 +927,7 @@ export class Eagle {
             }
 
             // Adding the repo name into the local browser storage.
-            localStorage.setItem(localStorageKey, repositoryName);
+            localStorage.setItem(localStorageKey, repositoryName+"|"+repositoryBranch);
 
             // Reload the repository lists
             if (repositoryService === Eagle.RepositoryService.GitHub)
