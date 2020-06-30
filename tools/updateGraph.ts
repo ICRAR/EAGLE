@@ -80,8 +80,8 @@ function readFileInfo(modelData : any, inputFilename : string) : FileInfo {
 
     // if modelData is undefined, then we have no data to build the FileInfo
     if (typeof modelData === "undefined"){
-        result.path = GraphUpdater.getFilePathFromFullPath(inputFilename);
-        result.name = GraphUpdater.getFileNameFromFullPath(inputFilename);
+        result.path = Utils.getFilePathFromFullPath(inputFilename);
+        result.name = Utils.getFileNameFromFullPath(inputFilename);
         result.type = Eagle.FileType.Graph;
         logMessage("Input graph FileInfo undefined. Building from scratch. Path:" + result.path + " Name:" + result.name + " Type:" + Utils.translateFileTypeToString(result.type));
 

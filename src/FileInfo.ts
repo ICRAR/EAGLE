@@ -79,8 +79,8 @@ export class FileInfo {
     static fromOJSJson = (modelData : any) : FileInfo => {
         var result : FileInfo = new FileInfo();
 
-        result.path = GraphUpdater.getFilePathFromFullPath(modelData.filePath);
-        result.name = GraphUpdater.getFileNameFromFullPath(modelData.filePath);
+        result.path = Utils.getFilePathFromFullPath(modelData.filePath);
+        result.name = Utils.getFileNameFromFullPath(modelData.filePath);
         result.type = Utils.translateStringToFileType(modelData.fileType);
         result.gitUrl = modelData.git_url;
 

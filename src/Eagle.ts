@@ -403,9 +403,13 @@ export class Eagle {
             // Only load graph files.
             if (fileType == Eagle.FileType.Graph) {
                 this.logicalGraph(LogicalGraph.fromOJSJson(data));
+                Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
             } else {
                 Utils.showUserMessage("Error", "This is not a graph file!");
             }
+
+            // update the activeFileInfo with details of the repository the file was loaded from
+            this.updateFileInfo(fileType, "", Eagle.RepositoryService.Unknown, Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
         });
     }
 
@@ -436,23 +440,40 @@ export class Eagle {
                 return;
             }
 
-            // attempt to parse the JSON
-            try {
-                var dataObject = JSON.parse(data);
-            }
-            catch(err){
-                Utils.showUserMessage("Error parsing file JSON", err.message);
+            // determine file type
+            var fileType : Eagle.FileType = Utils.getFileTypeFromFileName(fileFullPath);
+
+            // abort if not palette of palette XML filetypes
+            if (fileType !== Eagle.FileType.Palette && fileType !== Eagle.FileType.XMLPalette){
+                Utils.showUserMessage("Error", "This is not a palette file! Looks like a " + Utils.translateFileTypeToString(fileType));
                 return;
             }
 
-            var fileType : Eagle.FileType = Utils.translateStringToFileType(dataObject.modelData.fileType);
-
-            // Only load palette files.
-            if (fileType == Eagle.FileType.Palette) {
+            // if fileType is Palette, parse JSON and load
+            if (fileType === Eagle.FileType.Palette){
+                // attempt to parse the JSON
+                try {
+                    var dataObject = JSON.parse(data);
+                }
+                catch(err){
+                    Utils.showUserMessage("Error parsing file JSON", err.message);
+                    return;
+                }
                 this.palette(Palette.fromOJSJson(data));
-            } else {
-                Utils.showUserMessage("Error", "This is not a palette file!");
+                Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
             }
+
+            // if fileType is XMLPalette
+            if (fileType == Eagle.FileType.XMLPalette) {
+                // parse XML
+                var xmlDoc : XMLDocument = ( new (<any>window).DOMParser() ).parseFromString(data, "text/xml");
+
+                this.palette(Palette.fromXML(xmlDoc));
+                Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+            }
+
+            // update the activeFileInfo with details of the repository the file was loaded from
+            this.updateFileInfo(fileType, "", Eagle.RepositoryService.Unknown, Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
         });
     }
 
@@ -1011,19 +1032,24 @@ export class Eagle {
             }
 
             //.update the activeFileInfo with details of the repository the file was loaded from
-            this.activeFileInfo().repositoryName = file.repository.name;
-            this.activeFileInfo().repositoryService = file.repository.service;
-            this.activeFileInfo().path = file.path;
-            this.activeFileInfo().name = file.name;
-
-            // communicate tp knockout that the value of the fileInfo has been modified (so it can update UI)
-            if (fileTypeLoaded === Eagle.FileType.Graph){
-                this.logicalGraph().fileInfo.valueHasMutated();
-            } else if (fileTypeLoaded === Eagle.FileType.Palette){
-                this.palette().fileInfo.valueHasMutated();
-            }
+            this.updateFileInfo(fileTypeLoaded, file.repository.name, file.repository.service, file.path, file.name);
         });
     };
+
+    private updateFileInfo = (fileType : Eagle.FileType, repositoryName : string, repositoryService : Eagle.RepositoryService, path : string, name : string) : void => {
+        //.update the activeFileInfo with details of the repository the file was loaded from
+        this.activeFileInfo().repositoryName = repositoryName;
+        this.activeFileInfo().repositoryService = repositoryService;
+        this.activeFileInfo().path = path;
+        this.activeFileInfo().name = name;
+
+        // communicate tp knockout that the value of the fileInfo has been modified (so it can update UI)
+        if (fileType === Eagle.FileType.Graph){
+            this.logicalGraph().fileInfo.valueHasMutated();
+        } else if (fileType === Eagle.FileType.Palette){
+            this.palette().fileInfo.valueHasMutated();
+        }
+    }
 
     setGitHubAccessToken = () : void => {
         var currentToken = localStorage.getItem(Utils.GITHUB_ACCESS_TOKEN_KEY);

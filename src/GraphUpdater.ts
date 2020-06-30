@@ -103,19 +103,6 @@ export class GraphUpdater {
         return -1;
     }
 
-    // extracts a file name from the full path.
-    static getFileNameFromFullPath(fullPath : string) : string {
-        if (typeof fullPath === 'undefined'){return "";}
-        var fileName = fullPath.replace(/^.*[\\\/]/, '');
-        return fileName;
-    }
-
-    // extracts a file path (not including the file name) from the full path.
-    static getFilePathFromFullPath(fullPath : string) : string {
-        if (typeof fullPath === 'undefined'){return "";}
-        return fullPath.substring(0, fullPath.lastIndexOf('/'));
-    }
-
     // extra functionality to check if all x,y coords of nodes are negative, if so, move them all into the +x/+y quadrant
     static correctOJSNegativePositions(graph : LogicalGraph) : boolean {
         // check if all nodes are negative

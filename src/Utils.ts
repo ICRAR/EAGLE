@@ -77,6 +77,19 @@ export class Utils {
         }
     }
 
+    // extracts a file name from the full path.
+    static getFileNameFromFullPath(fullPath : string) : string {
+        if (typeof fullPath === 'undefined'){return "";}
+        var fileName = fullPath.replace(/^.*[\\\/]/, '');
+        return fileName;
+    }
+
+    // extracts a file path (not including the file name) from the full path.
+    static getFilePathFromFullPath(fullPath : string) : string {
+        if (typeof fullPath === 'undefined'){return "";}
+        return fullPath.substring(0, fullPath.lastIndexOf('/'));
+    }
+
     static getFileTypeFromFileName(fileName : string) : Eagle.FileType {
         return Utils.translateStringToFileType(Utils.getFileExtension(fileName));
     }
