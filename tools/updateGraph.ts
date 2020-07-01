@@ -117,12 +117,22 @@ function readNode(nodeData : any) : Node {
 
     // translate categories if required
     var category : string = GraphUpdater.translateOldCategory(nodeData.category);
-    var categoryType : string = GraphUpdater.translateOldCategoryType(nodeData.categoryType);
-    if (category !== nodeData.category){
-        logMessage("Translated old category: '" + nodeData.category + "' into a '"+ category + "' for node " + i);
+    var categoryType : string = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
+
+    if (category === Eagle.Category.Unknown){
+        logError("Unable to translate category '" + nodeData.category + "' of node " + i);
+    } else {
+        if (category !== nodeData.category){
+            logMessage("Translated old category: '" + nodeData.category + "' into '" + category + "' for node " + i);
+        }
     }
-    if (categoryType !== nodeData.categoryType){
-        logMessage("Translated old categoryType: '" + nodeData.categoryType + "' into a '"+ categoryType + "' for node " + i);
+
+    if (categoryType === Eagle.CategoryType.Unknown){
+        logError("Unable to translate categoryType '" + nodeData.categoryType + "' of node " + i);
+    } else {
+        if (categoryType !== nodeData.categoryType){
+            logMessage("Translated old categoryType: '" + nodeData.categoryType + "' into '" + categoryType + "' for node " + i);
+        }
     }
 
     // create new node
@@ -297,16 +307,22 @@ function readEdge(linkData : any) : Edge {
     var srcNode : Node  = outputGraph.getNodes()[GraphUpdater.findIndexOfNodeDataArrayWithKey(inputGraph.nodeDataArray, linkData.from)];
     var destNode : Node  = outputGraph.getNodes()[GraphUpdater.findIndexOfNodeDataArrayWithKey(inputGraph.nodeDataArray, linkData.to)];
 
-    // abort if source node not found
+    // log error if source node not found
     if (typeof srcNode === 'undefined'){
         var error : string = "Unable to find node with key " + linkData.from + " used as source node in link " + i + ". Discarding link!";
         logError(error);
     }
 
-    // abort if dest node not found
+    // log error if dest node not found
     if (typeof destNode === 'undefined'){
         var error : string = "Unable to find node with key " + linkData.to + " used as destination node in link " + i + ". Discarding link!";
         logError(error);
+    }
+
+    // abort if one or both nodes cannot be found
+    if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'){
+        logError("Unable to translate link " + i + ". Source or destination node unknown.");
+        return null;
     }
 
     var srcPort : Port = null;
@@ -336,32 +352,38 @@ function readEdge(linkData : any) : Edge {
         destPort = destNode.findPortById(linkData.toPort);
     }
 
+    //console.log("srcPort", srcPort, "destPort", destPort);
+
     // add it if source port not found
     if (srcPort === null){
-        srcNode.addPort(new Port(linkData.fromPort, linkData.fromPort), true, false);
-        srcPort = srcNode.findPortById(linkData.fromPort);
+        var srcPortName : string = linkData.fromPort + "-" + linkData.toPort;
+        srcPort = new Port(Utils.uuidv4(), srcPortName);
+        srcNode.addPort(srcPort, false, false);
 
-        logMessage("Added a new src port " + linkData.fromPort + " to node " + linkData.from + " in link " + i + " since port (" + oldFromPortId + ") is missing.");
+        logMessage("Added a new src port " + srcPort.getName() + " to node " + srcNode.getKey() + " in link " + i + " since port (" + oldFromPortId + ") is missing.");
      }
 
     // add it if dest port not found
     if (destPort === null){
-        destNode.addPort(new Port(linkData.toPort, linkData.toPort), false, false);
-        destPort = destNode.findPortById(linkData.toPort);
+        var destPortName : string = linkData.fromPort + "-" + linkData.toPort;
+        destPort = new Port(Utils.uuidv4(), destPortName);
+        destNode.addPort(destPort, true, false);
 
-        logMessage("Added a new dst port " + linkData.toPort + " to node " + linkData.to + " in link " + i + " since port (" + oldToPortId + ") is missing.");
+        logMessage("Added a new dst port " + destPort.getName() + " to node " + destNode.getKey() + " in link " + i + " since port (" + oldToPortId + ") is missing.");
     }
 
     if (srcPort === null || destPort === null){
+        logError("Unable to translate link " + i + ". Source or destination port unknown.");
         return null;
     }
 
     // check if srcPort and destPort have different names
     if (srcPort.getName() !== destPort.getName()){
         logError("Name of source and destination do not match for link " + i);
+        return null;
     }
 
-    return new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName());
+    return new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getName());
 }
 
 function logMessage(message : string){

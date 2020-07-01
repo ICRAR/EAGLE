@@ -68,9 +68,43 @@ export class GraphUpdater {
         return category;
     }
 
-    static translateOldCategoryType(categoryType : string) : string {
+    static translateOldCategoryType(categoryType : string, category : Eagle.Category) : string {
         if (typeof categoryType === "undefined"){
-            return Eagle.CategoryType.Unknown;
+            // try to determine categoryType based on category
+            switch(category){
+                case Eagle.Category.Start:
+                case Eagle.Category.End:
+                case Eagle.Category.ExclusiveForceNode:
+                    return Eagle.CategoryType.Control;
+
+                case Eagle.Category.BashShellApp:
+                case Eagle.Category.DynlibApp:
+                case Eagle.Category.MPI:
+                case Eagle.Category.Docker:
+                case Eagle.Category.Component:
+                    return Eagle.CategoryType.Application;
+
+                case Eagle.Category.File:
+                case Eagle.Category.Memory:
+                case Eagle.Category.NGAS:
+                case Eagle.Category.S3:
+                    return Eagle.CategoryType.Data;
+
+                case Eagle.Category.GroupBy:
+                case Eagle.Category.Gather:
+                case Eagle.Category.Scatter:
+                case Eagle.Category.MKN:
+                case Eagle.Category.Loop:
+                    return Eagle.CategoryType.Group;
+
+                case Eagle.Category.Service:
+                case Eagle.Category.Comment:
+                case Eagle.Category.Description:
+                    return Eagle.CategoryType.Other;
+
+                default:
+                    return Eagle.CategoryType.Unknown;
+            }
         }
 
         if (categoryType === "ControlComponent"){

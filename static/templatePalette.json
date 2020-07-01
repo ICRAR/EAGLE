@@ -15,7 +15,7 @@
             "key": -1,
             "text": "Start",
             "description": "The starting point for workflow execution",
-            "categoryType": "ControlComponent",
+            "categoryType": "Control",
             "inputPorts": []
         },
         {
@@ -29,7 +29,7 @@
             "key": -10,
             "text": "End",
             "description": "The end of workflow execution",
-            "categoryType": "ControlComponent",
+            "categoryType": "Control",
             "inputPorts": []
         },
         {
@@ -94,7 +94,7 @@
             "inputPorts": []
         },
         {
-            "category": "mpi",
+            "category": "Mpi",
             "outputPorts": [],
             "isData": false,
             "fields": [{
@@ -124,7 +124,7 @@
             "inputPorts": []
         },
         {
-            "category": "docker",
+            "category": "Docker",
             "outputPorts": [],
             "isData": false,
             "fields": [{
@@ -204,7 +204,7 @@
             "inputPorts": []
         },
         {
-            "category": "memory",
+            "category": "Memory",
             "outputPorts": [],
             "isData": true,
             "fields": [{
@@ -226,7 +226,7 @@
             "inputPorts": []
         },
         {
-            "category": "file",
+            "category": "File",
             "outputPorts": [],
             "isData": true,
             "fields": [{
@@ -260,7 +260,7 @@
             "inputPorts": []
         },
         {
-            "category": "s3",
+            "category": "S3",
             "outputPorts": [],
             "isData": true,
             "fields": [{
@@ -282,7 +282,7 @@
             "inputPorts": []
         },
         {
-            "category": "ngas",
+            "category": "NGAS",
             "outputPorts": [],
             "isData": true,
             "fields": [{
@@ -327,7 +327,7 @@
                 "name": "group_axis",
                 "value": "frequency"
             }],
-            "categoryType": "GroupComponent"
+            "categoryType": "Group"
         },
         {
             "category": "Gather",
@@ -353,7 +353,7 @@
                 "name": "gather_axis",
                 "value": "frequency"
             }],
-            "categoryType": "GroupComponent"
+            "categoryType": "Group"
         },
         {
             "category": "Scatter",
@@ -379,7 +379,7 @@
                 "name": "scatter_axis",
                 "value": "time"
             }],
-            "categoryType": "GroupComponent"
+            "categoryType": "Group"
         },
         {
             "category": "MKN",
@@ -409,7 +409,7 @@
                 "name": "n",
                 "value": "1"
             }],
-            "categoryType": "GroupComponent"
+            "categoryType": "Group"
         },
         {
             "category": "Loop",
@@ -431,7 +431,7 @@
                 "name": "num_of_iter",
                 "value": "5"
             }],
-            "categoryType": "GroupComponent"
+            "categoryType": "Group"
         },
         {
             "category": "Service",
