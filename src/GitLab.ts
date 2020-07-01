@@ -94,6 +94,7 @@ export class GitLab {
         // Add parameters in json data.
         var jsonData = {
             repository: repository.name,
+            branch: repository.branch,
             token: token,
         };
 
@@ -182,7 +183,7 @@ export class GitLab {
      * Gets the specified remote file from the server
      * @param filePath File path.
      */
-    static openRemoteFile(diagramRepository : string, repositoryService : Eagle.RepositoryService, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
+    static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
         var token = GitLab.getAccessToken();
 
         if (token == undefined) {
@@ -194,7 +195,8 @@ export class GitLab {
 
         // Add parameters in json data.
         var jsonData = {
-            repositoryName: diagramRepository,
+            repositoryName: repositoryName,
+            repositoryBranch: repositoryBranch,
             repositoryService: repositoryService,
             token: token,
             filename: fullFileName

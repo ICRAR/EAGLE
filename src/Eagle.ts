@@ -853,7 +853,7 @@ export class Eagle {
     }
 
     selectFile = (file : RepositoryFile) : void => {
-        console.log("selectFile() repo:", file.repository.name, "path:", file.path, "file:", file.name, "type:", file.type);
+        console.log("selectFile() repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
 
         var isModified = false;
         if (file.type == Eagle.FileType.Graph){
@@ -951,10 +951,12 @@ export class Eagle {
                     case Eagle.RepositoryService.GitHub:
                         localStorage.removeItem(repository.name + ".repository");
                         localStorage.removeItem(repository.name + ".github_repository");
+                        localStorage.removeItem(repository.name + ".github_repository_and_branch");
                         GitHub.loadRepoList(this);
                         break;
                     case Eagle.RepositoryService.GitLab:
                         localStorage.removeItem(repository.name + ".gitlab_repository");
+                        localStorage.removeItem(repository.name + ".gitlab_repository_and_branch");
                         GitLab.loadRepoList(this);
                         break;
                     default:
@@ -984,7 +986,7 @@ export class Eagle {
         }
 
         // load file from github or gitlab
-        openRemoteFileFunc(file.repository.name, file.repository.service, file.path, file.name, (error : string, data : string) : void => {
+        openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
             var fileTypeLoaded : Eagle.FileType = Eagle.FileType.Unknown;
 
             // flag fetching as incomplete

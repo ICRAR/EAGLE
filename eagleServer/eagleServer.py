@@ -225,6 +225,7 @@ def get_git_hub_files_all():
         repo_name = content["repository"]
         repo_branch = content["branch"]
         repo_token = content["token"]
+        #print("repo_name:" + repo_name + " repo_branch:" + repo_branch + " repo_token:" + repo_token)
     except KeyError as ke:
         print("KeyError {1}: {0}".format(str(ke), repo_name))
         return "Repository or Token fields not specified in request", 400
@@ -235,13 +236,12 @@ def get_git_hub_files_all():
 
     try:
         repo = g.get_repo(repo_name)
-        repo.get_branch(branch=repo_branch)
     except github.UnknownObjectException as uoe:
         print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
         return jsonify({"": []})
 
     # get results
-    d = parse_github_folder(repo, "")
+    d = parse_github_folder(repo, "", repo_branch)
 
     # response
     return jsonify(d)
@@ -251,14 +251,19 @@ def get_git_hub_files_all():
 def get_git_lab_files_all():
     content = request.get_json(silent=True)
     repo_name = content["repository"]
+    repo_branch = content["branch"]
     repo_token = content["token"]
+    #print("repo_name:" + repo_name + " repo_branch:" + repo_branch + " repo_token:" + repo_token)
 
     gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
     gl.auth()
 
     try:
         project = gl.projects.get(repo_name)
-        items = project.repository_tree(recursive='true', all=True)
+
+        #print("branches:" + str(project.branches.list()))
+
+        items = project.repository_tree(recursive='true', all=True, ref=repo_branch)
     except gitlab.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
         return jsonify({"": []})
@@ -352,23 +357,6 @@ def save_git_lab_file():
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
 
-    # Commit to GitHub repo.
-    #latest_commit = repo.get_git_commit(master_sha)
-    #base_tree = latest_commit.tree
-    #new_tree = repo.create_git_tree(
-    #    [
-    #        github.InputGitTreeElement(
-    #            path=filename, mode="100644", type="blob", content=json_data
-    #        )
-    #    ],
-    #    base_tree,
-    #)
-
-    #new_commit = repo.create_git_commit(
-    #    message=commit_message, parents=[latest_commit], tree=new_tree
-    #)
-    #master_ref.edit(sha=new_commit.sha, force=False)
-
     # see if file exists
     try:
         f = project.files.get(file_path=filename, ref='master')
@@ -390,12 +378,13 @@ def save_git_lab_file():
 def open_git_hub_file():
     content = request.get_json(silent=True)
     repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
     repo_service = content["repositoryService"]
     repo_token = content["token"]
     filename = content["filename"]
     extension = os.path.splitext(filename)[1]
 
-    #print("open_git_hub_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
+    #print("open_git_hub_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
@@ -405,7 +394,7 @@ def open_git_hub_file():
     g = github.Github(repo_token)
     repo = g.get_repo(repo_name)
 
-    f = repo.get_contents(filename)
+    f = repo.get_contents(filename, ref=repo_branch)
     raw_data = f.decoded_content
 
     # special case for handling XML files (e.g. doxygen output)
@@ -433,12 +422,13 @@ def open_git_hub_file():
 def open_git_lab_file():
     content = request.get_json(silent=True)
     repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
     repo_service = content["repositoryService"]
     repo_token = content["token"]
     filename = content["filename"]
     extension = os.path.splitext(filename)[1]
 
-    #print("open_git_lab_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
+    #print("open_git_lab_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
@@ -450,7 +440,7 @@ def open_git_lab_file():
     gl.auth()
 
     project = gl.projects.get(repo_name)
-    f = project.files.get(file_path=filename, ref='master')
+    f = project.files.get(file_path=filename, ref=repo_branch)
 
     # get the decoded content
     raw_data = f.decode()
@@ -474,12 +464,12 @@ def open_git_lab_file():
     return response
 
 
-def parse_github_folder(repo, path):
+def parse_github_folder(repo, path, branch):
     result = {"": []}
 
     # Getting repository file list
     try:
-        contents = repo.get_contents(path)
+        contents = repo.get_contents(path, ref=branch)
     except github.GithubException:
         return result
 
@@ -487,7 +477,7 @@ def parse_github_folder(repo, path):
         file_content = contents.pop(0)
 
         if file_content.type == "dir":
-            result[file_content.path] = parse_github_folder(repo, file_content.path)
+            result[file_content.path] = parse_github_folder(repo, file_content.path, branch)
         else:
             result[""].append(file_content.name)
 
