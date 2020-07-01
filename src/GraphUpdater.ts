@@ -103,20 +103,20 @@ export class GraphUpdater {
         return -1;
     }
 
-    // extra functionality to check if all x,y coords of nodes are negative, if so, move them all into the +x/+y quadrant
+    // extra functionality to check if any x,y coords of nodes are negative, if so, move them all into the +x/+y quadrant
     static correctOJSNegativePositions(graph : LogicalGraph) : boolean {
-        // check if all nodes are negative
-        var allNegative : boolean = true;
+        // check if any nodes are negative
+        var anyNegative : boolean = false;
         for (var i = 0 ; i < graph.getNodes().length ; i++){
             var node : Node = graph.getNodes()[i];
-            if (node.getPosition().x > 0 || node.getPosition().y > 0){
-                allNegative = false;
+            if (node.getPosition().x < 0 || node.getPosition().y < 0){
+                anyNegative = true;
                 break;
             }
         }
 
         // abort if not all negative
-        if (!allNegative){
+        if (!anyNegative){
             return false;
         }
 
@@ -133,10 +133,16 @@ export class GraphUpdater {
             }
         }
 
+        //console.log("maxX", maxX, "maxY", maxY);
+
         // move all nodes by -maxX, -maxY
         for (var i = 0 ; i < graph.getNodes().length ; i++){
             var node : Node = graph.getNodes()[i];
-            node.setPosition(node.getPosition().x - maxX, node.getPosition().y - maxY);
+            var newX : number = node.getPosition().x - maxX;
+            var newY : number = node.getPosition().y - maxY;
+            //console.log("move node", i, "from", node.getPosition().x, ",", node.getPosition().y, "to", newX, ",", newY);
+
+            node.setPosition(newX, newY);
         }
 
         return true;
