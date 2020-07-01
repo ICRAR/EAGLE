@@ -133,6 +133,9 @@ export class GraphUpdater {
             }
         }
 
+        // increase offset for all nodes to move them a "nice" distance away from the origin
+        maxX -= Node.DEFAULT_POSITION_X;
+        maxY -= Node.DEFAULT_POSITION_Y;
         //console.log("maxX", maxX, "maxY", maxY);
 
         // move all nodes by -maxX, -maxY

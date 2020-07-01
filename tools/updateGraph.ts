@@ -311,6 +311,20 @@ function readEdge(linkData : any) : Edge {
 
     var srcPort : Port = null;
     var destPort : Port = null;
+    var oldFromPortId : number = linkData.fromPort;
+    var oldToPortId : number = linkData.toPort;
+
+    // check if fromPort is undefined
+    if (typeof linkData.fromPort === 'undefined'){
+        //logMessage("'fromPort' undefined in link " + i + ". Using default port.");
+        linkData.fromPort = Port.DEFAULT_ID;
+    }
+
+    // check if toPort is undefined
+    if (typeof linkData.toPort === 'undefined'){
+        //logMessage("'toPort' undefined in link " + i + ". Using default port.");
+        linkData.toPort = Port.DEFAULT_ID;
+    }
 
     // find source port on source node
     if (typeof srcNode !== 'undefined'){
@@ -324,26 +338,27 @@ function readEdge(linkData : any) : Edge {
 
     // add it if source port not found
     if (srcPort === null){
-        var srcNodeIdText : string = linkData.fromPort + "-" + linkData.toPort;
-        srcNode.addPort(new Port(linkData.fromPort, srcNodeIdText), true, false);
+        srcNode.addPort(new Port(linkData.fromPort, linkData.fromPort), true, false);
         srcPort = srcNode.findPortById(linkData.fromPort);
-        //var error : string = "Unable to find src port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i;
-        //logError(error);
-        logMessage("updated the src port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i);
+
+        logMessage("Added a new src port " + linkData.fromPort + " to node " + linkData.from + " in link " + i + " since port (" + oldFromPortId + ") is missing.");
      }
 
     // add it if dest port not found
     if (destPort === null){
-        var destNodeIdText : string = linkData.fromPort + "-" + linkData.toPort;
-        destNode.addPort(new Port(linkData.toPort, destNodeIdText), false, false);
+        destNode.addPort(new Port(linkData.toPort, linkData.toPort), false, false);
         destPort = destNode.findPortById(linkData.toPort);
-        //var error : string = "Unable to find dst port " + linkData.toPort + " on node " + linkData.to + " used in link " + i;
-        //logError(error);
-        logMessage("updated the dst port " + linkData.toPort + " on node " + linkData.to + " used in link " + i);
+
+        logMessage("Added a new dst port " + linkData.toPort + " to node " + linkData.to + " in link " + i + " since port (" + oldToPortId + ") is missing.");
     }
 
     if (srcPort === null || destPort === null){
         return null;
+    }
+
+    // check if srcPort and destPort have different names
+    if (srcPort.getName() !== destPort.getName()){
+        logError("Name of source and destination do not match for link " + i);
     }
 
     return new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName());

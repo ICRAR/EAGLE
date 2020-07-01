@@ -5,6 +5,8 @@ export class Port {
     private name : string;
     private nodeKey : number;
 
+    public static readonly DEFAULT_ID : string = "<default>";
+
     constructor(id : string, name : string){
         this._id = id;
         this.name = name;
