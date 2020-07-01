@@ -168,8 +168,10 @@ def extra_sudo():
         env.sudo_user = 'root'
     elif env.FAB_TASK == 'aws_deploy':
         env.sudo_user = env.AWS_SUDO_USER
+    else:
+        env.sudo_user = env.user  # fall back to current user
     with settings(user=env.sudo_user):
-        sudo('curl -sL https://rpm.nodesource.com/setup_10.x | sudo -E bash -')
+        # sudo('curl -sL https://rpm.nodesource.com/setup_10.x |sudo bash -')
         sudo('yum --assumeyes --quiet install nodejs')
         sudo('npm install -g typescript')
 
