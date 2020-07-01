@@ -99,6 +99,7 @@ export class GitHub {
         // Add parameters in json data.
         var jsonData = {
             repository: repository.name,
+            branch: repository.branch,
             token: token,
         };
 

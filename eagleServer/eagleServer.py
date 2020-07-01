@@ -223,6 +223,7 @@ def get_git_hub_files_all():
 
     try:
         repo_name = content["repository"]
+        repo_branch = content["branch"]
         repo_token = content["token"]
     except KeyError as ke:
         print("KeyError {1}: {0}".format(str(ke), repo_name))
@@ -234,6 +235,7 @@ def get_git_hub_files_all():
 
     try:
         repo = g.get_repo(repo_name)
+        repo.get_branch(branch=repo_branch)
     except github.UnknownObjectException as uoe:
         print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
         return jsonify({"": []})
