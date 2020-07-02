@@ -1735,6 +1735,7 @@ export namespace Eagle
         export var ExclusiveForceNode : Category = "ExclusiveForceNode";
 
         export var Unknown : Category = "Unknown";
+        export var None : Category = "None";
     }
 
     export type CategoryType = string;

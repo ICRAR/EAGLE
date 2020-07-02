@@ -117,9 +117,9 @@ export class Node {
         this.category = category;
         this.categoryType = categoryType;
 
-        this.inputApplicationType = Eagle.Category.Unknown;
-        this.outputApplicationType = Eagle.Category.Unknown;
-        this.exitApplicationType = Eagle.Category.Unknown;
+        this.inputApplicationType = Eagle.Category.None;
+        this.outputApplicationType = Eagle.Category.None;
+        this.exitApplicationType = Eagle.Category.None;
 
         this.subject = null;
 
@@ -1297,17 +1297,17 @@ export class Node {
         if (typeof node.inputApplicationType !== 'undefined'){
             result.inputApplicationType = node.inputApplicationType;
         } else {
-            result.inputApplicationType = Eagle.Category.Unknown;
+            result.inputApplicationType = Eagle.Category.None;
         }
         if (typeof node.outputApplicationType !== 'undefined'){
             result.outputApplicationType = node.outputApplicationType;
         } else {
-            result.outputApplicationType = Eagle.Category.Unknown;
+            result.outputApplicationType = Eagle.Category.None;
         }
         if (typeof node.exitApplicationType !== 'undefined'){
             result.exitApplicationType = node.exitApplicationType;
         } else {
-            result.exitApplicationType = Eagle.Category.Unknown;
+            result.exitApplicationType = Eagle.Category.None;
         }
 
         // add input ports
