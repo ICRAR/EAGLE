@@ -159,9 +159,9 @@ export class Eagle {
         // TODO: move to a function on the FileInfo class
         if (fileInfo.repositoryName !== ""){
             if (fileInfo.path === ""){
-                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + "/" + fileInfo.name;
+                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + " (" + fileInfo.repositoryBranch + "): " + fileInfo.name;
             } else {
-                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + "/" + fileInfo.path + "/" + fileInfo.name;
+                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + " (" + fileInfo.repositoryBranch + "): " + fileInfo.path + "/" + fileInfo.name;
             }
         } else {
             return fileInfo.name;
@@ -409,7 +409,7 @@ export class Eagle {
             }
 
             // update the activeFileInfo with details of the repository the file was loaded from
-            this.updateFileInfo(fileType, "", Eagle.RepositoryService.Unknown, Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+            this.updateFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
         });
     }
 
@@ -473,7 +473,7 @@ export class Eagle {
             }
 
             // update the activeFileInfo with details of the repository the file was loaded from
-            this.updateFileInfo(fileType, "", Eagle.RepositoryService.Unknown, Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+            this.updateFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
         });
     }
 
@@ -1041,13 +1041,14 @@ export class Eagle {
             }
 
             //.update the activeFileInfo with details of the repository the file was loaded from
-            this.updateFileInfo(fileTypeLoaded, file.repository.name, file.repository.service, file.path, file.name);
+            this.updateFileInfo(fileTypeLoaded, file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
         });
     };
 
-    private updateFileInfo = (fileType : Eagle.FileType, repositoryName : string, repositoryService : Eagle.RepositoryService, path : string, name : string) : void => {
+    private updateFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
         //.update the activeFileInfo with details of the repository the file was loaded from
         this.activeFileInfo().repositoryName = repositoryName;
+        this.activeFileInfo().repositoryBranch = repositoryBranch;
         this.activeFileInfo().repositoryService = repositoryService;
         this.activeFileInfo().path = path;
         this.activeFileInfo().name = name;
