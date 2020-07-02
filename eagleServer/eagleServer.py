@@ -158,6 +158,7 @@ def extract_folder_and_repo_names(repo_name):
     return folder_name, repo_name
 
 
+# NOTE: largely made obsolete by get_git_hub_files_all()
 @app.route("/getGitHubFiles", methods=["POST"])
 def get_git_hub_files():
     content = request.get_json(silent=True)
@@ -225,7 +226,6 @@ def get_git_hub_files_all():
         repo_name = content["repository"]
         repo_branch = content["branch"]
         repo_token = content["token"]
-        #print("repo_name:" + repo_name + " repo_branch:" + repo_branch + " repo_token:" + repo_token)
     except KeyError as ke:
         print("KeyError {1}: {0}".format(str(ke), repo_name))
         return "Repository or Token fields not specified in request", 400
@@ -253,16 +253,12 @@ def get_git_lab_files_all():
     repo_name = content["repository"]
     repo_branch = content["branch"]
     repo_token = content["token"]
-    #print("repo_name:" + repo_name + " repo_branch:" + repo_branch + " repo_token:" + repo_token)
 
     gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
     gl.auth()
 
     try:
         project = gl.projects.get(repo_name)
-
-        #print("branches:" + str(project.branches.list()))
-
         items = project.repository_tree(recursive='true', all=True, ref=repo_branch)
     except gitlab.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
@@ -297,6 +293,8 @@ def save_git_hub_file():
 
     # Add repo and file name in the graph.
     graph["modelData"]["repo"] = repo_name
+    graph["modelData"]["repoBranch"] = repo_branch
+    graph["modelData"]["repoService"] = "GitHub"
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
     graph["modelData"]["sha"] = ""
