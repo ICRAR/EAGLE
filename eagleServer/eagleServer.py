@@ -280,7 +280,7 @@ def save_git_hub_file():
     repo_name = content["repositoryName"]
     repo_branch = content["repositoryBranch"]
     repo_token = content["token"]
-    json_data = content["jsonData"]
+    graph = content["jsonData"]
     commit_message = content["commitMessage"]
 
     # Extracting the true repo name and repo folder.
@@ -292,11 +292,10 @@ def save_git_hub_file():
     repo = g.get_repo(repo_name)
 
     # Set branch
-    branch_ref = repo.get_git_ref(repo_branch)
+    branch_ref = repo.get_git_ref("heads/" + repo_branch)
     branch_sha = branch_ref.object.sha
 
     # Add repo and file name in the graph.
-    graph = json.loads(json_data)
     graph["modelData"]["repo"] = repo_name
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
