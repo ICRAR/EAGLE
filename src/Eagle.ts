@@ -173,20 +173,20 @@ export class Eagle {
 
         for (var i = 0 ; i < this.repositories().length ; i++){
             if (this.repositories()[i].service === service){
-                list.push(this.repositories()[i].name);
+                list.push(this.repositories()[i].name + " (" + this.repositories()[i].branch + ")");
             }
         }
 
         return list;
     };
 
-    getRepository = (service : Eagle.RepositoryService, name : string) : Repository | null => {
+    getRepository = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
         for (var i = 0 ; i < this.repositories().length ; i++){
-            if (this.repositories()[i].service === service && this.repositories()[i].name === name){
+            if (this.repositories()[i].service === service && this.repositories()[i].name === name && this.repositories()[i].branch === branch){
                 return this.repositories()[i];
             }
         }
-        console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name);
+        console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
     };
 
@@ -677,7 +677,7 @@ export class Eagle {
     commitToGitAs = (fileType : Eagle.FileType) : void => {
         console.log("commitToGitAs()");
 
-        Utils.requestUserGitCommit(Eagle.RepositoryService.GitHub, this.getRepositoryList(Eagle.RepositoryService.GitHub),  this.activeFileInfo().path, this.activeFileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(Eagle.RepositoryService.GitHub, this.getRepositoryList(Eagle.RepositoryService.GitHub),  this.activeFileInfo().path, this.activeFileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -685,7 +685,7 @@ export class Eagle {
             }
 
             // check repository name
-            var repository : Repository = this.getRepository(repositoryService, repositoryName);
+            var repository : Repository = this.getRepository(repositoryService, repositoryName, repositoryBranch);
             if (repository === null){
                 console.log("Abort commit");
                 return;
@@ -693,6 +693,7 @@ export class Eagle {
 
             this.activeFileInfo().repositoryService = repositoryService;
             this.activeFileInfo().repositoryName = repositoryName;
+            this.activeFileInfo().repositoryBranch = repositoryBranch;
 
             // check filePath
             this.activeFileInfo().path = filePath;
@@ -739,7 +740,7 @@ export class Eagle {
                 return;
             }
 
-            this.saveDiagramToGit(this.getRepository(this.activeFileInfo().repositoryService, this.activeFileInfo().repositoryName), fileType, this.activeFileInfo().path, this.activeFileInfo().name, userString);
+            this.saveDiagramToGit(this.getRepository(this.activeFileInfo().repositoryService, this.activeFileInfo().repositoryName, this.activeFileInfo().repositoryBranch), fileType, this.activeFileInfo().path, this.activeFileInfo().name, userString);
         });
     };
 
@@ -781,6 +782,7 @@ export class Eagle {
 
         var jsonData : object = {
             jsonData: json,
+            repositoryBranch: repository.branch,
             repositoryName: repository.name,
             repositoryService: repository.service,
             token: token,

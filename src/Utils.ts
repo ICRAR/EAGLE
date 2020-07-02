@@ -363,12 +363,12 @@ export class Utils {
             $('#gitCommitModalAffirmativeButton').focus();
         });
         $('#gitCommitModal').on('hidden.bs.modal', function(){
-            var callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
+            var callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
             var completed : boolean = $('#gitCommitModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
-                callback(false, Eagle.RepositoryService.Unknown, "", "", "", "");
+                callback(false, Eagle.RepositoryService.Unknown, "", "", "", "", "");
                 return;
             }
 
@@ -376,12 +376,16 @@ export class Utils {
             var repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
             var repositories : string[] = $('#gitCommitModal').data('repositories');
             var repositoryNameChoice : number = parseInt(<string>$('#gitCommitModalRepositoryNameSelect').val(), 10);
-            var repositoryName : string = repositories[repositoryNameChoice];
+
+            // split repository text (with form: "name (branch)") into name and branch strings
+            var repositoryName : string = repositories[repositoryNameChoice].substring(0, repositories[repositoryNameChoice].indexOf(" ("));
+            var repositoryBranch : string = repositories[repositoryNameChoice].substring(repositories[repositoryNameChoice].indexOf(" (") + 2, repositories[repositoryNameChoice].length - 1);
+
             var filePath : string = <string>$('#gitCommitModalFilePathInput').val();
             var fileName : string = <string>$('#gitCommitModalFileNameInput').val();
             var commitMessage : string = <string>$('#gitCommitModalCommitMessageInput').val();
 
-            callback(true, repositoryService, repositoryName, filePath, fileName, commitMessage);
+            callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
             var repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
@@ -540,7 +544,7 @@ export class Utils {
         $('#confirmModal').modal();
     }
 
-    static requestUserGitCommit(service : Eagle.RepositoryService, repositories: string[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, filePath : string, fileName : string, commitMessage : string) => void ){
+    static requestUserGitCommit(service : Eagle.RepositoryService, repositories: string[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ){
         console.log("requestUserGitCommit()");
 
         $('#gitCommitModal').data('completed', false);

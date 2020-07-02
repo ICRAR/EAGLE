@@ -277,13 +277,11 @@ def save_git_hub_file():
     # Extract parameters and file content from json.
     content = request.get_json(silent=True)
     filename = content["filename"]
-    repository = content["repositoryName"]
+    repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
     repo_token = content["token"]
     json_data = content["jsonData"]
     commit_message = content["commitMessage"]
-
-    # Repository name.
-    repo_name = repository
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
@@ -293,9 +291,9 @@ def save_git_hub_file():
     g = github.Github(repo_token)
     repo = g.get_repo(repo_name)
 
-    # Set branch to master.
-    master_ref = repo.get_git_ref("heads/master")
-    master_sha = master_ref.object.sha
+    # Set branch
+    branch_ref = repo.get_git_ref(repo_branch)
+    branch_sha = branch_ref.object.sha
 
     # Add repo and file name in the graph.
     graph = json.loads(json_data)
@@ -308,7 +306,7 @@ def save_git_hub_file():
     json_data = json.dumps(graph, indent=4)
 
     # Commit to GitHub repo.
-    latest_commit = repo.get_git_commit(master_sha)
+    latest_commit = repo.get_git_commit(branch_sha)
     base_tree = latest_commit.tree
     new_tree = repo.create_git_tree(
         [
@@ -322,7 +320,7 @@ def save_git_hub_file():
     new_commit = repo.create_git_commit(
         message=commit_message, parents=[latest_commit], tree=new_tree
     )
-    master_ref.edit(sha=new_commit.sha, force=False)
+    branch_ref.edit(sha=new_commit.sha, force=False)
 
     return "ok"
 
@@ -333,8 +331,9 @@ def save_git_lab_file():
     content = request.get_json(silent=True)
     filename = content["filename"]
     repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
     repo_token = content["token"]
-    json_data = content["jsonData"]
+    graph = content["jsonData"]
     commit_message = content["commitMessage"]
 
     # Extracting the true repo name and repo folder.
@@ -348,8 +347,9 @@ def save_git_lab_file():
     project = gl.projects.get(repo_name)
 
     # Add repo and file name in the graph.
-    graph = json.loads(json_data)
     graph["modelData"]["repo"] = repo_name
+    graph["modelData"]["repoBranch"] = repo_branch
+    graph["modelData"]["repoService"] = "GitLab"
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
     graph["modelData"]["sha"] = ""
@@ -359,15 +359,15 @@ def save_git_lab_file():
 
     # see if file exists
     try:
-        f = project.files.get(file_path=filename, ref='master')
+        f = project.files.get(file_path=filename, ref=repo_branch)
         # update content
         f.content = json_data
-        f.save(branch='master', commit_message=commit_message)
+        f.save(branch=repo_branch, commit_message=commit_message)
     except gitlab.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
         # since file doesn't exist, we need to create a new file
         f = project.files.create({'file_path': filename,
-                          'branch': 'master',
+                          'branch': repo_branch,
                           'content': json_data,
                           'commit_message': commit_message})
 
