@@ -156,6 +156,11 @@ def APP_build_cmd():
     env.APP_ROOT_DIR = os.path.abspath(os.path.join(home(), APP_ROOT_DIR_NAME))
     env.APP_SRC_DIR = os.path.abspath(os.path.join(home(), APP_SRC_DIR_NAME))
     build_cmd.append('cd {0} ;'.format(APP_source_dir()))
+    build_cmd.append(
+        'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash')
+    build_cmd.append('source ~/.nvm/nvm.sh')
+    build_cmd.append('nvm install node')
+    # build_cmd.append('npm install typescript')
     build_cmd.append('pip install . ;')
 
     return ' '.join(build_cmd)
@@ -171,6 +176,7 @@ def extra_sudo():
     else:
         env.sudo_user = env.user  # fall back to current user
     with settings(user=env.sudo_user):
+        run('curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash')
         # sudo('curl -sL https://rpm.nodesource.com/setup_10.x |sudo bash -')
         sudo('yum --assumeyes --quiet install nodejs')
         sudo('npm install -g typescript')
@@ -299,4 +305,5 @@ def dummy():
 env.build_cmd = APP_build_cmd
 env.APP_init_install_function = install_sysv_init_script
 env.sysinitAPP_start_check_function = sysinitstart_EAGLE_and_check_status
-env.APP_extra_sudo_function = extra_sudo
+env.APP_extra_sudo_function = dummy
+#env.APP_extra_sudo_function = extra_sudo
