@@ -8,8 +8,11 @@ environment. EAGLE is coupled to the [DALiuGE](http://github.com/ICRAR/daliuge)
 execution framework, which also provides the actual translation and execution
 of the workflows.
 
-## Installation
-Please refer to the guide in doc/INSTALL.md
+## Access
+
+Web Application: http://eagle.icrar.org/
+
+See [instructions](INSTALL.md) for a local installation.
 
 ## Basic Concepts
 
