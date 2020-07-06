@@ -793,11 +793,25 @@ export class Node {
 
     getInputMultiplicity = () : number => {
         if (this.isMKN()){
-            return parseInt(this.getFieldByName("m").getValue(), 10);
+            var m : Field = this.getFieldByName("m");
+
+            if (m === null){
+                console.warn("Unable to determine input multiplicity of MKN, no 'm' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(m.getValue(), 10);
         }
 
         if (this.isGather()){
-            return parseInt(this.getFieldByName("num_of_inputs").getValue(), 10);
+            var numInputs : Field = this.getFieldByName("num_of_inputs");
+
+            if (numInputs === null){
+                console.warn("Unable to determine input multiplicity of Gather, no 'num_of_inputs' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(numInputs.getValue(), 10);
         }
 
         return 1;
@@ -805,11 +819,25 @@ export class Node {
 
     getOutputMultiplicity = () : number => {
         if (this.isMKN()){
-            return parseInt(this.getFieldByName("n").getValue(), 10);
+            var n : Field = this.getFieldByName("n");
+
+            if (n === null){
+                console.warn("Unable to determine output multiplicity of MKN, no 'n' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(n.getValue(), 10);
         }
 
         if (this.isScatter()){
-            return parseInt(this.getFieldByName("num_of_copies").getValue(), 10);
+            var numCopies : Field = this.getFieldByName("num_of_copies");
+
+            if (numCopies === null){
+                console.warn("Unable to determine output multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(numCopies.getValue(), 10);
         }
 
         return 1;
@@ -817,11 +845,25 @@ export class Node {
 
     getLocalMultiplicity = () : number => {
         if (this.isMKN()){
-            return parseInt(this.getFieldByName("k").getValue(), 10);
+            var k : Field = this.getFieldByName("k");
+
+            if (k === null){
+                console.warn("Unable to determine local multiplicity of MKN, no 'k' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(k.getValue(), 10);
         }
 
         if (this.isScatter()){
-            return parseInt(this.getFieldByName("num_of_copies").getValue(), 10);
+            var numCopies = this.getFieldByName("num_of_copies");
+
+            if (numCopies === null){
+                console.warn("Unable to determine local multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(numCopies.getValue(), 10);
         }
 
         // TODO: check this is correct!
