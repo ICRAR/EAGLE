@@ -672,6 +672,32 @@ export class Utils {
         return uniqueFieldNames;
     }
 
+    static isKnownCategory(category : string) : boolean {
+        return category === Eagle.Category.BashShellApp ||
+        category === Eagle.Category.Comment ||
+        category === Eagle.Category.Component ||
+        category === Eagle.Category.Description ||
+        category === Eagle.Category.Docker ||
+        category === Eagle.Category.DynlibApp ||
+        category === Eagle.Category.End ||
+        category === Eagle.Category.ExclusiveForceNode ||
+        category === Eagle.Category.File ||
+        category === Eagle.Category.Gather ||
+        category === Eagle.Category.GroupBy ||
+        category === Eagle.Category.Loop ||
+        category === Eagle.Category.Memory ||
+        category === Eagle.Category.MKN ||
+        category === Eagle.Category.MPI ||
+        category === Eagle.Category.NGAS ||
+        category === Eagle.Category.None ||
+        category === Eagle.Category.PythonApp ||
+        category === Eagle.Category.S3 ||
+        category === Eagle.Category.Scatter ||
+        category === Eagle.Category.Service ||
+        category === Eagle.Category.Start ||
+        category === Eagle.Category.Unknown;
+    }
+
     static getColorForNode(category : Eagle.Category) : string {
         switch (category){
             case Eagle.Category.Start:
@@ -720,8 +746,53 @@ export class Utils {
                 return "#FFFFFF";
             default:
                 console.warn("No color for node with category", category);
-                console.trace();
                 return "";
+        }
+    }
+
+    static getCanHaveInputsForCategory(category : Eagle.Category) : boolean {
+        switch (category){
+            case Eagle.Category.BashShellApp:
+            case Eagle.Category.Component:
+            case Eagle.Category.Docker:
+            case Eagle.Category.DynlibApp:
+            case Eagle.Category.End:
+            case Eagle.Category.File:
+            case Eagle.Category.Gather:
+            case Eagle.Category.GroupBy:
+            case Eagle.Category.Loop:
+            case Eagle.Category.Memory:
+            case Eagle.Category.MKN:
+            case Eagle.Category.MPI:
+            case Eagle.Category.NGAS:
+            case Eagle.Category.S3:
+            case Eagle.Category.Scatter:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    static getCanHaveOutputsForCategory(category : Eagle.Category) : boolean {
+        switch (category){
+            case Eagle.Category.BashShellApp:
+            case Eagle.Category.Component:
+            case Eagle.Category.Docker:
+            case Eagle.Category.DynlibApp:
+            case Eagle.Category.File:
+            case Eagle.Category.Gather:
+            case Eagle.Category.GroupBy:
+            case Eagle.Category.Loop:
+            case Eagle.Category.Memory:
+            case Eagle.Category.MKN:
+            case Eagle.Category.MPI:
+            case Eagle.Category.NGAS:
+            case Eagle.Category.S3:
+            case Eagle.Category.Scatter:
+            case Eagle.Category.Start:
+                return true;
+            default:
+                return false;
         }
     }
 
