@@ -455,7 +455,12 @@
             "category": "Comment",
             "outputPorts": [],
             "isData": false,
-            "fields": [],
+            "fields": [{
+                "text": "Comment",
+                "name": "comment",
+                "value": "",
+                "description": "The text value of the comment"
+            }],
             "canHaveOutputs": false,
             "canHaveInputs": false,
             "shape": "File",
@@ -472,7 +477,9 @@
             "isData": false,
             "fields": [{
                 "text": "Description",
-                "value": ""
+                "name": "description",
+                "value": "",
+                "description": "The text value of the description"
             }],
             "canHaveOutputs": false,
             "canHaveInputs": false,

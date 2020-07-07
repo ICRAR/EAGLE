@@ -743,7 +743,7 @@ export class Utils {
             case Eagle.Category.ExclusiveForceNode:
                 return "#000000";
             case Eagle.Category.Unknown:
-                return "#FFFFFF";
+                return "#FF66CC";
             default:
                 console.warn("No color for node with category", category);
                 return "";

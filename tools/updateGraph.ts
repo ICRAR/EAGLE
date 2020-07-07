@@ -361,6 +361,23 @@ function readNode(nodeData : any) : Node {
         }
     }
 
+    // make sure comment nodes have appropriate fields
+    if (node.getCategory() === Eagle.Category.Comment){
+        if (node.getFieldByName('comment') === null){
+            node.addField(new Field("Comment", "comment", node.getName(), "The text value of the comment"));
+            node.setName("");
+            logMessage("Added missing 'comment' field to Comment node " + i);
+        }
+    }
+
+    // make sure description nodes have appropriate fields
+    if (node.getCategory() === Eagle.Category.Description){
+        if (node.getFieldByName('description') === null){
+            node.addField(new Field("Description", "description", "", "The text value of the description"));
+            logMessage("Added missing 'description' field to Description node " + i);
+        }
+    }
+
     // make sure canHaveInputs and canHaveOutputs are set appropriately for this category
     if (node.canHaveInputs() !== Utils.getCanHaveInputsForCategory(category)){
         node.setCanHaveInputs(Utils.getCanHaveInputsForCategory(category));
