@@ -228,7 +228,7 @@ def get_git_hub_files_all():
         repo_token = content["token"]
     except KeyError as ke:
         print("KeyError {1}: {0}".format(str(ke), repo_name))
-        return "Repository or Token fields not specified in request", 400
+        return jsonify({"error":"Repository, Branch or Token not specified in request"})
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
@@ -238,21 +238,31 @@ def get_git_hub_files_all():
         repo = g.get_repo(repo_name)
     except github.UnknownObjectException as uoe:
         print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
-        return jsonify({"": []})
+        return jsonify({"error":uoe.message})
 
     # get results
     d = parse_github_folder(repo, "", repo_branch)
 
-    # response
+    # if unable to parse github folder, return the error
+    if type(d) is str or type(d) is unicode:
+        print("Unable to parse github folder:" + d)
+        return jsonify({"error":d})
+
+    # return correct result
     return jsonify(d)
 
 
 @app.route("/getGitLabFilesAll", methods=["POST"])
 def get_git_lab_files_all():
     content = request.get_json(silent=True)
-    repo_name = content["repository"]
-    repo_branch = content["branch"]
-    repo_token = content["token"]
+
+    try:
+        repo_name = content["repository"]
+        repo_branch = content["branch"]
+        repo_token = content["token"]
+    except KeyError as ke:
+        print("KeyError {1}: {0}".format(str(ke), repo_name))
+        return jsonify({"error":"Repository, Branch or Token not specified in request"})
 
     gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
     gl.auth()
@@ -262,10 +272,11 @@ def get_git_lab_files_all():
         items = project.repository_tree(recursive='true', all=True, ref=repo_branch)
     except gitlab.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
-        return jsonify({"": []})
+        return jsonify({"error": gge.message})
 
     d = parse_gitlab_folder(items, "")
 
+    # return correct result
     return jsonify(d)
 
 @app.route("/saveFileToRemoteGithub", methods=["POST"])
@@ -467,8 +478,9 @@ def parse_github_folder(repo, path, branch):
     # Getting repository file list
     try:
         contents = repo.get_contents(path, ref=branch)
-    except github.GithubException:
-        return result
+    except github.GithubException as ghe:
+        print("GitHubException {1} ({2}): {0}".format(str(ghe), repo.full_name, branch))
+        return ghe.data["message"]
 
     while contents:
         file_content = contents.pop(0)

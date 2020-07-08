@@ -106,9 +106,17 @@ export class GitHub {
         Utils.httpPostJSON('/getGitHubFilesAll', jsonData, function(error:string, data:any){
             repository.isFetching(false);
 
+            // check for unhandled errors
             if (error != null){
-                console.error(error);
+                console.error(error, data);
                 Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
+                return;
+            }
+
+            // check for errors that were handled correctly and passed to the client to display
+            if (typeof data.error !== 'undefined'){
+                console.log("error", data.error);
+                Utils.showUserMessage("Error", data.error);
                 return;
             }
 
