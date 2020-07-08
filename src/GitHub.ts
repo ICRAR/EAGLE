@@ -73,6 +73,9 @@ export class GitHub {
                     eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, repositoryName, repositoryBranch, false));
                 }
             }
+
+            // sort the repository list
+            eagle.sortRepositories();
         });
     }
 

@@ -828,4 +828,19 @@ export class Utils {
     static setLeftWindowWidth(width : number) : void {
         localStorage.setItem(this.LEFT_WINDOW_WIDTH_KEY, width.toString());
     }
+
+    static getLocalStorageKey(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
+        switch (repositoryService){
+            case Eagle.RepositoryService.GitHub:
+                return repositoryName + "|" + repositoryBranch + ".github_repository_and_branch";
+            case Eagle.RepositoryService.GitLab:
+                return repositoryName + "|" + repositoryBranch + ".gitlab_repository_and_branch";
+            default:
+                return null;
+        }
+    }
+
+    static getLocalStorageValue(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
+        return repositoryName+"|"+repositoryBranch;
+    }
 }

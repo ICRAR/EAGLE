@@ -39,6 +39,35 @@ export class Repository {
         this.folders.removeAll();
     }
 
+    // sorting order
+    // 1. alphabetically by service
+    // 2. alphabetically by name
+    // 3. alphabetically by branch (master always first)
+    public static repositoriesSortFunc(a : Repository, b : Repository) : number {
+        if (a.service < b.service)
+            return -1;
+
+        if (a.service > b.service)
+            return 1;
+
+        if (a.name < b.name)
+            return -1;
+
+        if (a.name > b.name)
+            return 1;
+
+        if (a.branch === "master")
+            return -1;
+
+        if (a.branch < b.branch)
+            return -1;
+
+        if (a.branch > b.branch)
+            return 1;
+
+        return 0;
+    }
+
     public static fileSortFunc = (a: string, b: string) : number => {
         var aType : Eagle.FileType = Utils.getFileTypeFromFileName(a);
         var bType : Eagle.FileType = Utils.getFileTypeFromFileName(b);

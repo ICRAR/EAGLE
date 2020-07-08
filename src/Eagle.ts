@@ -915,21 +915,14 @@ export class Eagle {
             console.log("User entered new repo name:", repositoryService, repositoryName, repositoryBranch);
 
             // add extension to userString to indicate repository service
-            var localStorageKey : string;
-            switch (repositoryService){
-                case Eagle.RepositoryService.GitHub:
-                    localStorageKey = repositoryName + ".github_repository_and_branch";
-                    break;
-                case Eagle.RepositoryService.GitLab:
-                    localStorageKey = repositoryName + ".gitlab_repository_and_branch";
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
-                    return;
+            var localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
+            if (localStorageKey === null){
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
+                return;
             }
 
             // Adding the repo name into the local browser storage.
-            localStorage.setItem(localStorageKey, repositoryName+"|"+repositoryBranch);
+            localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
 
             // Reload the repository lists
             if (repositoryService === Eagle.RepositoryService.GitHub)
@@ -968,6 +961,10 @@ export class Eagle {
             }
         });
     };
+
+    sortRepositories = () : void => {
+        this.repositories.sort(Repository.repositoriesSortFunc);
+    }
 
     openRemoteFile = (file : RepositoryFile) : void => {
         // flag file as being fetched
