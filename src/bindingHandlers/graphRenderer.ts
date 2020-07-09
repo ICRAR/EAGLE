@@ -589,6 +589,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .attr("class", nodeIsSelected)
                                 .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
                                 .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeight(node));})
+                                .style("fill", nodeGetFill)
+                                .style("stroke", nodeGetStroke)
+                                .attr("stroke-dasharray", nodeGetStrokeDashArray)
                                 .on("click", nodeOnClick);
 
         svgContainer.selectAll("g.node rect.header-background")
@@ -621,7 +624,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         svgContainer.selectAll("image")
                                 .data(nodeData)
-                                //.attr("href", getDataIcon)
+                                .attr("href", getDataIcon)
                                 .attr("width", REAL_TO_DISPLAY_SCALE(DATA_COMPONENT_NODE_HEIGHT))
                                 .attr("height", REAL_TO_DISPLAY_SCALE(DATA_COMPONENT_NODE_HEIGHT))
                                 .attr("x", 0)

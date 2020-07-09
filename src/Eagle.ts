@@ -280,14 +280,16 @@ export class Eagle {
         switch (rightWindowMode){
             case Eagle.RightWindowMode.Hierarchy:
             case Eagle.RightWindowMode.NodeInspector:
-                this.selectedNode(<Node>selection);
-                this.selectedEdge(null);
-
                 // de-select all the nodes and then select this node
                 for (var i = 0 ; i < this.logicalGraph().getNodes().length; i++){
                     this.logicalGraph().getNodes()[i].setSelected(false);
+                    this.logicalGraph().getNodes()[i].setShowPorts(false);
                 }
                 (<Node>selection).setSelected(true);
+                (<Node>selection).setShowPorts(true);
+
+                this.selectedNode(<Node>selection);
+                this.selectedEdge(null);
 
                 // expand this node's parents, all the way to the root of the hierarchy
                 var n : Node = <Node>selection;
