@@ -159,9 +159,9 @@ export class Eagle {
         // TODO: move to a function on the FileInfo class
         if (fileInfo.repositoryName !== ""){
             if (fileInfo.path === ""){
-                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + "/" + fileInfo.name;
+                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + " (" + fileInfo.repositoryBranch + "): " + fileInfo.name;
             } else {
-                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + "/" + fileInfo.path + "/" + fileInfo.name;
+                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + " (" + fileInfo.repositoryBranch + "): " + fileInfo.path + "/" + fileInfo.name;
             }
         } else {
             return fileInfo.name;
@@ -173,20 +173,20 @@ export class Eagle {
 
         for (var i = 0 ; i < this.repositories().length ; i++){
             if (this.repositories()[i].service === service){
-                list.push(this.repositories()[i].name);
+                list.push(this.repositories()[i].name + " (" + this.repositories()[i].branch + ")");
             }
         }
 
         return list;
     };
 
-    getRepository = (service : Eagle.RepositoryService, name : string) : Repository | null => {
+    getRepository = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
         for (var i = 0 ; i < this.repositories().length ; i++){
-            if (this.repositories()[i].service === service && this.repositories()[i].name === name){
+            if (this.repositories()[i].service === service && this.repositories()[i].name === name && this.repositories()[i].branch === branch){
                 return this.repositories()[i];
             }
         }
-        console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name);
+        console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
     };
 
@@ -409,7 +409,7 @@ export class Eagle {
             }
 
             // update the activeFileInfo with details of the repository the file was loaded from
-            this.updateFileInfo(fileType, "", Eagle.RepositoryService.Unknown, Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+            this.updateFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
         });
     }
 
@@ -473,7 +473,7 @@ export class Eagle {
             }
 
             // update the activeFileInfo with details of the repository the file was loaded from
-            this.updateFileInfo(fileType, "", Eagle.RepositoryService.Unknown, Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+            this.updateFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
         });
     }
 
@@ -677,7 +677,7 @@ export class Eagle {
     commitToGitAs = (fileType : Eagle.FileType) : void => {
         console.log("commitToGitAs()");
 
-        Utils.requestUserGitCommit(Eagle.RepositoryService.GitHub, this.getRepositoryList(Eagle.RepositoryService.GitHub),  this.activeFileInfo().path, this.activeFileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(Eagle.RepositoryService.GitHub, this.getRepositoryList(Eagle.RepositoryService.GitHub),  this.activeFileInfo().path, this.activeFileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -685,7 +685,7 @@ export class Eagle {
             }
 
             // check repository name
-            var repository : Repository = this.getRepository(repositoryService, repositoryName);
+            var repository : Repository = this.getRepository(repositoryService, repositoryName, repositoryBranch);
             if (repository === null){
                 console.log("Abort commit");
                 return;
@@ -693,6 +693,7 @@ export class Eagle {
 
             this.activeFileInfo().repositoryService = repositoryService;
             this.activeFileInfo().repositoryName = repositoryName;
+            this.activeFileInfo().repositoryBranch = repositoryBranch;
 
             // check filePath
             this.activeFileInfo().path = filePath;
@@ -739,7 +740,7 @@ export class Eagle {
                 return;
             }
 
-            this.saveDiagramToGit(this.getRepository(this.activeFileInfo().repositoryService, this.activeFileInfo().repositoryName), fileType, this.activeFileInfo().path, this.activeFileInfo().name, userString);
+            this.saveDiagramToGit(this.getRepository(this.activeFileInfo().repositoryService, this.activeFileInfo().repositoryName, this.activeFileInfo().repositoryBranch), fileType, this.activeFileInfo().path, this.activeFileInfo().name, userString);
         });
     };
 
@@ -781,6 +782,7 @@ export class Eagle {
 
         var jsonData : object = {
             jsonData: json,
+            repositoryBranch: repository.branch,
             repositoryName: repository.name,
             repositoryService: repository.service,
             token: token,
@@ -853,7 +855,7 @@ export class Eagle {
     }
 
     selectFile = (file : RepositoryFile) : void => {
-        console.log("selectFile() repo:", file.repository.name, "path:", file.path, "file:", file.name, "type:", file.type);
+        console.log("selectFile() repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
 
         var isModified = false;
         if (file.type == Eagle.FileType.Graph){
@@ -891,7 +893,7 @@ export class Eagle {
 
     // TODO: update with custom modal to ask user for repository service and url at the same time
     addCustomRepository = () : void => {
-        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : string, repositoryName : string) : void => {
+        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) : void => {
             console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
 
             if (!completed){
@@ -904,25 +906,23 @@ export class Eagle {
                 return;
             }
 
+            if (repositoryBranch.trim() == ""){
+                Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
+                return;
+            }
+
             // debug
-            console.log("User entered new repo name:", repositoryService, repositoryName);
+            console.log("User entered new repo name:", repositoryService, repositoryName, repositoryBranch);
 
             // add extension to userString to indicate repository service
-            var localStorageKey : string;
-            switch (repositoryService){
-                case Eagle.RepositoryService.GitHub:
-                    localStorageKey = repositoryName + ".github_repository";
-                    break;
-                case Eagle.RepositoryService.GitLab:
-                    localStorageKey = repositoryName + ".gitlab_repository";
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
-                    return;
+            var localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
+            if (localStorageKey === null){
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
+                return;
             }
 
             // Adding the repo name into the local browser storage.
-            localStorage.setItem(localStorageKey, repositoryName);
+            localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
 
             // Reload the repository lists
             if (repositoryService === Eagle.RepositoryService.GitHub)
@@ -946,10 +946,12 @@ export class Eagle {
                     case Eagle.RepositoryService.GitHub:
                         localStorage.removeItem(repository.name + ".repository");
                         localStorage.removeItem(repository.name + ".github_repository");
+                        localStorage.removeItem(repository.name + ".github_repository_and_branch");
                         GitHub.loadRepoList(this);
                         break;
                     case Eagle.RepositoryService.GitLab:
                         localStorage.removeItem(repository.name + ".gitlab_repository");
+                        localStorage.removeItem(repository.name + ".gitlab_repository_and_branch");
                         GitLab.loadRepoList(this);
                         break;
                     default:
@@ -959,6 +961,10 @@ export class Eagle {
             }
         });
     };
+
+    sortRepositories = () : void => {
+        this.repositories.sort(Repository.repositoriesSortFunc);
+    }
 
     openRemoteFile = (file : RepositoryFile) : void => {
         // flag file as being fetched
@@ -979,7 +985,7 @@ export class Eagle {
         }
 
         // load file from github or gitlab
-        openRemoteFileFunc(file.repository.name, file.repository.service, file.path, file.name, (error : string, data : string) : void => {
+        openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
             var fileTypeLoaded : Eagle.FileType = Eagle.FileType.Unknown;
 
             // flag fetching as incomplete
@@ -1032,13 +1038,14 @@ export class Eagle {
             }
 
             //.update the activeFileInfo with details of the repository the file was loaded from
-            this.updateFileInfo(fileTypeLoaded, file.repository.name, file.repository.service, file.path, file.name);
+            this.updateFileInfo(fileTypeLoaded, file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
         });
     };
 
-    private updateFileInfo = (fileType : Eagle.FileType, repositoryName : string, repositoryService : Eagle.RepositoryService, path : string, name : string) : void => {
+    private updateFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
         //.update the activeFileInfo with details of the repository the file was loaded from
         this.activeFileInfo().repositoryName = repositoryName;
+        this.activeFileInfo().repositoryBranch = repositoryBranch;
         this.activeFileInfo().repositoryService = repositoryService;
         this.activeFileInfo().path = path;
         this.activeFileInfo().name = name;

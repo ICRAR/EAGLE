@@ -19,6 +19,7 @@ ko.components.register('repository', {
     viewModel: function(params : {data : any, parent : any}){
         this.name = params.data.name;
         this.service = params.data.service;
+        this.branch = params.data.branch;
         this.htmlId = params.data.htmlId;
         this.fetched = params.data.fetched;
         this.isFetching = params.data.isFetching;
