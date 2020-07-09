@@ -882,16 +882,6 @@ export class Node {
         return this.fields[0].getValue();
     }
 
-    categoryChanged = (eagle : Eagle) : void => {
-        //console.log("categoryChanged()");
-
-        setTimeout(() => {
-            //console.log("new category", this.category);
-            eagle.selectedNode.valueHasMutated();
-            eagle.flagActiveDiagramHasMutated();
-        }, 1);
-    }
-
     customDataChanged = (eagle : Eagle, event : JQueryEventObject) : void => {
         var e : HTMLTextAreaElement = <HTMLTextAreaElement> event.originalEvent.target;
 

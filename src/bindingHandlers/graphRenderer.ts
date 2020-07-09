@@ -210,7 +210,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                      .call(wrap, Node.DEFAULT_WIDTH);
 
     var icons = nodes.append("svg:image")
-                    .attr("xlink:href", getDataIcon)
+                    .attr("href", getDataIcon)
                     .attr("width", REAL_TO_DISPLAY_SCALE(DATA_COMPONENT_NODE_HEIGHT))
                     .attr("height", REAL_TO_DISPLAY_SCALE(DATA_COMPONENT_NODE_HEIGHT))
                     .attr("x", 0)
@@ -621,7 +621,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         svgContainer.selectAll("image")
                                 .data(nodeData)
-                                .attr("xlink:href", getDataIcon)
+                                //.attr("href", getDataIcon)
                                 .attr("width", REAL_TO_DISPLAY_SCALE(DATA_COMPONENT_NODE_HEIGHT))
                                 .attr("height", REAL_TO_DISPLAY_SCALE(DATA_COMPONENT_NODE_HEIGHT))
                                 .attr("x", 0)
