@@ -88,8 +88,8 @@ function readFileInfo(modelData : any, inputFilename : string) : FileInfo {
         return result;
     }
 
-    result.path = GraphUpdater.getFilePathFromFullPath(modelData.filePath);
-    result.name = GraphUpdater.getFileNameFromFullPath(modelData.filePath);
+    result.path = Utils.getFilePathFromFullPath(modelData.filePath);
+    result.name = Utils.getFileNameFromFullPath(modelData.filePath);
     result.type = Utils.translateStringToFileType(modelData.fileType);
     result.gitUrl = modelData.git_url;
 
@@ -117,12 +117,27 @@ function readNode(nodeData : any) : Node {
 
     // translate categories if required
     var category : string = GraphUpdater.translateOldCategory(nodeData.category);
-    var categoryType : string = GraphUpdater.translateOldCategoryType(nodeData.categoryType);
-    if (category !== nodeData.category){
-        logMessage("Translated old category: '" + nodeData.category + "' into a '"+ category + "' for node " + i);
+    var categoryType : string = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
+
+    if (category === Eagle.Category.Unknown){
+        logError("Unable to translate category '" + nodeData.category + "' of node " + i);
+    } else {
+        if (category !== nodeData.category){
+            logMessage("Translated old category: '" + nodeData.category + "' into '" + category + "' for node " + i);
+        }
     }
-    if (categoryType !== nodeData.categoryType){
-        logMessage("Translated old categoryType: '" + nodeData.categoryType + "' into a '"+ categoryType + "' for node " + i);
+
+    if (!Utils.isKnownCategory(category)){
+        logError("Unknown category '" + category + "' of node " + i);
+        category = Eagle.Category.Unknown;
+    }
+
+    if (categoryType === Eagle.CategoryType.Unknown){
+        logError("Unable to translate categoryType '" + nodeData.categoryType + "' of node " + i);
+    } else {
+        if (categoryType !== nodeData.categoryType){
+            logMessage("Translated old categoryType: '" + nodeData.categoryType + "' into '" + categoryType + "' for node " + i);
+        }
     }
 
     // create new node
@@ -153,10 +168,21 @@ function readNode(nodeData : any) : Node {
         }
     }
 
-    node.setIsData(nodeData.isData);
-    node.setIsGroup(nodeData.isGroup);
-    node.setCanHaveInputs(nodeData.canHaveInputs);
-    node.setCanHaveOutputs(nodeData.canHaveOutputs);
+    if (typeof nodeData.isData !== 'undefined'){
+        node.setIsData(nodeData.isData);
+    }
+
+    if (typeof nodeData.isGroup !== 'undefined'){
+        node.setIsGroup(nodeData.isGroup);
+    }
+
+    if (typeof nodeData.canHaveInputs !== 'undefined'){
+        node.setCanHaveInputs(nodeData.canHaveInputs);
+    }
+
+    if (typeof nodeData.canHaveOutputs !== 'undefined'){
+        node.setCanHaveOutputs(nodeData.canHaveOutputs);
+    }
 
     if (typeof nodeData.inputAppName !== 'undefined'){
         node.setInputApplicationName(nodeData.inputAppName);
@@ -204,9 +230,15 @@ function readNode(nodeData : any) : Node {
     }
 
     // application types
-    node.setInputApplicationType(nodeData.inputApplication);
-    node.setOutputApplicationType(nodeData.outputApplication);
-    node.setExitApplicationType(nodeData.exitApplicationType);
+    if (typeof nodeData.inputApplication !== 'undefined'){
+        node.setInputApplicationType(nodeData.inputApplication);
+    }
+    if (typeof nodeData.outputApplication !== 'undefined'){
+        node.setOutputApplicationType(nodeData.outputApplication);
+    }
+    if (typeof nodeData.exitApplicationType !== 'undefined'){
+        node.setExitApplicationType(nodeData.exitApplicationType);
+    }
 
     // subject (for comment nodes)
     if (typeof nodeData.subject !== 'undefined'){
@@ -289,6 +321,73 @@ function readNode(nodeData : any) : Node {
         }
     }
 
+    // make sure scatter nodes have a 'num_of_copies' field
+    if (node.getCategory() === Eagle.Category.Scatter){
+        if (node.getFieldByName('num_of_copies') === null){
+            node.addField(new Field("Number of copies", "num_of_copies", "1", ""));
+            logMessage("Added missing 'num_of_copies' field to Scatter node " + i);
+        }
+        if (node.getFieldByName('scatter_axis') === null){
+            node.addField(new Field("Scatter Axis", "scatter_axis", "", ""));
+            logMessage("Added missing 'scatter_axis' field to Scatter node " + i);
+        }
+    }
+
+    // make sure gather nodes have a 'num_of_inputs' field
+    if (node.getCategory() === Eagle.Category.Gather){
+        if (node.getFieldByName('num_of_inputs') === null){
+            node.addField(new Field("Number of inputs", "num_of_inputs", "1", ""));
+            logMessage("Added missing 'num_of_inputs' field to Gather node " + i);
+        }
+        if (node.getFieldByName('gather_axis') === null){
+            node.addField(new Field("Gather Axis", "gather_axis", "", ""));
+            logMessage("Added missing 'gather_axis' field to Gather node " + i);
+        }
+    }
+
+    // make sure MKN nodes have 'm', 'k', and 'n' fields
+    if (node.getCategory() === Eagle.Category.MKN){
+        if (node.getFieldByName('m') === null){
+            node.addField(new Field("M", "m", "1", ""));
+            logMessage("Added missing 'm' field to MKN node " + i);
+        }
+        if (node.getFieldByName('k') === null){
+            node.addField(new Field("K", "k", "1", ""));
+            logMessage("Added missing 'k' field to MKN node " + i);
+        }
+        if (node.getFieldByName('n') === null){
+            node.addField(new Field("N", "n", "1", ""));
+            logMessage("Added missing 'n' field to MKN node " + i);
+        }
+    }
+
+    // make sure comment nodes have appropriate fields
+    if (node.getCategory() === Eagle.Category.Comment){
+        if (node.getFieldByName('comment') === null){
+            node.addField(new Field("Comment", "comment", node.getName(), "The text value of the comment"));
+            node.setName("");
+            logMessage("Added missing 'comment' field to Comment node " + i);
+        }
+    }
+
+    // make sure description nodes have appropriate fields
+    if (node.getCategory() === Eagle.Category.Description){
+        if (node.getFieldByName('description') === null){
+            node.addField(new Field("Description", "description", "", "The text value of the description"));
+            logMessage("Added missing 'description' field to Description node " + i);
+        }
+    }
+
+    // make sure canHaveInputs and canHaveOutputs are set appropriately for this category
+    if (node.canHaveInputs() !== Utils.getCanHaveInputsForCategory(category)){
+        node.setCanHaveInputs(Utils.getCanHaveInputsForCategory(category));
+        logMessage("Set canHaveInputs to " + node.canHaveInputs() + " for node " + i);
+    }
+    if (node.canHaveOutputs() !== Utils.getCanHaveOutputsForCategory(category)){
+        node.setCanHaveOutputs(Utils.getCanHaveOutputsForCategory(category));
+        logMessage("Set canHaveOutputs to " + node.canHaveOutputs() + " for node " + i);
+    }
+
     return node;
 }
 
@@ -297,20 +396,40 @@ function readEdge(linkData : any) : Edge {
     var srcNode : Node  = outputGraph.getNodes()[GraphUpdater.findIndexOfNodeDataArrayWithKey(inputGraph.nodeDataArray, linkData.from)];
     var destNode : Node  = outputGraph.getNodes()[GraphUpdater.findIndexOfNodeDataArrayWithKey(inputGraph.nodeDataArray, linkData.to)];
 
-    // abort if source node not found
+    // log error if source node not found
     if (typeof srcNode === 'undefined'){
         var error : string = "Unable to find node with key " + linkData.from + " used as source node in link " + i + ". Discarding link!";
         logError(error);
     }
 
-    // abort if dest node not found
+    // log error if dest node not found
     if (typeof destNode === 'undefined'){
         var error : string = "Unable to find node with key " + linkData.to + " used as destination node in link " + i + ". Discarding link!";
         logError(error);
     }
 
+    // abort if one or both nodes cannot be found
+    if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'){
+        logError("Unable to translate link " + i + ". Source or destination node unknown.");
+        return null;
+    }
+
     var srcPort : Port = null;
     var destPort : Port = null;
+    var oldFromPortId : number = linkData.fromPort;
+    var oldToPortId : number = linkData.toPort;
+
+    // check if fromPort is undefined
+    if (typeof linkData.fromPort === 'undefined'){
+        //logMessage("'fromPort' undefined in link " + i + ". Using default port.");
+        linkData.fromPort = Port.DEFAULT_ID;
+    }
+
+    // check if toPort is undefined
+    if (typeof linkData.toPort === 'undefined'){
+        //logMessage("'toPort' undefined in link " + i + ". Using default port.");
+        linkData.toPort = Port.DEFAULT_ID;
+    }
 
     // find source port on source node
     if (typeof srcNode !== 'undefined'){
@@ -322,31 +441,38 @@ function readEdge(linkData : any) : Edge {
         destPort = destNode.findPortById(linkData.toPort);
     }
 
+    //console.log("srcPort", srcPort, "destPort", destPort);
+
     // add it if source port not found
     if (srcPort === null){
-        var srcNodeIdText : string = linkData.fromPort + "-" + linkData.toPort;
-        srcNode.addPort(new Port(linkData.fromPort, srcNodeIdText), true, false);
-        srcPort = srcNode.findPortById(linkData.fromPort);
-        //var error : string = "Unable to find src port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i;
-        //logError(error);
-        logMessage("updated the src port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i);
+        var srcPortName : string = linkData.fromPort + "-" + linkData.toPort;
+        srcPort = new Port(Utils.uuidv4(), srcPortName);
+        srcNode.addPort(srcPort, false, false);
+
+        logMessage("Added a new src port " + srcPort.getName() + " to node " + srcNode.getKey() + " in link " + i + " since port (" + oldFromPortId + ") is missing.");
      }
 
     // add it if dest port not found
     if (destPort === null){
-        var destNodeIdText : string = linkData.fromPort + "-" + linkData.toPort;
-        destNode.addPort(new Port(linkData.toPort, destNodeIdText), false, false);
-        destPort = destNode.findPortById(linkData.toPort);
-        //var error : string = "Unable to find dst port " + linkData.toPort + " on node " + linkData.to + " used in link " + i;
-        //logError(error);
-        logMessage("updated the dst port " + linkData.toPort + " on node " + linkData.to + " used in link " + i);
+        var destPortName : string = linkData.fromPort + "-" + linkData.toPort;
+        destPort = new Port(Utils.uuidv4(), destPortName);
+        destNode.addPort(destPort, true, false);
+
+        logMessage("Added a new dst port " + destPort.getName() + " to node " + destNode.getKey() + " in link " + i + " since port (" + oldToPortId + ") is missing.");
     }
 
     if (srcPort === null || destPort === null){
+        logError("Unable to translate link " + i + ". Source or destination port unknown.");
         return null;
     }
 
-    return new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName());
+    // check if srcPort and destPort have different names
+    if (srcPort.getName() !== destPort.getName()){
+        logError("Name of source and destination do not match for link " + i);
+        return null;
+    }
+
+    return new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getName());
 }
 
 function logMessage(message : string){

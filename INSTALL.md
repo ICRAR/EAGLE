@@ -1,4 +1,40 @@
 # EAGLE Installation Guide
+
+### Docker Images
+
+#### alpine based docker image
+
+This is the preferred way to get EAGLE up and running both in an operational and in a local environment. It is based on an an image from https://github.com/tiangolo/meinheld-gunicorn-flask-docker and packs gunicorn, flask and EAGLE into a small 142 MB image. When started it runs EAGLE as a Flask WSGI application served by multiple gunicorn tasks. To build and run enter:
+
+    $ git clone https://github.com/ICRAR/EAGLE.git; cd EAGLE
+    $ docker-compose up -d
+
+This will build and start an image called eagle_alpine. Navigate to the EAGLE access point and start creating workflows:
+
+    http://localhost:8888
+
+Once the image is built instances can be started and stopped like this:
+
+    $ docker-compose start
+
+...
+
+    $ docker-compose stop
+
+### Centos7 based docker image
+
+The fabric script also allows to create a docker image. In order to enable that the virtualenv in addition needs the python docker module.
+
+    $ pip install docker
+
+then
+
+    $ fab hl.docker_image
+
+will generate the image based on Centos7. The server can be started using:
+
+    $ docker run -ti -p 8888:8888 icrar/eagle:latest /home/eagle/eagle_rt/bin/eagleServer
+
 ## Debugging and Testing
 For debugging and testing EAGLE has an internal web server, which is provided
 by the underlying Flask framework.

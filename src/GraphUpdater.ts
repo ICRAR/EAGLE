@@ -68,9 +68,43 @@ export class GraphUpdater {
         return category;
     }
 
-    static translateOldCategoryType(categoryType : string) : string {
+    static translateOldCategoryType(categoryType : string, category : Eagle.Category) : string {
         if (typeof categoryType === "undefined"){
-            return Eagle.CategoryType.Unknown;
+            // try to determine categoryType based on category
+            switch(category){
+                case Eagle.Category.Start:
+                case Eagle.Category.End:
+                case Eagle.Category.ExclusiveForceNode:
+                    return Eagle.CategoryType.Control;
+
+                case Eagle.Category.BashShellApp:
+                case Eagle.Category.DynlibApp:
+                case Eagle.Category.MPI:
+                case Eagle.Category.Docker:
+                case Eagle.Category.Component:
+                    return Eagle.CategoryType.Application;
+
+                case Eagle.Category.File:
+                case Eagle.Category.Memory:
+                case Eagle.Category.NGAS:
+                case Eagle.Category.S3:
+                    return Eagle.CategoryType.Data;
+
+                case Eagle.Category.GroupBy:
+                case Eagle.Category.Gather:
+                case Eagle.Category.Scatter:
+                case Eagle.Category.MKN:
+                case Eagle.Category.Loop:
+                    return Eagle.CategoryType.Group;
+
+                case Eagle.Category.Service:
+                case Eagle.Category.Comment:
+                case Eagle.Category.Description:
+                    return Eagle.CategoryType.Other;
+
+                default:
+                    return Eagle.CategoryType.Unknown;
+            }
         }
 
         if (categoryType === "ControlComponent"){
@@ -103,20 +137,20 @@ export class GraphUpdater {
         return -1;
     }
 
-    // extra functionality to check if all x,y coords of nodes are negative, if so, move them all into the +x/+y quadrant
+    // extra functionality to check if any x,y coords of nodes are negative, if so, move them all into the +x/+y quadrant
     static correctOJSNegativePositions(graph : LogicalGraph) : boolean {
-        // check if all nodes are negative
-        var allNegative : boolean = true;
+        // check if any nodes are negative
+        var anyNegative : boolean = false;
         for (var i = 0 ; i < graph.getNodes().length ; i++){
             var node : Node = graph.getNodes()[i];
-            if (node.getPosition().x > 0 || node.getPosition().y > 0){
-                allNegative = false;
+            if (node.getPosition().x < 0 || node.getPosition().y < 0){
+                anyNegative = true;
                 break;
             }
         }
 
         // abort if not all negative
-        if (!allNegative){
+        if (!anyNegative){
             return false;
         }
 
@@ -133,10 +167,19 @@ export class GraphUpdater {
             }
         }
 
+        // increase offset for all nodes to move them a "nice" distance away from the origin
+        maxX -= Node.DEFAULT_POSITION_X;
+        maxY -= Node.DEFAULT_POSITION_Y;
+        //console.log("maxX", maxX, "maxY", maxY);
+
         // move all nodes by -maxX, -maxY
         for (var i = 0 ; i < graph.getNodes().length ; i++){
             var node : Node = graph.getNodes()[i];
-            node.setPosition(node.getPosition().x - maxX, node.getPosition().y - maxY);
+            var newX : number = node.getPosition().x - maxX;
+            var newY : number = node.getPosition().y - maxY;
+            //console.log("move node", i, "from", node.getPosition().x, ",", node.getPosition().y, "to", newX, ",", newY);
+
+            node.setPosition(newX, newY);
         }
 
         return true;
