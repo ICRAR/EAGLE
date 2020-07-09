@@ -879,8 +879,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // dragging link
         if (isDraggingPort){
-            var x1 : number = edgeGetX1(new Edge(sourceNodeKey, sourcePortId, 0, "", ""));
-            var y1 : number = edgeGetY1(new Edge(sourceNodeKey, sourcePortId, 0, "", ""));
+            var x1 : number = REAL_TO_DISPLAY_POSITION_X(edgeGetX1(new Edge(sourceNodeKey, sourcePortId, 0, "", "")));
+            var y1 : number = REAL_TO_DISPLAY_POSITION_Y(edgeGetY1(new Edge(sourceNodeKey, sourcePortId, 0, "", "")));
             var x2 : number = mousePosition.x;
             var y2 : number = mousePosition.y;
 
