@@ -70,7 +70,7 @@ ko.components.register('hierarchy', {
 
 ko.components.register('hierarchy-node', {
     viewModel: function(params : {data : any, parentKey : number | null, select : Function}){
-        this.name = params.data.name;
+        this.name = params.data.name.trim() === "" ? params.data.category : params.data.name;
         this.key = params.data.key;
         this.parentKey = params.data.parentKey;
         this.expanded = params.data.expanded;
