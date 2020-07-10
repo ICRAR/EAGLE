@@ -120,6 +120,7 @@
                 </div>
                 <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.Hierarchy">
                     {% include 'hierarchy.html' %}
+                    {% include 'json_display.html' %}
                 </div>
 
                 <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart }">

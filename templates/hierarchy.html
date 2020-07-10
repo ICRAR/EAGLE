@@ -2,12 +2,12 @@
     <div class="row">
         <div class="col">
             <!-- ko if: logicalGraph() === null -->
-            <span>No Graph</span>
+                <span>No Graph</span>
             <!-- /ko -->
 
             <!-- ko if: logicalGraph() !== null -->
                 <!-- ko if: logicalGraph().getNumNodes() === 0 -->
-                <span>No Nodes</span>
+                    <span>No Nodes</span>
                 <!-- /ko -->
                 <!-- ko if: logicalGraph().getNumNodes() !== 0 -->
                     <span>Graph</span>

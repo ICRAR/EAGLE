@@ -222,8 +222,18 @@
     top: 4px;
 }
 
+#nodeList {
+    height: 50%;
+    overflow-y: scroll;
+}
+
 #nodeList ul.nodes {
     list-style-type: none;
+}
+
+#jsonDisplay {
+    height: 50%;
+    overflow-y: scroll;
 }
 
 .rightWindow h5 i.material-icons {

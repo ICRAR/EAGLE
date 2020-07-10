@@ -67,6 +67,8 @@ export class Eagle {
     globalOffsetY : number = 0;
     globalScale : number = 1.0;
 
+    jsonText : ko.Observable<string>;
+
     static dataNodes : Node[] = [];
     static dataCategories : Eagle.Category[] = [];
     static applicationNodes : Node[] = [];
@@ -100,6 +102,8 @@ export class Eagle {
         this.templatePalette.subscribe(this.updateTooltips);
         this.palette.subscribe(this.updateTooltips);
         this.selectedNode.subscribe(this.updateTooltips);
+
+        this.jsonText = ko.observable("");
     }
 
     isPaletteEditorModeEnabled = () : boolean => {
@@ -1026,6 +1030,7 @@ export class Eagle {
             } else if (file.type === Eagle.FileType.JSON) {
                 if (this.userMode() === Eagle.UserMode.LogicalGraphEditor) {
                     //Utils.showUserMessage("Warning", "Opening JSON file as graph, make sure this is correct.");
+                    this.jsonText(JSON.stringify(JSON.parse(data), null, 4));
                     this.logicalGraph(LogicalGraph.fromOJSJson(data));
                     fileTypeLoaded = Eagle.FileType.Graph;
                 } else {
