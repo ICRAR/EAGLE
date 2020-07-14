@@ -69,6 +69,11 @@ if (hadNegativePositions){
     logMessage("Adjusting position of all nodes to move to positive quadrant.");
 }
 
+// adjust size of group nodes so that they are large enough to contain their children
+for (var i = 0 ; i < outputGraph.getNodes().length ; i++){
+    outputGraph.shrinkNode(outputGraph.getNodes()[i]);
+}
+
 // write the logical graph to disk using the outputFilename
 fs.writeFileSync(outputFilename, JSON.stringify(LogicalGraph.toOJSJson(outputGraph), null, 4));
 
