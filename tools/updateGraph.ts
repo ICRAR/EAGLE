@@ -138,7 +138,7 @@ function readNode(nodeData : any) : Node {
     }
 
     if (categoryType === Eagle.CategoryType.Unknown){
-        logError("Unable to translate categoryType '" + nodeData.categoryType + "' of node " + i);
+        logError("Unable to translate categoryType '" + nodeData.categoryType + "' of node " + i + " with category '" + category + "'");
     } else {
         if (categoryType !== nodeData.categoryType){
             logMessage("Translated old categoryType: '" + nodeData.categoryType + "' into '" + categoryType + "' for node " + i);

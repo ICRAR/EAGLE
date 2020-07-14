@@ -821,6 +821,10 @@ export class Node {
                 return "build";
             case Eagle.Category.ExclusiveForceNode:
                 return "picture_in_picture";
+            case Eagle.Category.Variables:
+                return "tune";
+            case Eagle.Category.Branch:
+                return "share";
             default:
                 console.warn("No icon for node with category", this.category);
                 return "warning";

@@ -75,6 +75,7 @@ export class GraphUpdater {
                 case Eagle.Category.Start:
                 case Eagle.Category.End:
                 case Eagle.Category.ExclusiveForceNode:
+                case Eagle.Category.Branch:
                     return Eagle.CategoryType.Control;
 
                 case Eagle.Category.BashShellApp:
@@ -100,6 +101,7 @@ export class GraphUpdater {
                 case Eagle.Category.Service:
                 case Eagle.Category.Comment:
                 case Eagle.Category.Description:
+                case Eagle.Category.Variables:
                     return Eagle.CategoryType.Other;
 
                 default:

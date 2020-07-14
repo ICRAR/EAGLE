@@ -700,6 +700,8 @@ export class Utils {
         category === Eagle.Category.S3 ||
         category === Eagle.Category.Scatter ||
         category === Eagle.Category.Service ||
+        category === Eagle.Category.Variables ||
+        category === Eagle.Category.Branch ||
         category === Eagle.Category.Start ||
         category === Eagle.Category.Unknown;
     }
@@ -748,6 +750,10 @@ export class Utils {
                 return "#EB1672";
             case Eagle.Category.ExclusiveForceNode:
                 return "#000000";
+            case Eagle.Category.Branch:
+                return "#00BDA1"
+            case Eagle.Category.Variables:
+                return "#C10000";
             case Eagle.Category.Unknown:
                 return "#FF66CC";
             default:
@@ -759,6 +765,7 @@ export class Utils {
     static getCanHaveInputsForCategory(category : Eagle.Category) : boolean {
         switch (category){
             case Eagle.Category.BashShellApp:
+            case Eagle.Category.Branch:
             case Eagle.Category.Component:
             case Eagle.Category.Docker:
             case Eagle.Category.DynlibApp:
@@ -774,7 +781,12 @@ export class Utils {
             case Eagle.Category.S3:
             case Eagle.Category.Scatter:
                 return true;
+            case Eagle.Category.Comment:
+            case Eagle.Category.Start:
+            case Eagle.Category.Variables:
+                return false;
             default:
+                console.warn("Unknown canHaveInputs for node with category", category);
                 return false;
         }
     }
@@ -782,6 +794,7 @@ export class Utils {
     static getCanHaveOutputsForCategory(category : Eagle.Category) : boolean {
         switch (category){
             case Eagle.Category.BashShellApp:
+            case Eagle.Category.Branch:
             case Eagle.Category.Component:
             case Eagle.Category.Docker:
             case Eagle.Category.DynlibApp:
@@ -797,7 +810,12 @@ export class Utils {
             case Eagle.Category.Scatter:
             case Eagle.Category.Start:
                 return true;
+            case Eagle.Category.Comment:
+            case Eagle.Category.End:
+            case Eagle.Category.Variables:
+                return false;
             default:
+                console.warn("Unknown canHaveOutputs for node with category", category);
                 return false;
         }
     }

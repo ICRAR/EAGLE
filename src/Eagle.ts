@@ -1743,6 +1743,9 @@ export namespace Eagle
         export var Service : Category = "Service";
         export var ExclusiveForceNode : Category = "ExclusiveForceNode";
 
+        export var Variables : Category = "Variables";
+        export var Branch : Category = "Branch";
+
         export var Unknown : Category = "Unknown";
         export var None : Category = "None";
     }
