@@ -82,6 +82,11 @@ export class Node {
     public static DEFAULT_POSITION_X : number = 300;
     public static DEFAULT_POSITION_Y : number = 100;
 
+    public static COLLAPSED_WIDTH : number = 128;
+    public static COLLAPSED_HEIGHT : number = 128;
+    public static DATA_COMPONENT_WIDTH : number = 48;
+    public static DATA_COMPONENT_HEIGHT : number = 48;
+
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, x : number, y : number){
         this.key = key;
         this.name = name;
@@ -496,6 +501,37 @@ export class Node {
 
         this.expanded(false);
         this.selected(false);
+    }
+
+    getDisplayWidth = () : number => {
+        if (this.isCollapsed()){
+            return Node.COLLAPSED_WIDTH;
+        }
+
+        if (this.getCategoryType() === Eagle.CategoryType.Data && !this.isShowPorts()){
+            return Node.DATA_COMPONENT_WIDTH;
+        }
+
+        return this.width;
+    }
+
+    getDisplayHeight = () : number => {
+        if (this.isResizable()){
+            if (this.isCollapsed()){
+                return Node.COLLAPSED_HEIGHT;
+            } else {
+                return this.height;
+            }
+        }
+
+        if (this.getCategoryType() === Eagle.CategoryType.Data && !this.isShowPorts()){
+            return Node.DATA_COMPONENT_HEIGHT;
+        }
+
+        var leftHeight = (this.getInputPorts().length + this.getOutputLocalPorts().length + 2) * 24;
+        var rightHeight = (this.getOutputPorts().length + this.getInputLocalPorts().length + 2) * 24;
+
+        return Math.max(leftHeight, rightHeight);
     }
 
     addPort = (port : Port, input : boolean, local : boolean) : void => {
