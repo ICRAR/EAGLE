@@ -28,6 +28,124 @@ import {Node} from './Node';
 
 export class GraphUpdater {
 
+    static OLD_ATTRIBUTES : {text:string, name:string, description:string}[] = [
+        {
+            text:"Data Volume",
+            name:"data_volume",
+            description:""
+        },
+        {
+            text:"Number of Splits",
+            name:"num_of_splits",
+            description:""
+        },
+        {
+            text:"Scatter Axis",
+            name:"scatter_axis",
+            description:""
+        },
+        {
+            text:"Execution Time",
+            name:"execution_time",
+            description:""
+        },
+        {
+            text:"Number of Inputs",
+            name:"num_of_inputs",
+            description:""
+        },
+        {
+            text:"Gather Axis",
+            name:"gather_axis",
+            description:""
+        },
+        {
+            text:"Group Start",
+            name:"group_start",
+            description:""
+        },
+        {
+            text:"Group End",
+            name:"group_end",
+            description:""
+        },
+        {
+            text:"Number of Iterations",
+            name:"num_of_iter",
+            description:""
+        },
+        {
+            text:"Number of CPUs",
+            name:"num_cpus",
+            description:""
+        },
+        {
+            text:"Library Path",
+            name:"libpath",
+            description:""
+        },
+        {
+            text:"Number of Procs",
+            name:"num_of_procs",
+            description:""
+        },
+        {
+            text:"Number of copies",
+            name:"num_of_copies",
+            description:""
+        },
+        {
+            text:"Arg 01",
+            name:"Arg01",
+            description:""
+        },
+        {
+            text:"Arg 02",
+            name:"Arg02",
+            description:""
+        },
+        {
+            text:"Arg 03",
+            name:"Arg03",
+            description:""
+        },
+        {
+            text:"Arg 04",
+            name:"Arg04",
+            description:""
+        },
+        {
+            text:"Arg 05",
+            name:"Arg05",
+            description:""
+        },
+        {
+            text:"Arg 06",
+            name:"Arg06",
+            description:""
+        },
+        {
+            text:"Arg 07",
+            name:"Arg07",
+            description:""
+        },
+        {
+            text:"Arg 08",
+            name:"Arg08",
+            description:""
+        },
+        {
+            text:"Arg 09",
+            name:"Arg09",
+            description:""
+        },
+        {
+            text:"Arg 10",
+            name:"Arg10",
+            description:""
+        }
+    ];
+
     static translateOldCategory(category : string) : string {
         if (typeof category === "undefined"){
             return Eagle.Category.Unknown;

@@ -326,6 +326,16 @@ function readNode(nodeData : any) : Node {
         }
     }
 
+    // read OLD attributes from the root level of the nodes (if they exist)
+    for (var j = 0 ; j < GraphUpdater.OLD_ATTRIBUTES.length ; j++){
+        var oldAttribute : {text:string, name:string, description:string} = GraphUpdater.OLD_ATTRIBUTES[j];
+
+        if (typeof nodeData[oldAttribute.name] !== 'undefined'){
+            logMessage("Moved root level attribute '" + oldAttribute.name + "' to new field in node " + i);
+            node.addField(new Field(oldAttribute.text, oldAttribute.name, nodeData[oldAttribute.name], oldAttribute.description));
+        }
+    }
+
     // make sure scatter nodes have a 'num_of_copies' field
     if (node.getCategory() === Eagle.Category.Scatter){
         if (node.getFieldByName('num_of_copies') === null){
