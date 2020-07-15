@@ -363,12 +363,12 @@ export class Utils {
             $('#gitCommitModalAffirmativeButton').focus();
         });
         $('#gitCommitModal').on('hidden.bs.modal', function(){
-            var callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
+            var callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
             var completed : boolean = $('#gitCommitModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
-                callback(false, Eagle.RepositoryService.Unknown, "", "", "", "");
+                callback(false, Eagle.RepositoryService.Unknown, "", "", "", "", "");
                 return;
             }
 
@@ -376,12 +376,16 @@ export class Utils {
             var repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
             var repositories : string[] = $('#gitCommitModal').data('repositories');
             var repositoryNameChoice : number = parseInt(<string>$('#gitCommitModalRepositoryNameSelect').val(), 10);
-            var repositoryName : string = repositories[repositoryNameChoice];
+
+            // split repository text (with form: "name (branch)") into name and branch strings
+            var repositoryName : string = repositories[repositoryNameChoice].substring(0, repositories[repositoryNameChoice].indexOf(" ("));
+            var repositoryBranch : string = repositories[repositoryNameChoice].substring(repositories[repositoryNameChoice].indexOf(" (") + 2, repositories[repositoryNameChoice].length - 1);
+
             var filePath : string = <string>$('#gitCommitModalFilePathInput').val();
             var fileName : string = <string>$('#gitCommitModalFileNameInput').val();
             var commitMessage : string = <string>$('#gitCommitModalCommitMessageInput').val();
 
-            callback(true, repositoryService, repositoryName, filePath, fileName, commitMessage);
+            callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
             var repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
@@ -403,21 +407,22 @@ export class Utils {
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
             console.log("addCustomRepo hidden");
 
-            var callback : (completed : boolean, repositoryService : string, repositoryName : string) => void = $('#gitCustomRepositoryModal').data('callback');
+            var callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
             var completed : boolean = $('#gitCustomRepositoryModal').data('completed');
             console.log("completed", completed);
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
-                callback(false, "", "");
+                callback(false, "", "", "");
                 return;
             }
 
             // check selected option in select tag
             var repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
             var repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
+            var repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
 
-            callback(true, repositoryService, repositoryName);
+            callback(true, repositoryService, repositoryName, repositoryBranch);
         });
     }
 
@@ -539,7 +544,7 @@ export class Utils {
         $('#confirmModal').modal();
     }
 
-    static requestUserGitCommit(service : Eagle.RepositoryService, repositories: string[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, filePath : string, fileName : string, commitMessage : string) => void ){
+    static requestUserGitCommit(service : Eagle.RepositoryService, repositories: string[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ){
         console.log("requestUserGitCommit()");
 
         $('#gitCommitModal').data('completed', false);
@@ -573,10 +578,11 @@ export class Utils {
 
     }
 
-    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string) => void){
+    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void){
         console.log("requestUserAddCustomRepository()");
 
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
+        $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
         $('#gitCustomRepositoryModal').data('completed', false);
         $('#gitCustomRepositoryModal').data('callback', callback);
@@ -672,6 +678,34 @@ export class Utils {
         return uniqueFieldNames;
     }
 
+    static isKnownCategory(category : string) : boolean {
+        return category === Eagle.Category.BashShellApp ||
+        category === Eagle.Category.Comment ||
+        category === Eagle.Category.Component ||
+        category === Eagle.Category.Description ||
+        category === Eagle.Category.Docker ||
+        category === Eagle.Category.DynlibApp ||
+        category === Eagle.Category.End ||
+        category === Eagle.Category.ExclusiveForceNode ||
+        category === Eagle.Category.File ||
+        category === Eagle.Category.Gather ||
+        category === Eagle.Category.GroupBy ||
+        category === Eagle.Category.Loop ||
+        category === Eagle.Category.Memory ||
+        category === Eagle.Category.MKN ||
+        category === Eagle.Category.MPI ||
+        category === Eagle.Category.NGAS ||
+        category === Eagle.Category.None ||
+        category === Eagle.Category.PythonApp ||
+        category === Eagle.Category.S3 ||
+        category === Eagle.Category.Scatter ||
+        category === Eagle.Category.Service ||
+        category === Eagle.Category.Variables ||
+        category === Eagle.Category.Branch ||
+        category === Eagle.Category.Start ||
+        category === Eagle.Category.Unknown;
+    }
+
     static getColorForNode(category : Eagle.Category) : string {
         switch (category){
             case Eagle.Category.Start:
@@ -716,12 +750,73 @@ export class Utils {
                 return "#EB1672";
             case Eagle.Category.ExclusiveForceNode:
                 return "#000000";
+            case Eagle.Category.Branch:
+                return "#00BDA1"
+            case Eagle.Category.Variables:
+                return "#C10000";
             case Eagle.Category.Unknown:
-                return "#FFFFFF";
+                return "#FF66CC";
             default:
                 console.warn("No color for node with category", category);
-                console.trace();
                 return "";
+        }
+    }
+
+    static getCanHaveInputsForCategory(category : Eagle.Category) : boolean {
+        switch (category){
+            case Eagle.Category.BashShellApp:
+            case Eagle.Category.Branch:
+            case Eagle.Category.Component:
+            case Eagle.Category.Docker:
+            case Eagle.Category.DynlibApp:
+            case Eagle.Category.End:
+            case Eagle.Category.File:
+            case Eagle.Category.Gather:
+            case Eagle.Category.GroupBy:
+            case Eagle.Category.Loop:
+            case Eagle.Category.Memory:
+            case Eagle.Category.MKN:
+            case Eagle.Category.MPI:
+            case Eagle.Category.NGAS:
+            case Eagle.Category.S3:
+            case Eagle.Category.Scatter:
+                return true;
+            case Eagle.Category.Comment:
+            case Eagle.Category.Start:
+            case Eagle.Category.Variables:
+                return false;
+            default:
+                console.warn("Unknown canHaveInputs for node with category", category);
+                return false;
+        }
+    }
+
+    static getCanHaveOutputsForCategory(category : Eagle.Category) : boolean {
+        switch (category){
+            case Eagle.Category.BashShellApp:
+            case Eagle.Category.Branch:
+            case Eagle.Category.Component:
+            case Eagle.Category.Docker:
+            case Eagle.Category.DynlibApp:
+            case Eagle.Category.File:
+            case Eagle.Category.Gather:
+            case Eagle.Category.GroupBy:
+            case Eagle.Category.Loop:
+            case Eagle.Category.Memory:
+            case Eagle.Category.MKN:
+            case Eagle.Category.MPI:
+            case Eagle.Category.NGAS:
+            case Eagle.Category.S3:
+            case Eagle.Category.Scatter:
+            case Eagle.Category.Start:
+                return true;
+            case Eagle.Category.Comment:
+            case Eagle.Category.End:
+            case Eagle.Category.Variables:
+                return false;
+            default:
+                console.warn("Unknown canHaveOutputs for node with category", category);
+                return false;
         }
     }
 
@@ -821,5 +916,20 @@ export class Utils {
 
     static setLeftWindowWidth(width : number) : void {
         localStorage.setItem(this.LEFT_WINDOW_WIDTH_KEY, width.toString());
+    }
+
+    static getLocalStorageKey(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
+        switch (repositoryService){
+            case Eagle.RepositoryService.GitHub:
+                return repositoryName + "|" + repositoryBranch + ".github_repository_and_branch";
+            case Eagle.RepositoryService.GitLab:
+                return repositoryName + "|" + repositoryBranch + ".gitlab_repository_and_branch";
+            default:
+                return null;
+        }
+    }
+
+    static getLocalStorageValue(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
+        return repositoryName+"|"+repositoryBranch;
     }
 }

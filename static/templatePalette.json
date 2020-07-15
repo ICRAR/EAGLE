@@ -455,7 +455,12 @@
             "category": "Comment",
             "outputPorts": [],
             "isData": false,
-            "fields": [],
+            "fields": [{
+                "text": "Comment",
+                "name": "comment",
+                "value": "",
+                "description": "The text value of the comment"
+            }],
             "canHaveOutputs": false,
             "canHaveInputs": false,
             "shape": "File",
@@ -472,7 +477,9 @@
             "isData": false,
             "fields": [{
                 "text": "Description",
-                "value": ""
+                "name": "description",
+                "value": "",
+                "description": "The text value of the description"
             }],
             "canHaveOutputs": false,
             "canHaveInputs": false,
@@ -498,6 +505,42 @@
             "outputLocalPorts": [],
             "isGroup": true,
             "key": -19,
+            "fields": [],
+            "categoryType": "Control"
+        },
+        {
+            "category": "Variables",
+            "isData": false,
+            "text": "Variables",
+            "description": "A node that contains variables for use in the graph. Often used to specify global variables.",
+            "canHaveOutputs": false,
+            "canHaveInputs": false,
+            "inputApplication": "",
+            "inputPorts": [],
+            "inputLocalPorts": [],
+            "outputApplication": "",
+            "outputPorts": [],
+            "outputLocalPorts": [],
+            "isGroup": false,
+            "key": -22,
+            "fields": [],
+            "categoryType": "Other"
+        },
+        {
+            "category": "Branch",
+            "isData": false,
+            "text": "Branch",
+            "description": "A conditional branch to control flow.",
+            "canHaveOutputs": true,
+            "canHaveInputs": true,
+            "inputApplication": "",
+            "inputPorts": [],
+            "inputLocalPorts": [],
+            "outputApplication": "",
+            "outputPorts": [],
+            "outputLocalPorts": [],
+            "isGroup": false,
+            "key": -23,
             "fields": [],
             "categoryType": "Control"
         }

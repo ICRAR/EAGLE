@@ -23,12 +23,7 @@
             <div class="input-group-prepend">
                 <span class="input-group-text" id="node-category">Category</span>
             </div>
-            <!-- ko if: selectedNode().getCategoryType() !== Eagle.CategoryType.Data -->
             <input type="text" class="form-control" id="nodeCategoryValue" placeholder="" aria-label="Category Type" aria-describedby="node-category" readonly data-bind="value: selectedNode().getCategory()">
-            <!-- /ko -->
-            <!-- ko if: selectedNode().getCategoryType() === Eagle.CategoryType.Data -->
-            <select class="custom-select" id="nodeCategorySelect" onchange="eagle.selectedNode().categoryChanged(eagle)" data-bind="options: Eagle.dataCategories, value: $root.selectedNode().category"></select>
-            <!-- /ko -->
         </div>
 
         <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->

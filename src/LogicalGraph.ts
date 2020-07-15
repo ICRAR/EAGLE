@@ -433,4 +433,60 @@ export class LogicalGraph {
 
         return false;
     }
+
+    shrinkNode = (node : Node) : void => {
+        // abort shrink of non-group node
+        if (!node.isGroup()){
+            return;
+        }
+
+        var nodes : Node[] = this.getNodes();
+        var minX : number = Number.MAX_SAFE_INTEGER;
+        var minY : number = Number.MAX_SAFE_INTEGER;
+        var maxX : number = Number.MIN_SAFE_INTEGER;
+        var maxY : number = Number.MIN_SAFE_INTEGER;
+        var numChildren : number = 0;
+
+        // loop through all nodes, finding all children and determining minimum bounding box to contain all children
+        for (var i = 0 ; i < nodes.length ; i++){
+            var n = nodes[i];
+
+            if (n.getParentKey() === node.getKey()){
+                numChildren += 1;
+
+                if (n.getPosition().x < minX){
+                    minX = n.getPosition().x;
+                }
+                if (n.getPosition().y < minY){
+                    minY = n.getPosition().y;
+                }
+                if (n.getPosition().x + n.getDisplayWidth() > maxX){
+                    maxX = n.getPosition().x + n.getDisplayWidth();
+                }
+                if (n.getPosition().y + n.getDisplayHeight() > maxY){
+                    maxY = n.getPosition().y + n.getDisplayHeight();
+                }
+            }
+        }
+
+        //console.log("minX", minX, "minY", minY, "maxX", maxX, "maxY", maxY, "numChildren", numChildren);
+
+        // if no children were found, set to default size
+        if (numChildren === 0){
+            node.setWidth(Node.DEFAULT_WIDTH);
+            node.setHeight(Node.DEFAULT_HEIGHT);
+            return;
+        }
+
+        // TODO: add some padding
+        minX -= 24;
+        minY -= 96;
+        maxX += 24;
+        maxY += 16;
+
+        // set the size of the node
+        node.setPosition(minX, minY);
+        node.setWidth(maxX - minX);
+        node.setHeight(maxY - minY);
+    }
 }

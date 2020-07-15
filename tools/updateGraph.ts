@@ -69,6 +69,11 @@ if (hadNegativePositions){
     logMessage("Adjusting position of all nodes to move to positive quadrant.");
 }
 
+// adjust size of group nodes so that they are large enough to contain their children
+for (var i = 0 ; i < outputGraph.getNodes().length ; i++){
+    outputGraph.shrinkNode(outputGraph.getNodes()[i]);
+}
+
 // write the logical graph to disk using the outputFilename
 fs.writeFileSync(outputFilename, JSON.stringify(LogicalGraph.toOJSJson(outputGraph), null, 4));
 
@@ -127,8 +132,13 @@ function readNode(nodeData : any) : Node {
         }
     }
 
+    if (!Utils.isKnownCategory(category)){
+        logError("Unknown category '" + category + "' of node " + i);
+        category = Eagle.Category.Unknown;
+    }
+
     if (categoryType === Eagle.CategoryType.Unknown){
-        logError("Unable to translate categoryType '" + nodeData.categoryType + "' of node " + i);
+        logError("Unable to translate categoryType '" + nodeData.categoryType + "' of node " + i + " with category '" + category + "'");
     } else {
         if (categoryType !== nodeData.categoryType){
             logMessage("Translated old categoryType: '" + nodeData.categoryType + "' into '" + categoryType + "' for node " + i);
@@ -163,10 +173,21 @@ function readNode(nodeData : any) : Node {
         }
     }
 
-    node.setIsData(nodeData.isData);
-    node.setIsGroup(nodeData.isGroup);
-    node.setCanHaveInputs(nodeData.canHaveInputs);
-    node.setCanHaveOutputs(nodeData.canHaveOutputs);
+    if (typeof nodeData.isData !== 'undefined'){
+        node.setIsData(nodeData.isData);
+    }
+
+    if (typeof nodeData.isGroup !== 'undefined'){
+        node.setIsGroup(nodeData.isGroup);
+    }
+
+    if (typeof nodeData.canHaveInputs !== 'undefined'){
+        node.setCanHaveInputs(nodeData.canHaveInputs);
+    }
+
+    if (typeof nodeData.canHaveOutputs !== 'undefined'){
+        node.setCanHaveOutputs(nodeData.canHaveOutputs);
+    }
 
     if (typeof nodeData.inputAppName !== 'undefined'){
         node.setInputApplicationName(nodeData.inputAppName);
@@ -214,9 +235,15 @@ function readNode(nodeData : any) : Node {
     }
 
     // application types
-    node.setInputApplicationType(nodeData.inputApplication);
-    node.setOutputApplicationType(nodeData.outputApplication);
-    node.setExitApplicationType(nodeData.exitApplicationType);
+    if (typeof nodeData.inputApplication !== 'undefined'){
+        node.setInputApplicationType(nodeData.inputApplication);
+    }
+    if (typeof nodeData.outputApplication !== 'undefined'){
+        node.setOutputApplicationType(nodeData.outputApplication);
+    }
+    if (typeof nodeData.exitApplicationType !== 'undefined'){
+        node.setExitApplicationType(nodeData.exitApplicationType);
+    }
 
     // subject (for comment nodes)
     if (typeof nodeData.subject !== 'undefined'){
@@ -297,6 +324,83 @@ function readNode(nodeData : any) : Node {
             var fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
             node.addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription));
         }
+    }
+
+    // read OLD attributes from the root level of the nodes (if they exist)
+    for (var j = 0 ; j < GraphUpdater.OLD_ATTRIBUTES.length ; j++){
+        var oldAttribute : {text:string, name:string, description:string} = GraphUpdater.OLD_ATTRIBUTES[j];
+
+        if (typeof nodeData[oldAttribute.name] !== 'undefined'){
+            logMessage("Moved root level attribute '" + oldAttribute.name + "' to new field in node " + i);
+            node.addField(new Field(oldAttribute.text, oldAttribute.name, nodeData[oldAttribute.name], oldAttribute.description));
+        }
+    }
+
+    // make sure scatter nodes have a 'num_of_copies' field
+    if (node.getCategory() === Eagle.Category.Scatter){
+        if (node.getFieldByName('num_of_copies') === null){
+            node.addField(new Field("Number of copies", "num_of_copies", "1", ""));
+            logMessage("Added missing 'num_of_copies' field to Scatter node " + i);
+        }
+        if (node.getFieldByName('scatter_axis') === null){
+            node.addField(new Field("Scatter Axis", "scatter_axis", "", ""));
+            logMessage("Added missing 'scatter_axis' field to Scatter node " + i);
+        }
+    }
+
+    // make sure gather nodes have a 'num_of_inputs' field
+    if (node.getCategory() === Eagle.Category.Gather){
+        if (node.getFieldByName('num_of_inputs') === null){
+            node.addField(new Field("Number of inputs", "num_of_inputs", "1", ""));
+            logMessage("Added missing 'num_of_inputs' field to Gather node " + i);
+        }
+        if (node.getFieldByName('gather_axis') === null){
+            node.addField(new Field("Gather Axis", "gather_axis", "", ""));
+            logMessage("Added missing 'gather_axis' field to Gather node " + i);
+        }
+    }
+
+    // make sure MKN nodes have 'm', 'k', and 'n' fields
+    if (node.getCategory() === Eagle.Category.MKN){
+        if (node.getFieldByName('m') === null){
+            node.addField(new Field("M", "m", "1", ""));
+            logMessage("Added missing 'm' field to MKN node " + i);
+        }
+        if (node.getFieldByName('k') === null){
+            node.addField(new Field("K", "k", "1", ""));
+            logMessage("Added missing 'k' field to MKN node " + i);
+        }
+        if (node.getFieldByName('n') === null){
+            node.addField(new Field("N", "n", "1", ""));
+            logMessage("Added missing 'n' field to MKN node " + i);
+        }
+    }
+
+    // make sure comment nodes have appropriate fields
+    if (node.getCategory() === Eagle.Category.Comment){
+        if (node.getFieldByName('comment') === null){
+            node.addField(new Field("Comment", "comment", node.getName(), "The text value of the comment"));
+            node.setName("");
+            logMessage("Added missing 'comment' field to Comment node " + i);
+        }
+    }
+
+    // make sure description nodes have appropriate fields
+    if (node.getCategory() === Eagle.Category.Description){
+        if (node.getFieldByName('description') === null){
+            node.addField(new Field("Description", "description", "", "The text value of the description"));
+            logMessage("Added missing 'description' field to Description node " + i);
+        }
+    }
+
+    // make sure canHaveInputs and canHaveOutputs are set appropriately for this category
+    if (node.canHaveInputs() !== Utils.getCanHaveInputsForCategory(category)){
+        node.setCanHaveInputs(Utils.getCanHaveInputsForCategory(category));
+        logMessage("Set canHaveInputs to " + node.canHaveInputs() + " for node " + i);
+    }
+    if (node.canHaveOutputs() !== Utils.getCanHaveOutputsForCategory(category)){
+        node.setCanHaveOutputs(Utils.getCanHaveOutputsForCategory(category));
+        logMessage("Set canHaveOutputs to " + node.canHaveOutputs() + " for node " + i);
     }
 
     return node;

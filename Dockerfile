@@ -16,5 +16,5 @@ RUN mv /tmp/* .
 
 FROM tiangolo/meinheld-gunicorn:python3.7-alpine3.8
 COPY --from=0 /app/. .
-COPY --from=0 /usr/local/lib/python3.7/site-packages/. /usr/local/lib/python3.7/site-packages/. 
+COPY --from=0 /usr/local/lib/python3.7/site-packages/. /usr/local/lib/python3.7/site-packages/.
 RUN pip uninstall -y pip

@@ -19,6 +19,7 @@ ko.components.register('repository', {
     viewModel: function(params : {data : any, parent : any}){
         this.name = params.data.name;
         this.service = params.data.service;
+        this.branch = params.data.branch;
         this.htmlId = params.data.htmlId;
         this.fetched = params.data.fetched;
         this.isFetching = params.data.isFetching;
@@ -69,7 +70,7 @@ ko.components.register('hierarchy', {
 
 ko.components.register('hierarchy-node', {
     viewModel: function(params : {data : any, parentKey : number | null, select : Function}){
-        this.name = params.data.name;
+        this.name = params.data.name.trim() === "" ? params.data.category : params.data.name;
         this.key = params.data.key;
         this.parentKey = params.data.parentKey;
         this.expanded = params.data.expanded;

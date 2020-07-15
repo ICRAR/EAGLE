@@ -72,11 +72,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const S3_ICON : string = "S3";
     const NGAS_ICON : string = "NGAS";
 
-    const COLLAPSED_NODE_WIDTH : number = 128;
-    const COLLAPSED_NODE_HEIGHT : number = 128;
-    const DATA_COMPONENT_NODE_WIDTH : number = 48;
-    const DATA_COMPONENT_NODE_HEIGHT : number = 48;
-
     const SHRINK_BUTTONS_ENABLED : boolean = true;
     const COLLAPSE_BUTTONS_ENABLED : boolean = true;
 
@@ -210,9 +205,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                      .call(wrap, Node.DEFAULT_WIDTH);
 
     var icons = nodes.append("svg:image")
-                    .attr("xlink:href", getDataIcon)
-                    .attr("width", REAL_TO_DISPLAY_SCALE(DATA_COMPONENT_NODE_HEIGHT))
-                    .attr("height", REAL_TO_DISPLAY_SCALE(DATA_COMPONENT_NODE_HEIGHT))
+                    .attr("href", getDataIcon)
+                    .attr("width", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_HEIGHT))
+                    .attr("height", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_HEIGHT))
                     .attr("x", 0)
                     .attr("y", 0);
 
@@ -589,6 +584,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .attr("class", nodeIsSelected)
                                 .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
                                 .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeight(node));})
+                                .style("fill", nodeGetFill)
+                                .style("stroke", nodeGetStroke)
+                                .attr("stroke-dasharray", nodeGetStrokeDashArray)
                                 .on("click", nodeOnClick);
 
         svgContainer.selectAll("g.node rect.header-background")
@@ -621,9 +619,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         svgContainer.selectAll("image")
                                 .data(nodeData)
-                                .attr("xlink:href", getDataIcon)
-                                .attr("width", REAL_TO_DISPLAY_SCALE(DATA_COMPONENT_NODE_HEIGHT))
-                                .attr("height", REAL_TO_DISPLAY_SCALE(DATA_COMPONENT_NODE_HEIGHT))
+                                .attr("href", getDataIcon)
+                                .attr("width", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_HEIGHT))
+                                .attr("height", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_HEIGHT))
                                 .attr("x", 0)
                                 .attr("y", 0);
 
@@ -879,8 +877,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // dragging link
         if (isDraggingPort){
-            var x1 : number = edgeGetX1(new Edge(sourceNodeKey, sourcePortId, 0, "", ""));
-            var y1 : number = edgeGetY1(new Edge(sourceNodeKey, sourcePortId, 0, "", ""));
+            var x1 : number = REAL_TO_DISPLAY_POSITION_X(edgeGetX1(new Edge(sourceNodeKey, sourcePortId, 0, "", "")));
+            var y1 : number = REAL_TO_DISPLAY_POSITION_Y(edgeGetY1(new Edge(sourceNodeKey, sourcePortId, 0, "", "")));
             var x2 : number = mousePosition.x;
             var y2 : number = mousePosition.y;
 
@@ -956,34 +954,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getWidth(node : Node) : number {
-        if (node.isCollapsed()){
-            return COLLAPSED_NODE_WIDTH;
-        }
-
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return DATA_COMPONENT_NODE_WIDTH;
-        }
-
-        return node.getWidth();
+        return node.getDisplayWidth();
     }
 
     function getHeight(node : Node) : number {
-        if (node.isResizable()){
-            if (node.isCollapsed()){
-                return COLLAPSED_NODE_HEIGHT;
-            } else {
-                return node.getHeight();
-            }
-        }
-
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return DATA_COMPONENT_NODE_HEIGHT;
-        }
-
-        var leftHeight = ((1 + node.getInputPorts().length + node.getOutputLocalPorts().length) * 24) + 24;
-        var rightHeight = ((1 + node.getOutputPorts().length + node.getInputLocalPorts().length) * 24) + 24;
-
-        return Math.max(leftHeight, rightHeight);
+        return node.getDisplayHeight();
     }
 
     function getHeadingBackgroundDisplay(node : Node) : string {
@@ -999,11 +974,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeadingBackgroundHeight(node : Node) : number {
         if (node.isGroup() && node.isCollapsed()){
-            return COLLAPSED_NODE_HEIGHT;
+            return Node.COLLAPSED_HEIGHT;
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return DATA_COMPONENT_NODE_HEIGHT;
+            return Node.DATA_COMPONENT_HEIGHT;
         }
 
         // default height
@@ -1022,7 +997,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function getHeadingPositionX(node : Node) : number {
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return DATA_COMPONENT_NODE_WIDTH / 2;
+            return Node.DATA_COMPONENT_WIDTH / 2;
         }
 
         return getWidth(node) /2;
@@ -1030,11 +1005,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeadingPositionY(node : Node) : number {
         if (node.isGroup() && node.isCollapsed()){
-            return COLLAPSED_NODE_HEIGHT / 2;
+            return Node.COLLAPSED_HEIGHT / 2;
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return (3 * DATA_COMPONENT_NODE_HEIGHT / 2);
+            return (3 * Node.DATA_COMPONENT_HEIGHT / 2);
         }
 
         return 20;
@@ -1195,17 +1170,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var node : Node = findNodeWithKey(edge.getSrcNodeKey());
 
         if (node.isCollapsed()){
-            return node.getPosition().x + COLLAPSED_NODE_WIDTH;
+            return node.getPosition().x + Node.COLLAPSED_WIDTH;
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return node.getPosition().x + (DATA_COMPONENT_NODE_WIDTH/2);
+            return node.getPosition().x + (Node.DATA_COMPONENT_WIDTH/2);
         }
 
         // check if an ancestor is collapsed, if so, use center f ancestor
         var collapsedAncestor : Node = findAncestorCollapsedNode(node);
         if (collapsedAncestor !== null){
-            return collapsedAncestor.getPosition().x + COLLAPSED_NODE_WIDTH;
+            return collapsedAncestor.getPosition().x + Node.COLLAPSED_WIDTH;
         }
 
         return node.findNodePortPosition(edge.getSrcPortId()).x;
@@ -1219,7 +1194,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return node.getPosition().y + (DATA_COMPONENT_NODE_HEIGHT / 2);
+            return node.getPosition().y + (Node.DATA_COMPONENT_HEIGHT / 2);
         }
 
         // check if an ancestor is collapsed, if so, use center f ancestor
@@ -1239,7 +1214,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return node.getPosition().x + (DATA_COMPONENT_NODE_WIDTH / 2);
+            return node.getPosition().x + (Node.DATA_COMPONENT_WIDTH / 2);
         }
 
         // check if an ancestor is collapsed, if so, use center of ancestor
@@ -1259,7 +1234,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return node.getPosition().y + (DATA_COMPONENT_NODE_HEIGHT / 2);
+            return node.getPosition().y + (Node.DATA_COMPONENT_HEIGHT / 2);
         }
 
         // check if an ancestor is collapsed, if so, use center of ancestor
@@ -1379,59 +1354,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function shrinkOnClick(node : Node, index : number){
         console.log("shrink node", index);
 
-        // abort shrink of non-group node
-        if (!node.isGroup()){
-            return;
-        }
-
-        var minX : number = Number.MAX_SAFE_INTEGER;
-        var minY : number = Number.MAX_SAFE_INTEGER;
-        var maxX : number = Number.MIN_SAFE_INTEGER;
-        var maxY : number = Number.MIN_SAFE_INTEGER;
-        var numChildren : number = 0;
-
-        // loop through all nodes, finding all children and determining minimum bounding box to contain all children
-        for (var i = 0 ; i < nodeData.length ; i++){
-            var n = nodeData[i];
-
-            if (n.getParentKey() === node.getKey()){
-                numChildren += 1;
-
-                if (n.getPosition().x < minX){
-                    minX = n.getPosition().x;
-                }
-                if (n.getPosition().y < minY){
-                    minY = n.getPosition().y;
-                }
-                if (n.getPosition().x + getWidth(n) > maxX){
-                    maxX = n.getPosition().x + getWidth(n);
-                }
-                if (n.getPosition().y + getHeight(n) > maxY){
-                    maxY = n.getPosition().y + getHeight(n);
-                }
-            }
-        }
-
-        //console.log("minX", minX, "minY", minY, "maxX", maxX, "maxY", maxY, "numChildren", numChildren);
-
-        // if no children were found, set to default size
-        if (numChildren === 0){
-            node.setWidth(Node.DEFAULT_WIDTH);
-            node.setHeight(Node.DEFAULT_HEIGHT);
-            eagle.flagActiveDiagramHasMutated();
-            return;
-        }
-
-        // TODO: add some padding
-        minX -= 24;
-        minY -= 96;
-        maxX += 24;
-        maxY += 16;
-
-        // set the size of the node
-        node.setPosition(minX, minY);
-        node.setWidth(maxX - minX);
-        node.setHeight(maxY - minY);
+        eagle.logicalGraph().shrinkNode(node);
         eagle.flagActiveDiagramHasMutated();
     }
 

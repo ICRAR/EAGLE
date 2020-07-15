@@ -82,6 +82,11 @@ export class Node {
     public static DEFAULT_POSITION_X : number = 300;
     public static DEFAULT_POSITION_Y : number = 100;
 
+    public static COLLAPSED_WIDTH : number = 128;
+    public static COLLAPSED_HEIGHT : number = 128;
+    public static DATA_COMPONENT_WIDTH : number = 48;
+    public static DATA_COMPONENT_HEIGHT : number = 48;
+
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, x : number, y : number){
         this.key = key;
         this.name = name;
@@ -498,6 +503,37 @@ export class Node {
         this.selected(false);
     }
 
+    getDisplayWidth = () : number => {
+        if (this.isCollapsed()){
+            return Node.COLLAPSED_WIDTH;
+        }
+
+        if (this.getCategoryType() === Eagle.CategoryType.Data && !this.isShowPorts()){
+            return Node.DATA_COMPONENT_WIDTH;
+        }
+
+        return this.width;
+    }
+
+    getDisplayHeight = () : number => {
+        if (this.isResizable()){
+            if (this.isCollapsed()){
+                return Node.COLLAPSED_HEIGHT;
+            } else {
+                return this.height;
+            }
+        }
+
+        if (this.getCategoryType() === Eagle.CategoryType.Data && !this.isShowPorts()){
+            return Node.DATA_COMPONENT_HEIGHT;
+        }
+
+        var leftHeight = (this.getInputPorts().length + this.getOutputLocalPorts().length + 2) * 24;
+        var rightHeight = (this.getOutputPorts().length + this.getInputLocalPorts().length + 2) * 24;
+
+        return Math.max(leftHeight, rightHeight);
+    }
+
     addPort = (port : Port, input : boolean, local : boolean) : void => {
         port.setNodeKey(this.key);
 
@@ -785,6 +821,10 @@ export class Node {
                 return "build";
             case Eagle.Category.ExclusiveForceNode:
                 return "picture_in_picture";
+            case Eagle.Category.Variables:
+                return "tune";
+            case Eagle.Category.Branch:
+                return "share";
             default:
                 console.warn("No icon for node with category", this.category);
                 return "warning";
@@ -793,11 +833,25 @@ export class Node {
 
     getInputMultiplicity = () : number => {
         if (this.isMKN()){
-            return parseInt(this.getFieldByName("m").getValue(), 10);
+            var m : Field = this.getFieldByName("m");
+
+            if (m === null){
+                console.warn("Unable to determine input multiplicity of MKN, no 'm' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(m.getValue(), 10);
         }
 
         if (this.isGather()){
-            return parseInt(this.getFieldByName("num_of_inputs").getValue(), 10);
+            var numInputs : Field = this.getFieldByName("num_of_inputs");
+
+            if (numInputs === null){
+                console.warn("Unable to determine input multiplicity of Gather, no 'num_of_inputs' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(numInputs.getValue(), 10);
         }
 
         return 1;
@@ -805,11 +859,25 @@ export class Node {
 
     getOutputMultiplicity = () : number => {
         if (this.isMKN()){
-            return parseInt(this.getFieldByName("n").getValue(), 10);
+            var n : Field = this.getFieldByName("n");
+
+            if (n === null){
+                console.warn("Unable to determine output multiplicity of MKN, no 'n' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(n.getValue(), 10);
         }
 
         if (this.isScatter()){
-            return parseInt(this.getFieldByName("num_of_copies").getValue(), 10);
+            var numCopies : Field = this.getFieldByName("num_of_copies");
+
+            if (numCopies === null){
+                console.warn("Unable to determine output multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(numCopies.getValue(), 10);
         }
 
         return 1;
@@ -817,11 +885,25 @@ export class Node {
 
     getLocalMultiplicity = () : number => {
         if (this.isMKN()){
-            return parseInt(this.getFieldByName("k").getValue(), 10);
+            var k : Field = this.getFieldByName("k");
+
+            if (k === null){
+                console.warn("Unable to determine local multiplicity of MKN, no 'k' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(k.getValue(), 10);
         }
 
         if (this.isScatter()){
-            return parseInt(this.getFieldByName("num_of_copies").getValue(), 10);
+            var numCopies = this.getFieldByName("num_of_copies");
+
+            if (numCopies === null){
+                console.warn("Unable to determine local multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(numCopies.getValue(), 10);
         }
 
         // TODO: check this is correct!
@@ -838,16 +920,6 @@ export class Node {
         }
 
         return this.fields[0].getValue();
-    }
-
-    categoryChanged = (eagle : Eagle) : void => {
-        //console.log("categoryChanged()");
-
-        setTimeout(() => {
-            //console.log("new category", this.category);
-            eagle.selectedNode.valueHasMutated();
-            eagle.flagActiveDiagramHasMutated();
-        }, 1);
     }
 
     customDataChanged = (eagle : Eagle, event : JQueryEventObject) : void => {
