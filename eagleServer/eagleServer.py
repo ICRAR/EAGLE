@@ -245,9 +245,10 @@ def get_git_hub_files_all():
     d = parse_github_folder(repo, "", repo_branch)
 
     # if unable to parse github folder, return the error
-    if type(d) == six.text_type:
-        print("Unable to parse github folder:" + d)
-        return jsonify({"error":d})
+
+    if type(d) is not dict:
+        print("Unable to parse github folder:" + str(d))
+        return jsonify({"error":str(d)})
 
     # return correct result
     return jsonify(d)
