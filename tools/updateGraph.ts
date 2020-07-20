@@ -415,13 +415,29 @@ function readNode(nodeData : any) : Node {
         }
     }
 
-    // make sure canHaveInputs and canHaveOutputs are set appropriately for this category
-    if (node.canHaveInputs() !== Utils.getCanHaveInputsForCategory(category)){
-        node.setCanHaveInputs(Utils.getCanHaveInputsForCategory(category));
+    // make sure "file" nodes that were created from old "Data" nodes have appropriate fields
+    if (node.getCategory() === Eagle.Category.File && nodeData.category === "Data"){
+        if (node.getFieldByName('filepath') === null){
+            node.addField(new Field("File path", "filepath", nodeData.text, ""));
+            logMessage("Copied old 'text' value (" + nodeData.text + ") as filepath field for old Data node translated to File node " + i);
+        }
+    }
+
+    // make sure isData, isGroup, canHaveInputs and canHaveOutputs are set appropriately for this category
+    if (node.isData() !== GraphUpdater.getIsDataForCategory(category)){
+        node.setIsData(GraphUpdater.getIsDataForCategory(category));
+        logMessage("Set isData to " + node.isData() + " for node " + i);
+    }
+    if (node.isGroup() !== GraphUpdater.getIsGroupForCategory(category)){
+        node.setIsGroup(GraphUpdater.getIsGroupForCategory(category));
+        logMessage("Set isGroup to " + node.isGroup() + " for node " + i);
+    }
+    if (node.canHaveInputs() !== GraphUpdater.getCanHaveInputsForCategory(category)){
+        node.setCanHaveInputs(GraphUpdater.getCanHaveInputsForCategory(category));
         logMessage("Set canHaveInputs to " + node.canHaveInputs() + " for node " + i);
     }
-    if (node.canHaveOutputs() !== Utils.getCanHaveOutputsForCategory(category)){
-        node.setCanHaveOutputs(Utils.getCanHaveOutputsForCategory(category));
+    if (node.canHaveOutputs() !== GraphUpdater.getCanHaveOutputsForCategory(category)){
+        node.setCanHaveOutputs(GraphUpdater.getCanHaveOutputsForCategory(category));
         logMessage("Set canHaveOutputs to " + node.canHaveOutputs() + " for node " + i);
     }
 

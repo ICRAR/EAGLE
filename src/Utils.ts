@@ -762,64 +762,6 @@ export class Utils {
         }
     }
 
-    static getCanHaveInputsForCategory(category : Eagle.Category) : boolean {
-        switch (category){
-            case Eagle.Category.BashShellApp:
-            case Eagle.Category.Branch:
-            case Eagle.Category.Component:
-            case Eagle.Category.Docker:
-            case Eagle.Category.DynlibApp:
-            case Eagle.Category.End:
-            case Eagle.Category.File:
-            case Eagle.Category.Gather:
-            case Eagle.Category.GroupBy:
-            case Eagle.Category.Loop:
-            case Eagle.Category.Memory:
-            case Eagle.Category.MKN:
-            case Eagle.Category.MPI:
-            case Eagle.Category.NGAS:
-            case Eagle.Category.S3:
-            case Eagle.Category.Scatter:
-                return true;
-            case Eagle.Category.Comment:
-            case Eagle.Category.Start:
-            case Eagle.Category.Variables:
-                return false;
-            default:
-                console.warn("Unknown canHaveInputs for node with category", category);
-                return false;
-        }
-    }
-
-    static getCanHaveOutputsForCategory(category : Eagle.Category) : boolean {
-        switch (category){
-            case Eagle.Category.BashShellApp:
-            case Eagle.Category.Branch:
-            case Eagle.Category.Component:
-            case Eagle.Category.Docker:
-            case Eagle.Category.DynlibApp:
-            case Eagle.Category.File:
-            case Eagle.Category.Gather:
-            case Eagle.Category.GroupBy:
-            case Eagle.Category.Loop:
-            case Eagle.Category.Memory:
-            case Eagle.Category.MKN:
-            case Eagle.Category.MPI:
-            case Eagle.Category.NGAS:
-            case Eagle.Category.S3:
-            case Eagle.Category.Scatter:
-            case Eagle.Category.Start:
-                return true;
-            case Eagle.Category.Comment:
-            case Eagle.Category.End:
-            case Eagle.Category.Variables:
-                return false;
-            default:
-                console.warn("Unknown canHaveOutputs for node with category", category);
-                return false;
-        }
-    }
-
     /**
      * Fetch the URL of the graph translator from the server. Also check localStorage to see if the default location has been overwritten.
      */
