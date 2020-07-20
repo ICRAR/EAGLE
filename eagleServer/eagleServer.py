@@ -25,6 +25,7 @@ import logging
 import os
 import sys
 import tempfile
+import six
 
 import github
 import gitlab
@@ -244,6 +245,7 @@ def get_git_hub_files_all():
     d = parse_github_folder(repo, "", repo_branch)
 
     # if unable to parse github folder, return the error
+
     if type(d) is not dict:
         print("Unable to parse github folder:" + str(d))
         return jsonify({"error":str(d)})
