@@ -8,6 +8,7 @@ import { Selector } from 'testcafe';
 
 var GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
 var TESTING_REPOSITORY = "james-strauss-uwa/eagle-test";
+var TESTING_BRANCH = "master";
 var TRANSLATOR_URL = "http://localhost:8084/gen_pgt";
 var TEST_PORT_NAME_0 = "test-port-0";
 var TEST_PORT_NAME_1 = "test-port-1";
@@ -53,16 +54,17 @@ test('Create palette', async t =>{
         .wait(2000)
 
         // enter the github access token
-        .click('#navbarDropdownGitHub')
-        .click('#setAccessToken')
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN)
+        .click('#navbarDropdownGit')
+        .click('#setGitHubAccessToken')
+        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace:true})
         .click('#inputModal .modal-footer button')
 
         // enter the testing repo as a custom repo
-        .click('#navbarDropdownGitHub')
+        .click('#navbarDropdownGit')
         .click('#addCustomRepository')
-        .typeText(Selector('#inputModalInput'), TESTING_REPOSITORY)
-        .click('#inputModal .modal-footer button')
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryNameInput'), TESTING_REPOSITORY, {replace:true})
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryBranchInput'), TESTING_BRANCH, {replace:true})
+        .click('#gitCustomRepositoryModalAffirmativeButton')
 
         // enter palette mode
         .click('#enterPaletteEditorMode')
@@ -82,11 +84,13 @@ test('Create palette', async t =>{
         })
         .wait(1000)
 
+        .click('#rightWindowModeNode')
+        .wait(250)
         .click('#nodeInspectorAddOutputPort')
         .wait(1000)
         .click('#choiceModalSelect')
         .click(Selector('#choiceModalSelect').find('option').withText(CHOICE_MODAL_CUSTOM))
-        .typeText(Selector('#choiceModalString'), TEST_PORT_NAME_0)
+        .typeText(Selector('#choiceModalString'), TEST_PORT_NAME_0, {replace:true})
         .click('#choiceModal .modal-footer button')
         .wait(500)
 
@@ -94,7 +98,7 @@ test('Create palette', async t =>{
         .wait(1000)
         .click('#choiceModalSelect')
         .click(Selector('#choiceModalSelect').find('option').withText(CHOICE_MODAL_CUSTOM))
-        .typeText(Selector('#choiceModalString'), TEST_PORT_NAME_1)
+        .typeText(Selector('#choiceModalString'), TEST_PORT_NAME_1, {replace:true})
         .click('#choiceModal .modal-footer button')
         .wait(500)
 
@@ -102,7 +106,7 @@ test('Create palette', async t =>{
         .wait(1000)
         .click('#choiceModalSelect')
         .click(Selector('#choiceModalSelect').find('option').withText(CHOICE_MODAL_CUSTOM))
-        .typeText(Selector('#choiceModalString'), TEST_PORT_NAME_2)
+        .typeText(Selector('#choiceModalString'), TEST_PORT_NAME_2, {replace:true})
         .click('#choiceModal .modal-footer button')
         .wait(500)
 
@@ -135,31 +139,29 @@ test('Create palette', async t =>{
         .wait(500)
 
         // save palette to github as...
-        .click('#navbarDropdownGitHub')
-        .click('#commitToGitHubAsPalette')
+        .click('#navbarDropdownGit')
+        .click('#commitToGitAsPalette')
         .wait(250)
 
         // save palette to the james-strauss-uwa/eagle-test repo
-        .click('#choiceModalSelect')
-        .click(Selector('#choiceModalSelect').find('option').withText(TESTING_REPOSITORY))
-        //.expect(Selector('#choiceModalSelect option:selected').innerText).eql(TESTING_REPOSITORY)
-        .click('#choiceModal .modal-footer button')
-        .wait(500)
+        .click('#gitCommitModalRepositoryNameSelect')
+        .click(Selector('#gitCommitModalRepositoryNameSelect').find('option').withText(TESTING_REPOSITORY + " (" + TESTING_BRANCH + ")"))
+        .wait(250)
 
         // enter filepath for save palette as...
-        .typeText(Selector('#inputModalInput'), palette_filepath)
-        .click('#inputModal .modal-footer button')
-        .wait(500)
+        .typeText(Selector('#gitCommitModalFilePathInput'), palette_filepath, {replace:true})
+        .wait(250)
 
         // enter filename for save palette as...
-        .typeText(Selector('#inputModalInput'), palette_filename)
-        .click('#inputModal .modal-footer button')
-        .wait(500)
+        .typeText(Selector('#gitCommitModalFileNameInput'), palette_filename, {replace:true})
+        .wait(250)
 
         // enter commit message for save palette as...
-        .typeText(Selector('#inputModalInput'), palette_commit_message)
-        .click('#inputModal .modal-footer button')
-        .wait(500)
+        .typeText(Selector('#gitCommitModalCommitMessageInput'), palette_commit_message, {replace:true})
+        .wait(250)
+
+        // click commit button
+        .click("#gitCommitModalAffirmativeButton")
 
         // Use the assertion to check if the actual header text is equal to the expected one
         .expect(Selector("div[data-notify='container'] span[data-notify='title']").innerText).eql(SUCCESS_MESSAGE);
@@ -172,16 +174,17 @@ test('Create graph', async t =>{
         .wait(2000)
 
         // enter the github access token
-        .click('#navbarDropdownGitHub')
-        .click('#setAccessToken')
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN)
+        .click('#navbarDropdownGit')
+        .click('#setGitHubAccessToken')
+        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace:true})
         .click('#inputModal .modal-footer button')
 
         // enter the testing repo as a custom repo
-        .click('#navbarDropdownGitHub')
+        .click('#navbarDropdownGit')
         .click('#addCustomRepository')
-        .typeText(Selector('#inputModalInput'), TESTING_REPOSITORY)
-        .click('#inputModal .modal-footer button')
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryNameInput'), TESTING_REPOSITORY, {replace:true})
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryBranchInput'), TESTING_BRANCH, {replace:true})
+        .click('#gitCustomRepositoryModalAffirmativeButton')
 
         // enter LGT mode
         //.click('#enterLGTEditorMode')
@@ -205,7 +208,7 @@ test('Create graph', async t =>{
 
         // select a memory data component from the resulting dialog
         .click('#choiceModalSelect')
-        .click(Selector('#choiceModalSelect').find('option').withText("memory"))
+        .click(Selector('#choiceModalSelect').find('option').withText("Memory"))
         //.expect(Selector('#choiceModalSelect option:selected').innerText).eql(TESTING_REPOSITORY)
         .click('#choiceModal .modal-footer button')
         .wait(250)
@@ -216,6 +219,9 @@ test('Create graph', async t =>{
             offsetY: 40
         })
         .wait(250)
+
+        // click the right window mode node button
+        .click("#rightWindowModeNode")
 
         // update the label in the node inspector
         .typeText(Selector('#nodeNameValue'), "test memory", { replace: true })
@@ -254,7 +260,7 @@ test('Create graph', async t =>{
 
         // select a file data component from the resulting dialog
         .click('#choiceModalSelect')
-        .click(Selector('#choiceModalSelect').find('option').withText("file"))
+        .click(Selector('#choiceModalSelect').find('option').withText("File"))
         //.expect(Selector('#choiceModalSelect option:selected').innerText).eql(TESTING_REPOSITORY)
         .click('#choiceModal .modal-footer button')
         .wait(250)
@@ -319,31 +325,29 @@ test('Create graph', async t =>{
         .wait(250)
 
         // save graph to github as...
-        .click('#navbarDropdownGitHub')
-        .click('#commitToGitHubAsGraph')
+        .click('#navbarDropdownGit')
+        .click('#commitToGitAsGraph')
         .wait(250)
 
-        // save palette to the james-strauss-uwa/eagle-test repo
-        .click('#choiceModalSelect')
-        .click(Selector('#choiceModalSelect').find('option').withText(TESTING_REPOSITORY))
-        //.expect(Selector('#choiceModalSelect option:selected').innerText).eql(TESTING_REPOSITORY)
-        .click('#choiceModal .modal-footer button')
+        // save graph to the james-strauss-uwa/eagle-test repo
+        .click('#gitCommitModalRepositoryNameSelect')
+        .click(Selector('#gitCommitModalRepositoryNameSelect').find('option').withText(TESTING_REPOSITORY + " (" + TESTING_BRANCH + ")"))
         .wait(250)
 
         // enter filepath for save graph as...
-        .typeText(Selector('#inputModalInput'), graph_filepath)
-        .click('#inputModal .modal-footer button')
+        .typeText(Selector('#gitCommitModalFilePathInput'), graph_filepath, {replace:true})
         .wait(250)
 
         // enter filename for save graph as...
-        .typeText(Selector('#inputModalInput'), graph_filename)
-        .click('#inputModal .modal-footer button')
+        .typeText(Selector('#gitCommitModalFileNameInput'), graph_filename, {replace:true})
         .wait(250)
 
         // enter commit message for save graph as...
-        .typeText(Selector('#inputModalInput'), graph_commit_message)
-        .click('#inputModal .modal-footer button')
+        .typeText(Selector('#gitCommitModalCommitMessageInput'), graph_commit_message, {replace:true})
         .wait(250)
+
+        // click commit button
+        .click("#gitCommitModalAffirmativeButton")
 
         // Use the assertion to check if the actual header text is equal to the expected one
         .expect(Selector("div[data-notify='container'] span[data-notify='title']").innerText).eql(SUCCESS_MESSAGE);
@@ -356,19 +360,20 @@ test('Translate graph', async t =>{
         .wait(2000)
 
         // enter the github access token
-        .click('#navbarDropdownGitHub')
-        .click('#setAccessToken')
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN)
+        .click('#navbarDropdownGit')
+        .click('#setGitHubAccessToken')
+        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace:true})
         .click('#inputModal .modal-footer button')
 
         // enter the testing repo as a custom repo
-        .click('#navbarDropdownGitHub')
+        .click('#navbarDropdownGit')
         .click('#addCustomRepository')
-        .typeText(Selector('#inputModalInput'), TESTING_REPOSITORY)
-        .click('#inputModal .modal-footer button')
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryNameInput'), TESTING_REPOSITORY, {replace:true})
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryBranchInput'), TESTING_BRANCH, {replace:true})
+        .click('#gitCustomRepositoryModalAffirmativeButton')
 
         // set the url of the translator
-        .click('#navbarDropdownGitHub')
+        .click('#navbarDropdownGit')
         .click('#setTranslatorUrl')
         .typeText(Selector('#inputModalInput'), TRANSLATOR_URL, { replace: true })
         .click('#inputModal .modal-footer button')
@@ -382,15 +387,11 @@ test('Translate graph', async t =>{
         //.click('#id_test-20190711-135121_graph')
         .wait(500)
 
-        // enter LG mode
-        .click('#enterLGEditorMode')
-        .wait(250)
-
         // Use the assertion to check if the actual header text is equal to the expected one
         .expect(Selector("div[data-notify='container'] span[data-notify='title']").innerText).eql(SUCCESS_MESSAGE)
 
         // open translate right window
-        .click('#enterTranslationRightWindow')
+        .click('#rightWindowModeTranslation')
         .wait(250)
 
         // open accordion for algorithm 1

@@ -121,24 +121,24 @@
         <ul class="navbar-nav ml-auto">
             <form class="form-inline">
                 <div class="btn-group" role="group" aria-label="RightWindowModeSelect">
-                    <button class="btn btn-secondary navbar-btn" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.Repository);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.Repository}">
+                    <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.Repository);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.Repository}">
                         Repositories
                     </button>
                     <!-- ko if: selectedNode() !== null -->
-                        <button class="btn btn-secondary navbar-btn" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.NodeInspector);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.NodeInspector}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.NodeInspector);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.NodeInspector}">
                             Node
                         </button>
                     <!-- /ko -->
                     <!-- ko if: selectedEdge() !== null -->
-                        <button class="btn btn-secondary navbar-btn" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.EdgeInspector);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.EdgeInspector}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeEdge" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.EdgeInspector);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.EdgeInspector}">
                             Edge
                         </button>
                     <!-- /ko -->
                     <!-- ko if: userMode() === Eagle.UserMode.LogicalGraphEditor -->
-                        <button class="btn btn-secondary navbar-btn" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.TranslationMenu);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.TranslationMenu}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.TranslationMenu);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.TranslationMenu}">
                             Translation
                         </button>
-                        <button class="btn btn-secondary navbar-btn" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.Hierarchy);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.Hierarchy}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.Hierarchy);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.Hierarchy}">
                             Hierarchy
                         </button>
                     <!-- /ko -->
