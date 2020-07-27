@@ -8,6 +8,7 @@ import { Selector } from 'testcafe';
 
 var GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
 var TESTING_REPOSITORY = "james-strauss-uwa/eagle-test";
+var TESTING_BRANCH = "master";
 var TRANSLATOR_URL = "http://localhost:8084/gen_pgt";
 var CHOICE_MODAL_CUSTOM = "Custom (enter below)";
 var SUCCESS_MESSAGE = "Success:";
@@ -40,16 +41,17 @@ test('Create palette', async t =>{
         .wait(2000)
 
         // enter the github access token
-        .click('#navbarDropdownGitHub')
-        .click('#setAccessToken')
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN)
+        .click('#navbarDropdownGit')
+        .click('#setGitHubAccessToken')
+        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace: true})
         .click('#inputModal .modal-footer button')
 
         // enter the testing repo as a custom repo
-        .click('#navbarDropdownGitHub')
+        .click('#navbarDropdownGit')
         .click('#addCustomRepository')
-        .typeText(Selector('#inputModalInput'), TESTING_REPOSITORY)
-        .click('#inputModal .modal-footer button')
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryNameInput'), TESTING_REPOSITORY, {replace:true})
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryBranchInput'), TESTING_BRANCH, {replace:true})
+        .click('#gitCustomRepositoryModalAffirmativeButton')
 
 
         // PART 1 - create palette
@@ -78,6 +80,9 @@ test('Create palette', async t =>{
             offsetY: 40
         })
         .wait(250)
+
+        // set right window mode to node
+        .click('#rightWindowModeNode')
 
         // set the name of the new shell app to 'DD'
         .typeText(Selector('#nodeNameValue'), "DD", {replace:true})
@@ -175,30 +180,29 @@ test('Create palette', async t =>{
         .wait(250)
 
         // save palette to github as...
-        .click('#navbarDropdownGitHub')
-        .click('#commitToGitHubAsPalette')
+        .click('#navbarDropdownGit')
+        .click('#commitToGitAsPalette')
         .wait(250)
 
         // save palette to the james-strauss-uwa/eagle-test repo
-        .click('#choiceModalSelect')
-        .click(Selector('#choiceModalSelect').find('option').withText(TESTING_REPOSITORY))
-        //.expect(Selector('#choiceModalSelect option:selected').innerText).eql(TESTING_REPOSITORY)
-        .click('#choiceModal .modal-footer button')
-        .wait(500)
+        .click('#gitCommitModalRepositoryNameSelect')
+        .click(Selector('#gitCommitModalRepositoryNameSelect').find('option').withText(TESTING_REPOSITORY + " (" + TESTING_BRANCH + ")"))
+        .wait(250)
 
         // enter filepath for save palette as...
-        .typeText(Selector('#inputModalInput'), palette_filepath)
-        .click('#inputModal .modal-footer button')
-        .wait(500)
+        .typeText(Selector('#gitCommitModalFilePathInput'), palette_filepath, {replace:true})
+        .wait(250)
 
-        // use default filename for save palette as...
-        .click('#inputModal .modal-footer button')
-        .wait(500)
+        // enter filename for save palette as...
+        .typeText(Selector('#gitCommitModalFileNameInput'), palette_filename, {replace:true})
+        .wait(250)
 
         // enter commit message for save palette as...
-        .typeText(Selector('#inputModalInput'), palette_commit_message)
-        .click('#inputModal .modal-footer button')
-        .wait(500)
+        .typeText(Selector('#gitCommitModalCommitMessageInput'), palette_commit_message, {replace:true})
+        .wait(250)
+
+        // click commit button
+        .click("#gitCommitModalAffirmativeButton")
 
         // Use the assertion to check if the actual header text is equal to the expected one
         .expect(Selector("div[data-notify='container'] span[data-notify='title']").innerText).eql(SUCCESS_MESSAGE)
@@ -208,7 +212,7 @@ test('Create palette', async t =>{
 
 
         // enter logical graph template mode
-        .click('#enterLGTEditorMode')
+        .click('#enterLogicalGraphEditorMode')
         .wait(250)
 
         // create a new graph

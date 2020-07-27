@@ -8,6 +8,7 @@ import { Selector } from 'testcafe';
 
 var GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
 var TESTING_REPOSITORY = "ICRAR/dlg_repo";
+var TESTING_BRANCH = "master";
 var GRAPH_FILENAME = "SummitIngest_Demo";
 var SUCCESS_MESSAGE = "Success:";
 
@@ -21,16 +22,17 @@ test('Translate graph', async t =>{
         .wait(2000)
 
         // enter the github access token
-        .click('#navbarDropdownGitHub')
-        .click('#setAccessToken')
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN)
+        .click('#navbarDropdownGit')
+        .click('#setGitHubAccessToken')
+        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace: true})
         .click('#inputModal .modal-footer button')
 
         // enter the testing repo as a custom repo
-        .click('#navbarDropdownGitHub')
+        .click('#navbarDropdownGit')
         .click('#addCustomRepository')
-        .typeText(Selector('#inputModalInput'), TESTING_REPOSITORY)
-        .click('#inputModal .modal-footer button')
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryNameInput'), TESTING_REPOSITORY, {replace:true})
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryBranchInput'), TESTING_BRANCH, {replace:true})
+        .click('#gitCustomRepositoryModalAffirmativeButton')
 
         // load the graph
         .click('#' + TESTING_REPOSITORY.replace('/','_'))
@@ -54,7 +56,6 @@ test('Translate graph', async t =>{
         // save graph to local disk
         .click('#navbarDropdownDisk')
         .click('#saveGraph')
-        .click('#choiceModal .modal-footer button') // OJS format is fine
         .wait(500)
 
         // check that modified flag has gone

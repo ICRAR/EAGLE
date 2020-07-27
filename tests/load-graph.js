@@ -9,9 +9,9 @@ fixture `EAGLE`
 test('Load graph', async t => {
     await t
         .wait(2000)
-        .click('#navbarDropdownGitHub')
-        .click('#setAccessToken')
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN)
+        .click('#navbarDropdownGit')
+        .click('#setGitHubAccessToken')
+        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace:true})
         .click('#inputModal .modal-footer button')
 
         .click('#ICRAR_EAGLE_test_repo')
@@ -26,10 +26,10 @@ test('Load graph', async t => {
 test('Load palette', async t => {
     await t
         .wait(2000)
-        .click('#navbarDropdownGitHub')
-        .click('#setAccessToken')
+        .click('#navbarDropdownGit')
+        .click('#setGitHubAccessToken')
         .wait(1000)
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN)
+        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace:true})
         .click('#inputModal .modal-footer button')
 
         .click('#ICRAR_EAGLE_test_repo')
