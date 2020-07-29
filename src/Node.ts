@@ -138,6 +138,20 @@ export class Node {
 
     setKey = (key : number) => {
         this.key = key;
+
+        // go through all ports on this node, and make sure their nodeKeys are all updated
+        for (var i = 0; i < this.inputPorts.length ; i++){
+            this.inputPorts[i].setNodeKey(key);
+        }
+        for (var i = 0; i < this.outputPorts.length ; i++){
+            this.outputPorts[i].setNodeKey(key);
+        }
+        for (var i = 0; i < this.inputLocalPorts.length ; i++){
+            this.inputLocalPorts[i].setNodeKey(key);
+        }
+        for (var i = 0; i < this.outputLocalPorts.length ; i++){
+            this.outputLocalPorts[i].setNodeKey(key);
+        }
     }
 
     getName = () : string => {

@@ -103,6 +103,11 @@ export class Edge {
         var sourceNode : Node = graph.findNodeByKey(sourceNodeKey);
         var destinationNode : Node = graph.findNodeByKey(destinationNodeKey);
 
+        if (sourceNode === null || destinationNode === null){
+            //Utils.showNotification("Unknown Error", "sourceNode or destinationNode cannot be found", "danger");
+            return Eagle.LinkValid.Unknown;
+        }
+
         // if destination is a service construct, then pretty much anything is valid
         if (destinationNode.getCategory() === Eagle.Category.Service){
             return Eagle.LinkValid.Valid;
