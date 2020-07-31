@@ -35,8 +35,7 @@ export class Utils {
         "json",
         "diagram",
         "graph",
-        "palette",
-        "xml"
+        "palette"
     ];
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
@@ -145,8 +144,6 @@ export class Utils {
             return Eagle.FileType.Palette;
         if (fileType === "templatePalette")
             return Eagle.FileType.TemplatePalette;
-        if (fileType === "xml")
-            return Eagle.FileType.XMLPalette;
         if (fileType === "json")
             return Eagle.FileType.JSON;
 
@@ -161,8 +158,6 @@ export class Utils {
             return "palette";
         if (fileType === Eagle.FileType.TemplatePalette)
             return "templatePalette";
-        if (fileType === Eagle.FileType.XMLPalette)
-            return "xml";
         if (fileType === Eagle.FileType.JSON)
             return "json";
 

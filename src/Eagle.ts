@@ -445,34 +445,22 @@ export class Eagle {
             // determine file type
             var fileType : Eagle.FileType = Utils.getFileTypeFromFileName(fileFullPath);
 
-            // abort if not palette of palette XML filetypes
-            if (fileType !== Eagle.FileType.Palette && fileType !== Eagle.FileType.XMLPalette){
+            // abort if not palette
+            if (fileType !== Eagle.FileType.Palette){
                 Utils.showUserMessage("Error", "This is not a palette file! Looks like a " + Utils.translateFileTypeToString(fileType));
                 return;
             }
 
-            // if fileType is Palette, parse JSON and load
-            if (fileType === Eagle.FileType.Palette){
-                // attempt to parse the JSON
-                try {
-                    var dataObject = JSON.parse(data);
-                }
-                catch(err){
-                    Utils.showUserMessage("Error parsing file JSON", err.message);
-                    return;
-                }
-                this.palette(Palette.fromOJSJson(data));
-                Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+            // attempt to parse the JSON
+            try {
+                var dataObject = JSON.parse(data);
             }
-
-            // if fileType is XMLPalette
-            if (fileType == Eagle.FileType.XMLPalette) {
-                // parse XML
-                var xmlDoc : XMLDocument = ( new (<any>window).DOMParser() ).parseFromString(data, "text/xml");
-
-                this.palette(Palette.fromXML(xmlDoc));
-                Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+            catch(err){
+                Utils.showUserMessage("Error parsing file JSON", err.message);
+                return;
             }
+            this.palette(Palette.fromOJSJson(data));
+            Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
 
             // update the activeFileInfo with details of the repository the file was loaded from
             this.updateFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
@@ -1018,11 +1006,6 @@ export class Eagle {
 
                 this.leftWindowShown(true);
                 Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
-            } else if (file.type === Eagle.FileType.XMLPalette) {
-                this.palette(Palette.fromXML(<XMLDocument> <unknown> data));
-                fileTypeLoaded = Eagle.FileType.Palette;
-                this.leftWindowShown(true);
-                Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
             } else if (file.type === Eagle.FileType.JSON) {
                 if (this.userMode() === Eagle.UserMode.LogicalGraphEditor) {
                     //Utils.showUserMessage("Warning", "Opening JSON file as graph, make sure this is correct.");
@@ -1119,10 +1102,10 @@ export class Eagle {
 
     fileIsVisible = (file : RepositoryFile) : boolean => {
         if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
-            return file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.XMLPalette || file.type === Eagle.FileType.JSON;
+            return file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.JSON;
         }
         if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            return file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.XMLPalette || file.type === Eagle.FileType.JSON;
+            return file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.JSON;
         }
         return false;
     };
@@ -1692,7 +1675,6 @@ export namespace Eagle
         Graph,
         Palette,
         TemplatePalette,
-        XMLPalette,
         JSON,
         Unknown
     }

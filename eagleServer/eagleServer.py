@@ -407,13 +407,6 @@ def open_git_hub_file():
     f = repo.get_contents(filename, ref=repo_branch)
     raw_data = f.decoded_content
 
-    # special case for handling XML files (e.g. doxygen output)
-    if extension == ".xml":
-        response = app.response_class(
-            response=raw_data, status=200, mimetype="application/xml"
-        )
-        return response
-
     # Add the GitHub file reference.
     graph = json.loads(raw_data)
     if not "modelData" in graph:
@@ -454,13 +447,6 @@ def open_git_lab_file():
 
     # get the decoded content
     raw_data = f.decode()
-
-    # special case for handling XML files (e.g. doxygen output)
-    if extension == ".xml":
-        response = app.response_class(
-            response=raw_data, status=200, mimetype="application/xml"
-        )
-        return response
 
     # Add the GitHub file reference.
     #graph = json.loads(raw_data)

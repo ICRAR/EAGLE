@@ -29,8 +29,6 @@ export class RepositoryFile {
                 return "palette";
             case Eagle.FileType.TemplatePalette:
                 return "clear";
-            case Eagle.FileType.XMLPalette:
-                return "whatshot";
             case Eagle.FileType.JSON:
                 return "language";
             default:
