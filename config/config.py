@@ -34,7 +34,7 @@ WTF_CSRF_ENABLED = True
 
 GITHUB_DEFAULT_REPO_LIST = [
     {"repository":"ICRAR/EAGLE_test_repo", "branch":"master"},
-    {"repository":"ICRAR/EAGLE_graph_repo", "branch":"master"},
+    {"repository":"ICRAR/EAGLE-graph-repo", "branch":"master"},
 ]
 
 GITLAB_DEFAULT_REPO_LIST = [
