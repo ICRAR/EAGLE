@@ -16,7 +16,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <!-- ko if: isPaletteEditorModeEnabled() -->
-            <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
+            <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor" data-intro='Hello step one!' class='tutorial-start'>
                 <li class="nav-item">
                     <a class="nav-link" id="enterPaletteEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.PaletteEditor);}">
                         <img src="static/assets/img/palette.png" width="24" height="24" class="d-inline-block align-top" alt="">

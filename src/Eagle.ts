@@ -25,6 +25,7 @@
 "use strict";
 
 import * as ko from "knockout";
+import * as ij from "intro.js";
 
 import {Utils} from './Utils';
 import {Config} from './Config';
@@ -1102,6 +1103,15 @@ export class Eagle {
 
     showHelp = () : void => {
         $('#helpModal').modal();
+    }
+
+    runTutorial = (name : string) : void => {
+        console.log("runTutorial(" + name + ")");
+
+        // hide help modal
+        $('#helpModal').modal();
+
+        ij().start();
     }
 
     fileIsVisible = (file : RepositoryFile) : boolean => {
