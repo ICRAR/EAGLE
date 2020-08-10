@@ -75,7 +75,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const SHRINK_BUTTONS_ENABLED : boolean = true;
     const COLLAPSE_BUTTONS_ENABLED : boolean = true;
 
-    console.log("render()", nodeDataDrawOrder());
+    console.log("pre-sort", printDrawOrder(graph.getNodes()));
+    console.log("render()", printDrawOrder(nodeData));
 
     var svgContainer = d3.select("#" + elementId)
                         .append("svg");
@@ -428,6 +429,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             })
                             .on("drag", function () {
                                 //console.log("drag from port", data.Id);
+
+                                // get zoom value and apply inverse to mouse position
+                                //var zoom : number = parseFloat($('html').css('zoom'));
+                                //console.log("zoom:", zoom);
+
                                 mousePosition.x = d3.mouse(svgContainer.node())[0];
                                 mousePosition.y = d3.mouse(svgContainer.node())[1];
                                 tick();
@@ -1112,7 +1118,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function sortNodesFunc(a : Node, b : Node) :number {
+        console.log("compare nodes", a.getKey(), a.getParentKey(), b.getKey(), b.getParentKey());
         if ((a.isGroup() && b.isGroup()) || (!a.isGroup() && !b.isGroup())){
+            if (a.getParentKey() === b.getKey())
+                return 1;
+            if (b.getParentKey() === a.getKey())
+                return -1;
+
             return a.getDrawOrderHint() - b.getDrawOrderHint();
         }
         if (a.isGroup() && !b.isGroup())
@@ -1645,12 +1657,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return n / eagle.globalScale;
     }
 
-    function nodeDataDrawOrder() : string {
+    function printDrawOrder(ns : Node[]) : string {
         var s : string = "";
 
         // loop through all nodes, if they belong to the parent's group, move them too
-        for (var i = 0 ; i < nodeData.length ; i++){
-            var node = nodeData[i];
+        for (var i = 0 ; i < ns.length ; i++){
+            var node = ns[i];
             s += node.getKey() + ', ';
         }
 
