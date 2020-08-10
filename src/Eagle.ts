@@ -1100,6 +1100,10 @@ export class Eagle {
         }
     };
 
+    showHelp = () : void => {
+        $('#helpModal').modal();
+    }
+
     fileIsVisible = (file : RepositoryFile) : boolean => {
         if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
             return file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.JSON;
