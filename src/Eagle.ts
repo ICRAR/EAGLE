@@ -1102,16 +1102,17 @@ export class Eagle {
     };
 
     showHelp = () : void => {
-        $('#helpModal').modal();
+        $('#helpModal').modal('show');
     }
 
     runTutorial = (name : string) : void => {
         console.log("runTutorial(" + name + ")");
 
         // hide help modal
-        $('#helpModal').modal();
+        $('#helpModal').modal('hide');
 
-        ij().start();
+        // start the tutorial
+        ij(name).start();
     }
 
     fileIsVisible = (file : RepositoryFile) : boolean => {

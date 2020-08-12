@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
 
-    <a class="navbar-brand" href="">
+    <a class="navbar-brand" href="" data-intro='Welcome to EAGLE. This introduction will briefly locate and describe the important features of the application.'>
         <img src="static/assets/img/favicon.png" width="30" height="30" class="d-inline-block align-top" alt="">
         EAGLE
     </a>
@@ -16,7 +16,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <!-- ko if: isPaletteEditorModeEnabled() -->
-            <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor" data-intro='Hello step one!' class='tutorial-start'>
+            <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor" data-intro='Edit palettes of component descriptions here in Palette Editor mode.'>
                 <li class="nav-item">
                     <a class="nav-link" id="enterPaletteEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.PaletteEditor);}">
                         <img src="static/assets/img/palette.png" width="24" height="24" class="d-inline-block align-top" alt="">
@@ -38,7 +38,7 @@
                     </a>
                 </li>
             </div>
-            <div data-bind="visible: userMode() === Eagle.UserMode.LogicalGraphEditor">
+            <div data-bind="visible: userMode() === Eagle.UserMode.LogicalGraphEditor" data-intro='Edit logical graphs in Logical Graph Editor mode.'>
                 <li class="nav-item">
                     <a class="nav-link" href="" data-bind="click: function(){};">
                         <img src="static/assets/img/editor_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
@@ -92,6 +92,11 @@
                     <!-- /ko -->
                 </div>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="" data-bind="click: function(){showHelp();};">
+                    Help
+                </a>
+            </li>
         </ul>
 
         <ul class="navbar-nav ml-auto">
@@ -113,9 +118,6 @@
                     -->
                     <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Save as PNG" data-bind="click: saveAsPNG">
                         <i class="material-icons md-18">image</i>
-                    </button>
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Help" data-bind="click: showHelp">
-                        <i class="material-icons md-18">help</i>
                     </button>
                 </div>
             </form>
