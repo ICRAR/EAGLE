@@ -1112,7 +1112,7 @@ export class Eagle {
         $('#helpModal').modal('hide');
 
         // start the tutorial
-        ij(name).start();
+        ij(name).setOption("showStepNumbers", false).start();
     }
 
     fileIsVisible = (file : RepositoryFile) : boolean => {

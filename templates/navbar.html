@@ -16,36 +16,40 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <!-- ko if: isPaletteEditorModeEnabled() -->
-            <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor" data-intro='Edit palettes of component descriptions here in Palette Editor mode.'>
-                <li class="nav-item">
-                    <a class="nav-link" id="enterPaletteEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.PaletteEditor);}">
-                        <img src="static/assets/img/palette.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                    </a>
-                </li>
-            </div>
-            <div style="display: none" data-bind="visible: userMode() === Eagle.UserMode.PaletteEditor">
-                <li class="nav-item">
-                    <a class="nav-link" href="" data-bind="click: function(){};">
-                        <img src="static/assets/img/palette_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                    </a>
-                </li>
+            <div data-intro='Edit palettes of processing components here in Palette Editor mode.'>
+                <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
+                    <li class="nav-item">
+                        <a class="nav-link" id="enterPaletteEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.PaletteEditor);}">
+                            <img src="static/assets/img/palette.png" width="24" height="24" class="d-inline-block align-top" alt="">
+                        </a>
+                    </li>
+                </div>
+                <div style="display: none" data-bind="visible: userMode() === Eagle.UserMode.PaletteEditor">
+                    <li class="nav-item">
+                        <a class="nav-link" href="" data-bind="click: function(){};">
+                            <img src="static/assets/img/palette_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
+                        </a>
+                    </li>
+                </div>
             </div>
             <!-- /ko -->
-            <div style="display: none" data-bind="visible: userMode() !== Eagle.UserMode.LogicalGraphEditor">
-                <li class="nav-item">
-                    <a class="nav-link" id="enterLogicalGraphEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.LogicalGraphEditor);}">
-                        <img src="static/assets/img/editor.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                    </a>
-                </li>
+            <div data-intro='Edit logical graphs built from processing components here in Logical Graph Editor mode.'>
+                <div style="display: none" data-bind="visible: userMode() !== Eagle.UserMode.LogicalGraphEditor">
+                    <li class="nav-item">
+                        <a class="nav-link" id="enterLogicalGraphEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.LogicalGraphEditor);}">
+                            <img src="static/assets/img/editor.png" width="24" height="24" class="d-inline-block align-top" alt="">
+                        </a>
+                    </li>
+                </div>
+                <div data-bind="visible: userMode() === Eagle.UserMode.LogicalGraphEditor">
+                    <li class="nav-item">
+                        <a class="nav-link" href="" data-bind="click: function(){};">
+                            <img src="static/assets/img/editor_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
+                        </a>
+                    </li>
+                </div>
             </div>
-            <div data-bind="visible: userMode() === Eagle.UserMode.LogicalGraphEditor" data-intro='Edit logical graphs in Logical Graph Editor mode.'>
-                <li class="nav-item">
-                    <a class="nav-link" href="" data-bind="click: function(){};">
-                        <img src="static/assets/img/editor_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                    </a>
-                </li>
-            </div>
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown" data-intro='Create new palettes and logical graphs here in the "New" menu.'>
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     New
                 </a>
@@ -58,7 +62,7 @@
                     <!-- /ko -->
                 </div>
             </li>
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown" data-intro='Save palettes and graphs to git repositories here in the "Git Storage" menu.'>
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownGit" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Git Storage
                 </a>
@@ -71,13 +75,15 @@
                     <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Palette)}">Save Palette</a>
                     <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Palette)}">Save Palette As</a>
                     <!-- /ko -->
+                    <!--
                     <a class="dropdown-item" id="addCustomRepository" href="#" data-bind="click: addCustomRepository">Add Custom Repo</a>
                     <a class="dropdown-item" id="setGitHubAccessToken" href="#" data-bind="click: setGitHubAccessToken">Set GitHub Access Token</a>
                     <a class="dropdown-item" id="setGitLabAccessToken" href="#" data-bind="click: setGitLabAccessToken">Set GitLab Access Token</a>
                     <a class="dropdown-item" id="setTranslatorUrl" href="#" data-bind="click: setTranslatorUrl">Set Translator Url</a>
+                    -->
                 </div>
             </li>
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown" data-intro='Load and save palettes and graphs from local disk here in the "Local Disk Storage" menu.'>
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownDisk" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Local Disk Storage
                 </a>
@@ -126,7 +132,7 @@
         <ul class="navbar-nav ml-auto">
             <form class="form-inline">
                 <div class="btn-group" role="group" aria-label="RightWindowModeSelect">
-                    <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.Repository);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.Repository}">
+                    <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.Repository);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.Repository}" data-intro='Load palettes and graphs from remote git repositories here in the "Repositories" tab.'>
                         Repositories
                     </button>
                     <!-- ko if: selectedNode() !== null -->
@@ -140,10 +146,10 @@
                         </button>
                     <!-- /ko -->
                     <!-- ko if: userMode() === Eagle.UserMode.LogicalGraphEditor -->
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.TranslationMenu);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.TranslationMenu}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.TranslationMenu);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.TranslationMenu}" data-intro='Submit a logical graph for translation into a physical graph here in the "Translation" tab.'>
                             Translation
                         </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.Hierarchy);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.Hierarchy}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindowMode(Eagle.RightWindowMode.Hierarchy);rightWindowShown(true);}, css: {active: rightWindowMode() === Eagle.RightWindowMode.Hierarchy}" data-intro='Explore the hierarchy of nodes in the current logical graph here in the "Hierarchy" tab.'>
                             Hierarchy
                         </button>
                     <!-- /ko -->
