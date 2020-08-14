@@ -11,38 +11,30 @@ import {Port} from '../src/Port';
 import {Edge} from '../src/Edge';
 
 // check command line arguments
-if (process.argv.length < 4){
-    console.log("incorrect usage, please add input and output files to the command line");
+if (process.argv.length < 3){
+    console.log("incorrect usage, please add input file to the command line");
     process.exit();
 }
 
-// get input and output filenames from the command line arguments
+// get input filename from the command line arguments
 var inputFilename : string = process.argv[2];
-var outputFilename : string = process.argv[3];
 //console.log("inputFilename", inputFilename);
-//console.log("outputFilename", outputFilename);
 
 // load input file from disk
 var data : Buffer = fs.readFileSync(inputFilename);
+var inputString : string = data.toString();
 
-
-
-
-
-
-
-
+// parse graph
+var inputGraph : LogicalGraph = LogicalGraph.fromOJSJson(inputString);
 
 // write the logical graph to disk using the outputFilename
-fs.writeFileSync(outputFilename, JSON.stringify(LogicalGraph.toOJSJson(outputGraph), null, 4));
+var outputString : string = JSON.stringify(LogicalGraph.toOJSJson(inputGraph), null, 4);
+
+// check that the input and output are the same
+var match : boolean = inputString === outputString;
+
+if (!match)
+    console.error("Input and output do not match:", inputFilename);
 
 // finish
-process.exit();
-
-function logMessage(message : string){
-    console.log("- LOG:", message);
-}
-
-function logError(error : string){
-    console.error("- ERROR:", error);
-}
+process.exit(match ? 0 : 1);
