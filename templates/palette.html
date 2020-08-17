@@ -11,7 +11,7 @@
                                 </span>
                             </div>
 
-                            <input type="text" class="form-control" readonly data-bind="value: $root.palette().nodes[$index()].name">
+                            <input type="text" class="form-control" readonly data-bind="value: $root.palette().nodes[$index()].getDisplayName()">
 
                             <div class="input-group-append">
                                 <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $root.addNodeToLogicalGraph, attr: {id: 'addPaletteNode' + $index(), title: $data.getHelpHTML()}" data-toggle="tooltip" data-html="true" data-placement="right">

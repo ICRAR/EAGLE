@@ -162,6 +162,14 @@ export class Node {
         this.name = name;
     }
 
+    getDisplayName = () : string => {
+        if (this.name === 'Enter label' || this.name == ''){
+            return this.category;
+        } else {
+            return this.name;
+        }
+    }
+
     getDescription = () : string => {
         return this.description;
     }
