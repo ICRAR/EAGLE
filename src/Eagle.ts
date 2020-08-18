@@ -1612,12 +1612,12 @@ export class Eagle {
             });
 
             // update title on all left window template palette buttons
-            $('.leftWindowDisplay.templatePalette button').each(function(index: number, element: HTMLElement){
+            $('.leftWindowDisplay.templatePalette .input-group-prepend').each(function(index: number, element: HTMLElement){
                 $(element).attr('data-original-title', eagle.templatePalette().getNthNonDataNode(index).getHelpHTML());
             });
 
             // update title on all left window palette buttons
-            $('.leftWindowDisplay.palette button').each(function(index: number, element: HTMLElement){
+            $('.leftWindowDisplay.palette .input-group-prepend').each(function(index: number, element: HTMLElement){
                 $(element).attr('data-original-title', eagle.palette().getNthNonDataNode(index).getHelpHTML());
             });
         }, 1);
