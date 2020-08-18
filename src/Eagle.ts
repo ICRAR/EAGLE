@@ -1115,6 +1115,19 @@ export class Eagle {
         ij(name).setOption("showStepNumbers", false).start();
     }
 
+    onlineHelp = () : void => {
+        console.log("online help");
+
+        // hide help modal
+        $('#helpModal').modal('hide');
+
+        // open in new tab: /static/docs/build/html/index.html
+        window.open(
+          '/static/docs/build/html/index.html',
+          '_blank'
+        );
+    }
+
     fileIsVisible = (file : RepositoryFile) : boolean => {
         if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
             return file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.JSON;
