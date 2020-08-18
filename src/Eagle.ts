@@ -1121,9 +1121,22 @@ export class Eagle {
         // hide help modal
         $('#helpModal').modal('hide');
 
-        // open in new tab: /static/docs/build/html/index.html
+        // open in new tab:
         window.open(
           '/static/docs/build/html/index.html',
+          '_blank'
+        );
+    }
+
+    readme = () : void => {
+        console.log("readme");
+
+        // hide help modal
+        $('#helpModal').modal('hide');
+
+        // open in new tab:
+        window.open(
+          'https://github.com/ICRAR/EAGLE/blob/master/README.md',
           '_blank'
         );
     }
