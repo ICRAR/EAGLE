@@ -70,6 +70,11 @@ except:
     version = "Unknown"
 print("Version: " + version)
 
+@app.route("/intro.js")
+def hack():
+    print("hack")
+    return app.send_static_file("externals/intro.min.js")
+
 @app.route("/")
 def index():
     return render_template("base.html", version=version)

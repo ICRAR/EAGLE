@@ -9,3 +9,4 @@ docs/static
 node_modules
 static/built
 venv
+static/docs/build
