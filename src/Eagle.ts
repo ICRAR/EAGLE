@@ -1101,25 +1101,19 @@ export class Eagle {
         }
     };
 
-    showHelp = () : void => {
-        $('#helpModal').modal('show');
+    showAbout = () : void => {
+        $('#aboutModal').modal('show');
     }
 
     runTutorial = (name : string) : void => {
         console.log("runTutorial(" + name + ")");
 
-        // hide help modal
-        $('#helpModal').modal('hide');
-
         // start the tutorial
-        ij(name).setOption("showStepNumbers", false).start();
+        ij(name).setOption("showStepNumbers", false).setOption("skipLabel", "Exit").start();
     }
 
     onlineHelp = () : void => {
         console.log("online help");
-
-        // hide help modal
-        $('#helpModal').modal('hide');
 
         // open in new tab:
         window.open(
@@ -1130,9 +1124,6 @@ export class Eagle {
 
     readme = () : void => {
         console.log("readme");
-
-        // hide help modal
-        $('#helpModal').modal('hide');
 
         // open in new tab:
         window.open(

@@ -245,22 +245,22 @@
     </div>
 </div>
 
-<!-- Help Modal -->
-<div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalTitle" aria-hidden="true">
+<!-- About Modal -->
+<div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="aboutModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="helpModalTitle">Help</h5>
+                <img src="/static/assets/img/favicon.png" class="rounded float-left" alt="EAGLE logo">
+                <span>&nbsp;&nbsp;</span>
+                <h5 class="modal-title" id="aboutModalTitle">About EAGLE</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <button type="button" class="btn btn-primary" data-bind="click: function(){runTutorial('nav.navbar');}">Navbar Introduction</button>
-                <br/><span>&nbsp;</span><br/>
-                <button type="button" class="btn btn-primary" data-bind="click: onlineHelp">Online help</button>
-                <br/><span>&nbsp;</span><br/>
-                <button type="button" class="btn btn-primary" data-bind="click: readme">GitHub README</button>
+                <h5>Editor for the Advanced Graph Language Environment</h5>
+                <p></p>
+                <pre>{% include 'license.html' %}</pre>
             </div>
         </div>
     </div>
