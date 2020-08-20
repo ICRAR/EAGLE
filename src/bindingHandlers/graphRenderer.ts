@@ -32,7 +32,7 @@ ko.bindingHandlers.graphRenderer = {
 
 function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // sort the nodes array so that groups appear first, this ensures that child nodes are drawn on top of the group their parents
-    var nodeData : Node[] = graph.getNodes().slice().sort(sortNodesFunc);
+    var nodeData : Node[] = depthFirstTraversalOfNodes(graph.getNodes());
     var linkData : Edge[] = graph.getEdges();
 
     var deltaX : number;
@@ -1117,35 +1117,54 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         tick();
     }
 
-    function sortNodesFunc(a : Node, b : Node) :number {
-        console.log("compare nodes", a.getKey(), a.getParentKey(), b.getKey(), b.getParentKey());
-        if ((a.isGroup() && b.isGroup()) || (!a.isGroup() && !b.isGroup())){
-            if (a.getParentKey() === b.getKey())
-                return 1;
-            if (b.getParentKey() === a.getKey())
-                return -1;
+    function findDepthOfNode(index: number, nodes : Node[]) : number {
+        var depth = 0;
+        var node = nodes[index];
 
-            return a.getDrawOrderHint() - b.getDrawOrderHint();
+        while (node.getParentKey() != null){
+            depth += 1;
+            depth += node.getDrawOrderHint() / 10;
+            node = findNodeWithKey(node.getParentKey(), nodes);
         }
-        if (a.isGroup() && !b.isGroup())
-            return -1;
-        if (!a.isGroup() && b.isGroup())
-            return 1;
 
-        return 0;
+        depth += node.getDrawOrderHint() / 10;
+
+        return depth;
     }
 
-    function findNodeWithKey(key: number) : Node {
-        //console.log("findNodeWithKey()", key);
+    function depthFirstTraversalOfNodes(nodes: Node[]) : Node[] {
+        var indexPlusDepths : {index:number, depth:number}[] = [];
+        var result : Node[] = [];
 
+        // populate key plus depths
+        for (var i = 0 ; i < nodes.length ; i++){
+            var depth = findDepthOfNode(i, nodes);
+
+            indexPlusDepths.push({index:i, depth:depth});
+        }
+
+        // sort nodes in depth ascending
+        indexPlusDepths.sort(function(a, b){
+            return a.depth - b.depth;
+        });
+
+        // write nodes to result in sorted order
+        for (var i = 0 ; i < indexPlusDepths.length ; i++){
+            result.push(nodes[indexPlusDepths[i].index]);
+        }
+
+        return result;
+    }
+
+    function findNodeWithKey(key: number, nodes: Node[]) : Node {
         if (key === null){
             return null;
         }
 
-        for (var i = 0 ; i < nodeData.length; i++){
-            if (nodeData[i].getKey() === key){
+        for (var i = 0 ; i < nodes.length; i++){
+            if (nodes[i].getKey() === key){
                 //console.log("found node", i);
-                return nodeData[i];
+                return nodes[i];
             }
         }
         return null;
@@ -1164,7 +1183,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getEdgeDisplay(edge : Edge) : string {
-        var sourceNode : Node = findNodeWithKey(edge.getSrcNodeKey());
+        var sourceNode : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
 
         if (findAncestorCollapsedNode(sourceNode) !== null){
             return "none";
@@ -1179,7 +1198,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetX1(edge: Edge) : number {
-        var node : Node = findNodeWithKey(edge.getSrcNodeKey());
+        var node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
 
         if (node.isCollapsed()){
             return node.getPosition().x + Node.COLLAPSED_WIDTH;
@@ -1199,7 +1218,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetY1(edge: Edge) : number {
-        var node : Node = findNodeWithKey(edge.getSrcNodeKey());
+        var node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
 
         if (node.isCollapsed()){
             return node.getPosition().y;
@@ -1219,7 +1238,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetX2(edge: Edge) : number {
-        var node : Node = findNodeWithKey(edge.getDestNodeKey());
+        var node : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
 
         if (node.isCollapsed()){
             return node.getPosition().x;
@@ -1239,7 +1258,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetY2(edge: Edge) : number {
-        var node : Node = findNodeWithKey(edge.getDestNodeKey());
+        var node : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
 
         if (node.isCollapsed()){
             return node.getPosition().y;
@@ -1336,7 +1355,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // find subject node
-        var subjectNode : Node = findNodeWithKey(node.getSubjectKey());
+        var subjectNode : Node = findNodeWithKey(node.getSubjectKey(), nodeData);
 
         return createBezier(node.getPosition().x, node.getPosition().y, subjectNode.getPosition().x, subjectNode.getPosition().y);
     }
@@ -1460,7 +1479,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             //console.log("parentKey", n.getParentKey());
 
             // move up one level
-            n = findNodeWithKey(n.getParentKey());
+            n = findNodeWithKey(n.getParentKey(), nodeData);
 
             // if node is null, return "inline"
             if (n === null){
@@ -1497,7 +1516,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             iterations += 1;
 
-            n = findNodeWithKey(n.getParentKey());
+            n = findNodeWithKey(n.getParentKey(), nodeData);
 
             if (n === null){
                 break;
