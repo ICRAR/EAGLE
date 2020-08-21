@@ -429,11 +429,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             })
                             .on("drag", function () {
                                 //console.log("drag from port", data.Id);
-
-                                // get zoom value and apply inverse to mouse position
-                                //var zoom : number = parseFloat($('html').css('zoom'));
-                                //console.log("zoom:", zoom);
-
                                 mousePosition.x = d3.mouse(svgContainer.node())[0];
                                 mousePosition.y = d3.mouse(svgContainer.node())[1];
                                 tick();

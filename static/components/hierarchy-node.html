@@ -9,7 +9,7 @@
         <i class="material-icons md-18">chevron_right</i>
         <!-- /ko -->
         <span>&nbsp;</span>
-        <span data-bind="text: name + '(' + key + ')', click: select, style: {color: selected() ? 'white' : 'black', backgroundColor: selected() ? 'black' : 'transparent'}"></span>
+        <span data-bind="text: name, click: select, style: {color: selected() ? 'white' : 'black', backgroundColor: selected() ? 'black' : 'transparent'}"></span>
 
         <!-- ko if: $data.expanded -->
             <ul class="nodes" data-bind="foreach: $root.logicalGraph().getNodes()">
