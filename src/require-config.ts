@@ -6,6 +6,7 @@ require.config({
         "jquery": "./static/externals/jquery-3.2.1",
         "bootstrap": "./static/externals/bootstrap.bundle.min",
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
+        "introjs": "./static/externals/intro.min",
         "d3": "./static/externals/d3.v5.min",
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",

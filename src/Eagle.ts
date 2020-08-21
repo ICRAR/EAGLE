@@ -25,6 +25,7 @@
 "use strict";
 
 import * as ko from "knockout";
+import * as ij from "intro.js";
 
 import {Utils} from './Utils';
 import {Config} from './Config';
@@ -1100,6 +1101,37 @@ export class Eagle {
         }
     };
 
+    showAbout = () : void => {
+        $('#aboutModal').modal('show');
+    }
+
+    runTutorial = (name : string) : void => {
+        console.log("runTutorial(" + name + ")");
+
+        // start the tutorial
+        ij(name).setOption("showStepNumbers", false).setOption("skipLabel", "Exit").start();
+    }
+
+    onlineHelp = () : void => {
+        console.log("online help");
+
+        // open in new tab:
+        window.open(
+          '/static/docs/build/html/index.html',
+          '_blank'
+        );
+    }
+
+    readme = () : void => {
+        console.log("readme");
+
+        // open in new tab:
+        window.open(
+          'https://github.com/ICRAR/EAGLE/blob/master/README.md',
+          '_blank'
+        );
+    }
+
     fileIsVisible = (file : RepositoryFile) : boolean => {
         if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
             return file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.JSON;
@@ -1584,12 +1616,12 @@ export class Eagle {
             });
 
             // update title on all left window template palette buttons
-            $('.leftWindowDisplay.templatePalette button').each(function(index: number, element: HTMLElement){
+            $('.leftWindowDisplay.templatePalette .input-group-prepend').each(function(index: number, element: HTMLElement){
                 $(element).attr('data-original-title', eagle.templatePalette().getNthNonDataNode(index).getHelpHTML());
             });
 
             // update title on all left window palette buttons
-            $('.leftWindowDisplay.palette button').each(function(index: number, element: HTMLElement){
+            $('.leftWindowDisplay.palette .input-group-prepend').each(function(index: number, element: HTMLElement){
                 $(element).attr('data-original-title', eagle.palette().getNthNonDataNode(index).getHelpHTML());
             });
         }, 1);
