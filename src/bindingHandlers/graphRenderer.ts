@@ -75,8 +75,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const SHRINK_BUTTONS_ENABLED : boolean = true;
     const COLLAPSE_BUTTONS_ENABLED : boolean = true;
 
-    console.log("pre-sort", printDrawOrder(graph.getNodes()));
-    console.log("render()", printDrawOrder(nodeData));
+    //console.log("pre-sort", printDrawOrder(graph.getNodes()));
+    //console.log("render()", printDrawOrder(nodeData));
 
     var svgContainer = d3.select("#" + elementId)
                         .append("svg");
