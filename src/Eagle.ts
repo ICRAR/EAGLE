@@ -235,6 +235,53 @@ export class Eagle {
         console.error("Not implemented!");
     }
 
+    centerGraph = () : void => {
+        // if there are no nodes in the logical graph, abort
+        if (this.logicalGraph().getNumNodes() === 0){
+            return;
+        }
+
+        // iterate over all nodes in graph and record minimum and maximum extents in X and Y
+        var minX : number = Number.MAX_VALUE;
+        var minY : number = Number.MAX_VALUE;
+        var maxX : number = -Number.MAX_VALUE;
+        var maxY : number = -Number.MAX_VALUE;
+        for (var i = 0 ; i < this.logicalGraph().getNodes().length; i++){
+            var node : Node = this.logicalGraph().getNodes()[i];
+
+            if (node.getPosition().x < minX){
+                minX = node.getPosition().x;
+            }
+            if (node.getPosition().y < minY){
+                minY = node.getPosition().y;
+            }
+            if (node.getPosition().x + node.getWidth() > maxX){
+                maxX = node.getPosition().x + node.getWidth();
+            }
+            if (node.getPosition().y + node.getHeight() > maxY){
+                maxY = node.getPosition().y + node.getHeight();
+            }
+        }
+
+        // determine the centroid of the graph
+        var centroidX = minX + ((maxX - minX) / 2);
+        var centroidY = minY + ((maxY - minY) / 2);
+
+        // reset scale
+        this.globalScale = 1.0;
+
+        //determine center of the display area
+        var displayCenterX : number = $('#logicalGraphParent').width() / this.globalScale / 2;
+        var displayCenterY : number = $('#logicalGraphParent').height() / this.globalScale / 2;
+
+        // translate display to center the graph centroid
+        this.globalOffsetX = displayCenterX - centroidX;
+        this.globalOffsetY = displayCenterY - centroidY;
+
+        // trigger render
+        this.flagActiveDiagramHasMutated();
+    }
+
     setPaletteEditorMode = () => {
         this.userMode(Eagle.UserMode.PaletteEditor);
 
