@@ -35,6 +35,9 @@ import {Node} from './Node';
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
 
+import {Repository} from './Repository';
+import {RepositoryFile} from './RepositoryFile';
+
 var eagle : Eagle;
 
 $(function(){
@@ -80,6 +83,11 @@ $(function(){
 
     // initialise all the modal dialogs. event handlers etc
     Utils.initModals(eagle);
+
+
+    // HACK: automatically load a graph (useful when iterating quickly during development)
+    var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "summit", "summit_oskar2_384_nodes.json");
+    eagle.selectFile(autoLoadFile);
 });
 
 /**
