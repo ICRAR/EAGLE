@@ -1099,6 +1099,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getInputAppText(node:Node) : string {
+        if (!Node.canHaveInputApp(node)){
+            return "";
+        }
+
         var name : string = node.getInputApplicationName();
 
         if (name === ""){
@@ -1122,6 +1126,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getOutputAppText(node:Node) : string {
+        if (!Node.canHaveOutputApp(node)){
+            return "";
+        }
+
         var name : string = node.getOutputApplicationName();
 
         if (name === ""){
