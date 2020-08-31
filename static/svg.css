@@ -60,6 +60,10 @@ g.node text.header {
     user-select: none;
 }
 
+g.node text.outputAppName {
+    text-anchor: end;
+}
+
 g.node g circle {
     stroke: white;
     stroke-width: 2;

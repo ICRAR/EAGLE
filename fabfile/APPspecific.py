@@ -157,7 +157,7 @@ def APP_build_cmd():
     env.APP_SRC_DIR = os.path.abspath(os.path.join(home(), APP_SRC_DIR_NAME))
     build_cmd.append('cd {0} ;'.format(APP_source_dir()))
     build_cmd.append(
-        'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash')
+        'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash ;')
     build_cmd.append('source ~/.nvm/nvm.sh')
     build_cmd.append('nvm install node')
     # build_cmd.append('npm install typescript')
