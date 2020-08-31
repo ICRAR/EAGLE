@@ -1090,6 +1090,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getAppsBackgroundDisplay(node : Node) : string {
+        // if node is collapsed, return 'none'
+        if (node.isCollapsed()){
+            return "none";
+        }
+
         // if node has input or output apps, return 'inline' else 'none'
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) ){
             return "inline";
