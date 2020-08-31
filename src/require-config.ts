@@ -1,6 +1,6 @@
 declare var require: any;
 require.config({
-    waitSeconds: 30,
+    /* waitSeconds: 30, */
     paths: {
         "text": "./static/externals/text",
         "knockout": "./static/externals/knockout-min",
