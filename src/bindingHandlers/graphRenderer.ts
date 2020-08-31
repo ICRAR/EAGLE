@@ -47,6 +47,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     var isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
     var mousePosition = {x:0, y:0};
 
+    const HEADER_HEIGHT : number = 28;
+    const APPS_HEIGHT : number = 28;
+    const PORT_HEIGHT : number = 24;
+
+    const PORT_OFFSET_X : number = 2;
+    const PORT_ICON_HEIGHT : number = 8;
+
     const RESIZE_CONTROL_SIZE : number = 16;
     const SHRINK_BUTTON_SIZE : number = 16;
     const COLLAPSE_BUTTON_SIZE : number = 16;
@@ -195,6 +202,34 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                      .text(getHeadingText);
                      //.call(wrap, COLLAPSED_NODE_WIDTH);
 
+    // add a app names background to each node
+    var appsBackgrounds = nodes.append("rect")
+                                    .attr("class", "apps-background")
+                                    .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
+                                    .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeadingBackgroundHeight(node));})
+                                    .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeadingBackgroundHeight(node));})
+                                    .style("fill", nodeGetColor)
+                                    .style("stroke", "grey")
+                                    .style("display", getAppsBackgroundDisplay);
+
+    var inputAppName = nodes.append("text")
+                     .attr("class", "inputAppName")
+                     .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionX(node));})
+                     .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionY(node));})
+                     .style("fill", getHeadingFill)
+                     .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+                     .style("display", getAppsBackgroundDisplay)
+                     .text(getInputAppText);
+
+    var outputAppName = nodes.append("text")
+                     .attr("class", "outputAppName")
+                     .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionX(node));})
+                     .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionY(node));})
+                     .style("fill", getHeadingFill)
+                     .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+                     .style("display", getAppsBackgroundDisplay)
+                     .text(getOutputAppText);
+
     var content = nodes.append("text")
                      .attr("class", "content")
                      .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionX(node));})
@@ -309,8 +344,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add the input ports
     var inputPortGroups = nodes.append("g")
                                 .attr("class", "inputPorts")
-                                //.attr("transform", getInputPortsPosition)
-                                .attr("transform", function(node : Node){return buildTranslation(REAL_TO_DISPLAY_SCALE(2), REAL_TO_DISPLAY_SCALE(24))})
+                                .attr("transform", getInputPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
     var inputPorts = inputPortGroups.selectAll("g")
@@ -319,7 +353,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .append("text")
                             .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
                             .attr("x", REAL_TO_DISPLAY_SCALE(20))
-                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
+                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
 
@@ -329,7 +363,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
                             .attr("cx", REAL_TO_DISPLAY_SCALE(8))
-                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
+                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                             .on("mouseenter", mouseEnterPort)
@@ -338,7 +372,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add the input local ports
     var inputLocalPortGroups = nodes.append("g")
                                 .attr("class", "inputLocalPorts")
-                                .attr("transform", function(node : Node){return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-2), REAL_TO_DISPLAY_SCALE((node.getOutputPorts().length + 1) * 24))})
+                                .attr("transform", getInputLocalPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
     var inputLocalPorts = inputLocalPortGroups.selectAll("g")
@@ -347,7 +381,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .append("text")
                             .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
                             .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
+                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
 
@@ -357,7 +391,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
                             .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
+                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                             .on("mouseenter", mouseEnterPort)
@@ -366,7 +400,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add the output ports
     var outputPortGroups = nodes.append("g")
                                 .attr("class", "outputPorts")
-                                .attr("transform", function(node : Node){return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-2), REAL_TO_DISPLAY_SCALE(24))})
+                                .attr("transform", getOutputPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
     var outputPorts = outputPortGroups.selectAll("g")
@@ -375,7 +409,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .append("text")
                             .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
                             .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
+                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
 
@@ -385,7 +419,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
                             .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
+                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                             .on("mouseenter", mouseEnterPort)
@@ -394,7 +428,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add the output local ports
     var outputLocalPortGroups = nodes.append("g")
                                 .attr("class", "outputLocalPorts")
-                                .attr("transform", function(node : Node){return buildTranslation(REAL_TO_DISPLAY_SCALE(2), REAL_TO_DISPLAY_SCALE((node.getInputPorts().length + 1) * 24))})
+                                .attr("transform", getOutputLocalPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
     var outputLocalPorts = outputLocalPortGroups.selectAll("g")
@@ -580,7 +614,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // TODO: update attributes of all nodes
         nodes.attr("transform", nodeGetTranslation);
 
-        svgContainer.selectAll("g.node rect:not(.header-background):not(.resize-control):not(.shrink-button):not(.collapse-button):not(.expand-button)")
+        svgContainer.selectAll("g.node rect:not(.header-background):not(.apps-background):not(.resize-control):not(.shrink-button):not(.collapse-button):not(.expand-button)")
                                 .data(nodeData)
                                 .attr("class", nodeIsSelected)
                                 .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
@@ -607,6 +641,33 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .style("display", getHeadingDisplay)
                                 .text(getHeadingText);
                                 //.call(wrap, COLLAPSED_NODE_WIDTH);
+
+        svgContainer.selectAll("g.node rect.apps-background")
+                                .data(nodeData)
+                                .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
+                                .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeadingBackgroundHeight(node));})
+                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeadingBackgroundHeight(node));})
+                                .style("fill", nodeGetColor)
+                                .style("stroke", "grey")
+                                .style("display", getAppsBackgroundDisplay);
+
+        svgContainer.selectAll("g.node text.inputAppName")
+                                .data(nodeData)
+                                .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionX(node));})
+                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionY(node));})
+                                .style("fill", getHeadingFill)
+                                .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+                                .style("display", getAppsBackgroundDisplay)
+                                .text(getInputAppText);
+
+        svgContainer.selectAll("g.node text.outputAppName")
+                                .data(nodeData)
+                                .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionX(node));})
+                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionY(node));})
+                                .style("fill", getHeadingFill)
+                                .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+                                .style("display", getAppsBackgroundDisplay)
+                                .text(getOutputAppText);
 
         svgContainer.selectAll("g.node text.content")
                                 .data(nodeData)
@@ -674,7 +735,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // inputPorts
         nodes.selectAll("g.inputPorts")
-                                .attr("transform", function(node : Node){return buildTranslation(REAL_TO_DISPLAY_SCALE(2), REAL_TO_DISPLAY_SCALE(24))})
+                                .attr("transform", getInputPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
         nodes.selectAll("g.inputPorts text")
@@ -692,7 +753,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(function(node : Node){return node.getInputPorts();})
                                 .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(20))
-                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
+                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName();});
 
@@ -711,7 +772,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(function(node : Node){return node.getInputPorts();})
                                 .attr("data-key", function(port : Port){return port.getId();})
                                 .attr("cx", REAL_TO_DISPLAY_SCALE(8))
-                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
+                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
@@ -719,7 +780,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // inputLocalPorts
         nodes.selectAll("g.inputLocalPorts")
-                                .attr("transform", function(node : Node){return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-2), REAL_TO_DISPLAY_SCALE((node.getOutputPorts().length + 1) * 24))})
+                                .attr("transform", getInputLocalPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
         nodes.selectAll("g.inputLocalPorts text")
@@ -737,7 +798,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(function(node : Node){return node.getInputLocalPorts();})
                                 .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
+                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName();});
 
@@ -756,7 +817,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(function(node : Node){return node.getInputLocalPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
                                 .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
+                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
@@ -764,7 +825,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // outputPorts
         nodes.selectAll("g.outputPorts")
-                                .attr("transform", function(node : Node){return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-2), REAL_TO_DISPLAY_SCALE(24))})
+                                .attr("transform", getOutputPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
         nodes.selectAll("g.outputPorts text")
@@ -782,7 +843,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(function(node : Node){return node.getOutputPorts();})
                                 .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
+                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName()});
 
@@ -801,7 +862,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(function(node : Node){return node.getOutputPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
                                 .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
+                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
@@ -810,7 +871,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // outputLocalPorts
         nodes.selectAll("g.outputLocalPorts")
-                                .attr("transform", function(node : Node){return buildTranslation(REAL_TO_DISPLAY_SCALE(2), REAL_TO_DISPLAY_SCALE((node.getInputPorts().length + 1) * 24))})
+                                .attr("transform", getOutputLocalPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
         nodes.selectAll("g.outputLocalPorts text")
@@ -828,7 +889,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(function(node : Node){return node.getOutputLocalPorts();})
                                 .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(20))
-                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
+                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName();});
 
@@ -847,7 +908,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(function(node : Node){return node.getOutputLocalPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
                                 .attr("cx", REAL_TO_DISPLAY_SCALE(8))
-                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
+                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
@@ -983,7 +1044,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // default height
-        return 28;
+        return HEADER_HEIGHT;
     }
 
     function getHeadingDisplay(node : Node) : string {
@@ -1026,6 +1087,98 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return "white";
+    }
+
+    function getAppsBackgroundDisplay(node : Node) : string {
+        // if node is collapsed, return 'none'
+        if (node.isCollapsed()){
+            return "none";
+        }
+
+        // if node has input or output apps, return 'inline' else 'none'
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) ){
+            return "inline";
+        }
+
+        return "none";
+    }
+
+    function getInputAppText(node:Node) : string {
+        if (!Node.canHaveInputApp(node)){
+            return "";
+        }
+
+        var name : string = node.getInputApplicationName();
+
+        if (name === ""){
+            return "<no app>";
+        }
+
+        return name;
+    }
+
+    function getInputAppPositionX(node : Node) : number {
+        return 8;
+    }
+
+    function getInputAppPositionY(node : Node) : number {
+        // TODO: do something different if the node is collapsed
+        //if (node.isGroup() && node.isCollapsed()){
+        //    return Node.COLLAPSED_HEIGHT / 2;
+        //}
+
+        return HEADER_HEIGHT + 20;
+    }
+
+    function getOutputAppText(node:Node) : string {
+        if (!Node.canHaveOutputApp(node)){
+            return "";
+        }
+
+        var name : string = node.getOutputApplicationName();
+
+        if (name === ""){
+            return "<no app>";
+        }
+
+        return name;
+    }
+
+    function getOutputAppPositionX(node : Node) : number {
+        return node.getWidth() - 8;
+    }
+
+    function getOutputAppPositionY(node : Node) : number {
+        // TODO: do something different if the node is collapsed
+        //if (node.isGroup() && node.isCollapsed()){
+        //    return Node.COLLAPSED_HEIGHT / 2;
+        //}
+
+        return HEADER_HEIGHT + 20;
+    }
+
+    function getInputPortGroupTransform(node : Node) : string {
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT));
+        } else {
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT));
+        }
+    }
+
+    function getInputLocalPortGroupTransform(node : Node) : string {
+        return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+    }
+
+    function getOutputPortGroupTransform(node : Node) : string {
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT));
+        } else {
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT));
+        }
+    }
+
+    function getOutputLocalPortGroupTransform(node : Node) : string {
+        return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getInputPorts().length * PORT_HEIGHT));
     }
 
     function getContentPositionX(node : Node) : number {
@@ -1209,7 +1362,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().x + Node.COLLAPSED_WIDTH;
         }
 
-        return node.findNodePortPosition(edge.getSrcPortId()).x;
+        return findNodePortPosition(node, edge.getSrcPortId()).x;
     }
 
     function edgeGetY1(edge: Edge) : number {
@@ -1229,7 +1382,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().y;
         }
 
-        return node.findNodePortPosition(edge.getSrcPortId()).y;
+        return findNodePortPosition(node, edge.getSrcPortId()).y - PORT_ICON_HEIGHT;
     }
 
     function edgeGetX2(edge: Edge) : number {
@@ -1249,7 +1402,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().x;
         }
 
-        return node.findNodePortPosition(edge.getDestPortId()).x;
+        return findNodePortPosition(node, edge.getDestPortId()).x;
     }
 
     function edgeGetY2(edge: Edge) : number {
@@ -1269,7 +1422,82 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().y;
         }
 
-        return node.findNodePortPosition(edge.getDestPortId()).y;
+        return findNodePortPosition(node, edge.getDestPortId()).y - PORT_ICON_HEIGHT;
+    }
+
+    function findNodePortPosition(node : Node, portId: string) : {x: number, y: number} {
+        // TODO: these should probably be defined in the graphRenderer
+        var PORT_INSET = 10;
+
+        var local : boolean;
+        var input : boolean;
+        var index : number;
+        var position = {x: node.getPosition().x, y: node.getPosition().y};
+
+        // find the port within the node
+        for (var i = 0 ; i < node.getInputPorts().length ; i++){
+            var port : Port = node.getInputPorts()[i];
+            if (port.getId() === portId){
+                local = false;
+                input = true;
+                index = i;
+            }
+        }
+
+        for (var i = 0 ; i < node.getOutputPorts().length ; i++){
+            var port : Port = node.getOutputPorts()[i];
+            if (port.getId() === portId){
+                local = false;
+                input = false;
+                index = i;
+            }
+        }
+
+        // check local ports too
+        for (var i = 0 ; i < node.getInputLocalPorts().length ; i++){
+            var port : Port = node.getInputLocalPorts()[i];
+            if (port.getId() === portId){
+                local = true;
+                input = true;
+                index = i;
+            }
+        }
+
+        for (var i = 0 ; i < node.getOutputLocalPorts().length ; i++){
+            var port : Port = node.getOutputLocalPorts()[i];
+            if (port.getId() === portId){
+                local = true;
+                input = false;
+                index = i;
+            }
+        }
+
+        // determine whether we need to move down an extra amount to clear the apps display title row
+        var appsOffset : number = 0;
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+            appsOffset = APPS_HEIGHT;
+        }
+
+        // translate the three pieces of info into the x,y position
+        if ((input && !local) || (!input && local)){
+            // left hand side
+            position.x += PORT_INSET;
+            if (local){
+                position.y += HEADER_HEIGHT + appsOffset + (node.getInputPorts().length + index + 1) * PORT_HEIGHT;
+            } else {
+                position.y += HEADER_HEIGHT + appsOffset + (index + 1) * PORT_HEIGHT;
+            }
+        } else {
+            // right hand side
+            position.x += node.getWidth() - PORT_INSET;
+            if (local){
+                position.y += HEADER_HEIGHT + appsOffset + (node.getOutputPorts().length + index + 1) * PORT_HEIGHT;
+            } else {
+                position.y += HEADER_HEIGHT + appsOffset + (index + 1) * PORT_HEIGHT;
+            }
+        }
+
+        return position;
     }
 
     function edgeGetStrokeColor(edge: Edge, index: number) : string {
@@ -1577,22 +1805,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return "inline";
-    }
-
-    function getInputPortsPosition(node : Node) : string {
-        if (false && node.isGroup()){
-            return buildTranslation(2, -8 - 24 * node.getInputPorts().length);
-        } else {
-            return buildTranslation(2, 24);
-        }
-    }
-
-    function getOutputPortsPosition(node : Node) : string {
-        if (false && node.isGroup()){
-            return buildTranslation(getWidth(node)-2, -8 - 24 * node.getOutputPorts().length);
-        } else {
-            return buildTranslation(getWidth(node)-2, 24);
-        }
     }
 
     // whether or not the expand button is visible
