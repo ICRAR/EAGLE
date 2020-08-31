@@ -1472,22 +1472,28 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
+        // determine whether we need to move down an extra amount to clear the apps display title row
+        var appsOffset : number = 0;
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+            appsOffset = APPS_HEIGHT;
+        }
+
         // translate the three pieces of info into the x,y position
         if ((input && !local) || (!input && local)){
             // left hand side
             position.x += PORT_INSET;
             if (local){
-                position.y += HEADER_HEIGHT + APPS_HEIGHT + (node.getInputPorts().length + index) * PORT_HEIGHT;
+                position.y += HEADER_HEIGHT + appsOffset + (node.getInputPorts().length + index + 1) * PORT_HEIGHT;
             } else {
-                position.y += HEADER_HEIGHT + APPS_HEIGHT + index * PORT_HEIGHT;
+                position.y += HEADER_HEIGHT + appsOffset + (index + 1) * PORT_HEIGHT;
             }
         } else {
             // right hand side
             position.x += node.getWidth() - PORT_INSET;
             if (local){
-                position.y += HEADER_HEIGHT + APPS_HEIGHT + (node.getOutputPorts().length + index) * PORT_HEIGHT;
+                position.y += HEADER_HEIGHT + appsOffset + (node.getOutputPorts().length + index + 1) * PORT_HEIGHT;
             } else {
-                position.y += HEADER_HEIGHT + APPS_HEIGHT + index * PORT_HEIGHT;
+                position.y += HEADER_HEIGHT + appsOffset + (index + 1) * PORT_HEIGHT;
             }
         }
 

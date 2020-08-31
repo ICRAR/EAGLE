@@ -86,8 +86,8 @@ $(function(){
 
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
-    var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "summit", "summit_oskar2_384_nodes.json");
-    eagle.selectFile(autoLoadFile);
+    //var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "summit", "summit_oskar2_384_nodes.json");
+    //eagle.selectFile(autoLoadFile);
 });
 
 /**
