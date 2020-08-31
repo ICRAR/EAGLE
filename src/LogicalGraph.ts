@@ -350,8 +350,8 @@ export class LogicalGraph {
 
         // calculate a position for a new data component, halfway between the srcPort and destPort
         var dataComponentPosition = {
-            x: (srcNode.findNodePortPosition(srcPortId).x + destNode.findNodePortPosition(destPortId).x) / 2.0,
-            y: (srcNode.findNodePortPosition(srcPortId).y + destNode.findNodePortPosition(destPortId).y) / 2.0
+            x: (srcNode.getPosition().x + srcNode.getWidth() + destNode.getPosition().x) / 2.0,
+            y: (srcNode.getPosition().y + srcNode.getHeight() + destNode.getPosition().y) / 2.0
         };
 
         // if edge DOES connect two applications, insert data component (of type chosen by user)

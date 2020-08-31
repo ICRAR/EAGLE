@@ -1021,77 +1021,6 @@ export class Node {
         }, 1);
     }
 
-    findNodePortPosition = (portId: string) : {x: number, y: number} => {
-        // TODO: these should probably be defined in the graphRenderer
-        var HEADER_OFFSET = 48;
-        var PORT_INTERVAL = 20;
-        var PORT_INSET = 10;
-
-        var local : boolean;
-        var input : boolean;
-        var index : number;
-        var position = {x: this.getPosition().x, y: this.getPosition().y};
-
-        // find the port within the node
-        for (var i = 0 ; i < this.getInputPorts().length ; i++){
-            var port : Port = this.getInputPorts()[i];
-            if (port.getId() === portId){
-                local = false;
-                input = true;
-                index = i;
-            }
-        }
-
-        for (var i = 0 ; i < this.getOutputPorts().length ; i++){
-            var port : Port = this.getOutputPorts()[i];
-            if (port.getId() === portId){
-                local = false;
-                input = false;
-                index = i;
-            }
-        }
-
-        // check local ports too
-        for (var i = 0 ; i < this.getInputLocalPorts().length ; i++){
-            var port : Port = this.getInputLocalPorts()[i];
-            if (port.getId() === portId){
-                local = true;
-                input = true;
-                index = i;
-            }
-        }
-
-        for (var i = 0 ; i < this.getOutputLocalPorts().length ; i++){
-            var port : Port = this.getOutputLocalPorts()[i];
-            if (port.getId() === portId){
-                local = true;
-                input = false;
-                index = i;
-            }
-        }
-
-        // translate the three pieces of info into the x,y position
-        if ((input && !local) || (!input && local)){
-            // left hand side
-            position.x += PORT_INSET;
-            if (local){
-                position.y += HEADER_OFFSET + (this.getInputPorts().length + index) * PORT_INTERVAL;
-            } else {
-                position.y += HEADER_OFFSET + index * PORT_INTERVAL;
-            }
-        } else {
-            // right hand side
-            position.x += this.getWidth() - PORT_INSET;
-            if (local){
-                position.y += HEADER_OFFSET + (this.getOutputPorts().length + index) * PORT_INTERVAL;
-            } else {
-                position.y += HEADER_OFFSET + index * PORT_INTERVAL;
-            }
-        }
-
-        return position;
-    }
-
     findPortIsInputById = (portId: string) : boolean => {
         // find the port within the node
         for (var i = 0 ; i < this.getInputPorts().length ; i++){
@@ -1136,6 +1065,16 @@ export class Node {
 
     setExpanded = (value : boolean) : void => {
         this.expanded(value);
+    }
+
+    static canHaveInputApp = (node : Node) : boolean => {
+        return node.getCategory() === Eagle.Category.Gather ||
+            node.getCategory() === Eagle.Category.Scatter ||
+            node.getCategory() === Eagle.Category.MKN;
+    }
+
+    static canHaveOutputApp = (node : Node) : boolean => {
+        return node.getCategory() === Eagle.Category.MKN;
     }
 
     static fromOJSJson = (nodeData : any) : Node => {
