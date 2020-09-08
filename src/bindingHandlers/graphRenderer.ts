@@ -1067,7 +1067,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function getHeadingPositionX(node : Node) : number {
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return Node.DATA_COMPONENT_WIDTH / 2;
+            return node.getWidth()/2;
         }
 
         return getWidth(node) /2;
