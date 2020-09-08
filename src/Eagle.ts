@@ -1255,6 +1255,20 @@ export class Eagle {
         this.flagActiveDiagramHasMutated();
     }
 
+    duplicateSelectedNode = () : void => {
+        if (this.selectedNode() === null){
+            console.log("Unable to duplicate selected node: No node selected");
+            return;
+        }
+
+        // duplicate the node
+        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
+            this.addNodeToLogicalGraph(this.selectedNode());
+        } else {
+            this.addNodeToPalette(this.selectedNode());
+        }
+    }
+
     deleteSelectedNode = () : void => {
         if (this.selectedNode() === null){
             console.log("Unable to delete selected node: No node selected");

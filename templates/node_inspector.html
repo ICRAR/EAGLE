@@ -46,7 +46,12 @@
         <!-- ko if: selectedNode().getCategory() === "Comment" -->
         {% include 'node_inspector_graph_comment.html' %}
         <!-- /ko -->
-
+        
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-primary btn-block" data-bind="click: duplicateSelectedNode">Duplicate Node</button>
+            </div>
+        </div>
         <div class="row">
             <div class="col">
                 <button type="button" class="btn btn-danger btn-block" data-bind="click: deleteSelectedNode">Delete Node</button>
