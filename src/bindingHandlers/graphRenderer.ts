@@ -1266,6 +1266,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function findDepthOfNode(index: number, nodes : Node[]) : number {
+        if (index >= nodes.length){
+            console.warn("findDepthOfNode() with node index outside range of nodes. index:", index, "nodes.length", nodes.length);
+            return 0;
+        }
+
         var depth = 0;
         var node = nodes[index];
 
