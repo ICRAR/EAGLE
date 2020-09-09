@@ -1275,19 +1275,27 @@ export class Eagle {
             return;
         }
 
-        // delete the node
-        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
-            this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
-        } else {
-            this.palette().removeNodeByKey(this.selectedNode().getKey());
-        }
+        // request confirmation from user
+        Utils.requestUserConfirm("Delete node: " + this.selectedNode().getName() + "?", "Are you sure you wish to delete this node?", "Yes", "No", (confirmed : boolean) : void => {
+            if (!confirmed){
+                console.log("User aborted deleteSelectedNode()");
+                return;
+            }
 
-        // no node left to be selected
-        this.selectedNode(null);
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+            // delete the node
+            if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
+                this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
+            } else {
+                this.palette().removeNodeByKey(this.selectedNode().getKey());
+            }
 
-        // flag the diagram as mutated so that the graph renderer will update
-        this.flagActiveDiagramHasMutated();
+            // no node left to be selected
+            this.selectedNode(null);
+            this.rightWindowMode(Eagle.RightWindowMode.Repository);
+
+            // flag the diagram as mutated so that the graph renderer will update
+            this.flagActiveDiagramHasMutated();
+        });
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
