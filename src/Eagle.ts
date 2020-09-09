@@ -1276,7 +1276,7 @@ export class Eagle {
         }
 
         // request confirmation from user
-        Utils.requestUserConfirm("Delete node: " + this.selectedNode().getName() + "?", "Are you sure you wish to delete this node?", "Yes", "No", (confirmed : boolean) : void => {
+        Utils.requestUserConfirm("Delete node: " + this.selectedNode().getName() + "?", "Are you sure you wish to delete this node (and its children)?", "Yes", "No", (confirmed : boolean) : void => {
             if (!confirmed){
                 console.log("User aborted deleteSelectedNode()");
                 return;

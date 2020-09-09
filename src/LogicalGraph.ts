@@ -324,6 +324,13 @@ export class LogicalGraph {
                 this.nodes.splice(i, 1);
             }
         }
+
+        // delete children
+        for (var i = this.nodes.length - 1; i >= 0 ; i--){
+            if (this.nodes[i].getParentKey() === key){
+                this.removeNodeByKey(this.nodes[i].getKey());
+            }
+        }
     }
 
     addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, callback : (edge: Edge) => void) : void => {
