@@ -145,8 +145,14 @@ export class Eagle {
             mod = '*';
         }
 
-        // Display file name in tab title if non-empty.
-        return mod + "EAGLE: " + this.repositoryFileName();
+        // Display file name in tab title if non-empty
+        var fileName = this.repositoryFileName();
+
+        if (fileName === ""){
+            return "EAGLE";
+        } else {
+            return mod + "EAGLE: " + this.repositoryFileName();
+        }
     }, this);
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
