@@ -330,8 +330,8 @@ export class Utils {
             var choices : string[] = $('#choiceModal').data('choices');
             var choice : number = parseInt(<string>$('#choiceModalSelect').val(), 10);
 
-            // disable the custom text input unless the last option in the select is chosen
-            $('#choiceModalString').prop('disabled', choice !== choices.length);
+            // hide the custom text input unless the last option in the select is chosen
+            $('#choiceModalStringRow').toggle(choice === choices.length);
         })
 
         // #confirmModal - requestUserConfirm()

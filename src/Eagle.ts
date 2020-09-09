@@ -1445,7 +1445,7 @@ export class Eagle {
             uniqueFieldNames = Utils.getFieldTextList(this.logicalGraph());
         }
 
-        Utils.requestUserChoice("Add Field", "Please select a field text", uniqueFieldNames, 0, true, "Custom Field Name", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice("Add Parameter", "Please select a parameter name, or create a custom name", uniqueFieldNames, 0, true, "Custom Parameter Name", (completed : boolean, userString : string) => {
             if (!completed){
                 return;
             }
