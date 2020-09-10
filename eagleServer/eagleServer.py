@@ -60,15 +60,21 @@ staticdir = pkg_resources.resource_filename(__name__, "../static")
 app = Flask(__name__, template_folder=templdir, static_folder=staticdir)
 app.config.from_object("config")
 
+version = "Unknown"
+commit_hash = "Unknown"
 try:
     with open("VERSION") as vfile:
         for line in vfile.readlines():
             if "SW_VER" in line:
                 version = line.split("SW_VER ")[1].strip()[1:-1]
-                break
+                continue
+            if "COMMIT_HASH" in line:
+                commit_hash = line.split("COMMIT_HASH ")[1].strip()[1:-1]
+                continue
 except:
-    version = "Unknown"
-print("Version: " + version)
+    print("Unable to load VERSION file")
+
+print("Version: " + version + " Commit Hash: " + commit_hash)
 
 @app.route("/intro.js")
 def hack():
@@ -77,7 +83,7 @@ def hack():
 
 @app.route("/")
 def index():
-    return render_template("base.html", version=version)
+    return render_template("base.html", version=version, commit_hash=commit_hash)
 
 
 @app.route("/uploadFile", methods=["POST"])
