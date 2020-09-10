@@ -159,6 +159,10 @@ export class GraphUpdater {
             return Eagle.Category.Gather;
         }
 
+        if (category === "Component"){
+            return Eagle.Category.PythonApp;
+        }
+
         if (category === "ngas"){
             return Eagle.Category.NGAS;
         }
@@ -204,7 +208,7 @@ export class GraphUpdater {
                 case Eagle.Category.DynlibApp:
                 case Eagle.Category.MPI:
                 case Eagle.Category.Docker:
-                case Eagle.Category.Component:
+                case Eagle.Category.PythonApp:
                     return Eagle.CategoryType.Application;
 
                 case Eagle.Category.File:
@@ -314,7 +318,6 @@ export class GraphUpdater {
         switch (category){
             case Eagle.Category.BashShellApp:
             case Eagle.Category.Branch:
-            case Eagle.Category.Component:
             case Eagle.Category.Docker:
             case Eagle.Category.DynlibApp:
             case Eagle.Category.End:
@@ -326,6 +329,7 @@ export class GraphUpdater {
             case Eagle.Category.MKN:
             case Eagle.Category.MPI:
             case Eagle.Category.NGAS:
+            case Eagle.Category.PythonApp:
             case Eagle.Category.S3:
             case Eagle.Category.Scatter:
                 return true;
@@ -346,7 +350,6 @@ export class GraphUpdater {
         switch (category){
             case Eagle.Category.BashShellApp:
             case Eagle.Category.Branch:
-            case Eagle.Category.Component:
             case Eagle.Category.Docker:
             case Eagle.Category.DynlibApp:
             case Eagle.Category.File:
@@ -357,6 +360,7 @@ export class GraphUpdater {
             case Eagle.Category.MKN:
             case Eagle.Category.MPI:
             case Eagle.Category.NGAS:
+            case Eagle.Category.PythonApp:
             case Eagle.Category.S3:
             case Eagle.Category.Scatter:
             case Eagle.Category.Start:
@@ -383,7 +387,6 @@ export class GraphUpdater {
                 return true;
             case Eagle.Category.BashShellApp:
             case Eagle.Category.Branch:
-            case Eagle.Category.Component:
             case Eagle.Category.Description:
             case Eagle.Category.Docker:
             case Eagle.Category.DynlibApp:
@@ -394,6 +397,7 @@ export class GraphUpdater {
             case Eagle.Category.Loop:
             case Eagle.Category.MKN:
             case Eagle.Category.MPI:
+            case Eagle.Category.PythonApp:
             case Eagle.Category.Scatter:
             case Eagle.Category.Comment:
             case Eagle.Category.Start:
@@ -422,13 +426,13 @@ export class GraphUpdater {
             case Eagle.Category.S3:
             case Eagle.Category.BashShellApp:
             case Eagle.Category.Branch:
-            case Eagle.Category.Component:
             case Eagle.Category.Docker:
             case Eagle.Category.DynlibApp:
             case Eagle.Category.End:
             case Eagle.Category.MPI:
             case Eagle.Category.Comment:
             case Eagle.Category.Description:
+            case Eagle.Category.PythonApp:
             case Eagle.Category.Start:
             case Eagle.Category.Variables:
                 return false;

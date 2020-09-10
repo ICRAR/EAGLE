@@ -676,7 +676,6 @@ export class Utils {
     static isKnownCategory(category : string) : boolean {
         return category === Eagle.Category.BashShellApp ||
         category === Eagle.Category.Comment ||
-        category === Eagle.Category.Component ||
         category === Eagle.Category.Description ||
         category === Eagle.Category.Docker ||
         category === Eagle.Category.DynlibApp ||
@@ -711,8 +710,6 @@ export class Utils {
                 return "#799938";
             case Eagle.Category.Description:
                 return "#9B3065";
-            case Eagle.Category.Component:
-                return "#3498DB";
             case Eagle.Category.PythonApp:
                 return "#3498DB";
             case Eagle.Category.BashShellApp:

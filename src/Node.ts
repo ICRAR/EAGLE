@@ -821,7 +821,7 @@ export class Node {
                 return "group_work";
             case Eagle.Category.Gather:
                 return "call_merge";
-            case Eagle.Category.Component:
+            case Eagle.Category.PythonApp:
                 return "extension";
             case Eagle.Category.File:
                 return "description";

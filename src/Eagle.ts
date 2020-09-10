@@ -1815,7 +1815,6 @@ export namespace Eagle
         export var Gather : Category = "Gather";
         export var MKN : Category = "MKN";
         export var GroupBy : Category = "GroupBy";
-        export var Component : Category = "Component";
         export var Loop : Category = "Loop";
 
         export var PythonApp : Category = "PythonApp";
