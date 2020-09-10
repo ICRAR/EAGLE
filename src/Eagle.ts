@@ -901,13 +901,21 @@ export class Eagle {
     selectFile = (file : RepositoryFile) : void => {
         console.log("selectFile() repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
 
+        // first check if the current file has been modified
         var isModified = false;
-        if (file.type == Eagle.FileType.Graph){
-            isModified = this.logicalGraph().fileInfo().modified;
-        } else {
-            isModified = this.palette().fileInfo().modified;
+        switch (file.type){
+            case Eagle.FileType.Graph:
+                isModified = this.logicalGraph().fileInfo().modified;
+                break;
+            case Eagle.FileType.Palette:
+                isModified = this.palette().fileInfo().modified;
+                break;
+            case Eagle.FileType.JSON:
+                isModified = this.activeFileInfo().modified;
+                break;
         }
 
+        // if the file is modified, get the user to confirm they want to overwrite changes
         if (isModified){
             Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", (confirmed : boolean) : void => {
                 if (!confirmed){
