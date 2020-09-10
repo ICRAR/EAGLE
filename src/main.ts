@@ -84,6 +84,8 @@ $(function(){
     // initialise all the modal dialogs. event handlers etc
     Utils.initModals(eagle);
 
+    // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
+    window.onbeforeunload = s => eagle.activeFileInfo().modified ? "Check graph" : null;
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
     //var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "summit", "summit_oskar2_384_nodes.json");

@@ -391,11 +391,6 @@ export class Eagle {
             return;
         }
 
-        if (this.logicalGraph().fileInfo().modified){
-            Utils.showUserMessage("Error", "Please save the logical graph!");
-            return;
-        }
-
         console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex]);
 
         this.translator().submit({
