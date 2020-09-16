@@ -1246,22 +1246,32 @@ export class Eagle {
     }
 
     deleteSelectedEdge = () => {
-        console.log("deleteSelectedEdge()")
-
         if (this.selectedEdge() === null){
             console.log("Unable to delete selected edge: No edge selected");
             return;
         }
 
-        // remove the edge
-        this.logicalGraph().removeEdgeById(this.selectedEdge().getId());
+        // build a user-readable name for this node
+        var srcNodeName : string = this.logicalGraph().findNodeByKey(this.selectedEdge().getSrcNodeKey()).getName();
+        var destNodeName : string = this.logicalGraph().findNodeByKey(this.selectedEdge().getDestNodeKey()).getName();
 
-        // no edge left to be selected
-        this.selectedEdge(null);
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        // request confirmation from user
+        Utils.requestUserConfirm("Delete edge from " + srcNodeName + " to " + destNodeName + "?", "Are you sure you wish to delete this edge?", "Yes", "No", (confirmed : boolean) : void => {
+            if (!confirmed){
+                console.log("User aborted deleteSelectedEdge()");
+                return;
+            }
 
-        // flag the diagram as mutated so that the graph renderer will update
-        this.flagActiveDiagramHasMutated();
+            // remove the edge
+            this.logicalGraph().removeEdgeById(this.selectedEdge().getId());
+
+            // no edge left to be selected
+            this.selectedEdge(null);
+            this.rightWindowMode(Eagle.RightWindowMode.Repository);
+
+            // flag the diagram as mutated so that the graph renderer will update
+            this.flagActiveDiagramHasMutated();
+        });
     }
 
     duplicateSelectedNode = () : void => {
