@@ -53,7 +53,7 @@ g.node rect.expand-button {
     stroke: grey;
 }
 
-g.node text.header {
+g.node text.header, g.node text.subheader {
     text-anchor: middle;
     font-family: sans-serif;
     pointer-events: none;

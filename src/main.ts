@@ -88,7 +88,7 @@ $(function(){
     window.onbeforeunload = s => eagle.activeFileInfo().modified ? "Check graph" : null;
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
-    //var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "summit", "summit_oskar2_384_nodes.json");
+    //var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "", "icon_test.graph");
     //eagle.selectFile(autoLoadFile);
 });
 
