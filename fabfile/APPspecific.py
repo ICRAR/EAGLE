@@ -99,6 +99,7 @@ env.pkgs = {
                      'make',
                     #  'nginx',
                      'git',
+                     'docker',
                      'systemd-sysv',
                      ],
             'APT_PACKAGES': [

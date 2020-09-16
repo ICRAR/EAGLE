@@ -70,6 +70,20 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
+# Common definitions used across the board
+rst_prolog = '''
+.. |daliuge| replace:: DALiuGE
+.. |dlg| replace:: DALiuGE
+.. |lgt| replace:: *Logical Graph Template*
+.. |lg| replace:: *Logical Graph*
+.. |lgts| replace:: *Logical Graph Templates*
+.. |lgs| replace:: *Logical Graphs*
+.. |pgt| replace:: *Physical Graph Template*
+.. |pg| replace:: *Physical Graph*
+.. |pgts| replace:: *Physical Graph Templates*
+.. |pgs| replace:: *Physical Graphs*
+'''
+
 
 # -- Options for HTML output -------------------------------------------------
 

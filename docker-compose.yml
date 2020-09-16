@@ -3,5 +3,6 @@ services:
     alpine:
         restart: "no"
         build: .
+        image: icrar/eagle_alpine:latest
         ports:
             - 8888:80/tcp
