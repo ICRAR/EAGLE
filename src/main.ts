@@ -55,9 +55,10 @@ $(function(){
     console.log("Initialising EAGLE");
     eagle.resetEditor();
 
-    // init empty logicalGraph and palette
+    // init empty data structures
     eagle.logicalGraph(new LogicalGraph());
-    eagle.palette(new Palette());
+    eagle.editorPalette(new Palette());
+    eagle.palettes([]);
     eagle.templatePalette(new Palette());
 
     initNodeDataLists(eagle);
@@ -85,11 +86,11 @@ $(function(){
     Utils.initModals(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
-    window.onbeforeunload = s => eagle.activeFileInfo().modified ? "Check graph" : null;
+    window.onbeforeunload = () => eagle.activeFileInfo().modified ? "Check graph" : null;
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
-    //var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "", "icon_test.graph");
-    //eagle.selectFile(autoLoadFile);
+    var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "LEAP-Work-Flow.palette");
+    eagle.selectFile(autoLoadFile);
 });
 
 /**

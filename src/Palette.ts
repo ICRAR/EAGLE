@@ -29,7 +29,6 @@ import {Utils} from './Utils';
 import {Eagle} from './Eagle';
 import {Node} from './Node';
 import {Port} from './Port';
-import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 
 export class Palette {
