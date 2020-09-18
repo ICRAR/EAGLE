@@ -1,5 +1,3 @@
-<!-- this should not be editorPalette, I think it should be using palettes() -->
-
 <div class="container">
     <!-- ko foreach: nodes -->
         <!-- ko if: $data.getCategoryType() !== Eagle.CategoryType.Data -->
@@ -12,7 +10,7 @@
                             </span>
                         </div>
 
-                        <input type="text" class="form-control" readonly data-bind="value: $root.editorPalette().nodes[$index()].getDisplayName()">
+                        <input type="text" class="form-control" readonly data-bind="value: $root.palettes()[$parentContext.$index()].nodes[$index()].getDisplayName()">
 
                         <div class="input-group-append">
                             <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $root.addNodeToLogicalGraph, attr: {id: 'addPaletteNode' + $index(), title: 'Add component to graph'}" data-toggle="tooltip" data-html="true" data-placement="right">

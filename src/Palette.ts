@@ -44,6 +44,7 @@ export class Palette {
     static fromOJSJson = (data : string) : Palette => {
         // parse the JSON first
         var dataObject : any = JSON.parse(data);
+        var errors : string[] = [];
 
         // TODO: use correct name from dataObject above
         var result : Palette = new Palette();
@@ -54,7 +55,37 @@ export class Palette {
         // add nodes
         for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
-            result.addNode(Node.fromOJSJson(nodeData));
+
+            // read node
+            var newNode : Node = Node.fromOJSJson(nodeData);
+
+            // check that node has no group
+            if (newNode.getParentKey() !== null){
+                var error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
+                console.warn(error);
+                errors.push(error);
+
+                newNode.setParentKey(null);
+            }
+
+            // check that x, y, position is the default
+            if (newNode.getPosition().x !== Node.DEFAULT_POSITION_X || newNode.getPosition().y !== Node.DEFAULT_POSITION_Y){
+                var error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
+                console.warn(error);
+                errors.push(error);
+
+                newNode.setPosition(Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+            }
+
+            // add node to palette
+            result.nodes.push(newNode);
+        }
+
+        // check for duplicate keys
+
+        // show errors (if found)
+        if (errors.length > 0){
+            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
         }
 
         return result;

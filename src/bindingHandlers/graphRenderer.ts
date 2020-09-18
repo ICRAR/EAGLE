@@ -1373,13 +1373,22 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return 0;
         }
 
-        var depth = 0;
-        var node = nodes[index];
+        var depth : number = 0;
+        var node : Node = nodes[index];
+        var nodeKey : number = node.getKey();
+        var nodeParentKey : number = node.getParentKey();
 
-        while (node.getParentKey() != null){
+        while (nodeParentKey != null){
             depth += 1;
             depth += node.getDrawOrderHint() / 10;
-            node = findNodeWithKey(node.getParentKey(), nodes);
+            nodeKey = node.getKey();
+            nodeParentKey = node.getParentKey();
+            node = findNodeWithKey(nodeParentKey, nodes);
+
+            if (node === null){
+                console.error("Node", nodeKey, "has parentKey", nodeParentKey, "but call to findNodeWithKey(", nodeParentKey, ") returned null");
+                return depth;
+            }
         }
 
         depth += node.getDrawOrderHint() / 10;
