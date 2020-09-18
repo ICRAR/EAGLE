@@ -993,12 +993,12 @@ export class Eagle {
                     case Eagle.RepositoryService.GitHub:
                         localStorage.removeItem(repository.name + ".repository");
                         localStorage.removeItem(repository.name + ".github_repository");
-                        localStorage.removeItem(repository.name + ".github_repository_and_branch");
+                        localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
                         GitHub.loadRepoList(this);
                         break;
                     case Eagle.RepositoryService.GitLab:
                         localStorage.removeItem(repository.name + ".gitlab_repository");
-                        localStorage.removeItem(repository.name + ".gitlab_repository_and_branch");
+                        localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
                         GitLab.loadRepoList(this);
                         break;
                     default:
