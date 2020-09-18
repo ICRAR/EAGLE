@@ -1,9 +1,11 @@
 <div id="paletteList">
-    <div class="accordion" id="accordionExample" data-bind="foreach: palettes">
-
+    <div data-bind="foreach: palettes">
         <div class="card">
             <div class="card-header" data-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
-                <h5 data-bind="text: fileInfo().name"></h5>
+                <h5 class="template-title" data-bind="text: fileInfo().name"></h5>
+                <button type="button" class="close" aria-label="Close" data-bind="click: function(palette, event){$root.closePalette(palette);event.stopPropagation()}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" data-bind="attr:{id:'collapse' + $index()}">
                 <div class="card-body">
