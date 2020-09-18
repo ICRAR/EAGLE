@@ -30,6 +30,7 @@ import {Eagle} from './Eagle';
 import {Node} from './Node';
 import {Port} from './Port';
 import {FileInfo} from './FileInfo';
+import {RepositoryFile} from './RepositoryFile';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
@@ -41,7 +42,7 @@ export class Palette {
         this.nodes = [];
     }
 
-    static fromOJSJson = (data : string) : Palette => {
+    static fromOJSJson = (data : string, file : RepositoryFile) : Palette => {
         // parse the JSON first
         var dataObject : any = JSON.parse(data);
         var errors : string[] = [];
@@ -83,9 +84,11 @@ export class Palette {
 
         // check for missing name
         if (result.fileInfo().name === ""){
-            var error : string = "Palette fileInfo name is empty.";
+            var error : string = "FileInfo.name is empty. Setting name to " + file.name;
             console.warn(error);
             errors.push(error);
+
+            result.fileInfo().name = file.name;
         }
 
         // check for duplicate keys

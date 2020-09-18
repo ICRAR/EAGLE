@@ -459,7 +459,7 @@ export class Eagle {
 
             // Only load graph files.
             if (fileType == Eagle.FileType.Graph) {
-                this.logicalGraph(LogicalGraph.fromOJSJson(data));
+                this.logicalGraph(LogicalGraph.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath)));
                 Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
             } else {
                 Utils.showUserMessage("Error", "This is not a graph file!");
@@ -514,7 +514,7 @@ export class Eagle {
                 Utils.showUserMessage("Error parsing file JSON", err.message);
                 return;
             }
-            this.editorPalette(Palette.fromOJSJson(data));
+            this.editorPalette(Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath)));
             Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
 
             // update the activeFileInfo with details of the repository the file was loaded from
@@ -854,7 +854,7 @@ export class Eagle {
             var fileType : Eagle.FileType = Utils.translateStringToFileType((<any>data).modelData.fileType);
 
             if (fileType == Eagle.FileType.TemplatePalette) {
-                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data)));
+                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName)));
             } else {
                 Utils.showUserMessage("Error", "File type is not a template palette!");
             }
@@ -1060,7 +1060,7 @@ export class Eagle {
                     return;
                 }
 
-                this.logicalGraph(LogicalGraph.fromOJSJson(data));
+                this.logicalGraph(LogicalGraph.fromOJSJson(data, file));
                 fileTypeLoaded = Eagle.FileType.Graph;
                 Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
 
@@ -1071,7 +1071,7 @@ export class Eagle {
             } else if (file.type === Eagle.FileType.JSON) {
                 if (this.userMode() === Eagle.UserMode.LogicalGraphEditor) {
                     //Utils.showUserMessage("Warning", "Opening JSON file as graph, make sure this is correct.");
-                    this.logicalGraph(LogicalGraph.fromOJSJson(data));
+                    this.logicalGraph(LogicalGraph.fromOJSJson(data, file));
                     fileTypeLoaded = Eagle.FileType.Graph;
                     Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                 } else {
@@ -1102,13 +1102,13 @@ export class Eagle {
                     this.closePalette(alreadyLoadedPalette);
 
                     // load the new palette
-                    this.palettes.push(Palette.fromOJSJson(data));
+                    this.palettes.push(Palette.fromOJSJson(data, file));
                     this.leftWindowShown(true);
                     Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                 }
             });
         } else {
-            this.palettes.push(Palette.fromOJSJson(data));
+            this.palettes.push(Palette.fromOJSJson(data, file));
             this.leftWindowShown(true);
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
         }

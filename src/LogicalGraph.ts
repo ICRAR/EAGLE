@@ -32,6 +32,7 @@ import {Node} from './Node';
 import {Edge} from './Edge';
 import {Port} from './Port';
 import {FileInfo} from './FileInfo';
+import {RepositoryFile} from './RepositoryFile';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -75,7 +76,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (data : string) : LogicalGraph => {
+    static fromOJSJson = (data : string, file : RepositoryFile) : LogicalGraph => {
         // parse the JSON first
         var dataObject : any = JSON.parse(data);
         var errors : string[] = [];
@@ -151,6 +152,15 @@ export class LogicalGraph {
             }
 
             result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName()));
+        }
+
+        // check for missing name
+        if (result.fileInfo().name === ""){
+            var error : string = "FileInfo.name is empty. Setting name to " + file.name;
+            console.warn(error);
+            errors.push(error);
+
+            result.fileInfo().name = file.name;
         }
 
         var hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(result);

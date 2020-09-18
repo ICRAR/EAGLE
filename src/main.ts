@@ -109,7 +109,7 @@ function initNodeDataLists() {
         url: "./static/" + Config.templatePaletteFileName,
         success: function (data) {
             // TODO: we waste time here turning the response JSON back into a string, could be improved
-            var paletteTemplate : Palette = Palette.fromOJSJson(JSON.stringify(data));
+            var paletteTemplate : Palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName));
 
             // Adding event ports.
             paletteTemplate.addEventPorts();
