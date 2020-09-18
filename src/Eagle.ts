@@ -514,7 +514,16 @@ export class Eagle {
                 Utils.showUserMessage("Error parsing file JSON", err.message);
                 return;
             }
-            this.editorPalette(Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath)));
+
+            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath));
+
+            if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
+                this.palettes.push(p)
+            }
+            else {
+                this.editorPalette(p);
+            }
+
             Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
 
             // update the activeFileInfo with details of the repository the file was loaded from
