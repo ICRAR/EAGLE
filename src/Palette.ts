@@ -81,6 +81,13 @@ export class Palette {
             result.nodes.push(newNode);
         }
 
+        // check for missing name
+        if (result.fileInfo().name === ""){
+            var error : string = "Palette fileInfo name is empty.";
+            console.warn(error);
+            errors.push(error);
+        }
+
         // check for duplicate keys
 
         // show errors (if found)

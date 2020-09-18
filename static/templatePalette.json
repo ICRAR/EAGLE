@@ -1,7 +1,13 @@
 {
     "class": "go.GraphLinksModel",
     "modelData": {
-        "fileType": "templatePalette"
+        "fileType": "templatePalette",
+        "repoService": "Unknown",
+        "repoBranch": "",
+        "repo": "",
+        "filePath": "templatePalette.json",
+        "sha": "",
+        "git_url": ""
     },
     "nodeDataArray": [
         {

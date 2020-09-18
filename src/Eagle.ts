@@ -902,7 +902,7 @@ export class Eagle {
     selectFile = (file : RepositoryFile) : void => {
         console.log("selectFile() repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
 
-        // first check if the current file has been modified
+        // check if the current file has been modified
         var isModified = false;
         switch (file.type){
             case Eagle.FileType.Graph:
@@ -1065,23 +1065,20 @@ export class Eagle {
                 Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
 
             } else if (file.type === Eagle.FileType.Palette) {
-                this.palettes.push(Palette.fromOJSJson(data));
                 fileTypeLoaded = Eagle.FileType.Palette;
+                this._remotePaletteLoaded(file, data);
 
-                this.leftWindowShown(true);
-                Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
             } else if (file.type === Eagle.FileType.JSON) {
                 if (this.userMode() === Eagle.UserMode.LogicalGraphEditor) {
                     //Utils.showUserMessage("Warning", "Opening JSON file as graph, make sure this is correct.");
                     this.logicalGraph(LogicalGraph.fromOJSJson(data));
                     fileTypeLoaded = Eagle.FileType.Graph;
+                    Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                 } else {
-                    //Utils.showUserMessage("Warning", "Opening JSON file as palette, make sure this is correct.");
-                    this.palettes.push(Palette.fromOJSJson(data));
                     fileTypeLoaded = Eagle.FileType.Palette;
-                    this.leftWindowShown(true);
+                    this._remotePaletteLoaded(file, data);
                 }
-                Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+
             } else {
                 // Show error message
                 Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
@@ -1093,6 +1090,29 @@ export class Eagle {
             }
         });
     };
+
+    private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
+        // check palette is not already loaded
+        var alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
+
+        if (alreadyLoadedPalette !== null){
+            Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
+                if (confirmed){
+                    // close the existing version of the open palette
+                    this.closePalette(alreadyLoadedPalette);
+
+                    // load the new palette
+                    this.palettes.push(Palette.fromOJSJson(data));
+                    this.leftWindowShown(true);
+                    Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+                }
+            });
+        } else {
+            this.palettes.push(Palette.fromOJSJson(data));
+            this.leftWindowShown(true);
+            Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+        }
+    }
 
     private updateFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
         //.update the activeFileInfo with details of the repository the file was loaded from
@@ -1107,6 +1127,29 @@ export class Eagle {
             this.logicalGraph().fileInfo.valueHasMutated();
         } else if (fileType === Eagle.FileType.Palette){
             this.editorPalette().fileInfo.valueHasMutated();
+        }
+    }
+
+    findPaletteByFile = (file : RepositoryFile) : Palette => {
+        for (var i = 0 ; i < this.palettes().length ; i++){
+            var p : Palette = this.palettes()[i];
+
+            if (p.fileInfo().name === file.name){
+                return p;
+            }
+        }
+
+        return null;
+    }
+
+    closePalette = (palette : Palette) : void => {
+        for (var i = 0 ; i < this.palettes().length ; i++){
+            var p = this.palettes()[i];
+
+            if (p.fileInfo().name === palette.fileInfo().name){
+                this.palettes.splice(i, 1);
+                break;
+            }
         }
     }
 
