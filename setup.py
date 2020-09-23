@@ -53,11 +53,12 @@ class npmBuild(build):
         if not self.dry_run:
             self.copy_tree(target_dir, os.path.join(self.build_lib, "static", "built"))
 
-with open("VERSION") as vfile:
-    for line in vfile.readlines():
-        if "SW_VER" in line:
-            version = line.split("SW_VER ")[1].strip()[1:-1]
-            break
+version = '0.0'
+# with open("VERSION") as vfile:
+#     for line in vfile.readlines():
+#         if "SW_VER" in line:
+#             version = line.split("SW_VER ")[1].strip()[1:-1]
+#             break
 
 def package_files(directory):
     paths = []
