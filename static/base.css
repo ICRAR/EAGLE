@@ -226,6 +226,15 @@
     list-style-type: none;
 }
 
+.leftWindow .card-header i.material-icons {
+    position: relative;
+    top: 5px;
+}
+
+.leftWindow .card-header i.material-icons.interactive {
+    cursor: pointer;
+}
+
 .rightWindow h5 i.material-icons {
     position: relative;
     top: 5px;
