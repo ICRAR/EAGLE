@@ -29,8 +29,8 @@ import {Utils} from './Utils';
 import {Eagle} from './Eagle';
 import {Node} from './Node';
 import {Port} from './Port';
-import {Field} from './Field';
 import {FileInfo} from './FileInfo';
+import {RepositoryFile} from './RepositoryFile';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
@@ -42,9 +42,10 @@ export class Palette {
         this.nodes = [];
     }
 
-    static fromOJSJson = (data : string) : Palette => {
+    static fromOJSJson = (data : string, file : RepositoryFile) : Palette => {
         // parse the JSON first
         var dataObject : any = JSON.parse(data);
+        var errors : string[] = [];
 
         // TODO: use correct name from dataObject above
         var result : Palette = new Palette();
@@ -55,7 +56,46 @@ export class Palette {
         // add nodes
         for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
-            result.addNode(Node.fromOJSJson(nodeData));
+
+            // read node
+            var newNode : Node = Node.fromOJSJson(nodeData);
+
+            // check that node has no group
+            if (newNode.getParentKey() !== null){
+                var error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
+                console.warn(error);
+                errors.push(error);
+
+                newNode.setParentKey(null);
+            }
+
+            // check that x, y, position is the default
+            if (newNode.getPosition().x !== Node.DEFAULT_POSITION_X || newNode.getPosition().y !== Node.DEFAULT_POSITION_Y){
+                var error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
+                console.warn(error);
+                errors.push(error);
+
+                newNode.setPosition(Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+            }
+
+            // add node to palette
+            result.nodes.push(newNode);
+        }
+
+        // check for missing name
+        if (result.fileInfo().name === ""){
+            var error : string = "FileInfo.name is empty. Setting name to " + file.name;
+            console.warn(error);
+            errors.push(error);
+
+            result.fileInfo().name = file.name;
+        }
+
+        // check for duplicate keys
+
+        // show errors (if found)
+        if (errors.length > 0){
+            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
         }
 
         return result;

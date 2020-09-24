@@ -55,12 +55,13 @@ $(function(){
     console.log("Initialising EAGLE");
     eagle.resetEditor();
 
-    // init empty logicalGraph and palette
+    // init empty data structures
     eagle.logicalGraph(new LogicalGraph());
-    eagle.palette(new Palette());
+    eagle.editorPalette(new Palette());
+    eagle.palettes([]);
     eagle.templatePalette(new Palette());
 
-    initNodeDataLists(eagle);
+    initNodeDataLists();
 
     // Adjust interface to the graph editor mode.
     eagle.setGraphEditorMode();
@@ -85,17 +86,22 @@ $(function(){
     Utils.initModals(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
-    window.onbeforeunload = s => eagle.activeFileInfo().modified ? "Check graph" : null;
+    window.onbeforeunload = () => eagle.activeFileInfo().modified ? "Check graph" : null;
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
-    //var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "", "icon_test.graph");
+    //var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "LEAP-Work-Flow.graph");
     //eagle.selectFile(autoLoadFile);
+
+    // HACK: autoload the file a second time to test the "palette overwrite" code
+    //setTimeout(function(){
+    //    eagle.selectFile(autoLoadFile);
+    //}, 1000);
 });
 
 /**
  * Build data lists (data nodes/categories, applications nodes/categories) from default palette.
  */
-function initNodeDataLists(eagle : Eagle) {
+function initNodeDataLists() {
     console.log("init node data lists");
 
     // Load default palette from the server.
@@ -103,12 +109,12 @@ function initNodeDataLists(eagle : Eagle) {
         url: "./static/" + Config.templatePaletteFileName,
         success: function (data) {
             // TODO: we waste time here turning the response JSON back into a string, could be improved
-            var paletteTemplate : Palette = Palette.fromOJSJson(JSON.stringify(data));
+            var paletteTemplate : Palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName));
 
             // Adding event ports.
             paletteTemplate.addEventPorts();
 
-            // Extracting data from the palette.
+            // Extracting data from the palette template.
             Eagle.dataNodes = buildNodeList(paletteTemplate, Eagle.CategoryType.Data);
             Eagle.dataCategories = buildCategoryList(paletteTemplate, Eagle.CategoryType.Data);
             Eagle.applicationNodes = buildNodeList(paletteTemplate, Eagle.CategoryType.Application);

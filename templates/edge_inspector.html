@@ -1,53 +1,48 @@
-<div id="edgeInspector" class="container">
-    <!-- ko if: selectedEdge() != null -->
-        <div class="row">
-            <div class="col">
-                <h5>
-                    <i class="material-icons">settings</i>
-                    <span>Attributes</span>
-                </h5>
+<div id="edgeInspector" class="container px-0">
+    <div class="card">
+        <h5 class="card-header">
+            <i class="material-icons">settings</i>
+            <span>Attributes</span>
+        </h5>
+        <div class="card-body">
+            <!-- ko if: selectedEdge() != null -->
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="edge-addon1">From Node</span>
+                </div>
+                <input type="text" class="form-control" placeholder="" aria-label="From Node" aria-describedby="edge-addon1" readonly data-bind="value: selectedEdge().srcNodeKey">
             </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="edge-addon2">From Port</span>
+                </div>
+                <input type="text" class="form-control" placeholder="" aria-label="From Port" aria-describedby="edge-addon2" readonly data-bind="value: selectedEdge().srcPortId">
+            </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="edge-addon3">To Node</span>
+                </div>
+                <input type="text" class="form-control" placeholder="" aria-label="To Node" aria-describedby="edge-addon3" readonly data-bind="value: selectedEdge().destNodeKey">
+            </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="edge-addon4">To Port</span>
+                </div>
+                <input type="text" class="form-control" placeholder="" aria-label="To Port" aria-describedby="edge-addon4" readonly data-bind="value: selectedEdge().destPortId">
+            </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="edge-addon5">DataType</span>
+                </div>
+                <input type="text" class="form-control" id="edge-data-type" placeholder="" aria-label="DataType" aria-describedby="edge-addon5" readonly data-bind="value: selectedEdge().dataType">
+            </div>
+            <!-- /ko -->
         </div>
+    </div>
 
-        <div class="row">
-            <div class="col">
-                <div class="input-group mb-1">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="edge-addon1">From Node</span>
-                    </div>
-                    <input type="text" class="form-control" placeholder="" aria-label="From Node" aria-describedby="edge-addon1" readonly data-bind="value: selectedEdge().srcNodeKey">
-                </div>
-                <div class="input-group mb-1">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="edge-addon2">From Port</span>
-                    </div>
-                    <input type="text" class="form-control" placeholder="" aria-label="From Port" aria-describedby="edge-addon2" readonly data-bind="value: selectedEdge().srcPortId">
-                </div>
-                <div class="input-group mb-1">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="edge-addon3">To Node</span>
-                    </div>
-                    <input type="text" class="form-control" placeholder="" aria-label="To Node" aria-describedby="edge-addon3" readonly data-bind="value: selectedEdge().destNodeKey">
-                </div>
-                <div class="input-group mb-1">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="edge-addon4">To Port</span>
-                    </div>
-                    <input type="text" class="form-control" placeholder="" aria-label="To Port" aria-describedby="edge-addon4" readonly data-bind="value: selectedEdge().destPortId">
-                </div>
-                <div class="input-group mb-1">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="edge-addon5">DataType</span>
-                    </div>
-                    <input type="text" class="form-control" id="edge-data-type" placeholder="" aria-label="DataType" aria-describedby="edge-addon5" readonly data-bind="value: selectedEdge().dataType">
-                </div>
-            </div>
+    <div class="row mt-1">
+        <div class="col">
+            <button type="button" class="btn btn-danger btn-block" data-bind="click: deleteSelectedEdge">Delete Edge</button>
         </div>
-
-        <div class="row">
-            <div class="col">
-                <button type="button" class="btn btn-danger btn-block" data-bind="click: deleteSelectedEdge">Delete Edge</button>
-            </div>
-        </div>
-    <!-- /ko -->
+    </div>
 </div>

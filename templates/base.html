@@ -52,8 +52,8 @@
                     </span>
                 </div>
 
-                <div class="leftWindowDisplay palette" data-bind="visible: leftWindowMode() === Eagle.LeftWindowMode.Palette">
-                    {% include 'palette.html' %}
+                <div class="leftWindowDisplay palettes" data-bind="visible: leftWindowMode() === Eagle.LeftWindowMode.Palettes">
+                    {% include 'palettes.html' %}
                 </div>
                 <div class="leftWindowDisplay templatePalette" data-bind="visible: leftWindowMode() === Eagle.LeftWindowMode.TemplatePalette">
                     {% include 'templatePalette.html' %}
@@ -69,7 +69,7 @@
                     </div>
                 </div>
                 <div data-bind="visible: userMode() === Eagle.UserMode.PaletteEditor">
-                    <div id="paletteD3Div" data-bind="paletteRenderer: $root.palette">
+                    <div id="paletteD3Div" data-bind="paletteRenderer: $root.editorPalette">
                     </div>
                 </div>
             </div>

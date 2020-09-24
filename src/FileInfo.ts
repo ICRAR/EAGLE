@@ -70,6 +70,10 @@ export class FileInfo {
         this.path = "";
     }
 
+    getSummaryHTML = () : string => {
+        return "<p>" + this.repositoryService + " : " + this.repositoryName + ((this.repositoryBranch == "") ? "" : ("(" + this.repositoryBranch + ")")) + " : " + this.path + "/" + this.name + "</p>";
+    }
+
     static toOJSJson = (fileInfo : FileInfo) : object => {
         return {
             fileType: Utils.translateFileTypeToString(fileInfo.type),

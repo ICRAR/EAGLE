@@ -88,15 +88,15 @@
                     Local Disk Storage
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownDisk">
+                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Palette</a>
+                    <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
+                    <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save Palette</a>
+                    <!-- /ko -->
                     <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
                     <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load Graph</a>
                     <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save Graph</a>
                     <!-- /ko -->
-                    <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
-                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Palette</a>
-                    <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save Palette</a>
-                    <!-- /ko -->
-                </div>
+                    </div>
             </li>
             <li class="nav-item dropdown" data-intro='Additional usage information and introductions to EAGLE features.'>
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
