@@ -89,8 +89,8 @@ $(function(){
     window.onbeforeunload = () => eagle.activeFileInfo().modified ? "Check graph" : null;
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
-    var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "LEAP-Work-Flow.palette");
-    eagle.selectFile(autoLoadFile);
+    //var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "LEAP-Work-Flow.graph");
+    //eagle.selectFile(autoLoadFile);
 
     // HACK: autoload the file a second time to test the "palette overwrite" code
     //setTimeout(function(){
