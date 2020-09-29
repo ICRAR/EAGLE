@@ -574,7 +574,7 @@ export class Node {
         }
     }
 
-    findPortById(portId : string) : Port {
+    findPortById = (portId : string) : Port => {
         // check input ports
         for (var i = 0; i < this.inputPorts.length; i++){
             var port = this.inputPorts[i];
@@ -608,6 +608,42 @@ export class Node {
         }
 
         return null;
+    }
+
+    findPortTypeById = (portId : string) : string => {
+        // check input ports
+        for (var i = 0; i < this.inputPorts.length; i++){
+            var port = this.inputPorts[i];
+            if (port.getId() === portId){
+                return "input";
+            }
+        }
+
+        // check output ports
+        for (var i = 0; i < this.outputPorts.length; i++){
+            var port = this.outputPorts[i];
+            if (port.getId() === portId){
+                return "output";
+            }
+        }
+
+        // check local input ports
+        for (var i = 0; i < this.inputLocalPorts.length; i++){
+            var port = this.inputLocalPorts[i];
+            if (port.getId() === portId){
+                return "inputLocal";
+            }
+        }
+
+        // check local output ports
+        for (var i = 0; i < this.outputLocalPorts.length; i++){
+            var port = this.outputLocalPorts[i];
+            if (port.getId() === portId){
+                return "outputLocal";
+            }
+        }
+
+        return "";
     }
 
     findPortByName = (name : string, input : boolean, local : boolean) : Port => {

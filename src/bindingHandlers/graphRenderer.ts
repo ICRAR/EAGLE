@@ -53,6 +53,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const PORT_OFFSET_X : number = 2;
     const PORT_ICON_HEIGHT : number = 8;
+    const PORT_INSET : number = 10;
 
     const RESIZE_CONTROL_SIZE : number = 16;
     const SHRINK_BUTTON_SIZE : number = 16;
@@ -91,6 +92,42 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     var svgContainer = d3.select("#" + elementId)
                         .append("svg");
+
+    // add def for markers
+    var defs = svgContainer.append("defs");
+
+    var black_arrowhead = defs
+                            .append("marker")
+                            .attr("id", "black-arrowhead")
+                            .attr("viewBox", "0 0 10 10")
+                            .attr("refX", "7")
+                            .attr("refY", "5")
+                            .attr("markerUnits", "strokeWidth")
+                            .attr("markerWidth","8")
+                            .attr("markerHeight", "6")
+                            .attr("orient", "auto");
+
+    black_arrowhead.append("path")
+            .attr("d", "M 0 0 L 10 5 L 0 10 z")
+            .attr("stroke", "none")
+            .attr("fill","black");
+
+    // add def for markers
+    var grey_arrowhead = defs
+                            .append("marker")
+                            .attr("id", "grey-arrowhead")
+                            .attr("viewBox", "0 0 10 10")
+                            .attr("refX", "7")
+                            .attr("refY", "5")
+                            .attr("markerUnits", "strokeWidth")
+                            .attr("markerWidth","8")
+                            .attr("markerHeight", "6")
+                            .attr("orient", "auto");
+
+    grey_arrowhead.append("path")
+            .attr("d", "M 0 0 L 10 5 L 0 10 z")
+            .attr("stroke", "none")
+            .attr("fill","grey");
 
     var background = svgContainer.append("rect")
                                     .attr("class", "background");
@@ -535,6 +572,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .attr("stroke", edgeGetStrokeColor)
                             .attr("stroke-dasharray", edgeGetStrokeDashArray)
                             .attr("fill", "transparent")
+                            .attr("marker-end", "url(#grey-arrowhead)")
                             .style("display", getEdgeDisplay)
                             .on("click", edgeOnClick);
 
@@ -548,14 +586,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .attr("d", createCommentLink)
                             .attr("stroke", "black")
                             .attr("fill", "transparent")
+                            .attr("marker-end", "url(#black-arrowhead)")
                             .style("display", getCommentLinkDisplay);
 
     function createLink(edge : Edge) : string {
+        // determine if edge is "forward" or not
+        var node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
+        var portType : string = node.findPortTypeById(edge.getSrcPortId());
+        var forward : boolean = portType === "output" || portType === "inputLocal";
+
         return createBezier(
             REAL_TO_DISPLAY_POSITION_X(edgeGetX1(edge)),
             REAL_TO_DISPLAY_POSITION_Y(edgeGetY1(edge)),
             REAL_TO_DISPLAY_POSITION_X(edgeGetX2(edge)),
-            REAL_TO_DISPLAY_POSITION_Y(edgeGetY2(edge))
+            REAL_TO_DISPLAY_POSITION_Y(edgeGetY2(edge)),
+            forward
         );
     }
 
@@ -950,6 +995,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .attr("stroke", edgeGetStrokeColor)
                                 .attr("stroke-dasharray", edgeGetStrokeDashArray)
                                 .attr("fill", "transparent")
+                                .attr("marker-end", "url(#grey-arrowhead)")
                                 .style("display", getEdgeDisplay);
 
         // update attributes of all comment links
@@ -957,6 +1003,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .attr("d", createCommentLink)
                                 .attr("stroke", "black")
                                 .attr("fill", "transparent")
+                                .attr("marker-end", "url(#black-arrowhead)")
                                 .style("display", getCommentLinkDisplay);
 
         // dragging link
@@ -1268,7 +1315,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getInputLocalPortGroupTransform(node : Node) : string {
-        return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+        } else {
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+        }
     }
 
     function getOutputPortGroupTransform(node : Node) : string {
@@ -1280,7 +1331,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getOutputLocalPortGroupTransform(node : Node) : string {
-        return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getInputPorts().length * PORT_HEIGHT));
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getInputPorts().length * PORT_HEIGHT));
+        } else {
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + node.getInputPorts().length * PORT_HEIGHT));
+        }
     }
 
     function getContentPositionX(node : Node) : number {
@@ -1469,7 +1524,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH/2;
+            return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
         }
 
         // check if an ancestor is collapsed, if so, use center f ancestor
@@ -1478,7 +1533,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().x + Node.COLLAPSED_WIDTH;
         }
 
-        return findNodePortPosition(node, edge.getSrcPortId()).x;
+        return findNodePortPosition(node, edge.getSrcPortId(), true).x;
     }
 
     function edgeGetY1(edge: Edge) : number {
@@ -1492,13 +1547,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
-        // check if an ancestor is collapsed, if so, use center f ancestor
+        // check if an ancestor is collapsed, if so, use center of ancestor
         var collapsedAncestor : Node = findAncestorCollapsedNode(node);
         if (collapsedAncestor !== null){
             return collapsedAncestor.getPosition().y;
         }
 
-        return findNodePortPosition(node, edge.getSrcPortId()).y - PORT_ICON_HEIGHT;
+        return findNodePortPosition(node, edge.getSrcPortId(), true).y - PORT_ICON_HEIGHT;
     }
 
     function edgeGetX2(edge: Edge) : number {
@@ -1509,7 +1564,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH/2;
+            return node.getPosition().x + getIconLocationX(node);
         }
 
         // check if an ancestor is collapsed, if so, use center of ancestor
@@ -1518,7 +1573,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().x;
         }
 
-        return findNodePortPosition(node, edge.getDestPortId()).x;
+        return findNodePortPosition(node, edge.getDestPortId(), false).x;
     }
 
     function edgeGetY2(edge: Edge) : number {
@@ -1538,13 +1593,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().y;
         }
 
-        return findNodePortPosition(node, edge.getDestPortId()).y - PORT_ICON_HEIGHT;
+        return findNodePortPosition(node, edge.getDestPortId(), false).y - PORT_ICON_HEIGHT;
     }
 
-    function findNodePortPosition(node : Node, portId: string) : {x: number, y: number} {
-        // TODO: these should probably be defined in the graphRenderer
-        var PORT_INSET = 10;
-
+    function findNodePortPosition(node : Node, portId: string, inset: boolean) : {x: number, y: number} {
         var local : boolean;
         var input : boolean;
         var index : number;
@@ -1597,7 +1649,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // translate the three pieces of info into the x,y position
         if ((input && !local) || (!input && local)){
             // left hand side
-            position.x += PORT_INSET;
+            if (inset){
+                position.x += PORT_INSET;
+            }
             if (local){
                 position.y += HEADER_HEIGHT + appsOffset + (node.getInputPorts().length + index + 1) * PORT_HEIGHT;
             } else {
@@ -1605,7 +1659,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         } else {
             // right hand side
-            position.x += node.getWidth() - PORT_INSET;
+            if (inset){
+                position.x += node.getWidth() - PORT_INSET;
+            } else {
+                position.x += node.getWidth();
+            }
             if (local){
                 position.y += HEADER_HEIGHT + appsOffset + (node.getOutputPorts().length + index + 1) * PORT_HEIGHT;
             } else {
@@ -1696,7 +1754,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // find subject node
         var subjectNode : Node = findNodeWithKey(node.getSubjectKey(), nodeData);
 
-        return createBezier(node.getPosition().x, node.getPosition().y, subjectNode.getPosition().x, subjectNode.getPosition().y);
+        return createBezier(node.getPosition().x, node.getPosition().y, subjectNode.getPosition().x, subjectNode.getPosition().y, true);
     }
 
     function getCommentLinkDisplay(node : Node) : string {
@@ -1711,11 +1769,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return "inline";
     }
 
-    function createBezier(x1: number, y1: number, x2: number, y2: number) : string {
+    // forward - direction of edge. A forward edge goes from an output port to an input port. A non-forward edge goes from an input edge to an output edge
+    function createBezier(x1: number, y1: number, x2: number, y2: number, forward: boolean) : string {
         // find control points
-        var c1x = x1 + (x1<x2?50:-50);
+        var c1x = x1 + (forward?50:-50);
         var c1y = y1;
-        var c2x = x2 - (x1<x2?50:-50);
+        var c2x = x2 - (forward?50:-50);
         var c2y = y2;
 
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
