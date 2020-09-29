@@ -35,10 +35,6 @@ export class Port {
         this.nodeKey = 0;
     }
 
-    isEventPort = () : boolean => {
-        return this.name === Config.eventPortName;
-    }
-
     clone = () : Port => {
         return new Port(this._id, this.name);
     }

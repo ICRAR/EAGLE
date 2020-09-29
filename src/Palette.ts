@@ -193,27 +193,27 @@ export class Palette {
             if (n.getCategoryType() === Eagle.CategoryType.Application ||
                 n.getCategoryType() === Eagle.CategoryType.Group ||
                 n.getCategoryType() === Eagle.CategoryType.Data) {
-                n.addPort(new Port(Utils.uuidv4(), Config.eventPortName), true, false); // external input
-                n.addPort(new Port(Utils.uuidv4(), Config.eventPortName), false, false); // external output
+                n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), true, false); // external input
+                n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), false, false); // external output
             }
             else if (n.getCategoryType() === Eagle.CategoryType.Control) {
                 if (n.getCategory() === Eagle.Category.Start) {
-                    n.addPort(new Port(Utils.uuidv4(), Config.eventPortName), false, false); // external output
+                    n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), false, false); // external output
                 }
                 else if (n.getCategory() === Eagle.Category.End) {
-                    n.addPort(new Port(Utils.uuidv4(), Config.eventPortName), true, false); // external input
+                    n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), true, false); // external input
                 }
             }
             else if (n.getCategoryType() === Eagle.CategoryType.Other){
                 if (n.getCategory() === Eagle.Category.Service){
-                    n.addPort(new Port(Utils.uuidv4(), Config.eventPortName), true, false); // external input
+                    n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), true, false); // external input
                 }
             }
 
             // add local event ports to groups
             if (n.getCategoryType() === Eagle.CategoryType.Group){
-                n.addPort(new Port(Utils.uuidv4(), Config.eventPortName), true, true); // local input
-                n.addPort(new Port(Utils.uuidv4(), Config.eventPortName), false, true); // local output
+                n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), true, true); // local input
+                n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), false, true); // local output
             }
         }
     }

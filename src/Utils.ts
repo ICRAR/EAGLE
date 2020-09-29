@@ -28,6 +28,7 @@ import {Eagle} from './Eagle';
 import {Palette} from './Palette';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
+import {Port} from './Port';
 
 export class Utils {
     // Allowed file extenstions.
@@ -610,7 +611,7 @@ export class Utils {
             // add input port names into the list
             for (var j = 0; j < node.getInputPorts().length; j++) {
                 var portName = node.getInputPorts()[j].getName();
-                if (portName !== Config.eventPortName) {
+                if (Utils.isEventPortName(portName)) {
                     allPortNames.push(portName);
                 }
             }
@@ -618,7 +619,7 @@ export class Utils {
             // add input local port names into the list
             for (var j = 0; j < node.getInputLocalPorts().length; j++) {
                 var portName = node.getInputLocalPorts()[j].getName();
-                if (portName !== Config.eventPortName) {
+                if (Utils.isEventPortName(portName)) {
                     allPortNames.push(portName);
                 }
             }
@@ -626,7 +627,7 @@ export class Utils {
             // add output port names into the list
             for (var j = 0; j < node.getOutputPorts().length; j++) {
                 var portName = node.getOutputPorts()[j].getName();
-                if (portName !== Config.eventPortName) {
+                if (Utils.isEventPortName(portName)) {
                     allPortNames.push(portName);
                 }
             }
@@ -634,7 +635,7 @@ export class Utils {
             // add output local port names into the list
             for (var j = 0; j < node.getOutputLocalPorts().length; j++) {
                 var portName = node.getOutputLocalPorts()[j].getName();
-                if (portName !== Config.eventPortName) {
+                if (Utils.isEventPortName(portName)) {
                     allPortNames.push(portName);
                 }
             }
@@ -865,5 +866,23 @@ export class Utils {
 
     static getLocalStorageValue(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
         return repositoryName+"|"+repositoryBranch;
+    }
+
+    static isEventPortName(portName : string) : boolean {
+        for (var i = 0 ; i < Config.eventPortNames.length ; i++){
+            if (portName === Config.eventPortNames[i]){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static isEventPort(port : Port) : boolean {
+        for (var i = 0 ; i < Config.eventPortNames.length ; i++){
+            if (port.getName() === Config.eventPortNames[i]){
+                return true;
+            }
+        }
+        return false;
     }
 }

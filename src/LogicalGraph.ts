@@ -355,7 +355,7 @@ export class LogicalGraph {
             (srcNode.getCategoryType() === Eagle.CategoryType.Application || srcNode.getCategoryType() === Eagle.CategoryType.Group) &&
             (destNode.getCategoryType() === Eagle.CategoryType.Application || destNode.getCategoryType() === Eagle.CategoryType.Group);
 
-        var twoEventPorts : boolean = srcPort.isEventPort() && destPort.isEventPort();
+        var twoEventPorts : boolean = Utils.isEventPort(srcPort) && Utils.isEventPort(destPort);
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
