@@ -1040,13 +1040,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function selectEdge(edge : Edge){
         if (edge !== null){
-            eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge);
+            eagle.setSelection(Eagle.SideWindowMode.EdgeInspector, edge);
         }
     }
 
     function selectNode(node : Node){
         if (node !== null){
-            eagle.setSelection(Eagle.RightWindowMode.NodeInspector, node);
+            eagle.setSelection(Eagle.SideWindowMode.NodeInspector, node);
         }
     }
 
@@ -1720,7 +1720,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         graph.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, (edge : Edge) : void =>{
             eagle.flagActiveDiagramHasMutated();
-            //eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge);
 
             clearEdgeVars();
         });

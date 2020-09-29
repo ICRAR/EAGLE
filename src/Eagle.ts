@@ -43,6 +43,7 @@ import {Port} from './Port';
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
+import {SideWindow} from './SideWindow';
 
 export class Eagle {
     // palette editor mode
@@ -55,18 +56,14 @@ export class Eagle {
 
     userMode : ko.Observable<Eagle.UserMode>;
     repositories : ko.ObservableArray<Repository>;
-    leftWindowShown : ko.Observable<boolean>;
-    leftWindowMode : ko.Observable<Eagle.LeftWindowMode>;
-    rightWindowShown : ko.Observable<boolean>;
-    rightWindowMode : ko.Observable<Eagle.RightWindowMode>;
+
+    leftWindow : ko.Observable<SideWindow>;
+    rightWindow : ko.Observable<SideWindow>;
 
     selectedNode : ko.Observable<Node>;
     selectedEdge : ko.Observable<Edge>;
 
     translator : ko.Observable<Translator>;
-
-    rightWindowWidth : ko.Observable<number>;
-    leftWindowWidth : ko.Observable<number>;
 
     globalOffsetX : number = 0;
     globalOffsetY : number = 0;
@@ -77,8 +74,7 @@ export class Eagle {
     static applicationNodes : Node[] = [];
     static applicationCategories : Eagle.Category[] = [];
 
-    static dragStartX : number;
-    static adjustingLeftWindow : boolean; // true if adjusting left window, false if adjusting right window
+    static dragStartX : number; // used during adjustment of side window width
 
     constructor(){
         this.editorPalette = ko.observable(null);
@@ -88,18 +84,14 @@ export class Eagle {
 
         this.userMode = ko.observable(Eagle.UserMode.LogicalGraphEditor);
         this.repositories = ko.observableArray();
-        this.leftWindowShown = ko.observable(false);
-        this.leftWindowMode = ko.observable(Eagle.LeftWindowMode.Palettes);
-        this.rightWindowShown = ko.observable(true);
-        this.rightWindowMode = ko.observable(Eagle.RightWindowMode.Repository);
+
+        this.leftWindow = ko.observable(new SideWindow(Eagle.SideWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
+        this.rightWindow = ko.observable(new SideWindow(Eagle.SideWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
         this.selectedNode = ko.observable(null);
         this.selectedEdge = ko.observable(null);
 
         this.translator = ko.observable(new Translator());
-
-        this.rightWindowWidth = ko.observable(Utils.getRightWindowWidth());
-        this.leftWindowWidth = ko.observable(Utils.getLeftWindowWidth());
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -297,11 +289,11 @@ export class Eagle {
     setPaletteEditorMode = () => {
         this.userMode(Eagle.UserMode.PaletteEditor);
 
-        this.leftWindowMode(Eagle.LeftWindowMode.TemplatePalette);
-        this.leftWindowShown(true);
+        this.leftWindow().mode(Eagle.SideWindowMode.TemplatePalette);
+        this.leftWindow().shown(true);
 
         // set the right window mode to show repository
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        this.rightWindow().mode(Eagle.SideWindowMode.Repository);
     }
 
     setGraphEditorMode = () : void => {
@@ -309,21 +301,21 @@ export class Eagle {
 
         // close left window if no nodes in palette
         if (this.palettes().length === 0){
-            this.leftWindowShown(false);
+            this.leftWindow().shown(false);
         }
-        this.leftWindowMode(Eagle.LeftWindowMode.Palettes);
+        this.leftWindow().mode(Eagle.SideWindowMode.Palettes);
     }
 
     /**
      * This function is repeatedly called throughout the EAGLE operation.
-     * It resets al fields in the editor menu.
+     * It resets all fields in the editor menu.
      */
     resetEditor = () : void => {
         this.selectedNode(null);
         this.selectedEdge(null);
 
         // Show the last open repository.
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        this.rightWindow().mode(Eagle.SideWindowMode.Repository);
     }
 
     getSelection = () : Node | Edge | null => {
@@ -336,10 +328,10 @@ export class Eagle {
         return null;
     }
 
-    setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
-        switch (rightWindowMode){
-            case Eagle.RightWindowMode.Hierarchy:
-            case Eagle.RightWindowMode.NodeInspector:
+    setSelection = (mode : Eagle.SideWindowMode, selection : Node | Edge) : void => {
+        switch (mode){
+            case Eagle.SideWindowMode.Hierarchy:
+            case Eagle.SideWindowMode.NodeInspector:
                 // de-select all the nodes and then select this node
                 for (var i = 0 ; i < this.logicalGraph().getNodes().length; i++){
                     this.logicalGraph().getNodes()[i].setSelected(false);
@@ -367,23 +359,21 @@ export class Eagle {
                 }
 
                 break;
-            case Eagle.RightWindowMode.EdgeInspector:
+            case Eagle.SideWindowMode.EdgeInspector:
                 this.selectedNode(null);
                 this.selectedEdge(<Edge>selection);
                 break;
             default:
-                console.warn("RightWindowMode " + rightWindowMode + " not handled in setSelection()");
+                console.warn("SideWindowMode " + mode + " not handled in setSelection()");
                 break;
         }
 
         // switch from edgeinspector to nodeinspector or vice versa
-        if (this.rightWindowMode() === Eagle.RightWindowMode.EdgeInspector && rightWindowMode === Eagle.RightWindowMode.NodeInspector ||
-            this.rightWindowMode() === Eagle.RightWindowMode.NodeInspector && rightWindowMode === Eagle.RightWindowMode.EdgeInspector) {
+        if (this.rightWindow().mode() === Eagle.SideWindowMode.EdgeInspector && mode === Eagle.SideWindowMode.NodeInspector ||
+            this.rightWindow().mode() === Eagle.SideWindowMode.NodeInspector && mode === Eagle.SideWindowMode.EdgeInspector) {
 
-            this.rightWindowMode(rightWindowMode);
+            this.rightWindow().mode(mode);
         }
-
-
     }
 
     //----------------- Physical Graph Generation --------------------------------
@@ -711,7 +701,7 @@ export class Eagle {
             }
 
             // show repo in the right window
-            this.rightWindowMode(Eagle.RightWindowMode.Repository);
+            this.rightWindow().mode(Eagle.SideWindowMode.Repository);
             // Mark file as non-modified.
             this.activeFileInfo().modified = false;
 
@@ -1112,13 +1102,13 @@ export class Eagle {
 
                     // load the new palette
                     this.palettes.push(Palette.fromOJSJson(data, file));
-                    this.leftWindowShown(true);
+                    this.leftWindow().shown(true);
                     Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                 }
             });
         } else {
             this.palettes.push(Palette.fromOJSJson(data, file));
-            this.leftWindowShown(true);
+            this.leftWindow().shown(true);
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
         }
     }
@@ -1294,7 +1284,7 @@ export class Eagle {
     flagActiveDiagramHasMutated = () => {
         // remember the currently selected objects
         var sn = this.getSelection();
-        var rwm = this.rightWindowMode();
+        var rwm = this.rightWindow().mode();
 
         // flag diagram as mutated
         if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
@@ -1329,7 +1319,7 @@ export class Eagle {
 
             // no edge left to be selected
             this.selectedEdge(null);
-            this.rightWindowMode(Eagle.RightWindowMode.Repository);
+            this.rightWindow().mode(Eagle.SideWindowMode.Repository);
 
             // flag the diagram as mutated so that the graph renderer will update
             this.flagActiveDiagramHasMutated();
@@ -1372,7 +1362,7 @@ export class Eagle {
 
             // no node left to be selected
             this.selectedNode(null);
-            this.rightWindowMode(Eagle.RightWindowMode.Repository);
+            this.rightWindow().mode(Eagle.SideWindowMode.Repository);
 
             // flag the diagram as mutated so that the graph renderer will update
             this.flagActiveDiagramHasMutated();
@@ -1384,7 +1374,7 @@ export class Eagle {
             this.logicalGraph.valueHasMutated();
 
             // make sure the new node is selected
-            this.setSelection(Eagle.RightWindowMode.NodeInspector, newNode);
+            this.setSelection(Eagle.SideWindowMode.NodeInspector, newNode);
         });
     }
 
@@ -1404,11 +1394,11 @@ export class Eagle {
     }
 
     toggleLeftWindow = () : void => {
-        this.leftWindowShown(!this.leftWindowShown());
+        this.leftWindow().shown(!this.leftWindow().shown());
     }
 
     toggleRightWindow = () : void => {
-        this.rightWindowShown(!this.rightWindowShown());
+        this.rightWindow().shown(!this.rightWindow().shown());
     }
 
     // TODO: not sure about this
@@ -1633,7 +1623,7 @@ export class Eagle {
                 edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
                 this.selectedEdge(edge);
                 this.selectedNode(null);
-                this.setSelection(Eagle.RightWindowMode.EdgeInspector, edge);
+                this.setSelection(Eagle.SideWindowMode.EdgeInspector, edge);
                 return;
             }
         }
@@ -1707,7 +1697,8 @@ export class Eagle {
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
 
         Eagle.dragStartX = e.clientX;
-        Eagle.adjustingLeftWindow = false;
+        eagle.leftWindow().adjusting(false);
+        eagle.rightWindow().adjusting(true);
 
         return true;
     }
@@ -1718,25 +1709,25 @@ export class Eagle {
             return true;
         }
 
-        if (isNaN(this.leftWindowWidth())){
+        if (isNaN(eagle.leftWindow().width())){
             console.warn("Had to reset left window width from invalid state (NaN)!");
-            this.leftWindowWidth(Config.defaultLeftWindowWidth);
+            this.leftWindow().width(Config.defaultLeftWindowWidth);
         }
-        if (isNaN(this.rightWindowWidth())){
+        if (isNaN(eagle.rightWindow().width())){
             console.warn("Had to reset right window width from invalid state (NaN)!");
-            this.rightWindowWidth(Config.defaultRightWindowWidth);
+            this.rightWindow().width(Config.defaultRightWindowWidth);
         }
 
         var dragDiff : number = e.clientX - Eagle.dragStartX;
         var newWidth : number;
 
-        if (Eagle.adjustingLeftWindow){
-            newWidth = this.leftWindowWidth() + dragDiff;
-            this.leftWindowWidth(newWidth);
+        if (eagle.leftWindow().adjusting()){
+            newWidth = this.leftWindow().width() + dragDiff;
+            this.leftWindow().width(newWidth);
             Utils.setLeftWindowWidth(newWidth);
         } else {
-            newWidth = this.rightWindowWidth() - dragDiff;
-            this.rightWindowWidth(newWidth);
+            newWidth = this.rightWindow().width() - dragDiff;
+            this.rightWindow().width(newWidth);
             Utils.setRightWindowWidth(newWidth);
         }
 
@@ -1750,7 +1741,8 @@ export class Eagle {
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
 
         Eagle.dragStartX = e.clientX;
-        Eagle.adjustingLeftWindow = true;
+        eagle.leftWindow().adjusting(true);
+        eagle.rightWindow().adjusting(false);
 
         return true;
     }
@@ -1824,7 +1816,7 @@ export class Eagle {
         }
         node.setSelected(true);
 
-        this.setSelection(Eagle.RightWindowMode.Hierarchy, node);
+        this.setSelection(Eagle.SideWindowMode.Hierarchy, node);
 
         console.log("Node", node.getName(), "selected", "(expanded:" + node.getExpanded() + ")");
 
@@ -1840,14 +1832,10 @@ export namespace Eagle
         LogicalGraphEditor
     }
 
-    export enum LeftWindowMode {
+    export enum SideWindowMode {
         None,
         Palettes,
-        TemplatePalette
-    }
-
-    export enum RightWindowMode {
-        None,
+        TemplatePalette,
         Repository,
         NodeInspector,
         EdgeInspector,

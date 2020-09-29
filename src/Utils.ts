@@ -821,6 +821,7 @@ export class Utils {
         });
     }
 
+    // TODO: move to SideWindow class (x4)
     static getRightWindowWidth() : number {
         // try localStorage first
         var local : string = localStorage.getItem(this.RIGHT_WINDOW_WIDTH_KEY);

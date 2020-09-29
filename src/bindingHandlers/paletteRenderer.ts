@@ -123,7 +123,7 @@ function render(palette : Palette, elementId : string, eagle : Eagle){
 
         if (index !== -1){
             var node : Node = nodeData[index];
-            eagle.setSelection(Eagle.RightWindowMode.NodeInspector, node);
+            eagle.setSelection(Eagle.SideWindowMode.NodeInspector, node);
         }
     }
 
