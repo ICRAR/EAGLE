@@ -390,18 +390,17 @@ export class LogicalGraph {
                 }
 
                 // set the parent of the new node
-                if (srcNode.getParentKey() === destNode.getParentKey()){
-                    newNode.setParentKey(srcNode.getParentKey());
-                } else {
-                    // if source node is a child of dest node, make the new node a child too
-                    if (srcNode.getParentKey() === destNode.getKey()){
-                        newNode.setParentKey(destNode.getKey());
-                    }
+                // by default, set parent to parent of source node,
+                newNode.setParentKey(srcNode.getParentKey());
 
-                    // if dest node is a child of source node, make the new node a child too
-                    if (destNode.getParentKey() === srcNode.getKey()){
-                        newNode.setParentKey(srcNode.getKey());
-                    }
+                // if source node is a child of dest node, make the new node a child too
+                if (srcNode.getParentKey() === destNode.getKey()){
+                    newNode.setParentKey(destNode.getKey());
+                }
+
+                // if dest node is a child of source node, make the new node a child too
+                if (destNode.getParentKey() === srcNode.getKey()){
+                    newNode.setParentKey(srcNode.getKey());
                 }
 
                 // get references to input port and output port
