@@ -1,4 +1,4 @@
-import {Config} from './Config';
+import {Utils} from './Utils';
 
 export class Port {
     private _id : string
@@ -33,6 +33,10 @@ export class Port {
         this._id = "";
         this.name = "";
         this.nodeKey = 0;
+    }
+
+    isEventPort = () : boolean => {
+        return Utils.isEventPortName(this.name);
     }
 
     clone = () : Port => {

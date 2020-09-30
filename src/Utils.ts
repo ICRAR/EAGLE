@@ -876,13 +876,4 @@ export class Utils {
         }
         return false;
     }
-
-    static isEventPort(port : Port) : boolean {
-        for (var i = 0 ; i < Config.eventPortNames.length ; i++){
-            if (port.getName() === Config.eventPortNames[i]){
-                return true;
-            }
-        }
-        return false;
-    }
 }

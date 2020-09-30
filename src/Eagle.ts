@@ -918,8 +918,7 @@ export class Eagle {
                 isModified = this.logicalGraph().fileInfo().modified;
                 break;
             case Eagle.FileType.Palette:
-                // a new palette will not overwrite anything, so we don't care if our existing file was modified
-                isModified = false;
+                isModified = this.editorPalette().fileInfo().modified;
                 break;
             case Eagle.FileType.JSON:
                 isModified = this.activeFileInfo().modified;
@@ -1101,25 +1100,34 @@ export class Eagle {
     };
 
     private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
-        // check palette is not already loaded
-        var alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
+        // if EAGLE is in palette editor mode, load the remote palette into EAGLE's editorPalette object.
+        // if EAGLE is in graph editor mode, load the remote palette into EAGLE's palettes object.
 
-        if (alreadyLoadedPalette !== null){
-            Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
-                if (confirmed){
-                    // close the existing version of the open palette
-                    this.closePalette(alreadyLoadedPalette);
-
-                    // load the new palette
-                    this.palettes.push(Palette.fromOJSJson(data, file));
-                    this.leftWindowShown(true);
-                    Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
-                }
-            });
-        } else {
-            this.palettes.push(Palette.fromOJSJson(data, file));
+        if (this.userMode() === Eagle.UserMode.PaletteEditor){
+            this.editorPalette(Palette.fromOJSJson(data, file));
             this.leftWindowShown(true);
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+        } else {
+            // check palette is not already loaded
+            var alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
+
+            if (alreadyLoadedPalette !== null){
+                Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
+                    if (confirmed){
+                        // close the existing version of the open palette
+                        this.closePalette(alreadyLoadedPalette);
+
+                        // load the new palette
+                        this.palettes.push(Palette.fromOJSJson(data, file));
+                        this.leftWindowShown(true);
+                        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+                    }
+                });
+            } else {
+                this.palettes.push(Palette.fromOJSJson(data, file));
+                this.leftWindowShown(true);
+                Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+            }
         }
     }
 
