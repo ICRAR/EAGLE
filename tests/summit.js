@@ -100,7 +100,7 @@ test('Load palette', async t =>{
         .wait(WAIT_TIME)
 
         // resize the outer scatter
-        .drag(Selector('#node0 .resize-control-label'), 600, 300, {
+        .drag(Selector('#node0 .resize-control-label'), 650, 300, {
             offsetX: 10,
             offsetY: 10
         })
@@ -116,7 +116,7 @@ test('Load palette', async t =>{
         .drag(Selector('#node1 image'), 125, 75)
         .wait(WAIT_TIME)
 
-        // resize the outer scatter
+        // resize the inner scatter
         .drag(Selector('#node1 .resize-control-label'), 250, 200, {
             offsetX: 10,
             offsetY: 10
@@ -201,6 +201,75 @@ test('Load palette', async t =>{
         .click(Selector('#choiceModalSelect').find('option').withText("Memory"))
         .click('#choiceModal .modal-footer button')
         .wait(WAIT_TIME)
+
+        // add the gather
+        .click('#addPaletteNode4')
+        .hover('.leftWindowHandle')
+        .wait(WAIT_TIME)
+
+        // move the gather (NOTE: this is now node 1!)
+        .click('#node1 image')
+        .drag(Selector('#node1 image'), 1000, 150)
+        .wait(WAIT_TIME)
+
+        // debug click the object first
+        .click(Selector('#node3 g.outputPorts circle').nth(1), {
+            offsetX: 6,
+            offsetY: 6
+        })
+        .wait(WAIT_TIME)
+
+        // draw edge from outer Python App to gather
+        .dragToElement(
+            Selector('#node3 g.outputPorts circle').nth(1),
+            Selector('#node1 g.inputPorts circle').nth(1),
+            {
+                offsetX: 6,
+                offsetY: 6
+            })
+        .wait(WAIT_TIME)
+
+        // select 'memory' data type for spead2 data component
+        .click('#choiceModalSelect')
+        .click(Selector('#choiceModalSelect').find('option').withText("Memory"))
+        .click('#choiceModal .modal-footer button')
+        .wait(WAIT_TIME)
+
+        // add the end node
+        .click('#addPaletteNode5')
+        .hover('.leftWindowHandle')
+        .wait(WAIT_TIME)
+
+        // select type of end node
+        .click('#choiceModalSelect')
+        .click(Selector('#choiceModalSelect').find('option').withText("File"))
+        .click('#choiceModal .modal-footer button')
+        .wait(WAIT_TIME)
+
+        // move the end node (NOTE: this is now node 2!)
+        .click('#node2 image')
+        .drag(Selector('#node2 image'), 1250, 150)
+        .wait(WAIT_TIME)
+
+        // debug click the object first
+        .click(Selector('#node1 g.outputPorts circle').nth(0), {
+            offsetX: 6,
+            offsetY: 6
+        })
+        .wait(WAIT_TIME)
+
+        // draw edge from outer Python App to gather
+        .dragToElement(
+            Selector('#node1 g.outputPorts circle').nth(0),
+            Selector('#node2 g.inputPorts circle').nth(0),
+            {
+                offsetX: 6,
+                offsetY: 6
+            })
+        .wait(WAIT_TIME)
+
+        // click on the outer scatter to finish up
+        .click('#node0 image')
 
         /*
         // add a gather from the palette to the graph
