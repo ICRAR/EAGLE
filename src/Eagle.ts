@@ -213,16 +213,13 @@ export class Eagle {
             return;
         }
 
-        // if just switching between LG and LGT, no need to check for changes
-        if (userMode !== Eagle.UserMode.PaletteEditor && prevUserMode !== Eagle.UserMode.PaletteEditor){
-            this._setUserMode(userMode);
-            return;
-        }
-
         this._setUserMode(userMode);
     }
 
     private _setUserMode = (userMode : Eagle.UserMode) : void => {
+        this.selectedEdge(null);
+        this.selectedNode(null);
+
         switch(userMode){
             case Eagle.UserMode.PaletteEditor:
                 this.setPaletteEditorMode();
