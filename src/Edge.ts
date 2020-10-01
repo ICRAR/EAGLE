@@ -77,6 +77,10 @@ export class Edge {
         return this.loopAware;
     }
 
+    setLoopAware = (value : boolean) => {
+        this.loopAware = value;
+    }
+
     toggleLoopAware = () : void => {
         this.loopAware = !this.loopAware;
     }
@@ -106,7 +110,7 @@ export class Edge {
             fromPort: edge.srcPortId,
             to: -1,
             toPort: edge.destPortId,
-            loop_aware: edge.loopAware ? 1 : 0
+            loop_aware: edge.loopAware ? "1" : "0"
         };
     }
 

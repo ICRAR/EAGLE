@@ -151,7 +151,14 @@ export class LogicalGraph {
                 continue;
             }
 
-            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName()));
+            var newEdge : Edge = new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName());
+
+            // try to read loop_aware attribute
+            if (typeof linkData.loop_aware !== 'undefined'){
+                newEdge.setLoopAware(linkData.loop_aware !== "0");
+            }
+
+            result.edges.push(newEdge);
         }
 
         // check for missing name
