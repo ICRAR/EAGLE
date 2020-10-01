@@ -236,8 +236,8 @@ test('Load palette', async t =>{
         .wait(WAIT_TIME)
 
         // add the end node
+        // NOTE: we don't hover the mouse elsewhere after this click, because the click handler opens a modal, and the usual hover target will be hidden
         .click('#addPaletteNode5')
-        .hover('.leftWindowHandle')
         .wait(WAIT_TIME)
 
         // select type of end node
