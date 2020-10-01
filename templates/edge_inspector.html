@@ -36,6 +36,15 @@
                 </div>
                 <input type="text" class="form-control" id="edge-data-type" placeholder="" aria-label="DataType" aria-describedby="edge-addon5" readonly data-bind="value: selectedEdge().dataType">
             </div>
+            <div class="input-group mb-1">
+                <input type="text" class="form-control" id="nodeLoopAwareValue" placeholder="" aria-label="LoopAware" aria-describedby="node-loop-aware" value="Loop Aware" readonly>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" id="edgeInspectorToggleLoopAware" type="button" data-bind="click: function(){selectedEdge().toggleLoopAware();selectedEdge.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                        <i class="material-icons md-18" data-bind="visible: selectedEdge().isLoopAware()">radio_button_checked</i>
+                        <i class="material-icons md-18" data-bind="hidden: selectedEdge().isLoopAware()">radio_button_unchecked</i>
+                    </button>
+                </div>
+            </div>
             <!-- /ko -->
         </div>
     </div>

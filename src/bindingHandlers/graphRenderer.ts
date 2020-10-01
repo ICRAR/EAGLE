@@ -1438,6 +1438,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             depth += node.getDrawOrderHint() / 10;
             nodeKey = node.getKey();
             nodeParentKey = node.getParentKey();
+
+            if (nodeParentKey === null){
+                return depth;
+            }
+
             node = findNodeWithKey(nodeParentKey, nodes);
 
             if (node === null){
