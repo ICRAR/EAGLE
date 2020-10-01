@@ -787,8 +787,16 @@ export class Eagle {
             return;
         }
 
+        // prepare the text to display in the modal
+        var modalMessage = "";
+        if (fileType === Eagle.FileType.Graph){
+            modalMessage = "Enter a commit message for this graph";
+        } else {
+            modalMessage = "Enter a commit message for this palette";
+        }
+
         // request commit message from the user
-        Utils.requestUserString("Commit Message", "Enter a commit message for this graph", "", false, (completed : boolean, userString : string) : void => {
+        Utils.requestUserString("Commit Message", modalMessage, "", false, (completed : boolean, userString : string) : void => {
             if (!completed){
                 console.log("Abort commit");
                 return;
