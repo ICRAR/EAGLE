@@ -51,6 +51,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const APPS_HEIGHT : number = 28;
     const PORT_HEIGHT : number = 24;
 
+    const NODE_STROKE_WIDTH : number = 3;
+    const HEADER_INSET : number = NODE_STROKE_WIDTH - 1;
+
     const PORT_OFFSET_X : number = 2;
     const PORT_ICON_HEIGHT : number = 8;
     const PORT_INSET : number = 10;
@@ -164,6 +167,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                               .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeight(node));})
                               .style("fill", nodeGetFill)
                               .style("stroke", nodeGetStroke)
+                              .style("stroke-width", NODE_STROKE_WIDTH)
                               .attr("stroke-dasharray", nodeGetStrokeDashArray)
                               .on("click", nodeOnClick);
 
@@ -226,8 +230,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add a header background to each node
     var headerBackgrounds = nodes.append("rect")
                                     .attr("class", "header-background")
-                                    .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
+                                    .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
                                     .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
+                                    .attr("x", HEADER_INSET)
+                                    .attr("y", HEADER_INSET)
                                     .style("fill", nodeGetColor)
                                     .style("stroke", "grey")
                                     .style("display", getHeaderBackgroundDisplay);
@@ -255,9 +261,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add a app names background to each node
     var appsBackgrounds = nodes.append("rect")
                                     .attr("class", "apps-background")
-                                    .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
+                                    .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
                                     .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
-                                    .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
+                                    .attr("x", HEADER_INSET)
+                                    .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(HEADER_INSET + getHeaderBackgroundHeight(node));})
                                     .style("fill", nodeGetColor)
                                     .style("stroke", "grey")
                                     .style("display", getAppsBackgroundDisplay);
@@ -335,15 +342,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .attr("class", "shrink-button")
                                 .attr("width", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
                                 .attr("height", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 4);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(4))
+                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 4);})
+                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
                                 .style("display", getShrinkControlDisplay)
                                 .on("click", shrinkOnClick);
 
     var shrinkLabels = nodes.append("text")
                                 .attr("class", "shrink-button-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 2);})
-                                .attr('y', REAL_TO_DISPLAY_SCALE(8 + (COLLAPSE_BUTTON_SIZE/2)))
+                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 2);})
+                                .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8 + (COLLAPSE_BUTTON_SIZE/2)))
                                 .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
                                 .style('fill', 'black')
                                 .style('display', getShrinkControlDisplay)
@@ -355,15 +362,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .attr("class", "collapse-button")
                                 .attr("width", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
                                 .attr("height", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 8 - COLLAPSE_BUTTON_SIZE);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(4))
+                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 8 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
+                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
                                 .style("display", getCollapseButtonDisplay)
                                 .on("click", collapseOnClick);
 
     var collapseLabels = nodes.append("text")
                                 .attr("class", "collapse-button-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 5.5 - COLLAPSE_BUTTON_SIZE);})
-                                .attr('y', REAL_TO_DISPLAY_SCALE(8.5 + (COLLAPSE_BUTTON_SIZE/2)))
+                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 5.5 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
+                                .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2)))
                                 .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
                                 .style('fill', 'black')
                                 .style('display', getCollapseButtonDisplay)
@@ -375,15 +382,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .attr("class", "expand-button")
                                 .attr("width", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
                                 .attr("height", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - EXPAND_BUTTON_SIZE - 4);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(4))
+                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - EXPAND_BUTTON_SIZE - HEADER_INSET - 4);})
+                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
                                 .style("display", getExpandButtonDisplay)
                                 .on("click", expandOnClick);
 
     var expandLabels = nodes.append("text")
                                 .attr("class", "expand-button-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - (SHRINK_BUTTON_SIZE/2) - 9.5);})
-                                .attr('y', REAL_TO_DISPLAY_SCALE(8.5 + (COLLAPSE_BUTTON_SIZE/2)))
+                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - (SHRINK_BUTTON_SIZE/2) - HEADER_INSET - 9.5);})
+                                .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2)))
                                 .attr('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
                                 .style('fill', 'black')
                                 .style('display', getExpandButtonDisplay)
@@ -674,18 +681,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         svgContainer.selectAll("g.node rect:not(.header-background):not(.apps-background):not(.resize-control):not(.shrink-button):not(.collapse-button):not(.expand-button)")
                                 .data(nodeData)
-                                .attr("class", nodeIsSelected)
                                 .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
                                 .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeight(node));})
                                 .style("fill", nodeGetFill)
                                 .style("stroke", nodeGetStroke)
+                                .style("stroke-width", NODE_STROKE_WIDTH)
                                 .attr("stroke-dasharray", nodeGetStrokeDashArray)
                                 .on("click", nodeOnClick);
 
         svgContainer.selectAll("g.node rect.header-background")
                                 .data(nodeData)
-                                .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
+                                .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
                                 .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
+                                .attr("x", HEADER_INSET)
+                                .attr("y", HEADER_INSET)
                                 .style("fill", nodeGetColor)
                                 .style("stroke", "grey")
                                 .style("display", getHeaderBackgroundDisplay);
@@ -711,9 +720,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         svgContainer.selectAll("g.node rect.apps-background")
                                 .data(nodeData)
-                                .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
+                                .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
                                 .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
-                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
+                                .attr("x", HEADER_INSET)
+                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(HEADER_INSET + getHeaderBackgroundHeight(node));})
                                 .style("fill", nodeGetColor)
                                 .style("stroke", "grey")
                                 .style("display", getAppsBackgroundDisplay);
@@ -770,34 +780,34 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         svgContainer.selectAll("g.node rect.shrink-button")
                                 .attr("width", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
                                 .attr("height", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 4);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(4))
+                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 4);})
+                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
                                 .style("display", getShrinkControlDisplay);
 
         svgContainer.selectAll("text.shrink-button-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 2);})
-                                .attr('y', REAL_TO_DISPLAY_SCALE(8 + (COLLAPSE_BUTTON_SIZE/2)))
+                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 2);})
+                                .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8 + (COLLAPSE_BUTTON_SIZE/2)))
                                 .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
                                 .style('display', getShrinkControlDisplay);
 
         svgContainer.selectAll("g.node rect.collapse-button")
                                 .attr("width", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
                                 .attr("height", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 8 - COLLAPSE_BUTTON_SIZE);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(4))
+                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 8 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
+                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
                                 .style("display", getCollapseButtonDisplay);
 
         svgContainer.selectAll("text.collapse-button-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 5.5 - COLLAPSE_BUTTON_SIZE);})
-                                .attr('y', REAL_TO_DISPLAY_SCALE(8.5 + (COLLAPSE_BUTTON_SIZE/2)))
+                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 5.5 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
+                                .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2)))
                                 .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
                                 .style('display', getCollapseButtonDisplay);
 
         svgContainer.selectAll("g.node rect.expand-button")
                                 .attr("width", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
                                 .attr("height", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - EXPAND_BUTTON_SIZE - 4);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(4))
+                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - EXPAND_BUTTON_SIZE - HEADER_INSET - 4);})
+                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
                                 .style("display", getExpandButtonDisplay);
 
         // inputPorts
@@ -1095,6 +1105,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts() ? "none" : "inline";
+    }
+
+    function getHeaderBackgroundWidth(node : Node) : number {
+        return getWidth(node) - HEADER_INSET*2;
     }
 
     function getHeaderBackgroundHeight(node : Node) : number {
@@ -1402,6 +1416,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
+        if (node.getKey() === Eagle.selectedNodeKey){
+            return "black";
+        }
+
         return "grey";
     }
 
@@ -1413,7 +1431,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function nodeIsSelected(node : Node){
-        return node === eagle.selectedNode() ? "selected" : null;
+        return node.getKey() === Eagle.selectedNodeKey ? "selected" : null;
     }
 
     function nodeOnClick(node : Node, index : number) : void {

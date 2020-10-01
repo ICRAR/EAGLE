@@ -80,6 +80,8 @@ export class Eagle {
     static dragStartX : number;
     static adjustingLeftWindow : boolean; // true if adjusting left window, false if adjusting right window
 
+    static selectedNodeKey : number;
+
     constructor(){
         this.editorPalette = ko.observable(null);
         this.palettes = ko.observableArray();
@@ -348,6 +350,7 @@ export class Eagle {
                 (<Node>selection).setSelected(true);
                 (<Node>selection).setShowPorts(true);
 
+                Eagle.selectedNodeKey = (<Node>selection).getKey();
                 this.selectedNode(<Node>selection);
                 this.selectedEdge(null);
 
@@ -368,6 +371,7 @@ export class Eagle {
 
                 break;
             case Eagle.RightWindowMode.EdgeInspector:
+                Eagle.selectedNodeKey = null;
                 this.selectedNode(null);
                 this.selectedEdge(<Edge>selection);
                 break;
@@ -376,14 +380,10 @@ export class Eagle {
                 break;
         }
 
-        // switch from edgeinspector to nodeinspector or vice versa
-        if (this.rightWindowMode() === Eagle.RightWindowMode.EdgeInspector && rightWindowMode === Eagle.RightWindowMode.NodeInspector ||
-            this.rightWindowMode() === Eagle.RightWindowMode.NodeInspector && rightWindowMode === Eagle.RightWindowMode.EdgeInspector) {
-
+        // switch to the correct right window mode
+        if (rightWindowMode === Eagle.RightWindowMode.EdgeInspector || rightWindowMode === Eagle.RightWindowMode.NodeInspector){
             this.rightWindowMode(rightWindowMode);
         }
-
-
     }
 
     //----------------- Physical Graph Generation --------------------------------
