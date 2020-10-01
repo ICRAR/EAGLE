@@ -35,6 +35,7 @@ export class Edge {
     private destNodeKey : number;
     private destPortId : string;
     private dataType : string;
+    private loopAware : boolean;
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string){
         this._id = Utils.uuidv4();
@@ -45,6 +46,7 @@ export class Edge {
         this.destPortId = destPortId;
 
         this.dataType = dataType;
+        this.loopAware = false;
     }
 
     getId = () : string => {
@@ -71,6 +73,14 @@ export class Edge {
         return this.dataType;
     }
 
+    isLoopAware = () : boolean => {
+        return this.loopAware;
+    }
+
+    toggleLoopAware = () : void => {
+        this.loopAware = !this.loopAware;
+    }
+
     clear = () : void => {
         this._id = "";
         this.srcNodeKey = 0;
@@ -78,12 +88,14 @@ export class Edge {
         this.destNodeKey = 0;
         this.destPortId = "";
         this.dataType = "";
+        this.loopAware = false;
     }
 
     clone = () : Edge => {
         var result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType);
 
         result._id = this._id;
+        result.loopAware = this.loopAware;
 
         return result;
     }
@@ -93,7 +105,8 @@ export class Edge {
             from: -1,
             fromPort: edge.srcPortId,
             to: -1,
-            toPort: edge.destPortId
+            toPort: edge.destPortId,
+            loop_aware: edge.loopAware ? 1 : 0
         };
     }
 
