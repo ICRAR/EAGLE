@@ -249,6 +249,9 @@ export class LogicalGraph {
                     // Add a data component to the graph.
                     newNode = this.addDataComponentToGraph(category, nodePosition);
 
+                    // copy name from the original node
+                    newNode.setName(node.getName());
+
                     // Remove the redundant input/output port.
                     switch(node.getCategory()){
                         case Eagle.Category.Start:
