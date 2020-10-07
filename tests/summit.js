@@ -3,7 +3,7 @@ import { Selector } from 'testcafe';
 /*
     run with:
 
-    export GITHUB_ACCESS_TOKEN="<insert personal access token>";testcafe chrome tests/summit-injest.js
+    export GITHUB_ACCESS_TOKEN="<token>";testcafe -s "/Users/james/testcafe/" --video "/Users/james/testcafe/videos/" "chrome '--window-size=1920,1208'" tests/summit.js
 */
 
 var GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
@@ -13,6 +13,9 @@ var PROJECT_NAME = "summit";
 var PALETTE_REPOSITORY = "ICRAR/EAGLE-graph-repo";
 var PALETTE_PATH = "summit";
 var PALETTE_FILENAME = "summit.palette";
+
+var TESTING_REPOSITORY = "james-strauss-uwa/eagle-test";
+var TESTING_REPOSITORY_BRANCH = "master";
 
 var CHOICE_MODAL_CUSTOM = "Custom (enter below)";
 var SPEAD2_STREAM = "spead2Stream";
@@ -33,7 +36,7 @@ var datestring =
     ("0" + d.getSeconds()).slice(-2);
 
 var graph_filepath = PROJECT_NAME;
-var graph_filename = PROJECT_NAME + "-" + datestring;
+var graph_filename = PROJECT_NAME + "-" + datestring + ".graph";
 var graph_commit_message = "Automated " + PROJECT_NAME + " graph (" + graph_filename + ")";
 
 fixture `EAGLE Summit Ingest`
@@ -42,8 +45,8 @@ fixture `EAGLE Summit Ingest`
 test('Load palette', async t =>{
     await t
         // wait for the page to settle down
-        .resizeWindow(1920, 1080)
-        .wait(2000)
+        //.resizeWindow(1920, 1080)
+        .wait(3000)
 
         // enter the github access token
         .click('#setGitHubAccessToken')
@@ -96,7 +99,7 @@ test('Load palette', async t =>{
         .wait(WAIT_TIME)
 
         // move the outer scatter
-        .drag(Selector('#node0 image'), 100, 0)
+        .drag(Selector('#node0 image'), 20, 0)
         .wait(WAIT_TIME)
 
         // resize the outer scatter
@@ -113,7 +116,7 @@ test('Load palette', async t =>{
 
         // move the inner scatter
         .click('#node1 image')
-        .drag(Selector('#node1 image'), 125, 75)
+        .drag(Selector('#node1 image'), 40, 75)
         .wait(WAIT_TIME)
 
         // resize the inner scatter
@@ -154,7 +157,7 @@ test('Load palette', async t =>{
 
         // move the inner Python App
         .click('#node2 image')
-        .drag(Selector('#node2 image'), 150, 150)
+        .drag(Selector('#node2 image'), 60, 150)
         .wait(WAIT_TIME)
 
         // add the outer Python App
@@ -176,7 +179,7 @@ test('Load palette', async t =>{
 
         // move the outer Python App (NOTE: this is now node 2!)
         .click('#node2 image')
-        .drag(Selector('#node2 image'), 600, 150)
+        .drag(Selector('#node2 image'), 500, 150)
         .wait(WAIT_TIME)
 
         // debug click the object first
@@ -209,7 +212,7 @@ test('Load palette', async t =>{
 
         // move the gather (NOTE: this is now node 1!)
         .click('#node1 image')
-        .drag(Selector('#node1 image'), 1000, 150)
+        .drag(Selector('#node1 image'), 900, 150)
         .wait(WAIT_TIME)
 
         // debug click the object first
@@ -248,7 +251,7 @@ test('Load palette', async t =>{
 
         // move the end node (NOTE: this is now node 2!)
         .click('#node2 image')
-        .drag(Selector('#node2 image'), 1250, 150)
+        .drag(Selector('#node2 image'), 1125, 150)
         .wait(WAIT_TIME)
 
         // debug click the object first
@@ -271,7 +274,49 @@ test('Load palette', async t =>{
         // click on the outer scatter to finish up
         .click('#node0 image')
 
+        // switch back to the repositories tab
+        .click('#rightWindowModeRepositories')
+        .wait(WAIT_TIME)
+
+        // enter the testing repo as a custom repo
+        .click('#addRepository')
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryNameInput'), TESTING_REPOSITORY)
+        .wait(WAIT_TIME)
+        .typeText(Selector('#gitCustomRepositoryModalRepositoryBranchInput'), TESTING_REPOSITORY_BRANCH)
+        .wait(WAIT_TIME)
+        .click('#gitCustomRepositoryModalAffirmativeAnswer')
+        .wait(WAIT_TIME)
+
+        // save graph to github as...
+        .click('#navbarDropdownGit')
+        .click('#commitToGitAsGraph')
+        .wait(WAIT_TIME)
+
+        // save graph to the james-strauss-uwa/eagle-test repo
+        .click('#gitCommitModalRepositoryNameSelect')
+        .click(Selector('#gitCommitModalRepositoryNameSelect').find('option').withText(TESTING_REPOSITORY + " (" + TESTING_REPOSITORY_BRANCH + ")"))
+        .wait(WAIT_TIME)
+
+        // enter filepath for save graph as...
+        .typeText(Selector('#gitCommitModalFilePathInput'), graph_filepath, { replace: true })
+        .wait(WAIT_TIME)
+
+        // use default filename for save graph as...
+        .typeText(Selector('#gitCommitModalFileNameInput'), graph_filename, { replace: true })
+        .wait(WAIT_TIME)
+
+        // enter commit message for save graph as...
+        .typeText(Selector('#gitCommitModalCommitMessageInput'), graph_commit_message, { replace: true })
+        .wait(WAIT_TIME)
+
+        // commit
+        .click('#gitCommitModalAffirmativeButton')
+        .wait(WAIT_TIME)
+
+        // Use the assertion to check if the actual header text is equal to the expected one
+        .expect(Selector("div[data-notify='container'] span[data-notify='title']").innerText).eql(SUCCESS_MESSAGE)
+
         // end
-        .wait(5000);
+        .wait(10000);
         //.takeScreenshot();
 });
