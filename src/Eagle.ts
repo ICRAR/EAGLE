@@ -515,11 +515,13 @@ export class Eagle {
             var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath));
 
             if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
-                this.palettes.push(p)
-            }
-            else {
+                this.palettes.push(p);
+            } else {
                 this.editorPalette(p);
             }
+
+            // show the left window
+            this.leftWindowShown(true);
 
             Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
 
