@@ -194,6 +194,15 @@ export class GraphUpdater {
         return category;
     }
 
+    static translateNewCategory(category : string) : string {
+        if (category === Eagle.Category.PythonApp){
+            console.warn("Translated category from", category, "to Component");
+            return "Component";
+        }
+
+        return category;
+    }
+
     static translateOldCategoryType(categoryType : string, category : Eagle.Category) : string {
         if (typeof categoryType === "undefined"){
             // try to determine categoryType based on category
