@@ -244,7 +244,7 @@ export class LogicalGraph {
             var nodePosition = newNode.getPosition();
 
             // ask the user which data type should be added
-            this.addDataComponentDialog((category : string) : void => {
+            this.addDataComponentDialog([], (category : string) : void => {
                 if (category !== "") {
                     // Add a data component to the graph.
                     newNode = this.addDataComponentToGraph(category, nodePosition);
@@ -283,8 +283,24 @@ export class LogicalGraph {
     /**
      * Opens a dialog for selecting a data component type.
      */
-    addDataComponentDialog = (callback : (dataType: string) => void) : void => {
-        Utils.requestUserChoice("Add Data Component", "Select data component type", Eagle.dataCategories, 0, false, "", (completed : boolean, userString : string) => {
+    addDataComponentDialog = (ineligibleTypes : Eagle.Category[], callback : (dataType: string) => void) : void => {
+        // remove the ineligible types from Eagle.dataCategories and store in eligibleTypes
+        var eligibleTypes : string[] = [];
+        for (var i = 0 ; i < Eagle.dataCategories.length ; i++){
+            var ineligible : boolean = false;
+            for (var j = 0; j < ineligibleTypes.length ; j++){
+                if (Eagle.dataCategories[i] === ineligibleTypes[j]){
+                    ineligible = true;
+                    break;
+                }
+            }
+            if (!ineligible){
+                eligibleTypes.push(Eagle.dataCategories[i]);
+            }
+        }
+
+        // ask the user to choose from the eligibleTypes
+        Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleTypes, 0, false, "", (completed : boolean, userString : string) => {
             if (!completed)
                 return;
             callback(userString);
@@ -381,8 +397,14 @@ export class LogicalGraph {
             y: (srcNode.getPosition().y + destNode.getPosition().y) / 2.0
         };
 
-        // if edge DOES connect two applications, insert data component (of type chosen by user)
-        this.addDataComponentDialog((category : string) : void => {
+        // if destination node is a BashShellApp, then the inserted data component may not be a Memory
+        var ineligibleTypes : string[] = [];
+        if (destNode.getCategory() === Eagle.Category.BashShellApp){
+            ineligibleTypes.push(Eagle.Category.Memory);
+        }
+
+        // if edge DOES connect two applications, insert data component (of type chosen by user except ineligibleTypes)
+        this.addDataComponentDialog(ineligibleTypes, (category : string) : void => {
             if (category !== "") {
                 // Add a data component to the graph.
                 var newNode : Node = this.addDataComponentToGraph(category, dataComponentPosition);
