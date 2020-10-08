@@ -671,6 +671,8 @@ export class Utils {
             return index === self.indexOf(elem);
         });
 
+        console.log("uniqueFieldNames:", uniqueFieldNames);
+
         return uniqueFieldNames;
     }
 

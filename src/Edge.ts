@@ -146,7 +146,7 @@ export class Edge {
         // if source node is a memory, and destination is a Group with inputApplicationType BashShellApp
         // this is not supported. How would a BashShellApp read data from another process?
         if ((sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.getCategory() === Eagle.Category.BashShellApp) ||
-            (sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplicationType() === Eagle.Category.BashShellApp)){
+            (sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication().getCategory() === Eagle.Category.BashShellApp)){
             if (showNotification)
                 Utils.showNotification("Invalid Edge", "Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", "danger");
             return Eagle.LinkValid.Invalid;

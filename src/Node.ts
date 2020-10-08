@@ -52,12 +52,9 @@ export class Node {
     private streaming : boolean;
     private showPorts : boolean;
 
-    private inputApplicationName : string;
-    private outputApplicationName : string;
-    private exitApplicationName : string;
-    private inputApplicationType : Eagle.Category;
-    private outputApplicationType : Eagle.Category;
-    private exitApplicationType : Eagle.Category;
+    private inputApplication : Node;
+    private outputApplication : Node;
+    private exitApplication : Node;
 
     private inputPorts : Port[];
     private outputPorts : Port[];
@@ -65,8 +62,6 @@ export class Node {
     private outputLocalPorts : Port[];
 
     private fields : Field[];
-    private inputAppFields : Field[];
-    private outputAppFields : Field[];
 
     private category : Eagle.Category;
     private categoryType : Eagle.CategoryType;
@@ -79,13 +74,13 @@ export class Node {
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 200;
     public static readonly DEFAULT_COLOR : string = "ffffff";
-    public static DEFAULT_POSITION_X : number = 300;
-    public static DEFAULT_POSITION_Y : number = 100;
+    public static readonly DEFAULT_POSITION_X : number = 300;
+    public static readonly DEFAULT_POSITION_Y : number = 100;
 
-    public static COLLAPSED_WIDTH : number = 128;
-    public static COLLAPSED_HEIGHT : number = 128;
-    public static DATA_COMPONENT_WIDTH : number = 48;
-    public static DATA_COMPONENT_HEIGHT : number = 48;
+    public static readonly COLLAPSED_WIDTH : number = 128;
+    public static readonly COLLAPSED_HEIGHT : number = 128;
+    public static readonly DATA_COMPONENT_WIDTH : number = 48;
+    public static readonly DATA_COMPONENT_HEIGHT : number = 48;
 
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, x : number, y : number){
         this.key = key;
@@ -107,9 +102,9 @@ export class Node {
         this.streaming = false;
         this.showPorts = false;
 
-        this.inputApplicationName = "";
-        this.outputApplicationName = "";
-        this.exitApplicationName = "";
+        this.inputApplication = null;
+        this.outputApplication = null;
+        this.exitApplication = null;
 
         this.inputPorts = [];
         this.outputPorts = [];
@@ -117,14 +112,9 @@ export class Node {
         this.outputLocalPorts = [];
 
         this.fields = [];
-        this.inputAppFields = [];
-        this.outputAppFields = [];
+
         this.category = category;
         this.categoryType = categoryType;
-
-        this.inputApplicationType = Eagle.Category.None;
-        this.outputApplicationType = Eagle.Category.None;
-        this.exitApplicationType = Eagle.Category.None;
 
         this.subject = null;
 
@@ -329,22 +319,6 @@ export class Node {
         return this.fields.length;
     }
 
-    getInputAppFields = () : Field[] => {
-        return this.inputAppFields;
-    }
-
-    getOutputAppFields = () : Field[] => {
-        return this.outputAppFields;
-    }
-
-    getNumInputAppFields = () : number => {
-        return this.inputAppFields.length;
-    }
-
-    getNumOutputAppFields = () : number => {
-        return this.outputAppFields.length;
-    }
-
     getCategory = () : Eagle.Category => {
         return this.category;
     }
@@ -434,52 +408,34 @@ export class Node {
         return this.selected();
     }
 
-    setInputApplicationType = (inputApplicationType : Eagle.Category) : void => {
-        this.inputApplicationType = inputApplicationType;
+    setInputApplication = (inputApplication : Node) : void => {
+        console.assert(inputApplication.getCategoryType() === Eagle.CategoryType.Application);
+
+        this.inputApplication = inputApplication;
     }
 
-    getInputApplicationType = () : Eagle.Category => {
-        return this.inputApplicationType;
+    getInputApplication = () : Node => {
+        return this.inputApplication;
     }
 
-    setOutputApplicationType = (outputApplicationType : Eagle.Category) : void => {
-        this.outputApplicationType = outputApplicationType;
+    setOutputApplication = (outputApplication : Node) : void => {
+        console.assert(outputApplication.getCategoryType() === Eagle.CategoryType.Application);
+
+        this.outputApplication = outputApplication;
     }
 
-    getOutputApplicationType = () : Eagle.Category => {
-        return this.outputApplicationType;
+    getOutputApplication = () : Node => {
+        return this.outputApplication;
     }
 
-    setExitApplicationType = (exitApplicationType : Eagle.Category) : void => {
-        this.exitApplicationType = exitApplicationType;
+    setExitApplication = (exitApplication : Node) : void => {
+        console.assert(exitApplication.getCategoryType() === Eagle.CategoryType.Application);
+
+        this.exitApplication = exitApplication;
     }
 
-    getExitApplicationType = () : Eagle.Category => {
-        return this.exitApplicationType;
-    }
-
-    setInputApplicationName = (appName : string) : void => {
-        this.inputApplicationName = appName;
-    }
-
-    getInputApplicationName = () : string => {
-        return this.inputApplicationName;
-    }
-
-    setOutputApplicationName = (appName : string) : void => {
-        this.outputApplicationName = appName;
-    }
-
-    getOutputApplicationName = () : string => {
-        return this.outputApplicationName;
-    }
-
-    setExitApplicationName = (appName : string) : void => {
-        this.exitApplicationName = appName;
-    }
-
-    getExitApplicationName = () : string => {
-        return this.exitApplicationName;
+    getExitApplication = () : Node => {
+        return this.exitApplication;
     }
 
     clear = () : void => {
@@ -500,9 +456,9 @@ export class Node {
         this.collapsed = false;
         this.streaming = false;
 
-        this.inputApplicationName = "";
-        this.outputApplicationName = "";
-        this.exitApplicationName = "";
+        this.inputApplication = null;
+        this.outputApplication = null;
+        this.exitApplication = null;
 
         this.inputPorts = [];
         this.outputPorts = [];
@@ -510,14 +466,9 @@ export class Node {
         this.outputLocalPorts = [];
 
         this.fields = [];
-        this.inputAppFields = [];
-        this.outputAppFields = [];
+
         this.category = Eagle.Category.Unknown;
         this.categoryType = Eagle.CategoryType.Unknown;
-
-        this.inputApplicationType = Eagle.Category.Unknown;
-        this.outputApplicationType = Eagle.Category.Unknown;
-        this.exitApplicationType = Eagle.Category.Unknown;
 
         this.subject = null;
 
@@ -691,11 +642,9 @@ export class Node {
         return this.findPortByName(name, input, local) !== null;
     }
 
-    hasAppFieldWithName = (name : string, input : boolean) => {
-        var appFields = input ? this.inputAppFields : this.outputAppFields;
-
-        for (var i = 0 ; i < appFields.length ; i++){
-            if (appFields[i].getName() === name){
+    hasFieldWithName = (name : string) => {
+        for (var i = 0 ; i < this.fields.length ; i++){
+            if (this.fields[i].getName() === name){
                 return true;
             }
         }
@@ -724,55 +673,25 @@ export class Node {
         this.fields.push(field);
     }
 
-    addAppField = (field : Field, input : boolean) : void => {
-        if (input){
-            this.inputAppFields.push(field);
-        } else {
-            this.outputAppFields.push(field);
-        }
-    }
-
-    addAppFieldAtPosition = (field : Field, input : boolean, i : number) : void => {
-        if (input){
-            this.inputAppFields.splice(i, 0, field);
-        } else {
-            this.outputAppFields.splice(i, 0, field);
-        }
+    addFieldAtPosition = (field : Field, i : number) : void => {
+        this.fields.splice(i, 0, field);
     }
 
     removeFieldByIndex = (index : number) : void => {
         this.fields.splice(index, 1);
     }
 
-    removeAppFieldByIndex = (index : number, input : boolean) : void => {
-        if (typeof input === "undefined"){
-            console.error("removeAppFieldByIndex() : input is undefined!");
-            return;
-        }
-
-        if (input){
-            this.inputAppFields.splice(index, 1);
-        } else {
-            this.outputAppFields.splice(index, 1);
-        }
+    removeAllFields = () : void => {
+        this.fields = [];
     }
 
-    removeAllAppFields = (input : boolean) : void => {
-        if (input){
-            this.inputAppFields = [];
-        } else {
-            this.outputAppFields = [];
-        }
-    }
-
-    removeAllNonArgAppFields = (input : boolean) : Field[] => {
+    removeAllNonArgFields = () : Field[] => {
         var result : Field[] = [];
-        var appFields = input ? this.inputAppFields : this.outputAppFields;
 
-        for (var i = appFields.length - 1 ; i >= 0 ; i--){
-            var field : Field = appFields[i];
+        for (var i = this.fields.length - 1 ; i >= 0 ; i--){
+            var field : Field = this.fields[i];
             if (!Utils.isParameterArgument(field.getName())){
-                result.push(appFields.splice(i, 1)[0]);
+                result.push(this.fields.splice(i, 1)[0]);
             }
         }
 
@@ -797,13 +716,9 @@ export class Node {
         result.streaming = this.streaming;
         result.showPorts = this.showPorts;
 
-        result.inputApplicationName = this.inputApplicationName;
-        result.outputApplicationName = this.outputApplicationName;
-        result.exitApplicationName = this.exitApplicationName;
-
-        result.inputApplicationType = this.inputApplicationType;
-        result.outputApplicationType = this.outputApplicationType;
-        result.exitApplicationType = this.exitApplicationType;
+        result.inputApplication = this.inputApplication.clone();
+        result.outputApplication = this.outputApplication.clone();
+        result.exitApplication = this.exitApplication.clone();
 
         result.subject = this.subject;
 
@@ -824,14 +739,6 @@ export class Node {
         // clone fields
         for (var i = 0; i < this.fields.length; i++){
             result.fields.push(this.fields[i].clone());
-        }
-
-        // clone appFields
-        for (var i = 0; i < this.inputAppFields.length; i++){
-            result.inputAppFields.push(this.inputAppFields[i].clone());
-        }
-        for (var i = 0; i < this.outputAppFields.length; i++){
-            result.outputAppFields.push(this.outputAppFields[i].clone());
         }
 
         result.expanded(this.expanded());
@@ -995,68 +902,6 @@ export class Node {
         eagle.flagActiveDiagramHasMutated();
     }
 
-    applicationTypeChanged = (eagle : Eagle, input : boolean) : void => {
-        setTimeout(() => {
-            var applicationType = input ? this.inputApplicationType : this.outputApplicationType;
-
-            if (typeof applicationType === 'undefined'){
-                // remove all app fields from the selectedNode
-                this.removeAllAppFields(input);
-                eagle.selectedNode.valueHasMutated();
-                return;
-            }
-
-            // TODO: find templatePalette node with this application type
-            var applicationNode : Node = null;
-            for (var i = 0; i < Eagle.applicationNodes.length; i++) {
-                var node : Node = Eagle.applicationNodes[i];
-                if (node.getCategory() === applicationType) {
-                    applicationNode = node;
-                    //console.log("Found applicationNode for type", applicationType);
-                }
-            }
-
-            if (applicationNode === null){
-                console.warn("Could not find the applicationNode for type", applicationType);
-                return;
-            }
-
-            // remove all app fields from the selectedNode
-            var removedItems : Field[] = this.removeAllNonArgAppFields(input);
-
-            // add all fields from that found node to the appFields in the selectedNode
-            for (var i = 0 ; i < applicationNode.getFields().length; i++){
-                var name : string = applicationNode.getFields()[i].getName();
-
-                // don't add appfield if one with same name already exists
-                if (this.hasAppFieldWithName(name, input)){
-                    continue;
-                }
-
-                // use default value from template
-                var value : string = applicationNode.getFields()[i].getValue();
-
-                // replace default value with value from removedItems if it exists
-                for (var j = 0 ; j < removedItems.length ; j++){
-                    if (removedItems[j].getName() === name){
-                        value = removedItems[j].getValue();
-                        //console.log("re-using removed", name, "value:", value);
-                    }
-                }
-
-                // clone field
-                var field : Field = applicationNode.getFields()[i].clone();
-
-                // update value
-                field.setValue(value);
-
-                this.addAppFieldAtPosition(field, input, i);
-            }
-
-            eagle.selectedNode.valueHasMutated();
-        }, 1);
-    }
-
     findPortIsInputById = (portId: string) : boolean => {
         // find the port within the node
         for (var i = 0 ; i < this.getInputPorts().length ; i++){
@@ -1186,32 +1031,52 @@ export class Node {
             node.drawOrderHint = nodeData.drawOrderHint;
         }
 
+        // these next six if statements are covering old versions of nodes, that
+        // specified input and output applications using name strings rather than nested nodes.
+        // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
         if (typeof nodeData.inputAppName !== 'undefined'){
-            node.inputApplicationName = nodeData.inputAppName;
+            node.inputApplication = Node.createUnkeyedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType)
         }
 
         if (typeof nodeData.inputApplicationName !== 'undefined'){
-            node.inputApplicationName = nodeData.inputApplicationName;
+            node.inputApplication = Node.createUnkeyedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType)
         }
 
         if (typeof nodeData.outputAppName !== 'undefined'){
-            node.outputApplicationName = nodeData.outputAppName;
+            node.outputApplication = Node.createUnkeyedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType);
         }
 
         if (typeof nodeData.outputApplicationName !== 'undefined'){
-            node.outputApplicationName = nodeData.outputApplicationName;
+            node.outputApplication = Node.createUnkeyedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType);
         }
 
         if (typeof nodeData.exitAppName !== 'undefined'){
-            node.exitApplicationName = nodeData.exitAppName;
+            node.exitApplication = Node.createUnkeyedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType);
         }
 
         if (typeof nodeData.exitApplicationName !== 'undefined'){
-            node.exitApplicationName = nodeData.exitApplicationName;
+            node.exitApplication = Node.createUnkeyedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType);
         }
 
         if (typeof nodeData.group !== 'undefined'){
             node.parentKey = nodeData.group;
+        }
+
+        // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
+        if (typeof nodeData.application !== "undefined"){
+            console.warn("only found old application type, not new input application type and output application type", categoryType, category);
+            node.inputApplication = Node.createUnkeyedApplicationNode(nodeData.application, category);
+        }
+
+        // read the 'real' input and output apps, correctly specified as nested nodes
+        if (typeof nodeData.inputApplication !== 'undefined'){
+            node.inputApplication = Node.fromOJSJson(nodeData.inputApplication);
+        }
+        if (typeof nodeData.outputApplication !== 'undefined'){
+            node.outputApplication = Node.fromOJSJson(nodeData.outputApplication);
+        }
+        if (typeof nodeData.exitApplication !== 'undefined'){
+            node.exitApplication = Node.fromOJSJson(nodeData.exitApplication);
         }
 
         // collapsed
@@ -1228,22 +1093,11 @@ export class Node {
             node.streaming = false;
         }
 
-        // application types
-        node.inputApplicationType = nodeData.inputApplicationType;
-        node.outputApplicationType = nodeData.outputApplicationType;
-        node.exitApplicationType = nodeData.exitApplicationType;
-
         // subject (for comment nodes)
         if (typeof nodeData.subject !== 'undefined'){
             node.subject = nodeData.subject;
         } else {
             node.subject = null;
-        }
-
-        // debug hack
-        if (typeof nodeData.application !== "undefined"){
-            console.warn("only found old application type, not new input application type and output application type", categoryType, category);
-            node.inputApplicationType = nodeData.application;
         }
 
         // add input ports
@@ -1275,33 +1129,6 @@ export class Node {
             for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
                 var portData = nodeData.outputLocalPorts[j];
                 node.addPort(new Port(portData.Id, portData.IdText), false, true);
-            }
-        }
-
-        // add inputAppFields
-        if (typeof nodeData.inputAppFields !== 'undefined'){
-            for (var j = 0 ; j < nodeData.inputAppFields.length ; j++){
-                var fieldData = nodeData.inputAppFields[j];
-                var fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
-                node.addAppField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription), true);
-            }
-        }
-
-        // add outputAppFields
-        if (typeof nodeData.outputAppFields !== 'undefined'){
-            for (var j = 0 ; j < nodeData.outputAppFields.length ; j++){
-                var fieldData = nodeData.outputAppFields[j];
-                var fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
-                node.addAppField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription), false);
-            }
-        }
-
-        // debug hack
-        if (typeof nodeData.appFields !== "undefined"){
-            console.warn("only found old appFields, not new inputAppFields and outputAppFields");
-            for (var j = 0 ; j < nodeData.appFields.length ; j++){
-                var fieldData = nodeData.appFields[j];
-                node.addAppField(new Field(fieldData.text, fieldData.name, fieldData.value, ""), true);
             }
         }
 
@@ -1347,37 +1174,10 @@ export class Node {
             result.group = node.parentKey;
         }
 
-        if (typeof node.inputApplicationName !== 'undefined'){
-            result.inputApplicationName = node.inputApplicationName;
-        } else {
-            result.inputApplicationName = "";
-        }
-        if (typeof node.outputApplicationName !== 'undefined'){
-            result.outputApplicationName = node.outputApplicationName;
-        } else {
-            result.outputAppName = "";
-        }
-        if (typeof node.exitApplicationName !== 'undefined'){
-            result.exitApplicationName = node.exitApplicationName;
-        } else {
-            result.exitApplicationName = "";
-        }
-
-        if (typeof node.inputApplicationType !== 'undefined'){
-            result.inputApplicationType = GraphUpdater.translateNewCategory(node.inputApplicationType);
-        } else {
-            result.inputApplicationType = Eagle.Category.None;
-        }
-        if (typeof node.outputApplicationType !== 'undefined'){
-            result.outputApplicationType = GraphUpdater.translateNewCategory(node.outputApplicationType);
-        } else {
-            result.outputApplicationType = Eagle.Category.None;
-        }
-        if (typeof node.exitApplicationType !== 'undefined'){
-            result.exitApplicationType = GraphUpdater.translateNewCategory(node.exitApplicationType);
-        } else {
-            result.exitApplicationType = Eagle.Category.None;
-        }
+        // nested nodes
+        result.inputApplication = Node.toOJSJson(node.inputApplication);
+        result.outputApplication = Node.toOJSJson(node.outputApplication);
+        result.exitApplication = Node.toOJSJson(node.exitApplication);
 
         // add input ports
         result.inputPorts = [];
@@ -1423,20 +1223,6 @@ export class Node {
             result.outputLocalPorts.push(portData);
         }
 
-        // add input app fields
-        result.inputAppFields = [];
-        for (var i = 0 ; i < node.inputAppFields.length ; i++){
-            var field = node.inputAppFields[i];
-            result.inputAppFields.push(Field.toOJSJson(field));
-        }
-
-        // add output app fields
-        result.outputAppFields = [];
-        for (var i = 0 ; i < node.outputAppFields.length ; i++){
-            var field = node.outputAppFields[i];
-            result.outputAppFields.push(Field.toOJSJson(field));
-        }
-
         // add fields
         result.fields = [];
         for (var i = 0 ; i < node.fields.length ; i++){
@@ -1445,5 +1231,10 @@ export class Node {
         }
 
         return result;
+    }
+
+    static createUnkeyedApplicationNode = (name : string, category: Eagle.Category) : Node => {
+        console.log("createUnkeyedApplicationNode(", name, category, ")");
+        return new Node(0, name, "", category, Eagle.CategoryType.Application, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
     }
 }

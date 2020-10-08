@@ -1468,23 +1468,7 @@ export class Eagle {
      */
     addFieldHTML = () : void => {
         var node = this.getSelection();
-        this.selectFieldName(<Node>node, false, null);
-    }
-
-    /**
-     * Adds an app field to the selected node via HTML.
-     */
-    addInputAppFieldHTML = () : void => {
-        var node = this.getSelection();
-        this.selectFieldName(<Node>node, true, true);
-    }
-
-    /**
-     * Adds an app field to the selected node via HTML.
-     */
-    addOutputAppFieldHTML = () : void => {
-        var node = this.getSelection();
-        this.selectFieldName(<Node>node, true, false);
+        this.selectFieldName(<Node>node);
     }
 
     /**
@@ -1524,7 +1508,7 @@ export class Eagle {
         });
     }
 
-    selectFieldName = (node: Node, isAppField : boolean, input : boolean) => {
+    selectFieldName = (node: Node) => {
         var uniqueFieldNames : string[];
 
         // if in palette editor mode, get field names list from the palette,
@@ -1543,11 +1527,8 @@ export class Eagle {
             // produce a name for this field
             var fieldName = Utils.fieldTextToFieldName(userString);
 
-            if (isAppField){
-                node.addAppField(new Field(userString, fieldName, "", ""), input);
-            } else {
-                node.addField(new Field(userString, fieldName, "", ""));
-            }
+            // add the field
+            node.addField(new Field(userString, fieldName, "", ""));
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();

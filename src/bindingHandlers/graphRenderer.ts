@@ -1271,7 +1271,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "";
         }
 
-        var name : string = node.getInputApplicationName();
+        var name : string = node.getInputApplication().getName();
 
         if (name === ""){
             return "<no app>";
@@ -1298,7 +1298,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "";
         }
 
-        var name : string = node.getOutputApplicationName();
+        var name : string = node.getOutputApplication().getName();
 
         if (name === ""){
             return "<no app>";
