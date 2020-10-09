@@ -83,3 +83,15 @@ ko.components.register('hierarchy-node', {
     },
     template: { require: "text!static/components/hierarchy-node.html" }
 });
+
+// custom component for a component
+ko.components.register('component', {
+    viewModel: function(params : {data : any, paletteIndex : any, index : any, showAdd : any}){
+        var vm = params.data;
+        vm.paletteIndex = params.paletteIndex;
+        vm.index = params.index;
+        vm.showAdd = params.showAdd;
+        return vm;
+    },
+    template: { require: "text!static/components/component.html" }
+});

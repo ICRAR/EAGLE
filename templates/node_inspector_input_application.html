@@ -4,9 +4,8 @@
         <span>Input Application</span>
     </h5>
     <div class="card-body">
-
-        <div class="input-group mb-1">
-            <select class="custom-select" id="inputApplicationSelect" data-bind="options: Eagle.applicationCategories, value: $root.selectedNode().inputApplication, optionsCaption: 'Choose...'"></select>
-        </div>
+        <!-- ko if: $root.selectedNode().inputApplication !== null -->
+        <component params="data: $root.selectedNode().inputApplication, paletteIndex: 0, index: 0, showAdd: false"></component>
+        <!-- /ko -->
     </div>
 </div>

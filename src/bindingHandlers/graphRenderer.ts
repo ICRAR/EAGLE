@@ -1271,13 +1271,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "";
         }
 
-        var name : string = node.getInputApplication().getName();
+        var inputApplication : Node = node.getInputApplication();
 
-        if (name === ""){
+        if (inputApplication === undefined || inputApplication === null){
             return "<no app>";
         }
 
-        return name;
+        return inputApplication.getName();
     }
 
     function getInputAppPositionX(node : Node) : number {
@@ -1298,13 +1298,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "";
         }
 
-        var name : string = node.getOutputApplication().getName();
+        var outputApplication : Node = node.getOutputApplication();
 
-        if (name === ""){
+        if (outputApplication === undefined || outputApplication === null){
             return "<no app>";
         }
 
-        return name;
+        return outputApplication.getName();
     }
 
     function getOutputAppPositionX(node : Node) : number {

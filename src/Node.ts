@@ -716,9 +716,22 @@ export class Node {
         result.streaming = this.streaming;
         result.showPorts = this.showPorts;
 
-        result.inputApplication = this.inputApplication.clone();
-        result.outputApplication = this.outputApplication.clone();
-        result.exitApplication = this.exitApplication.clone();
+        // copy input,output and exit applications
+        if (this.inputApplication === null){
+            result.inputApplication = null;
+        } else {
+            result.inputApplication = this.inputApplication.clone();
+        }
+        if (this.outputApplication === null){
+            result.outputApplication = null;
+        } else {
+            result.outputApplication = this.outputApplication.clone();
+        }
+        if (this.exitApplication === null){
+            result.exitApplication = null;
+        } else {
+            result.exitApplication = this.exitApplication.clone();
+        }
 
         result.subject = this.subject;
 
@@ -1031,39 +1044,45 @@ export class Node {
             node.drawOrderHint = nodeData.drawOrderHint;
         }
 
+        // debug
+        //console.log("inputAppName", nodeData.inputAppName, "inputApplicationName", nodeData.inputApplicationName);
+        //console.log("outputAppName", nodeData.outputAppName, "outputApplicationName", nodeData.outputApplicationName);
+        //console.log("exitAppName", nodeData.exitAppName, "exitApplicationName", nodeData.exitApplicationName);
+
         // these next six if statements are covering old versions of nodes, that
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
-        if (typeof nodeData.inputAppName !== 'undefined'){
+        if (nodeData.inputAppName !== undefined && nodeData.inputAppName !== ""){
             node.inputApplication = Node.createUnkeyedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType)
         }
 
-        if (typeof nodeData.inputApplicationName !== 'undefined'){
+        if (nodeData.inputApplicationName !== undefined && nodeData.inputApplicationName !== ""){
             node.inputApplication = Node.createUnkeyedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType)
         }
 
-        if (typeof nodeData.outputAppName !== 'undefined'){
+        if (nodeData.outputAppName !== undefined && nodeData.outputAppName !== ""){
             node.outputApplication = Node.createUnkeyedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType);
         }
 
-        if (typeof nodeData.outputApplicationName !== 'undefined'){
+        if (nodeData.outputApplicationName !== undefined && nodeData.outputApplicationName !== ""){
             node.outputApplication = Node.createUnkeyedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType);
         }
 
-        if (typeof nodeData.exitAppName !== 'undefined'){
+        if (nodeData.exitAppName !== undefined && nodeData.exitAppName !== ""){
             node.exitApplication = Node.createUnkeyedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType);
         }
 
-        if (typeof nodeData.exitApplicationName !== 'undefined'){
+        if (nodeData.exitApplicationName !== undefined && nodeData.exitApplicationName !== ""){
             node.exitApplication = Node.createUnkeyedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType);
         }
 
+        // set parentKey if a group is defined
         if (typeof nodeData.group !== 'undefined'){
             node.parentKey = nodeData.group;
         }
 
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
-        if (typeof nodeData.application !== "undefined"){
+        if (nodeData.application !== undefined && nodeData.application !== ""){
             console.warn("only found old application type, not new input application type and output application type", categoryType, category);
             node.inputApplication = Node.createUnkeyedApplicationNode(nodeData.application, category);
         }
@@ -1233,7 +1252,7 @@ export class Node {
         return result;
     }
 
-    static createUnkeyedApplicationNode = (name : string, category: Eagle.Category) : Node => {
+    private static createUnkeyedApplicationNode = (name : string, category: Eagle.Category) : Node => {
         console.log("createUnkeyedApplicationNode(", name, category, ")");
         return new Node(0, name, "", category, Eagle.CategoryType.Application, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
     }

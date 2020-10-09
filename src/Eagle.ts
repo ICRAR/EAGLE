@@ -1395,6 +1395,8 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
+        console.log("addNodeToLogicalGraph()", node);
+
         this.logicalGraph().addNode(node, (newNode: Node) => {
             this.logicalGraph.valueHasMutated();
 
@@ -1404,7 +1406,7 @@ export class Eagle {
     }
 
     addNodeToEditorPalette = (node : Node) : void => {
-        //console.log("addNodeToEditorPalette()", node);
+        console.log("addNodeToEditorPalette()", node);
 
         // copy node
         var newNode : Node = node.clone();

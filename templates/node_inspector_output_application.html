@@ -5,8 +5,8 @@
     </h5>
     <div class="card-body">
 
-        <div class="input-group mb-1">
-            <select class="custom-select" id="outputApplicationSelect" data-bind="options: Eagle.applicationCategories, value: $root.selectedNode().outputApplication, optionsCaption: 'Choose...'"></select>
-        </div>
+        <!-- ko if: $root.selectedNode().outputApplication !== null -->
+        <component params="data: $root.selectedNode().outputApplication, paletteIndex: 0, index: 0, showAdd: false"></component>
+        <!-- /ko -->
     </div>
 </div>
