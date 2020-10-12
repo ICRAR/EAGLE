@@ -120,7 +120,7 @@ export class Edge {
         var sourceNode : Node = graph.findNodeByKey(sourceNodeKey);
         var destinationNode : Node = graph.findNodeByKey(destinationNodeKey);
 
-        if (sourceNode === null || sourceNode === undefined || destinationNode === null || destinationNode === undefined){
+        if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
             //Utils.showNotification("Unknown Error", "sourceNode or destinationNode cannot be found", "danger");
             return Eagle.LinkValid.Unknown;
         }

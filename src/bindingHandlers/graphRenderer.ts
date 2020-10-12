@@ -1273,7 +1273,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         var inputApplication : Node = node.getInputApplication();
 
-        if (inputApplication === undefined || inputApplication === null){
+        if (typeof inputApplication === "undefined" || inputApplication === null){
             return "<no app>";
         }
 
@@ -1300,7 +1300,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         var outputApplication : Node = node.getOutputApplication();
 
-        if (outputApplication === undefined || outputApplication === null){
+        if (typeof outputApplication === "undefined" || outputApplication === null){
             return "<no app>";
         }
 
