@@ -1,6 +1,11 @@
 <div class="row">
     <div class="col">
         <div class="input-group mb-1">
+            <!-- ko if: $data === null -->
+            <span>no app selected</span>
+            <!-- /ko -->
+
+            <!-- ko if: $data !== null -->
             <div class="input-group-prepend" data-bind="attr: {title: $data.getHelpHTML()}" data-toggle="tooltip" data-html="true" data-placement="right">
                 <span class="input-group-text" data-bind="style: {'background-color': $data.getColor()}">
                     <i class="material-icons" data-bind="text: $data.getIcon()"></i>
@@ -15,6 +20,7 @@
                     <i class="material-icons md-18">add</i>
                 </button>
             </div>
+            <!-- /ko -->
             <!-- /ko -->
         </div>
     </div>
