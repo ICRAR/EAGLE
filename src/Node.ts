@@ -1320,7 +1320,7 @@ export class Node {
     static toOJSJson = (node : Node) : object => {
         var result : any = {};
 
-        result.category = GraphUpdater.translateNewCategory(node.category);
+        result.category = node.category;
         result.categoryType = node.categoryType;
         result.isData = node._isData;
         result.isGroup = node._isGroup;
@@ -1364,17 +1364,17 @@ export class Node {
         }
 
         if (typeof node.inputApplicationType !== 'undefined'){
-            result.inputApplicationType = GraphUpdater.translateNewCategory(node.inputApplicationType);
+            result.inputApplicationType = node.inputApplicationType;
         } else {
             result.inputApplicationType = Eagle.Category.None;
         }
         if (typeof node.outputApplicationType !== 'undefined'){
-            result.outputApplicationType = GraphUpdater.translateNewCategory(node.outputApplicationType);
+            result.outputApplicationType = node.outputApplicationType;
         } else {
             result.outputApplicationType = Eagle.Category.None;
         }
         if (typeof node.exitApplicationType !== 'undefined'){
-            result.exitApplicationType = GraphUpdater.translateNewCategory(node.exitApplicationType);
+            result.exitApplicationType = node.exitApplicationType;
         } else {
             result.exitApplicationType = Eagle.Category.None;
         }
