@@ -17,7 +17,7 @@ ko.bindingHandlers.nodeDataProperty = {
         var dataProperty = ko.unwrap(valueAccessor());
         var eagle : Eagle = bindingContext.$root;
 
-        if (typeof eagle.logicalGraph() === null){
+        if (eagle.logicalGraph() === null){
             console.warn("nodeDataProperty: logicalGraph is null");
             return;
         }
