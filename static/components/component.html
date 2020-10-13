@@ -1,26 +1,28 @@
 <div class="row">
     <div class="col">
         <div class="input-group mb-1">
-            <!-- ko if: $data === null -->
-            <span>no app selected</span>
-            <!-- /ko -->
-
-            <!-- ko if: $data !== null -->
-            <div class="input-group-prepend" data-bind="attr: {title: $data.getHelpHTML()}" data-toggle="tooltip" data-html="true" data-placement="right">
-                <span class="input-group-text" data-bind="style: {'background-color': $data.getColor()}">
-                    <i class="material-icons" data-bind="text: $data.getIcon()"></i>
-                </span>
-            </div>
-
-            <input type="text" class="form-control" readonly data-bind="value: $data.getDisplayName()">
-
-            <!-- ko if: $data.showAdd -->
-            <div class="input-group-append">
-                <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $root.addNodeToLogicalGraph, attr: {id: 'addPaletteNode' + $data.index(), title: 'Add component to graph'}" data-toggle="tooltip" data-html="true" data-placement="right">
+            <!-- ko if: $data.node === null -->
+                <button class="btn btn-secondary btn-block" type="button" data-bind="click: $data.callback">
                     <i class="material-icons md-18">add</i>
                 </button>
-            </div>
             <!-- /ko -->
+
+            <!-- ko if: $data.node !== null -->
+                <div class="input-group-prepend" data-bind="attr: {title: $data.helpHTML}" data-toggle="tooltip" data-html="true" data-placement="right">
+                    <span class="input-group-text" data-bind="style: {'background-color': $data.color}">
+                        <i class="material-icons" data-bind="text: $data.icon"></i>
+                    </span>
+                </div>
+
+                <input type="text" class="form-control" readonly data-bind="value: $data.displayName">
+
+                <!-- ko if: $data.showAdd -->
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.addNodeToLogicalGraph($data.node)}, attr: {id: 'addPaletteNode' + $data.index(), title: 'Add component to graph'}" data-toggle="tooltip" data-html="true" data-placement="right">
+                            <i class="material-icons md-18">add</i>
+                        </button>
+                    </div>
+                <!-- /ko -->
             <!-- /ko -->
         </div>
     </div>

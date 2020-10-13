@@ -1828,6 +1828,20 @@ export class Eagle {
 
         //this.flagActiveDiagramHasMutated();
     }
+
+    setNodeInputApplication = () : void => {
+        console.log("setNodeInputApplication()");
+
+        
+    }
+
+    setNodeOutputApplication = () : void => {
+        console.log("setNodeOutputApplication()");
+    }
+
+    setNodeExitApplication = () : void => {
+        console.log("setNodeExitApplication()");
+    }
 }
 
 
