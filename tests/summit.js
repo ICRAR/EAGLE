@@ -14,7 +14,8 @@ var PALETTE_REPOSITORY = "ICRAR/EAGLE-graph-repo";
 var PALETTE_PATH = "summit";
 var PALETTE_FILENAME = "summit.palette";
 
-var TESTING_REPOSITORY = "james-strauss-uwa/eagle-test";
+var TESTING_REPOSITORY = "ICRAR/EAGLE_test_repo";
+var TESTING_PATH = "automated_testing";
 var TESTING_REPOSITORY_BRANCH = "master";
 
 var CHOICE_MODAL_CUSTOM = "Custom (enter below)";
@@ -35,7 +36,7 @@ var datestring =
     ("0" + d.getMinutes()).slice(-2) +
     ("0" + d.getSeconds()).slice(-2);
 
-var graph_filepath = PROJECT_NAME;
+var graph_filepath = TESTING_PATH + "/" + PROJECT_NAME;
 var graph_filename = PROJECT_NAME + "-" + datestring + ".graph";
 var graph_commit_message = "Automated " + PROJECT_NAME + " graph (" + graph_filename + ")";
 
@@ -276,15 +277,6 @@ test('Load palette', async t =>{
 
         // switch back to the repositories tab
         .click('#rightWindowModeRepositories')
-        .wait(WAIT_TIME)
-
-        // enter the testing repo as a custom repo
-        .click('#addRepository')
-        .typeText(Selector('#gitCustomRepositoryModalRepositoryNameInput'), TESTING_REPOSITORY)
-        .wait(WAIT_TIME)
-        .typeText(Selector('#gitCustomRepositoryModalRepositoryBranchInput'), TESTING_REPOSITORY_BRANCH)
-        .wait(WAIT_TIME)
-        .click('#gitCustomRepositoryModalAffirmativeAnswer')
         .wait(WAIT_TIME)
 
         // save graph to github as...
