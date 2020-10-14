@@ -91,7 +91,7 @@ $(function(){
     // HACK: automatically load a graph (useful when iterating quickly during development)
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "LEAP-Work-Flow.graph"));
     eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LeapAccelerateCLI.palette"));
-    eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "SummitIngest_Demo.graph"));
+    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "SummitIngest_Demo.graph"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "james-strauss-uwa/eagle-test", "master", false), "summit", "summit.graph"));
 });
 

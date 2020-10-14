@@ -163,6 +163,45 @@ export class Eagle {
         }
     }, this);
 
+    // generate a list of Application nodes within the open palettes
+    getApplicationList = () : string[] => {
+        var list : string[] = [];
+
+        for (var i = 0 ; i < this.palettes().length ; i++){
+            var palette : Palette = this.palettes()[i];
+
+            for (var j = 0 ; j < palette.getNodes().length; j++){
+                var node : Node = palette.getNodes()[j];
+
+                if (node.getCategoryType() === Eagle.CategoryType.Application){
+                    list.push(palette.fileInfo().name + ":" + node.getName());
+                }
+            }
+        }
+
+        return list;
+    }
+
+    getApplication = (paletteName : string, nodeName : string) : Node => {
+        for (var i = 0 ; i < this.palettes().length ; i++){
+            var palette : Palette = this.palettes()[i];
+
+            if (palette.fileInfo().name !== paletteName){
+                continue;
+            }
+
+            for (var j = 0 ; j < palette.getNodes().length; j++){
+                var node : Node = palette.getNodes()[j];
+
+                if (node.getName() === nodeName){
+                    return node;
+                }
+            }
+        }
+        
+        return null;
+    }
+
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
         var fileInfo : FileInfo = this.activeFileInfo();
 
@@ -1832,7 +1871,23 @@ export class Eagle {
     setNodeInputApplication = () : void => {
         console.log("setNodeInputApplication()");
 
-        
+        var applicationList : string[] = this.getApplicationList();
+
+        Utils.requestUserChoice("Input Application", "Choose an input application", applicationList, 0, false, "", (completed : boolean, userString : string) => {
+            if (!completed){
+                return;
+            }
+
+            console.log("Input Application:" + userString);
+
+            var paletteName = userString.split(":")[0];
+            var nodeName    = userString.split(":")[1];
+
+            console.log("Find application", paletteName, nodeName);
+
+            var inputApplication : Node = this.getApplication(paletteName, nodeName);
+            this.selectedNode().setInputApplication(inputApplication);
+        });
     }
 
     setNodeOutputApplication = () : void => {

@@ -1,7 +1,7 @@
 <div class="container px-0">
     <!-- ko foreach: nodes -->
         <!-- ko if: $data.getCategoryType() !== Eagle.CategoryType.Data -->
-            <component params="data: $data, paletteIndex: $parentContext.$index(), index: $index(), showAdd: true"></component>
+            <component params="data: $data, paletteIndex: $parentContext.$index(), index: $index(), showAdd: true, showEdit: false, callback: null"></component>
         <!-- /ko -->
     <!-- /ko -->
 </div>

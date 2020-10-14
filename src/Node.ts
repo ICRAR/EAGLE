@@ -52,9 +52,9 @@ export class Node {
     private streaming : boolean;
     private showPorts : boolean;
 
-    private inputApplication : Node;
-    private outputApplication : Node;
-    private exitApplication : Node;
+    private inputApplication : ko.Observable<Node>;
+    private outputApplication : ko.Observable<Node>;
+    private exitApplication : ko.Observable<Node>;
 
     private inputPorts : Port[];
     private outputPorts : Port[];
@@ -102,9 +102,9 @@ export class Node {
         this.streaming = false;
         this.showPorts = false;
 
-        this.inputApplication = null;
-        this.outputApplication = null;
-        this.exitApplication = null;
+        this.inputApplication = ko.observable(null);
+        this.outputApplication = ko.observable(null);
+        this.exitApplication = ko.observable(null);
 
         this.inputPorts = [];
         this.outputPorts = [];
@@ -411,31 +411,31 @@ export class Node {
     setInputApplication = (inputApplication : Node) : void => {
         console.assert(inputApplication.getCategoryType() === Eagle.CategoryType.Application);
 
-        this.inputApplication = inputApplication;
+        this.inputApplication(inputApplication);
     }
 
     getInputApplication = () : Node => {
-        return this.inputApplication;
+        return this.inputApplication();
     }
 
     setOutputApplication = (outputApplication : Node) : void => {
         console.assert(outputApplication.getCategoryType() === Eagle.CategoryType.Application);
 
-        this.outputApplication = outputApplication;
+        this.outputApplication(outputApplication);
     }
 
     getOutputApplication = () : Node => {
-        return this.outputApplication;
+        return this.outputApplication();
     }
 
     setExitApplication = (exitApplication : Node) : void => {
         console.assert(exitApplication.getCategoryType() === Eagle.CategoryType.Application);
 
-        this.exitApplication = exitApplication;
+        this.exitApplication(exitApplication);
     }
 
     getExitApplication = () : Node => {
-        return this.exitApplication;
+        return this.exitApplication();
     }
 
     clear = () : void => {
@@ -717,20 +717,20 @@ export class Node {
         result.showPorts = this.showPorts;
 
         // copy input,output and exit applications
-        if (this.inputApplication === null){
-            result.inputApplication = null;
+        if (this.inputApplication() === null){
+            result.inputApplication(null);
         } else {
-            result.inputApplication = this.inputApplication.clone();
+            result.inputApplication(this.inputApplication().clone());
         }
-        if (this.outputApplication === null){
-            result.outputApplication = null;
+        if (this.outputApplication() === null){
+            result.outputApplication(null);
         } else {
-            result.outputApplication = this.outputApplication.clone();
+            result.outputApplication(this.outputApplication().clone());
         }
-        if (this.exitApplication === null){
-            result.exitApplication = null;
+        if (this.exitApplication() === null){
+            result.exitApplication(null);
         } else {
-            result.exitApplication = this.exitApplication.clone();
+            result.exitApplication(this.exitApplication().clone());
         }
 
         result.subject = this.subject;
@@ -1053,27 +1053,27 @@ export class Node {
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
         if (nodeData.inputAppName !== undefined && nodeData.inputAppName !== ""){
-            node.inputApplication = Node.createUnkeyedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType)
+            node.inputApplication(Node.createUnkeyedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType));
         }
 
         if (nodeData.inputApplicationName !== undefined && nodeData.inputApplicationName !== ""){
-            node.inputApplication = Node.createUnkeyedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType)
+            node.inputApplication(Node.createUnkeyedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType));
         }
 
         if (nodeData.outputAppName !== undefined && nodeData.outputAppName !== ""){
-            node.outputApplication = Node.createUnkeyedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType);
+            node.outputApplication(Node.createUnkeyedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType));
         }
 
         if (nodeData.outputApplicationName !== undefined && nodeData.outputApplicationName !== ""){
-            node.outputApplication = Node.createUnkeyedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType);
+            node.outputApplication(Node.createUnkeyedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType));
         }
 
         if (nodeData.exitAppName !== undefined && nodeData.exitAppName !== ""){
-            node.exitApplication = Node.createUnkeyedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType);
+            node.exitApplication(Node.createUnkeyedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType));
         }
 
         if (nodeData.exitApplicationName !== undefined && nodeData.exitApplicationName !== ""){
-            node.exitApplication = Node.createUnkeyedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType);
+            node.exitApplication(Node.createUnkeyedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType));
         }
 
         // set parentKey if a group is defined
@@ -1084,18 +1084,18 @@ export class Node {
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
         if (nodeData.application !== undefined && nodeData.application !== ""){
             console.warn("only found old application type, not new input application type and output application type", categoryType, category);
-            node.inputApplication = Node.createUnkeyedApplicationNode(nodeData.application, category);
+            node.inputApplication(Node.createUnkeyedApplicationNode(nodeData.application, category));
         }
 
         // read the 'real' input and output apps, correctly specified as nested nodes
         if (typeof nodeData.inputApplication !== 'undefined'){
-            node.inputApplication = Node.fromOJSJson(nodeData.inputApplication);
+            node.inputApplication(Node.fromOJSJson(nodeData.inputApplication));
         }
         if (typeof nodeData.outputApplication !== 'undefined'){
-            node.outputApplication = Node.fromOJSJson(nodeData.outputApplication);
+            node.outputApplication(Node.fromOJSJson(nodeData.outputApplication));
         }
         if (typeof nodeData.exitApplication !== 'undefined'){
-            node.exitApplication = Node.fromOJSJson(nodeData.exitApplication);
+            node.exitApplication(Node.fromOJSJson(nodeData.exitApplication));
         }
 
         // collapsed
@@ -1194,9 +1194,9 @@ export class Node {
         }
 
         // nested nodes
-        result.inputApplication = Node.toOJSJson(node.inputApplication);
-        result.outputApplication = Node.toOJSJson(node.outputApplication);
-        result.exitApplication = Node.toOJSJson(node.exitApplication);
+        result.inputApplication = Node.toOJSJson(node.inputApplication());
+        result.outputApplication = Node.toOJSJson(node.outputApplication());
+        result.exitApplication = Node.toOJSJson(node.exitApplication());
 
         // add input ports
         result.inputPorts = [];

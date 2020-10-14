@@ -89,35 +89,12 @@ ko.components.register('hierarchy-node', {
 
 // custom component for a component
 ko.components.register('component', {
-    viewModel: function(params : {data : any, paletteIndex : any, index : any, showAdd : any, callback : any}){
+    viewModel: function(params : {data : any, paletteIndex : any, index : any, showAdd : any, showEdit : any, callback : any}){
         this.paletteIndex = params.paletteIndex;
         this.index = params.index;
         this.showAdd = params.showAdd;
+        this.showEdit = params.showEdit;
         this.callback = params.callback;
-
-        if (typeof params.data === "function" && params.data() === null){
-            console.log("component with null data, OK");
-            this.color = Utils.getColorForNode(Eagle.Category.Unknown);
-            this.icon = "";
-            this.helpHTML = "";
-            this.displayName = "";
-            this.node = null;
-        } else {
-            console.log("params.data", params.data, typeof params.data);
-            if (typeof params.data === "function"){
-                this.color = params.data().getColor();
-                this.icon = params.data().getIcon();
-                this.helpHTML = params.data().getHelpHTML();
-                this.displayName = params.data().getDisplayName();
-                this.node = params.data();
-            } else {
-                this.color = params.data.getColor();
-                this.icon = params.data.getIcon();
-                this.helpHTML = params.data.getHelpHTML();
-                this.displayName = params.data.getDisplayName();
-                this.node = params.data;
-            }
-        }
     },
     template: { require: "text!static/components/component.html" }
 });

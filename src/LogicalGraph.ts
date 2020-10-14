@@ -230,7 +230,7 @@ export class LogicalGraph {
     }
 
     addNode = (node : Node, callback : (node: Node) => void) : void => {
-        console.log("addNodeToLogicalGraph()", node.getName());
+        console.log("addNode()", node.getName());
 
         // copy node
         var newNode : Node = node.clone();
