@@ -9,7 +9,7 @@
             <div class="input-group-prepend">
                 <span class="input-group-text" id="outputApplicationType">Type</span>
             </div>
-            <select class="custom-select" id="outputApplicationTypeSelect" onchange="eagle.selectedNode().applicationTypeChanged(eagle, false)" data-bind="options: Eagle.applicationCategories, value: $root.selectedNode().outputApplicationType, optionsCaption: 'Choose...'"></select>
+            <select class="custom-select" id="outputApplicationTypeSelect" data-bind="options: Eagle.applicationCategories, value: $root.selectedNode().outputApplicationType, optionsCaption: 'Choose...'"></select>
         </div>
 
         <div class="input-group mb-1">

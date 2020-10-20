@@ -150,5 +150,8 @@ function buildCategoryList(palette : Palette, categoryType : Eagle.CategoryType)
         }
     }
 
+    // debug until PythonApp is used everywhere
+    result.push("Component");
+
     return result;
 }

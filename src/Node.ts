@@ -87,6 +87,9 @@ export class Node {
     public static DATA_COMPONENT_WIDTH : number = 48;
     public static DATA_COMPONENT_HEIGHT : number = 48;
 
+    // temp fix for incompatibility with the DaLiuGE translator
+    public static PYTHON_APP_CATEGORY_FIX : boolean = true;
+
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, x : number, y : number){
         this.key = key;
         this.name = name;
@@ -995,68 +998,6 @@ export class Node {
         eagle.flagActiveDiagramHasMutated();
     }
 
-    applicationTypeChanged = (eagle : Eagle, input : boolean) : void => {
-        setTimeout(() => {
-            var applicationType = input ? this.inputApplicationType : this.outputApplicationType;
-
-            if (typeof applicationType === 'undefined'){
-                // remove all app fields from the selectedNode
-                this.removeAllAppFields(input);
-                eagle.selectedNode.valueHasMutated();
-                return;
-            }
-
-            // TODO: find templatePalette node with this application type
-            var applicationNode : Node = null;
-            for (var i = 0; i < Eagle.applicationNodes.length; i++) {
-                var node : Node = Eagle.applicationNodes[i];
-                if (node.getCategory() === applicationType) {
-                    applicationNode = node;
-                    //console.log("Found applicationNode for type", applicationType);
-                }
-            }
-
-            if (applicationNode === null){
-                console.warn("Could not find the applicationNode for type", applicationType);
-                return;
-            }
-
-            // remove all app fields from the selectedNode
-            var removedItems : Field[] = this.removeAllNonArgAppFields(input);
-
-            // add all fields from that found node to the appFields in the selectedNode
-            for (var i = 0 ; i < applicationNode.getFields().length; i++){
-                var name : string = applicationNode.getFields()[i].getName();
-
-                // don't add appfield if one with same name already exists
-                if (this.hasAppFieldWithName(name, input)){
-                    continue;
-                }
-
-                // use default value from template
-                var value : string = applicationNode.getFields()[i].getValue();
-
-                // replace default value with value from removedItems if it exists
-                for (var j = 0 ; j < removedItems.length ; j++){
-                    if (removedItems[j].getName() === name){
-                        value = removedItems[j].getValue();
-                        //console.log("re-using removed", name, "value:", value);
-                    }
-                }
-
-                // clone field
-                var field : Field = applicationNode.getFields()[i].clone();
-
-                // update value
-                field.setValue(value);
-
-                this.addAppFieldAtPosition(field, input, i);
-            }
-
-            eagle.selectedNode.valueHasMutated();
-        }, 1);
-    }
-
     findPortIsInputById = (portId: string) : boolean => {
         // find the port within the node
         for (var i = 0 ; i < this.getInputPorts().length ; i++){
@@ -1320,7 +1261,7 @@ export class Node {
     static toOJSJson = (node : Node) : object => {
         var result : any = {};
 
-        result.category = node.category;
+        result.category = Node.PYTHON_APP_CATEGORY_FIX ? GraphUpdater.translateNewCategory(node.category) : node.category;
         result.categoryType = node.categoryType;
         result.isData = node._isData;
         result.isGroup = node._isGroup;
@@ -1364,17 +1305,17 @@ export class Node {
         }
 
         if (typeof node.inputApplicationType !== 'undefined'){
-            result.inputApplicationType = node.inputApplicationType;
+            result.inputApplicationType = Node.PYTHON_APP_CATEGORY_FIX ? GraphUpdater.translateNewCategory(node.inputApplicationType) : node.inputApplicationType;
         } else {
             result.inputApplicationType = Eagle.Category.None;
         }
         if (typeof node.outputApplicationType !== 'undefined'){
-            result.outputApplicationType = node.outputApplicationType;
+            result.outputApplicationType = Node.PYTHON_APP_CATEGORY_FIX ? GraphUpdater.translateNewCategory(node.outputApplicationType) : node.outputApplicationType;
         } else {
             result.outputApplicationType = Eagle.Category.None;
         }
         if (typeof node.exitApplicationType !== 'undefined'){
-            result.exitApplicationType = node.exitApplicationType;
+            result.exitApplicationType = Node.PYTHON_APP_CATEGORY_FIX ? GraphUpdater.translateNewCategory(node.exitApplicationType) : node.exitApplicationType;
         } else {
             result.exitApplicationType = Eagle.Category.None;
         }
