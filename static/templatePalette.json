@@ -277,6 +277,21 @@
                 "text": "Group end",
                 "name": "group_end",
                 "value": "0"
+            }, {
+                "text": "Bucket",
+                "name": "bucket",
+                "value": "",
+                "description": "The S3 Bucket"
+            }, {
+                "text": "Object Name",
+                "name": "object_name",
+                "value": "",
+                "description": "The S3 Object"
+            }, {
+                "text": "Profile Name",
+                "name": "profile_name",
+                "value": "",
+                "description": "The S3 Profile"
             }],
             "canHaveOutputs": true,
             "canHaveInputs": true,
@@ -299,6 +314,16 @@
                 "text": "Group end",
                 "name": "group_end",
                 "value": "0"
+            }, {
+                "text": "NGAS Server",
+                "name": "ngasSrv",
+                "value": "localhost",
+                "description": "The URL of the NGAS Server"
+            }, {
+                "text": "NGAS Port",
+                "name": "ngasPort",
+                "value": "7777",
+                "description": "The port of the NGAS Server"
             }],
             "canHaveOutputs": true,
             "canHaveInputs": true,
