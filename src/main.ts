@@ -151,7 +151,9 @@ function buildCategoryList(palette : Palette, categoryType : Eagle.CategoryType)
     }
 
     // debug until PythonApp is used everywhere
-    result.push("Component");
+    if (categoryType === Eagle.CategoryType.Application){
+        result.push("Component");
+    }
 
     return result;
 }
