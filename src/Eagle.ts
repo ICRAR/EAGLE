@@ -107,7 +107,11 @@ export class Eagle {
         this.leftWindowWidth = ko.observable(Utils.getLeftWindowWidth());
 
         this.settings = ko.observableArray();
-        this.settings.push(new Setting("Expert Mode", "Disable most confirmation dialogs", Setting.Type.Boolean, Utils.EXPERT_MODE_KEY, false));
+        this.settings.push(new Setting("Confirm Discard Changes", "", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
+        this.settings.push(new Setting("Confirm Remove Repositories", "", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true));
+        this.settings.push(new Setting("Confirm Reload Palettes", "", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
+        this.settings.push(new Setting("Confirm Delete Nodes", "", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
+        this.settings.push(new Setting("Confirm Delete Edges", "", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -1349,8 +1353,8 @@ export class Eagle {
             return;
         }
 
-        // skip confirmation if expert mode is ON
-        if (this.findSetting(Utils.EXPERT_MODE_KEY).value()){
+        // skip confirmation if setting dictates
+        if (!this.findSetting(Utils.CONFIRM_DELETE_EDGES).value()){
             this._deleteSelectedEdge();
             return;
         }
@@ -1402,8 +1406,8 @@ export class Eagle {
             return;
         }
 
-        // skip confirmation if expert mode is ON
-        if (this.findSetting(Utils.EXPERT_MODE_KEY).value()){
+        // skip confirmation if setting dictates
+        if (!this.findSetting(Utils.CONFIRM_DELETE_NODES).value()){
             this._deleteSelectedNode();
             return;
         }

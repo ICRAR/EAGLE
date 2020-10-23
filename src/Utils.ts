@@ -44,7 +44,12 @@ export class Utils {
     static readonly TRANSLATOR_URL_KEY : string = "TranslatorURL";
     static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
     static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
-    static readonly EXPERT_MODE_KEY : string = "ExpertMode";
+
+    static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
+    static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
+    static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
+    static readonly CONFIRM_DELETE_NODES : string = "ConfirmDeleteNodes";
+    static readonly CONFIRM_DELETE_EDGES : string = "ConfirmDeleteEdges";
 
     static translatorURL : string;
 
