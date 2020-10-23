@@ -43,6 +43,7 @@ import {Port} from './Port';
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
+import {Setting} from './Setting';
 
 export class Eagle {
     // palette editor mode
@@ -71,6 +72,8 @@ export class Eagle {
     globalOffsetX : number = 0;
     globalOffsetY : number = 0;
     globalScale : number = 1.0;
+
+    settings : ko.ObservableArray<Setting>;
 
     static dataNodes : Node[] = [];
     static dataCategories : Eagle.Category[] = [];
@@ -102,6 +105,9 @@ export class Eagle {
 
         this.rightWindowWidth = ko.observable(Utils.getRightWindowWidth());
         this.leftWindowWidth = ko.observable(Utils.getLeftWindowWidth());
+
+        this.settings = ko.observableArray();
+        this.settings.push(new Setting("Expert Mode", "Disable most confirmation dialogs", Setting.Type.Boolean, Utils.EXPERT_MODE_KEY, false));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -1265,6 +1271,21 @@ export class Eagle {
         );
     }
 
+    openSettings = () : void => {
+        Utils.showSettingsModal();
+    }
+
+    findSetting = (key : string) : Setting => {
+        for (var i = 0 ; i < this.settings().length ; i++){
+            var s = this.settings()[i];
+
+            if (s.getKey() === key){
+                return s;
+            }
+        }
+        return null;
+    }
+
     fileIsVisible = (file : RepositoryFile) : boolean => {
         if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
             return file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.JSON;
@@ -1328,6 +1349,12 @@ export class Eagle {
             return;
         }
 
+        // skip confirmation if expert mode is ON
+        if (this.findSetting(Utils.EXPERT_MODE_KEY).value()){
+            this._deleteSelectedEdge();
+            return;
+        }
+
         // build a user-readable name for this node
         var srcNodeName : string = this.logicalGraph().findNodeByKey(this.selectedEdge().getSrcNodeKey()).getName();
         var destNodeName : string = this.logicalGraph().findNodeByKey(this.selectedEdge().getDestNodeKey()).getName();
@@ -1339,16 +1366,20 @@ export class Eagle {
                 return;
             }
 
-            // remove the edge
-            this.logicalGraph().removeEdgeById(this.selectedEdge().getId());
-
-            // no edge left to be selected
-            this.selectedEdge(null);
-            this.rightWindowMode(Eagle.RightWindowMode.Repository);
-
-            // flag the diagram as mutated so that the graph renderer will update
-            this.flagActiveDiagramHasMutated();
+            this._deleteSelectedEdge();
         });
+    }
+
+    private _deleteSelectedEdge = () : void => {
+        // remove the edge
+        this.logicalGraph().removeEdgeById(this.selectedEdge().getId());
+
+        // no edge left to be selected
+        this.selectedEdge(null);
+        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+
+        // flag the diagram as mutated so that the graph renderer will update
+        this.flagActiveDiagramHasMutated();
     }
 
     duplicateSelectedNode = () : void => {
@@ -1371,6 +1402,12 @@ export class Eagle {
             return;
         }
 
+        // skip confirmation if expert mode is ON
+        if (this.findSetting(Utils.EXPERT_MODE_KEY).value()){
+            this._deleteSelectedNode();
+            return;
+        }
+
         // request confirmation from user
         Utils.requestUserConfirm("Delete node: " + this.selectedNode().getName() + "?", "Are you sure you wish to delete this node (and its children)?", "Yes", "No", (confirmed : boolean) : void => {
             if (!confirmed){
@@ -1378,20 +1415,24 @@ export class Eagle {
                 return;
             }
 
-            // delete the node
-            if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
-                this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
-            } else {
-                this.editorPalette().removeNodeByKey(this.selectedNode().getKey());
-            }
-
-            // no node left to be selected
-            this.selectedNode(null);
-            this.rightWindowMode(Eagle.RightWindowMode.Repository);
-
-            // flag the diagram as mutated so that the graph renderer will update
-            this.flagActiveDiagramHasMutated();
+            this._deleteSelectedNode();
         });
+    }
+
+    private _deleteSelectedNode = () : void => {
+        // delete the node
+        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
+            this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
+        } else {
+            this.editorPalette().removeNodeByKey(this.selectedNode().getKey());
+        }
+
+        // no node left to be selected
+        this.selectedNode(null);
+        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+
+        // flag the diagram as mutated so that the graph renderer will update
+        this.flagActiveDiagramHasMutated();
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {

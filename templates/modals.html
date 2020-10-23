@@ -267,3 +267,35 @@
         </div>
     </div>
 </div>
+
+<!-- Settings Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="aboutModalTitle">Settings</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- ko foreach: settings -->
+                    <!-- ko if: $data.getType() === 2 -->
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" id="x" placeholder="" aria-label="x" aria-describedby="x" data-bind="attr:{value:$data.getName()}" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary btn-sm" id="x1" type="button" data-bind="click: $data.toggle">
+                                <i class="material-icons md-18" data-bind="visible: $data.value">radio_button_checked</i>
+                                <i class="material-icons md-18" data-bind="hidden: $data.value">radio_button_unchecked</i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+                <!-- /ko -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="settingsModalAffirmativeButton" data-dismiss="modal"><span id="settingsModalAffirmativeAnswer">OK</span></button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -47,6 +47,7 @@ $(function(){
     // add eagle to the window object, slightly hacky, but useful for debugging
     (<any>window).eagle = eagle;
     (<any>window).Eagle = Eagle;
+    (<any>window).Utils = Utils;
 
     ko.applyBindings(eagle);
     ko.applyBindings(eagle, document.getElementById("tabTitle"));

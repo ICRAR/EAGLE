@@ -44,6 +44,7 @@ export class Utils {
     static readonly TRANSLATOR_URL_KEY : string = "TranslatorURL";
     static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
     static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
+    static readonly EXPERT_MODE_KEY : string = "ExpertMode";
 
     static translatorURL : string;
 
@@ -420,6 +421,11 @@ export class Utils {
 
             callback(true, repositoryService, repositoryName, repositoryBranch);
         });
+
+        // #settingsModal - showSettingsModal()
+        $('#settingsModal').on('shown.bs.modal', function(){
+            $('#settingsModalAffirmativeButton').focus();
+        });
     }
 
     static showUserMessage (title : string, message : string) {
@@ -596,6 +602,10 @@ export class Utils {
                 text: repositories[i]
             }));
         }
+    }
+
+    static showSettingsModal(){
+        $('#settingsModal').modal();
     }
 
     /**

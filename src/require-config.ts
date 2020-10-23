@@ -32,6 +32,7 @@ require.config({
         "Field": "./static/built/Field",
         "Edge": "./static/built/Edge",
         "Port": "./static/built/Port",
-        "FileInfo": "./static/built/FileInfo"
+        "FileInfo": "./static/built/FileInfo",
+        "Setting": "./static/built/Setting"
     }
 });
