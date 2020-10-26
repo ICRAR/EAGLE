@@ -68,6 +68,11 @@ export class Setting {
         this.save();
     }
 
+    resetDefault = () : void => {
+        this.value(this.defaultValue);
+        this.save();
+    }
+
     private valueToString = (value : any) : string => {
         return value.toString();
     }

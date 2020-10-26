@@ -114,7 +114,7 @@ export class Eagle {
         this.settings.push(new Setting("Confirm Delete Edges", "Prompt user to confirm when deleting an edge from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
         this.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
 
-        this.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, ""));
+        this.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -1317,6 +1317,12 @@ export class Eagle {
             }
         }
         return null;
+    }
+
+    resetSettingsDefaults = () : void => {
+        for (var i = 0 ; i < this.settings().length ; i++){
+            this.settings()[i].resetDefault();
+        }
     }
 
     fileIsVisible = (file : RepositoryFile) : boolean => {
