@@ -282,7 +282,7 @@
                 <!-- ko foreach: settings -->
                     <!-- ko if: $data.getType() === 2 -->
                     <div class="input-group mb-1">
-                        <input type="text" class="form-control" id="x" placeholder="" aria-label="x" aria-describedby="x" data-bind="attr:{value:$data.getName()}" readonly>
+                        <input type="text" class="form-control" id="x" placeholder="" aria-label="x" aria-describedby="x" data-bind="attr:{value:$data.getName(),title:$data.getDescription()}" data-toggle="tooltip" data-html="true" data-placement="left" readonly>
                         <div class="input-group-append">
                             <button class="btn btn-secondary btn-sm" id="x1" type="button" data-bind="click: $data.toggle">
                                 <i class="material-icons md-18" data-bind="visible: $data.value">radio_button_checked</i>

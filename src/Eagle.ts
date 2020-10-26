@@ -107,7 +107,7 @@ export class Eagle {
         this.leftWindowWidth = ko.observable(Utils.getLeftWindowWidth());
 
         this.settings = ko.observableArray();
-        this.settings.push(new Setting("Confirm Discard Changes", "", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
+        this.settings.push(new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
         this.settings.push(new Setting("Confirm Remove Repositories", "", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true));
         this.settings.push(new Setting("Confirm Reload Palettes", "", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
         this.settings.push(new Setting("Confirm Delete Nodes", "", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
@@ -943,7 +943,7 @@ export class Eagle {
         }
 
         // if the file is modified, get the user to confirm they want to overwrite changes
-        if (isModified){
+        if (isModified && this.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()){
             Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", (confirmed : boolean) : void => {
                 if (!confirmed){
                     console.log("selectFile() cancelled");
