@@ -76,7 +76,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile) : LogicalGraph => {
+    static fromOJSJson = (data : string, file : RepositoryFile, showErrors : boolean) : LogicalGraph => {
         // parse the JSON first
         var dataObject : any = JSON.parse(data);
         var errors : string[] = [];
@@ -176,7 +176,7 @@ export class LogicalGraph {
         }
 
         // show errors (if found)
-        if (errors.length > 0){
+        if (errors.length > 0 && showErrors){
             Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
         }
 

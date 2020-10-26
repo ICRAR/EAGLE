@@ -110,8 +110,10 @@ function initNodeDataLists() {
     $.ajax({
         url: "./static/" + Config.templatePaletteFileName,
         success: function (data) {
+            var showErrors = eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+
             // TODO: we waste time here turning the response JSON back into a string, could be improved
-            var paletteTemplate : Palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName));
+            var paletteTemplate : Palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), showErrors);
 
             // Adding event ports.
             paletteTemplate.addEventPorts();

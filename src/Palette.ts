@@ -42,7 +42,7 @@ export class Palette {
         this.nodes = [];
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile) : Palette => {
+    static fromOJSJson = (data : string, file : RepositoryFile, showErrors : boolean) : Palette => {
         // parse the JSON first
         var dataObject : any = JSON.parse(data);
         var errors : string[] = [];
@@ -94,7 +94,7 @@ export class Palette {
         // check for duplicate keys
 
         // show errors (if found)
-        if (errors.length > 0){
+        if (errors.length > 0 && showErrors){
             Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
         }
 

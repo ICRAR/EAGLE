@@ -112,6 +112,7 @@ export class Eagle {
         this.settings.push(new Setting("Confirm Reload Palettes", "", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
         this.settings.push(new Setting("Confirm Delete Nodes", "", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
         this.settings.push(new Setting("Confirm Delete Edges", "", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
+        this.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -425,6 +426,7 @@ export class Eagle {
     uploadGraphFile = () : void => {
         var uploadedGraphFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFile");
         var fileFullPath : string = uploadedGraphFileInputElement.value;
+        var showErrors : boolean = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -466,7 +468,7 @@ export class Eagle {
 
             // Only load graph files.
             if (fileType == Eagle.FileType.Graph) {
-                this.logicalGraph(LogicalGraph.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath)));
+                this.logicalGraph(LogicalGraph.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath), showErrors));
                 Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
             } else {
                 Utils.showUserMessage("Error", "This is not a graph file!");
@@ -483,6 +485,7 @@ export class Eagle {
     uploadPaletteFile = () : void => {
         var uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFile");
         var fileFullPath : string = uploadedPaletteFileInputElement.value;
+        var showErrors : boolean = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -522,7 +525,7 @@ export class Eagle {
                 return;
             }
 
-            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath));
+            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath), showErrors);
 
             if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
                 this.palettes.push(p);
@@ -878,9 +881,10 @@ export class Eagle {
             }
 
             var fileType : Eagle.FileType = Utils.translateStringToFileType((<any>data).modelData.fileType);
+            var showErrors = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             if (fileType == Eagle.FileType.TemplatePalette) {
-                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName)));
+                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), showErrors));
             } else {
                 Utils.showUserMessage("Error", "File type is not a template palette!");
             }
@@ -1091,7 +1095,8 @@ export class Eagle {
                 return;
             }
 
-            //console.log("file", file, "file.fileType", file.type);
+            // if setting dictates, show errors during loading
+            var showErrors = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             if (file.type === Eagle.FileType.Graph) {
                 if (this.userMode() === Eagle.UserMode.PaletteEditor) {
@@ -1099,23 +1104,23 @@ export class Eagle {
                     return;
                 }
 
-                this.logicalGraph(LogicalGraph.fromOJSJson(data, file));
+                this.logicalGraph(LogicalGraph.fromOJSJson(data, file, showErrors));
                 fileTypeLoaded = Eagle.FileType.Graph;
                 Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
 
             } else if (file.type === Eagle.FileType.Palette) {
                 fileTypeLoaded = Eagle.FileType.Palette;
-                this._remotePaletteLoaded(file, data);
+                this._remotePaletteLoaded(file, data, showErrors);
 
             } else if (file.type === Eagle.FileType.JSON) {
                 if (this.userMode() === Eagle.UserMode.LogicalGraphEditor) {
                     //Utils.showUserMessage("Warning", "Opening JSON file as graph, make sure this is correct.");
-                    this.logicalGraph(LogicalGraph.fromOJSJson(data, file));
+                    this.logicalGraph(LogicalGraph.fromOJSJson(data, file, showErrors));
                     fileTypeLoaded = Eagle.FileType.Graph;
                     Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                 } else {
                     fileTypeLoaded = Eagle.FileType.Palette;
-                    this._remotePaletteLoaded(file, data);
+                    this._remotePaletteLoaded(file, data, showErrors);
                 }
 
             } else {
@@ -1130,36 +1135,41 @@ export class Eagle {
         });
     };
 
-    private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
+    private _remotePaletteLoaded = (file : RepositoryFile, data : string, showErrors : boolean) : void => {
         // if EAGLE is in palette editor mode, load the remote palette into EAGLE's editorPalette object.
         // if EAGLE is in graph editor mode, load the remote palette into EAGLE's palettes object.
 
         if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            this.editorPalette(Palette.fromOJSJson(data, file));
+            this.editorPalette(Palette.fromOJSJson(data, file, showErrors));
             this.leftWindowShown(true);
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
         } else {
             // check palette is not already loaded
             var alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
 
-            if (alreadyLoadedPalette !== null){
+            // if dictated by settings, reload the palette immediately
+            if (alreadyLoadedPalette !== null && this.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
                 Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
                     if (confirmed){
-                        // close the existing version of the open palette
-                        this.closePalette(alreadyLoadedPalette);
-
-                        // load the new palette
-                        this.palettes.push(Palette.fromOJSJson(data, file));
-                        this.leftWindowShown(true);
-                        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+                        this._reloadPalette(file, data, showErrors, alreadyLoadedPalette);
                     }
                 });
             } else {
-                this.palettes.push(Palette.fromOJSJson(data, file));
-                this.leftWindowShown(true);
-                Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+                this._reloadPalette(file, data, showErrors, alreadyLoadedPalette);
             }
         }
+    }
+
+    private _reloadPalette = (file : RepositoryFile, data : string, showErrors : boolean, palette : Palette) : void => {
+        // close the existing version of the open palette
+        if (palette !== null){
+            this.closePalette(palette);
+        }
+
+        // load the new palette
+        this.palettes.push(Palette.fromOJSJson(data, file, showErrors));
+        this.leftWindowShown(true);
+        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
     }
 
     private updateFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {

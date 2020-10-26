@@ -51,6 +51,8 @@ export class Utils {
     static readonly CONFIRM_DELETE_NODES : string = "ConfirmDeleteNodes";
     static readonly CONFIRM_DELETE_EDGES : string = "ConfirmDeleteEdges";
 
+    static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
+
     static translatorURL : string;
 
     /**
