@@ -114,6 +114,8 @@ export class Eagle {
         this.settings.push(new Setting("Confirm Delete Edges", "Prompt user to confirm when deleting an edge from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
         this.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
 
+        this.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, ""));
+
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
         this.templatePalette.subscribe(this.updateTooltips);
@@ -405,9 +407,11 @@ export class Eagle {
             return;
         }
 
-        console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex]);
+        var translatorURL : string = this.findSetting(Utils.TRANSLATOR_URL).value();
 
-        this.translator().submit({
+        console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
+
+        this.translator().submit(translatorURL, {
             algo: Config.translationAlgorithms[algorithmIndex],
             lg_name: this.logicalGraph().fileInfo().name,
             json_data: JSON.stringify(LogicalGraph.toOJSJson(this.logicalGraph()))
@@ -1250,13 +1254,14 @@ export class Eagle {
     };
 
     setTranslatorUrl = () : void => {
-        Utils.requestUserString("Translator Url", "Enter the Translator Url", Utils.translatorURL, false, (completed : boolean, userString : string) : void => {
+        var translatorURLSetting : Setting = this.findSetting(Utils.TRANSLATOR_URL);
+
+        Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false, (completed : boolean, userString : string) : void => {
             // abort if user cancelled the action
             if (!completed)
                 return;
 
-            Utils.translatorURL = userString;
-            localStorage.setItem(Utils.TRANSLATOR_URL_KEY, userString);
+            translatorURLSetting.setValue(userString);
         });
     };
 

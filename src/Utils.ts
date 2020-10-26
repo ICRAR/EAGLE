@@ -41,7 +41,6 @@ export class Utils {
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
     static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
-    static readonly TRANSLATOR_URL_KEY : string = "TranslatorURL";
     static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
     static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
 
@@ -53,7 +52,7 @@ export class Utils {
 
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
 
-    static translatorURL : string;
+    static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
     /**
      * Generates a UUID.
@@ -770,28 +769,6 @@ export class Utils {
                 console.warn("No color for node with category", category);
                 return "";
         }
-    }
-
-    /**
-     * Fetch the URL of the graph translator from the server. Also check localStorage to see if the default location has been overwritten.
-     */
-    static fetchTranslatorURL() : void {
-        // try localStorage first
-        Utils.translatorURL = localStorage.getItem(this.TRANSLATOR_URL_KEY);
-
-        // if found, return
-        if (Utils.translatorURL !== null){
-            return;
-        }
-
-        // otherwise, request the url from the server
-        Utils.httpPostJSON("/getTranslatorUrl", null, function(error : string, data: string){
-            if (error != null){
-                console.error(error);
-                return;
-            }
-            Utils.translatorURL = data;
-        });
     }
 
     static saveAsPNG(selector: string, filename: string) : void {

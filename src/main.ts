@@ -71,9 +71,6 @@ $(function(){
     GitHub.loadRepoList(eagle);
     GitLab.loadRepoList(eagle);
 
-    // fetch default translator location
-    Utils.fetchTranslatorURL();
-
     // load the default palette
     eagle.loadTemplatePalette();
 
