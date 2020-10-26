@@ -109,9 +109,9 @@ export class Eagle {
         this.settings = ko.observableArray();
         this.settings.push(new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
         this.settings.push(new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true));
-        this.settings.push(new Setting("Confirm Reload Palettes", "", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
-        this.settings.push(new Setting("Confirm Delete Nodes", "", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
-        this.settings.push(new Setting("Confirm Delete Edges", "", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
+        this.settings.push(new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
+        this.settings.push(new Setting("Confirm Delete Nodes", "Prompt user to confirm when deleting a node from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
+        this.settings.push(new Setting("Confirm Delete Edges", "Prompt user to confirm when deleting an edge from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
         this.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
@@ -1401,6 +1401,7 @@ export class Eagle {
     private _deleteSelectedEdge = () : void => {
         // remove the edge
         this.logicalGraph().removeEdgeById(this.selectedEdge().getId());
+        this.logicalGraph().fileInfo().modified = true;
 
         // no edge left to be selected
         this.selectedEdge(null);
@@ -1451,8 +1452,10 @@ export class Eagle {
         // delete the node
         if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
             this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
+            this.logicalGraph().fileInfo().modified = true;
         } else {
             this.editorPalette().removeNodeByKey(this.selectedNode().getKey());
+            this.editorPalette().fileInfo().modified = true;
         }
 
         // no node left to be selected
