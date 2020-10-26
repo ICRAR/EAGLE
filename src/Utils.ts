@@ -627,7 +627,7 @@ export class Utils {
             // add input port names into the list
             for (var j = 0; j < node.getInputPorts().length; j++) {
                 var portName = node.getInputPorts()[j].getName();
-                if (Utils.isEventPortName(portName)) {
+                if (!Utils.isEventPortName(portName)) {
                     allPortNames.push(portName);
                 }
             }
@@ -635,7 +635,7 @@ export class Utils {
             // add input local port names into the list
             for (var j = 0; j < node.getInputLocalPorts().length; j++) {
                 var portName = node.getInputLocalPorts()[j].getName();
-                if (Utils.isEventPortName(portName)) {
+                if (!Utils.isEventPortName(portName)) {
                     allPortNames.push(portName);
                 }
             }
@@ -643,7 +643,7 @@ export class Utils {
             // add output port names into the list
             for (var j = 0; j < node.getOutputPorts().length; j++) {
                 var portName = node.getOutputPorts()[j].getName();
-                if (Utils.isEventPortName(portName)) {
+                if (!Utils.isEventPortName(portName)) {
                     allPortNames.push(portName);
                 }
             }
@@ -651,7 +651,7 @@ export class Utils {
             // add output local port names into the list
             for (var j = 0; j < node.getOutputLocalPorts().length; j++) {
                 var portName = node.getOutputLocalPorts()[j].getName();
-                if (Utils.isEventPortName(portName)) {
+                if (!Utils.isEventPortName(portName)) {
                     allPortNames.push(portName);
                 }
             }
