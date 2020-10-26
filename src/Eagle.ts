@@ -108,7 +108,7 @@ export class Eagle {
 
         this.settings = ko.observableArray();
         this.settings.push(new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
-        this.settings.push(new Setting("Confirm Remove Repositories", "", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true));
+        this.settings.push(new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true));
         this.settings.push(new Setting("Confirm Reload Palettes", "", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
         this.settings.push(new Setting("Confirm Delete Nodes", "", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
         this.settings.push(new Setting("Confirm Delete Edges", "", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
@@ -1012,34 +1012,48 @@ export class Eagle {
     };
 
     removeCustomRepository = (repository : Repository) : void => {
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", (confirmed : boolean) =>{
-            if (confirmed){
-                // abort if the repository is one of those that is builtin to the app
-                if (repository.isBuiltIn){
-                    console.warn("User attempted to remove a builtin repository from the list");
-                    return;
-                }
+        // if settings dictates that we don't confirm with user, remove immediately
+        if (!this.findSetting(Utils.CONFIRM_REMOVE_REPOSITORES).value()){
+            this._removeCustomRepository(repository);
+            return;
+        }
 
-                // remove from localStorage
-                switch(repository.service){
-                    case Eagle.RepositoryService.GitHub:
-                        localStorage.removeItem(repository.name + ".repository");
-                        localStorage.removeItem(repository.name + ".github_repository");
-                        localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
-                        GitHub.loadRepoList(this);
-                        break;
-                    case Eagle.RepositoryService.GitLab:
-                        localStorage.removeItem(repository.name + ".gitlab_repository");
-                        localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
-                        GitLab.loadRepoList(this);
-                        break;
-                    default:
-                        Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
-                        return;
-                }
+        // otherwise, check with user
+        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", (confirmed : boolean) =>{
+            if (!confirmed){
+                console.log("User aborted removeCustomRepository()");
+                return;
             }
+
+            this._removeCustomRepository(repository);
         });
     };
+
+    private _removeCustomRepository = (repository : Repository) : void => {
+        // abort if the repository is one of those that is builtin to the app
+        if (repository.isBuiltIn){
+            console.warn("User attempted to remove a builtin repository from the list");
+            return;
+        }
+
+        // remove from localStorage
+        switch(repository.service){
+            case Eagle.RepositoryService.GitHub:
+                localStorage.removeItem(repository.name + ".repository");
+                localStorage.removeItem(repository.name + ".github_repository");
+                localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
+                GitHub.loadRepoList(this);
+                break;
+            case Eagle.RepositoryService.GitLab:
+                localStorage.removeItem(repository.name + ".gitlab_repository");
+                localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
+                GitLab.loadRepoList(this);
+                break;
+            default:
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
+                return;
+        }
+    }
 
     sortRepositories = () : void => {
         this.repositories.sort(Repository.repositoriesSortFunc);
