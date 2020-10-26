@@ -183,6 +183,46 @@ export class LogicalGraph {
         return result;
     }
 
+    static toV3Json = (graph : LogicalGraph) : object => {
+        var result : any = {};
+
+        result.DALiuGEGraph = {};
+        var dlgg = result.DALiuGEGraph;
+
+        // top level element info
+        dlgg.type = Eagle.DALiuGEFileType.LogicalGraph;
+        dlgg.name = "Test Name";
+        dlgg.schemaVersion = Eagle.DALiuGESchemaVersion.V3;
+        dlgg.commitHash = graph.fileInfo().sha;
+        dlgg.repositoryService = graph.fileInfo().repositoryService;
+        dlgg.repositoryBranch = graph.fileInfo().repositoryBranch;
+        dlgg.repositoryName = graph.fileInfo().repositoryName;
+        dlgg.repositoryPath = graph.fileInfo().gitUrl;
+
+        // add nodes
+        dlgg.nodeData = {};
+        for (var i = 0 ; i < graph.getNodes().length ; i++){
+            var node : Node = graph.getNodes()[i];
+            var nodeData : any = Node.toV3Json(node);
+
+            dlgg.nodeData[i] = nodeData;
+        }
+
+        // add links
+        /*
+        result.linkDataArray = [];
+        for (var i = 0 ; i < graph.getEdges().length ; i++){
+            var edge : Edge = graph.getEdges()[i];
+            var linkData : any = Edge.toOJSJson(edge);
+            linkData.from = edge.getSrcNodeKey();
+            linkData.to   = edge.getDestNodeKey();
+
+            result.linkDataArray.push(linkData);
+        }
+        */
+        return result;
+    }
+
     addNodeComplete = (node : Node) => {
         this.nodes.push(node);
     }

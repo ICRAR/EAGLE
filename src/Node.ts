@@ -1387,4 +1387,12 @@ export class Node {
 
         return result;
     }
+
+    static toV3Json = (node : Node) : object => {
+        var result : any = {};
+
+        result.applicationIndex = -1;
+
+        return result;
+    }
 }
