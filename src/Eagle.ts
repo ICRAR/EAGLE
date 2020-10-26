@@ -43,6 +43,7 @@ import {Port} from './Port';
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
+import {Setting} from './Setting';
 
 export class Eagle {
     // palette editor mode
@@ -71,6 +72,8 @@ export class Eagle {
     globalOffsetX : number = 0;
     globalOffsetY : number = 0;
     globalScale : number = 1.0;
+
+    settings : ko.ObservableArray<Setting>;
 
     static dataNodes : Node[] = [];
     static dataCategories : Eagle.Category[] = [];
@@ -102,6 +105,16 @@ export class Eagle {
 
         this.rightWindowWidth = ko.observable(Utils.getRightWindowWidth());
         this.leftWindowWidth = ko.observable(Utils.getLeftWindowWidth());
+
+        this.settings = ko.observableArray();
+        this.settings.push(new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
+        this.settings.push(new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true));
+        this.settings.push(new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
+        this.settings.push(new Setting("Confirm Delete Nodes", "Prompt user to confirm when deleting a node from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
+        this.settings.push(new Setting("Confirm Delete Edges", "Prompt user to confirm when deleting an edge from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
+        this.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
+
+        this.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, ""));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -394,9 +407,11 @@ export class Eagle {
             return;
         }
 
-        console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex]);
+        var translatorURL : string = this.findSetting(Utils.TRANSLATOR_URL).value();
 
-        this.translator().submit({
+        console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
+
+        this.translator().submit(translatorURL, {
             algo: Config.translationAlgorithms[algorithmIndex],
             lg_name: this.logicalGraph().fileInfo().name,
             json_data: JSON.stringify(LogicalGraph.toOJSJson(this.logicalGraph()))
@@ -415,6 +430,7 @@ export class Eagle {
     uploadGraphFile = () : void => {
         var uploadedGraphFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFile");
         var fileFullPath : string = uploadedGraphFileInputElement.value;
+        var showErrors : boolean = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -456,7 +472,7 @@ export class Eagle {
 
             // Only load graph files.
             if (fileType == Eagle.FileType.Graph) {
-                this.logicalGraph(LogicalGraph.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath)));
+                this.logicalGraph(LogicalGraph.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath), showErrors));
                 Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
             } else {
                 Utils.showUserMessage("Error", "This is not a graph file!");
@@ -473,6 +489,7 @@ export class Eagle {
     uploadPaletteFile = () : void => {
         var uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFile");
         var fileFullPath : string = uploadedPaletteFileInputElement.value;
+        var showErrors : boolean = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -512,7 +529,7 @@ export class Eagle {
                 return;
             }
 
-            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath));
+            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath), showErrors);
 
             if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
                 this.palettes.push(p);
@@ -868,9 +885,10 @@ export class Eagle {
             }
 
             var fileType : Eagle.FileType = Utils.translateStringToFileType((<any>data).modelData.fileType);
+            var showErrors = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             if (fileType == Eagle.FileType.TemplatePalette) {
-                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName)));
+                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), showErrors));
             } else {
                 Utils.showUserMessage("Error", "File type is not a template palette!");
             }
@@ -933,7 +951,7 @@ export class Eagle {
         }
 
         // if the file is modified, get the user to confirm they want to overwrite changes
-        if (isModified){
+        if (isModified && this.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()){
             Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", (confirmed : boolean) : void => {
                 if (!confirmed){
                     console.log("selectFile() cancelled");
@@ -1002,34 +1020,48 @@ export class Eagle {
     };
 
     removeCustomRepository = (repository : Repository) : void => {
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", (confirmed : boolean) =>{
-            if (confirmed){
-                // abort if the repository is one of those that is builtin to the app
-                if (repository.isBuiltIn){
-                    console.warn("User attempted to remove a builtin repository from the list");
-                    return;
-                }
+        // if settings dictates that we don't confirm with user, remove immediately
+        if (!this.findSetting(Utils.CONFIRM_REMOVE_REPOSITORES).value()){
+            this._removeCustomRepository(repository);
+            return;
+        }
 
-                // remove from localStorage
-                switch(repository.service){
-                    case Eagle.RepositoryService.GitHub:
-                        localStorage.removeItem(repository.name + ".repository");
-                        localStorage.removeItem(repository.name + ".github_repository");
-                        localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
-                        GitHub.loadRepoList(this);
-                        break;
-                    case Eagle.RepositoryService.GitLab:
-                        localStorage.removeItem(repository.name + ".gitlab_repository");
-                        localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
-                        GitLab.loadRepoList(this);
-                        break;
-                    default:
-                        Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
-                        return;
-                }
+        // otherwise, check with user
+        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", (confirmed : boolean) =>{
+            if (!confirmed){
+                console.log("User aborted removeCustomRepository()");
+                return;
             }
+
+            this._removeCustomRepository(repository);
         });
     };
+
+    private _removeCustomRepository = (repository : Repository) : void => {
+        // abort if the repository is one of those that is builtin to the app
+        if (repository.isBuiltIn){
+            console.warn("User attempted to remove a builtin repository from the list");
+            return;
+        }
+
+        // remove from localStorage
+        switch(repository.service){
+            case Eagle.RepositoryService.GitHub:
+                localStorage.removeItem(repository.name + ".repository");
+                localStorage.removeItem(repository.name + ".github_repository");
+                localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
+                GitHub.loadRepoList(this);
+                break;
+            case Eagle.RepositoryService.GitLab:
+                localStorage.removeItem(repository.name + ".gitlab_repository");
+                localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
+                GitLab.loadRepoList(this);
+                break;
+            default:
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
+                return;
+        }
+    }
 
     sortRepositories = () : void => {
         this.repositories.sort(Repository.repositoriesSortFunc);
@@ -1067,7 +1099,8 @@ export class Eagle {
                 return;
             }
 
-            //console.log("file", file, "file.fileType", file.type);
+            // if setting dictates, show errors during loading
+            var showErrors = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             if (file.type === Eagle.FileType.Graph) {
                 if (this.userMode() === Eagle.UserMode.PaletteEditor) {
@@ -1075,23 +1108,23 @@ export class Eagle {
                     return;
                 }
 
-                this.logicalGraph(LogicalGraph.fromOJSJson(data, file));
+                this.logicalGraph(LogicalGraph.fromOJSJson(data, file, showErrors));
                 fileTypeLoaded = Eagle.FileType.Graph;
                 Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
 
             } else if (file.type === Eagle.FileType.Palette) {
                 fileTypeLoaded = Eagle.FileType.Palette;
-                this._remotePaletteLoaded(file, data);
+                this._remotePaletteLoaded(file, data, showErrors);
 
             } else if (file.type === Eagle.FileType.JSON) {
                 if (this.userMode() === Eagle.UserMode.LogicalGraphEditor) {
                     //Utils.showUserMessage("Warning", "Opening JSON file as graph, make sure this is correct.");
-                    this.logicalGraph(LogicalGraph.fromOJSJson(data, file));
+                    this.logicalGraph(LogicalGraph.fromOJSJson(data, file, showErrors));
                     fileTypeLoaded = Eagle.FileType.Graph;
                     Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                 } else {
                     fileTypeLoaded = Eagle.FileType.Palette;
-                    this._remotePaletteLoaded(file, data);
+                    this._remotePaletteLoaded(file, data, showErrors);
                 }
 
             } else {
@@ -1106,36 +1139,41 @@ export class Eagle {
         });
     };
 
-    private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
+    private _remotePaletteLoaded = (file : RepositoryFile, data : string, showErrors : boolean) : void => {
         // if EAGLE is in palette editor mode, load the remote palette into EAGLE's editorPalette object.
         // if EAGLE is in graph editor mode, load the remote palette into EAGLE's palettes object.
 
         if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            this.editorPalette(Palette.fromOJSJson(data, file));
+            this.editorPalette(Palette.fromOJSJson(data, file, showErrors));
             this.leftWindowShown(true);
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
         } else {
             // check palette is not already loaded
             var alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
 
-            if (alreadyLoadedPalette !== null){
+            // if dictated by settings, reload the palette immediately
+            if (alreadyLoadedPalette !== null && this.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
                 Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
                     if (confirmed){
-                        // close the existing version of the open palette
-                        this.closePalette(alreadyLoadedPalette);
-
-                        // load the new palette
-                        this.palettes.push(Palette.fromOJSJson(data, file));
-                        this.leftWindowShown(true);
-                        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+                        this._reloadPalette(file, data, showErrors, alreadyLoadedPalette);
                     }
                 });
             } else {
-                this.palettes.push(Palette.fromOJSJson(data, file));
-                this.leftWindowShown(true);
-                Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+                this._reloadPalette(file, data, showErrors, alreadyLoadedPalette);
             }
         }
+    }
+
+    private _reloadPalette = (file : RepositoryFile, data : string, showErrors : boolean, palette : Palette) : void => {
+        // close the existing version of the open palette
+        if (palette !== null){
+            this.closePalette(palette);
+        }
+
+        // load the new palette
+        this.palettes.push(Palette.fromOJSJson(data, file, showErrors));
+        this.leftWindowShown(true);
+        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
     }
 
     private updateFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
@@ -1216,13 +1254,14 @@ export class Eagle {
     };
 
     setTranslatorUrl = () : void => {
-        Utils.requestUserString("Translator Url", "Enter the Translator Url", Utils.translatorURL, false, (completed : boolean, userString : string) : void => {
+        var translatorURLSetting : Setting = this.findSetting(Utils.TRANSLATOR_URL);
+
+        Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false, (completed : boolean, userString : string) : void => {
             // abort if user cancelled the action
             if (!completed)
                 return;
 
-            Utils.translatorURL = userString;
-            localStorage.setItem(Utils.TRANSLATOR_URL_KEY, userString);
+            translatorURLSetting.setValue(userString);
         });
     };
 
@@ -1263,6 +1302,21 @@ export class Eagle {
           'https://github.com/ICRAR/EAGLE/blob/master/README.md',
           '_blank'
         );
+    }
+
+    openSettings = () : void => {
+        Utils.showSettingsModal();
+    }
+
+    findSetting = (key : string) : Setting => {
+        for (var i = 0 ; i < this.settings().length ; i++){
+            var s = this.settings()[i];
+
+            if (s.getKey() === key){
+                return s;
+            }
+        }
+        return null;
     }
 
     fileIsVisible = (file : RepositoryFile) : boolean => {
@@ -1328,6 +1382,12 @@ export class Eagle {
             return;
         }
 
+        // skip confirmation if setting dictates
+        if (!this.findSetting(Utils.CONFIRM_DELETE_EDGES).value()){
+            this._deleteSelectedEdge();
+            return;
+        }
+
         // build a user-readable name for this node
         var srcNodeName : string = this.logicalGraph().findNodeByKey(this.selectedEdge().getSrcNodeKey()).getName();
         var destNodeName : string = this.logicalGraph().findNodeByKey(this.selectedEdge().getDestNodeKey()).getName();
@@ -1339,16 +1399,21 @@ export class Eagle {
                 return;
             }
 
-            // remove the edge
-            this.logicalGraph().removeEdgeById(this.selectedEdge().getId());
-
-            // no edge left to be selected
-            this.selectedEdge(null);
-            this.rightWindowMode(Eagle.RightWindowMode.Repository);
-
-            // flag the diagram as mutated so that the graph renderer will update
-            this.flagActiveDiagramHasMutated();
+            this._deleteSelectedEdge();
         });
+    }
+
+    private _deleteSelectedEdge = () : void => {
+        // remove the edge
+        this.logicalGraph().removeEdgeById(this.selectedEdge().getId());
+        this.logicalGraph().fileInfo().modified = true;
+
+        // no edge left to be selected
+        this.selectedEdge(null);
+        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+
+        // flag the diagram as mutated so that the graph renderer will update
+        this.flagActiveDiagramHasMutated();
     }
 
     duplicateSelectedNode = () : void => {
@@ -1371,6 +1436,12 @@ export class Eagle {
             return;
         }
 
+        // skip confirmation if setting dictates
+        if (!this.findSetting(Utils.CONFIRM_DELETE_NODES).value()){
+            this._deleteSelectedNode();
+            return;
+        }
+
         // request confirmation from user
         Utils.requestUserConfirm("Delete node: " + this.selectedNode().getName() + "?", "Are you sure you wish to delete this node (and its children)?", "Yes", "No", (confirmed : boolean) : void => {
             if (!confirmed){
@@ -1378,20 +1449,26 @@ export class Eagle {
                 return;
             }
 
-            // delete the node
-            if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
-                this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
-            } else {
-                this.editorPalette().removeNodeByKey(this.selectedNode().getKey());
-            }
-
-            // no node left to be selected
-            this.selectedNode(null);
-            this.rightWindowMode(Eagle.RightWindowMode.Repository);
-
-            // flag the diagram as mutated so that the graph renderer will update
-            this.flagActiveDiagramHasMutated();
+            this._deleteSelectedNode();
         });
+    }
+
+    private _deleteSelectedNode = () : void => {
+        // delete the node
+        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
+            this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
+            this.logicalGraph().fileInfo().modified = true;
+        } else {
+            this.editorPalette().removeNodeByKey(this.selectedNode().getKey());
+            this.editorPalette().fileInfo().modified = true;
+        }
+
+        // no node left to be selected
+        this.selectedNode(null);
+        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+
+        // flag the diagram as mutated so that the graph renderer will update
+        this.flagActiveDiagramHasMutated();
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {

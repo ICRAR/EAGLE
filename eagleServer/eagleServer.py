@@ -33,7 +33,6 @@ import pkg_resources
 from flask import Flask, request, render_template, jsonify
 
 import config.config
-from config.config import DEFAULT_TRANSLATOR_URL
 from config.config import GITHUB_DEFAULT_REPO_LIST
 from config.config import GITLAB_DEFAULT_REPO_LIST
 from config.config import SERVER_PORT
@@ -149,11 +148,6 @@ def get_git_lab_repository_list():
     d = GITLAB_DEFAULT_REPO_LIST
 
     return jsonify(d)
-
-
-@app.route("/getTranslatorUrl", methods=["POST"])
-def get_translator_url():
-    return jsonify(DEFAULT_TRANSLATOR_URL)
 
 
 def extract_folder_and_repo_names(repo_name):

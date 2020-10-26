@@ -41,11 +41,18 @@ export class Utils {
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
     static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
-    static readonly TRANSLATOR_URL_KEY : string = "TranslatorURL";
     static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
     static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
 
-    static translatorURL : string;
+    static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
+    static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
+    static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
+    static readonly CONFIRM_DELETE_NODES : string = "ConfirmDeleteNodes";
+    static readonly CONFIRM_DELETE_EDGES : string = "ConfirmDeleteEdges";
+
+    static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
+
+    static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
     /**
      * Generates a UUID.
@@ -420,6 +427,11 @@ export class Utils {
 
             callback(true, repositoryService, repositoryName, repositoryBranch);
         });
+
+        // #settingsModal - showSettingsModal()
+        $('#settingsModal').on('shown.bs.modal', function(){
+            $('#settingsModalAffirmativeButton').focus();
+        });
     }
 
     static showUserMessage (title : string, message : string) {
@@ -598,6 +610,10 @@ export class Utils {
         }
     }
 
+    static showSettingsModal(){
+        $('#settingsModal').modal();
+    }
+
     /**
      * Returns a list of unique port names (except event ports)
      */
@@ -753,28 +769,6 @@ export class Utils {
                 console.warn("No color for node with category", category);
                 return "";
         }
-    }
-
-    /**
-     * Fetch the URL of the graph translator from the server. Also check localStorage to see if the default location has been overwritten.
-     */
-    static fetchTranslatorURL() : void {
-        // try localStorage first
-        Utils.translatorURL = localStorage.getItem(this.TRANSLATOR_URL_KEY);
-
-        // if found, return
-        if (Utils.translatorURL !== null){
-            return;
-        }
-
-        // otherwise, request the url from the server
-        Utils.httpPostJSON("/getTranslatorUrl", null, function(error : string, data: string){
-            if (error != null){
-                console.error(error);
-                return;
-            }
-            Utils.translatorURL = data;
-        });
     }
 
     static saveAsPNG(selector: string, filename: string) : void {

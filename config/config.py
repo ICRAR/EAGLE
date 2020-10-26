@@ -40,8 +40,5 @@ GITHUB_DEFAULT_REPO_LIST = [
 GITLAB_DEFAULT_REPO_LIST = [
 ]
 
-# This is the default location of the graph translator service
-DEFAULT_TRANSLATOR_URL = 'http://localhost/gen_pgt'
-
 # This is the default, but needs to be changed if installed under a different user.
 TEMP_FILE_FOLDER = '/home/eagle/EAGLE'

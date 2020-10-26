@@ -55,7 +55,7 @@ export class Translator {
         this.isTranslating = ko.observable(false);
     }
 
-    submit = (formElements : { [index: string]: string }) : void => {
+    submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
 
         // debug
         console.log("in submit() : formElements", formElements);
@@ -65,7 +65,7 @@ export class Translator {
         form.method = "POST";
         //form.action = "/gen_pgt";
         //form.action = "http://localhost:8084/gen_pgt";
-        form.action = Utils.translatorURL;
+        form.action = translatorURL;
         form.target = "_blank";
 
         // add formElements to form
