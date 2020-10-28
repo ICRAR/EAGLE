@@ -191,35 +191,41 @@ export class LogicalGraph {
 
         // top level element info
         dlgg.type = Eagle.DALiuGEFileType.LogicalGraph;
-        dlgg.name = "Test Name";
+        dlgg.name = graph.fileInfo().name;
         dlgg.schemaVersion = Eagle.DALiuGESchemaVersion.V3;
         dlgg.commitHash = graph.fileInfo().sha;
         dlgg.repositoryService = graph.fileInfo().repositoryService;
         dlgg.repositoryBranch = graph.fileInfo().repositoryBranch;
         dlgg.repositoryName = graph.fileInfo().repositoryName;
-        dlgg.repositoryPath = graph.fileInfo().gitUrl;
+        dlgg.repositoryPath = graph.fileInfo().path;
 
         // add nodes
         dlgg.nodeData = {};
         for (var i = 0 ; i < graph.getNodes().length ; i++){
             var node : Node = graph.getNodes()[i];
-            var nodeData : any = Node.toV3Json(node);
+            var nodeData : any = Node.toV3NodeJson(node, i);
 
-            dlgg.nodeData[i] = nodeData;
+            dlgg.nodeData[node.getKey()] = nodeData;
         }
 
         // add links
-        /*
-        result.linkDataArray = [];
-        for (var i = 0 ; i < graph.getEdges().length ; i++){
-            var edge : Edge = graph.getEdges()[i];
-            var linkData : any = Edge.toOJSJson(edge);
-            linkData.from = edge.getSrcNodeKey();
-            linkData.to   = edge.getDestNodeKey();
+        dlgg.linkData = {};
+        for (let i = 0 ; i < graph.getEdges().length ; i++){
+            let edge : Edge = graph.getEdges()[i];
+            let linkData : any = Edge.toV3Json(edge);
 
-            result.linkDataArray.push(linkData);
+            dlgg.linkData[i] = linkData;
         }
-        */
+
+        // add components
+        dlgg.componentData = {};
+        for (var i = 0 ; i < graph.getNodes().length ; i++){
+            var node : Node = graph.getNodes()[i];
+            var componentData : any = Node.toV3ComponentJson(node);
+
+            dlgg.componentData[node.getKey()] = componentData;
+        }
+
         return result;
     }
 

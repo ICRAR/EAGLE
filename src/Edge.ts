@@ -114,6 +114,16 @@ export class Edge {
         };
     }
 
+    static toV3Json = (edge : Edge) : object => {
+        return {
+            srcNode: edge.srcNodeKey.toString(),
+            srcPort: edge.srcPortId,
+            destNode: edge.destNodeKey.toString(),
+            destPort: edge.destPortId,
+            loop_aware: edge.loopAware ? "1" : "0"
+        }
+    }
+
     static isValid = (graph : LogicalGraph, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, showNotification : boolean = true) : Eagle.LinkValid => {
         //console.log("IsValid()", "sourceNodeKey", sourceNodeKey, "sourcePortId", sourcePortId, "destinationNodeKey", destinationNodeKey, "destinationPortId", destinationPortId);
 
