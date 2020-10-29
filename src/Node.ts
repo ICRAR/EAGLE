@@ -58,8 +58,6 @@ export class Node {
 
     private inputPorts : Port[];
     private outputPorts : Port[];
-    private inputLocalPorts : Port[];
-    private outputLocalPorts : Port[];
 
     private fields : Field[];
 
@@ -108,8 +106,6 @@ export class Node {
 
         this.inputPorts = [];
         this.outputPorts = [];
-        this.inputLocalPorts = [];
-        this.outputLocalPorts = [];
 
         this.fields = [];
 
@@ -136,12 +132,6 @@ export class Node {
         for (var i = 0; i < this.outputPorts.length ; i++){
             this.outputPorts[i].setNodeKey(key);
         }
-        for (var i = 0; i < this.inputLocalPorts.length ; i++){
-            this.inputLocalPorts[i].setNodeKey(key);
-        }
-        for (var i = 0; i < this.outputLocalPorts.length ; i++){
-            this.outputLocalPorts[i].setNodeKey(key);
-        }
     }
 
     getName = () : string => {
@@ -158,6 +148,24 @@ export class Node {
         } else {
             return this.name;
         }
+    }
+
+    // TODO: better name for function
+    getInputLocalPorts = () : Port[] => {
+        if (this.inputApplication() === null){
+            return [];
+        }
+
+        return this.inputApplication().getOutputPorts();
+    }
+
+    // TODO: better name for function
+    getOutputLocalPorts = () : Port[] => {
+        if (this.outputApplication() === null){
+            return [];
+        }
+
+        return this.outputApplication().getInputPorts();
     }
 
     getDescription = () : string => {
@@ -272,30 +280,36 @@ export class Node {
     }
 
     getInputPorts = () : Port[] => {
-        return this.inputPorts;
+        if (this.inputApplication() === null){
+            return this.inputPorts;
+        } else {
+            return this.inputApplication().inputPorts;
+        }
     }
 
     getOutputPorts = () : Port[] => {
-        return this.outputPorts;
-    }
-
-    getInputLocalPorts = () : Port[] => {
-        return this.inputLocalPorts;
-    }
-
-    getOutputLocalPorts = () : Port[] => {
-        return this.outputLocalPorts;
+        if (this.outputApplication() === null){
+            return this.outputPorts;
+        } else {
+            return this.outputApplication().outputPorts;
+        }
     }
 
     hasLocalPortWithId = (id : string) : boolean => {
-        for (var i = 0; i < this.inputLocalPorts.length ; i++){
-            if (this.inputLocalPorts[i].getId() === id){
-                return true;
+        // check output ports of input application, if one exists
+        if (this.inputApplication() !== null){
+            for (var i = 0; i < this.inputApplication().outputPorts.length ; i++){
+                if (this.inputApplication().outputPorts[i].getId() === id){
+                    return true;
+                }
             }
         }
-        for (var i = 0; i < this.outputLocalPorts.length ; i++){
-            if (this.outputLocalPorts[i].getId() === id){
-                return true;
+        // check input ports of outputApplication, if one exists
+        if (this.outputApplication() !== null){
+            for (var i = 0; i < this.outputApplication().inputPorts.length ; i++){
+                if (this.outputApplication().inputPorts[i].getId() === id){
+                    return true;
+                }
             }
         }
         return false;
@@ -462,8 +476,6 @@ export class Node {
 
         this.inputPorts = [];
         this.outputPorts = [];
-        this.inputLocalPorts = [];
-        this.outputLocalPorts = [];
 
         this.fields = [];
 
@@ -507,21 +519,18 @@ export class Node {
         return Math.max(leftHeight, rightHeight);
     }
 
-    addPort = (port : Port, input : boolean, local : boolean) : void => {
+    // TODO: if node is a scatter, gather or mkn, we should not be able to add nodes. The nodes must come from the input and output applications.
+    addPort = (port : Port, input : boolean) : void => {
+        if (this.isScatter() || this.isGather() || this.isMKN()){
+            console.error("Adding a port to a construct (name:", this.getName(), "category:", this.getCategory() + ") port name", port.getName() );
+        }
+
         port.setNodeKey(this.key);
 
         if (input){
-            if (local){
-                this.inputLocalPorts.push(port);
-            } else {
-                this.inputPorts.push(port);
-            }
+            this.inputPorts.push(port);
         } else {
-            if (local){
-                this.outputLocalPorts.push(port);
-            } else {
-                this.outputPorts.push(port);
-            }
+            this.outputPorts.push(port);
         }
     }
 
@@ -542,22 +551,39 @@ export class Node {
             }
         }
 
-        // check local input ports
-        for (var i = 0; i < this.inputLocalPorts.length; i++){
-            var port = this.inputLocalPorts[i];
-            if (port.getId() === portId){
-                return port;
+        // if node has an inputApplication, check those ports too
+        if (this.inputApplication() !== null){
+            for (var i = 0; i < this.inputApplication().inputPorts.length; i++){
+                var port = this.inputApplication().inputPorts[i];
+                if (port.getId() === portId){
+                    return port;
+                }
+            }
+            for (var i = 0; i < this.inputApplication().outputPorts.length; i++){
+                var port = this.inputApplication().outputPorts[i];
+                if (port.getId() === portId){
+                    return port;
+                }
             }
         }
 
-        // check local output ports
-        for (var i = 0; i < this.outputLocalPorts.length; i++){
-            var port = this.outputLocalPorts[i];
-            if (port.getId() === portId){
-                return port;
+        // if node has an outputApplication, check those ports too
+        if (this.outputApplication() !== null){
+            for (var i = 0; i < this.outputApplication().inputPorts.length; i++){
+                var port = this.outputApplication().inputPorts[i];
+                if (port.getId() === portId){
+                    return port;
+                }
+            }
+            for (var i = 0; i < this.outputApplication().outputPorts.length; i++){
+                var port = this.outputApplication().outputPorts[i];
+                if (port.getId() === portId){
+                    return port;
+                }
             }
         }
 
+        console.warn("Could not find port by Id (" + portId + ") on node " + this.getKey());
         return null;
     }
 
@@ -578,60 +604,59 @@ export class Node {
             }
         }
 
-        // check local input ports
-        for (var i = 0; i < this.inputLocalPorts.length; i++){
-            var port = this.inputLocalPorts[i];
-            if (port.getId() === portId){
-                return "inputLocal";
+        // if node has an inputApplication, check those ports too
+        if (this.inputApplication() !== null){
+            for (var i = 0; i < this.inputApplication().inputPorts.length; i++){
+                var port = this.inputApplication().inputPorts[i];
+                if (port.getId() === portId){
+                    return "input";
+                }
+            }
+            for (var i = 0; i < this.inputApplication().outputPorts.length; i++){
+                var port = this.inputApplication().outputPorts[i];
+                if (port.getId() === portId){
+                    return "inputLocal";
+                }
             }
         }
 
-        // check local output ports
-        for (var i = 0; i < this.outputLocalPorts.length; i++){
-            var port = this.outputLocalPorts[i];
-            if (port.getId() === portId){
-                return "outputLocal";
+        // if node has an outputApplication, check those ports too
+        if (this.outputApplication() !== null){
+            for (var i = 0; i < this.outputApplication().inputPorts.length; i++){
+                var port = this.outputApplication().inputPorts[i];
+                if (port.getId() === portId){
+                    return "outputLocal";
+                }
+            }
+            for (var i = 0; i < this.outputApplication().outputPorts.length; i++){
+                var port = this.outputApplication().outputPorts[i];
+                if (port.getId() === portId){
+                    return "output";
+                }
             }
         }
 
+        console.warn("Could not find port TYPE by Id (" + portId + ") on node " + this.getKey());
         return "";
     }
 
     findPortByName = (name : string, input : boolean, local : boolean) : Port => {
+        console.assert(!local);
+
         if (input){
-            if (local){
-                // check local input ports
-                for (var i = 0; i < this.inputLocalPorts.length; i++){
-                    var port = this.inputLocalPorts[i];
-                    if (port.getName() === name){
-                        return port;
-                    }
-                }
-            } else {
-                // check input ports
-                for (var i = 0; i < this.inputPorts.length; i++){
-                    var port = this.inputPorts[i];
-                    if (port.getName() === name){
-                        return port;
-                    }
+            // check input ports
+            for (var i = 0; i < this.inputPorts.length; i++){
+                var port = this.inputPorts[i];
+                if (port.getName() === name){
+                    return port;
                 }
             }
         } else {
-            if (local){
-                // check local output ports
-                for (var i = 0; i < this.outputLocalPorts.length; i++){
-                    var port = this.outputLocalPorts[i];
-                    if (port.getName() === name){
-                        return port;
-                    }
-                }
-            } else {
-                // check output ports
-                for (var i = 0; i < this.outputPorts.length; i++){
-                    var port = this.outputPorts[i];
-                    if (port.getName() === name){
-                        return port;
-                    }
+            // check output ports
+            for (var i = 0; i < this.outputPorts.length; i++){
+                var port = this.outputPorts[i];
+                if (port.getName() === name){
+                    return port;
                 }
             }
         }
@@ -652,19 +677,11 @@ export class Node {
     }
 
     // WARN: dangerous! removes a port without considering if the port is in use by an edge
-    removePortByIndex = (index : number, input : boolean, local : boolean) : void => {
+    removePortByIndex = (index : number, input : boolean) : void => {
         if (input){
-            if (local){
-                this.inputLocalPorts.splice(index, 1);
-            } else {
-                this.inputPorts.splice(index, 1);
-            }
+            this.inputPorts.splice(index, 1);
         } else {
-            if (local){
-                this.outputLocalPorts.splice(index, 1);
-            } else {
-                this.outputPorts.splice(index, 1);
-            }
+            this.outputPorts.splice(index, 1);
         }
     }
 
@@ -737,16 +754,10 @@ export class Node {
 
         // clone ports
         for (var i = 0; i < this.inputPorts.length; i++){
-            result.addPort(this.inputPorts[i].clone(), true, false);
-        }
-        for (var i = 0; i < this.inputLocalPorts.length; i++){
-            result.addPort(this.inputLocalPorts[i].clone(), true, true);
+            result.addPort(this.inputPorts[i].clone(), true);
         }
         for (var i = 0; i < this.outputPorts.length; i++){
-            result.addPort(this.outputPorts[i].clone(), false, false);
-        }
-        for (var i = 0; i < this.outputLocalPorts.length; i++){
-            result.addPort(this.outputLocalPorts[i].clone(), false, true);
+            result.addPort(this.outputPorts[i].clone(), false);
         }
 
         // clone fields
@@ -1121,17 +1132,27 @@ export class Node {
 
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
-            for (var j = 0 ; j < nodeData.inputPorts.length; j++){
-                var portData = nodeData.inputPorts[j];
-                node.addPort(new Port(portData.Id, portData.IdText), true, false);
+            for (let j = 0 ; j < nodeData.inputPorts.length; j++){
+                let portData = nodeData.inputPorts[j];
+                let port = new Port(portData.Id, portData.IdText);
+                if (node.inputApplication() !== null){
+                    node.inputApplication().addPort(port, true);
+                } else {
+                    node.addPort(port, true);
+                }
             }
         }
 
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
-            for (var j = 0 ; j < nodeData.outputPorts.length; j++){
-                var portData = nodeData.outputPorts[j];
-                node.addPort(new Port(portData.Id, portData.IdText), false, false);
+            for (let j = 0 ; j < nodeData.outputPorts.length; j++){
+                let portData = nodeData.outputPorts[j];
+                let port = new Port(portData.Id, portData.IdText);
+                if (node.inputApplication() !== null){
+                    node.inputApplication().addPort(port, false);
+                } else {
+                    node.addPort(port, false);
+                }
             }
         }
 
@@ -1139,17 +1160,25 @@ export class Node {
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (var j = 0 ; j < nodeData.inputLocalPorts.length; j++){
                 var portData = nodeData.inputLocalPorts[j];
-                node.addPort(new Port(portData.Id, portData.IdText), true, true);
+                if (node.inputApplication() === null){
+                    console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
+                } else {
+                    node.inputApplication().addPort(new Port(portData.Id, portData.IdText), true); // I or O?
+                }
             }
         }
 
         // add output local ports
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
-            for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
+        for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
                 var portData = nodeData.outputLocalPorts[j];
-                node.addPort(new Port(portData.Id, portData.IdText), false, true);
-            }
-        }
+                if (node.inputApplication() === null){
+                    console.warn("Can't add outputLocal port", portData.IdText, "to node", node.getName());
+                } else {
+                    node.inputApplication().addPort(new Port(portData.Id, portData.IdText), false); // I or O?
+                }
+             }
+         }
 
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
@@ -1220,6 +1249,7 @@ export class Node {
             result.outputPorts.push(portData);
         }
 
+        /*
         // add input local ports
         result.inputLocalPorts = [];
         for (var i = 0 ; i < node.inputLocalPorts.length; i++){
@@ -1241,6 +1271,7 @@ export class Node {
             };
             result.outputLocalPorts.push(portData);
         }
+        */
 
         // add fields
         result.fields = [];

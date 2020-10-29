@@ -255,10 +255,10 @@ export class LogicalGraph {
                     // Remove the redundant input/output port.
                     switch(node.getCategory()){
                         case Eagle.Category.Start:
-                            newNode.removePortByIndex(0, true, false);
+                            newNode.removePortByIndex(0, true);
                             break;
                         case Eagle.Category.End:
-                            newNode.removePortByIndex(0, false, false);
+                            newNode.removePortByIndex(0, false);
                             break;
                     }
 
@@ -415,10 +415,10 @@ export class LogicalGraph {
 
                 // add input port and output port for dataType (if they don't exist)
                 if (!newNode.hasPortWithName(dataType, true, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType), true, false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType), true);
                 }
                 if (!newNode.hasPortWithName(dataType, false, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType), false, false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType), false);
                 }
 
                 // set the parent of the new node

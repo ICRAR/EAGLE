@@ -1328,7 +1328,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getInputLocalPortGroupTransform(node : Node) : string {
+    function getOutputLocalPortGroupTransform(node : Node) : string {
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
             return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
         } else {
@@ -1344,7 +1344,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getOutputLocalPortGroupTransform(node : Node) : string {
+    function getInputLocalPortGroupTransform(node : Node) : string {
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
             return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getInputPorts().length * PORT_HEIGHT));
         } else {

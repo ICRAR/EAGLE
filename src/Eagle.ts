@@ -198,7 +198,7 @@ export class Eagle {
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -1477,7 +1477,7 @@ export class Eagle {
      */
     addInputPortHTML = () : void => {
         var node = this.getSelection();
-        this.selectPortName(<Node>node, true, false);
+        this.selectPortName(<Node>node, true);
     }
 
     /**
@@ -1485,23 +1485,7 @@ export class Eagle {
      */
     addOutputPortHTML = () : void => {
         var node = this.getSelection();
-        this.selectPortName(<Node>node, false, false);
-    }
-
-    /**
-     * Adds an input local port to the selected node via HTML.
-     */
-    addInputLocalPortHTML = () : void => {
-        var node = this.getSelection();
-        this.selectPortName(<Node>node, true, true);
-    }
-
-    /**
-     * Adds an output local port to the selected node via HTML arguments.
-     */
-    addOutputLocalPortHTML = () : void => {
-        var node = this.getSelection();
-        this.selectPortName(<Node>node, false, true);
+        this.selectPortName(<Node>node, false);
     }
 
     /**
@@ -1515,7 +1499,7 @@ export class Eagle {
     /**
      * Shows a list of input/output port names for selection.
      */
-    selectPortName = (node : Node, isInputPort : boolean, isLocalPort : boolean) => {
+    selectPortName = (node : Node, isInputPort : boolean) => {
         var uniquePortNames : string[];
 
         // if in palette editor mode, get port names list from the palette,
@@ -1542,7 +1526,7 @@ export class Eagle {
             */
 
             // add port with the chosen name
-            node.addPort(new Port(Utils.uuidv4(), userString), isInputPort, isLocalPort);
+            node.addPort(new Port(Utils.uuidv4(), userString), isInputPort);
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
