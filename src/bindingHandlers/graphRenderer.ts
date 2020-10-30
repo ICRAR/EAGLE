@@ -437,7 +437,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
-                            .attr("x", REAL_TO_DISPLAY_SCALE(-20))
+                            .attr("x", REAL_TO_DISPLAY_SCALE(20))
                             .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
@@ -447,7 +447,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
+                            .attr("cx", REAL_TO_DISPLAY_SCALE(8))
                             .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
@@ -493,7 +493,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
-                            .attr("x", REAL_TO_DISPLAY_SCALE(20))
+                            .attr("x", REAL_TO_DISPLAY_SCALE(-20))
                             .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
@@ -503,7 +503,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", REAL_TO_DISPLAY_SCALE(8))
+                            .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
                             .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
@@ -530,7 +530,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                                 if (destinationPortId !== null){
                                     // check if link is valid
-                                    var linkValid : Eagle.LinkValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId);
+                                    var linkValid : Eagle.LinkValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, true, true);
 
                                     // abort if source port and destination port have different data types
                                     if (linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
@@ -874,7 +874,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.inputLocalPorts text")
                                 .data(function(node : Node){return node.getInputLocalPorts();})
                                 .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
-                                .attr("x", REAL_TO_DISPLAY_SCALE(-20))
+                                .attr("x", REAL_TO_DISPLAY_SCALE(20))
                                 .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName();});
@@ -893,7 +893,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.inputLocalPorts circle")
                                 .data(function(node : Node){return node.getInputLocalPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
+                                .attr("cx", REAL_TO_DISPLAY_SCALE(8))
                                 .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
@@ -965,7 +965,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.outputLocalPorts text")
                                 .data(function(node : Node){return node.getOutputLocalPorts();})
                                 .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
-                                .attr("x", REAL_TO_DISPLAY_SCALE(20))
+                                .attr("x", REAL_TO_DISPLAY_SCALE(-20))
                                 .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName();});
@@ -984,7 +984,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.outputLocalPorts circle")
                                 .data(function(node : Node){return node.getOutputLocalPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", REAL_TO_DISPLAY_SCALE(8))
+                                .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
                                 .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
@@ -1670,7 +1670,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // translate the three pieces of info into the x,y position
-        if ((input && !local) || (!input && local)){
+        if (input){
             // left hand side
             if (inset){
                 position.x += PORT_INSET;
@@ -1698,7 +1698,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetStrokeColor(edge: Edge, index: number) : string {
-        var linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false);
+        var linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, false);
 
         if (linkValid === Eagle.LinkValid.Invalid)
             return LINK_INVALID_COLOR;
@@ -2045,7 +2045,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         destinationPortId = port.getId();
         destinationNodeKey = port.getNodeKey();
 
-        isDraggingPortValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId);
+        isDraggingPortValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, true, true);
     }
 
     function mouseLeavePort(port : Port) : void {

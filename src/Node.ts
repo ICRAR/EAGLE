@@ -946,14 +946,14 @@ export class Node {
         for (var i = 0 ; i < this.getInputLocalPorts().length ; i++){
             var port : Port = this.getInputLocalPorts()[i];
             if (port.getId() === portId){
-                return true;
+                return false;
             }
         }
 
         for (var i = 0 ; i < this.getOutputLocalPorts().length ; i++){
             var port : Port = this.getOutputLocalPorts()[i];
             if (port.getId() === portId){
-                return false;
+                return true;
             }
         }
 
