@@ -1777,6 +1777,7 @@ export class Eagle {
     }
 
     // NOTE: enabling the tooltips must be delayed slightly to make sure the html has been generated (hence the setTimeout)
+    // NOTE: now needs a timeout longer that 1ms! UGLY HACK TODO
     updateTooltips = () : void => {
         var eagle : Eagle = this;
 
@@ -1797,7 +1798,12 @@ export class Eagle {
                     $(jElement).attr('data-original-title', eagle.palettes()[i].getNthNonDataNode(j).getHelpHTML());
                 });
             });
-        }, 1);
+
+            // update title on all right window component buttons
+            // TODO: update outputApplication and exitApplication too
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
+                $('.rightWindowDisplay inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
+        }, 50);
     }
 
     selectedEdgeValid = () : Eagle.LinkValid => {
@@ -1870,7 +1876,23 @@ export class Eagle {
             console.log("Find application", paletteName, nodeName);
 
             var inputApplication : Node = this.getApplication(paletteName, nodeName);
-            this.selectedNode().setInputApplication(inputApplication);
+
+            // clone the input application to make a local copy
+            // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
+            let clone : Node = inputApplication.clone();
+            clone.setKey(Math.floor(Math.random() * 1000000));
+
+            // set nodeKey on clone's ports to match the clone
+            for (let i = 0 ; i < clone.getInputPorts().length ; i++){
+                let port = clone.getInputPorts()[i];
+                port.setNodeKey(clone.getKey());
+            }
+            for (let i = 0 ; i < clone.getOutputPorts().length ; i++){
+                let port = clone.getOutputPorts()[i];
+                port.setNodeKey(clone.getKey());
+            }
+
+            this.selectedNode().setInputApplication(clone);
         });
     }
 

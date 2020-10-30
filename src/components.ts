@@ -87,14 +87,21 @@ ko.components.register('hierarchy-node', {
     template: { require: "text!static/components/hierarchy-node.html" }
 });
 
-// custom component for a component
-ko.components.register('component', {
-    viewModel: function(params : {data : any, paletteIndex : any, index : any, showAdd : any, showEdit : any, callback : any}){
-        this.paletteIndex = params.paletteIndex;
-        this.index = params.index;
-        this.showAdd = params.showAdd;
-        this.showEdit = params.showEdit;
-        this.callback = params.callback;
+// custom component for a component that appears in the inspector
+ko.components.register('inspector-component', {
+    viewModel: function(params : {data : any}){
+        return params.data;
     },
-    template: { require: "text!static/components/component.html" }
+    template: { require: "text!static/components/inspector-component.html" }
+});
+
+// custom component for a component that appears in the palette
+ko.components.register('palette-component', {
+    viewModel: function(params : {data : any, paletteIndex : any, index : any}){
+        let vm = params.data;
+        vm.paletteIndex = params.paletteIndex;
+        vm.index = params.index;
+        return vm;
+    },
+    template: { require: "text!static/components/palette-component.html" }
 });
