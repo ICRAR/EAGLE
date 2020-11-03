@@ -1137,6 +1137,7 @@ export class Node {
                 let port = new Port(portData.Id, portData.IdText);
                 if (node.inputApplication() !== null){
                     node.inputApplication().addPort(port, true);
+                    port.setNodeKey(node.getKey());
                 } else {
                     node.addPort(port, true);
                 }
@@ -1150,6 +1151,7 @@ export class Node {
                 let port = new Port(portData.Id, portData.IdText);
                 if (node.inputApplication() !== null){
                     node.inputApplication().addPort(port, false);
+                    port.setNodeKey(node.getKey());
                 } else {
                     node.addPort(port, false);
                 }
@@ -1163,7 +1165,9 @@ export class Node {
                 if (node.inputApplication() === null){
                     console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
                 } else {
-                    node.inputApplication().addPort(new Port(portData.Id, portData.IdText), true); // I or O?
+                    let p = new Port(portData.Id, portData.IdText);
+                    node.inputApplication().addPort(p, true); // I or O?
+                    p.setNodeKey(node.getKey());
                 }
             }
         }
@@ -1175,7 +1179,9 @@ export class Node {
                 if (node.inputApplication() === null){
                     console.warn("Can't add outputLocal port", portData.IdText, "to node", node.getName());
                 } else {
-                    node.inputApplication().addPort(new Port(portData.Id, portData.IdText), false); // I or O?
+                    let p = new Port(portData.Id, portData.IdText);
+                    node.inputApplication().addPort(p, false); // I or O?
+                    p.setNodeKey(node.getKey());
                 }
              }
          }

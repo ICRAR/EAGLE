@@ -1885,11 +1885,11 @@ export class Eagle {
             // set nodeKey on clone's ports to match the clone
             for (let i = 0 ; i < clone.getInputPorts().length ; i++){
                 let port = clone.getInputPorts()[i];
-                port.setNodeKey(clone.getKey());
+                port.setNodeKey(this.selectedNode().getKey());
             }
             for (let i = 0 ; i < clone.getOutputPorts().length ; i++){
                 let port = clone.getOutputPorts()[i];
-                port.setNodeKey(clone.getKey());
+                port.setNodeKey(this.selectedNode().getKey());
             }
 
             this.selectedNode().setInputApplication(clone);

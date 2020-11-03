@@ -512,7 +512,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     var portDragHandler = d3.drag()
                             .on("start", function (port : Port) {
-                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getName());
+                                console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getName());
                                 isDraggingPort = true;
                                 sourceNodeKey = port.getNodeKey();
                                 sourcePortId = port.getId();
@@ -1509,6 +1509,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 return nodes[i];
             }
         }
+
+        console.warn("Cannot find node with key", key);
         return null;
     }
 
