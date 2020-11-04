@@ -4,6 +4,7 @@ export class Port {
     private _id : string
     private name : string;
     private nodeKey : number;
+    private local : boolean;
 
     public static readonly DEFAULT_ID : string = "<default>";
 
@@ -11,6 +12,7 @@ export class Port {
         this._id = id;
         this.name = name;
         this.nodeKey = 0;
+        this.local = false;
     }
 
     getId = () : string => {
@@ -29,10 +31,19 @@ export class Port {
         this.nodeKey = key;
     }
 
+    isLocal = () : boolean => {
+        return this.local;
+    }
+
+    setLocal = (local : boolean) : void => {
+        this.local = local;
+    }
+
     clear = () : void => {
         this._id = "";
         this.name = "";
         this.nodeKey = 0;
+        this.local = false;
     }
 
     isEventPort = () : boolean => {
@@ -40,6 +51,8 @@ export class Port {
     }
 
     clone = () : Port => {
-        return new Port(this._id, this.name);
+        var p = new Port(this._id, this.name);
+        p.local = this.local;
+        return p;
     }
 }

@@ -1135,6 +1135,7 @@ export class Node {
             for (let j = 0 ; j < nodeData.inputPorts.length; j++){
                 let portData = nodeData.inputPorts[j];
                 let port = new Port(portData.Id, portData.IdText);
+                port.setLocal(false);
                 if (node.inputApplication() !== null){
                     node.inputApplication().addPort(port, true);
                     port.setNodeKey(node.getKey());
@@ -1149,6 +1150,7 @@ export class Node {
             for (let j = 0 ; j < nodeData.outputPorts.length; j++){
                 let portData = nodeData.outputPorts[j];
                 let port = new Port(portData.Id, portData.IdText);
+                port.setLocal(false);
                 if (node.inputApplication() !== null){
                     node.inputApplication().addPort(port, false);
                     port.setNodeKey(node.getKey());
@@ -1168,6 +1170,7 @@ export class Node {
                     let p = new Port(portData.Id, portData.IdText);
                     node.inputApplication().addPort(p, true); // I or O?
                     p.setNodeKey(node.getKey());
+                    p.setLocal(true);
                 }
             }
         }
@@ -1182,6 +1185,7 @@ export class Node {
                     let p = new Port(portData.Id, portData.IdText);
                     node.inputApplication().addPort(p, false); // I or O?
                     p.setNodeKey(node.getKey());
+                    p.setLocal(true);
                 }
              }
          }
@@ -1271,7 +1275,12 @@ export class Node {
                     Id:port.getId(),
                     IdText:port.getName()
                 };
-                result.inputLocalPorts.push(portData);
+                // could be inputPorts, or inputLocalPorts
+                if (port.isLocal()){
+                    result.inputLocalPorts.push(portData);
+                } else {
+                    result.inputPorts.push(portData);
+                }
             }
         }
 
@@ -1284,7 +1293,12 @@ export class Node {
                     Id:port.getId(),
                     IdText:port.getName()
                 };
-                result.outputLocalPorts.push(portData);
+                // could be outputPorts, or outputLocalPorts
+                if (port.isLocal()){
+                    result.outputLocalPorts.push(portData);
+                } else {
+                    result.outputPorts.push(portData);
+                }
             }
         }
 
