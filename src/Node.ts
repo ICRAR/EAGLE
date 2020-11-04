@@ -1195,6 +1195,18 @@ export class Node {
             }
         }
 
+        // add inputAppFields
+        if (typeof nodeData.inputAppFields !== 'undefined'){
+            for (var j = 0 ; j < nodeData.inputAppFields.length ; j++){
+                var fieldData = nodeData.inputAppFields[j];
+                var fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
+                node.inputApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription));
+            }
+        }
+
+
+        // add outputAppFields
+
         return node;
     }
 
@@ -1228,17 +1240,6 @@ export class Node {
             result.group = node.parentKey;
         }
 
-        // nested nodes
-        if (node.inputApplication() !== null){
-            result.inputApplication = Node.toOJSJson(node.inputApplication());
-        }
-        if (node.outputApplication() !== null){
-            result.outputApplication = Node.toOJSJson(node.outputApplication());
-        }
-        if (node.exitApplication() !== null){
-            result.exitApplication = Node.toOJSJson(node.exitApplication());
-        }
-
         // add input ports
         result.inputPorts = [];
         for (var i = 0 ; i < node.inputPorts.length; i++){
@@ -1261,29 +1262,31 @@ export class Node {
             result.outputPorts.push(portData);
         }
 
-        /*
-        // add input local ports
+        // add input ports from the inputApplication
         result.inputLocalPorts = [];
-        for (var i = 0 ; i < node.inputLocalPorts.length; i++){
-            var port = node.inputLocalPorts[i];
-            var portData = {
-                Id:port.getId(),
-                IdText:port.getName()
-            };
-            result.inputLocalPorts.push(portData);
+        if (node.inputApplication() !== null){
+            for (var i = 0 ; i < node.inputApplication().inputPorts.length ; i++){
+                var port = node.inputApplication().inputPorts[i];
+                var portData = {
+                    Id:port.getId(),
+                    IdText:port.getName()
+                };
+                result.inputLocalPorts.push(portData);
+            }
         }
 
-        // add output local ports
+        // add output ports from the inputApplication
         result.outputLocalPorts = [];
-        for (var i = 0 ; i < node.outputLocalPorts.length; i++){
-            var port = node.outputLocalPorts[i];
-            var portData = {
-                Id:port.getId(),
-                IdText:port.getName()
-            };
-            result.outputLocalPorts.push(portData);
+        if (node.inputApplication() !== null){
+            for (var i = 0 ; i < node.inputApplication().outputPorts.length ; i++){
+                var port = node.inputApplication().outputPorts[i];
+                var portData = {
+                    Id:port.getId(),
+                    IdText:port.getName()
+                };
+                result.outputLocalPorts.push(portData);
+            }
         }
-        */
 
         // add fields
         result.fields = [];
@@ -1291,6 +1294,42 @@ export class Node {
             var field = node.fields[i];
             result.fields.push(Field.toOJSJson(field));
         }
+
+        // add fields from inputApplication
+        result.inputAppFields = [];
+        if (node.inputApplication() !== null){
+            for (var i = 0 ; i < node.inputApplication().fields.length ; i++){
+                var field = node.inputApplication().fields[i];
+                result.inputAppFields.push(Field.toOJSJson(field));
+            }
+        }
+
+        // write application names and types
+        if (node.inputApplication() !== null){
+            result.inputApplicationName = node.inputApplication().name;
+            result.inputApplicationType = node.inputApplication().category;
+        } else {
+            result.inputApplicationName = "";
+            result.inputApplicationType = Eagle.Category.None;
+        }
+        if (node.outputApplication() !== null){
+            result.outputApplicationName = node.outputApplication().name;
+            result.outputApplicationType = node.outputApplication().category;
+        } else {
+            result.outputApplicationName = "";
+            result.outputApplicationType = Eagle.Category.None;
+        }
+        if (node.exitApplication() !== null){
+            result.exitApplicationName = node.exitApplication().name;
+            result.exitApplicationType = node.exitApplication().category;
+        } else {
+            result.exitApplicationName = "";
+            result.exitApplicationType = Eagle.Category.None;
+        }
+
+
+        // add fields from outputApplication
+        result.outputAppFields = [];
 
         return result;
     }
