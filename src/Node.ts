@@ -1229,9 +1229,15 @@ export class Node {
         }
 
         // nested nodes
-        result.inputApplication = Node.toOJSJson(node.inputApplication());
-        result.outputApplication = Node.toOJSJson(node.outputApplication());
-        result.exitApplication = Node.toOJSJson(node.exitApplication());
+        if (node.inputApplication() !== null){
+            result.inputApplication = Node.toOJSJson(node.inputApplication());
+        }
+        if (node.outputApplication() !== null){
+            result.outputApplication = Node.toOJSJson(node.outputApplication());
+        }
+        if (node.exitApplication() !== null){
+            result.exitApplication = Node.toOJSJson(node.exitApplication());
+        }
 
         // add input ports
         result.inputPorts = [];
