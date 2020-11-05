@@ -52,6 +52,8 @@ export class Utils {
 
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
 
+    static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
+
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
     /**
