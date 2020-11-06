@@ -47,6 +47,4 @@ export class Config {
 
     static readonly defaultRightWindowWidth : number = 300;
     static readonly defaultLeftWindowWidth : number = 300;
-
-    static readonly enablePaletteEditorMode : boolean = true;
 }

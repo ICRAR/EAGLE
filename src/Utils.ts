@@ -54,6 +54,8 @@ export class Utils {
 
     static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
 
+    static readonly ENABLE_PALETTE_EDITOR_MODE : string = "EnablePaletteEditorMode";
+
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
     /**
