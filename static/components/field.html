@@ -15,6 +15,7 @@
         <!-- /ko -->
     <!-- /ko -->
 
+    <!-- ko ifnot: $root.selectionReadOnly -->
     <div class="input-group-append">
         <!-- ko if: $data.type === Eagle.FieldType.Field -->
             <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index()}">
@@ -27,4 +28,5 @@
             </button>
         <!-- /ko -->
     </div>
+    <!-- /ko -->
 </div>

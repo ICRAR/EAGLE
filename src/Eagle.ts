@@ -114,7 +114,9 @@ export class Eagle {
         this.settings.push(new Setting("Confirm Delete Edges", "Prompt user to confirm when deleting an edge from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
         this.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
         this.settings.push(new Setting("Allow invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, false));
+        this.settings.push(new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, false));
         this.settings.push(new Setting("Enable Palette Editor Mode", "Enable the palette editor mode in EAGLE.", Setting.Type.Boolean, Utils.ENABLE_PALETTE_EDITOR_MODE, false));
+
 
         this.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"));
 
@@ -1511,9 +1513,10 @@ export class Eagle {
         this.rightWindowShown(!this.rightWindowShown());
     }
 
-    // TODO: not sure about this
+    // check the "allow component editing" setting to check if the selection
+    // can be edited
     selectionReadOnly : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return false;
+        return !this.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
     }, this);
 
     /**

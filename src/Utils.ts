@@ -53,6 +53,7 @@ export class Utils {
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
 
     static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
+    static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
 
     static readonly ENABLE_PALETTE_EDITOR_MODE : string = "EnablePaletteEditorMode";
 
