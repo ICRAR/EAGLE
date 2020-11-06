@@ -1929,6 +1929,71 @@ export class Eagle {
 
         //this.flagActiveDiagramHasMutated();
     }
+
+    showFieldValuePicker = (fieldIndex : number, fieldType : Eagle.FieldType, input : boolean) : void => {
+        console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "fieldType", fieldType, "input", input);
+
+        // get the key for the currently selected node
+        var selectedNodeKey : number = this.selectedNode().getKey();
+
+        // build list of nodes that are attached to this node
+        var nodes : string[] = [];
+        for (let i = 0 ; i < this.logicalGraph().getEdges().length ; i++){
+            var edge : Edge = this.logicalGraph().getEdges()[i];
+
+            // add output nodes to the list
+            if (edge.getSrcNodeKey() === selectedNodeKey){
+                var destNode : Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+                var s : string = "output:" + destNode.getName() + ":" + destNode.getKey();
+                nodes.push(s);
+            }
+
+            // add input nodes to the list
+            if (edge.getDestNodeKey() === selectedNodeKey){
+                var srcNode : Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+                var s : string = "input:" + srcNode.getName() + ":" + srcNode.getKey();
+                nodes.push(s);
+            }
+        }
+
+        // ask the user to choose a node
+        Utils.requestUserChoice("Select node", "Choose the input or output node to connect to this parameter", nodes, 0, false, "", (completed : boolean, userString : string) => {
+            // abort if the user aborted
+            if (!completed){
+                return;
+            }
+
+            // split the user string into input/output, name, key
+            var isInput : boolean = userString.split(":")[0] === "input";
+            var key : string = userString.split(":")[2];
+
+            var newValue : string;
+            if (isInput){
+                newValue = "%i[" + key + "]";
+            } else {
+                newValue = "%o[" + key + "]";
+            }
+
+            // update the correct field based on type and input
+            if (fieldType === Eagle.FieldType.Field){
+                this.selectedNode().getFields()[fieldIndex].setValue(newValue);
+            } else {
+                if (input){
+                    this.selectedNode().getInputAppFields()[fieldIndex].setValue(newValue);
+                } else {
+                    this.selectedNode().getOutputAppFields()[fieldIndex].setValue(newValue);
+                }
+            }
+
+            // HACK to make sure that new value is shown in the UI
+            var x = this.selectedNode();
+            this.selectedNode(null);
+            var that = this;
+            setTimeout(function(){
+                that.selectedNode(x);
+            }, 1);
+        });
+    }
 }
 
 
