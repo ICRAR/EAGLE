@@ -482,22 +482,6 @@ export class LogicalGraph {
         return false;
     }
 
-    portIsEvent = (nodeKey : number, portId : string) : boolean => {
-        let node = this.findNodeByKey(nodeKey);
-
-        if (node === null){
-            return false;
-        }
-
-        let port = node.findPortById(portId);
-
-        if (port === null){
-            return false;
-        }
-
-        return port.isEvent();
-    }
-
     shrinkNode = (node : Node) : void => {
         // abort shrink of non-group node
         if (!node.isGroup()){
