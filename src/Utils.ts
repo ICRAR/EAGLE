@@ -631,33 +631,33 @@ export class Utils {
 
             // add input port names into the list
             for (var j = 0; j < node.getInputPorts().length; j++) {
-                var portName = node.getInputPorts()[j].getName();
-                if (!Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getInputPorts()[j];
+                if (!port.isEvent()){
+                    allPortNames.push(port.getName());
                 }
             }
 
             // add input local port names into the list
             for (var j = 0; j < node.getInputLocalPorts().length; j++) {
-                var portName = node.getInputLocalPorts()[j].getName();
-                if (!Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getInputLocalPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
                 }
             }
 
             // add output port names into the list
             for (var j = 0; j < node.getOutputPorts().length; j++) {
-                var portName = node.getOutputPorts()[j].getName();
-                if (!Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getOutputPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
                 }
             }
 
             // add output local port names into the list
             for (var j = 0; j < node.getOutputLocalPorts().length; j++) {
-                var portName = node.getOutputLocalPorts()[j].getName();
-                if (!Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getOutputLocalPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
                 }
             }
         }
@@ -865,14 +865,5 @@ export class Utils {
 
     static getLocalStorageValue(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
         return repositoryName+"|"+repositoryBranch;
-    }
-
-    static isEventPortName(portName : string) : boolean {
-        for (var i = 0 ; i < Config.eventPortNames.length ; i++){
-            if (portName === Config.eventPortNames[i]){
-                return true;
-            }
-        }
-        return false;
     }
 }

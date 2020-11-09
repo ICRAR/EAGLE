@@ -4,13 +4,16 @@ export class Port {
     private _id : string
     private name : string;
     private nodeKey : number;
+    private event : boolean;
 
     public static readonly DEFAULT_ID : string = "<default>";
+    public static readonly DEFAULT_EVENT_PORT_NAME = "event";
 
-    constructor(id : string, name : string){
+    constructor(id : string, name : string, event : boolean){
         this._id = id;
         this.name = name;
         this.nodeKey = 0;
+        this.event = event;
     }
 
     getId = () : string => {
@@ -33,13 +36,18 @@ export class Port {
         this._id = "";
         this.name = "";
         this.nodeKey = 0;
+        this.event = false;
     }
 
-    isEventPort = () : boolean => {
-        return Utils.isEventPortName(this.name);
+    isEvent = () : boolean => {
+        return this.event;
+    }
+
+    setEvent = (event : boolean) : void => {
+        this.event = event;
     }
 
     clone = () : Port => {
-        return new Port(this._id, this.name);
+        return new Port(this._id, this.name, this.event);
     }
 }

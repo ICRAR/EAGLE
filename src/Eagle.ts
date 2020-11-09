@@ -1596,16 +1596,8 @@ export class Eagle {
                 return;
             }
 
-            // abort if the name chosen is the name reserved for event ports
-            /*
-            if (userString === Config.eventPortName) {
-                Utils.showUserMessage("Error", "The port name '" + Config.eventPortName + "' is reserved for event type ports!");
-                return;
-            }
-            */
-
             // add port with the chosen name
-            node.addPort(new Port(Utils.uuidv4(), userString), isInputPort, isLocalPort);
+            node.addPort(new Port(Utils.uuidv4(), userString, false), isInputPort, isLocalPort);
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();

@@ -174,6 +174,13 @@ export class Edge {
             return Eagle.LinkValid.Invalid;
         }
 
+        // check that source and destination port are both event, or both not event
+        if ((sourcePort.isEvent() && !destinationPort.isEvent()) || (!sourcePort.isEvent() && destinationPort.isEvent())){
+            if (showNotification)
+                Utils.showNotification("Invalid Edge", "sourcePort and destinationPort are mix of event and non-event ports", "danger");
+            return Eagle.LinkValid.Invalid;
+        }
+
         // check relationship between destination and source node
         var isParent : boolean = sourceNode.getParentKey() === destinationNodeKey;
         var isChild : boolean = destinationNode.getParentKey() === sourceNodeKey;
