@@ -381,7 +381,7 @@ export class LogicalGraph {
             (srcNode.getCategoryType() === Eagle.CategoryType.Application || srcNode.getCategoryType() === Eagle.CategoryType.Group) &&
             (destNode.getCategoryType() === Eagle.CategoryType.Application || destNode.getCategoryType() === Eagle.CategoryType.Group);
 
-        var twoEventPorts : boolean = srcPort.isEventPort() && destPort.isEventPort();
+        var twoEventPorts : boolean = srcPort.isEvent() && destPort.isEvent();
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
@@ -415,10 +415,10 @@ export class LogicalGraph {
 
                 // add input port and output port for dataType (if they don't exist)
                 if (!newNode.hasPortWithName(dataType, true, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType), true, false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false), true, false);
                 }
                 if (!newNode.hasPortWithName(dataType, false, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType), false, false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false), false, false);
                 }
 
                 // set the parent of the new node

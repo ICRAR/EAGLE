@@ -58,7 +58,7 @@
         </div>
 
         <!-- ko foreach: selectedNode().getInputLocalPorts() -->
-        <port params="id: $data.getId(), name: $data.getName(), multiplicity: $root.selectedNode().getLocalMultiplicity(), isEventPort: $data.isEventPort(), input: true, local: true"></port>
+        <port params="id: $data.getId(), name: $data.getName(), multiplicity: $root.selectedNode().getLocalMultiplicity(), isEventPort: $data.isEvent(), input: true, local: true"></port>
         <!-- /ko -->
     </div>
 </div>

@@ -1191,7 +1191,7 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (var j = 0 ; j < nodeData.inputPorts.length; j++){
                 var portData = nodeData.inputPorts[j];
-                node.addPort(new Port(portData.Id, portData.IdText), true, false);
+                node.addPort(new Port(portData.Id, portData.IdText, false), true, false);
             }
         }
 
@@ -1199,7 +1199,7 @@ export class Node {
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (var j = 0 ; j < nodeData.outputPorts.length; j++){
                 var portData = nodeData.outputPorts[j];
-                node.addPort(new Port(portData.Id, portData.IdText), false, false);
+                node.addPort(new Port(portData.Id, portData.IdText, false), false, false);
             }
         }
 
@@ -1207,7 +1207,7 @@ export class Node {
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (var j = 0 ; j < nodeData.inputLocalPorts.length; j++){
                 var portData = nodeData.inputLocalPorts[j];
-                node.addPort(new Port(portData.Id, portData.IdText), true, true);
+                node.addPort(new Port(portData.Id, portData.IdText, false), true, true);
             }
         }
 
@@ -1215,7 +1215,7 @@ export class Node {
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
                 var portData = nodeData.outputLocalPorts[j];
-                node.addPort(new Port(portData.Id, portData.IdText), false, true);
+                node.addPort(new Port(portData.Id, portData.IdText, false), false, true);
             }
         }
 
