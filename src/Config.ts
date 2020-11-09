@@ -30,9 +30,6 @@ export class Config {
     static readonly paletteNodeHeight : number = 22;
     static readonly paletteNodeWidth : number = 130;
 
-    static readonly eventPortColor : string = "#ff0000";
-    static readonly normalPortColor : string = "#222222";
-
     // translation algorithms
     static readonly translationAlgorithms = [
         "none",
