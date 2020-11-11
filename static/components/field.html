@@ -1,5 +1,18 @@
 <div class="input-group mb-1">
     <div class="input-group-prepend">
+        <!-- ko if: $data.type === Eagle.FieldType.Field -->
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index()}">
+            <i class="material-icons md-18">remove</i>
+        </button>
+        <!-- /ko -->
+        <!-- ko if: $data.type === Eagle.FieldType.AppField -->
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeAppFieldByIndex($index(), $data.input);$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveAppField' + $index()}">
+                <i class="material-icons md-18">remove</i>
+            </button>
+        <!-- /ko -->
+    </div>
+
+    <div class="input-group-prepend">
         <span class="input-group-text mw-140" id="group-addon" data-bind="text: $data.text, attr: {title: $data.getDescriptionText()}" data-toggle="tooltip" data-html="true" data-placement="left"></span>
     </div>
 
@@ -17,16 +30,9 @@
 
     <!-- ko ifnot: $root.selectionReadOnly -->
     <div class="input-group-append">
-        <!-- ko if: $data.type === Eagle.FieldType.Field -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index()}">
-                <i class="material-icons md-18">remove</i>
-            </button>
-        <!-- /ko -->
-        <!-- ko if: $data.type === Eagle.FieldType.AppField -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeAppFieldByIndex($index(), $data.input);$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveAppField' + $index()}">
-                <i class="material-icons md-18">remove</i>
-            </button>
-        <!-- /ko -->
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data.type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index()}">
+            <i class="material-icons md-18">edit</i>
+        </button>
     </div>
     <!-- /ko -->
 </div>
