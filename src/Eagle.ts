@@ -765,12 +765,23 @@ export class Eagle {
                 return;
             }
 
-            this.activeFileInfo().repositoryService = repositoryService;
-            this.activeFileInfo().repositoryName = repositoryName;
-            this.activeFileInfo().repositoryBranch = repositoryBranch;
+            // check which fileInfo object to use, based on the current editor mode
+            var activeFileInfo : ko.Observable<FileInfo>;
+            if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
+                if (this.logicalGraph()){
+                    activeFileInfo = this.logicalGraph().fileInfo;
+                }
+            } else {
+                if (this.editorPalette()){
+                    activeFileInfo = this.editorPalette().fileInfo;
+                }
+            }
 
-            // check filePath
-            this.activeFileInfo().path = filePath;
+            activeFileInfo().repositoryService = repositoryService;
+            activeFileInfo().repositoryName = repositoryName;
+            activeFileInfo().repositoryBranch = repositoryBranch;
+            activeFileInfo().path = filePath;
+            activeFileInfo().type = fileType;
 
             // Adding file extension to the title if it does not have it.
             if (!Utils.verifyFileExtension(fileName)) {
@@ -778,10 +789,10 @@ export class Eagle {
             }
 
             // Change the title name.
-            this.activeFileInfo().name = fileName;
+            activeFileInfo().name = fileName;
 
-            // Set correct diagram type.
-            this.activeFileInfo().type = fileType;
+            // flag fileInfo object as modified
+            activeFileInfo.valueHasMutated();
 
             this.saveDiagramToGit(repository, fileType, filePath, fileName, commitMessage);
         });
