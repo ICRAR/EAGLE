@@ -47,6 +47,7 @@ $(function(){
     // add eagle to the window object, slightly hacky, but useful for debugging
     (<any>window).eagle = eagle;
     (<any>window).Eagle = Eagle;
+    (<any>window).Utils = Utils;
 
     ko.applyBindings(eagle);
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
@@ -70,9 +71,6 @@ $(function(){
     GitHub.loadRepoList(eagle);
     GitLab.loadRepoList(eagle);
 
-    // fetch default translator location
-    Utils.fetchTranslatorURL();
-
     // load the default palette
     eagle.loadTemplatePalette();
 
@@ -86,7 +84,7 @@ $(function(){
     Utils.initModals(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
-    window.onbeforeunload = () => eagle.activeFileInfo().modified ? "Check graph" : null;
+    window.onbeforeunload = () => (eagle.activeFileInfo().modified && eagle.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()) ? "Check graph" : null;
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "LEAP-Work-Flow.graph"));
@@ -106,8 +104,10 @@ function initNodeDataLists() {
     $.ajax({
         url: "./static/" + Config.templatePaletteFileName,
         success: function (data) {
+            var showErrors = eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+
             // TODO: we waste time here turning the response JSON back into a string, could be improved
-            var paletteTemplate : Palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName));
+            var paletteTemplate : Palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), showErrors);
 
             // Adding event ports.
             paletteTemplate.addEventPorts();
@@ -145,6 +145,11 @@ function buildCategoryList(palette : Palette, categoryType : Eagle.CategoryType)
         if (node.getCategoryType() === categoryType) {
             result.push(node.getCategory());
         }
+    }
+
+    // debug until PythonApp is used everywhere
+    if (categoryType === Eagle.CategoryType.Application){
+        result.push("Component");
     }
 
     return result;

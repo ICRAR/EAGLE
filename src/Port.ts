@@ -1,18 +1,19 @@
-import {Utils} from './Utils';
-
 export class Port {
     private _id : string
     private name : string;
     private nodeKey : number;
     private local : boolean;
+    private event : boolean;
 
     public static readonly DEFAULT_ID : string = "<default>";
+    public static readonly DEFAULT_EVENT_PORT_NAME = "event";
 
-    constructor(id : string, name : string){
+    constructor(id : string, name : string, event : boolean){
         this._id = id;
         this.name = name;
         this.nodeKey = 0;
         this.local = false;
+        this.event = event;
     }
 
     getId = () : string => {
@@ -44,14 +45,19 @@ export class Port {
         this.name = "";
         this.nodeKey = 0;
         this.local = false;
+        this.event = false;
     }
 
-    isEventPort = () : boolean => {
-        return Utils.isEventPortName(this.name);
+    isEvent = () : boolean => {
+        return this.event;
+    }
+
+    setEvent = (event : boolean) : void => {
+        this.event = event;
     }
 
     clone = () : Port => {
-        var p = new Port(this._id, this.name);
+        var p = new Port(this._id, this.name, this.event);
         p.local = this.local;
         return p;
     }

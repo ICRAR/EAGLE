@@ -408,7 +408,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .data(function(node : Node){return node.getInputPorts();})
                             .enter()
                             .append("text")
-                            .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
+                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                             .attr("x", REAL_TO_DISPLAY_SCALE(20))
                             .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
@@ -436,7 +436,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .data(function(node : Node){return node.getInputLocalPorts();})
                             .enter()
                             .append("text")
-                            .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
+                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                             .attr("x", REAL_TO_DISPLAY_SCALE(20))
                             .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
@@ -464,7 +464,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .data(function(node : Node, index : number){return node.getOutputPorts();})
                             .enter()
                             .append("text")
-                            .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
+                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                             .attr("x", REAL_TO_DISPLAY_SCALE(-20))
                             .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
@@ -492,7 +492,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .data(function(node : Node){return node.getOutputLocalPorts();})
                             .enter()
                             .append("text")
-                            .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
+                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                             .attr("x", REAL_TO_DISPLAY_SCALE(-20))
                             .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
@@ -532,8 +532,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     // check if link is valid
                                     var linkValid : Eagle.LinkValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, true, true);
 
+                                    // check if we should allow invalid edges
+                                    var allowInvalidEdges : boolean = eagle.findSetting(Utils.ALLOW_INVALID_EDGES).value();
+
                                     // abort if source port and destination port have different data types
-                                    if (linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
+                                    if (allowInvalidEdges || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
                                         addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, sourceDataType);
                                     } else {
                                         console.warn("link not valid, result", linkValid);
@@ -828,7 +831,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         nodes.selectAll("g.inputPorts text")
                                 .data(function(node : Node){return node.getInputPorts();})
-                                .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
+                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(20))
                                 .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
@@ -873,7 +876,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         nodes.selectAll("g.inputLocalPorts text")
                                 .data(function(node : Node){return node.getInputLocalPorts();})
-                                .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
+                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(20))
                                 .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
@@ -918,7 +921,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         nodes.selectAll("g.outputPorts text")
                                 .data(function(node : Node){return node.getOutputPorts();})
-                                .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
+                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(-20))
                                 .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
@@ -964,7 +967,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         nodes.selectAll("g.outputLocalPorts text")
                                 .data(function(node : Node){return node.getOutputLocalPorts();})
-                                .attr("class", function(port : Port){return port.isEventPort() ? "event" : ""})
+                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(-20))
                                 .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
@@ -1711,7 +1714,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
-        if (Utils.isEventPortName(edge.getDataType())){
+        let srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        let srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
+
+        if (srcPort.isEvent()){
             return "8";
         } else {
             return "";

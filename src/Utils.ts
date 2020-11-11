@@ -41,11 +41,23 @@ export class Utils {
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
     static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
-    static readonly TRANSLATOR_URL_KEY : string = "TranslatorURL";
     static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
     static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
 
-    static translatorURL : string;
+    static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
+    static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
+    static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
+    static readonly CONFIRM_DELETE_NODES : string = "ConfirmDeleteNodes";
+    static readonly CONFIRM_DELETE_EDGES : string = "ConfirmDeleteEdges";
+
+    static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
+
+    static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
+    static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
+
+    static readonly ENABLE_PALETTE_EDITOR_MODE : string = "EnablePaletteEditorMode";
+
+    static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
     /**
      * Generates a UUID.
@@ -420,6 +432,11 @@ export class Utils {
 
             callback(true, repositoryService, repositoryName, repositoryBranch);
         });
+
+        // #settingsModal - showSettingsModal()
+        $('#settingsModal').on('shown.bs.modal', function(){
+            $('#settingsModalAffirmativeButton').focus();
+        });
     }
 
     static showUserMessage (title : string, message : string) {
@@ -598,6 +615,10 @@ export class Utils {
         }
     }
 
+    static showSettingsModal(){
+        $('#settingsModal').modal();
+    }
+
     /**
      * Returns a list of unique port names (except event ports)
      */
@@ -610,33 +631,33 @@ export class Utils {
 
             // add input port names into the list
             for (var j = 0; j < node.getInputPorts().length; j++) {
-                var portName = node.getInputPorts()[j].getName();
-                if (Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getInputPorts()[j];
+                if (!port.isEvent()){
+                    allPortNames.push(port.getName());
                 }
             }
 
             // add input local port names into the list
             for (var j = 0; j < node.getInputLocalPorts().length; j++) {
-                var portName = node.getInputLocalPorts()[j].getName();
-                if (Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getInputLocalPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
                 }
             }
 
             // add output port names into the list
             for (var j = 0; j < node.getOutputPorts().length; j++) {
-                var portName = node.getOutputPorts()[j].getName();
-                if (Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getOutputPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
                 }
             }
 
             // add output local port names into the list
             for (var j = 0; j < node.getOutputLocalPorts().length; j++) {
-                var portName = node.getOutputLocalPorts()[j].getName();
-                if (Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getOutputLocalPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
                 }
             }
         }
@@ -758,28 +779,6 @@ export class Utils {
         }
     }
 
-    /**
-     * Fetch the URL of the graph translator from the server. Also check localStorage to see if the default location has been overwritten.
-     */
-    static fetchTranslatorURL() : void {
-        // try localStorage first
-        Utils.translatorURL = localStorage.getItem(this.TRANSLATOR_URL_KEY);
-
-        // if found, return
-        if (Utils.translatorURL !== null){
-            return;
-        }
-
-        // otherwise, request the url from the server
-        Utils.httpPostJSON("/getTranslatorUrl", null, function(error : string, data: string){
-            if (error != null){
-                console.error(error);
-                return;
-            }
-            Utils.translatorURL = data;
-        });
-    }
-
     static saveAsPNG(selector: string, filename: string) : void {
         // fetch svg CSS and place inline within serialized SVG
         $.get("/static/svg.css")
@@ -869,14 +868,5 @@ export class Utils {
 
     static getLocalStorageValue(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
         return repositoryName+"|"+repositoryBranch;
-    }
-
-    static isEventPortName(portName : string) : boolean {
-        for (var i = 0 ; i < Config.eventPortNames.length ; i++){
-            if (portName === Config.eventPortNames[i]){
-                return true;
-            }
-        }
-        return false;
     }
 }

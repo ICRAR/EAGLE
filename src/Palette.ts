@@ -24,7 +24,6 @@
 
 import * as ko from "knockout";
 
-import {Config} from './Config';
 import {Utils} from './Utils';
 import {Eagle} from './Eagle';
 import {Node} from './Node';
@@ -42,7 +41,7 @@ export class Palette {
         this.nodes = [];
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile) : Palette => {
+    static fromOJSJson = (data : string, file : RepositoryFile, showErrors : boolean) : Palette => {
         // parse the JSON first
         var dataObject : any = JSON.parse(data);
         var errors : string[] = [];
@@ -94,7 +93,7 @@ export class Palette {
         // check for duplicate keys
 
         // show errors (if found)
-        if (errors.length > 0){
+        if (errors.length > 0 && showErrors){
             Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
         }
 
@@ -194,20 +193,20 @@ export class Palette {
             // add event ports
             if (n.getCategoryType() === Eagle.CategoryType.Application ||
                 n.getCategoryType() === Eagle.CategoryType.Data) {
-                n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), true); // external input
-                n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), false); // external output
+                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
+                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false); // external output
             }
             else if (n.getCategoryType() === Eagle.CategoryType.Control) {
                 if (n.getCategory() === Eagle.Category.Start) {
-                    n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), false); // external output
+                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false); // external output
                 }
                 else if (n.getCategory() === Eagle.Category.End) {
-                    n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), true); // external input
+                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
                 }
             }
             else if (n.getCategoryType() === Eagle.CategoryType.Other){
                 if (n.getCategory() === Eagle.Category.Service){
-                    n.addPort(new Port(Utils.uuidv4(), Config.defaultEventPortName), true); // external input
+                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
                 }
             }
         }

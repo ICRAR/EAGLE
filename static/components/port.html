@@ -11,6 +11,18 @@
             </button>
         <!-- /ko -->
     </div>
+    <div class="input-group-prepend">
+        <!-- ko if: isEventPort -->
+            <button class="btn btn-dark btn-sm" type="button">
+                <i class="material-icons md-18">alarm_on</i>
+            </button>
+        <!-- /ko -->
+        <!-- ko ifnot: isEventPort -->
+            <button class="btn btn-dark btn-sm" type="button" disabled>
+                <i class="material-icons md-18">alarm_off</i>
+            </button>
+        <!-- /ko -->
+    </div>
     <input type="text" class="form-control" placeholder="" readonly data-bind="value: name">
     <div class="input-group-append">
         <button class="btn btn-dark btn-sm" type="button" disabled>

@@ -80,6 +80,9 @@ export class Node {
     public static readonly DATA_COMPONENT_WIDTH : number = 48;
     public static readonly DATA_COMPONENT_HEIGHT : number = 48;
 
+    // temp fix for incompatibility with the DaLiuGE translator
+    public static PYTHON_APP_CATEGORY_FIX : boolean = true;
+
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, x : number, y : number){
         this.key = key;
         this.name = name;
@@ -1134,7 +1137,7 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (let j = 0 ; j < nodeData.inputPorts.length; j++){
                 let portData = nodeData.inputPorts[j];
-                let port = new Port(portData.Id, portData.IdText);
+                let port = new Port(portData.Id, portData.IdText, false);
                 port.setLocal(false);
                 if (node.inputApplication() !== null){
                     node.inputApplication().addPort(port, true);
@@ -1149,7 +1152,7 @@ export class Node {
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (let j = 0 ; j < nodeData.outputPorts.length; j++){
                 let portData = nodeData.outputPorts[j];
-                let port = new Port(portData.Id, portData.IdText);
+                let port = new Port(portData.Id, portData.IdText, false);
                 port.setLocal(false);
                 if (node.inputApplication() !== null){
                     node.inputApplication().addPort(port, false);
@@ -1167,7 +1170,7 @@ export class Node {
                 if (node.inputApplication() === null){
                     console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
                 } else {
-                    let p = new Port(portData.Id, portData.IdText);
+                    let p = new Port(portData.Id, portData.IdText, false);
                     node.inputApplication().addPort(p, true); // I or O?
                     p.setNodeKey(node.getKey());
                     p.setLocal(true);
@@ -1182,7 +1185,7 @@ export class Node {
                 if (node.inputApplication() === null){
                     console.warn("Can't add outputLocal port", portData.IdText, "to node", node.getName());
                 } else {
-                    let p = new Port(portData.Id, portData.IdText);
+                    let p = new Port(portData.Id, portData.IdText, false);
                     node.inputApplication().addPort(p, false); // I or O?
                     p.setNodeKey(node.getKey());
                     p.setLocal(true);
@@ -1217,7 +1220,7 @@ export class Node {
     static toOJSJson = (node : Node) : object => {
         var result : any = {};
 
-        result.category = GraphUpdater.translateNewCategory(node.category);
+        result.category = Node.PYTHON_APP_CATEGORY_FIX ? GraphUpdater.translateNewCategory(node.category) : node.category;
         result.categoryType = node.categoryType;
         result.isData = node._isData;
         result.isGroup = node._isGroup;

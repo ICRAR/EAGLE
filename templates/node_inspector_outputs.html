@@ -6,7 +6,7 @@
     <div class="card-body">
 
         <!-- ko foreach: selectedNode().getOutputPorts() -->
-        <port params="id: $data.getId(), name: $data.getName(), multiplicity: $root.selectedNode().getOutputMultiplicity(), isEventPort: $data.isEventPort(), input: false, local: false"></port>
+        <port params="id: $data.getId(), name: $data.getName(), multiplicity: $root.selectedNode().getOutputMultiplicity(), isEventPort: $data.isEvent(), input: false, local: false"></port>
         <!-- /ko -->
 
         <!-- ko ifnot: $root.selectionReadOnly -->
