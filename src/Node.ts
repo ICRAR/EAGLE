@@ -1351,6 +1351,86 @@ export class Node {
         return result;
     }
 
+    // display/visualisation data
+    static toV3NodeJson = (node : Node, index : number) : object => {
+        var result : any = {};
+
+        result.componentKey = index.toString();
+
+        result.color = node.color;
+        result.drawOrderHint = node.drawOrderHint;
+
+        result.x = node.x;
+        result.y = node.y;
+        result.width = node.width;
+        result.height = node.height;
+        result.collapsed = node.collapsed;
+        result.showPorts = node.showPorts;
+
+        result.selected = node.selected();
+        result.expanded = node.expanded();
+
+        return result;
+    }
+
+    // graph data
+    // "name" and "description" are considered part of the structure of the graph, it would be hard to add them to the display part (parameters would have to be treated the same way)
+    static toV3ComponentJson = (node : Node) : object => {
+        let result : any = {};
+
+        result.category = Node.PYTHON_APP_CATEGORY_FIX ? GraphUpdater.translateNewCategory(node.category) : node.category;
+        result.categoryType = node.categoryType;
+        result.isData = node._isData;
+        result.isGroup = node._isGroup;
+        result.canHaveInputs = node._canHaveInputs;
+        result.canHaveOutputs = node._canHaveOutputs;
+
+        result.name = node.name;
+        result.description = node.description;
+
+        result.streaming = node.streaming;
+        result.subject = node.subject; // TODO: not sure if this should be here or in Node JSON
+
+        if (node.parentKey !== null){
+            result.group = node.parentKey;
+        }
+
+        result.inputApplicationKey = -1;
+        result.outputApplicationKey = -1;
+        result.exitApplicationKey = -1;
+
+        // add input ports
+        result.inputPorts = {};
+        for (let i = 0 ; i < node.inputPorts.length; i++){
+            let port = node.inputPorts[i];
+            let portData = {
+                name:port.getName(),
+                isEvent:port.isEvent()
+            };
+            result.inputPorts[port.getId()] = portData;
+        }
+
+        // add output ports
+        result.outputPorts = {};
+        for (let i = 0 ; i < node.outputPorts.length; i++){
+            let port = node.outputPorts[i];
+            let portData = {
+                name:port.getName(),
+                isEvent:port.isEvent()
+            };
+            result.outputPorts[port.getId()] = portData;
+        }
+
+        // add parameters
+        result.parameters = {};
+        for (let i = 0 ; i < node.fields.length ; i++){
+            let field = node.fields[i];
+            result.parameters[i] = Field.toOJSJson(field);
+        }
+
+        return result;
+    }
+
     private static createUnkeyedApplicationNode = (name : string, category: Eagle.Category) : Node => {
         console.log("createUnkeyedApplicationNode(", name, category, ")");
         return new Node(0, name, "", category, Eagle.CategoryType.Application, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);

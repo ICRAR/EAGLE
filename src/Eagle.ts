@@ -926,6 +926,31 @@ export class Eagle {
     }
 
     /**
+     * Export file to V3 Json
+     */
+    exportV3Json = () : void => {
+        var fileName = this.activeFileInfo().name;
+
+        var json = LogicalGraph.toV3Json(this.logicalGraph());
+
+        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+            if (error != null){
+                Utils.showUserMessage("Error", "Error saving the file!");
+                console.error(error);
+                return;
+            }
+
+            // NOTE: this stuff is a hacky way of saving a file locally
+            var blob = new Blob([data]);
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+        });
+    }
+
+    /**
      * Loads template palette from the server.
      */
      // TODO: data is not a string here, it is already an object
@@ -2025,6 +2050,19 @@ export namespace Eagle
         TemplatePalette,
         JSON,
         Unknown
+    }
+
+    export type DALiuGEFileType = string;
+    export namespace DALiuGEFileType {
+        export var LogicalGraph : DALiuGEFileType = "LogicalGraph";
+        export var LogicalGraphTemplate : DALiuGEFileType = "LogicalGraphTemplate";
+        export var PhysicalGraph : DALiuGEFileType = "PhysicalGraph";
+        export var PhysicalGraphTemplate : DALiuGEFileType = "PhysicalGraphTemplate";
+        export var Unknown : DALiuGEFileType = "Unknown";
+    }
+
+    export enum DALiuGESchemaVersion {
+        V3
     }
 
     export enum LinkValid {
