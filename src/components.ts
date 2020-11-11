@@ -1,3 +1,6 @@
+import {Utils} from './Utils';
+import {Eagle} from './Eagle';
+
 import * as ko from "knockout";
 
 ko.components.register('repository-file', {
@@ -82,4 +85,23 @@ ko.components.register('hierarchy-node', {
         //console.log("this.visible", this.visible, "params.data.parentKey", params.data.parentKey, "params.parentKey", params.parentKey);
     },
     template: { require: "text!static/components/hierarchy-node.html" }
+});
+
+// custom component for a component that appears in the inspector
+ko.components.register('inspector-component', {
+    viewModel: function(params : {data : any}){
+        return params.data;
+    },
+    template: { require: "text!static/components/inspector-component.html" }
+});
+
+// custom component for a component that appears in the palette
+ko.components.register('palette-component', {
+    viewModel: function(params : {data : any, paletteIndex : any, index : any}){
+        let vm = params.data;
+        vm.paletteIndex = params.paletteIndex;
+        vm.index = params.index;
+        return vm;
+    },
+    template: { require: "text!static/components/palette-component.html" }
 });

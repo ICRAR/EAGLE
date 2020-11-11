@@ -87,15 +87,11 @@ $(function(){
     window.onbeforeunload = () => (eagle.activeFileInfo().modified && eagle.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()) ? "Check graph" : null;
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
-    //var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "LEAP-Work-Flow.graph");
-    //var autoLoadFile = new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "james-strauss-uwa/eagle-test", "master", false), "summit", "summit.graph");
-    //eagle.selectFile(autoLoadFile);
+    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "LEAP-Work-Flow.graph"));
+    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LeapAccelerateCLI.palette"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LeapMVP.graph"));
-
-    // HACK: autoload the file a second time to test the "palette overwrite" code
-    //setTimeout(function(){
-    //    eagle.selectFile(autoLoadFile);
-    //}, 1000);
+    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "SummitIngest_Demo.graph"));
+    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "james-strauss-uwa/eagle-test", "master", false), "summit", "summit.graph"));
 });
 
 /**

@@ -7,21 +7,21 @@
 
         <div class="input-group mb-1">
             <div class="input-group-prepend">
-                <span class="input-group-text" id="node-key">Key</span>
+                <span class="input-group-text mw-140" id="node-key">Key</span>
             </div>
             <input type="text" class="form-control" id="nodeKeyValue" placeholder="" aria-label="Key" aria-describedby="node-key" readonly data-bind="value: selectedNode().getKey()">
         </div>
 
         <div class="input-group mb-1">
             <div class="input-group-prepend">
-                <span class="input-group-text" id="node-category-type">Category Type</span>
+                <span class="input-group-text mw-140" id="node-category-type">Category Type</span>
             </div>
             <input type="text" class="form-control" id="nodeCategoryTypeValue" placeholder="" aria-label="Category Type" aria-describedby="node-category-type" readonly data-bind="value: selectedNode().getCategoryType()">
         </div>
 
         <div class="input-group mb-1">
             <div class="input-group-prepend">
-                <span class="input-group-text" id="node-category">Category</span>
+                <span class="input-group-text mw-140" id="node-category">Category</span>
             </div>
             <input type="text" class="form-control" id="nodeCategoryValue" placeholder="" aria-label="Category Type" aria-describedby="node-category" readonly data-bind="value: selectedNode().getCategory()">
         </div>
@@ -29,7 +29,7 @@
         <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
         <div class="input-group mb-1">
             <div class="input-group-prepend">
-                <span class="input-group-text" id="node-name">Name</span>
+                <span class="input-group-text mw-140" id="node-name">Name</span>
             </div>
             <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="nodeDataProperty: 'name', readonly: $root.selectionReadOnly()">
         </div>
@@ -37,7 +37,7 @@
 
         <div class="input-group mb-1">
             <div class="input-group-prepend">
-                <span class="input-group-text" id="node-parent">Parent</span>
+                <span class="input-group-text mw-140" id="node-parent">Parent</span>
             </div>
             <input type="text" class="form-control" id="nodeParentValue" placeholder="" aria-label="Name" aria-describedby="node-parent" data-bind="value: selectedNode().getParentKey()" readonly>
             <div class="input-group-append">
@@ -49,7 +49,7 @@
 
         <div class="input-group mb-1">
             <div class="input-group-prepend">
-                <span class="input-group-text" id="node-draw-order-hint">Draw Order Hint</span>
+                <span class="input-group-text mw-140" id="node-draw-order-hint">Draw Order Hint</span>
             </div>
             <input type="text" class="form-control" id="nodeDrawOrderHintValue" placeholder="" aria-label="Name" aria-describedby="node-draw-order-hint" data-bind="nodeDataProperty: 'drawOrderHint'" readonly>
             <div class="input-group-append">
@@ -67,7 +67,7 @@
         <!-- ko if: selectedNode().getCategory() === Eagle.Category.Comment -->
         <div class="input-group mb-1">
             <div class="input-group-prepend">
-                <span class="input-group-text" id="node-subject">Subject</span>
+                <span class="input-group-text mw-140" id="node-subject">Subject</span>
             </div>
             <input type="text" class="form-control" id="nodeSubjectValue" placeholder="" aria-label="Name" aria-describedby="node-subject" data-bind="value: selectedNode().getSubjectKey()" readonly>
             <div class="input-group-append">

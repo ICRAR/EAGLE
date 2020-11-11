@@ -52,6 +52,11 @@ export class Utils {
 
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
 
+    static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
+    static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
+
+    static readonly ENABLE_PALETTE_EDITOR_MODE : string = "EnablePaletteEditorMode";
+
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
     /**
@@ -626,33 +631,33 @@ export class Utils {
 
             // add input port names into the list
             for (var j = 0; j < node.getInputPorts().length; j++) {
-                var portName = node.getInputPorts()[j].getName();
-                if (!Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getInputPorts()[j];
+                if (!port.isEvent()){
+                    allPortNames.push(port.getName());
                 }
             }
 
             // add input local port names into the list
             for (var j = 0; j < node.getInputLocalPorts().length; j++) {
-                var portName = node.getInputLocalPorts()[j].getName();
-                if (!Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getInputLocalPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
                 }
             }
 
             // add output port names into the list
             for (var j = 0; j < node.getOutputPorts().length; j++) {
-                var portName = node.getOutputPorts()[j].getName();
-                if (!Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getOutputPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
                 }
             }
 
             // add output local port names into the list
             for (var j = 0; j < node.getOutputLocalPorts().length; j++) {
-                var portName = node.getOutputLocalPorts()[j].getName();
-                if (!Utils.isEventPortName(portName)) {
-                    allPortNames.push(portName);
+                let port : Port = node.getOutputLocalPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
                 }
             }
         }
@@ -686,6 +691,8 @@ export class Utils {
         var uniqueFieldNames : string[] = allFieldTexts.filter(function(elem, index, self) {
             return index === self.indexOf(elem);
         });
+
+        console.log("uniqueFieldNames:", uniqueFieldNames);
 
         return uniqueFieldNames;
     }
@@ -728,6 +735,7 @@ export class Utils {
             case Eagle.Category.Description:
                 return "#9B3065";
             case Eagle.Category.PythonApp:
+            case "Component":
                 return "#3498DB";
             case Eagle.Category.BashShellApp:
                 return "#1C2833";
@@ -860,14 +868,5 @@ export class Utils {
 
     static getLocalStorageValue(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
         return repositoryName+"|"+repositoryBranch;
-    }
-
-    static isEventPortName(portName : string) : boolean {
-        for (var i = 0 ; i < Config.eventPortNames.length ; i++){
-            if (portName === Config.eventPortNames[i]){
-                return true;
-            }
-        }
-        return false;
     }
 }
