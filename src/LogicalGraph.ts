@@ -183,6 +183,52 @@ export class LogicalGraph {
         return result;
     }
 
+    static toV3Json = (graph : LogicalGraph) : object => {
+        var result : any = {};
+
+        result.DALiuGEGraph = {};
+        var dlgg = result.DALiuGEGraph;
+
+        // top level element info
+        dlgg.type = Eagle.DALiuGEFileType.LogicalGraph;
+        dlgg.name = graph.fileInfo().name;
+        dlgg.schemaVersion = Eagle.DALiuGESchemaVersion.V3;
+        dlgg.commitHash = graph.fileInfo().sha;
+        dlgg.repositoryService = graph.fileInfo().repositoryService;
+        dlgg.repositoryBranch = graph.fileInfo().repositoryBranch;
+        dlgg.repositoryName = graph.fileInfo().repositoryName;
+        dlgg.repositoryPath = graph.fileInfo().path;
+
+        // add nodes
+        dlgg.nodeData = {};
+        for (var i = 0 ; i < graph.getNodes().length ; i++){
+            var node : Node = graph.getNodes()[i];
+            var nodeData : any = Node.toV3NodeJson(node, i);
+
+            dlgg.nodeData[node.getKey()] = nodeData;
+        }
+
+        // add links
+        dlgg.linkData = {};
+        for (let i = 0 ; i < graph.getEdges().length ; i++){
+            let edge : Edge = graph.getEdges()[i];
+            let linkData : any = Edge.toV3Json(edge);
+
+            dlgg.linkData[i] = linkData;
+        }
+
+        // add components
+        dlgg.componentData = {};
+        for (var i = 0 ; i < graph.getNodes().length ; i++){
+            var node : Node = graph.getNodes()[i];
+            var componentData : any = Node.toV3ComponentJson(node);
+
+            dlgg.componentData[node.getKey()] = componentData;
+        }
+
+        return result;
+    }
+
     addNodeComplete = (node : Node) => {
         this.nodes.push(node);
     }
@@ -230,7 +276,7 @@ export class LogicalGraph {
     }
 
     addNode = (node : Node, callback : (node: Node) => void) : void => {
-        console.log("addNodeToLogicalGraph()", node.getName());
+        console.log("addNode()", node.getName());
 
         // copy node
         var newNode : Node = node.clone();
@@ -255,10 +301,10 @@ export class LogicalGraph {
                     // Remove the redundant input/output port.
                     switch(node.getCategory()){
                         case Eagle.Category.Start:
-                            newNode.removePortByIndex(0, true, false);
+                            newNode.removePortByIndex(0, true);
                             break;
                         case Eagle.Category.End:
-                            newNode.removePortByIndex(0, false, false);
+                            newNode.removePortByIndex(0, false);
                             break;
                     }
 
@@ -381,7 +427,7 @@ export class LogicalGraph {
             (srcNode.getCategoryType() === Eagle.CategoryType.Application || srcNode.getCategoryType() === Eagle.CategoryType.Group) &&
             (destNode.getCategoryType() === Eagle.CategoryType.Application || destNode.getCategoryType() === Eagle.CategoryType.Group);
 
-        var twoEventPorts : boolean = srcPort.isEventPort() && destPort.isEventPort();
+        var twoEventPorts : boolean = srcPort.isEvent() && destPort.isEvent();
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
@@ -415,10 +461,10 @@ export class LogicalGraph {
 
                 // add input port and output port for dataType (if they don't exist)
                 if (!newNode.hasPortWithName(dataType, true, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType), true, false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false), true);
                 }
                 if (!newNode.hasPortWithName(dataType, false, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType), false, false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false), false);
                 }
 
                 // set the parent of the new node

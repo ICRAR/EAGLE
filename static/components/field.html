@@ -13,7 +13,7 @@
     </div>
 
     <div class="input-group-prepend">
-        <span class="input-group-text" id="group-addon" data-bind="text: $data.text, attr: {title: $data.getDescriptionText()}" data-toggle="tooltip" data-html="true" data-placement="left"></span>
+        <span class="input-group-text mw-140" id="group-addon" data-bind="text: $data.text, attr: {title: $data.getDescriptionText()}" data-toggle="tooltip" data-html="true" data-placement="left"></span>
     </div>
 
     <!-- ko if: $data.type === Eagle.FieldType.Field -->
@@ -28,9 +28,11 @@
         <!-- /ko -->
     <!-- /ko -->
 
+    <!-- ko ifnot: $root.selectionReadOnly -->
     <div class="input-group-append">
         <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data.type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index()}">
             <i class="material-icons md-18">edit</i>
         </button>
     </div>
+    <!-- /ko -->
 </div>

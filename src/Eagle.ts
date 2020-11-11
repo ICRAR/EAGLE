@@ -114,6 +114,9 @@ export class Eagle {
         this.settings.push(new Setting("Confirm Delete Edges", "Prompt user to confirm when deleting an edge from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
         this.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
         this.settings.push(new Setting("Allow invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, false));
+        this.settings.push(new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, false));
+        this.settings.push(new Setting("Enable Palette Editor Mode", "Enable the palette editor mode in EAGLE.", Setting.Type.Boolean, Utils.ENABLE_PALETTE_EDITOR_MODE, false));
+
 
         this.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"));
 
@@ -126,7 +129,7 @@ export class Eagle {
     }
 
     isPaletteEditorModeEnabled = () : boolean => {
-        return Config.enablePaletteEditorMode;
+        return this.findSetting(Utils.ENABLE_PALETTE_EDITOR_MODE).value();
     }
 
     activeFileInfo = () : FileInfo => {
@@ -176,6 +179,45 @@ export class Eagle {
             return mod + "EAGLE: " + this.repositoryFileName();
         }
     }, this);
+
+    // generate a list of Application nodes within the open palettes
+    getApplicationList = () : string[] => {
+        var list : string[] = [];
+
+        for (var i = 0 ; i < this.palettes().length ; i++){
+            var palette : Palette = this.palettes()[i];
+
+            for (var j = 0 ; j < palette.getNodes().length; j++){
+                var node : Node = palette.getNodes()[j];
+
+                if (node.getCategoryType() === Eagle.CategoryType.Application){
+                    list.push(palette.fileInfo().name + ":" + node.getName());
+                }
+            }
+        }
+
+        return list;
+    }
+
+    getApplication = (paletteName : string, nodeName : string) : Node => {
+        for (var i = 0 ; i < this.palettes().length ; i++){
+            var palette : Palette = this.palettes()[i];
+
+            if (palette.fileInfo().name !== paletteName){
+                continue;
+            }
+
+            for (var j = 0 ; j < palette.getNodes().length; j++){
+                var node : Node = palette.getNodes()[j];
+
+                if (node.getName() === nodeName){
+                    return node;
+                }
+            }
+        }
+
+        return null;
+    }
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
         var fileInfo : FileInfo = this.activeFileInfo();
@@ -762,12 +804,23 @@ export class Eagle {
                 return;
             }
 
-            this.activeFileInfo().repositoryService = repositoryService;
-            this.activeFileInfo().repositoryName = repositoryName;
-            this.activeFileInfo().repositoryBranch = repositoryBranch;
+            // check which fileInfo object to use, based on the current editor mode
+            var activeFileInfo : ko.Observable<FileInfo>;
+            if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
+                if (this.logicalGraph()){
+                    activeFileInfo = this.logicalGraph().fileInfo;
+                }
+            } else {
+                if (this.editorPalette()){
+                    activeFileInfo = this.editorPalette().fileInfo;
+                }
+            }
 
-            // check filePath
-            this.activeFileInfo().path = filePath;
+            activeFileInfo().repositoryService = repositoryService;
+            activeFileInfo().repositoryName = repositoryName;
+            activeFileInfo().repositoryBranch = repositoryBranch;
+            activeFileInfo().path = filePath;
+            activeFileInfo().type = fileType;
 
             // Adding file extension to the title if it does not have it.
             if (!Utils.verifyFileExtension(fileName)) {
@@ -775,10 +828,10 @@ export class Eagle {
             }
 
             // Change the title name.
-            this.activeFileInfo().name = fileName;
+            activeFileInfo().name = fileName;
 
-            // Set correct diagram type.
-            this.activeFileInfo().type = fileType;
+            // flag fileInfo object as modified
+            activeFileInfo.valueHasMutated();
 
             this.saveDiagramToGit(repository, fileType, filePath, fileName, commitMessage);
         });
@@ -870,6 +923,31 @@ export class Eagle {
         };
 
         this.saveFileToRemote(repository, jsonData);
+    }
+
+    /**
+     * Export file to V3 Json
+     */
+    exportV3Json = () : void => {
+        var fileName = this.activeFileInfo().name;
+
+        var json = LogicalGraph.toV3Json(this.logicalGraph());
+
+        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+            if (error != null){
+                Utils.showUserMessage("Error", "Error saving the file!");
+                console.error(error);
+                return;
+            }
+
+            // NOTE: this stuff is a hacky way of saving a file locally
+            var blob = new Blob([data]);
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+        });
     }
 
     /**
@@ -1479,6 +1557,8 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
+        console.log("addNodeToLogicalGraph()", node);
+
         this.logicalGraph().addNode(node, (newNode: Node) => {
             this.logicalGraph.valueHasMutated();
 
@@ -1488,7 +1568,7 @@ export class Eagle {
     }
 
     addNodeToEditorPalette = (node : Node) : void => {
-        //console.log("addNodeToEditorPalette()", node);
+        console.log("addNodeToEditorPalette()", node);
 
         // copy node
         var newNode : Node = node.clone();
@@ -1510,9 +1590,10 @@ export class Eagle {
         this.rightWindowShown(!this.rightWindowShown());
     }
 
-    // TODO: not sure about this
+    // check the "allow component editing" setting to check if the selection
+    // can be edited
     selectionReadOnly : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return false;
+        return !this.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
     }, this);
 
     /**
@@ -1520,7 +1601,7 @@ export class Eagle {
      */
     addInputPortHTML = () : void => {
         var node = this.getSelection();
-        this.selectPortName(<Node>node, true, false);
+        this.selectPortName(<Node>node, true);
     }
 
     /**
@@ -1528,23 +1609,7 @@ export class Eagle {
      */
     addOutputPortHTML = () : void => {
         var node = this.getSelection();
-        this.selectPortName(<Node>node, false, false);
-    }
-
-    /**
-     * Adds an input local port to the selected node via HTML.
-     */
-    addInputLocalPortHTML = () : void => {
-        var node = this.getSelection();
-        this.selectPortName(<Node>node, true, true);
-    }
-
-    /**
-     * Adds an output local port to the selected node via HTML arguments.
-     */
-    addOutputLocalPortHTML = () : void => {
-        var node = this.getSelection();
-        this.selectPortName(<Node>node, false, true);
+        this.selectPortName(<Node>node, false);
     }
 
     /**
@@ -1552,29 +1617,13 @@ export class Eagle {
      */
     addFieldHTML = () : void => {
         var node = this.getSelection();
-        this.selectFieldName(<Node>node, false, null);
-    }
-
-    /**
-     * Adds an app field to the selected node via HTML.
-     */
-    addInputAppFieldHTML = () : void => {
-        var node = this.getSelection();
-        this.selectFieldName(<Node>node, true, true);
-    }
-
-    /**
-     * Adds an app field to the selected node via HTML.
-     */
-    addOutputAppFieldHTML = () : void => {
-        var node = this.getSelection();
-        this.selectFieldName(<Node>node, true, false);
+        this.selectFieldName(<Node>node);
     }
 
     /**
      * Shows a list of input/output port names for selection.
      */
-    selectPortName = (node : Node, isInputPort : boolean, isLocalPort : boolean) => {
+    selectPortName = (node : Node, isInputPort : boolean) => {
         var uniquePortNames : string[];
 
         // if in palette editor mode, get port names list from the palette,
@@ -1592,23 +1641,15 @@ export class Eagle {
                 return;
             }
 
-            // abort if the name chosen is the name reserved for event ports
-            /*
-            if (userString === Config.eventPortName) {
-                Utils.showUserMessage("Error", "The port name '" + Config.eventPortName + "' is reserved for event type ports!");
-                return;
-            }
-            */
-
             // add port with the chosen name
-            node.addPort(new Port(Utils.uuidv4(), userString), isInputPort, isLocalPort);
+            node.addPort(new Port(Utils.uuidv4(), userString, false), isInputPort);
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
         });
     }
 
-    selectFieldName = (node: Node, isAppField : boolean, input : boolean) => {
+    selectFieldName = (node: Node) => {
         var uniqueFieldNames : string[];
 
         // if in palette editor mode, get field names list from the palette,
@@ -1627,11 +1668,8 @@ export class Eagle {
             // produce a name for this field
             var fieldName = Utils.fieldTextToFieldName(userString);
 
-            if (isAppField){
-                node.addAppField(new Field(userString, fieldName, "", ""), input);
-            } else {
-                node.addField(new Field(userString, fieldName, "", ""));
-            }
+            // add the field
+            node.addField(new Field(userString, fieldName, "", ""));
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
@@ -1855,6 +1893,7 @@ export class Eagle {
     }
 
     // NOTE: enabling the tooltips must be delayed slightly to make sure the html has been generated (hence the setTimeout)
+    // NOTE: now needs a timeout longer that 1ms! UGLY HACK TODO
     updateTooltips = () : void => {
         var eagle : Eagle = this;
 
@@ -1875,12 +1914,17 @@ export class Eagle {
                     $(jElement).attr('data-original-title', eagle.palettes()[i].getNthNonDataNode(j).getHelpHTML());
                 });
             });
-        }, 1);
+
+            // update title on all right window component buttons
+            // TODO: update outputApplication and exitApplication too
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
+                $('.rightWindowDisplay inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
+        }, 50);
     }
 
     selectedEdgeValid = () : Eagle.LinkValid => {
         console.log("selectedEdgeValid()");
-        return Edge.isValid(this.logicalGraph(), this.selectedEdge().getSrcNodeKey(), this.selectedEdge().getSrcPortId(), this.selectedEdge().getDestNodeKey(), this.selectedEdge().getDestPortId());
+        return Edge.isValid(this.logicalGraph(), this.selectedEdge().getSrcNodeKey(), this.selectedEdge().getSrcPortId(), this.selectedEdge().getDestNodeKey(), this.selectedEdge().getDestPortId(), false, true);
     }
 
     printLogicalGraphTable = () : void => {
@@ -1979,9 +2023,9 @@ export class Eagle {
                 this.selectedNode().getFields()[fieldIndex].setValue(newValue);
             } else {
                 if (input){
-                    this.selectedNode().getInputAppFields()[fieldIndex].setValue(newValue);
+                    this.selectedNode().getInputApplication().getFields()[fieldIndex].setValue(newValue);
                 } else {
-                    this.selectedNode().getOutputAppFields()[fieldIndex].setValue(newValue);
+                    this.selectedNode().getOutputApplication().getFields()[fieldIndex].setValue(newValue);
                 }
             }
 
@@ -1993,6 +2037,52 @@ export class Eagle {
                 that.selectedNode(x);
             }, 1);
         });
+    }
+
+    setNodeInputApplication = () : void => {
+        console.log("setNodeInputApplication()");
+
+        var applicationList : string[] = this.getApplicationList();
+
+        Utils.requestUserChoice("Input Application", "Choose an input application", applicationList, 0, false, "", (completed : boolean, userString : string) => {
+            if (!completed){
+                return;
+            }
+
+            console.log("Input Application:" + userString);
+
+            var paletteName = userString.split(":")[0];
+            var nodeName    = userString.split(":")[1];
+
+            console.log("Find application", paletteName, nodeName);
+
+            var inputApplication : Node = this.getApplication(paletteName, nodeName);
+
+            // clone the input application to make a local copy
+            // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
+            let clone : Node = inputApplication.clone();
+            clone.setKey(Math.floor(Math.random() * 1000000));
+
+            // set nodeKey on clone's ports to match the clone
+            for (let i = 0 ; i < clone.getInputPorts().length ; i++){
+                let port = clone.getInputPorts()[i];
+                port.setNodeKey(this.selectedNode().getKey());
+            }
+            for (let i = 0 ; i < clone.getOutputPorts().length ; i++){
+                let port = clone.getOutputPorts()[i];
+                port.setNodeKey(this.selectedNode().getKey());
+            }
+
+            this.selectedNode().setInputApplication(clone);
+        });
+    }
+
+    setNodeOutputApplication = () : void => {
+        console.log("setNodeOutputApplication()");
+    }
+
+    setNodeExitApplication = () : void => {
+        console.log("setNodeExitApplication()");
     }
 }
 
@@ -2025,6 +2115,19 @@ export namespace Eagle
         TemplatePalette,
         JSON,
         Unknown
+    }
+
+    export type DALiuGEFileType = string;
+    export namespace DALiuGEFileType {
+        export var LogicalGraph : DALiuGEFileType = "LogicalGraph";
+        export var LogicalGraphTemplate : DALiuGEFileType = "LogicalGraphTemplate";
+        export var PhysicalGraph : DALiuGEFileType = "PhysicalGraph";
+        export var PhysicalGraphTemplate : DALiuGEFileType = "PhysicalGraphTemplate";
+        export var Unknown : DALiuGEFileType = "Unknown";
+    }
+
+    export enum DALiuGESchemaVersion {
+        V3
     }
 
     export enum LinkValid {
