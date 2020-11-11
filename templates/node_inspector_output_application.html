@@ -4,61 +4,6 @@
         <span>Output Application</span>
     </h5>
     <div class="card-body">
-
-        <div class="input-group mb-1">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="outputApplicationType">Type</span>
-            </div>
-            <select class="custom-select" id="outputApplicationTypeSelect" data-bind="options: Eagle.applicationCategories, value: $root.selectedNode().outputApplicationType, optionsCaption: 'Choose...'"></select>
-        </div>
-
-        <div class="input-group mb-1">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="outputApplicationName">Name</span>
-            </div>
-            <input type="text" class="form-control" id="nodeOutputAppNameValue" placeholder="" aria-label="OutputAppName" aria-describedby="outputApplicationName" data-bind="nodeDataProperty: 'outputApplicationName', readonly: $root.selectionReadOnly()">
-        </div>
-
-        <!-- output application parameters list -->
-        <!-- ko if: selectedNode().getOutputAppFields().length > 0 -->
-        <div class="row ports-row">
-            <div class="col">
-                <h5>
-                    <span>Parameters</span>
-                </h5>
-            </div>
-            <!-- ko ifnot: $root.selectionReadOnly -->
-            <div class="col-auto">
-                <button class="btn btn-secondary btn-sm" id="nodeInspectorAddOutputAppField" type="button" data-bind="click: $root.addOutputAppFieldHTML">
-                    <i class="material-icons md-18">add</i>
-                </button>
-            </div>
-            <!-- /ko -->
-        </div>
-
-        <!-- ko foreach: selectedNode().getOutputAppFields() -->
-        <field params="data: $data, type: Eagle.FieldType.AppField, input: false"></field>
-        <!-- /ko -->
-        <!-- /ko -->
-
-        <div class="row ports-row">
-            <div class="col">
-                <h5>
-                    <span>Ports</span>
-                </h5>
-            </div>
-
-            <!-- ko ifnot: $root.selectionReadOnly -->
-            <div class="col-auto">
-                <button class="btn btn-secondary btn-sm" id="nodeInspectorAddInputLocalPort" type="button" data-bind="click: $root.addInputLocalPortHTML">
-                    <i class="material-icons md-18">add</i>
-                </button>
-            </div>
-            <!-- /ko -->
-        </div>
-
-        <!-- ko foreach: selectedNode().getInputLocalPorts() -->
-        <port params="id: $data.getId(), name: $data.getName(), multiplicity: $root.selectedNode().getLocalMultiplicity(), isEventPort: $data.isEvent(), input: true, local: true"></port>
-        <!-- /ko -->
+        <inspector-component params="data: $root.selectedNode().outputApplication, paletteIndex: 0, index: 0, showAdd: false, showEdit: true, callback: $root.setNodeOutputApplication"></inspector-component>
     </div>
 </div>

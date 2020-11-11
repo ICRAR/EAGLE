@@ -84,7 +84,7 @@ g.node g.inputPorts text.event {
 }
 
 g.node g.inputLocalPorts text {
-    text-anchor: end;
+    text-anchor: start;
     font-family: sans-serif;
     pointer-events: none;
     fill: grey;
@@ -108,7 +108,7 @@ g.node g.outputPorts text.event {
 }
 
 g.node g.outputLocalPorts text {
-    text-anchor: start;
+    text-anchor: end;
     font-family: sans-serif;
     pointer-events: none;
     fill: grey;

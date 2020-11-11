@@ -692,6 +692,8 @@ export class Utils {
             return index === self.indexOf(elem);
         });
 
+        console.log("uniqueFieldNames:", uniqueFieldNames);
+
         return uniqueFieldNames;
     }
 
@@ -733,6 +735,7 @@ export class Utils {
             case Eagle.Category.Description:
                 return "#9B3065";
             case Eagle.Category.PythonApp:
+            case "Component":
                 return "#3498DB";
             case Eagle.Category.BashShellApp:
                 return "#1C2833";

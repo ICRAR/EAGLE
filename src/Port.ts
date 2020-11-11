@@ -1,9 +1,8 @@
-import {Utils} from './Utils';
-
 export class Port {
     private _id : string
     private name : string;
     private nodeKey : number;
+    private local : boolean;
     private event : boolean;
 
     public static readonly DEFAULT_ID : string = "<default>";
@@ -13,6 +12,7 @@ export class Port {
         this._id = id;
         this.name = name;
         this.nodeKey = 0;
+        this.local = false;
         this.event = event;
     }
 
@@ -32,10 +32,19 @@ export class Port {
         this.nodeKey = key;
     }
 
+    isLocal = () : boolean => {
+        return this.local;
+    }
+
+    setLocal = (local : boolean) : void => {
+        this.local = local;
+    }
+
     clear = () : void => {
         this._id = "";
         this.name = "";
         this.nodeKey = 0;
+        this.local = false;
         this.event = false;
     }
 
@@ -48,6 +57,8 @@ export class Port {
     }
 
     clone = () : Port => {
-        return new Port(this._id, this.name, this.event);
+        var p = new Port(this._id, this.name, this.event);
+        p.local = this.local;
+        return p;
     }
 }

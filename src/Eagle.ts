@@ -180,6 +180,45 @@ export class Eagle {
         }
     }, this);
 
+    // generate a list of Application nodes within the open palettes
+    getApplicationList = () : string[] => {
+        var list : string[] = [];
+
+        for (var i = 0 ; i < this.palettes().length ; i++){
+            var palette : Palette = this.palettes()[i];
+
+            for (var j = 0 ; j < palette.getNodes().length; j++){
+                var node : Node = palette.getNodes()[j];
+
+                if (node.getCategoryType() === Eagle.CategoryType.Application){
+                    list.push(palette.fileInfo().name + ":" + node.getName());
+                }
+            }
+        }
+
+        return list;
+    }
+
+    getApplication = (paletteName : string, nodeName : string) : Node => {
+        for (var i = 0 ; i < this.palettes().length ; i++){
+            var palette : Palette = this.palettes()[i];
+
+            if (palette.fileInfo().name !== paletteName){
+                continue;
+            }
+
+            for (var j = 0 ; j < palette.getNodes().length; j++){
+                var node : Node = palette.getNodes()[j];
+
+                if (node.getName() === nodeName){
+                    return node;
+                }
+            }
+        }
+
+        return null;
+    }
+
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
         var fileInfo : FileInfo = this.activeFileInfo();
 
@@ -1493,6 +1532,8 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
+        console.log("addNodeToLogicalGraph()", node);
+
         this.logicalGraph().addNode(node, (newNode: Node) => {
             this.logicalGraph.valueHasMutated();
 
@@ -1502,7 +1543,7 @@ export class Eagle {
     }
 
     addNodeToEditorPalette = (node : Node) : void => {
-        //console.log("addNodeToEditorPalette()", node);
+        console.log("addNodeToEditorPalette()", node);
 
         // copy node
         var newNode : Node = node.clone();
@@ -1535,7 +1576,7 @@ export class Eagle {
      */
     addInputPortHTML = () : void => {
         var node = this.getSelection();
-        this.selectPortName(<Node>node, true, false);
+        this.selectPortName(<Node>node, true);
     }
 
     /**
@@ -1543,23 +1584,7 @@ export class Eagle {
      */
     addOutputPortHTML = () : void => {
         var node = this.getSelection();
-        this.selectPortName(<Node>node, false, false);
-    }
-
-    /**
-     * Adds an input local port to the selected node via HTML.
-     */
-    addInputLocalPortHTML = () : void => {
-        var node = this.getSelection();
-        this.selectPortName(<Node>node, true, true);
-    }
-
-    /**
-     * Adds an output local port to the selected node via HTML arguments.
-     */
-    addOutputLocalPortHTML = () : void => {
-        var node = this.getSelection();
-        this.selectPortName(<Node>node, false, true);
+        this.selectPortName(<Node>node, false);
     }
 
     /**
@@ -1567,29 +1592,13 @@ export class Eagle {
      */
     addFieldHTML = () : void => {
         var node = this.getSelection();
-        this.selectFieldName(<Node>node, false, null);
-    }
-
-    /**
-     * Adds an app field to the selected node via HTML.
-     */
-    addInputAppFieldHTML = () : void => {
-        var node = this.getSelection();
-        this.selectFieldName(<Node>node, true, true);
-    }
-
-    /**
-     * Adds an app field to the selected node via HTML.
-     */
-    addOutputAppFieldHTML = () : void => {
-        var node = this.getSelection();
-        this.selectFieldName(<Node>node, true, false);
+        this.selectFieldName(<Node>node);
     }
 
     /**
      * Shows a list of input/output port names for selection.
      */
-    selectPortName = (node : Node, isInputPort : boolean, isLocalPort : boolean) => {
+    selectPortName = (node : Node, isInputPort : boolean) => {
         var uniquePortNames : string[];
 
         // if in palette editor mode, get port names list from the palette,
@@ -1608,14 +1617,14 @@ export class Eagle {
             }
 
             // add port with the chosen name
-            node.addPort(new Port(Utils.uuidv4(), userString, false), isInputPort, isLocalPort);
+            node.addPort(new Port(Utils.uuidv4(), userString, false), isInputPort);
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
         });
     }
 
-    selectFieldName = (node: Node, isAppField : boolean, input : boolean) => {
+    selectFieldName = (node: Node) => {
         var uniqueFieldNames : string[];
 
         // if in palette editor mode, get field names list from the palette,
@@ -1634,11 +1643,8 @@ export class Eagle {
             // produce a name for this field
             var fieldName = Utils.fieldTextToFieldName(userString);
 
-            if (isAppField){
-                node.addAppField(new Field(userString, fieldName, "", ""), input);
-            } else {
-                node.addField(new Field(userString, fieldName, "", ""));
-            }
+            // add the field
+            node.addField(new Field(userString, fieldName, "", ""));
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
@@ -1862,6 +1868,7 @@ export class Eagle {
     }
 
     // NOTE: enabling the tooltips must be delayed slightly to make sure the html has been generated (hence the setTimeout)
+    // NOTE: now needs a timeout longer that 1ms! UGLY HACK TODO
     updateTooltips = () : void => {
         var eagle : Eagle = this;
 
@@ -1882,12 +1889,17 @@ export class Eagle {
                     $(jElement).attr('data-original-title', eagle.palettes()[i].getNthNonDataNode(j).getHelpHTML());
                 });
             });
-        }, 1);
+
+            // update title on all right window component buttons
+            // TODO: update outputApplication and exitApplication too
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
+                $('.rightWindowDisplay inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
+        }, 50);
     }
 
     selectedEdgeValid = () : Eagle.LinkValid => {
         console.log("selectedEdgeValid()");
-        return Edge.isValid(this.logicalGraph(), this.selectedEdge().getSrcNodeKey(), this.selectedEdge().getSrcPortId(), this.selectedEdge().getDestNodeKey(), this.selectedEdge().getDestPortId());
+        return Edge.isValid(this.logicalGraph(), this.selectedEdge().getSrcNodeKey(), this.selectedEdge().getSrcPortId(), this.selectedEdge().getDestNodeKey(), this.selectedEdge().getDestPortId(), false, true);
     }
 
     printLogicalGraphTable = () : void => {
@@ -1935,6 +1947,52 @@ export class Eagle {
         console.log("Node", node.getName(), "selected", "(expanded:" + node.getExpanded() + ")");
 
         //this.flagActiveDiagramHasMutated();
+    }
+
+    setNodeInputApplication = () : void => {
+        console.log("setNodeInputApplication()");
+
+        var applicationList : string[] = this.getApplicationList();
+
+        Utils.requestUserChoice("Input Application", "Choose an input application", applicationList, 0, false, "", (completed : boolean, userString : string) => {
+            if (!completed){
+                return;
+            }
+
+            console.log("Input Application:" + userString);
+
+            var paletteName = userString.split(":")[0];
+            var nodeName    = userString.split(":")[1];
+
+            console.log("Find application", paletteName, nodeName);
+
+            var inputApplication : Node = this.getApplication(paletteName, nodeName);
+
+            // clone the input application to make a local copy
+            // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
+            let clone : Node = inputApplication.clone();
+            clone.setKey(Math.floor(Math.random() * 1000000));
+
+            // set nodeKey on clone's ports to match the clone
+            for (let i = 0 ; i < clone.getInputPorts().length ; i++){
+                let port = clone.getInputPorts()[i];
+                port.setNodeKey(this.selectedNode().getKey());
+            }
+            for (let i = 0 ; i < clone.getOutputPorts().length ; i++){
+                let port = clone.getOutputPorts()[i];
+                port.setNodeKey(this.selectedNode().getKey());
+            }
+
+            this.selectedNode().setInputApplication(clone);
+        });
+    }
+
+    setNodeOutputApplication = () : void => {
+        console.log("setNodeOutputApplication()");
+    }
+
+    setNodeExitApplication = () : void => {
+        console.log("setNodeExitApplication()");
     }
 }
 

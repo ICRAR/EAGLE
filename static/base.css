@@ -60,7 +60,7 @@
     overflow-y: auto;
 }
 
-.rightWindow .input-group-prepend span.input-group-text {
+.mw-140 {
     min-width: 140px;
 }
 
@@ -118,7 +118,7 @@
     overflow-y: auto;
 }
 
-.leftWindowDisplay span.input-group-text{
+inspector-component span.input-group-text, palette-component span.input-group-text {
     color: white;
 }
 

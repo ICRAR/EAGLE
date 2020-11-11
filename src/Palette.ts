@@ -183,6 +183,8 @@ export class Palette {
 
     /**
      * Add event type I/O ports.
+     *
+     * NOTE: don't add anything to groups, since ports should be added to inputApplication and outputApplication, and they don't exist yet
      */
     addEventPorts = () : void => {
         for (var i = 0 ; i < this.nodes.length ; i++){
@@ -190,29 +192,22 @@ export class Palette {
 
             // add event ports
             if (n.getCategoryType() === Eagle.CategoryType.Application ||
-                n.getCategoryType() === Eagle.CategoryType.Group ||
                 n.getCategoryType() === Eagle.CategoryType.Data) {
-                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true, false); // external input
-                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false, false); // external output
+                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
+                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false); // external output
             }
             else if (n.getCategoryType() === Eagle.CategoryType.Control) {
                 if (n.getCategory() === Eagle.Category.Start) {
-                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false, false); // external output
+                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false); // external output
                 }
                 else if (n.getCategory() === Eagle.Category.End) {
-                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true, false); // external input
+                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
                 }
             }
             else if (n.getCategoryType() === Eagle.CategoryType.Other){
                 if (n.getCategory() === Eagle.Category.Service){
-                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true, false); // external input
+                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
                 }
-            }
-
-            // add local event ports to groups
-            if (n.getCategoryType() === Eagle.CategoryType.Group){
-                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true, true); // local input
-                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false, true); // local output
             }
         }
     }
