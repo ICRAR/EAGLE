@@ -399,9 +399,14 @@ export class Node {
     }
 
     getHelpHTML = () : string => {
+
+        // handle error if name is undefined
+        if (typeof this.name === 'undefined'){
+            return "<p><h5>Undefined</h5></p>";
+        }
+
         // check if name and category are the same (or similar except for capitalisation and whitespace)
         // if so, only use the name, the category is redundant
-
         if (this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
             return "<p><h5>" + this.getName() + "</h5></p><p>" + this.getDescription() +  "</p>";
         } else {
@@ -1102,13 +1107,13 @@ export class Node {
         }
 
         // read the 'real' input and output apps, correctly specified as nested nodes
-        if (typeof nodeData.inputApplication !== 'undefined'){
+        if (typeof nodeData.inputApplication !== 'undefined' && nodeData.inputApplication !== null){
             node.inputApplication(Node.fromOJSJson(nodeData.inputApplication));
         }
-        if (typeof nodeData.outputApplication !== 'undefined'){
+        if (typeof nodeData.outputApplication !== 'undefined' && nodeData.outputApplication !== null){
             node.outputApplication(Node.fromOJSJson(nodeData.outputApplication));
         }
-        if (typeof nodeData.exitApplication !== 'undefined'){
+        if (typeof nodeData.exitApplication !== 'undefined' && nodeData.exitApplication !== null){
             node.exitApplication(Node.fromOJSJson(nodeData.exitApplication));
         }
 
