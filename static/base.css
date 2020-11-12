@@ -118,7 +118,7 @@
     overflow-y: auto;
 }
 
-inspector-component span.input-group-text, palette-component span.input-group-text {
+.template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
     color: white;
 }
 
