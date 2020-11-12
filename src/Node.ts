@@ -43,11 +43,7 @@ export class Node {
                                     // (primary method is using parent-child relationships)
                                     // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
-    private _isData : boolean;
-    private _isGroup : boolean;
     private parentKey : number | null;
-    private _canHaveInputs : boolean;
-    private _canHaveOutputs : boolean;
     private collapsed : boolean;
     private streaming : boolean;
     private showPorts : boolean;
@@ -94,11 +90,7 @@ export class Node {
         this.color = Utils.getColorForNode(category);
         this.drawOrderHint = 0;
 
-        this._isData = false;
-        this._isGroup = false;
         this.parentKey = null;
-        this._canHaveInputs = false;
-        this._canHaveOutputs = false;
         this.collapsed = false;
         this.streaming = false;
         this.showPorts = false;
@@ -345,19 +337,11 @@ export class Node {
     }
 
     isData = () : boolean => {
-        return this._isData;
-    }
-
-    setIsData = (data : boolean) : void => {
-        this._isData = data;
+        return Eagle.CategoryData[this.category].isData;
     }
 
     isGroup = () : boolean => {
-        return this._isGroup;
-    }
-
-    setIsGroup = (group : boolean) : void => {
-        this._isGroup = group;
+        return Eagle.CategoryData[this.category].isGroup;
     }
 
     isScatter = () : boolean => {
@@ -377,25 +361,33 @@ export class Node {
     }
 
     isResizable = () : boolean => {
-        return this._isGroup ||
+        return this.isGroup() ||
                this.category === Eagle.Category.Comment ||
                this.category === Eagle.Category.Description;
     }
 
     canHaveInputs = () : boolean => {
-        return this._canHaveInputs;
-    }
-
-    setCanHaveInputs = (can : boolean) : void => {
-        this._canHaveInputs = can;
+        return Eagle.CategoryData[this.category].canHaveInputs;
     }
 
     canHaveOutputs = () : boolean => {
-        return this._canHaveOutputs;
+        return Eagle.CategoryData[this.category].canHaveOutputs;
     }
 
-    setCanHaveOutputs = (can : boolean) : void => {
-        this._canHaveOutputs = can;
+    canHaveInputApplication = () : boolean => {
+        return Eagle.CategoryData[this.category].canHaveInputApplication;
+    }
+
+    canHaveOutputApplication = () : boolean => {
+        return Eagle.CategoryData[this.category].canHaveOutputApplication;
+    }
+
+    canHaveExitApplication = () : boolean => {
+        return Eagle.CategoryData[this.category].canHaveExitApplication;
+    }
+
+    canHaveParameters = () : boolean => {
+        return Eagle.CategoryData[this.category].canHaveParameters;
     }
 
     getHelpHTML = () : string => {
@@ -432,6 +424,7 @@ export class Node {
 
     setInputApplication = (inputApplication : Node) : void => {
         console.assert(inputApplication.getCategoryType() === Eagle.CategoryType.Application);
+        console.assert(this.canHaveInputApplication());
 
         this.inputApplication(inputApplication);
     }
@@ -442,6 +435,7 @@ export class Node {
 
     setOutputApplication = (outputApplication : Node) : void => {
         console.assert(outputApplication.getCategoryType() === Eagle.CategoryType.Application);
+        console.assert(this.canHaveOutputApplication());
 
         this.outputApplication(outputApplication);
     }
@@ -452,6 +446,7 @@ export class Node {
 
     setExitApplication = (exitApplication : Node) : void => {
         console.assert(exitApplication.getCategoryType() === Eagle.CategoryType.Application);
+        console.assert(this.canHaveExitApplication());
 
         this.exitApplication(exitApplication);
     }
@@ -471,10 +466,7 @@ export class Node {
         this.color = Node.DEFAULT_COLOR;
         this.drawOrderHint = 0;
 
-        this._isData = false;
-        this._isGroup = false;
         this.parentKey = null;
-
         this.collapsed = false;
         this.streaming = false;
 
@@ -731,11 +723,7 @@ export class Node {
         result.color = this.color;
         result.drawOrderHint = this.drawOrderHint;
 
-        result._isData = this._isData;
-        result._isGroup = this._isGroup;
         result.parentKey = this.parentKey;
-        result._canHaveInputs = this._canHaveInputs;
-        result._canHaveOutputs = this._canHaveOutputs;
 
         result.collapsed = this.collapsed;
         result.streaming = this.streaming;
@@ -1031,11 +1019,6 @@ export class Node {
         node.width = width;
         node.height = height;
 
-        node._isData = nodeData.isData;
-        node._isGroup = nodeData.isGroup;
-        node._canHaveInputs = nodeData.canHaveInputs;
-        node._canHaveOutputs = nodeData.canHaveOutputs;
-
         // showPorts
         if (typeof nodeData.showPorts !== 'undefined'){
             node.showPorts = nodeData.showPorts;
@@ -1227,10 +1210,10 @@ export class Node {
 
         result.category = Node.PYTHON_APP_CATEGORY_FIX ? GraphUpdater.translateNewCategory(node.category) : node.category;
         result.categoryType = node.categoryType;
-        result.isData = node._isData;
-        result.isGroup = node._isGroup;
-        result.canHaveInputs = node._canHaveInputs;
-        result.canHaveOutputs = node._canHaveOutputs;
+        result.isData = node.isData();
+        result.isGroup = node.isGroup();
+        result.canHaveInputs = node.canHaveInputs();
+        result.canHaveOutputs = node.canHaveOutputs();
         result.color = node.color;
         result.drawOrderHint = node.drawOrderHint;
 
@@ -1385,10 +1368,8 @@ export class Node {
 
         result.category = Node.PYTHON_APP_CATEGORY_FIX ? GraphUpdater.translateNewCategory(node.category) : node.category;
         result.categoryType = node.categoryType;
-        result.isData = node._isData;
-        result.isGroup = node._isGroup;
-        result.canHaveInputs = node._canHaveInputs;
-        result.canHaveOutputs = node._canHaveOutputs;
+        result.isData = node.isData();
+        result.isGroup = node.isGroup();
 
         result.name = node.name;
         result.description = node.description;

@@ -13,11 +13,7 @@
         {
             "category": "Start",
             "outputPorts": [],
-            "isData": false,
             "fields": [],
-            "canHaveOutputs": true,
-            "canHaveInputs": false,
-            "isGroup": false,
             "key": -1,
             "text": "Start",
             "description": "The starting point for workflow execution",
@@ -27,11 +23,7 @@
         {
             "category": "End",
             "outputPorts": [],
-            "isData": false,
             "fields": [],
-            "canHaveOutputs": false,
-            "canHaveInputs": true,
-            "isGroup": false,
             "key": -10,
             "text": "End",
             "description": "The end of workflow execution",
@@ -41,7 +33,6 @@
         {
             "category": "BashShellApp",
             "outputPorts": [],
-            "isData": false,
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
@@ -60,9 +51,6 @@
                 "value": "",
                 "description": "The command line to be executed"
             }],
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
-            "isGroup": false,
             "key": -3,
             "text": "Bash Shell App",
             "description": "An application component run within the Bash Shell",
@@ -72,7 +60,6 @@
         {
             "category": "DynlibApp",
             "outputPorts": [],
-            "isData": false,
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
@@ -90,9 +77,6 @@
                 "name": "libpath",
                 "value": ""
             }],
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
-            "isGroup": false,
             "key": -13,
             "text": "Dynlib App",
             "description": "An application component run from a dynamic library",
@@ -102,7 +86,6 @@
         {
             "category": "Mpi",
             "outputPorts": [],
-            "isData": false,
             "fields": [{
                 "text": "Group end",
                 "name": "group_end",
@@ -120,9 +103,6 @@
                 "name": "num_of_procs",
                 "value": "4"
             }],
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
-            "isGroup": false,
             "key": -9,
             "text": "MPI",
             "description":"An application component using the Message Passing Interface (MPI)",
@@ -132,7 +112,6 @@
         {
             "category": "Docker",
             "outputPorts": [],
-            "isData": false,
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
@@ -170,9 +149,6 @@
                 "name": "additionalBindings",
                 "value": ""
             }],
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
-            "isGroup": false,
             "key": -11,
             "text": "Docker",
             "description":"An application component run from a Docker image",
@@ -181,13 +157,9 @@
         },
         {
             "category": "PythonApp",
-            "isData": false,
             "outputPorts": [],
             "text": "Python App",
             "description": "An application component in the form of a Python app",
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
-            "isGroup": false,
             "key": -2,
             "fields": [{
                 "text": "Execution time",
@@ -212,7 +184,6 @@
         {
             "category": "Memory",
             "outputPorts": [],
-            "isData": true,
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
@@ -222,10 +193,7 @@
                 "name": "group_end",
                 "value": "0"
             }],
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
             "shape": "Card",
-            "isGroup": false,
             "key": -4,
             "text": "Memory",
             "categoryType": "Data",
@@ -234,7 +202,6 @@
         {
             "category": "File",
             "outputPorts": [],
-            "isData": true,
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
@@ -256,10 +223,7 @@
                 "name": "dirname",
                 "value": ""
             }],
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
             "shape": "Card",
-            "isGroup": false,
             "key": -5,
             "text": "File",
             "categoryType": "Data",
@@ -268,7 +232,6 @@
         {
             "category": "S3",
             "outputPorts": [],
-            "isData": true,
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
@@ -293,10 +256,7 @@
                 "value": "",
                 "description": "The S3 Profile"
             }],
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
             "shape": "Card",
-            "isGroup": false,
             "key": -6,
             "text": "S3",
             "categoryType": "Data",
@@ -305,7 +265,6 @@
         {
             "category": "NGAS",
             "outputPorts": [],
-            "isData": true,
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
@@ -325,10 +284,7 @@
                 "value": "7777",
                 "description": "The port of the NGAS Server"
             }],
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
             "shape": "Card",
-            "isGroup": false,
             "key": -7,
             "text": "NGAS",
             "categoryType": "Data",
@@ -336,16 +292,12 @@
         },
         {
             "category": "GroupBy",
-            "isData": false,
             "text": "Group By",
             "description": "Placeholder 'group by' description",
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "isGroup": true,
             "key": -16,
             "fields": [{
                 "text": "Group key",
@@ -360,16 +312,12 @@
         },
         {
             "category": "Gather",
-            "isData": false,
             "text": "Gather",
             "description": "Placeholder 'gather' description",
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "isGroup": true,
             "key": -15,
             "fields": [{
                 "text": "Number of inputs",
@@ -384,16 +332,12 @@
         },
         {
             "category": "Scatter",
-            "isData": false,
             "text": "Scatter",
             "description": "Placeholder 'scatter' description",
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "isGroup": true,
             "key": -14,
             "fields": [{
                 "text": "Number of copies",
@@ -408,16 +352,12 @@
         },
         {
             "category": "MKN",
-            "isData": false,
             "text": "MKN",
             "description": "Placeholder 'mkn' description",
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "isGroup": true,
             "key": -18,
             "fields": [{
                 "text": "M",
@@ -436,16 +376,12 @@
         },
         {
             "category": "Loop",
-            "isData": false,
             "text": "Loop",
             "description": "Placeholder 'loop' description",
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "isGroup": true,
             "key": -17,
             "fields": [{
                 "text": "Number loops",
@@ -458,14 +394,10 @@
             "category": "Service",
             "text": "Service",
             "description": "An external service (e.g. a database)",
-            "canHaveOutputs": false,
-            "canHaveInputs": false,
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "isGroup": false,
-            "isData": false,
             "key": -19,
             "fields": [],
             "categoryType": "Other"
@@ -473,17 +405,13 @@
         {
             "category": "Comment",
             "outputPorts": [],
-            "isData": false,
             "fields": [{
                 "text": "Comment",
                 "name": "comment",
                 "value": "",
                 "description": "The text value of the comment"
             }],
-            "canHaveOutputs": false,
-            "canHaveInputs": false,
             "shape": "File",
-            "isGroup": false,
             "key": -12,
             "text": "Comment",
             "description": "A node that places a comment in the graph. The comment can be used to communicate important information or intention",
@@ -493,16 +421,12 @@
         {
             "category": "Description",
             "outputPorts": [],
-            "isData": false,
             "fields": [{
                 "text": "Description",
                 "name": "description",
                 "value": "",
                 "description": "The text value of the description"
             }],
-            "canHaveOutputs": false,
-            "canHaveInputs": false,
-            "isGroup": false,
             "key": -21,
             "text": "Description",
             "description": "A node that places a description in the graph. The description should be used to communicate the purpose of the graph",
@@ -511,48 +435,36 @@
         },
         {
             "category": "ExclusiveForceNode",
-            "isData": false,
             "text": "Exclusive Force Node",
             "description": "A group that completely specifies the computation on a single node. All child components must be deployed to a single node, and no other components can be deployed to the same node.",
-            "canHaveOutputs": false,
-            "canHaveInputs": false,
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "isGroup": true,
             "key": -19,
             "fields": [],
             "categoryType": "Control"
         },
         {
             "category": "Variables",
-            "isData": false,
             "text": "Variables",
             "description": "A node that contains variables for use in the graph. Often used to specify global variables.",
-            "canHaveOutputs": false,
-            "canHaveInputs": false,
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "isGroup": false,
             "key": -22,
             "fields": [],
             "categoryType": "Other"
         },
         {
             "category": "Branch",
-            "isData": false,
             "text": "Branch",
             "description": "A conditional branch to control flow.",
-            "canHaveOutputs": true,
-            "canHaveInputs": true,
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "isGroup": false,
             "key": -23,
             "fields": [],
             "categoryType": "Control"

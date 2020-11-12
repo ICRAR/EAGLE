@@ -10,22 +10,22 @@
         <!-- /ko -->
 
         <!-- node component parameters list -->
-        <!-- ko if: nodeHasDataComponentParams() -->
+        <!-- ko if: selectedNode().canHaveParameters() -->
         {% include 'node_inspector_parameters.html' %}
         <!-- /ko -->
 
-        <!-- input application type (scatter, gather and mkn only) -->
-        <!-- ko if: selectedNode().isGather() || selectedNode().isScatter() || selectedNode().isMKN() -->
+        <!-- input application type -->
+        <!-- ko if: selectedNode().canHaveInputApplication() -->
         {% include 'node_inspector_input_application.html' %}
         <!-- /ko -->
 
-        <!-- output application type (mkn only) -->
-        <!-- ko if: selectedNode().isMKN() -->
+        <!-- output application type -->
+        <!-- ko if: selectedNode().canHaveOutputApplication() -->
         {% include 'node_inspector_output_application.html' %}
         <!-- /ko -->
 
-        <!-- exit application type (loop only) -->
-        <!-- ko if: selectedNode().isLoop() -->
+        <!-- exit application type -->
+        <!-- ko if: selectedNode().canHaveExitApplication() -->
         {% include 'node_inspector_exit_application.html' %}
         <!-- /ko -->
 
