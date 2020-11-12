@@ -337,11 +337,11 @@ export class Node {
     }
 
     isData = () : boolean => {
-        return Eagle.CategoryData[this.category].isData;
+        return Eagle.getCategoryData(this.category).isData;
     }
 
     isGroup = () : boolean => {
-        return Eagle.CategoryData[this.category].isGroup;
+        return Eagle.getCategoryData(this.category).isGroup;
     }
 
     isScatter = () : boolean => {
@@ -367,27 +367,27 @@ export class Node {
     }
 
     canHaveInputs = () : boolean => {
-        return Eagle.CategoryData[this.category].canHaveInputs;
+        return Eagle.getCategoryData(this.category).canHaveInputs;
     }
 
     canHaveOutputs = () : boolean => {
-        return Eagle.CategoryData[this.category].canHaveOutputs;
+        return Eagle.getCategoryData(this.category).canHaveOutputs;
     }
 
     canHaveInputApplication = () : boolean => {
-        return Eagle.CategoryData[this.category].canHaveInputApplication;
+        return Eagle.getCategoryData(this.category).canHaveInputApplication;
     }
 
     canHaveOutputApplication = () : boolean => {
-        return Eagle.CategoryData[this.category].canHaveOutputApplication;
+        return Eagle.getCategoryData(this.category).canHaveOutputApplication;
     }
 
     canHaveExitApplication = () : boolean => {
-        return Eagle.CategoryData[this.category].canHaveExitApplication;
+        return Eagle.getCategoryData(this.category).canHaveExitApplication;
     }
 
     canHaveParameters = () : boolean => {
-        return Eagle.CategoryData[this.category].canHaveParameters;
+        return Eagle.getCategoryData(this.category).canHaveParameters;
     }
 
     getHelpHTML = () : string => {
