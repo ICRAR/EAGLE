@@ -190,6 +190,22 @@ export class Utils {
         });
     }
 
+    static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void){
+        console.log("httpPostJSON() : ", url);
+        $.ajax({
+            url : url,
+            type : 'GET',
+            data : JSON.stringify(json),
+            contentType : 'application/json',
+            success : function(data : string) {
+                callback(null, data);
+            },
+            error: function(xhr, status, error : string) {
+                callback(error, null);
+            }
+        });
+    }
+
     static httpPost(url : string, data : string, callback : (error : string | null, data : string) => void){
         $.ajax({
             url : url,
@@ -868,5 +884,38 @@ export class Utils {
 
     static getLocalStorageValue(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
         return repositoryName+"|"+repositoryBranch;
+    }
+
+    static buildNodeList(palette : Palette, categoryType : Eagle.CategoryType) : Node[] {
+        var result : Node[] = [];
+
+        // Searching for the node.
+        for (var i = 0; i < palette.getNodes().length; i++) {
+            var node : Node = palette.getNodes()[i];
+            if (node.getCategoryType() === categoryType) {
+                result.push(node);
+            }
+        }
+
+        return result;
+    }
+
+    static buildCategoryList (palette : Palette, categoryType : Eagle.CategoryType) : Eagle.Category[] {
+        var result : Eagle.Category[] = [];
+
+        // Searching for the node.
+        for (var i = 0; i < palette.getNodes().length; i++) {
+            var node : Node = palette.getNodes()[i];
+            if (node.getCategoryType() === categoryType) {
+                result.push(node.getCategory());
+            }
+        }
+
+        // debug until PythonApp is used everywhere
+        if (categoryType === Eagle.CategoryType.Application){
+            result.push("Component");
+        }
+
+        return result;
     }
 }

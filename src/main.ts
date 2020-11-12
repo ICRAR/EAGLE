@@ -26,11 +26,9 @@ import * as ko from "knockout";
 import * as $ from "jquery";
 
 import {Eagle} from './Eagle';
-import {Config} from './Config';
 import {Utils} from './Utils';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
-import {Node} from './Node';
 
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
@@ -62,8 +60,6 @@ $(function(){
     eagle.palettes([]);
     eagle.templatePalette(new Palette());
 
-    initNodeDataLists();
-
     // Adjust interface to the graph editor mode.
     eagle.setGraphEditorMode();
 
@@ -93,64 +89,3 @@ $(function(){
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "SummitIngest_Demo.graph"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "james-strauss-uwa/eagle-test", "master", false), "summit", "summit.graph"));
 });
-
-/**
- * Build data lists (data nodes/categories, applications nodes/categories) from default palette.
- */
-function initNodeDataLists() {
-    console.log("init node data lists");
-
-    // Load default palette from the server.
-    $.ajax({
-        url: "./static/" + Config.templatePaletteFileName,
-        success: function (data) {
-            var showErrors = eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
-            // TODO: we waste time here turning the response JSON back into a string, could be improved
-            var paletteTemplate : Palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), showErrors);
-
-            // Adding event ports.
-            paletteTemplate.addEventPorts();
-
-            // Extracting data from the palette template.
-            Eagle.dataNodes = buildNodeList(paletteTemplate, Eagle.CategoryType.Data);
-            Eagle.dataCategories = buildCategoryList(paletteTemplate, Eagle.CategoryType.Data);
-            Eagle.applicationNodes = buildNodeList(paletteTemplate, Eagle.CategoryType.Application);
-            Eagle.applicationCategories = buildCategoryList(paletteTemplate, Eagle.CategoryType.Application);
-        }
-    });
-}
-
-function buildNodeList(palette : Palette, categoryType : Eagle.CategoryType) : Node[] {
-    var result : Node[] = [];
-
-    // Searching for the node.
-    for (var i = 0; i < palette.getNodes().length; i++) {
-        var node : Node = palette.getNodes()[i];
-        if (node.getCategoryType() === categoryType) {
-            result.push(node);
-        }
-    }
-
-    return result;
-}
-
-// Build a list of node data.
-function buildCategoryList(palette : Palette, categoryType : Eagle.CategoryType) : Eagle.Category[] {
-    var result : Eagle.Category[] = [];
-
-    // Searching for the node.
-    for (var i = 0; i < palette.getNodes().length; i++) {
-        var node : Node = palette.getNodes()[i];
-        if (node.getCategoryType() === categoryType) {
-            result.push(node.getCategory());
-        }
-    }
-
-    // debug until PythonApp is used everywhere
-    if (categoryType === Eagle.CategoryType.Application){
-        result.push("Component");
-    }
-
-    return result;
-}

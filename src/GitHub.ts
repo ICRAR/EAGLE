@@ -33,7 +33,7 @@ export class GitHub {
      * Loads the GitHub repository list.
      */
     static loadRepoList(eagle : Eagle) : void {
-        Utils.httpPostJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
+        Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);
                 return;

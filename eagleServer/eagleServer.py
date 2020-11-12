@@ -136,18 +136,14 @@ def open_file(filetype, filename):
     return response
 
 
-@app.route("/getGitHubRepositoryList", methods=["POST"])
+@app.route("/getGitHubRepositoryList", methods=["GET"])
 def get_git_hub_repository_list():
-    d = GITHUB_DEFAULT_REPO_LIST
-
-    return jsonify(d)
+    return jsonify(GITHUB_DEFAULT_REPO_LIST)
 
 
-@app.route("/getGitLabRepositoryList", methods=["POST"])
+@app.route("/getGitLabRepositoryList", methods=["GET"])
 def get_git_lab_repository_list():
-    d = GITLAB_DEFAULT_REPO_LIST
-
-    return jsonify(d)
+    return jsonify(GITLAB_DEFAULT_REPO_LIST)
 
 
 def extract_folder_and_repo_names(repo_name):

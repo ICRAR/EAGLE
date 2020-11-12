@@ -33,7 +33,7 @@ export class GitLab {
      * Loads the GitLab repository list.
      */
     static loadRepoList(eagle : Eagle) : void {
-        Utils.httpPostJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
+        Utils.httpGetJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);
                 return;

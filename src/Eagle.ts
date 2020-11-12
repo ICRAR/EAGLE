@@ -970,10 +970,17 @@ export class Eagle {
                 this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), showErrors));
             } else {
                 Utils.showUserMessage("Error", "File type is not a template palette!");
+                return;
             }
 
             // Adding event ports.
             this.templatePalette().addEventPorts();
+
+            // Extracting data from the palette template.
+            Eagle.dataNodes = Utils.buildNodeList(this.templatePalette(), Eagle.CategoryType.Data);
+            Eagle.dataCategories = Utils.buildCategoryList(this.templatePalette(), Eagle.CategoryType.Data);
+            Eagle.applicationNodes = Utils.buildNodeList(this.templatePalette(), Eagle.CategoryType.Application);
+            Eagle.applicationCategories = Utils.buildCategoryList(this.templatePalette(), Eagle.CategoryType.Application);
         });
     }
 
