@@ -8,6 +8,9 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@v1
+      - name: Start server
+        run: |
+          python eagleServer/eagleServer.py
       - name: Run tests
         uses: DevExpress/testcafe-action@latest
         env:
