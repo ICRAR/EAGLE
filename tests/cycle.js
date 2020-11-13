@@ -3,10 +3,10 @@ import { Selector } from 'testcafe';
 /*
     run with:
 
-    export GITHUB_ACCESS_TOKEN="<insert personal access token>";testcafe chrome tests/cycle.js
+    export EAGLE_GITHUB_ACCESS_TOKEN="<insert personal access token>";testcafe chrome tests/cycle.js
 */
 
-var GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
+var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 var TESTING_REPOSITORY = "james-strauss-uwa/eagle-test";
 var TESTING_BRANCH = "master";
 var TRANSLATOR_URL = "http://localhost:8084/gen_pgt";
@@ -46,7 +46,7 @@ test('Create palette', async t =>{
         // enter the github access token
         .click('#navbarDropdownGit')
         .click('#setGitHubAccessToken')
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace:true})
+        .typeText(Selector('#inputModalInput'), EAGLE_GITHUB_ACCESS_TOKEN, {replace:true})
         .click('#inputModal .modal-footer button')
 
         // enter the testing repo as a custom repo

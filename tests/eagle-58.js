@@ -3,10 +3,10 @@ import { Selector } from 'testcafe';
 /*
     run with:
 
-    export GITHUB_ACCESS_TOKEN="<insert personal access token>";testcafe chrome tests/eagle-58.js
+    export EAGLE_GITHUB_ACCESS_TOKEN="<insert personal access token>";testcafe chrome tests/eagle-58.js
 */
 
-var GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
+var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 var TESTING_REPOSITORY = "ICRAR/dlg_repo";
 var TESTING_BRANCH = "master";
 var GRAPH_FILENAME = "SummitIngest_Demo";
@@ -24,7 +24,7 @@ test('Translate graph', async t =>{
         // enter the github access token
         .click('#navbarDropdownGit')
         .click('#setGitHubAccessToken')
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace: true})
+        .typeText(Selector('#inputModalInput'), EAGLE_GITHUB_ACCESS_TOKEN, {replace: true})
         .click('#inputModal .modal-footer button')
 
         // enter the testing repo as a custom repo

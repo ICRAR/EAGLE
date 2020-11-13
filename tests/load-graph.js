@@ -1,6 +1,6 @@
 import { Selector } from 'testcafe';
 
-var GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
+var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 var SUCCESS_MESSAGE = "Success:";
 
 fixture `EAGLE`
@@ -11,7 +11,7 @@ test('Load graph', async t => {
         .wait(2000)
         .click('#navbarDropdownGit')
         .click('#setGitHubAccessToken')
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace:true})
+        .typeText(Selector('#inputModalInput'), EAGLE_GITHUB_ACCESS_TOKEN, {replace:true})
         .click('#inputModal .modal-footer button')
 
         .click('#ICRAR_EAGLE_test_repo')
@@ -29,7 +29,7 @@ test('Load palette', async t => {
         .click('#navbarDropdownGit')
         .click('#setGitHubAccessToken')
         .wait(1000)
-        .typeText(Selector('#inputModalInput'), GITHUB_ACCESS_TOKEN, {replace:true})
+        .typeText(Selector('#inputModalInput'), EAGLE_GITHUB_ACCESS_TOKEN, {replace:true})
         .click('#inputModal .modal-footer button')
 
         .click('#ICRAR_EAGLE_test_repo')
