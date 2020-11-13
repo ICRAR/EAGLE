@@ -540,13 +540,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, sourceDataType);
                                     } else {
                                         console.warn("link not valid, result", linkValid);
-                                        clearEdgeVars();
                                     }
                                 } else {
                                     console.warn("destination port is null!", destinationPortId);
-                                    clearEdgeVars();
                                 }
 
+                                clearEdgeVars();
                                 tick();
                             });
 
