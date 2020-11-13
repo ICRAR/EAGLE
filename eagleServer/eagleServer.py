@@ -302,7 +302,18 @@ def save_git_hub_file():
     repo = g.get_repo(repo_name)
 
     # Set branch
-    branch_ref = repo.get_git_ref("heads/" + repo_branch)
+    try:
+        branch_ref = repo.get_git_ref("heads/" + repo_branch)
+    except github.GithubException as e:
+        # repository might be empty
+        print(
+            "Error in get_git_ref({0})! Repo: {1} Status: {2} Data: {3}".format(
+                "heads/" + repo_branch, str(repo_name), e.status, e.data
+            )
+        )
+        return jsonify({"error": e.data["message"]}), 400
+
+    # get SHA from branch
     branch_sha = branch_ref.object.sha
 
     # Add repo and file name in the graph.

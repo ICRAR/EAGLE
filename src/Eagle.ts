@@ -754,10 +754,10 @@ export class Eagle {
         // DEBUG:
         console.log("url", url);
 
-        Utils.httpPostJSON(url, json, (error : string) : void => {
-            if (error != null){
-                Utils.showUserMessage("Error", "Failed to save a file! Make sure you have write permission in the selected repository : " + repository.name);
-                console.error("Error: " + JSON.stringify(error, null, 2));
+        Utils.httpPostJSON(url, json, (error : string, data: string) : void => {
+            if (error !== null){
+                Utils.showUserMessage("Error", data);
+                console.error("Error: " + JSON.stringify(error, null, 2) + " Data: " + data);
                 return;
             }
 

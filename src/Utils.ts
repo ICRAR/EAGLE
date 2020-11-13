@@ -233,7 +233,7 @@ export class Utils {
                 callback(null, data);
             },
             error: function(xhr, status, error : string) {
-                callback(error, null);
+                callback(error, xhr.responseJSON.error);
             }
         });
     }
