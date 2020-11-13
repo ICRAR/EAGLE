@@ -4,13 +4,22 @@ on: [push]
 jobs:
   test:
     name: Run TestCafe Tests
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
         uses: actions/checkout@v1
-      - name: Start server
+      - name: Setup Node
+        uses: actions/setup-node@v1
+      - name: NPM install
+        run: npm install
+      - name: Setup Python
+        uses: actions/setup-python@v2
+      - name: PIP install
         run: |
-          python eagleServer/eagleServer.py
+          python -m pip install --upgrade pip
+          pip install .
+      - name: Start server
+        run: python eagleServer/eagleServer.py
       - name: Run tests
         uses: DevExpress/testcafe-action@latest
         env:
