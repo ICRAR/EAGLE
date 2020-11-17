@@ -1,9 +1,9 @@
-name: Automated Tests
+name: TestCafe
 on: [push]
 
 jobs:
   test:
-    name: Run TestCafe Tests
+    name: Run Summit Test
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
@@ -19,7 +19,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
       - name: Start server
-        run: python eagleServer/eagleServer.py
+        run: python eagleServer/eagleServer.py -t /tmp &
       - name: Run tests
         uses: DevExpress/testcafe-action@latest
         env:
