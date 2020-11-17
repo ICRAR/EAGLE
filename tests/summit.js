@@ -46,7 +46,6 @@ fixture `EAGLE Summit Ingest`
 test('Load palette', async t =>{
     await t
         // wait for the page to settle down
-        .resizeWindow(1920, 1080)
         .wait(3000)
 
         // enter the github access token
