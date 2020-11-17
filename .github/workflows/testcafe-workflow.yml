@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   test:
-    name: Run Summit Test
+    name: Run Simple Test
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
@@ -27,4 +27,4 @@ jobs:
         env:
             EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
         with:
-            args: "chrome tests/summit.js"
+            args: "chrome tests/simple.js"
