@@ -76,9 +76,6 @@ export class Node {
     public static readonly DATA_COMPONENT_WIDTH : number = 48;
     public static readonly DATA_COMPONENT_HEIGHT : number = 48;
 
-    // temp fix for incompatibility with the DaLiuGE translator
-    public static PYTHON_APP_CATEGORY_FIX : boolean = true;
-
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, x : number, y : number){
         this.key = key;
         this.name = name;
@@ -1208,7 +1205,9 @@ export class Node {
     static toOJSJson = (node : Node) : object => {
         var result : any = {};
 
-        result.category = Node.PYTHON_APP_CATEGORY_FIX ? GraphUpdater.translateNewCategory(node.category) : node.category;
+        let useNewCategories : boolean = Eagle.findSetting(Utils.TRANSLATE_WITH_NEW_CATEGORIES).value();
+
+        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category) : node.category;
         result.categoryType = node.categoryType;
         result.isData = node.isData();
         result.isGroup = node.isGroup();
@@ -1366,7 +1365,9 @@ export class Node {
     static toV3ComponentJson = (node : Node) : object => {
         let result : any = {};
 
-        result.category = Node.PYTHON_APP_CATEGORY_FIX ? GraphUpdater.translateNewCategory(node.category) : node.category;
+        let useNewCategories : boolean = Eagle.findSetting(Utils.TRANSLATE_WITH_NEW_CATEGORIES).value();
+
+        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category) : node.category;
         result.categoryType = node.categoryType;
         result.isData = node.isData();
         result.isGroup = node.isGroup();

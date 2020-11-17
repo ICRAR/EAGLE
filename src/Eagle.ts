@@ -73,7 +73,7 @@ export class Eagle {
     globalOffsetY : number = 0;
     globalScale : number = 1.0;
 
-    settings : ko.ObservableArray<Setting>;
+    static settings : ko.ObservableArray<Setting>;
 
     static dataNodes : Node[] = [];
     static dataCategories : Eagle.Category[] = [];
@@ -106,19 +106,19 @@ export class Eagle {
         this.rightWindowWidth = ko.observable(Utils.getRightWindowWidth());
         this.leftWindowWidth = ko.observable(Utils.getLeftWindowWidth());
 
-        this.settings = ko.observableArray();
-        this.settings.push(new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
-        this.settings.push(new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true));
-        this.settings.push(new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
-        this.settings.push(new Setting("Confirm Delete Nodes", "Prompt user to confirm when deleting a node from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
-        this.settings.push(new Setting("Confirm Delete Edges", "Prompt user to confirm when deleting an edge from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
-        this.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
-        this.settings.push(new Setting("Allow invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, false));
-        this.settings.push(new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, false));
-        this.settings.push(new Setting("Enable Palette Editor Mode", "Enable the palette editor mode in EAGLE.", Setting.Type.Boolean, Utils.ENABLE_PALETTE_EDITOR_MODE, false));
+        Eagle.settings = ko.observableArray();
+        Eagle.settings.push(new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
+        Eagle.settings.push(new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true));
+        Eagle.settings.push(new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
+        Eagle.settings.push(new Setting("Confirm Delete Nodes", "Prompt user to confirm when deleting a node from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
+        Eagle.settings.push(new Setting("Confirm Delete Edges", "Prompt user to confirm when deleting an edge from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
+        Eagle.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
+        Eagle.settings.push(new Setting("Allow invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, false));
+        Eagle.settings.push(new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, false));
+        Eagle.settings.push(new Setting("Enable Palette Editor Mode", "Enable the palette editor mode in EAGLE.", Setting.Type.Boolean, Utils.ENABLE_PALETTE_EDITOR_MODE, false));
+        Eagle.settings.push(new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false));
 
-
-        this.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"));
+        Eagle.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -129,7 +129,7 @@ export class Eagle {
     }
 
     isPaletteEditorModeEnabled = () : boolean => {
-        return this.findSetting(Utils.ENABLE_PALETTE_EDITOR_MODE).value();
+        return Eagle.findSetting(Utils.TRANSLATE_WITH_NEW_CATEGORIES).value();
     }
 
     activeFileInfo = () : FileInfo => {
@@ -450,7 +450,7 @@ export class Eagle {
             return;
         }
 
-        var translatorURL : string = this.findSetting(Utils.TRANSLATOR_URL).value();
+        var translatorURL : string = Eagle.findSetting(Utils.TRANSLATOR_URL).value();
 
         console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
 
@@ -473,7 +473,7 @@ export class Eagle {
     uploadGraphFile = () : void => {
         var uploadedGraphFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFile");
         var fileFullPath : string = uploadedGraphFileInputElement.value;
-        var showErrors : boolean = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+        var showErrors : boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -532,7 +532,7 @@ export class Eagle {
     uploadPaletteFile = () : void => {
         var uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFile");
         var fileFullPath : string = uploadedPaletteFileInputElement.value;
-        var showErrors : boolean = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+        var showErrors : boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -964,7 +964,7 @@ export class Eagle {
             }
 
             var fileType : Eagle.FileType = Utils.translateStringToFileType((<any>data).modelData.fileType);
-            var showErrors = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+            var showErrors = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             if (fileType == Eagle.FileType.TemplatePalette) {
                 this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), showErrors));
@@ -1037,7 +1037,7 @@ export class Eagle {
         }
 
         // if the file is modified, get the user to confirm they want to overwrite changes
-        if (isModified && this.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()){
+        if (isModified && Eagle.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()){
             Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", (confirmed : boolean) : void => {
                 if (!confirmed){
                     console.log("selectFile() cancelled");
@@ -1107,7 +1107,7 @@ export class Eagle {
 
     removeCustomRepository = (repository : Repository) : void => {
         // if settings dictates that we don't confirm with user, remove immediately
-        if (!this.findSetting(Utils.CONFIRM_REMOVE_REPOSITORES).value()){
+        if (!Eagle.findSetting(Utils.CONFIRM_REMOVE_REPOSITORES).value()){
             this._removeCustomRepository(repository);
             return;
         }
@@ -1186,7 +1186,7 @@ export class Eagle {
             }
 
             // if setting dictates, show errors during loading
-            var showErrors = this.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+            var showErrors = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             if (file.type === Eagle.FileType.Graph) {
                 if (this.userMode() === Eagle.UserMode.PaletteEditor) {
@@ -1238,7 +1238,7 @@ export class Eagle {
             var alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
 
             // if dictated by settings, reload the palette immediately
-            if (alreadyLoadedPalette !== null && this.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
+            if (alreadyLoadedPalette !== null && Eagle.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
                 Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
                     if (confirmed){
                         this._reloadPalette(file, data, showErrors, alreadyLoadedPalette);
@@ -1340,7 +1340,7 @@ export class Eagle {
     };
 
     setTranslatorUrl = () : void => {
-        var translatorURLSetting : Setting = this.findSetting(Utils.TRANSLATOR_URL);
+        var translatorURLSetting : Setting = Eagle.findSetting(Utils.TRANSLATOR_URL);
 
         Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false, (completed : boolean, userString : string) : void => {
             // abort if user cancelled the action
@@ -1394,9 +1394,9 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    findSetting = (key : string) : Setting => {
-        for (var i = 0 ; i < this.settings().length ; i++){
-            var s = this.settings()[i];
+    static findSetting = (key : string) : Setting => {
+        for (var i = 0 ; i < Eagle.settings().length ; i++){
+            var s = Eagle.settings()[i];
 
             if (s.getKey() === key){
                 return s;
@@ -1405,9 +1405,13 @@ export class Eagle {
         return null;
     }
 
+    getSettings = () : Setting[] => {
+        return Eagle.settings();
+    }
+
     resetSettingsDefaults = () : void => {
-        for (var i = 0 ; i < this.settings().length ; i++){
-            this.settings()[i].resetDefault();
+        for (var i = 0 ; i < Eagle.settings().length ; i++){
+            Eagle.settings()[i].resetDefault();
         }
     }
 
@@ -1444,7 +1448,7 @@ export class Eagle {
         }
 
         // skip confirmation if setting dictates
-        if (!this.findSetting(Utils.CONFIRM_DELETE_EDGES).value()){
+        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_EDGES).value()){
             this._deleteSelectedEdge();
             return;
         }
@@ -1498,7 +1502,7 @@ export class Eagle {
         }
 
         // skip confirmation if setting dictates
-        if (!this.findSetting(Utils.CONFIRM_DELETE_NODES).value()){
+        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_NODES).value()){
             this._deleteSelectedNode();
             return;
         }
@@ -1569,7 +1573,7 @@ export class Eagle {
     // check the "allow component editing" setting to check if the selection
     // can be edited
     selectionReadOnly : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return !this.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
+        return !Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
     }, this);
 
     /**

@@ -533,7 +533,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     var linkValid : Eagle.LinkValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, true, true);
 
                                     // check if we should allow invalid edges
-                                    var allowInvalidEdges : boolean = eagle.findSetting(Utils.ALLOW_INVALID_EDGES).value();
+                                    var allowInvalidEdges : boolean = Eagle.findSetting(Utils.ALLOW_INVALID_EDGES).value();
 
                                     // abort if source port and destination port have different data types
                                     if (allowInvalidEdges || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){

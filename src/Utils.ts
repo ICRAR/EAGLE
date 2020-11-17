@@ -59,6 +59,9 @@ export class Utils {
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
+    static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
+
+
     /**
      * Generates a UUID.
      * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
