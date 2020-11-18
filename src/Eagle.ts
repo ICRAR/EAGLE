@@ -522,7 +522,7 @@ export class Eagle {
             }
 
             // update the activeFileInfo with details of the repository the file was loaded from
-            this.updateFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+            this.updateActiveFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
         });
     }
 
@@ -547,6 +547,7 @@ export class Eagle {
         // Get and load the specified configuration file.
         var formData = new FormData();
         formData.append('file', uploadedPaletteFileInputElement.files[0]);
+        uploadedPaletteFileInputElement.value = "";
 
         Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
             if (error !== null){
@@ -572,7 +573,7 @@ export class Eagle {
                 return;
             }
 
-            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath), showErrors);
+            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), showErrors);
 
             if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
                 this.palettes.push(p);
@@ -585,8 +586,10 @@ export class Eagle {
 
             Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
 
-            // update the activeFileInfo with details of the repository the file was loaded from
-            this.updateFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+            // if in palette editor mode, update the activeFileInfo with details of the repository the file was loaded from
+            if (this.userMode() === Eagle.UserMode.PaletteEditor){
+                this.updateActiveFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+            }
         });
     }
 
@@ -677,7 +680,7 @@ export class Eagle {
         }
 
         var fileName = this.activeFileInfo().name;
-        if (fileName == "") {
+        if (fileName === "") {
             fileName = "Diagram" + "." + Utils.getDiagramExtension(fileType);
         }
 
@@ -929,7 +932,7 @@ export class Eagle {
      * Export file to V3 Json
      */
     exportV3Json = () : void => {
-        var fileName = this.activeFileInfo().name;
+        var fileName : string = this.activeFileInfo().name;
 
         var json = LogicalGraph.toV3Json(this.logicalGraph());
 
@@ -1220,7 +1223,7 @@ export class Eagle {
 
             //.update the activeFileInfo with details of the repository the file was loaded from
             if (fileTypeLoaded === Eagle.FileType.Graph){
-                this.updateFileInfo(fileTypeLoaded, file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+                this.updateActiveFileInfo(fileTypeLoaded, file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
             }
         });
     };
@@ -1262,7 +1265,7 @@ export class Eagle {
         Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
     }
 
-    private updateFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
+    private updateActiveFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
         //.update the activeFileInfo with details of the repository the file was loaded from
         this.activeFileInfo().repositoryName = repositoryName;
         this.activeFileInfo().repositoryBranch = repositoryBranch;
