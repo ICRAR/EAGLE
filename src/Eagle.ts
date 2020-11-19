@@ -697,6 +697,13 @@ export class Eagle {
             json = Palette.toOJSJson(p_clone);
         }
 
+        // validate json
+        let isValid : boolean = Utils.validateJSON(json);
+        if (!isValid){
+            console.error("JSON Invalid, saving anyway");
+            Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+            //return;
+        }
 
         Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
             if (error != null){

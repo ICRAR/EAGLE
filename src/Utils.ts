@@ -22,6 +22,8 @@
 #
 */
 
+import * as Ajv from "ajv";
+
 import {Config} from './Config';
 
 import {Eagle} from './Eagle';
@@ -920,5 +922,18 @@ export class Utils {
         }
 
         return result;
+    }
+
+    static validateJSON(json : object) : boolean {
+        console.log("validateJSON()");
+
+        var ajv = new Ajv();
+
+        let schema = {"type":"number"};
+        let valid = ajv.validate(schema, json) as boolean;
+
+        console.log("validate result", valid);
+
+        return valid;
     }
 }
