@@ -70,6 +70,9 @@ $(function(){
     // load the default palette
     eagle.loadTemplatePalette();
 
+    // load schemas
+    eagle.loadSchemas();
+
     // enable bootstrap tooltips
     eagle.updateTooltips();
 

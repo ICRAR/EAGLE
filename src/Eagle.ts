@@ -454,15 +454,26 @@ export class Eagle {
 
         console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
 
+        // get json for logical graph
+        let json = LogicalGraph.toOJSJson(this.logicalGraph());
+
+        // validate json
+        let isValid : boolean = Utils.validateJSON(json, Eagle.FileType.Graph);
+        if (!isValid){
+            console.error("JSON Invalid, saving anyway");
+            Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+            //return;
+        }
+
         this.translator().submit(translatorURL, {
             algo: Config.translationAlgorithms[algorithmIndex],
             lg_name: this.logicalGraph().fileInfo().name,
-            json_data: JSON.stringify(LogicalGraph.toOJSJson(this.logicalGraph()))
+            json_data: JSON.stringify(json)
         });
 
         console.log("json data");
         console.log("---------");
-        console.log(LogicalGraph.toOJSJson(this.logicalGraph()));
+        console.log(json);
         console.log("---------");
     }
 
@@ -698,7 +709,7 @@ export class Eagle {
         }
 
         // validate json
-        let isValid : boolean = Utils.validateJSON(json);
+        let isValid : boolean = Utils.validateJSON(json, fileType);
         if (!isValid){
             console.error("JSON Invalid, saving anyway");
             Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
@@ -922,6 +933,14 @@ export class Eagle {
             json = Palette.toOJSJson(this.editorPalette());
         }
 
+        // validate json
+        let isValid : boolean = Utils.validateJSON(json, fileType);
+        if (!isValid){
+            console.error("JSON Invalid, saving anyway");
+            Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+            //return;
+        }
+
         var jsonData : object = {
             jsonData: json,
             repositoryBranch: repository.branch,
@@ -991,6 +1010,19 @@ export class Eagle {
             Eagle.dataCategories = Utils.buildCategoryList(this.templatePalette(), Eagle.CategoryType.Data);
             Eagle.applicationNodes = Utils.buildNodeList(this.templatePalette(), Eagle.CategoryType.Application);
             Eagle.applicationCategories = Utils.buildCategoryList(this.templatePalette(), Eagle.CategoryType.Application);
+        });
+    }
+
+    loadSchemas = () => {
+        console.log("loadSchemas()");
+
+        Utils.httpGet("./static/" + Config.graphSchemaFileName, (error : string, data : string) => {
+            if (error !== null){
+                console.error(error);
+                return;
+            }
+
+            Utils.graphSchema = JSON.parse(data);
         });
     }
 

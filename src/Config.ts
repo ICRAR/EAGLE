@@ -26,6 +26,9 @@ export class Config {
     // File name of the palette template.
     static readonly templatePaletteFileName : string = "templatePalette.json";
 
+    // schemas
+    static readonly graphSchemaFileName : string = "assets/schema/dlg-lg.graph.schema";
+
     // Dimensions.
     static readonly paletteNodeHeight : number = 22;
     static readonly paletteNodeWidth : number = 130;

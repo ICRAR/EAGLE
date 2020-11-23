@@ -63,6 +63,8 @@ export class Utils {
 
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
 
+    static graphSchema : object = {};
+    static paletteSchema : object = {};
 
     /**
      * Generates a UUID.
@@ -924,15 +926,24 @@ export class Utils {
         return result;
     }
 
-    static validateJSON(json : object) : boolean {
-        console.log("validateJSON()");
+    static validateJSON(json : object, fileType : Eagle.FileType) : boolean {
+        console.log("validateJSON(): fileType:", Utils.translateFileTypeToString(fileType));
 
         var ajv = new Ajv();
+        let valid : boolean;
 
-        let schema = {"type":"number"};
-        let valid = ajv.validate(schema, json) as boolean;
-
-        console.log("validate result", valid);
+        switch(fileType){
+            case Eagle.FileType.Graph:
+                valid = ajv.validate(Utils.graphSchema, json) as boolean;
+                break;
+            //case Eagle.FileType.Palette:
+            //    valid = ajv.validate(Utils.paletteSchema, json) as boolean;
+            //    break;
+            default:
+                console.log("Unknown fileType:", fileType, "Unable to validate JSON");
+                valid = true;
+                break;
+        }
 
         return valid;
     }
