@@ -458,7 +458,7 @@ export class Eagle {
         let json = LogicalGraph.toOJSJson(this.logicalGraph());
 
         // validate json
-        let isValid : boolean = Utils.validateJSON(json, Eagle.FileType.Graph);
+        let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
         if (!isValid){
             console.error("JSON Invalid, saving anyway");
             Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
@@ -709,7 +709,7 @@ export class Eagle {
         }
 
         // validate json
-        let isValid : boolean = Utils.validateJSON(json, fileType);
+        let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
         if (!isValid){
             console.error("JSON Invalid, saving anyway");
             Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
@@ -934,7 +934,7 @@ export class Eagle {
         }
 
         // validate json
-        let isValid : boolean = Utils.validateJSON(json, fileType);
+        let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
         if (!isValid){
             console.error("JSON Invalid, saving anyway");
             Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
@@ -961,6 +961,14 @@ export class Eagle {
         var fileName : string = this.activeFileInfo().name;
 
         var json = LogicalGraph.toV3Json(this.logicalGraph());
+
+        // validate json
+        let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.V3, Eagle.FileType.Graph);
+        if (!isValid){
+            console.error("JSON Invalid, saving anyway");
+            Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+            //return;
+        }
 
         Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
             if (error != null){
@@ -1022,7 +1030,14 @@ export class Eagle {
                 return;
             }
 
-            Utils.graphSchema = JSON.parse(data);
+            Utils.ojsGraphSchema = JSON.parse(data);
+
+            // NOTE: in the short-term we'll just use the graph schema for palettes
+            //       both file formats are base on the OJS format, so they are similar
+            Utils.ojsPaletteSchema = JSON.parse(data);
+
+            // NOTE: we don't have a schema for the V3 version
+            Utils.v3GraphSchema = JSON.parse(data);
         });
     }
 
@@ -2198,6 +2213,7 @@ export namespace Eagle
     }
 
     export enum DALiuGESchemaVersion {
+        OJS,
         V3
     }
 
