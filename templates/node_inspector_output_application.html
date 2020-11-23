@@ -2,8 +2,11 @@
     <h5 class="card-header">
         <i class="material-icons">apps</i>
         <span>Output Application</span>
+        <!-- ko if: $root.selectedNode().outputApplication() !== null -->
+            <i class="material-icons float-right" style="cursor: pointer;" data-bind="click: selectOutputApplicationNode">location_search</i>
+        <!-- /ko -->
     </h5>
     <div class="card-body">
-        <inspector-component params="data: $root.selectedNode().outputApplication, paletteIndex: 0, index: 0, showAdd: false, showEdit: true, callback: $root.setNodeOutputApplication"></inspector-component>
+        <inspector-component params="data: $root.selectedNode().outputApplication, callback: $root.setNodeOutputApplication"></inspector-component>
     </div>
 </div>

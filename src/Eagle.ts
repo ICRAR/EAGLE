@@ -1957,6 +1957,24 @@ export class Eagle {
         //this.flagActiveDiagramHasMutated();
     }
 
+    selectInputApplicationNode = (nodeViewModel : any) : void => {
+        console.log("selectInputApplicationNode()", nodeViewModel);
+
+        this.selectedNode(this.selectedNode().getInputApplication());
+    }
+
+    selectOutputApplicationNode = (nodeViewModel : any) : void => {
+        console.log("selectOutputApplicationNode()", nodeViewModel);
+
+        this.selectedNode(this.selectedNode().getOutputApplication());
+    }
+
+    selectExitApplicationNode = (nodeViewModel : any) : void => {
+        console.log("selectExitApplicationNode()", nodeViewModel);
+
+        this.selectedNode(this.selectedNode().getExitApplication());
+    }
+
     showFieldValuePicker = (fieldIndex : number, fieldType : Eagle.FieldType, input : boolean) : void => {
         console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "fieldType", fieldType, "input", input);
 
