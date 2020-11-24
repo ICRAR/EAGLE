@@ -1,23 +1,23 @@
 <div class="row">
     <div class="col">
         <div class="input-group mb-1">
-            <!-- ko if: $data === null -->
-                <button class="btn btn-secondary btn-block" type="button" data-bind="click: $root.setNodeInputApplication">
+            <!-- ko if: $data.node() === null -->
+                <button class="btn btn-secondary btn-block" type="button" data-bind="click: $data.callback">
                     <i class="material-icons md-18">add</i>
                 </button>
             <!-- /ko -->
 
-            <!-- ko ifnot: $data === null -->
-                <div class="input-group-prepend" data-bind="attr: {title: $data.getHelpHTML()}" data-toggle="tooltip" data-html="true" data-placement="right">
-                    <span class="input-group-text" data-bind="style: {'background-color': $data.getColor()}">
-                        <i class="material-icons" data-bind="text: $data.getIcon()"></i>
+            <!-- ko ifnot: $data.node() === null -->
+                <div class="input-group-prepend" data-bind="attr: {title: $data.node().getHelpHTML()}" data-toggle="tooltip" data-html="true" data-placement="right">
+                    <span class="input-group-text" data-bind="style: {'background-color': $data.node().getColor()}">
+                        <i class="material-icons" data-bind="text: $data.node().getIcon()"></i>
                     </span>
                 </div>
 
-                <input type="text" class="form-control" readonly data-bind="value: $data.getDisplayName()">
+                <input type="text" class="form-control" readonly data-bind="value: $data.node().getDisplayName()">
 
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $root.setNodeInputApplication, attr: {title: 'Change application'}" data-toggle="tooltip" data-html="true" data-placement="left">
+                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.callback, attr: {title: 'Change application'}" data-toggle="tooltip" data-html="true" data-placement="left">
                         <i class="material-icons md-18">edit</i>
                     </button>
                 </div>

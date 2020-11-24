@@ -89,8 +89,8 @@ ko.components.register('hierarchy-node', {
 
 // custom component for a component that appears in the inspector
 ko.components.register('inspector-component', {
-    viewModel: function(params : {data : any}){
-        return params.data;
+    viewModel: function(params : {node : any, callback: any}){
+        return params;
     },
     template: { require: "text!static/components/inspector-component.html" }
 });
