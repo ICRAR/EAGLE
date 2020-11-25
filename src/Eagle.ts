@@ -2040,8 +2040,8 @@ export class Eagle {
         });
     }
 
-    setNodeInputApplication = () : void => {
-        console.log("setNodeInputApplication()");
+    private setNodeApplication = (callback:(node:Node) => void) : void => {
+        console.log("setNodeApplication()");
 
         var applicationList : string[] = this.getApplicationList();
 
@@ -2074,16 +2074,26 @@ export class Eagle {
                 port.setNodeKey(this.selectedNode().getKey());
             }
 
-            this.selectedNode().setInputApplication(clone);
+            callback(clone);
         });
+    }
+
+    setNodeInputApplication = () : void => {
+        console.log("setNodeInputApplication()");
+
+        this.setNodeApplication(this.selectedNode().setInputApplication);
     }
 
     setNodeOutputApplication = () : void => {
         console.log("setNodeOutputApplication()");
+
+        this.setNodeApplication(this.selectedNode().setOutputApplication);
     }
 
     setNodeExitApplication = () : void => {
         console.log("setNodeExitApplication()");
+
+        this.setNodeApplication(this.selectedNode().setExitApplication);
     }
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
