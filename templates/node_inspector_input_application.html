@@ -2,11 +2,8 @@
     <h5 class="card-header">
         <i class="material-icons">apps</i>
         <span>Input Application</span>
-        <!-- ko if: $root.selectedNode().inputApplication() !== null -->
-            <i class="material-icons float-right" style="cursor: pointer;" data-bind="click: selectInputApplicationNode">location_search</i>
-        <!-- /ko -->
     </h5>
     <div class="card-body">
-        <inspector-component params="node: $root.selectedNode().inputApplication, callback: $root.setNodeInputApplication"></inspector-component>
+        <inspector-component params="node: $root.selectedNode().inputApplication, selectCallback: $root.setNodeInputApplication, inspectCallback: $root.selectInputApplicationNode"></inspector-component>
     </div>
 </div>

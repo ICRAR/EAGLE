@@ -1881,6 +1881,9 @@ export class Eagle {
         var eagle : Eagle = this;
 
         setTimeout(function(){
+            // destroy orphaned tooltips
+            $('.tooltip[role="tooltip"]').remove();
+
             $('[data-toggle="tooltip"]').tooltip({
                 boundary: 'window',
                 trigger : 'hover'
@@ -2075,6 +2078,8 @@ export class Eagle {
             }
 
             callback(clone);
+
+            this.updateTooltips();
         });
     }
 
