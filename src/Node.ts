@@ -911,7 +911,7 @@ export class Node {
 
         // if no fields exist, create at least one, to store the custom data
         if (this.fields.length === 0){
-            this.addField(new Field("", "", "", ""));
+            this.addField(new Field("", "", "", "", false));
         }
 
         this.fields[0].setValue(e.value);
@@ -1182,8 +1182,9 @@ export class Node {
         if (typeof nodeData.fields !== 'undefined'){
             for (var j = 0 ; j < nodeData.fields.length ; j++){
                 var fieldData = nodeData.fields[j];
-                var fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
-                node.addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription));
+                var fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
+                var fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
+                node.addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly));
             }
         }
 
@@ -1191,8 +1192,9 @@ export class Node {
         if (typeof nodeData.inputAppFields !== 'undefined'){
             for (var j = 0 ; j < nodeData.inputAppFields.length ; j++){
                 var fieldData = nodeData.inputAppFields[j];
-                var fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
-                node.inputApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription));
+                var fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
+                var fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
+                node.inputApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly));
             }
         }
 

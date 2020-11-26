@@ -3,12 +3,14 @@ export class Field {
     private name : string;
     private value : string;
     private description : string;
+    private readonly : boolean;
 
-    constructor(text: string, name: string, value: string, description: string){
+    constructor(text: string, name: string, value: string, description: string, readonly: boolean){
         this.text = text;
         this.name = name;
         this.value = value;
         this.description = description;
+        this.readonly = readonly;
     }
 
     getText = () : string => {
@@ -31,6 +33,10 @@ export class Field {
         return this.description == "" ? "No description available" : this.description;
     }
 
+    isReadonly = () : boolean => {
+        return this.readonly;
+    }
+
     setValue = (value : string) : void => {
         this.value = value;
     }
@@ -43,7 +49,7 @@ export class Field {
     }
 
     clone = () : Field => {
-        return new Field(this.text, this.name, this.value, this.description);
+        return new Field(this.text, this.name, this.value, this.description, this.readonly);
     }
 
     static toOJSJson = (field : Field) : object => {
@@ -51,11 +57,15 @@ export class Field {
             text:field.text,
             name:field.name,
             value:field.value,
-            description:field.description
+            description:field.description,
+            readonly:field.readonly
         };
     }
 
     static fromOJSJson = (data : any) : Field => {
-        return new Field(data.text, data.name, data.value, data.description);
+        if (typeof data.readonly === 'undefined')
+            return new Field(data.text, data.name, data.value, data.description, false);
+        else
+            return new Field(data.text, data.name, data.value, data.description, data.readonly);
     }
 }

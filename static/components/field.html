@@ -17,14 +17,14 @@
     </div>
 
     <!-- ko if: $data.type === Eagle.FieldType.Field -->
-        <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.selectionReadOnly(), attr: {id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedNode.valueHasMutated();}}">
+        <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.selectionReadOnly() || $data.readonly, attr: {id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedNode.valueHasMutated();}}">
     <!-- /ko -->
     <!-- ko if: $data.type === Eagle.FieldType.AppField -->
         <!-- ko if: $data.input -->
-            <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.selectionReadOnly(), attr: {id: 'nodeInspectorInputAppFieldValue' + $index()}">
+            <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.selectionReadOnly() || $data.readonly, attr: {id: 'nodeInspectorInputAppFieldValue' + $index()}">
         <!-- /ko -->
         <!-- ko ifnot: $data.input -->
-            <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.selectionReadOnly(), attr: {id: 'nodeInspectorOutputAppFieldValue' + $index()}">
+            <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.selectionReadOnly() || $data.readonly, attr: {id: 'nodeInspectorOutputAppFieldValue' + $index()}">
         <!-- /ko -->
     <!-- /ko -->
 
