@@ -57,22 +57,22 @@ def find_field_by_name(fields, name):
 def add_required_fields_for_category(fields, category):
     if category == "DynlibApp":
         if find_field_by_name(fields, "execution_time") is None:
-            fields.append(create_field("Execution time", "execution_time", 5, ""))
+            fields.append(create_field("Execution time", "execution_time", 5, "", "readwrite"))
         if find_field_by_name(fields, "num_cpus") is None:
-            fields.append(create_field("Num CPUs", "num_cpus", 1, ""))
+            fields.append(create_field("Num CPUs", "num_cpus", 1, "", "readwrite"))
         if find_field_by_name(fields, "group_start") is None:
-            fields.append(create_field("Group start", "group_start", 0, ""))
+            fields.append(create_field("Group start", "group_start", 0, "", "readwrite"))
         if find_field_by_name(fields, "libpath") is None:
-            fields.append(create_field("Library path", "libpath", "", ""))
+            fields.append(create_field("Library path", "libpath", "", "", "readwrite"))
     elif category == "PythonApp":
         if find_field_by_name(fields, "execution_time") is None:
-            fields.append(create_field("Execution time", "execution_time", 5, ""))
+            fields.append(create_field("Execution time", "execution_time", 5, "", "readwrite"))
         if find_field_by_name(fields, "num_cpus") is None:
-            fields.append(create_field("Num CPUs", "num_cpus", 1, ""))
+            fields.append(create_field("Num CPUs", "num_cpus", 1, "", "readwrite"))
         if find_field_by_name(fields, "group_start") is None:
-            fields.append(create_field("Group start", "group_start", 0, ""))
+            fields.append(create_field("Group start", "group_start", 0, "", "readwrite"))
         if find_field_by_name(fields, "appclass") is None:
-            fields.append(create_field("Appclass", "appclass", "test.graphsRepository", ""))
+            fields.append(create_field("Appclass", "appclass", "test.graphsRepository", "", "readwrite"))
 
 
 def create_field(text, name, value, description, access):
