@@ -74,12 +74,14 @@ def add_required_fields_for_category(fields, category):
         if find_field_by_name(fields, "appclass") is None:
             fields.append(create_field("Appclass", "appclass", "test.graphsRepository", ""))
 
-def create_field(text, name, value, description):
+
+def create_field(text, name, value, description, access):
     return {
         "text": text,
         "name": name,
         "value": value,
-        "description": description
+        "description": description,
+        "access": access is "readonly"
     }
 
 
@@ -109,9 +111,14 @@ def create_palette_node_from_params(params):
             description = value
         elif key.startswith("param/"):
             # parse the param key into name, type etc
-            (param, name, default_value, type) = key.split("/")
+            (param, name, default_value, type, access) = key.split("/")
+
+            # check that access is a known value
+            if access is not "readonly" and access is not "readwrite":
+                print("ERROR: Unknown access: " + access)
+
             # add a field
-            fields.append(create_field(name + " (" + type + ")", name, default_value, value))
+            fields.append(create_field(name + " (" + type + ")", name, default_value, value, access))
             pass
         elif key.startswith("port/") or key.startswith("local-port/"):
             # parse the port into data
