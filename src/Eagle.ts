@@ -129,7 +129,7 @@ export class Eagle {
     }
 
     isPaletteEditorModeEnabled = () : boolean => {
-        return Eagle.findSetting(Utils.TRANSLATE_WITH_NEW_CATEGORIES).value();
+        return Eagle.findSetting(Utils.ENABLE_PALETTE_EDITOR_MODE).value();
     }
 
     activeFileInfo = () : FileInfo => {
