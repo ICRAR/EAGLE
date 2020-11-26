@@ -81,7 +81,7 @@ def create_field(text, name, value, description, access):
         "name": name,
         "value": value,
         "description": description,
-        "access": access == "readonly"
+        "readonly": access == "readonly"
     }
 
 
