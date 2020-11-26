@@ -81,7 +81,7 @@ def create_field(text, name, value, description, access):
         "name": name,
         "value": value,
         "description": description,
-        "access": access is "readonly"
+        "access": access == "readonly"
     }
 
 
@@ -114,7 +114,7 @@ def create_palette_node_from_params(params):
             (param, name, default_value, type, access) = key.split("/")
 
             # check that access is a known value
-            if access is not "readonly" and access is not "readwrite":
+            if access != "readonly" and access != "readwrite":
                 print("ERROR: Unknown access: " + access)
 
             # add a field
