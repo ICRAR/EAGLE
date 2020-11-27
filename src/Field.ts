@@ -34,7 +34,7 @@ export class Field {
     }
 
     getDescriptionText = () : string => {
-        return this.description == "" ? "No description available" : this.description;
+        return this.description == "" ? "No description available" + " (" + this.type + ")" : this.description + " (" + this.type + ")";
     }
 
     isReadonly = () : boolean => {

@@ -42,7 +42,7 @@ ko.components.register('repository', {
 ko.components.register('field', {
     viewModel: function(params : {data : any, type : any, input : boolean}){
         var vm = params.data;
-        vm.type = params.type;
+        vm._type = params.type;
         vm.input = params.input;
         return vm;
     },
