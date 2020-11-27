@@ -1653,7 +1653,7 @@ export class Eagle {
             var fieldName = Utils.fieldTextToFieldName(userString);
 
             // add the field
-            node.addField(new Field(userString, fieldName, "", "", false));
+            node.addField(new Field(userString, fieldName, "", "", false, Eagle.FieldDataType.Unknown));
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
@@ -2206,6 +2206,15 @@ export namespace Eagle
     export enum FieldType {
         Field,
         AppField
+    }
+
+    export type FieldDataType = string;
+    export namespace FieldDataType {
+        export var Unknown : FieldDataType = "Unknown";
+        export var String : FieldDataType = "String";
+        export var Integer : FieldDataType = "Integer";
+        export var Float : FieldDataType = "Float";
+        export var Boolean : FieldDataType = "Boolean";
     }
 
     export type RepositoryService = string;
