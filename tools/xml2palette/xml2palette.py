@@ -119,7 +119,7 @@ def create_palette_node_from_params(params):
                 print("ERROR: Unknown access: " + access)
 
             # add a field
-            fields.append(create_field(name + " (" + type + ")", name, default_value, value, access, type))
+            fields.append(create_field(name, name, default_value, value, access, type))
             pass
         elif key.startswith("port/") or key.startswith("local-port/"):
             # parse the port into data
