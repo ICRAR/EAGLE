@@ -57,31 +57,32 @@ def find_field_by_name(fields, name):
 def add_required_fields_for_category(fields, category):
     if category == "DynlibApp":
         if find_field_by_name(fields, "execution_time") is None:
-            fields.append(create_field("Execution time", "execution_time", 5, "", "readwrite"))
+            fields.append(create_field("Execution time", "execution_time", 5, "", "readwrite", "Float"))
         if find_field_by_name(fields, "num_cpus") is None:
-            fields.append(create_field("Num CPUs", "num_cpus", 1, "", "readwrite"))
+            fields.append(create_field("Num CPUs", "num_cpus", 1, "", "readwrite", "Integer"))
         if find_field_by_name(fields, "group_start") is None:
-            fields.append(create_field("Group start", "group_start", 0, "", "readwrite"))
+            fields.append(create_field("Group start", "group_start", 0, "", "readwrite", "Boolean"))
         if find_field_by_name(fields, "libpath") is None:
-            fields.append(create_field("Library path", "libpath", "", "", "readwrite"))
+            fields.append(create_field("Library path", "libpath", "", "", "readwrite", "String"))
     elif category == "PythonApp":
         if find_field_by_name(fields, "execution_time") is None:
-            fields.append(create_field("Execution time", "execution_time", 5, "", "readwrite"))
+            fields.append(create_field("Execution time", "execution_time", 5, "", "readwrite", "Float"))
         if find_field_by_name(fields, "num_cpus") is None:
-            fields.append(create_field("Num CPUs", "num_cpus", 1, "", "readwrite"))
+            fields.append(create_field("Num CPUs", "num_cpus", 1, "", "readwrite", "Integer"))
         if find_field_by_name(fields, "group_start") is None:
-            fields.append(create_field("Group start", "group_start", 0, "", "readwrite"))
+            fields.append(create_field("Group start", "group_start", 0, "", "readwrite", "Boolean"))
         if find_field_by_name(fields, "appclass") is None:
-            fields.append(create_field("Appclass", "appclass", "test.graphsRepository", "", "readwrite"))
+            fields.append(create_field("Appclass", "appclass", "test.graphsRepository", "", "readwrite", "String"))
 
 
-def create_field(text, name, value, description, access):
+def create_field(text, name, value, description, access, type):
     return {
         "text": text,
         "name": name,
         "value": value,
         "description": description,
-        "readonly": access == "readonly"
+        "readonly": access == "readonly",
+        "type": type
     }
 
 
@@ -118,7 +119,7 @@ def create_palette_node_from_params(params):
                 print("ERROR: Unknown access: " + access)
 
             # add a field
-            fields.append(create_field(name + " (" + type + ")", name, default_value, value, access))
+            fields.append(create_field(name + " (" + type + ")", name, default_value, value, access, type))
             pass
         elif key.startswith("port/") or key.startswith("local-port/"):
             # parse the port into data
