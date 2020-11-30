@@ -1,3 +1,6 @@
+import * as ko from "knockout";
+
+import {Utils} from './Utils';
 import {Eagle} from './Eagle';
 
 export class Field {
@@ -61,6 +64,15 @@ export class Field {
     clone = () : Field => {
         return new Field(this.text, this.name, this.value, this.description, this.readonly, this.type);
     }
+
+    editable : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        let allowParam : boolean = Eagle.findSetting(Utils.ALLOW_READONLY_PARAMETER_EDITING).value();
+        let allowCompo : boolean = Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
+
+        let result : boolean = (allowCompo && allowParam) || (allowCompo && !allowParam && !this.readonly);
+        //console.log("check if", this.name, "editable:", result, "(", allowCompo, allowParam, this.readonly, ")");
+        return result;
+    }, this);
 
     static toOJSJson = (field : Field) : object => {
         return {

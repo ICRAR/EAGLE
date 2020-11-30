@@ -31,7 +31,7 @@
             <div class="input-group-prepend">
                 <span class="input-group-text mw-140" id="node-name">Name</span>
             </div>
-            <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="nodeDataProperty: 'name', readonly: $root.selectionReadOnly()">
+            <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="nodeDataProperty: 'name', readonly: !$root.allowComponentEditing()">
         </div>
         <!-- /ko -->
 

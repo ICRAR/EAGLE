@@ -17,18 +17,18 @@
     </div>
 
     <!-- ko if: $data._type === Eagle.FieldType.Field -->
-        <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.parameterReadOnly() && $data.readonly, attr: {id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedNode.valueHasMutated();}}">
+        <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: !$data.editable(), attr: {id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedNode.valueHasMutated();}}">
     <!-- /ko -->
     <!-- ko if: $data._type === Eagle.FieldType.AppField -->
         <!-- ko if: $data.input -->
-            <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.parameterReadOnly() && $data.readonly, attr: {id: 'nodeInspectorInputAppFieldValue' + $index()}">
+            <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: !$data.editable(), attr: {id: 'nodeInspectorInputAppFieldValue' + $index()}">
         <!-- /ko -->
         <!-- ko ifnot: $data.input -->
-            <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: $root.parameterReadOnly() && $data.readonly, attr: {id: 'nodeInspectorOutputAppFieldValue' + $index()}">
+            <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, readonly: !$data.editable(), attr: {id: 'nodeInspectorOutputAppFieldValue' + $index()}">
         <!-- /ko -->
     <!-- /ko -->
 
-    <!-- ko ifnot: $root.parameterReadOnly && $data.readonly -->
+    <!-- ko if: $data.editable() -->
     <div class="input-group-append">
         <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index()}">
             <i class="material-icons md-18">edit</i>

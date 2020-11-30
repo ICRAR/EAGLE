@@ -9,7 +9,7 @@
         <port params="id: $data.getId(), name: $data.getName(), multiplicity: $root.selectedNode().getOutputMultiplicity(), isEventPort: $data.isEvent(), input: false, local: false"></port>
         <!-- /ko -->
 
-        <!-- ko ifnot: $root.selectionReadOnly -->
+        <!-- ko if: $root.allowComponentEditing() -->
         <button class="btn btn-secondary btn-block" id="nodeInspectorAddOutputPort" type="button" data-bind="click: $root.addOutputPortHTML">
             <i class="material-icons md-18">add</i>
         </button>

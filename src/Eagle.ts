@@ -1576,12 +1576,12 @@ export class Eagle {
 
     // check the "allow component editing" setting to check if the selection
     // can be edited
-    selectionReadOnly : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return !Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
+    allowComponentEditing : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
     }, this);
 
-    parameterReadOnly : ko.PureComputed<boolean> = ko.pureComputed(() =>{
-        return !(Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value() && Eagle.findSetting(Utils.ALLOW_READONLY_PARAMETER_EDITING).value());
+    allowReadonlyParameterEditing : ko.PureComputed<boolean> = ko.pureComputed(() =>{
+        return Eagle.findSetting(Utils.ALLOW_READONLY_PARAMETER_EDITING).value();
     }, this);
 
     /**
