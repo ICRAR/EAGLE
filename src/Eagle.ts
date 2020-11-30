@@ -117,6 +117,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, false));
         Eagle.settings.push(new Setting("Enable Palette Editor Mode", "Enable the palette editor mode in EAGLE.", Setting.Type.Boolean, Utils.ENABLE_PALETTE_EDITOR_MODE, false));
         Eagle.settings.push(new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false));
+        Eagle.settings.push(new Setting("Allow Readonly Parameter Editing", "Allow the user to edit values of readonly parameters in components.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PARAMETER_EDITING, false));
 
         Eagle.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"));
 
@@ -1575,8 +1576,12 @@ export class Eagle {
 
     // check the "allow component editing" setting to check if the selection
     // can be edited
-    selectionReadOnly : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return !Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
+    allowComponentEditing : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
+    }, this);
+
+    allowReadonlyParameterEditing : ko.PureComputed<boolean> = ko.pureComputed(() =>{
+        return Eagle.findSetting(Utils.ALLOW_READONLY_PARAMETER_EDITING).value();
     }, this);
 
     /**
@@ -1652,7 +1657,7 @@ export class Eagle {
             var fieldName = Utils.fieldTextToFieldName(userString);
 
             // add the field
-            node.addField(new Field(userString, fieldName, "", ""));
+            node.addField(new Field(userString, fieldName, "", "", false, Eagle.FieldDataType.Unknown));
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
@@ -2205,6 +2210,15 @@ export namespace Eagle
     export enum FieldType {
         Field,
         AppField
+    }
+
+    export type FieldDataType = string;
+    export namespace FieldDataType {
+        export var Unknown : FieldDataType = "Unknown";
+        export var String : FieldDataType = "String";
+        export var Integer : FieldDataType = "Integer";
+        export var Float : FieldDataType = "Float";
+        export var Boolean : FieldDataType = "Boolean";
     }
 
     export type RepositoryService = string;
