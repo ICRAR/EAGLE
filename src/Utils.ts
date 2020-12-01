@@ -758,7 +758,7 @@ export class Utils {
             case Eagle.Category.Description:
                 return "#9B3065";
             case Eagle.Category.PythonApp:
-            case "Component":
+            case Eagle.Category.Component: // NOTE: legacy
                 return "#3498DB";
             case Eagle.Category.BashShellApp:
                 return "#1C2833";
@@ -799,6 +799,39 @@ export class Utils {
             default:
                 console.warn("No color for node with category", category);
                 return "";
+        }
+    }
+
+    static getCategoryFromString(s: string): Eagle.Category {
+        let lowercase = s.toLowerCase();
+
+        // loop through the CategoryData
+        for (let category in Eagle.cData){
+            if (lowercase === category.toLowerCase()){
+                let cData = Eagle.cData[category];
+                return cData.category;
+            }
+        }
+
+        return Eagle.Category.Unknown;
+    }
+
+    static getCategoryTypeFromString(s: string): Eagle.CategoryType {
+        let lowercase = s.toLowerCase();
+
+        switch(lowercase){
+            case "application":
+                return Eagle.CategoryType.Application;
+            case "control":
+                return Eagle.CategoryType.Control;
+            case "data":
+                return Eagle.CategoryType.Data;
+            case "group":
+                return Eagle.CategoryType.Group;
+            case "other":
+                return Eagle.CategoryType.Other;
+            default:
+                return Eagle.CategoryType.Unknown;
         }
     }
 
@@ -920,7 +953,7 @@ export class Utils {
 
         // debug until PythonApp is used everywhere
         if (categoryType === Eagle.CategoryType.Application){
-            result.push("Component");
+            result.push(Eagle.Category.Component);
         }
 
         return result;

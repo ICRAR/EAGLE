@@ -25,6 +25,7 @@
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
+import {Utils} from './Utils';
 
 export class GraphUpdater {
 
@@ -146,7 +147,7 @@ export class GraphUpdater {
         }
     ];
 
-    static translateOldCategory(category : string) : string {
+    static translateOldCategory(category : string) : Eagle.Category {
         if (typeof category === "undefined"){
             return Eagle.Category.Unknown;
         }
@@ -191,19 +192,19 @@ export class GraphUpdater {
             return Eagle.Category.File;
         }
 
-        return category;
+        return Utils.getCategoryFromString(category);
     }
 
-    static translateNewCategory(category : string) : string {
+    static translateNewCategory(category : Eagle.Category) : Eagle.Category {
         if (category === Eagle.Category.PythonApp){
             console.warn("Translated category from", category, "to Component");
-            return "Component";
+            return Eagle.Category.Component;
         }
 
         return category;
     }
 
-    static translateOldCategoryType(categoryType : string, category : Eagle.Category) : string {
+    static translateOldCategoryType(categoryType : string, category : Eagle.Category) : Eagle.CategoryType {
         if (typeof categoryType === "undefined"){
             // try to determine categoryType based on category
             switch(category){
@@ -260,7 +261,7 @@ export class GraphUpdater {
             return Eagle.CategoryType.Data;
         }
 
-        return categoryType;
+        return Utils.getCategoryTypeFromString(categoryType);
     }
 
     // NOTE: for use in translation of OJS object to internal graph representation

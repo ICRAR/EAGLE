@@ -17,7 +17,7 @@ export class Repository {
     files : ko.ObservableArray<RepositoryFile>
     folders : ko.ObservableArray<RepositoryFolder>
 
-    static DUMMY = new Repository("Unknown", "", "", false);
+    static DUMMY = new Repository(Eagle.RepositoryService.Unknown, "", "", false);
 
     constructor(service : Eagle.RepositoryService, name : string, branch : string, isBuiltIn : boolean){
         this._id = Math.floor(Math.random() * 1000000000000);

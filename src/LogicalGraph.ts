@@ -293,7 +293,7 @@ export class LogicalGraph {
             this.addDataComponentDialog([], (category : string) : void => {
                 if (category !== "") {
                     // Add a data component to the graph.
-                    newNode = this.addDataComponentToGraph(category, nodePosition);
+                    newNode = this.addDataComponentToGraph(Utils.getCategoryFromString(category), nodePosition);
 
                     // copy name from the original node
                     newNode.setName(node.getName());
@@ -444,7 +444,7 @@ export class LogicalGraph {
         };
 
         // if destination node is a BashShellApp, then the inserted data component may not be a Memory
-        var ineligibleTypes : string[] = [];
+        var ineligibleTypes : Eagle.Category[] = [];
         if (destNode.getCategory() === Eagle.Category.BashShellApp){
             ineligibleTypes.push(Eagle.Category.Memory);
         }
@@ -453,7 +453,7 @@ export class LogicalGraph {
         this.addDataComponentDialog(ineligibleTypes, (category : string) : void => {
             if (category !== "") {
                 // Add a data component to the graph.
-                var newNode : Node = this.addDataComponentToGraph(category, dataComponentPosition);
+                var newNode : Node = this.addDataComponentToGraph(Utils.getCategoryFromString(category), dataComponentPosition);
                 var newNodeKey : number = newNode.getKey();
 
                 // set name of new node

@@ -1070,7 +1070,7 @@ export class Eagle {
 
     // TODO: update with custom modal to ask user for repository service and url at the same time
     addCustomRepository = () : void => {
-        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) : void => {
+        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : void => {
             console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
 
             if (!completed){
@@ -2111,7 +2111,8 @@ export class Eagle {
 
         if (typeof c === 'undefined'){
             console.error("Could not fetch category data for category", category);
-            return {isData: false,
+            return {category: Eagle.Category.Unknown,
+                    isData: false,
                     isGroup: false,
                     canHaveInputs: false,
                     canHaveOutputs: false,
@@ -2123,38 +2124,6 @@ export class Eagle {
 
         return c;
     }
-
-    static readonly cData : {[category:string] : Eagle.CategoryData} = {
-        Start              : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        End                : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Comment            : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-        Description        : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-        Scatter            : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Gather             : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        MKN                : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
-        GroupBy            : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
-        Loop               : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true},
-
-        PythonApp          : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        BashShellApp       : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        DynlibApp          : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-
-        NGAS               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        S3                 : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Mpi                : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Docker             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Memory             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        File               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-
-        Service            : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        ExclusiveForceNode : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-
-        Variables          : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Branch             : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true},
-
-        Unknown            : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-        None               : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false}
-    };
 }
 
 export namespace Eagle
@@ -2187,13 +2156,12 @@ export namespace Eagle
         Unknown = "Unknown"
     }
 
-    export type DALiuGEFileType = string;
-    export namespace DALiuGEFileType {
-        export var LogicalGraph : DALiuGEFileType = "LogicalGraph";
-        export var LogicalGraphTemplate : DALiuGEFileType = "LogicalGraphTemplate";
-        export var PhysicalGraph : DALiuGEFileType = "PhysicalGraph";
-        export var PhysicalGraphTemplate : DALiuGEFileType = "PhysicalGraphTemplate";
-        export var Unknown : DALiuGEFileType = "Unknown";
+    export enum DALiuGEFileType {
+        LogicalGraph = "LogicalGraph",
+        LogicalGraphTemplate = "LogicalGraphTemplate",
+        PhysicalGraph = "PhysicalGraph",
+        PhysicalGraphTemplate = "PhysicalGraphTemplate",
+        Unknown = "Unknown"
     }
 
     export enum DALiuGESchemaVersion {
@@ -2212,64 +2180,95 @@ export namespace Eagle
         AppField
     }
 
-    export type FieldDataType = string;
-    export namespace FieldDataType {
-        export var Unknown : FieldDataType = "Unknown";
-        export var String : FieldDataType = "String";
-        export var Integer : FieldDataType = "Integer";
-        export var Float : FieldDataType = "Float";
-        export var Boolean : FieldDataType = "Boolean";
+    export enum FieldDataType {
+        Unknown = "Unknown",
+        String = "String",
+        Integer = "Integer",
+        Float = "Float",
+        Boolean = "Boolean"
     }
 
-    export type RepositoryService = string;
-    export namespace RepositoryService {
-        export var GitHub : RepositoryService = "GitHub";
-        export var GitLab : RepositoryService = "GitLab";
-        export var Unknown : RepositoryService = "Unknown";
+    export enum RepositoryService {
+        GitHub = "GitHub",
+        GitLab = "GitLab",
+        Unknown = "Unknown"
     }
 
-    export type Category = string;
-    export namespace Category {
-        export var Start : Category = "Start";
-        export var End : Category = "End";
-        export var Comment : Category = "Comment";
-        export var Description : Category = "Description";
-        export var Scatter : Category = "Scatter";
-        export var Gather : Category = "Gather";
-        export var MKN : Category = "MKN";
-        export var GroupBy : Category = "GroupBy";
-        export var Loop : Category = "Loop";
+    export enum Category {
+        Start = "Start",
+        End = "End",
+        Comment = "Comment",
+        Description = "Description",
+        Scatter = "Scatter",
+        Gather = "Gather",
+        MKN = "MKN",
+        GroupBy = "GroupBy",
+        Loop = "Loop",
 
-        export var PythonApp : Category = "PythonApp";
-        export var BashShellApp : Category = "BashShellApp";
-        export var DynlibApp : Category = "DynlibApp";
+        PythonApp = "PythonApp",
+        BashShellApp = "BashShellApp",
+        DynlibApp = "DynlibApp",
 
-        export var NGAS : Category = "NGAS";
-        export var S3 : Category = "S3";
-        export var MPI : Category = "Mpi";
-        export var Docker : Category = "Docker";
-        export var Memory : Category = "Memory";
-        export var File : Category = "File";
+        NGAS = "NGAS",
+        S3 = "S3",
+        MPI = "Mpi",
+        Docker = "Docker",
+        Memory = "Memory",
+        File = "File",
 
-        export var Service : Category = "Service";
-        export var ExclusiveForceNode : Category = "ExclusiveForceNode";
+        Service = "Service",
+        ExclusiveForceNode = "ExclusiveForceNode",
 
-        export var Variables : Category = "Variables";
-        export var Branch : Category = "Branch";
+        Variables = "Variables",
+        Branch = "Branch",
 
-        export var Unknown : Category = "Unknown";
-        export var None : Category = "None";
+        Unknown = "Unknown",
+        None = "None",
+
+        // extra temp categories for legacy reasons
+        Component = "Component"
     }
 
-    export type CategoryType = string;
-    export namespace CategoryType {
-        export var Control : CategoryType = "Control";
-        export var Application : CategoryType = "Application";
-        export var Group : CategoryType = "Group";
-        export var Data : CategoryType = "Data";
-        export var Other : CategoryType = "Other";
-        export var Unknown : CategoryType = "Unknown";
+    export enum CategoryType {
+        Control = "Control",
+        Application = "Application",
+        Group = "Group",
+        Data = "Data",
+        Other = "Other",
+        Unknown = "Unknown"
     }
 
-    export type CategoryData = {isData: boolean, isGroup:boolean, canHaveInputs: boolean, canHaveOutputs:boolean, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean};
+    export type CategoryData = {category: Eagle.Category, isData: boolean, isGroup:boolean, canHaveInputs: boolean, canHaveOutputs:boolean, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean};
+
+    export var cData : {[category: string] : Eagle.CategoryData} = {
+        Start              : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        End                : {category: Category.End, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Comment            : {category: Category.Comment, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+        Description        : {category: Category.Description, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+        Scatter            : {category: Category.Scatter, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Gather             : {category: Category.Start, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        MKN                : {category: Category.Start, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
+        GroupBy            : {category: Category.Start, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
+        Loop               : {category: Category.Start, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true},
+
+        PythonApp          : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        BashShellApp       : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        DynlibApp          : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+
+        NGAS               : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        S3                 : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Mpi                : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Docker             : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Memory             : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        File               : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+
+        Service            : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        ExclusiveForceNode : {category: Category.Start, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+
+        Variables          : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Branch             : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true},
+
+        Unknown            : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+        None               : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false}
+    };
 }
