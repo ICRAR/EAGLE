@@ -516,7 +516,7 @@ export class Eagle {
 
             // Only load graph files.
             if (fileType == Eagle.FileType.Graph) {
-                this.logicalGraph(LogicalGraph.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath), showErrors));
+                this.logicalGraph(LogicalGraph.fromOJSJson(data, new RepositoryFile(new Repository(Eagle.RepositoryService.Unknown, "", "", false), "", fileFullPath), showErrors));
                 Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
             } else {
                 Utils.showUserMessage("Error", "This is not a graph file!");
@@ -574,7 +574,7 @@ export class Eagle {
                 return;
             }
 
-            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), showErrors);
+            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(new Repository(Eagle.RepositoryService.Unknown, "", "", false), "", Utils.getFileNameFromFullPath(fileFullPath)), showErrors);
 
             if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
                 this.palettes.push(p);
@@ -971,7 +971,7 @@ export class Eagle {
             var showErrors = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             if (fileType == Eagle.FileType.TemplatePalette) {
-                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), showErrors));
+                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(new Repository(Eagle.RepositoryService.Unknown, "", "", false), "", Config.templatePaletteFileName), showErrors));
             } else {
                 Utils.showUserMessage("Error", "File type is not a template palette!");
                 return;
@@ -2246,29 +2246,29 @@ export namespace Eagle
         Comment            : {category: Category.Comment, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
         Description        : {category: Category.Description, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
         Scatter            : {category: Category.Scatter, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Gather             : {category: Category.Start, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        MKN                : {category: Category.Start, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
-        GroupBy            : {category: Category.Start, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
-        Loop               : {category: Category.Start, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true},
+        Gather             : {category: Category.Gather, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        MKN                : {category: Category.MKN, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
+        GroupBy            : {category: Category.GroupBy, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
+        Loop               : {category: Category.Loop, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true},
 
-        PythonApp          : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        BashShellApp       : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        DynlibApp          : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        PythonApp          : {category: Category.PythonApp, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        BashShellApp       : {category: Category.BashShellApp, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        DynlibApp          : {category: Category.DynlibApp, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
 
-        NGAS               : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        S3                 : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Mpi                : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Docker             : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Memory             : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        File               : {category: Category.Start, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        NGAS               : {category: Category.NGAS, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        S3                 : {category: Category.S3, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Mpi                : {category: Category.MPI, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Docker             : {category: Category.Docker, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Memory             : {category: Category.Memory, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        File               : {category: Category.File, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
 
-        Service            : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        ExclusiveForceNode : {category: Category.Start, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+        Service            : {category: Category.Service, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        ExclusiveForceNode : {category: Category.ExclusiveForceNode, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
 
-        Variables          : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Branch             : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true},
+        Variables          : {category: Category.Variables, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Branch             : {category: Category.Branch, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true},
 
-        Unknown            : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-        None               : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false}
+        Unknown            : {category: Category.Unknown, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+        None               : {category: Category.None, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false}
     };
 }
