@@ -84,7 +84,7 @@ export class Node {
         this.y = y;
         this.width = Node.DEFAULT_WIDTH;
         this.height = Node.DEFAULT_HEIGHT;
-        this.color = Utils.getColorForNode(category);
+        this.color = Eagle.getCategoryData(category).color;
         this.drawOrderHint = 0;
 
         this.parentKey = null;
@@ -1035,7 +1035,7 @@ export class Node {
         if (typeof nodeData.color !== 'undefined'){
             node.color = nodeData.color;
         } else {
-            node.color = Utils.getColorForNode(category);
+            node.color = Eagle.getCategoryData(category).color;
         }
 
         // drawOrderHint

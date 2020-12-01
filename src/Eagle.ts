@@ -614,7 +614,7 @@ export class Eagle {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
             var node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
-            node.setColor(Utils.getColorForNode(Eagle.Category.Description));
+            node.setColor(Eagle.getCategoryData(Eagle.Category.Description).color);
             this.logicalGraph().addNode(node, null);
             this.logicalGraph.valueHasMutated();
         });
@@ -630,19 +630,19 @@ export class Eagle {
             this.editorPalette().fileInfo().name = name;
 
             var startNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
-            startNode.setColor(Utils.getColorForNode(Eagle.Category.Start));
+            startNode.setColor(Eagle.getCategoryData(Eagle.Category.Start).color);
             this.editorPalette().addNode(startNode);
 
             var endNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "End", "", Eagle.Category.End, Eagle.CategoryType.Control, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
-            endNode.setColor(Utils.getColorForNode(Eagle.Category.End));
+            endNode.setColor(Eagle.getCategoryData(Eagle.Category.End).color);
             this.editorPalette().addNode(endNode);
 
             var commentNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
-            commentNode.setColor(Utils.getColorForNode(Eagle.Category.Comment));
+            commentNode.setColor(Eagle.getCategoryData(Eagle.Category.Comment).color);
             this.editorPalette().addNode(commentNode);
 
             var descriptionNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
-            descriptionNode.setColor(Utils.getColorForNode(Eagle.Category.Description));
+            descriptionNode.setColor(Eagle.getCategoryData(Eagle.Category.Description).color);
             this.editorPalette().addNode(descriptionNode);
 
             this.editorPalette.valueHasMutated();
@@ -2112,6 +2112,7 @@ export class Eagle {
         if (typeof c === 'undefined'){
             console.error("Could not fetch category data for category", category);
             return {category: Eagle.Category.Unknown,
+                    color: "#000000",
                     isData: false,
                     isGroup: false,
                     canHaveInputs: false,
@@ -2238,37 +2239,37 @@ export namespace Eagle
         Unknown = "Unknown"
     }
 
-    export type CategoryData = {category: Eagle.Category, isData: boolean, isGroup:boolean, canHaveInputs: boolean, canHaveOutputs:boolean, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean};
+    export type CategoryData = {category: Eagle.Category, color: string, isData: boolean, isGroup:boolean, canHaveInputs: boolean, canHaveOutputs:boolean, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean};
 
     export var cData : {[category: string] : Eagle.CategoryData} = {
-        Start              : {category: Category.Start, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        End                : {category: Category.End, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Comment            : {category: Category.Comment, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-        Description        : {category: Category.Description, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-        Scatter            : {category: Category.Scatter, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Gather             : {category: Category.Gather, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        MKN                : {category: Category.MKN, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
-        GroupBy            : {category: Category.GroupBy, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
-        Loop               : {category: Category.Loop, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true},
+        Start              : {category: Category.Start,              color: "#229954", isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        End                : {category: Category.End,                color: "#CB4335", isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Comment            : {category: Category.Comment,            color: "#799938", isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+        Description        : {category: Category.Description,        color: "#9B3065", isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+        Scatter            : {category: Category.Scatter,            color: "#DDAD00", isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Gather             : {category: Category.Gather,             color: "#D35400", isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        MKN                : {category: Category.MKN,                color: "#D32000", isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
+        GroupBy            : {category: Category.GroupBy,            color: "#7F8C8D", isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
+        Loop               : {category: Category.Loop,               color: "#512E5F", isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true},
 
-        PythonApp          : {category: Category.PythonApp, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        BashShellApp       : {category: Category.BashShellApp, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        DynlibApp          : {category: Category.DynlibApp, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        PythonApp          : {category: Category.PythonApp,          color: "#3498DB", isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        BashShellApp       : {category: Category.BashShellApp,       color: "#1C2833", isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        DynlibApp          : {category: Category.DynlibApp,          color: "#3470AA", isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
 
-        NGAS               : {category: Category.NGAS, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        S3                 : {category: Category.S3, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Mpi                : {category: Category.MPI, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Docker             : {category: Category.Docker, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Memory             : {category: Category.Memory, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        File               : {category: Category.File, isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        NGAS               : {category: Category.NGAS,               color: "#394BB2", isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        S3                 : {category: Category.S3,                 color: "#394BB2", isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Mpi                : {category: Category.MPI,                color: "#1E90FF", isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Docker             : {category: Category.Docker,             color: "#331C54", isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Memory             : {category: Category.Memory,             color: "#394BB2", isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        File               : {category: Category.File,               color: "#394BB2", isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
 
-        Service            : {category: Category.Service, isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        ExclusiveForceNode : {category: Category.ExclusiveForceNode, isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+        Service            : {category: Category.Service,            color: "#EB1672", isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        ExclusiveForceNode : {category: Category.ExclusiveForceNode, color: "#000000", isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
 
-        Variables          : {category: Category.Variables, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Branch             : {category: Category.Branch, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true},
+        Variables          : {category: Category.Variables,          color: "#C10000", isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Branch             : {category: Category.Branch,             color: "#00BDA1", isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true},
 
-        Unknown            : {category: Category.Unknown, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-        None               : {category: Category.None, isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false}
+        Unknown            : {category: Category.Unknown,            color: "#FF66CC", isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+        None               : {category: Category.None,               color: "#000000", isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false}
     };
 }
