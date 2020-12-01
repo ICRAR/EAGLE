@@ -148,7 +148,7 @@ export class FileInfo {
 
     static toOJSJson = (fileInfo : FileInfo) : object => {
         return {
-            fileType: Utils.translateFileTypeToString(fileInfo.type),
+            fileType: fileInfo.type,
             repoService: fileInfo.repositoryService,
             repoBranch: fileInfo.repositoryBranch,
             repo: fileInfo.repositoryName,
@@ -163,7 +163,7 @@ export class FileInfo {
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
         result.name = Utils.getFileNameFromFullPath(modelData.filePath);
-        result.type = Utils.translateStringToFileType(modelData.fileType);
+        result.type = Utils.getFileTypeFromString(modelData.fileType);
         result.gitUrl = modelData.git_url == undefined ? "" : modelData.git_url;
 
         result.repositoryService = modelData.repoService == undefined ? Eagle.RepositoryService.Unknown : modelData.repoService;

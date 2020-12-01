@@ -107,7 +107,23 @@ export class Utils {
     }
 
     static getFileTypeFromFileName(fileName : string) : Eagle.FileType {
-        return Utils.translateStringToFileType(Utils.getFileExtension(fileName));
+        let extension : string = Utils.getFileExtension(fileName);
+        return Utils.getFileTypeFromString(extension);
+    }
+
+    static getFileTypeFromString(s: string): Eagle.FileType {
+        switch(s.toLowerCase()){
+            case "graph":
+                return Eagle.FileType.Graph;
+            case "json":
+                return Eagle.FileType.JSON;
+            case "palette":
+                return Eagle.FileType.Palette;
+            case "templatepalette":
+                return Eagle.FileType.TemplatePalette;
+        }
+
+        return Eagle.FileType.Unknown;
     }
 
     /**
@@ -154,32 +170,19 @@ export class Utils {
         }
     }
 
-    static translateStringToFileType(fileType : string) : Eagle.FileType {
-        if (fileType === "graph")
-            return Eagle.FileType.Graph;
-        if (fileType === "palette")
-            return Eagle.FileType.Palette;
-        if (fileType === "templatePalette")
-            return Eagle.FileType.TemplatePalette;
-        if (fileType === "json")
-            return Eagle.FileType.JSON;
-
-        //console.warn("Unknown file type (", fileType, ") can't be translated!");
-        return Eagle.FileType.Unknown;
-    }
-
-    static translateFileTypeToString(fileType : Eagle.FileType){
-        if (fileType === Eagle.FileType.Graph)
-            return "graph";
-        if (fileType === Eagle.FileType.Palette)
-            return "palette";
-        if (fileType === Eagle.FileType.TemplatePalette)
-            return "templatePalette";
-        if (fileType === Eagle.FileType.JSON)
-            return "json";
-
-        //console.warn("Unknown file type (", fileType, ") can't be translated!");
-        return "";
+    static getFileTypeSortIndex(fileType : Eagle.FileType) : number {
+        switch(fileType){
+            case Eagle.FileType.Graph:
+                return 0;
+            case Eagle.FileType.Palette:
+                return 1;
+            case Eagle.FileType.TemplatePalette:
+                return 2;
+            case Eagle.FileType.JSON:
+                return 4;
+            case Eagle.FileType.Unknown:
+                return 5;
+        }
     }
 
     static httpGet(url : string, callback : (error : string, data : string) => void){

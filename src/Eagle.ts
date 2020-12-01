@@ -512,7 +512,7 @@ export class Eagle {
                 return;
             }
 
-            var fileType : Eagle.FileType = Utils.translateStringToFileType(dataObject.modelData.fileType);
+            var fileType : Eagle.FileType = Utils.getFileTypeFromString(dataObject.modelData.fileType);
 
             // Only load graph files.
             if (fileType == Eagle.FileType.Graph) {
@@ -561,7 +561,7 @@ export class Eagle {
 
             // abort if not palette
             if (fileType !== Eagle.FileType.Palette){
-                Utils.showUserMessage("Error", "This is not a palette file! Looks like a " + Utils.translateFileTypeToString(fileType));
+                Utils.showUserMessage("Error", "This is not a palette file! Looks like a " + fileType);
                 return;
             }
 
@@ -654,7 +654,7 @@ export class Eagle {
      */
     newDiagram = (fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void => {
         console.log("newDiagram()", fileType);
-        Utils.requestUserString("New " + Utils.translateFileTypeToString(fileType), "Enter " + Utils.translateFileTypeToString(fileType) + " name", "", false, (completed : boolean, userString : string) : void => {
+        Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", "", false, (completed : boolean, userString : string) : void => {
             if (!completed)
             {   // Cancelling action.
                 return;
@@ -967,7 +967,7 @@ export class Eagle {
                 return;
             }
 
-            var fileType : Eagle.FileType = Utils.translateStringToFileType((<any>data).modelData.fileType);
+            var fileType : Eagle.FileType = Utils.getFileTypeFromString((<any>data).modelData.fileType);
             var showErrors = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             if (fileType == Eagle.FileType.TemplatePalette) {
@@ -2180,11 +2180,11 @@ export namespace Eagle
     }
 
     export enum FileType {
-        Graph,
-        Palette,
-        TemplatePalette,
-        JSON,
-        Unknown
+        Graph = "Graph",
+        Palette = "Palette",
+        TemplatePalette = "TemplatePalette",
+        JSON = "JSON",
+        Unknown = "Unknown"
     }
 
     export type DALiuGEFileType = string;

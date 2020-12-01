@@ -71,12 +71,15 @@ export class Repository {
     }
 
     public static fileSortFunc = (a: string, b: string) : number => {
-        var aType : Eagle.FileType = Utils.getFileTypeFromFileName(a);
-        var bType : Eagle.FileType = Utils.getFileTypeFromFileName(b);
+        let aType : Eagle.FileType = Utils.getFileTypeFromFileName(a);
+        let bType : Eagle.FileType = Utils.getFileTypeFromFileName(b);
 
-        if (aType !== bType){
-            return aType - bType;
+        let aSortIndex : number = Utils.getFileTypeSortIndex(aType);
+        let bSortIndex : number = Utils.getFileTypeSortIndex(bType);
+
+        if (aSortIndex !== bSortIndex){
+            return aSortIndex - bSortIndex;
         }
-        return aType > bType ? -1 : 1;
+        return aSortIndex > bSortIndex ? -1 : 1;
     }
 }
