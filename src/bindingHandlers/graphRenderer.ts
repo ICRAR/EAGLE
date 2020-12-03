@@ -287,6 +287,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                      .style("display", getAppsBackgroundDisplay)
                      .text(getOutputAppText);
 
+     var exitAppName = nodes.append("text")
+                      .attr("class", "exitAppName")
+                      .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionX(node));})
+                      .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionY(node));})
+                      .style("fill", getHeaderFill)
+                      .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+                      .style("display", getAppsBackgroundDisplay)
+                      .text(getExitAppText);
+
     var content = nodes.append("text")
                      .attr("class", "content")
                      .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionX(node));})
@@ -509,6 +518,63 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                             .on("mouseenter", mouseEnterPort)
                             .on("mouseleave", mouseLeavePort);
+
+    // add the exit ports
+    var exitPortGroups = nodes.append("g")
+                                .attr("class", "exitPorts")
+                                .attr("transform", getExitPortGroupTransform)
+                                .style("display", getPortsDisplay);
+
+    var exitPorts = exitPortGroups.selectAll("g")
+                            .data(function(node : Node, index : number){return node.getExitPorts();})
+                            .enter()
+                            .append("text")
+                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+                            .attr("x", REAL_TO_DISPLAY_SCALE(-20))
+                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+                            .text(function (port : Port) {return port.getName();});
+
+    var exitCircles = exitPortGroups.selectAll("g")
+                            .data(function(node : Node){return node.getExitPorts();})
+                            .enter()
+                            .append("circle")
+                            .attr("data-id", function(port : Port){return port.getId();})
+                            .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
+                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                            .attr("r", REAL_TO_DISPLAY_SCALE(6))
+                            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+                            .on("mouseenter", mouseEnterPort)
+                            .on("mouseleave", mouseLeavePort);
+
+    // add the exit local ports
+    var exitLocalPortGroups = nodes.append("g")
+                                .attr("class", "exitLocalPorts")
+                                .attr("transform", getExitLocalPortGroupTransform)
+                                .style("display", getPortsDisplay);
+
+    var exitLocalPorts = exitLocalPortGroups.selectAll("g")
+                            .data(function(node : Node){return node.getExitLocalPorts();})
+                            .enter()
+                            .append("text")
+                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+                            .attr("x", REAL_TO_DISPLAY_SCALE(-20))
+                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
+                            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+                            .text(function (port : Port) {return port.getName();});
+
+    var exitLocalCircles = exitLocalPortGroups.selectAll("g")
+                            .data(function(node : Node){return node.getExitLocalPorts();})
+                            .enter()
+                            .append("circle")
+                            .attr("data-id", function(port : Port){return port.getId();})
+                            .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
+                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
+                            .attr("r", REAL_TO_DISPLAY_SCALE(6))
+                            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+                            .on("mouseenter", mouseEnterPort)
+                            .on("mouseleave", mouseLeavePort);
+
 
     var portDragHandler = d3.drag()
                             .on("start", function (port : Port) {
@@ -747,6 +813,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
                                 .style("display", getAppsBackgroundDisplay)
                                 .text(getOutputAppText);
+
+        svgContainer.selectAll("g.node text.exitAppName")
+                                .data(nodeData)
+                                .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionX(node));})
+                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionY(node));})
+                                .style("fill", getHeaderFill)
+                                .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+                                .style("display", getAppsBackgroundDisplay)
+                                .text(getExitAppText);
 
         svgContainer.selectAll("g.node text.content")
                                 .data(nodeData)
@@ -992,6 +1067,98 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
                                 .on("mouseleave", mouseLeavePort);
+
+        // exitPorts
+        nodes.selectAll("g.exitPorts")
+                                .attr("transform", getExitPortGroupTransform)
+                                .style("display", getPortsDisplay);
+
+        nodes.selectAll("g.exitPorts text")
+                                .data(function(node : Node){return node.getExitPorts();})
+                                .enter()
+                                .select("g.exitPorts")
+                                .insert("text");
+
+        nodes.selectAll("g.exitPorts text")
+                                .data(function(node : Node){return node.getExitPorts();})
+                                .exit()
+                                .remove();
+
+        nodes.selectAll("g.exitPorts text")
+                                .data(function(node : Node){return node.getExitPorts();})
+                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+                                .attr("x", REAL_TO_DISPLAY_SCALE(-20))
+                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                                .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+                                .text(function (port : Port) {return port.getName()});
+
+        nodes.selectAll("g.exitPorts circle")
+                                .data(function(node : Node){return node.getExitPorts();})
+                                .enter()
+                                .select("g.exitPorts")
+                                .insert("circle");
+
+        nodes.selectAll("g.exitPorts circle")
+                                .data(function(node : Node){return node.getExitPorts();})
+                                .exit()
+                                .remove();
+
+        nodes.selectAll("g.exitPorts circle")
+                                .data(function(node : Node){return node.getExitPorts();})
+                                .attr("data-id", function(port : Port){return port.getId();})
+                                .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
+                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                                .attr("r", REAL_TO_DISPLAY_SCALE(6))
+                                .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+                                .on("mouseenter", mouseEnterPort)
+                                .on("mouseleave", mouseLeavePort);
+
+
+        // exitLocalPorts
+        nodes.selectAll("g.exitLocalPorts")
+                                .attr("transform", getExitLocalPortGroupTransform)
+                                .style("display", getPortsDisplay);
+
+        nodes.selectAll("g.exitLocalPorts text")
+                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .enter()
+                                .select("g.exitLocalPorts")
+                                .insert("text");
+
+        nodes.selectAll("g.exitLocalPorts text")
+                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .exit()
+                                .remove();
+
+        nodes.selectAll("g.exitLocalPorts text")
+                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+                                .attr("x", REAL_TO_DISPLAY_SCALE(-20))
+                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                                .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+                                .text(function (port : Port) {return port.getName();});
+
+        nodes.selectAll("g.exitLocalPorts circle")
+                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .enter()
+                                .select("g.exitLocalPorts")
+                                .insert("circle");
+
+        nodes.selectAll("g.exitLocalPorts circle")
+                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .exit()
+                                .remove();
+
+        nodes.selectAll("g.exitLocalPorts circle")
+                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .attr("data-id", function(port : Port){return port.getId();})
+                                .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
+                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                                .attr("r", REAL_TO_DISPLAY_SCALE(6))
+                                .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+                                .on("mouseenter", mouseEnterPort)
+                                .on("mouseleave", mouseLeavePort);
+
 
         // update attributes of all links
         linkExtras.attr("class", "linkExtra")
@@ -1322,24 +1489,51 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return HEADER_HEIGHT + 20;
     }
 
+    function getExitAppText(node:Node) : string {
+        if (!Node.canHaveExitApp(node)){
+            return "";
+        }
+
+        var exitApplication : Node = node.getExitApplication();
+
+        if (typeof exitApplication === "undefined" || exitApplication === null){
+            return "<no app>";
+        }
+
+        return exitApplication.getName();
+    }
+
+    function getExitAppPositionX(node : Node) : number {
+        return node.getWidth() - 8;
+    }
+
+    function getExitAppPositionY(node : Node) : number {
+        // TODO: do something different if the node is collapsed
+        //if (node.isGroup() && node.isCollapsed()){
+        //    return Node.COLLAPSED_HEIGHT / 2;
+        //}
+
+        return HEADER_HEIGHT + 20;
+    }
+
     function getInputPortGroupTransform(node : Node) : string {
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
             return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT));
         } else {
             return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT));
         }
     }
 
-    function getOutputLocalPortGroupTransform(node : Node) : string {
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+    function getOutputPortGroupTransform(node : Node) : string {
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT));
         } else {
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT));
         }
     }
 
-    function getOutputPortGroupTransform(node : Node) : string {
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+    function getExitPortGroupTransform(node : Node) : string {
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
             return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT));
         } else {
             return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT));
@@ -1347,10 +1541,26 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getInputLocalPortGroupTransform(node : Node) : string {
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
             return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getInputPorts().length * PORT_HEIGHT));
         } else {
             return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + node.getInputPorts().length * PORT_HEIGHT));
+        }
+    }
+
+    function getOutputLocalPortGroupTransform(node : Node) : string {
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+        } else {
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+        }
+    }
+
+    function getExitLocalPortGroupTransform(node : Node) : string {
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+        } else {
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
         }
     }
 

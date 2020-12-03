@@ -160,6 +160,15 @@ export class Node {
         return this.outputApplication().getInputPorts();
     }
 
+    // TODO: better name for function
+    getExitLocalPorts = () : Port[] => {
+        if (this.exitApplication() === null){
+            return [];
+        }
+
+        return this.exitApplication().getInputPorts();
+    }
+
     getDescription = () : string => {
         return this.description;
     }
@@ -284,6 +293,14 @@ export class Node {
             return this.outputPorts;
         } else {
             return this.outputApplication().outputPorts;
+        }
+    }
+
+    getExitPorts = () : Port[] => {
+        if (this.exitApplication() === null){
+            return [];
+        } else {
+            return this.exitApplication().inputPorts;
         }
     }
 
@@ -966,13 +983,15 @@ export class Node {
     }
 
     static canHaveInputApp = (node : Node) : boolean => {
-        return node.getCategory() === Eagle.Category.Gather ||
-            node.getCategory() === Eagle.Category.Scatter ||
-            node.getCategory() === Eagle.Category.MKN;
+        return Eagle.getCategoryData(node.getCategory()).canHaveInputApplication;
     }
 
     static canHaveOutputApp = (node : Node) : boolean => {
-        return node.getCategory() === Eagle.Category.MKN;
+        return Eagle.getCategoryData(node.getCategory()).canHaveOutputApplication;
+    }
+
+    static canHaveExitApp = (node : Node) : boolean => {
+        return Eagle.getCategoryData(node.getCategory()).canHaveExitApplication;
     }
 
     static fromOJSJson = (nodeData : any) : Node => {
