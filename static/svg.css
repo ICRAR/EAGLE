@@ -64,6 +64,10 @@ g.node text.outputAppName {
     text-anchor: end;
 }
 
+g.node text.exitAppName {
+    text-anchor: end;
+}
+
 g.node g circle {
     stroke: white;
     stroke-width: 2;
@@ -116,6 +120,30 @@ g.node g.outputLocalPorts text {
 }
 
 g.node g.outputLocalPorts text.event {
+    fill: cornflowerblue;
+}
+
+g.node g.exitPorts text {
+    text-anchor: end;
+    font-family: sans-serif;
+    pointer-events: none;
+    fill: #444444;
+    user-select: none;
+}
+
+g.node g.exitPorts text.event {
+    fill: mediumblue;
+}
+
+g.node g.exitLocalPorts text {
+    text-anchor: end;
+    font-family: sans-serif;
+    pointer-events: none;
+    fill: grey;
+    user-select: none;
+}
+
+g.node g.exitLocalPorts text.event {
     fill: cornflowerblue;
 }
 

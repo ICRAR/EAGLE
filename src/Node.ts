@@ -160,6 +160,15 @@ export class Node {
         return this.outputApplication().getInputPorts();
     }
 
+    // TODO: better name for function
+    getExitLocalPorts = () : Port[] => {
+        if (this.exitApplication() === null){
+            return [];
+        }
+
+        return this.exitApplication().getInputPorts();
+    }
+
     getDescription = () : string => {
         return this.description;
     }
@@ -284,6 +293,14 @@ export class Node {
             return this.outputPorts;
         } else {
             return this.outputApplication().outputPorts;
+        }
+    }
+
+    getExitPorts = () : Port[] => {
+        if (this.exitApplication() === null){
+            return [];
+        } else {
+            return this.exitApplication().outputPorts;
         }
     }
 
@@ -580,6 +597,22 @@ export class Node {
             }
         }
 
+        // if node has an exitApplication, check those ports too
+        if (this.exitApplication() !== null){
+            for (var i = 0; i < this.exitApplication().inputPorts.length; i++){
+                var port = this.exitApplication().inputPorts[i];
+                if (port.getId() === portId){
+                    return port;
+                }
+            }
+            for (var i = 0; i < this.exitApplication().outputPorts.length; i++){
+                var port = this.exitApplication().outputPorts[i];
+                if (port.getId() === portId){
+                    return port;
+                }
+            }
+        }
+
         console.warn("Could not find port by Id (" + portId + ") on node " + this.getKey());
         return null;
     }
@@ -627,6 +660,22 @@ export class Node {
             }
             for (var i = 0; i < this.outputApplication().outputPorts.length; i++){
                 var port = this.outputApplication().outputPorts[i];
+                if (port.getId() === portId){
+                    return "output";
+                }
+            }
+        }
+
+        // if node has an exitApplication, check those ports too
+        if (this.exitApplication() !== null){
+            for (var i = 0; i < this.exitApplication().inputPorts.length; i++){
+                var port = this.exitApplication().inputPorts[i];
+                if (port.getId() === portId){
+                    return "outputLocal";
+                }
+            }
+            for (var i = 0; i < this.exitApplication().outputPorts.length; i++){
+                var port = this.exitApplication().outputPorts[i];
                 if (port.getId() === portId){
                     return "output";
                 }
@@ -966,13 +1015,15 @@ export class Node {
     }
 
     static canHaveInputApp = (node : Node) : boolean => {
-        return node.getCategory() === Eagle.Category.Gather ||
-            node.getCategory() === Eagle.Category.Scatter ||
-            node.getCategory() === Eagle.Category.MKN;
+        return Eagle.getCategoryData(node.getCategory()).canHaveInputApplication;
     }
 
     static canHaveOutputApp = (node : Node) : boolean => {
-        return node.getCategory() === Eagle.Category.MKN;
+        return Eagle.getCategoryData(node.getCategory()).canHaveOutputApplication;
+    }
+
+    static canHaveExitApp = (node : Node) : boolean => {
+        return Eagle.getCategoryData(node.getCategory()).canHaveExitApplication;
     }
 
     static fromOJSJson = (nodeData : any) : Node => {

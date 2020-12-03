@@ -680,6 +680,22 @@ export class Utils {
                     allPortNames.push(port.getName());
                 }
             }
+
+            // add exit port names into the list
+            for (var j = 0; j < node.getExitPorts().length; j++) {
+                let port : Port = node.getExitPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
+                }
+            }
+
+            // add exit local port names into the list
+            for (var j = 0; j < node.getExitLocalPorts().length; j++) {
+                let port : Port = node.getExitLocalPorts()[j];
+                if (!port.isEvent()) {
+                    allPortNames.push(port.getName());
+                }
+            }
         }
 
         // remove duplicates from the list
