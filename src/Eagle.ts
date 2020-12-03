@@ -2039,28 +2039,39 @@ export class Eagle {
         });
     }
 
-    private setNodeApplication = (callback:(node:Node) => void) : void => {
+    private setNodeApplication = (title: string, message: string, callback:(node:Node) => void) : void => {
         console.log("setNodeApplication()");
 
         var applicationList : string[] = this.getApplicationList();
 
-        Utils.requestUserChoice("Input Application", "Choose an input application", applicationList, 0, false, "", (completed : boolean, userString : string) => {
+        // add "None" to the application list
+        applicationList.push(Node.NO_APP_STRING);
+
+        Utils.requestUserChoice(title, message, applicationList, 0, false, "", (completed : boolean, userString : string) => {
             if (!completed){
                 return;
             }
 
-            console.log("Input Application:" + userString);
+            console.log("userString:" + userString);
+
+            // abort if the user picked "None"
+            if (userString === Node.NO_APP_STRING){
+                console.log("User selected no application");
+                callback(null);
+                this.updateTooltips();
+                return;
+            }
 
             var paletteName = userString.split(":")[0];
             var nodeName    = userString.split(":")[1];
 
             console.log("Find application", paletteName, nodeName);
 
-            var inputApplication : Node = this.getApplication(paletteName, nodeName);
+            var application : Node = this.getApplication(paletteName, nodeName);
 
             // clone the input application to make a local copy
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
-            let clone : Node = inputApplication.clone();
+            let clone : Node = application.clone();
             clone.setKey(Math.floor(Math.random() * 1000000));
 
             // set nodeKey on clone's ports to match the clone
@@ -2074,7 +2085,6 @@ export class Eagle {
             }
 
             callback(clone);
-
             this.updateTooltips();
         });
     }
@@ -2082,19 +2092,19 @@ export class Eagle {
     setNodeInputApplication = () : void => {
         console.log("setNodeInputApplication()");
 
-        this.setNodeApplication(this.selectedNode().setInputApplication);
+        this.setNodeApplication("Input Application", "Choose an input application", this.selectedNode().setInputApplication);
     }
 
     setNodeOutputApplication = () : void => {
         console.log("setNodeOutputApplication()");
 
-        this.setNodeApplication(this.selectedNode().setOutputApplication);
+        this.setNodeApplication("Output Application", "Choose an output application", this.selectedNode().setOutputApplication);
     }
 
     setNodeExitApplication = () : void => {
         console.log("setNodeExitApplication()");
 
-        this.setNodeApplication(this.selectedNode().setExitApplication);
+        this.setNodeApplication("Exit Application", "Choose an exit application", this.selectedNode().setExitApplication);
     }
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {

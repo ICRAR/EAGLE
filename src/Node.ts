@@ -76,6 +76,8 @@ export class Node {
     public static readonly DATA_COMPONENT_WIDTH : number = 48;
     public static readonly DATA_COMPONENT_HEIGHT : number = 48;
 
+    public static readonly NO_APP_STRING : string = "<no app>";
+
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, x : number, y : number){
         this.key = key;
         this.name = name;
@@ -437,10 +439,12 @@ export class Node {
     }
 
     setInputApplication = (inputApplication : Node) : void => {
-        console.assert(inputApplication.getCategoryType() === Eagle.CategoryType.Application);
-        console.assert(this.canHaveInputApplication());
-
         this.inputApplication(inputApplication);
+
+        if (inputApplication !== null){
+            console.assert(inputApplication.getCategoryType() === Eagle.CategoryType.Application);
+            console.assert(this.canHaveInputApplication());
+        }
     }
 
     getInputApplication = () : Node => {
@@ -448,10 +452,12 @@ export class Node {
     }
 
     setOutputApplication = (outputApplication : Node) : void => {
-        console.assert(outputApplication.getCategoryType() === Eagle.CategoryType.Application);
-        console.assert(this.canHaveOutputApplication());
-
         this.outputApplication(outputApplication);
+
+        if (outputApplication !== null){
+            console.assert(outputApplication.getCategoryType() === Eagle.CategoryType.Application);
+            console.assert(this.canHaveOutputApplication());
+        }
     }
 
     getOutputApplication = () : Node => {
@@ -459,10 +465,12 @@ export class Node {
     }
 
     setExitApplication = (exitApplication : Node) : void => {
-        console.assert(exitApplication.getCategoryType() === Eagle.CategoryType.Application);
-        console.assert(this.canHaveExitApplication());
-
         this.exitApplication(exitApplication);
+
+        if (exitApplication !== null){
+            console.assert(exitApplication.getCategoryType() === Eagle.CategoryType.Application);
+            console.assert(this.canHaveExitApplication());
+        }
     }
 
     getExitApplication = () : Node => {

@@ -1448,7 +1448,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var inputApplication : Node = node.getInputApplication();
 
         if (typeof inputApplication === "undefined" || inputApplication === null){
-            return "<no app>";
+            return Node.NO_APP_STRING;
         }
 
         return inputApplication.getName();
@@ -1475,7 +1475,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var outputApplication : Node = node.getOutputApplication();
 
         if (typeof outputApplication === "undefined" || outputApplication === null){
-            return "<no app>";
+            return Node.NO_APP_STRING;
         }
 
         return outputApplication.getName();
@@ -1502,7 +1502,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var exitApplication : Node = node.getExitApplication();
 
         if (typeof exitApplication === "undefined" || exitApplication === null){
-            return "<no app>";
+            return Node.NO_APP_STRING;
         }
 
         return exitApplication.getName();
