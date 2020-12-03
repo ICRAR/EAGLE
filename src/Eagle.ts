@@ -1764,20 +1764,11 @@ export class Eagle {
         }
     }
 
-    removePortFromNodeByIndex = (nodeKey : number, index : number, input : boolean, local : boolean) : void => {
-        console.log("removePortFromNodeByIndex(): nodeKey", nodeKey, "index", index, "input", input, "local", local);
-
-        // find node using nodeKey
-        var node : Node;
-
-        if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            node = this.editorPalette().findNodeByKey(nodeKey);
-        } else {
-            node = this.logicalGraph().findNodeByKey(nodeKey);
-        }
+    removePortFromNodeByIndex = (node : Node, index : number, input : boolean, local : boolean) : void => {
+        console.log("removePortFromNodeByIndex(): node", node.getName(), "index", index, "input", input, "local", local);
 
         if (node === null){
-            console.warn("Could not remove port from unknown node (" + nodeKey + ")");
+            console.warn("Could not remove port from null node");
             return;
         }
 
