@@ -300,7 +300,7 @@ export class Node {
         if (this.exitApplication() === null){
             return [];
         } else {
-            return this.exitApplication().inputPorts;
+            return this.exitApplication().outputPorts;
         }
     }
 
@@ -597,6 +597,22 @@ export class Node {
             }
         }
 
+        // if node has an exitApplication, check those ports too
+        if (this.exitApplication() !== null){
+            for (var i = 0; i < this.exitApplication().inputPorts.length; i++){
+                var port = this.exitApplication().inputPorts[i];
+                if (port.getId() === portId){
+                    return port;
+                }
+            }
+            for (var i = 0; i < this.exitApplication().outputPorts.length; i++){
+                var port = this.exitApplication().outputPorts[i];
+                if (port.getId() === portId){
+                    return port;
+                }
+            }
+        }
+
         console.warn("Could not find port by Id (" + portId + ") on node " + this.getKey());
         return null;
     }
@@ -644,6 +660,22 @@ export class Node {
             }
             for (var i = 0; i < this.outputApplication().outputPorts.length; i++){
                 var port = this.outputApplication().outputPorts[i];
+                if (port.getId() === portId){
+                    return "output";
+                }
+            }
+        }
+
+        // if node has an exitApplication, check those ports too
+        if (this.exitApplication() !== null){
+            for (var i = 0; i < this.exitApplication().inputPorts.length; i++){
+                var port = this.exitApplication().inputPorts[i];
+                if (port.getId() === portId){
+                    return "outputLocal";
+                }
+            }
+            for (var i = 0; i < this.exitApplication().outputPorts.length; i++){
+                var port = this.exitApplication().outputPorts[i];
                 if (port.getId() === portId){
                     return "output";
                 }

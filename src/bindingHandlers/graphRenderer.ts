@@ -670,13 +670,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var portType : string = node.findPortTypeById(edge.getSrcPortId());
         var forward : boolean = portType === "output" || portType === "inputLocal";
 
-        return createBezier(
-            REAL_TO_DISPLAY_POSITION_X(edgeGetX1(edge)),
-            REAL_TO_DISPLAY_POSITION_Y(edgeGetY1(edge)),
-            REAL_TO_DISPLAY_POSITION_X(edgeGetX2(edge)),
-            REAL_TO_DISPLAY_POSITION_Y(edgeGetY2(edge)),
-            forward
-        );
+        let x1 = REAL_TO_DISPLAY_POSITION_X(edgeGetX1(edge));
+        let y1 = REAL_TO_DISPLAY_POSITION_Y(edgeGetY1(edge));
+        let x2 = REAL_TO_DISPLAY_POSITION_X(edgeGetX2(edge));
+        let y2 = REAL_TO_DISPLAY_POSITION_Y(edgeGetY2(edge));
+
+        //console.log("x1", x1, "y1", y1, "x2", x2, "y2", y2);
+        console.assert(!isNaN(x1));
+        console.assert(!isNaN(y1));
+        console.assert(!isNaN(x2));
+        console.assert(!isNaN(y2));
+
+        return createBezier(x1, y1, x2, y2, forward);
     }
 
     // create one link that is only used during the creation of a new link
@@ -1858,6 +1863,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
+        for (var i = 0 ; i < node.getExitPorts().length ; i++){
+            var port : Port = node.getExitPorts()[i];
+            if (port.getId() === portId){
+                local = false;
+                input = false;
+                index = i;
+            }
+        }
+
         // check local ports too
         for (var i = 0 ; i < node.getInputLocalPorts().length ; i++){
             var port : Port = node.getInputLocalPorts()[i];
@@ -1877,9 +1891,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
+        for (var i = 0 ; i < node.getExitLocalPorts().length ; i++){
+            var port : Port = node.getExitLocalPorts()[i];
+            if (port.getId() === portId){
+                local = true;
+                input = false;
+                index = i;
+            }
+        }
+
         // determine whether we need to move down an extra amount to clear the apps display title row
         var appsOffset : number = 0;
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
             appsOffset = APPS_HEIGHT;
         }
 
