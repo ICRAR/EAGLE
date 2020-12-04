@@ -412,6 +412,11 @@ export class Eagle {
                 var n : Node = <Node>selection;
                 while(true){
                     var parentKey : number = n.getParentKey();
+
+                    if (parentKey === null){
+                        break;
+                    }
+
                     var parentNode : Node = this.logicalGraph().findNodeByKey(parentKey);
 
                     if (parentNode === null){

@@ -387,8 +387,31 @@ export class LogicalGraph {
 
     findNodeByKey = (key : number) : Node => {
         for (var i = this.nodes.length - 1; i >= 0 ; i--){
+
+            // check if the node itself has a matching key
             if (this.nodes[i].getKey() === key){
                 return this.nodes[i];
+            }
+
+            // check if the node's inputApp has a matching key
+            if (this.nodes[i].getInputApplication() !== null){
+                if (this.nodes[i].getInputApplication().getKey() === key){
+                    return this.nodes[i].getInputApplication();
+                }
+            }
+
+            // check if the node's outputApp has a matching key
+            if (this.nodes[i].getOutputApplication() !== null){
+                if (this.nodes[i].getOutputApplication().getKey() === key){
+                    return this.nodes[i].getOutputApplication();
+                }
+            }
+
+            // check if the node's exitApp has a matching key
+            if (this.nodes[i].getExitApplication() !== null){
+                if (this.nodes[i].getExitApplication().getKey() === key){
+                    return this.nodes[i].getExitApplication();
+                }
             }
         }
 
