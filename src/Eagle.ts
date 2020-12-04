@@ -1921,7 +1921,19 @@ export class Eagle {
         for (var i = 0; i < this.logicalGraph().getNodes().length; i++){
             var node : Node = this.logicalGraph().getNodes()[i];
 
-            tableData.push({"name":node.getName(), "key":node.getKey(), "categoryType":node.getCategoryType(), "category":node.getCategory(), "expanded":node.getExpanded()});
+            tableData.push({
+                "name":node.getName(),
+                "key":node.getKey(),
+                "categoryType":node.getCategoryType(),
+                "category":node.getCategory(),
+                "expanded":node.getExpanded(),
+                "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
+                "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
+                "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
+                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey(),
+                "exitAppKey":node.getExitApplication() === null ? null : node.getExitApplication().getKey(),
+                "exitAppEmbedKey":node.getExitApplication() === null ? null : node.getExitApplication().getEmbedKey()
+            });
         }
 
         console.table(tableData);
@@ -2077,7 +2089,8 @@ export class Eagle {
             // clone the input application to make a local copy
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
             let clone : Node = application.clone();
-            clone.setKey(Math.floor(Math.random() * 1000000));
+            let newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+            clone.setKey(newKey);
 
             // set nodeKey on clone's ports to match the clone
             for (let i = 0 ; i < clone.getInputPorts().length ; i++){

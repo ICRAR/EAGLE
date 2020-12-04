@@ -44,6 +44,7 @@ export class Node {
                                     // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
     private parentKey : number | null;
+    private embedKey : number | null;
     private collapsed : boolean;
     private streaming : boolean;
     private showPorts : boolean;
@@ -90,6 +91,7 @@ export class Node {
         this.drawOrderHint = 0;
 
         this.parentKey = null;
+        this.embedKey = null;
         this.collapsed = false;
         this.streaming = false;
         this.showPorts = false;
@@ -240,7 +242,6 @@ export class Node {
     }
 
     setParentKey = (key : number) : void => {
-
         // check that we are not making this node its own parent
         if (key === this.key){
             console.warn("Setting node as its own parent!");
@@ -248,6 +249,14 @@ export class Node {
         }
 
         this.parentKey = key;
+    }
+
+    getEmbedKey = () : number => {
+        return this.embedKey;
+    }
+
+    setEmbedKey = (key : number) : void => {
+        this.embedKey = key;
     }
 
     isCollapsed = () : boolean => {
@@ -440,6 +449,7 @@ export class Node {
 
     setInputApplication = (inputApplication : Node) : void => {
         this.inputApplication(inputApplication);
+        inputApplication.setEmbedKey(this.getKey());
 
         if (inputApplication !== null){
             console.assert(inputApplication.getCategoryType() === Eagle.CategoryType.Application);
@@ -453,6 +463,7 @@ export class Node {
 
     setOutputApplication = (outputApplication : Node) : void => {
         this.outputApplication(outputApplication);
+        outputApplication.setEmbedKey(this.getKey());
 
         if (outputApplication !== null){
             console.assert(outputApplication.getCategoryType() === Eagle.CategoryType.Application);
@@ -466,6 +477,7 @@ export class Node {
 
     setExitApplication = (exitApplication : Node) : void => {
         this.exitApplication(exitApplication);
+        exitApplication.setEmbedKey(this.getKey());
 
         if (exitApplication !== null){
             console.assert(exitApplication.getCategoryType() === Eagle.CategoryType.Application);
@@ -489,6 +501,7 @@ export class Node {
         this.drawOrderHint = 0;
 
         this.parentKey = null;
+        this.embedKey = null;
         this.collapsed = false;
         this.streaming = false;
 
@@ -778,6 +791,7 @@ export class Node {
         result.drawOrderHint = this.drawOrderHint;
 
         result.parentKey = this.parentKey;
+        result.embedKey = this.embedKey;
 
         result.collapsed = this.collapsed;
         result.streaming = this.streaming;
@@ -1111,27 +1125,27 @@ export class Node {
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
         if (nodeData.inputAppName !== undefined && nodeData.inputAppName !== ""){
-            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType));
+            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType, node.getKey()));
         }
 
         if (nodeData.inputApplicationName !== undefined && nodeData.inputApplicationName !== ""){
-            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType));
+            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType, node.getKey()));
         }
 
         if (nodeData.outputAppName !== undefined && nodeData.outputAppName !== ""){
-            node.outputApplication(Node.createEmbeddedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType));
+            node.outputApplication(Node.createEmbeddedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType, node.getKey()));
         }
 
         if (nodeData.outputApplicationName !== undefined && nodeData.outputApplicationName !== ""){
-            node.outputApplication(Node.createEmbeddedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType));
+            node.outputApplication(Node.createEmbeddedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType, node.getKey()));
         }
 
         if (nodeData.exitAppName !== undefined && nodeData.exitAppName !== ""){
-            node.exitApplication(Node.createEmbeddedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType));
+            node.exitApplication(Node.createEmbeddedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType, node.getKey()));
         }
 
         if (nodeData.exitApplicationName !== undefined && nodeData.exitApplicationName !== ""){
-            node.exitApplication(Node.createEmbeddedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType));
+            node.exitApplication(Node.createEmbeddedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType, node.getKey()));
         }
 
         // set parentKey if a group is defined
@@ -1139,21 +1153,29 @@ export class Node {
             node.parentKey = nodeData.group;
         }
 
+        // set embedKey if defined
+        if (typeof nodeData.embedKey !== 'undefined'){
+            node.embedKey = nodeData.embedKey;
+        }
+
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
         if (nodeData.application !== undefined && nodeData.application !== ""){
             console.warn("only found old application type, not new input application type and output application type", categoryType, category);
-            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application, category));
+            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application, category, node.getKey()));
         }
 
         // read the 'real' input and output apps, correctly specified as nested nodes
         if (typeof nodeData.inputApplication !== 'undefined' && nodeData.inputApplication !== null){
             node.inputApplication(Node.fromOJSJson(nodeData.inputApplication));
+            node.inputApplication().setEmbedKey(node.getKey());
         }
         if (typeof nodeData.outputApplication !== 'undefined' && nodeData.outputApplication !== null){
             node.outputApplication(Node.fromOJSJson(nodeData.outputApplication));
+            node.outputApplication().setEmbedKey(node.getKey());
         }
         if (typeof nodeData.exitApplication !== 'undefined' && nodeData.exitApplication !== null){
             node.exitApplication(Node.fromOJSJson(nodeData.exitApplication));
+            node.exitApplication().setEmbedKey(node.getKey());
         }
 
         // collapsed
@@ -1305,6 +1327,10 @@ export class Node {
             result.group = node.parentKey;
         }
 
+        if (node.embedKey !== null){
+            result.embedKey = node.embedKey;
+        }
+
         // add input ports
         result.inputPorts = [];
         for (var i = 0 ; i < node.inputPorts.length; i++){
@@ -1449,9 +1475,9 @@ export class Node {
         result.streaming = node.streaming;
         result.subject = node.subject; // TODO: not sure if this should be here or in Node JSON
 
-        if (node.parentKey !== null){
-            result.group = node.parentKey;
-        }
+
+        result.parentKey = node.parentKey;
+        result.embedKey = node.embedKey;
 
         result.inputApplicationKey = -1;
         result.outputApplicationKey = -1;
@@ -1489,8 +1515,10 @@ export class Node {
         return result;
     }
 
-    private static createEmbeddedApplicationNode = (name : string, category: Eagle.Category) : Node => {
+    private static createEmbeddedApplicationNode = (name : string, category: Eagle.Category, embedKey: number) : Node => {
         console.log("createEmbeddedApplicationNode(", name, category, ")");
-        return new Node(null, name, "", category, Eagle.CategoryType.Application, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+        let n = new Node(null, name, "", category, Eagle.CategoryType.Application, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+        n.setEmbedKey(embedKey);
+        return n;
     }
 }

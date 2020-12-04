@@ -1790,7 +1790,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
         }
 
-        // check if an ancestor is collapsed, if so, use center f ancestor
+        // check if an ancestor is collapsed, if so, use center of ancestor
         var collapsedAncestor : Node = findAncestorCollapsedNode(node);
         if (collapsedAncestor !== null){
             return collapsedAncestor.getPosition().x + Node.COLLAPSED_WIDTH;
