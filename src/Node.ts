@@ -1111,27 +1111,27 @@ export class Node {
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
         if (nodeData.inputAppName !== undefined && nodeData.inputAppName !== ""){
-            node.inputApplication(Node.createUnkeyedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType));
+            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType));
         }
 
         if (nodeData.inputApplicationName !== undefined && nodeData.inputApplicationName !== ""){
-            node.inputApplication(Node.createUnkeyedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType));
+            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType));
         }
 
         if (nodeData.outputAppName !== undefined && nodeData.outputAppName !== ""){
-            node.outputApplication(Node.createUnkeyedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType));
+            node.outputApplication(Node.createEmbeddedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType));
         }
 
         if (nodeData.outputApplicationName !== undefined && nodeData.outputApplicationName !== ""){
-            node.outputApplication(Node.createUnkeyedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType));
+            node.outputApplication(Node.createEmbeddedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType));
         }
 
         if (nodeData.exitAppName !== undefined && nodeData.exitAppName !== ""){
-            node.exitApplication(Node.createUnkeyedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType));
+            node.exitApplication(Node.createEmbeddedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType));
         }
 
         if (nodeData.exitApplicationName !== undefined && nodeData.exitApplicationName !== ""){
-            node.exitApplication(Node.createUnkeyedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType));
+            node.exitApplication(Node.createEmbeddedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType));
         }
 
         // set parentKey if a group is defined
@@ -1142,7 +1142,7 @@ export class Node {
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
         if (nodeData.application !== undefined && nodeData.application !== ""){
             console.warn("only found old application type, not new input application type and output application type", categoryType, category);
-            node.inputApplication(Node.createUnkeyedApplicationNode(nodeData.application, category));
+            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application, category));
         }
 
         // read the 'real' input and output apps, correctly specified as nested nodes
@@ -1489,8 +1489,8 @@ export class Node {
         return result;
     }
 
-    private static createUnkeyedApplicationNode = (name : string, category: Eagle.Category) : Node => {
-        console.log("createUnkeyedApplicationNode(", name, category, ")");
-        return new Node(0, name, "", category, Eagle.CategoryType.Application, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+    private static createEmbeddedApplicationNode = (name : string, category: Eagle.Category) : Node => {
+        console.log("createEmbeddedApplicationNode(", name, category, ")");
+        return new Node(null, name, "", category, Eagle.CategoryType.Application, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
     }
 }

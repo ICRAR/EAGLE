@@ -2281,6 +2281,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function mouseEnterPort(port : Port) : void {
         //console.log("mouseEnterPort nodeKey", port.getNodeKey(), "portId", port.getId());
+        if (!isDraggingPort){
+            return;
+        }
+
 
         destinationPortId = port.getId();
         destinationNodeKey = port.getNodeKey();

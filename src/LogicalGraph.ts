@@ -93,6 +93,9 @@ export class LogicalGraph {
             result.nodes.push(Node.fromOJSJson(nodeData));
         }
 
+        // set keys for all embedded nodes
+        Utils.setEmbeddedApplicationNodeKeys(result);
+
         // make sure to set parentId for all nodes
         for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
@@ -388,6 +391,8 @@ export class LogicalGraph {
                 return this.nodes[i];
             }
         }
+
+        console.warn("findNodeByKey(): could not find node with key (", key, ")");
         return null;
     }
 

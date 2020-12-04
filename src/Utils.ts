@@ -77,18 +77,94 @@ export class Utils {
         });
     }
 
-    static newKey(nodes : Node[]) : number {
+    static findNewKey(usedKeys : number[]): number {
         for (var i = -1 ; ; i--){
-            var nodeIndex = -1;
-            for (var j = 0 ; j < nodes.length ; j++){
-                if (nodes[j].getKey() === i){
-                    nodeIndex = j;
+            //console.log("newKey, searching for ", i, "amongst", usedKeys.length, "keys");
+            let found = false;
+
+            for (var j = 0 ; j < usedKeys.length ; j++){
+                // debug
+                //console.log("findNewKey, checking key", j, "key is", usedKeys[j]);
+
+                if (i === usedKeys[j]){
+                    found = true;
                     break;
                 }
             }
 
-            if (nodeIndex === -1){
+            if (!found){
                 return i;
+            }
+        }
+    }
+
+    static getUsedKeys(nodes : Node[]) : number[] {
+        // build a list of used keys
+        let usedKeys: number[] = [];
+
+        for (var i = 0 ; i < nodes.length ; i++){
+            usedKeys.push(nodes[i].getKey())
+
+            // if this node has inputApp, add the inputApp key
+            if (nodes[i].getInputApplication() !== null){
+                usedKeys.push(nodes[i].getInputApplication().getKey());
+            }
+
+            // if this node has outputApp, add the outputApp key
+            if (nodes[i].getOutputApplication() !== null){
+                usedKeys.push(nodes[i].getOutputApplication().getKey());
+            }
+
+            // if this node has exitApp, add the exitApp key
+            if (nodes[i].getExitApplication() !== null){
+                usedKeys.push(nodes[i].getExitApplication().getKey());
+            }
+        }
+
+        return usedKeys;
+    }
+
+    static newKey(nodes: Node[]): number {
+        let usedKeys = Utils.getUsedKeys(nodes);
+        return Utils.findNewKey(usedKeys);
+    }
+
+    static setEmbeddedApplicationNodeKeys(lg: LogicalGraph): void {
+        let nodes: Node[] = lg.getNodes();
+        let usedKeys: number[] = Utils.getUsedKeys(nodes);
+
+        // loop through nodes, look for embedded nodes with null key, create new key, add to usedKeys
+        for (var i = 0 ; i < nodes.length ; i++){
+            usedKeys.push(nodes[i].getKey())
+
+            // if this node has inputApp, add the inputApp key
+            if (nodes[i].getInputApplication() !== null){
+                if (nodes[i].getInputApplication().getKey() === null){
+                    let newKey = Utils.findNewKey(usedKeys);
+                    nodes[i].getInputApplication().setKey(newKey);
+                    usedKeys.push(newKey);
+                    //console.log("set node", nodes[i].getKey(), "exit input key", newKey);
+                }
+            }
+
+            // if this node has outputApp, add the outputApp key
+            if (nodes[i].getOutputApplication() !== null){
+                if (nodes[i].getOutputApplication().getKey() === null){
+                    let newKey = Utils.findNewKey(usedKeys);
+                    nodes[i].getOutputApplication().setKey(newKey);
+                    usedKeys.push(newKey);
+                    //console.log("set node", nodes[i].getKey(), "output app key", newKey);
+                }
+            }
+
+            // if this node has exitApp, add the exitApp key
+            if (nodes[i].getExitApplication() !== null){
+                if (nodes[i].getExitApplication().getKey() === null){
+                    let newKey = Utils.findNewKey(usedKeys);
+                    nodes[i].getExitApplication().setKey(newKey);
+                    usedKeys.push(newKey);
+                    //console.log("set node", nodes[i].getKey(), "exit app key", newKey);
+                }
             }
         }
     }
