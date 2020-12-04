@@ -111,7 +111,7 @@ export class LogicalGraph {
             var linkData = dataObject.linkDataArray[i];
 
             // find source node
-            var srcNode : Node  = result.nodes[GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, linkData.from)];
+            let srcNode : Node = result.findNodeByKey(linkData.from);
 
             // abort if source node not found
             if (typeof srcNode === 'undefined'){
@@ -133,7 +133,7 @@ export class LogicalGraph {
             }
 
             // find destination node
-            var destNode : Node  = result.nodes[GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, linkData.to)];
+            let destNode : Node = result.findNodeByKey(linkData.to);
 
             // abort if dest node not found
             if (typeof destNode === 'undefined'){
