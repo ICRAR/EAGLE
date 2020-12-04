@@ -146,33 +146,6 @@ export class Node {
         }
     }
 
-    // TODO: better name for function
-    getInputLocalPorts = () : Port[] => {
-        if (this.inputApplication() === null){
-            return [];
-        }
-
-        return this.inputApplication().getOutputPorts();
-    }
-
-    // TODO: better name for function
-    getOutputLocalPorts = () : Port[] => {
-        if (this.outputApplication() === null){
-            return [];
-        }
-
-        return this.outputApplication().getInputPorts();
-    }
-
-    // TODO: better name for function
-    getExitLocalPorts = () : Port[] => {
-        if (this.exitApplication() === null){
-            return [];
-        }
-
-        return this.exitApplication().getInputPorts();
-    }
-
     getDescription = () : string => {
         return this.description;
     }
@@ -259,6 +232,10 @@ export class Node {
         this.embedKey = key;
     }
 
+    isEmbedded = () : boolean => {
+        return this.embedKey !== null;
+    }
+
     isCollapsed = () : boolean => {
         return this.collapsed;
     }
@@ -313,6 +290,33 @@ export class Node {
         } else {
             return this.exitApplication().outputPorts;
         }
+    }
+
+    // TODO: better name for function
+    getInputLocalPorts = () : Port[] => {
+        if (this.inputApplication() === null){
+            return [];
+        }
+
+        return this.inputApplication().getOutputPorts();
+    }
+
+    // TODO: better name for function
+    getOutputLocalPorts = () : Port[] => {
+        if (this.outputApplication() === null){
+            return [];
+        }
+
+        return this.outputApplication().getInputPorts();
+    }
+
+    // TODO: better name for function
+    getExitLocalPorts = () : Port[] => {
+        if (this.exitApplication() === null){
+            return [];
+        }
+
+        return this.exitApplication().getInputPorts();
     }
 
     hasLocalPortWithId = (id : string) : boolean => {

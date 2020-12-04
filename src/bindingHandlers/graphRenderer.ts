@@ -1796,6 +1796,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().x + Node.COLLAPSED_WIDTH;
         }
 
+        // check if node is an embedded app, if so, use position of the construct in which the app is embedded
+        if (node.isEmbedded()){
+            let containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), true).x;
+        }
+
         return findNodePortPosition(node, edge.getSrcPortId(), true).x;
     }
 
@@ -1814,6 +1820,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var collapsedAncestor : Node = findAncestorCollapsedNode(node);
         if (collapsedAncestor !== null){
             return collapsedAncestor.getPosition().y;
+        }
+
+        // check if node is an embedded app, if so, use position of the construct in which the app is embedded
+        if (node.isEmbedded()){
+            let containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), true).y - PORT_ICON_HEIGHT;
         }
 
         return findNodePortPosition(node, edge.getSrcPortId(), true).y - PORT_ICON_HEIGHT;
@@ -1836,6 +1848,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().x;
         }
 
+        // check if node is an embedded app, if so, use position of the construct in which the app is embedded
+        if (node.isEmbedded()){
+            let containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
+            return findNodePortPosition(containingConstruct, edge.getDestPortId(), false).x;
+        }
+
         return findNodePortPosition(node, edge.getDestPortId(), false).x;
     }
 
@@ -1854,6 +1872,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var collapsedAncestor : Node = findAncestorCollapsedNode(node);
         if (collapsedAncestor !== null){
             return collapsedAncestor.getPosition().y;
+        }
+
+        // check if node is an embedded app, if so, use position of the construct in which the app is embedded
+        if (node.isEmbedded()){
+            let containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
+            return findNodePortPosition(containingConstruct, edge.getDestPortId(), false).y - PORT_ICON_HEIGHT;
         }
 
         return findNodePortPosition(node, edge.getDestPortId(), false).y - PORT_ICON_HEIGHT;
@@ -1920,6 +1944,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 index = i;
             }
         }
+
+        //console.log("findNodePortPosition(): node.name", node.getName(), "portId", portId, "inset", inset, "local", local, "input", input, "index", index);
 
         // determine whether we need to move down an extra amount to clear the apps display title row
         var appsOffset : number = 0;
