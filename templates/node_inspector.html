@@ -3,10 +3,8 @@
 
         {% include 'node_inspector_attributes.html' %}
 
-        <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
         <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
         {% include 'node_inspector_description.html' %}
-        <!-- /ko -->
         <!-- /ko -->
 
         <!-- node component parameters list -->
