@@ -47,6 +47,7 @@ export class Node {
     private collapsed : boolean;
     private streaming : boolean;
     private showPorts : boolean;
+    private flipPorts : boolean;
 
     private inputApplication : ko.Observable<Node>;
     private outputApplication : ko.Observable<Node>;
@@ -93,6 +94,7 @@ export class Node {
         this.collapsed = false;
         this.streaming = false;
         this.showPorts = false;
+        this.flipPorts = false;
 
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
@@ -280,6 +282,18 @@ export class Node {
 
     toggleShowPorts = () : void => {
         this.showPorts = !this.showPorts;
+    }
+
+    isFlipPorts = () : boolean => {
+        return this.flipPorts;
+    }
+
+    setFlipPorts = (value : boolean) : void => {
+        this.flipPorts = value;
+    }
+
+    toggleFlipPorts = () : void => {
+        this.flipPorts = !this.flipPorts;
     }
 
     getInputPorts = () : Port[] => {
@@ -782,6 +796,7 @@ export class Node {
         result.collapsed = this.collapsed;
         result.streaming = this.streaming;
         result.showPorts = this.showPorts;
+        result.flipPorts = this.flipPorts;
 
         // copy input,output and exit applications
         if (this.inputApplication() === null){
@@ -1080,6 +1095,11 @@ export class Node {
             node.showPorts = nodeData.showPorts;
         }
 
+        // flipPorts
+        if (typeof nodeData.flipPorts !== 'undefined'){
+            node.flipPorts = nodeData.flipPorts;
+        }
+
         // selected
         if (typeof nodeData.selected !== 'undefined'){
             node.selected(nodeData.selected);
@@ -1296,6 +1316,7 @@ export class Node {
         result.height = node.height;
         result.collapsed = node.collapsed;
         result.showPorts = node.showPorts;
+        result.flipPorts = node.flipPorts;
         result.streaming = node.streaming;
         result.subject = node.subject;
         result.selected = node.selected();
@@ -1424,6 +1445,7 @@ export class Node {
         result.height = node.height;
         result.collapsed = node.collapsed;
         result.showPorts = node.showPorts;
+        result.flipPorts = node.flipPorts;
 
         result.selected = node.selected();
         result.expanded = node.expanded();

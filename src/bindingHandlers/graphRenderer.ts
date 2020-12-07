@@ -407,9 +407,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .text(EXPAND_BUTTON_LABEL)
                                 .on("click", expandOnClick);
 
-    // add the input ports
+    // add the left-side ports (by default, the input ports)
     var inputPortGroups = nodes.append("g")
-                                .attr("class", "inputPorts")
+                                .attr("class", getInputPortGroupClass)
                                 .attr("transform", getInputPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
@@ -418,8 +418,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                            .attr("x", REAL_TO_DISPLAY_SCALE(20))
-                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                            .attr("x", getInputPortPositionX)
+                            .attr("y", getInputPortPositionY)
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
 
@@ -428,8 +428,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", REAL_TO_DISPLAY_SCALE(8))
-                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                            .attr("cx", getInputPortCirclePositionX)
+                            .attr("cy", getInputPortCirclePositionY)
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                             .on("mouseenter", mouseEnterPort)
@@ -437,7 +437,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // add the input local ports
     var inputLocalPortGroups = nodes.append("g")
-                                .attr("class", "inputLocalPorts")
+                                .attr("class", getInputLocalPortGroupClass)
                                 .attr("transform", getInputLocalPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
@@ -446,8 +446,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                            .attr("x", REAL_TO_DISPLAY_SCALE(20))
-                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                            .attr("x", getInputLocalPortPositionX)
+                            .attr("y", getInputLocalPortPositionY)
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
 
@@ -456,8 +456,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", REAL_TO_DISPLAY_SCALE(8))
-                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                            .attr("cx", getInputLocalPortCirclePositionX)
+                            .attr("cy", getInputLocalPortCirclePositionY)
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                             .on("mouseenter", mouseEnterPort)
@@ -465,7 +465,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // add the output ports
     var outputPortGroups = nodes.append("g")
-                                .attr("class", "outputPorts")
+                                .attr("class", getOutputPortGroupClass)
                                 .attr("transform", getOutputPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
@@ -474,8 +474,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                            .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                            .attr("x", getOutputPortPositionX)
+                            .attr("y", getOutputPortPositionY)
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
 
@@ -484,8 +484,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                            .attr("cx", getOutputPortCirclePositionX)
+                            .attr("cy", getOutputPortCirclePositionY)
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                             .on("mouseenter", mouseEnterPort)
@@ -493,7 +493,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // add the output local ports
     var outputLocalPortGroups = nodes.append("g")
-                                .attr("class", "outputLocalPorts")
+                                .attr("class", getOutputLocalPortGroupClass)
                                 .attr("transform", getOutputLocalPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
@@ -502,8 +502,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                            .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
+                            .attr("x", getOutputLocalPortPositionX)
+                            .attr("y", getOutputLocalPortPositionY)
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
 
@@ -512,8 +512,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
+                            .attr("cx", getOutputLocalPortCirclePositionX)
+                            .attr("cy", getOutputLocalPortCirclePositionY)
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                             .on("mouseenter", mouseEnterPort)
@@ -521,7 +521,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // add the exit ports
     var exitPortGroups = nodes.append("g")
-                                .attr("class", "exitPorts")
+                                .attr("class", getExitPortGroupClass)
                                 .attr("transform", getExitPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
@@ -530,8 +530,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                            .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                            .attr("x", getExitPortPositionX)
+                            .attr("y", getExitPortPositionY)
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
 
@@ -540,8 +540,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                            .attr("cx", getExitPortCirclePositionX)
+                            .attr("cy", getExitPortCirclePositionY)
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                             .on("mouseenter", mouseEnterPort)
@@ -549,7 +549,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // add the exit local ports
     var exitLocalPortGroups = nodes.append("g")
-                                .attr("class", "exitLocalPorts")
+                                .attr("class", getExitLocalPortGroupClass)
                                 .attr("transform", getExitLocalPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
@@ -558,8 +558,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                            .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                            .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24);})
+                            .attr("x", getExitLocalPortPositionX)
+                            .attr("y", getExitLocalPortPositionY)
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                             .text(function (port : Port) {return port.getName();});
 
@@ -568,8 +568,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                            .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * 24 - 5);})
+                            .attr("cx", getExitLocalPortCirclePositionX)
+                            .attr("cy", getExitLocalPortCirclePositionY)
                             .attr("r", REAL_TO_DISPLAY_SCALE(6))
                             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                             .on("mouseenter", mouseEnterPort)
@@ -911,8 +911,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.inputPorts text")
                                 .data(function(node : Node){return node.getInputPorts();})
                                 .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                                .attr("x", REAL_TO_DISPLAY_SCALE(20))
-                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                                .attr("x", getInputPortPositionX)
+                                .attr("y", getInputPortPositionY)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName();});
 
@@ -930,8 +930,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.inputPorts circle")
                                 .data(function(node : Node){return node.getInputPorts();})
                                 .attr("data-key", function(port : Port){return port.getId();})
-                                .attr("cx", REAL_TO_DISPLAY_SCALE(8))
-                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                                .attr("cx", getInputPortCirclePositionX)
+                                .attr("cy", getInputPortCirclePositionY)
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
@@ -956,8 +956,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.inputLocalPorts text")
                                 .data(function(node : Node){return node.getInputLocalPorts();})
                                 .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                                .attr("x", REAL_TO_DISPLAY_SCALE(20))
-                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                                .attr("x", getInputLocalPortPositionX)
+                                .attr("y", getInputLocalPortPositionY)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName();});
 
@@ -975,8 +975,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.inputLocalPorts circle")
                                 .data(function(node : Node){return node.getInputLocalPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", REAL_TO_DISPLAY_SCALE(8))
-                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                                .attr("cx", getInputLocalPortCirclePositionX)
+                                .attr("cy", getInputLocalPortCirclePositionY)
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
@@ -1001,8 +1001,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.outputPorts text")
                                 .data(function(node : Node){return node.getOutputPorts();})
                                 .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                                .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                                .attr("x", getOutputPortPositionX)
+                                .attr("y", getOutputPortPositionY)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName()});
 
@@ -1020,8 +1020,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.outputPorts circle")
                                 .data(function(node : Node){return node.getOutputPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                                .attr("cx", getOutputPortCirclePositionX)
+                                .attr("cy", getOutputPortCirclePositionY)
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
@@ -1047,8 +1047,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.outputLocalPorts text")
                                 .data(function(node : Node){return node.getOutputLocalPorts();})
                                 .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                                .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                                .attr("x", getOutputLocalPortPositionX)
+                                .attr("y", getOutputLocalPortPositionY)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName();});
 
@@ -1066,8 +1066,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.outputLocalPorts circle")
                                 .data(function(node : Node){return node.getOutputLocalPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                                .attr("cx", getOutputLocalPortCirclePositionX)
+                                .attr("cy", getOutputLocalPortCirclePositionY)
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
@@ -1092,8 +1092,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.exitPorts text")
                                 .data(function(node : Node){return node.getExitPorts();})
                                 .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                                .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                                .attr("x", getExitPortPositionX)
+                                .attr("y", getExitPortPositionY)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName()});
 
@@ -1111,8 +1111,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.exitPorts circle")
                                 .data(function(node : Node){return node.getExitPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                                .attr("cx", getExitPortCirclePositionX)
+                                .attr("cy", getExitPortCirclePositionY)
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
@@ -1138,8 +1138,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.exitLocalPorts text")
                                 .data(function(node : Node){return node.getExitLocalPorts();})
                                 .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                                .attr("x", REAL_TO_DISPLAY_SCALE(-20))
-                                .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
+                                .attr("x", getExitLocalPortPositionX)
+                                .attr("y", getExitLocalPortPositionY)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
                                 .text(function (port : Port) {return port.getName();});
 
@@ -1157,8 +1157,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.selectAll("g.exitLocalPorts circle")
                                 .data(function(node : Node){return node.getExitLocalPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
-                                .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
+                                .attr("cx", getExitLocalPortCirclePositionX)
+                                .attr("cy", getExitLocalPortCirclePositionY)
                                 .attr("r", REAL_TO_DISPLAY_SCALE(6))
                                 .attr("data-node-key", function(port : Port){return port.getNodeKey();})
                                 .on("mouseenter", mouseEnterPort)
@@ -1521,7 +1521,103 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return HEADER_HEIGHT + 20;
     }
 
+    function getInputPortGroupClass(node : Node) : string {
+        if (node.isFlipPorts()){
+            return "inputPorts flipped";
+        } else {
+            return "inputPorts no-flip";
+        }
+    }
+
+    function getOutputPortGroupClass(node : Node) : string {
+        if (node.isFlipPorts()){
+            return "outputPorts flipped";
+        } else {
+            return "outputPorts no-flip";
+        }
+    }
+
+    function getExitPortGroupClass(node : Node) : string {
+        if (node.isFlipPorts()){
+            return "exitPorts flipped";
+        } else {
+            return "exitPorts no-flip";
+        }
+    }
+
+    function getInputLocalPortGroupClass(node : Node) : string {
+        if (node.isFlipPorts()){
+            return "inputLocalPorts flipped";
+        } else {
+            return "inputLocalPorts no-flip";
+        }
+    }
+
+    function getOutputLocalPortGroupClass(node : Node) : string {
+        if (node.isFlipPorts()){
+            return "outputLocalPorts flipped";
+        } else {
+            return "outputLocalPorts no-flip";
+        }
+    }
+
+    function getExitLocalPortGroupClass(node : Node) : string {
+        if (node.isFlipPorts()){
+            return "exitLocalPorts flipped";
+        } else {
+            return "exitLocalPorts flipped";
+        }
+    }
+
     function getInputPortGroupTransform(node : Node) : string {
+        if (node.isFlipPorts()){
+            return getRightSidePortGroupTransform(node);
+        } else {
+            return getLeftSidePortGroupTransform(node);
+        }
+    }
+
+    function getOutputPortGroupTransform(node : Node) : string {
+        if (node.isFlipPorts()){
+            return getLeftSidePortGroupTransform(node);
+        } else {
+            return getRightSidePortGroupTransform(node);
+        }
+    }
+
+    function getExitPortGroupTransform(node : Node) : string {
+        if (node.isFlipPorts()){
+            return getLeftSidePortGroupTransform(node);
+        } else {
+            return getRightSidePortGroupTransform(node);
+        }
+    }
+
+    function getInputLocalPortGroupTransform(node : Node) : string {
+        if (node.isFlipPorts()){
+            return getRightSideLocalPortGroupTransform(node);
+        } else {
+            return getLeftSideLocalPortGroupTransform(node);
+        }
+    }
+
+    function getOutputLocalPortGroupTransform(node : Node) : string {
+        if (node.isFlipPorts()){
+            return getLeftSideLocalPortGroupTransform(node);
+        } else {
+            return getRightSideLocalPortGroupTransform(node);
+        }
+    }
+
+    function getExitLocalPortGroupTransform(node : Node) : string {
+        if (node.isFlipPorts()){
+            return getLeftSideLocalPortGroupTransform(node);
+        } else {
+            return getRightSideLocalPortGroupTransform(node);
+        }
+    }
+
+    function getLeftSidePortGroupTransform(node : Node) : string {
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
             return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT));
         } else {
@@ -1529,7 +1625,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getOutputPortGroupTransform(node : Node) : string {
+    function getRightSidePortGroupTransform(node : Node) : string {
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
             return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT));
         } else {
@@ -1537,15 +1633,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getExitPortGroupTransform(node : Node) : string {
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT));
-        } else {
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT));
-        }
-    }
-
-    function getInputLocalPortGroupTransform(node : Node) : string {
+    function getLeftSideLocalPortGroupTransform(node : Node) : string {
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
             return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getInputPorts().length * PORT_HEIGHT));
         } else {
@@ -1553,7 +1641,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getOutputLocalPortGroupTransform(node : Node) : string {
+    function getRightSideLocalPortGroupTransform(node : Node) : string {
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
             return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
         } else {
@@ -1561,13 +1649,172 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getExitLocalPortGroupTransform(node : Node) : string {
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+    // TODO: one level of indirection here (getInput/Output -> getLeft/Right -> position)
+
+    function getInputPortPositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getRightSidePortPositionX(port, index);
         } else {
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+            return getLeftSidePortPositionX(port, index);
         }
     }
+
+    function getInputPortPositionY(port : Port, index : number) : number {
+        return getPortPositionY(port, index);
+    }
+
+    function getOutputPortPositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getLeftSidePortPositionX(port, index);
+        } else {
+            return getRightSidePortPositionX(port, index);
+        }
+    }
+
+    function getOutputPortPositionY(port : Port, index : number) : number {
+        return getPortPositionY(port, index);
+    }
+
+    function getExitPortPositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getLeftSidePortPositionX(port, index);
+        } else {
+            return getRightSidePortPositionX(port, index);
+        }
+    }
+
+    function getExitPortPositionY(port : Port, index : number) : number {
+        return getPortPositionY(port, index);
+    }
+
+    function getInputLocalPortPositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getRightSidePortPositionX(port, index);
+        } else {
+            return getLeftSidePortPositionX(port, index);
+        }
+    }
+
+    function getInputLocalPortPositionY(port : Port, index : number) : number {
+        return getPortPositionY(port, index);
+    }
+
+    function getOutputLocalPortPositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getLeftSidePortPositionX(port, index);
+        } else {
+            return getRightSidePortPositionX(port, index);
+        }
+    }
+
+    function getOutputLocalPortPositionY(port : Port, index : number) : number {
+        return getPortPositionY(port, index);
+    }
+
+    function getExitLocalPortPositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getLeftSidePortPositionX(port, index);
+        } else {
+            return getRightSidePortPositionX(port, index);
+        }
+    }
+
+    function getExitLocalPortPositionY(port : Port, index : number) : number {
+        return getPortPositionY(port, index);
+    }
+
+    function getLeftSidePortPositionX(port : Port, index : number) : number {
+        return REAL_TO_DISPLAY_SCALE(20);
+    }
+
+    function getPortPositionY(port : Port, index : number) : number {
+        return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);
+    }
+
+    function getRightSidePortPositionX(port : Port, index : number) : number {
+        return REAL_TO_DISPLAY_SCALE(-20);
+    }
+
+
+
+
+    // port circle positions
+    function getInputPortCirclePositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getRightSidePortCirclePositionX(port, index);
+        } else {
+            return getLeftSidePortCirclePositionX(port, index);
+        }
+    }
+    function getInputPortCirclePositionY(port : Port, index : number) : number {
+        return getPortCirclePositionY(port, index);
+    }
+    function getOutputPortCirclePositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getLeftSidePortCirclePositionX(port, index);
+        } else {
+            return getRightSidePortCirclePositionX(port, index);
+        }
+    }
+    function getOutputPortCirclePositionY(port : Port, index : number) : number {
+        return getPortCirclePositionY(port, index);
+    }
+    function getExitPortCirclePositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getLeftSidePortCirclePositionX(port, index);
+        } else {
+            return getRightSidePortCirclePositionX(port, index);
+        }
+    }
+    function getExitPortCirclePositionY(port : Port, index : number) : number {
+        return getPortCirclePositionY(port, index);
+    }
+    function getInputLocalPortCirclePositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getRightSidePortCirclePositionX(port, index);
+        } else {
+            return getLeftSidePortCirclePositionX(port, index);
+        }
+    }
+    function getInputLocalPortCirclePositionY(port : Port, index : number) : number {
+        return getPortCirclePositionY(port, index);
+    }
+    function getOutputLocalPortCirclePositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getLeftSidePortCirclePositionX(port, index);
+        } else {
+            return getRightSidePortCirclePositionX(port, index);
+        }
+    }
+    function getOutputLocalPortCirclePositionY(port : Port, index : number) : number {
+        return getPortCirclePositionY(port, index);
+    }
+    function getExitLocalPortCirclePositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+            return getLeftSidePortCirclePositionX(port, index);
+        } else {
+            return getRightSidePortCirclePositionX(port, index);
+        }
+    }
+    function getExitLocalPortCirclePositionY(port : Port, index : number) : number {
+        return getPortCirclePositionY(port, index);
+    }
+
+    function getLeftSidePortCirclePositionX(port : Port, index : number) : number {
+        return REAL_TO_DISPLAY_SCALE(8);
+    }
+
+    function getPortCirclePositionY(port : Port, index : number) : number {
+        return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);
+    }
+
+    function getRightSidePortCirclePositionX(port : Port, index : number) : number {
+        return REAL_TO_DISPLAY_SCALE(-8);
+    }
+
+
+
+
 
     function getContentPositionX(node : Node) : number {
         // left justified
@@ -1842,6 +2089,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var local : boolean;
         var input : boolean;
         var index : number;
+        var flipped : boolean = node.isFlipPorts();
         var position = {x: node.getPosition().x, y: node.getPosition().y};
 
         // find the port within the node
@@ -1907,7 +2155,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // translate the three pieces of info into the x,y position
-        if (input){
+        // outer if is an XOR
+        if ((input && !flipped) || (!input && flipped)){
             // left hand side
             if (inset){
                 position.x += PORT_INSET;

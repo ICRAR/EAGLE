@@ -75,7 +75,7 @@ g.node g circle {
     cursor: crosshair;
 }
 
-g.node g.inputPorts text {
+g.node g.inputPorts.no-flip text, g.node g.outputPorts.flipped text, g.node g.exitPorts.flipped text {
     text-anchor: start;
     font-family: sans-serif;
     pointer-events: none;
@@ -83,11 +83,7 @@ g.node g.inputPorts text {
     user-select: none;
 }
 
-g.node g.inputPorts text.event {
-    fill: mediumblue;
-}
-
-g.node g.inputLocalPorts text {
+g.node g.inputLocalPorts.no-flip text, g.node g.outputLocalPorts.flipped text, g.node g.exitLocalPorts.flipped text {
     text-anchor: start;
     font-family: sans-serif;
     pointer-events: none;
@@ -95,11 +91,7 @@ g.node g.inputLocalPorts text {
     user-select: none;
 }
 
-g.node g.inputLocalPorts text.event {
-    fill: cornflowerblue;
-}
-
-g.node g.outputPorts text {
+g.node g.outputPorts.no-flip text, g.node g.exitPorts.no-flip text, g.node g.inputPorts.flipped text {
     text-anchor: end;
     font-family: sans-serif;
     pointer-events: none;
@@ -107,11 +99,7 @@ g.node g.outputPorts text {
     user-select: none;
 }
 
-g.node g.outputPorts text.event {
-    fill: mediumblue;
-}
-
-g.node g.outputLocalPorts text {
+g.node g.outputLocalPorts.no-flip text, g.node g.exitLocalPorts.no-flip text, g.node g.inputLocalPorts.flipped text {
     text-anchor: end;
     font-family: sans-serif;
     pointer-events: none;
@@ -119,31 +107,11 @@ g.node g.outputLocalPorts text {
     user-select: none;
 }
 
-g.node g.outputLocalPorts text.event {
-    fill: cornflowerblue;
-}
-
-g.node g.exitPorts text {
-    text-anchor: end;
-    font-family: sans-serif;
-    pointer-events: none;
-    fill: #444444;
-    user-select: none;
-}
-
-g.node g.exitPorts text.event {
+g.node g.inputPorts text.event, g.node g.outputPorts text.event, g.node g.exitPorts text.event {
     fill: mediumblue;
 }
 
-g.node g.exitLocalPorts text {
-    text-anchor: end;
-    font-family: sans-serif;
-    pointer-events: none;
-    fill: grey;
-    user-select: none;
-}
-
-g.node g.exitLocalPorts text.event {
+g.node g.inputLocalPorts text.event, g.node g.outputLocalPorts text.event, g.node g.exitLocalPorts text.event {
     fill: cornflowerblue;
 }
 
