@@ -394,21 +394,21 @@ export class LogicalGraph {
             }
 
             // check if the node's inputApp has a matching key
-            if (this.nodes[i].getInputApplication() !== null){
+            if (this.nodes[i].hasInputApplication()){
                 if (this.nodes[i].getInputApplication().getKey() === key){
                     return this.nodes[i].getInputApplication();
                 }
             }
 
             // check if the node's outputApp has a matching key
-            if (this.nodes[i].getOutputApplication() !== null){
+            if (this.nodes[i].hasOutputApplication()){
                 if (this.nodes[i].getOutputApplication().getKey() === key){
                     return this.nodes[i].getOutputApplication();
                 }
             }
 
             // check if the node's exitApp has a matching key
-            if (this.nodes[i].getExitApplication() !== null){
+            if (this.nodes[i].hasExitApplication()){
                 if (this.nodes[i].getExitApplication().getKey() === key){
                     return this.nodes[i].getExitApplication();
                 }

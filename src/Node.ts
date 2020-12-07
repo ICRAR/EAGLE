@@ -321,7 +321,7 @@ export class Node {
 
     hasLocalPortWithId = (id : string) : boolean => {
         // check output ports of input application, if one exists
-        if (this.inputApplication() !== null){
+        if (this.hasInputApplication()){
             for (var i = 0; i < this.inputApplication().outputPorts.length ; i++){
                 if (this.inputApplication().outputPorts[i].getId() === id){
                     return true;
@@ -329,13 +329,16 @@ export class Node {
             }
         }
         // check input ports of outputApplication, if one exists
-        if (this.outputApplication() !== null){
+        if (this.hasOutputApplication()){
             for (var i = 0; i < this.outputApplication().inputPorts.length ; i++){
                 if (this.outputApplication().inputPorts[i].getId() === id){
                     return true;
                 }
             }
         }
+
+        // TODO: look through the exit app ports?
+
         return false;
     }
 
@@ -465,6 +468,10 @@ export class Node {
         return this.inputApplication();
     }
 
+    hasInputApplication = () : boolean => {
+        return this.inputApplication() !== null;
+    }
+
     setOutputApplication = (outputApplication : Node) : void => {
         this.outputApplication(outputApplication);
         outputApplication.setEmbedKey(this.getKey());
@@ -479,6 +486,10 @@ export class Node {
         return this.outputApplication();
     }
 
+    hasOutputApplication = () : boolean => {
+        return this.outputApplication() !== null;
+    }
+
     setExitApplication = (exitApplication : Node) : void => {
         this.exitApplication(exitApplication);
         exitApplication.setEmbedKey(this.getKey());
@@ -491,6 +502,10 @@ export class Node {
 
     getExitApplication = () : Node => {
         return this.exitApplication();
+    }
+
+    hasExitApplication = () : boolean => {
+        return this.exitApplication() !== null;
     }
 
     clear = () : void => {
@@ -591,7 +606,7 @@ export class Node {
         }
 
         // if node has an inputApplication, check those ports too
-        if (this.inputApplication() !== null){
+        if (this.hasInputApplication()){
             for (var i = 0; i < this.inputApplication().inputPorts.length; i++){
                 var port = this.inputApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -607,7 +622,7 @@ export class Node {
         }
 
         // if node has an outputApplication, check those ports too
-        if (this.outputApplication() !== null){
+        if (this.hasOutputApplication()){
             for (var i = 0; i < this.outputApplication().inputPorts.length; i++){
                 var port = this.outputApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -623,7 +638,7 @@ export class Node {
         }
 
         // if node has an exitApplication, check those ports too
-        if (this.exitApplication() !== null){
+        if (this.hasExitApplication()){
             for (var i = 0; i < this.exitApplication().inputPorts.length; i++){
                 var port = this.exitApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -660,7 +675,7 @@ export class Node {
         }
 
         // if node has an inputApplication, check those ports too
-        if (this.inputApplication() !== null){
+        if (this.hasInputApplication()){
             for (var i = 0; i < this.inputApplication().inputPorts.length; i++){
                 var port = this.inputApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -676,7 +691,7 @@ export class Node {
         }
 
         // if node has an outputApplication, check those ports too
-        if (this.outputApplication() !== null){
+        if (this.hasOutputApplication()){
             for (var i = 0; i < this.outputApplication().inputPorts.length; i++){
                 var port = this.outputApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -692,7 +707,7 @@ export class Node {
         }
 
         // if node has an exitApplication, check those ports too
-        if (this.exitApplication() !== null){
+        if (this.hasExitApplication()){
             for (var i = 0; i < this.exitApplication().inputPorts.length; i++){
                 var port = this.exitApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -1209,7 +1224,7 @@ export class Node {
                 let portData = nodeData.inputPorts[j];
                 let port = new Port(portData.Id, portData.IdText, false);
                 port.setLocal(false);
-                if (node.inputApplication() !== null){
+                if (node.hasInputApplication()){
                     node.inputApplication().addPort(port, true);
                     port.setNodeKey(node.getKey());
                 } else {
@@ -1224,7 +1239,7 @@ export class Node {
                 let portData = nodeData.outputPorts[j];
                 let port = new Port(portData.Id, portData.IdText, false);
                 port.setLocal(false);
-                if (node.inputApplication() !== null){
+                if (node.hasInputApplication()){
                     node.inputApplication().addPort(port, false);
                     port.setNodeKey(node.getKey());
                 } else {
@@ -1237,7 +1252,7 @@ export class Node {
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (var j = 0 ; j < nodeData.inputLocalPorts.length; j++){
                 var portData = nodeData.inputLocalPorts[j];
-                if (node.inputApplication() === null){
+                if (node.hasInputApplication()){
                     console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
                 } else {
                     let p = new Port(portData.Id, portData.IdText, false);
@@ -1252,7 +1267,7 @@ export class Node {
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
         for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
                 var portData = nodeData.outputLocalPorts[j];
-                if (node.inputApplication() === null){
+                if (node.hasInputApplication()){
                     console.warn("Can't add outputLocal port", portData.IdText, "to node", node.getName());
                 } else {
                     let p = new Port(portData.Id, portData.IdText, false);
@@ -1299,6 +1314,17 @@ export class Node {
         return node;
     }
 
+    private static copyPorts(src: Port[], dest: {Id:string, IdText:string}[]):void{
+        for (var i = 0 ; i < src.length; i++){
+            var port = src[i];
+            var portData = {
+                Id:port.getId(),
+                IdText:port.getName()
+            };
+            dest.push(portData);
+        }
+    }
+
     static toOJSJson = (node : Node) : object => {
         var result : any = {};
 
@@ -1337,29 +1363,27 @@ export class Node {
 
         // add input ports
         result.inputPorts = [];
-        for (var i = 0 ; i < node.inputPorts.length; i++){
-            var port = node.inputPorts[i];
-            var portData = {
-                Id:port.getId(),
-                IdText:port.getName()
-            };
-            result.inputPorts.push(portData);
-        }
+        let ports = node.hasInputApplication() ? node.inputApplication().inputPorts : node.inputPorts;
+        Node.copyPorts(ports, result.inputPorts);
 
         // add output ports
         result.outputPorts = [];
-        for (var i = 0 ; i < node.outputPorts.length; i++){
-            var port = node.outputPorts[i];
-            var portData = {
-                Id:port.getId(),
-                IdText:port.getName()
-            };
-            result.outputPorts.push(portData);
+        if (node.hasOutputApplication()){
+            // add outputApp output ports here
+            Node.copyPorts(node.outputApplication().outputPorts, result.outputPorts);
+        }
+        if (node.hasExitApplication()){
+            // add exitApp output ports here
+            Node.copyPorts(node.exitApplication().outputPorts, result.outputPorts);
+        }
+        if (!node.hasOutputApplication() && !node.hasExitApplication()){
+            Node.copyPorts(node.outputPorts, result.outputPorts);
         }
 
         // add input ports from the inputApplication
+        // ! should be inputApp output ports - i think !
         result.inputLocalPorts = [];
-        if (node.inputApplication() !== null){
+        if (node.hasInputApplication()){
             for (var i = 0 ; i < node.inputApplication().inputPorts.length ; i++){
                 var port = node.inputApplication().inputPorts[i];
                 var portData = {
@@ -1376,8 +1400,10 @@ export class Node {
         }
 
         // add output ports from the inputApplication
+        // ! should be outputApp input ports - i think !
+        // ! AND       exitApp input ports - i think !
         result.outputLocalPorts = [];
-        if (node.inputApplication() !== null){
+        if (node.hasInputApplication()){
             for (var i = 0 ; i < node.inputApplication().outputPorts.length ; i++){
                 var port = node.inputApplication().outputPorts[i];
                 var portData = {
@@ -1402,7 +1428,7 @@ export class Node {
 
         // add fields from inputApplication
         result.inputAppFields = [];
-        if (node.inputApplication() !== null){
+        if (node.hasInputApplication()){
             for (var i = 0 ; i < node.inputApplication().fields.length ; i++){
                 var field = node.inputApplication().fields[i];
                 result.inputAppFields.push(Field.toOJSJson(field));
@@ -1410,21 +1436,21 @@ export class Node {
         }
 
         // write application names and types
-        if (node.inputApplication() !== null){
+        if (node.hasInputApplication()){
             result.inputApplicationName = node.inputApplication().name;
             result.inputApplicationType = node.inputApplication().category;
         } else {
             result.inputApplicationName = "";
             result.inputApplicationType = Eagle.Category.None;
         }
-        if (node.outputApplication() !== null){
+        if (node.hasOutputApplication()){
             result.outputApplicationName = node.outputApplication().name;
             result.outputApplicationType = node.outputApplication().category;
         } else {
             result.outputApplicationName = "";
             result.outputApplicationType = Eagle.Category.None;
         }
-        if (node.exitApplication() !== null){
+        if (node.hasExitApplication()){
             result.exitApplicationName = node.exitApplication().name;
             result.exitApplicationType = node.exitApplication().category;
         } else {

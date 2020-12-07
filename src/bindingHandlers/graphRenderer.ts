@@ -1727,21 +1727,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             // check if the node's inputApp has a matching key
-            if (nodes[i].getInputApplication() !== null){
+            if (nodes[i].hasInputApplication()){
                 if (nodes[i].getInputApplication().getKey() === key){
                     return nodes[i].getInputApplication();
                 }
             }
 
             // check if the node's outputApp has a matching key
-            if (nodes[i].getOutputApplication() !== null){
+            if (nodes[i].hasOutputApplication()){
                 if (nodes[i].getOutputApplication().getKey() === key){
                     return nodes[i].getOutputApplication();
                 }
             }
 
             // check if the node's exitApp has a matching key
-            if (nodes[i].getExitApplication() !== null){
+            if (nodes[i].hasExitApplication()){
                 if (nodes[i].getExitApplication().getKey() === key){
                     return nodes[i].getExitApplication();
                 }

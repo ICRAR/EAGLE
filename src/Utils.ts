@@ -106,17 +106,17 @@ export class Utils {
             usedKeys.push(nodes[i].getKey())
 
             // if this node has inputApp, add the inputApp key
-            if (nodes[i].getInputApplication() !== null){
+            if (nodes[i].hasInputApplication()){
                 usedKeys.push(nodes[i].getInputApplication().getKey());
             }
 
             // if this node has outputApp, add the outputApp key
-            if (nodes[i].getOutputApplication() !== null){
+            if (nodes[i].hasOutputApplication()){
                 usedKeys.push(nodes[i].getOutputApplication().getKey());
             }
 
             // if this node has exitApp, add the exitApp key
-            if (nodes[i].getExitApplication() !== null){
+            if (nodes[i].hasExitApplication()){
                 usedKeys.push(nodes[i].getExitApplication().getKey());
             }
         }
@@ -138,7 +138,7 @@ export class Utils {
             usedKeys.push(nodes[i].getKey())
 
             // if this node has inputApp, add the inputApp key
-            if (nodes[i].getInputApplication() !== null){
+            if (nodes[i].hasInputApplication()){
                 if (nodes[i].getInputApplication().getKey() === null){
                     let newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getInputApplication().setKey(newKey);
@@ -148,7 +148,7 @@ export class Utils {
             }
 
             // if this node has outputApp, add the outputApp key
-            if (nodes[i].getOutputApplication() !== null){
+            if (nodes[i].hasOutputApplication()){
                 if (nodes[i].getOutputApplication().getKey() === null){
                     let newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getOutputApplication().setKey(newKey);
@@ -158,7 +158,7 @@ export class Utils {
             }
 
             // if this node has exitApp, add the exitApp key
-            if (nodes[i].getExitApplication() !== null){
+            if (nodes[i].hasExitApplication()){
                 if (nodes[i].getExitApplication().getKey() === null){
                     let newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getExitApplication().setKey(newKey);
