@@ -61,4 +61,22 @@ export class Port {
         p.local = this.local;
         return p;
     }
+
+    static toOJSJson = (port : Port) : object => {
+        return {
+            Id:port._id,
+            IdText:port.name,
+            event:port.event
+        }
+    }
+
+    static fromOJSJson = (data : any) : Port => {
+        let isEvent = false;
+
+        if (typeof data.event !== 'undefined'){
+            isEvent = data.event;
+        }
+
+        return new Port(data.Id, data.IdText, isEvent);
+    }
 }

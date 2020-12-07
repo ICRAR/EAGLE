@@ -1201,7 +1201,7 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (let j = 0 ; j < nodeData.inputPorts.length; j++){
                 let portData = nodeData.inputPorts[j];
-                let port = new Port(portData.Id, portData.IdText, false);
+                let port = Port.fromOJSJson(portData);
                 port.setLocal(false);
                 if (node.inputApplication() !== null){
                     node.inputApplication().addPort(port, true);
@@ -1216,7 +1216,7 @@ export class Node {
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (let j = 0 ; j < nodeData.outputPorts.length; j++){
                 let portData = nodeData.outputPorts[j];
-                let port = new Port(portData.Id, portData.IdText, false);
+                let port = Port.fromOJSJson(portData);
                 port.setLocal(false);
                 if (node.inputApplication() !== null){
                     node.inputApplication().addPort(port, false);
@@ -1234,7 +1234,7 @@ export class Node {
                 if (node.inputApplication() === null){
                     console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
                 } else {
-                    let p = new Port(portData.Id, portData.IdText, false);
+                    let p = Port.fromOJSJson(portData);
                     node.inputApplication().addPort(p, true); // I or O?
                     p.setNodeKey(node.getKey());
                     p.setLocal(true);
@@ -1249,7 +1249,7 @@ export class Node {
                 if (node.inputApplication() === null){
                     console.warn("Can't add outputLocal port", portData.IdText, "to node", node.getName());
                 } else {
-                    let p = new Port(portData.Id, portData.IdText, false);
+                    let p = Port.fromOJSJson(portData);
                     node.inputApplication().addPort(p, false); // I or O?
                     p.setNodeKey(node.getKey());
                     p.setLocal(true);
@@ -1329,39 +1329,28 @@ export class Node {
         // add input ports
         result.inputPorts = [];
         for (var i = 0 ; i < node.inputPorts.length; i++){
-            var port = node.inputPorts[i];
-            var portData = {
-                Id:port.getId(),
-                IdText:port.getName()
-            };
-            result.inputPorts.push(portData);
+            let port = node.inputPorts[i];
+            result.inputPorts.push(Port.toOJSJson(port));
         }
 
         // add output ports
         result.outputPorts = [];
         for (var i = 0 ; i < node.outputPorts.length; i++){
-            var port = node.outputPorts[i];
-            var portData = {
-                Id:port.getId(),
-                IdText:port.getName()
-            };
-            result.outputPorts.push(portData);
+            let port = node.outputPorts[i];
+            result.outputPorts.push(Port.toOJSJson(port));
         }
 
         // add input ports from the inputApplication
         result.inputLocalPorts = [];
         if (node.inputApplication() !== null){
             for (var i = 0 ; i < node.inputApplication().inputPorts.length ; i++){
-                var port = node.inputApplication().inputPorts[i];
-                var portData = {
-                    Id:port.getId(),
-                    IdText:port.getName()
-                };
+                let port = node.inputApplication().inputPorts[i];
+
                 // could be inputPorts, or inputLocalPorts
                 if (port.isLocal()){
-                    result.inputLocalPorts.push(portData);
+                    result.inputLocalPorts.push(Port.toOJSJson(port));
                 } else {
-                    result.inputPorts.push(portData);
+                    result.inputPorts.push(Port.toOJSJson(port));
                 }
             }
         }
@@ -1370,16 +1359,13 @@ export class Node {
         result.outputLocalPorts = [];
         if (node.inputApplication() !== null){
             for (var i = 0 ; i < node.inputApplication().outputPorts.length ; i++){
-                var port = node.inputApplication().outputPorts[i];
-                var portData = {
-                    Id:port.getId(),
-                    IdText:port.getName()
-                };
+                let port = node.inputApplication().outputPorts[i];
+
                 // could be outputPorts, or outputLocalPorts
                 if (port.isLocal()){
-                    result.outputLocalPorts.push(portData);
+                    result.outputLocalPorts.push(Port.toOJSJson(port));
                 } else {
-                    result.outputPorts.push(portData);
+                    result.outputPorts.push(Port.toOJSJson(port));
                 }
             }
         }
@@ -1422,7 +1408,6 @@ export class Node {
             result.exitApplicationName = "";
             result.exitApplicationType = Eagle.Category.None;
         }
-
 
         // add fields from outputApplication
         result.outputAppFields = [];
