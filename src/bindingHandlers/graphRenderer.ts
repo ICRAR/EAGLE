@@ -2089,6 +2089,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var local : boolean;
         var input : boolean;
         var index : number;
+        var flipped : boolean = node.isFlipPorts();
         var position = {x: node.getPosition().x, y: node.getPosition().y};
 
         // find the port within the node
@@ -2154,7 +2155,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // translate the three pieces of info into the x,y position
-        if (input){
+        // outer if is an XOR
+        if ((input && !flipped) || (!input && flipped)){
             // left hand side
             if (inset){
                 position.x += PORT_INSET;
