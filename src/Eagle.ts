@@ -1901,8 +1901,12 @@ export class Eagle {
             // update title on all right window component buttons
             // TODO: update outputApplication and exitApplication too
             if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
-                $('.rightWindowDisplay inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
-        }, 50);
+                $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getOutputApplication() !== null)
+                $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getOutputApplication().getHelpHTML());
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getExitApplication() !== null)
+                $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getExitApplication().getHelpHTML());
+        }, 150);
     }
 
     selectedEdgeValid = () : Eagle.LinkValid => {
@@ -2030,14 +2034,18 @@ export class Eagle {
                 }
             }
 
-            // HACK to make sure that new value is shown in the UI
-            var x = this.selectedNode();
-            this.selectedNode(null);
-            var that = this;
-            setTimeout(function(){
-                that.selectedNode(x);
-            }, 1);
+            this.hackNodeUpdate();
         });
+    }
+
+    hackNodeUpdate = () : void => {
+        // HACK to make sure that new value is shown in the UI
+        var x = this.selectedNode();
+        this.selectedNode(null);
+        var that = this;
+        setTimeout(function(){
+            that.selectedNode(x);
+        }, 1);
     }
 
     private setNodeApplication = (title: string, message: string, callback:(node:Node) => void) : void => {
