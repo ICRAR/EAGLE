@@ -12,6 +12,8 @@ export class FileInfo {
     private _repositoryName : string;
     private _sha : string;
     private _modified : boolean;
+    private _eagleVersion : string;
+    private _eagleCommitHash : string;
 
     constructor(){
         this._name = "";
@@ -23,6 +25,8 @@ export class FileInfo {
         this._repositoryName = "";
         this._sha = "";
         this._modified = false;
+        this._eagleVersion = "";
+        this._eagleCommitHash = "";
     }
 
     get name() : string{
@@ -97,6 +101,22 @@ export class FileInfo {
         this._modified = modified;
     }
 
+    get eagleVersion() : string{
+        return this._eagleVersion;
+    }
+
+    set eagleVersion(version : string){
+        this._eagleVersion = version;
+    }
+
+    get eagleCommitHash() : string{
+        return this._eagleCommitHash;
+    }
+
+    set eagleCommitHash(hash : string){
+        this._eagleCommitHash = hash;
+    }
+
     clear = () : void => {
         this._name = "";
         this._path = "";
@@ -107,6 +127,8 @@ export class FileInfo {
         this._repositoryName = "";
         this._sha = "";
         this._modified = false;
+        this._eagleVersion = "";
+        this._eagleCommitHash = ""
     }
 
     clone = () : FileInfo => {
@@ -121,6 +143,8 @@ export class FileInfo {
         result.repositoryName = this._repositoryName;
         result.sha = this._sha;
         result.modified = this._modified;
+        result.eagleVersion = this._eagleVersion;
+        result.eagleCommitHash = this._eagleCommitHash;
 
         return result;
     }
@@ -142,6 +166,11 @@ export class FileInfo {
         this._path = "";
     }
 
+    updateEagleInfo = () : void => {
+        this.eagleVersion = (<any>window).version;
+        this.eagleCommitHash = (<any>window).commit_hash;
+    }
+
     getSummaryHTML = () : string => {
         return "<p>" + this._repositoryService + " : " + this._repositoryName + ((this._repositoryBranch == "") ? "" : ("(" + this._repositoryBranch + ")")) + " : " + this._path + "/" + this._name + "</p>";
     }
@@ -154,7 +183,9 @@ export class FileInfo {
             repo: fileInfo.repositoryName,
             filePath: fileInfo.fullPath(),
             sha: fileInfo.sha,
-            git_url: fileInfo.gitUrl
+            git_url: fileInfo.gitUrl,
+            eagleVersion: fileInfo.eagleVersion,
+            eagleCommitHash: fileInfo.eagleCommitHash
         };
     }
 
@@ -170,6 +201,9 @@ export class FileInfo {
         result.repositoryBranch = modelData.repoBranch == undefined ? "" : modelData.repoBranch;
         result.repositoryName = modelData.repo == undefined ? "" : modelData.repo;
         result.sha = modelData.sha == undefined ? "" : modelData.sha;
+
+        result.eagleVersion = modelData.eagleVersion == undefined ? "" : modelData.eagleVersion;
+        result.eagleCommitHash = modelData.eagleCommitHash == undefined ? "" : modelData.eagleCommitHash;
 
         return result;
     }
