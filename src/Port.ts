@@ -56,6 +56,11 @@ export class Port {
         this.event = event;
     }
 
+    toggleEvent = () : void => {
+        console.log("toggleEvent()", this._id, !this.event);
+        this.event = !this.event;
+    }
+
     clone = () : Port => {
         var p = new Port(this._id, this.name, this.event);
         p.local = this.local;
