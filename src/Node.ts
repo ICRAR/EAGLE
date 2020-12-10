@@ -1252,11 +1252,11 @@ export class Node {
                 let port = new Port(portData.Id, portData.IdText, false);
 
                 if (node.hasInputApplication()){
-                    console.log("read inputPort to inputApp inputPort");
+                    //console.log("read inputPort to inputApp inputPort");
                     node.inputApplication().addPort(port, true);
                     port.setNodeKey(node.getKey());
                 } else {
-                    console.log("read inputPort to inputPort");
+                    //console.log("read inputPort to inputPort");
                     node.addPort(port, true);
                 }
             }
@@ -1269,17 +1269,17 @@ export class Node {
                 let port = new Port(portData.Id, portData.IdText, false);
 
                 if (node.hasOutputApplication()){
-                    console.log("read outputPort to outputApp outputPort");
+                    //console.log("read outputPort to outputApp outputPort");
                     node.outputApplication().addPort(port, false);
                     port.setNodeKey(node.getKey());
                 }
                 if (node.hasExitApplication()){
-                    console.log("read outputPort to exitApp outputPort");
+                    //console.log("read outputPort to exitApp outputPort");
                     node.exitApplication().addPort(port, false);
                     port.setNodeKey(node.getKey());
                 }
                 if (!node.hasOutputApplication() && !node.hasInputApplication()){
-                    console.log("read outputPort to outputPort");
+                    //console.log("read outputPort to outputPort");
                     node.addPort(port, false);
                 }
             }
@@ -1291,7 +1291,7 @@ export class Node {
                 var portData = nodeData.inputLocalPorts[j];
                 if (node.hasInputApplication()){
                     let p = new Port(portData.Id, portData.IdText, false);
-                    console.log("read inputLocalPort to inputApp outputPort");
+                    //console.log("read inputLocalPort to inputApp outputPort");
                     node.inputApplication().addPort(p, false); // I or O?
                     p.setNodeKey(node.getKey());
                 } else {
@@ -1306,14 +1306,14 @@ export class Node {
                 var portData = nodeData.outputLocalPorts[j];
                 if (node.hasOutputApplication()){
                     let p = new Port(portData.Id, portData.IdText, false);
-                    console.log("read outputLocalPort to outputApp inputPort");
+                    //console.log("read outputLocalPort to outputApp inputPort");
                     node.outputApplication().addPort(p, true); // I or O?
                     p.setNodeKey(node.getKey());
                 }
 
                 if (node.hasExitApplication()){
                     let p = new Port(portData.Id, portData.IdText, false);
-                    console.log("read outputLocalPort to exitApp inputPort");
+                    //console.log("read outputLocalPort to exitApp inputPort");
                     node.exitApplication().addPort(p, true); // I or O?
                     p.setNodeKey(node.getKey());
                 }
@@ -1416,10 +1416,10 @@ export class Node {
         // add input ports
         result.inputPorts = [];
         if (node.hasInputApplication()){
-            console.log("copy", node.inputApplication().inputPorts.length, "inputApp inputPorts to result inputPorts")
+            //console.log("copy", node.inputApplication().inputPorts.length, "inputApp inputPorts to result inputPorts")
             Node.copyPorts(node.inputApplication().inputPorts, result.inputPorts);
         } else {
-            console.log("copy", node.inputPorts.length, "inputPorts to result inputPorts")
+            //console.log("copy", node.inputPorts.length, "inputPorts to result inputPorts")
             Node.copyPorts(node.inputPorts, result.inputPorts);
         }
 
@@ -1427,16 +1427,16 @@ export class Node {
         result.outputPorts = [];
         if (node.hasOutputApplication()){
             // add outputApp output ports here
-            console.log("copy", node.outputApplication().outputPorts.length, "outputApp outputPorts to result outputPorts")
+            //console.log("copy", node.outputApplication().outputPorts.length, "outputApp outputPorts to result outputPorts")
             Node.copyPorts(node.outputApplication().outputPorts, result.outputPorts);
         }
         if (node.hasExitApplication()){
             // add exitApp output ports here
-            console.log("copy", node.exitApplication().outputPorts.length, "exitApp outputPorts to result outputPorts")
+            //console.log("copy", node.exitApplication().outputPorts.length, "exitApp outputPorts to result outputPorts")
             Node.copyPorts(node.exitApplication().outputPorts, result.outputPorts);
         }
         if (!node.hasOutputApplication() && !node.hasExitApplication()){
-            console.log("copy", node.outputPorts.length, "outputPorts to result outputPorts")
+            //console.log("copy", node.outputPorts.length, "outputPorts to result outputPorts")
             Node.copyPorts(node.outputPorts, result.outputPorts);
         }
 
@@ -1448,7 +1448,7 @@ export class Node {
                 var port = node.inputApplication().outputPorts[i];
 
                 result.inputLocalPorts.push(Port.toOJSJson(port));
-                console.log("copy inputApp outputPort to result inputLocalPorts");
+                //console.log("copy inputApp outputPort to result inputLocalPorts");
             }
         }
 
@@ -1461,7 +1461,7 @@ export class Node {
                 var port = node.outputApplication().inputPorts[i];
 
                 result.outputLocalPorts.push(Port.toOJSJson(port));
-                console.log("copy outputApp inputPort to result outputLocalPorts");
+                //console.log("copy outputApp inputPort to result outputLocalPorts");
             }
         }
         if (node.hasExitApplication()){
@@ -1469,7 +1469,7 @@ export class Node {
                 var port = node.exitApplication().inputPorts[i];
 
                 result.outputLocalPorts.push(Port.toOJSJson(port));
-                console.log("copy exitApp inputPort to result outputLocalPorts");
+                //console.log("copy exitApp inputPort to result outputLocalPorts");
             }
         }
 
