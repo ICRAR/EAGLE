@@ -12,7 +12,6 @@ export class Port {
         this._id = id;
         this.name = name;
         this.nodeKey = 0;
-        this.local = false;
         this.event = event;
     }
 
@@ -32,19 +31,10 @@ export class Port {
         this.nodeKey = key;
     }
 
-    isLocal = () : boolean => {
-        return this.local;
-    }
-
-    setLocal = (local : boolean) : void => {
-        this.local = local;
-    }
-
     clear = () : void => {
         this._id = "";
         this.name = "";
         this.nodeKey = 0;
-        this.local = false;
         this.event = false;
     }
 

@@ -1250,7 +1250,7 @@ export class Node {
             for (let j = 0 ; j < nodeData.inputPorts.length; j++){
                 let portData = nodeData.inputPorts[j];
                 let port = new Port(portData.Id, portData.IdText, false);
-                port.setLocal(false);
+
                 if (node.hasInputApplication()){
                     console.log("read inputPort to inputApp inputPort");
                     node.inputApplication().addPort(port, true);
@@ -1267,7 +1267,7 @@ export class Node {
             for (let j = 0 ; j < nodeData.outputPorts.length; j++){
                 let portData = nodeData.outputPorts[j];
                 let port = new Port(portData.Id, portData.IdText, false);
-                port.setLocal(false);
+
                 if (node.hasOutputApplication()){
                     console.log("read outputPort to outputApp outputPort");
                     node.outputApplication().addPort(port, false);
@@ -1290,32 +1290,39 @@ export class Node {
             for (var j = 0 ; j < nodeData.inputLocalPorts.length; j++){
                 var portData = nodeData.inputLocalPorts[j];
                 if (node.hasInputApplication()){
-                    console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
-                } else {
                     let p = new Port(portData.Id, portData.IdText, false);
-                    console.log("read inputLocalPort to inputApp inputPort");
-                    node.inputApplication().addPort(p, true); // I or O?
+                    console.log("read inputLocalPort to inputApp outputPort");
+                    node.inputApplication().addPort(p, false); // I or O?
                     p.setNodeKey(node.getKey());
-                    p.setLocal(true);
+                } else {
+                    console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
                 }
             }
         }
 
         // add output local ports
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
-        for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
+            for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
                 var portData = nodeData.outputLocalPorts[j];
-                if (node.hasInputApplication()){
-                    console.warn("Can't add outputLocal port", portData.IdText, "to node", node.getName());
-                } else {
+                if (node.hasOutputApplication()){
                     let p = new Port(portData.Id, portData.IdText, false);
-                    console.log("read outputLocalPort to inputApp outputPort");
-                    node.inputApplication().addPort(p, false); // I or O?
+                    console.log("read outputLocalPort to outputApp inputPort");
+                    node.outputApplication().addPort(p, true); // I or O?
                     p.setNodeKey(node.getKey());
-                    p.setLocal(true);
                 }
-             }
-         }
+
+                if (node.hasExitApplication()){
+                    let p = new Port(portData.Id, portData.IdText, false);
+                    console.log("read outputLocalPort to exitApp inputPort");
+                    node.exitApplication().addPort(p, true); // I or O?
+                    p.setNodeKey(node.getKey());
+                }
+
+                if (!node.hasOutputApplication() && !node.hasExitApplication()){
+                    console.warn("Can't add outputLocal port", portData.IdText, "to node", node.getName());
+                }
+            }
+        }
 
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
@@ -1347,6 +1354,17 @@ export class Node {
                 var fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
                 var fieldType : Eagle.FieldDataType = fieldData.type === undefined ? Eagle.FieldDataType.Unknown : fieldData.type;
                 node.outputApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
+            }
+        }
+
+        // add exitAppFields
+        if (typeof nodeData.exitAppFields !== 'undefined'){
+            for (var j = 0 ; j < nodeData.exitAppFields.length ; j++){
+                var fieldData = nodeData.exitAppFields[j];
+                var fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
+                var fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
+                var fieldType : Eagle.FieldDataType = fieldData.type === undefined ? Eagle.FieldDataType.Unknown : fieldData.type;
+                node.exitApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
             }
         }
 
@@ -1429,18 +1447,12 @@ export class Node {
             for (var i = 0 ; i < node.inputApplication().outputPorts.length ; i++){
                 var port = node.inputApplication().outputPorts[i];
 
-                // could be inputPorts, or inputLocalPorts
-                if (port.isLocal()){
-                    result.inputLocalPorts.push(Port.toOJSJson(port));
-                    console.log("copy inputApp outputPort to result inputLocalPorts");
-                } else {
-                    result.inputPorts.push(Port.toOJSJson(port));
-                    console.log("copy inputApp outputPort to result inputPorts");
-                }
+                result.inputLocalPorts.push(Port.toOJSJson(port));
+                console.log("copy inputApp outputPort to result inputLocalPorts");
             }
         }
 
-        // add output ports from the inputApplication
+        // add input ports from the outputApplication
         // ! should be outputApp input ports - i think !
         // ! AND       exitApp input ports - i think !
         result.outputLocalPorts = [];
@@ -1448,21 +1460,23 @@ export class Node {
             for (var i = 0 ; i < node.outputApplication().inputPorts.length ; i++){
                 var port = node.outputApplication().inputPorts[i];
 
-                // could be outputPorts, or outputLocalPorts
-                if (port.isLocal()){
-                    result.outputLocalPorts.push(Port.toOJSJson(port));
-                    console.log("copy outputApp inputPort to result outputLocalPorts");
-                } else {
-                    result.outputPorts.push(Port.toOJSJson(port));
-                    console.log("copy outputApp inputPort to result outputPorts");
-                }
+                result.outputLocalPorts.push(Port.toOJSJson(port));
+                console.log("copy outputApp inputPort to result outputLocalPorts");
+            }
+        }
+        if (node.hasExitApplication()){
+            for (var i = 0 ; i < node.exitApplication().inputPorts.length ; i++){
+                var port = node.exitApplication().inputPorts[i];
+
+                result.outputLocalPorts.push(Port.toOJSJson(port));
+                console.log("copy exitApp inputPort to result outputLocalPorts");
             }
         }
 
         // add fields
         result.fields = [];
         for (var i = 0 ; i < node.fields.length ; i++){
-            var field = node.fields[i];
+            let field = node.fields[i];
             result.fields.push(Field.toOJSJson(field));
         }
 
@@ -1470,8 +1484,26 @@ export class Node {
         result.inputAppFields = [];
         if (node.hasInputApplication()){
             for (var i = 0 ; i < node.inputApplication().fields.length ; i++){
-                var field = node.inputApplication().fields[i];
+                let field = node.inputApplication().fields[i];
                 result.inputAppFields.push(Field.toOJSJson(field));
+            }
+        }
+
+        // add fields from outputApplication
+        result.outputAppFields = [];
+        if (node.hasOutputApplication()){
+            for (var i = 0 ; i < node.outputApplication().fields.length ; i++){
+                let field = node.outputApplication().fields[i];
+                result.outputAppFields.push(Field.toOJSJson(field));
+            }
+        }
+
+        // add fields from exitApplication
+        result.exitAppFields = [];
+        if (node.hasExitApplication()){
+            for (var i = 0 ; i < node.exitApplication().fields.length ; i++){
+                let field = node.exitApplication().fields[i];
+                result.exitAppFields.push(Field.toOJSJson(field));
             }
         }
 
@@ -1497,10 +1529,6 @@ export class Node {
             result.exitApplicationName = "";
             result.exitApplicationType = Eagle.Category.None;
         }
-
-
-        // add fields from outputApplication
-        result.outputAppFields = [];
 
         return result;
     }

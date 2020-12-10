@@ -1785,8 +1785,8 @@ export class Eagle {
         }
     }
 
-    removePortFromNodeByIndex = (node : Node, index : number, input : boolean, local : boolean) : void => {
-        console.log("removePortFromNodeByIndex(): node", node.getName(), "index", index, "input", input, "local", local);
+    removePortFromNodeByIndex = (node : Node, index : number, input : boolean) : void => {
+        console.log("removePortFromNodeByIndex(): node", node.getName(), "index", index, "input", input);
 
         if (node === null){
             console.warn("Could not remove port from null node");
@@ -1796,34 +1796,18 @@ export class Eagle {
         // remember port id
         var portId;
         if (input){
-            if (local){
-                portId = node.getInputLocalPorts()[index].getId();
-            } else {
-                portId = node.getInputPorts()[index].getId();
-            }
+            portId = node.getInputPorts()[index].getId();
         } else {
-            if (local){
-                portId = node.getOutputLocalPorts()[index].getId();
-            } else {
-                portId = node.getOutputPorts()[index].getId();
-            }
+            portId = node.getOutputPorts()[index].getId();
         }
 
         console.log("Found portId to remove:", portId);
 
         // remove port
         if (input){
-            if (local){
-                node.getInputLocalPorts().splice(index, 1);
-            } else {
-                node.getInputPorts().splice(index, 1);
-            }
+            node.getInputPorts().splice(index, 1);
         } else {
-            if (local){
-                node.getOutputLocalPorts().splice(index, 1);
-            } else {
-                node.getOutputPorts().splice(index, 1);
-            }
+            node.getOutputPorts().splice(index, 1);
         }
 
         // remove any edges connected to that port

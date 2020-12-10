@@ -77,7 +77,7 @@ primaryNode.addField(FIELD.clone());
 console.log("Test toOJSJson/fromOJSJson");
 // write node to JSON
 var json : object = Node.toOJSJson(primaryNode);
-//console.log(json);
+console.log(json);
 
 // read the node back from JSON
 var secondaryNode : Node = Node.fromOJSJson(json);
@@ -85,12 +85,16 @@ var secondaryNode : Node = Node.fromOJSJson(json);
 console.log("secondaryNode has:");
 console.log("inputPorts", secondaryNode.getInputPorts().length);
 console.log("outputPorts", secondaryNode.getOutputPorts().length);
+console.log("fields", secondaryNode.getFields().length);
 console.log("inputApp inputPorts", secondaryNode.getInputApplication()?.getInputPorts().length);
 console.log("inputApp outputPorts", secondaryNode.getInputApplication()?.getOutputPorts().length);
+console.log("inputApp fields", secondaryNode.getInputApplication()?.getFields().length);
 console.log("outputApp inputPorts", secondaryNode.getOutputApplication()?.getInputPorts().length);
 console.log("outputApp outputPorts", secondaryNode.getOutputApplication()?.getOutputPorts().length);
+console.log("outputApp fields", secondaryNode.getOutputApplication()?.getFields().length);
 console.log("exitApp inputPorts", secondaryNode.getExitApplication()?.getInputPorts().length);
 console.log("exitApp outputPorts", secondaryNode.getExitApplication()?.getOutputPorts().length);
+console.log("exitApp fields", secondaryNode.getExitApplication()?.getFields().length);
 
 checkNode(primaryNode, secondaryNode, true);
 
@@ -132,8 +136,8 @@ function checkNode(n0 : Node, n1 : Node, displayTable : boolean){
     checkString("Exit Application Name",   n0.getExitApplication().getName(),       n1.getExitApplication().getName(),       EXIT_APPLICATION_NAME);
 
     // ports
-    checkString("Input Port Id",    n0.getInputPorts()[0].getId(), n1.getInputPorts()[0].getId(), INPUT_PORT_ID);
-    checkString("Input Port Name",  n0.getInputPorts()[0].getName(), n1.getInputPorts()[0].getName(), INPUT_PORT_NAME);
+    checkString("Input Port Id",    n0.getInputApplication().getInputPorts()[0].getId(), n1.getInputApplication().getInputPorts()[0].getId(), INPUT_PORT_ID);
+    checkString("Input Port Name",  n0.getInputApplication().getInputPorts()[0].getName(), n1.getInputApplication().getInputPorts()[0].getName(), INPUT_PORT_NAME);
     checkString("Exit Port Id",     n0.getExitApplication().getOutputPorts()[0].getId(), n1.getExitApplication().getOutputPorts()[0].getId(), EXIT_PORT_ID);
     checkString("Exit Port Name",   n0.getExitApplication().getOutputPorts()[0].getName(), n1.getExitApplication().getOutputPorts()[0].getName(), EXIT_PORT_NAME);
 

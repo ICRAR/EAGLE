@@ -442,7 +442,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .style("display", getPortsDisplay);
 
     var inputLocalPorts = inputLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getInputLocalPorts();})
+                            .data(function(node : Node){return node.getInputApplicationOutputPorts();})
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
@@ -452,7 +452,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .text(function (port : Port) {return port.getName();});
 
     var inputLocalCircles = inputLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getInputLocalPorts();})
+                            .data(function(node : Node){return node.getInputApplicationOutputPorts();})
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
@@ -498,7 +498,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .style("display", getPortsDisplay);
 
     var outputLocalPorts = outputLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getOutputLocalPorts();})
+                            .data(function(node : Node){return node.getOutputApplicationInputPorts();})
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
@@ -508,7 +508,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .text(function (port : Port) {return port.getName();});
 
     var outputLocalCircles = outputLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getOutputLocalPorts();})
+                            .data(function(node : Node){return node.getOutputApplicationInputPorts();})
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
@@ -526,7 +526,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .style("display", getPortsDisplay);
 
     var exitPorts = exitPortGroups.selectAll("g")
-                            .data(function(node : Node, index : number){return node.getExitPorts();})
+                            .data(function(node : Node, index : number){return node.getExitApplicationOutputPorts();})
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
@@ -536,7 +536,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .text(function (port : Port) {return port.getName();});
 
     var exitCircles = exitPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getExitPorts();})
+                            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
@@ -554,7 +554,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .style("display", getPortsDisplay);
 
     var exitLocalPorts = exitLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getExitLocalPorts();})
+                            .data(function(node : Node){return node.getExitApplicationInputPorts();})
                             .enter()
                             .append("text")
                             .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
@@ -564,7 +564,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .text(function (port : Port) {return port.getName();});
 
     var exitLocalCircles = exitLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getExitLocalPorts();})
+                            .data(function(node : Node){return node.getExitApplicationInputPorts();})
                             .enter()
                             .append("circle")
                             .attr("data-id", function(port : Port){return port.getId();})
@@ -943,18 +943,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .style("display", getPortsDisplay);
 
         nodes.selectAll("g.inputLocalPorts text")
-                                .data(function(node : Node){return node.getInputLocalPorts();})
+                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
                                 .enter()
                                 .select("g.inputLocalPorts")
                                 .insert("text");
 
         nodes.selectAll("g.inputLocalPorts text")
-                                .data(function(node : Node){return node.getInputLocalPorts();})
+                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
                                 .exit()
                                 .remove();
 
         nodes.selectAll("g.inputLocalPorts text")
-                                .data(function(node : Node){return node.getInputLocalPorts();})
+                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
                                 .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(20))
                                 .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
@@ -962,18 +962,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .text(function (port : Port) {return port.getName();});
 
         nodes.selectAll("g.inputLocalPorts circle")
-                                .data(function(node : Node){return node.getInputLocalPorts();})
+                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
                                 .enter()
                                 .select("g.inputLocalPorts")
                                 .insert("circle");
 
         nodes.selectAll("g.inputLocalPorts circle")
-                                .data(function(node : Node){return node.getInputLocalPorts();})
+                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
                                 .exit()
                                 .remove();
 
         nodes.selectAll("g.inputLocalPorts circle")
-                                .data(function(node : Node){return node.getInputLocalPorts();})
+                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
                                 .attr("cx", REAL_TO_DISPLAY_SCALE(8))
                                 .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
@@ -1034,18 +1034,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .style("display", getPortsDisplay);
 
         nodes.selectAll("g.outputLocalPorts text")
-                                .data(function(node : Node){return node.getOutputLocalPorts();})
+                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
                                 .enter()
                                 .select("g.outputLocalPorts")
                                 .insert("text");
 
         nodes.selectAll("g.outputLocalPorts text")
-                                .data(function(node : Node){return node.getOutputLocalPorts();})
+                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
                                 .exit()
                                 .remove();
 
         nodes.selectAll("g.outputLocalPorts text")
-                                .data(function(node : Node){return node.getOutputLocalPorts();})
+                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
                                 .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(-20))
                                 .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
@@ -1053,18 +1053,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .text(function (port : Port) {return port.getName();});
 
         nodes.selectAll("g.outputLocalPorts circle")
-                                .data(function(node : Node){return node.getOutputLocalPorts();})
+                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
                                 .enter()
                                 .select("g.outputLocalPorts")
                                 .insert("circle");
 
         nodes.selectAll("g.outputLocalPorts circle")
-                                .data(function(node : Node){return node.getOutputLocalPorts();})
+                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
                                 .exit()
                                 .remove();
 
         nodes.selectAll("g.outputLocalPorts circle")
-                                .data(function(node : Node){return node.getOutputLocalPorts();})
+                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
                                 .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
                                 .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
@@ -1079,18 +1079,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .style("display", getPortsDisplay);
 
         nodes.selectAll("g.exitPorts text")
-                                .data(function(node : Node){return node.getExitPorts();})
+                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
                                 .enter()
                                 .select("g.exitPorts")
                                 .insert("text");
 
         nodes.selectAll("g.exitPorts text")
-                                .data(function(node : Node){return node.getExitPorts();})
+                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
                                 .exit()
                                 .remove();
 
         nodes.selectAll("g.exitPorts text")
-                                .data(function(node : Node){return node.getExitPorts();})
+                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
                                 .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(-20))
                                 .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
@@ -1098,18 +1098,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .text(function (port : Port) {return port.getName()});
 
         nodes.selectAll("g.exitPorts circle")
-                                .data(function(node : Node){return node.getExitPorts();})
+                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
                                 .enter()
                                 .select("g.exitPorts")
                                 .insert("circle");
 
         nodes.selectAll("g.exitPorts circle")
-                                .data(function(node : Node){return node.getExitPorts();})
+                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
                                 .exit()
                                 .remove();
 
         nodes.selectAll("g.exitPorts circle")
-                                .data(function(node : Node){return node.getExitPorts();})
+                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
                                 .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
                                 .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
@@ -1125,18 +1125,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .style("display", getPortsDisplay);
 
         nodes.selectAll("g.exitLocalPorts text")
-                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
                                 .enter()
                                 .select("g.exitLocalPorts")
                                 .insert("text");
 
         nodes.selectAll("g.exitLocalPorts text")
-                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
                                 .exit()
                                 .remove();
 
         nodes.selectAll("g.exitLocalPorts text")
-                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
                                 .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
                                 .attr("x", REAL_TO_DISPLAY_SCALE(-20))
                                 .attr("y", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT);})
@@ -1144,18 +1144,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .text(function (port : Port) {return port.getName();});
 
         nodes.selectAll("g.exitLocalPorts circle")
-                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
                                 .enter()
                                 .select("g.exitLocalPorts")
                                 .insert("circle");
 
         nodes.selectAll("g.exitLocalPorts circle")
-                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
                                 .exit()
                                 .remove();
 
         nodes.selectAll("g.exitLocalPorts circle")
-                                .data(function(node : Node){return node.getExitLocalPorts();})
+                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
                                 .attr("data-id", function(port : Port){return port.getId();})
                                 .attr("cx", REAL_TO_DISPLAY_SCALE(-8))
                                 .attr("cy", function(port : Port, index : number){return REAL_TO_DISPLAY_SCALE((index + 1) * PORT_HEIGHT - 5);})
@@ -1908,18 +1908,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        for (var i = 0 ; i < node.getExitPorts().length ; i++){
-            var port : Port = node.getExitPorts()[i];
+        // check input application ports
+        for (var i = 0 ; i < node.getInputApplicationInputPorts().length ; i++){
+            var port : Port = node.getInputApplicationInputPorts()[i];
             if (port.getId() === portId){
                 local = false;
-                input = false;
+                input = true;
                 index = i;
             }
         }
 
-        // check local ports too
-        for (var i = 0 ; i < node.getInputLocalPorts().length ; i++){
-            var port : Port = node.getInputLocalPorts()[i];
+        for (var i = 0 ; i < node.getInputApplicationOutputPorts().length ; i++){
+            var port : Port = node.getInputApplicationOutputPorts()[i];
             if (port.getId() === portId){
                 local = true;
                 input = true;
@@ -1927,19 +1927,37 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        for (var i = 0 ; i < node.getOutputLocalPorts().length ; i++){
-            var port : Port = node.getOutputLocalPorts()[i];
+        // check output application ports
+        for (var i = 0 ; i < node.getOutputApplicationInputPorts().length ; i++){
+            var port : Port = node.getOutputApplicationInputPorts()[i];
             if (port.getId() === portId){
                 local = true;
                 input = false;
                 index = i;
             }
         }
+        for (var i = 0 ; i < node.getOutputApplicationOutputPorts().length ; i++){
+            var port : Port = node.getOutputApplicationOutputPorts()[i];
+            if (port.getId() === portId){
+                local = false;
+                input = false;
+                index = i;
+            }
+        }
 
-        for (var i = 0 ; i < node.getExitLocalPorts().length ; i++){
-            var port : Port = node.getExitLocalPorts()[i];
+        // check exit application ports
+        for (var i = 0 ; i < node.getExitApplicationInputPorts().length ; i++){
+            var port : Port = node.getExitApplicationInputPorts()[i];
             if (port.getId() === portId){
                 local = true;
+                input = false;
+                index = i;
+            }
+        }
+        for (var i = 0 ; i < node.getExitApplicationOutputPorts().length ; i++){
+            var port : Port = node.getExitApplicationOutputPorts()[i];
+            if (port.getId() === portId){
+                local = false;
                 input = false;
                 index = i;
             }
