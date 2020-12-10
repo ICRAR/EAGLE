@@ -25,7 +25,6 @@
 "use strict";
 
 import * as ko from "knockout";
-import * as ij from "intro.js";
 
 import {Utils} from './Utils';
 import {Config} from './Config';
@@ -1376,6 +1375,7 @@ export class Eagle {
         console.log("runTutorial(" + name + ")");
 
         // start the tutorial
+        // @ts-ignore
         ij(name).setOption("showStepNumbers", false).setOption("skipLabel", "Exit").start();
     }
 
@@ -1403,7 +1403,12 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    static findSetting = (key : string) : Setting => {
+    private static findSetting = (key : string) : Setting => {
+        // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
+        if (typeof Eagle.settings === 'undefined'){
+            return null;
+        }
+
         for (var i = 0 ; i < Eagle.settings().length ; i++){
             var s = Eagle.settings()[i];
 
@@ -1412,6 +1417,17 @@ export class Eagle {
             }
         }
         return null;
+    }
+
+    static findSettingValue = (key : string) : any => {
+        let setting = Eagle.findSetting(key);
+
+        if (setting === null){
+            console.warn("No setting", key);
+            return null;
+        }
+
+        return setting.value();
     }
 
     getSettings = () : Setting[] => {

@@ -733,14 +733,6 @@ export class Utils {
                 }
             }
 
-            // add input local port names into the list
-            for (var j = 0; j < node.getInputLocalPorts().length; j++) {
-                let port : Port = node.getInputLocalPorts()[j];
-                if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
-                }
-            }
-
             // add output port names into the list
             for (var j = 0; j < node.getOutputPorts().length; j++) {
                 let port : Port = node.getOutputPorts()[j];
@@ -749,27 +741,60 @@ export class Utils {
                 }
             }
 
-            // add output local port names into the list
-            for (var j = 0; j < node.getOutputLocalPorts().length; j++) {
-                let port : Port = node.getOutputLocalPorts()[j];
-                if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
+            // add input application input and output ports
+            if (node.hasInputApplication()){
+                // input ports
+                for (var j = 0; j < node.getInputApplication().getInputPorts().length; j++) {
+                    let port : Port = node.getInputApplication().getInputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+
+                // output ports
+                for (var j = 0; j < node.getInputApplication().getOutputPorts().length; j++) {
+                    let port : Port = node.getInputApplication().getOutputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
                 }
             }
 
-            // add exit port names into the list
-            for (var j = 0; j < node.getExitPorts().length; j++) {
-                let port : Port = node.getExitPorts()[j];
-                if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
+            // add output application input and output ports
+            if (node.hasOutputApplication()){
+                // input ports
+                for (var j = 0; j < node.getOutputApplication().getInputPorts().length; j++) {
+                    let port : Port = node.getOutputApplication().getInputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+
+                // output ports
+                for (var j = 0; j < node.getOutputApplication().getOutputPorts().length; j++) {
+                    let port : Port = node.getOutputApplication().getOutputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
                 }
             }
 
-            // add exit local port names into the list
-            for (var j = 0; j < node.getExitLocalPorts().length; j++) {
-                let port : Port = node.getExitLocalPorts()[j];
-                if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
+            // add exit application input and output ports
+            if (node.hasExitApplication()){
+                // input ports
+                for (var j = 0; j < node.getExitApplication().getInputPorts().length; j++) {
+                    let port : Port = node.getExitApplication().getInputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+
+                // output ports
+                for (var j = 0; j < node.getExitApplication().getOutputPorts().length; j++) {
+                    let port : Port = node.getExitApplication().getOutputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
                 }
             }
         }

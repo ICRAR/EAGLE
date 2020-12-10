@@ -66,8 +66,8 @@ export class Field {
     }
 
     editable : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        let allowParam : boolean = Eagle.findSetting(Utils.ALLOW_READONLY_PARAMETER_EDITING).value();
-        let allowCompo : boolean = Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
+        let allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
+        let allowCompo : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
 
         let result : boolean = (allowCompo && allowParam) || (allowCompo && !allowParam && !this.readonly);
         //console.log("check if", this.name, "editable:", result, "(", allowCompo, allowParam, this.readonly, ")");
@@ -75,6 +75,17 @@ export class Field {
     }, this);
 
     static toOJSJson = (field : Field) : object => {
+        return {
+            text:field.text,
+            name:field.name,
+            value:field.value,
+            description:field.description,
+            readonly:field.readonly,
+            type:field.type
+        };
+    }
+
+    static toV3Json = (field : Field) : object => {
         return {
             text:field.text,
             name:field.name,
