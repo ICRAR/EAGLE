@@ -1923,7 +1923,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (port.getId() === portId){
                 local = true;
                 input = true;
-                index = i;
+                index = i + node.getInputApplicationInputPorts().length;
             }
         }
 
@@ -1933,7 +1933,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (port.getId() === portId){
                 local = true;
                 input = false;
-                index = i;
+                index = i + node.getOutputApplicationOutputPorts().length;
             }
         }
         for (var i = 0 ; i < node.getOutputApplicationOutputPorts().length ; i++){
@@ -1951,7 +1951,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (port.getId() === portId){
                 local = true;
                 input = false;
-                index = i;
+                index = i + node.getExitApplicationOutputPorts().length;
             }
         }
         for (var i = 0 ; i < node.getExitApplicationOutputPorts().length ; i++){
