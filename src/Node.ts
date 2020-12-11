@@ -70,8 +70,6 @@ export class Node {
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 200;
     public static readonly DEFAULT_COLOR : string = "ffffff";
-    public static readonly DEFAULT_POSITION_X : number = 300;
-    public static readonly DEFAULT_POSITION_Y : number = 100;
 
     public static readonly COLLAPSED_WIDTH : number = 128;
     public static readonly COLLAPSED_HEIGHT : number = 128;
@@ -80,12 +78,12 @@ export class Node {
 
     public static readonly NO_APP_STRING : string = "<no app>";
 
-    constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, x : number, y : number){
+    constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType){
         this.key = key;
         this.name = name;
         this.description = description;
-        this.x = x;
-        this.y = y;
+        this.x = 0;
+        this.y = 0;
         this.width = Node.DEFAULT_WIDTH;
         this.height = Node.DEFAULT_HEIGHT;
         this.color = Utils.getColorForNode(category);
@@ -537,8 +535,8 @@ export class Node {
         this.key = 0;
         this.name = "";
         this.description = "";
-        this.x = Node.DEFAULT_POSITION_X;
-        this.y = Node.DEFAULT_POSITION_Y;
+        this.x = 0;
+        this.y = 0;
         this.width = Node.DEFAULT_WIDTH;
         this.height = Node.DEFAULT_HEIGHT;
         this.color = Node.DEFAULT_COLOR;
@@ -837,8 +835,10 @@ export class Node {
     }
 
     clone = () : Node => {
-        var result : Node = new Node(this.key, this.name, this.description, this.category, this.categoryType, this.x, this.y);
+        var result : Node = new Node(this.key, this.name, this.description, this.category, this.categoryType);
 
+        result.x = this.x;
+        result.y = this.y;
         result.width = this.width;
         result.height = this.height;
         result.color = this.color;
@@ -1110,8 +1110,8 @@ export class Node {
     }
 
     static fromOJSJson = (nodeData : any) : Node => {
-        var x = Node.DEFAULT_POSITION_X;
-        var y = Node.DEFAULT_POSITION_Y;
+        var x = 0;
+        var y = 0;
         if (typeof nodeData.loc !== 'undefined'){
             x = parseInt(nodeData.loc.substring(0, nodeData.loc.indexOf(' ')), 10);
             y = parseInt(nodeData.loc.substring(nodeData.loc.indexOf(' ')), 10);
@@ -1127,7 +1127,10 @@ export class Node {
         var category : string = GraphUpdater.translateOldCategory(nodeData.category);
         var categoryType : string = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
 
-        var node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, x, y);
+        var node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType);
+
+        // set position
+        node.setPosition(x, y);
 
         // get description (if exists)
         if (typeof nodeData.description !== 'undefined'){
@@ -1626,7 +1629,7 @@ export class Node {
 
     static createEmbeddedApplicationNode = (name : string, category: Eagle.Category, embedKey: number) : Node => {
         console.log("createEmbeddedApplicationNode(", name, category, ")");
-        let n = new Node(null, name, "", category, Eagle.CategoryType.Application, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+        let n = new Node(null, name, "", category, Eagle.CategoryType.Application);
         n.setEmbedKey(embedKey);
         return n;
     }

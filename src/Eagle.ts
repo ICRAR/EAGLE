@@ -617,9 +617,10 @@ export class Eagle {
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
-            var node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+            var node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other);
+            let pos = this.getNewNodePosition();
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
-            this.logicalGraph().addNode(node, null);
+            this.logicalGraph().addNode(node, pos.x, pos.y, null);
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -633,19 +634,19 @@ export class Eagle {
             this.editorPalette(new Palette());
             this.editorPalette().fileInfo().name = name;
 
-            var startNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+            var startNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control);
             startNode.setColor(Utils.getColorForNode(Eagle.Category.Start));
             this.editorPalette().addNode(startNode);
 
-            var endNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "End", "", Eagle.Category.End, Eagle.CategoryType.Control, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+            var endNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "End", "", Eagle.Category.End, Eagle.CategoryType.Control);
             endNode.setColor(Utils.getColorForNode(Eagle.Category.End));
             this.editorPalette().addNode(endNode);
 
-            var commentNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+            var commentNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other);
             commentNode.setColor(Utils.getColorForNode(Eagle.Category.Comment));
             this.editorPalette().addNode(commentNode);
 
-            var descriptionNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+            var descriptionNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other);
             descriptionNode.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.editorPalette().addNode(descriptionNode);
 
@@ -1573,7 +1574,10 @@ export class Eagle {
     addNodeToLogicalGraph = (node : Node) : void => {
         console.log("addNodeToLogicalGraph()", node);
 
-        this.logicalGraph().addNode(node, (newNode: Node) => {
+        // get new position for node
+        let pos = this.getNewNodePosition();
+
+        this.logicalGraph().addNode(node, pos.x, pos.y, (newNode: Node) => {
             this.logicalGraph.valueHasMutated();
 
             // make sure the new node is selected
@@ -2140,6 +2144,25 @@ export class Eagle {
         console.log("setNodeExitApplication()");
 
         this.setNodeApplication("Exit Application", "Choose an exit application", this.selectedNode().setExitApplication);
+    }
+
+    getNewNodePosition = () : {x:number, y:number} => {
+        let x = 1920 / 2;
+        let y = 1080 / 2;
+
+        // choose random position centered around the 0, min -200, max 200
+        x += Math.floor(Math.random() * (401)) - 200;
+        y += Math.floor(Math.random() * (401)) - 200;
+
+        // modify random positions using current translation of viewport
+        x -= this.globalOffsetX;
+        y -= this.globalOffsetY;
+
+        x /= this.globalScale;
+        y /= this.globalScale;
+
+        //console.log("setNewNodePosition() x:", x, "y:", y);
+        return {x:x, y:y};
     }
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {

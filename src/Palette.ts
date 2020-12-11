@@ -69,12 +69,12 @@ export class Palette {
             }
 
             // check that x, y, position is the default
-            if (newNode.getPosition().x !== Node.DEFAULT_POSITION_X || newNode.getPosition().y !== Node.DEFAULT_POSITION_Y){
+            if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
                 var error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
                 console.warn(error);
                 errors.push(error);
 
-                newNode.setPosition(Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+                newNode.setPosition(0, 0);
             }
 
             // add node to palette

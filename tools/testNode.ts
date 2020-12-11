@@ -44,9 +44,10 @@ const EXIT_APP_FIELD : Field = new Field("Exit App Field Text", "Exit App Field 
 var table : any[] = [];
 
 // create a node
-var primaryNode : Node = new Node(KEY, NAME, DESCRIPTION, CATEGORY, CATEGORY_TYPE, X, Y);
+var primaryNode : Node = new Node(KEY, NAME, DESCRIPTION, CATEGORY, CATEGORY_TYPE);
 
 // set values for node
+primaryNode.setPosition(X, Y);
 primaryNode.setWidth(WIDTH);
 primaryNode.setHeight(HEIGHT);
 primaryNode.setSubjectKey(SUBJECT_KEY);
