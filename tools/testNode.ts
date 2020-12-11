@@ -6,8 +6,8 @@ import {Field} from '../src/Field';
 const KEY : number = -9;
 const NAME : string = "Test Node";
 const DESCRIPTION : string = "Test description";
-const CATEGORY : Eagle.Category = Eagle.Category.Description;
-const CATEGORY_TYPE : Eagle.CategoryType = Eagle.CategoryType.Other;
+const CATEGORY : Eagle.Category = Eagle.Category.Loop;
+const CATEGORY_TYPE : Eagle.CategoryType = Eagle.CategoryType.Group;
 const X : number = 234;
 const Y : number = 567;
 
@@ -21,31 +21,24 @@ const PARENT_KEY : number = -10;
 const COLLAPSED : boolean = true;
 const STREAMING : boolean = true;
 const SHOW_PORTS : boolean = true;
-const IS_DATA : boolean = true;
-const IS_GROUP : boolean = true;
-const CAN_HAVE_INPUTS : boolean = true;
-const CAN_HAVE_OUTPUTS : boolean = true;
 const SELECTED : boolean = true;
-const INPUT_APPLICATION_TYPE : Eagle.Category = Eagle.Category.BashShellApp;
-const OUTPUT_APPLICATION_TYPE : Eagle.Category = Eagle.Category.DynlibApp;
-const EXIT_APPLICATION_TYPE : Eagle.Category = Eagle.Category.Docker;
+const INPUT_APPLICATION_CATEGORY : Eagle.Category = Eagle.Category.BashShellApp;
+const EXIT_APPLICATION_CATEGORY : Eagle.Category = Eagle.Category.Docker;
 const INPUT_APPLICATION_NAME : string = "Input App";
-const OUTPUT_APPLICATION_NAME : string = "Output App";
 const EXIT_APPLICATION_NAME : string = "Exit App";
+const INPUT_APPLICATION_KEY : number = -2;
+const EXIT_APPLICATION_KEY : number = -4;
+
 const EXPANDED : boolean = true;
 
-const INPUT_LOCAL_PORT_ID : string = "input_local_port";
-const INPUT_LOCAL_PORT_NAME : string = "Input Local Port";
-const OUTPUT_LOCAL_PORT_ID : string = "output_local_port";
-const OUTPUT_LOCAL_PORT_NAME : string = "Output Local Port";
 const INPUT_PORT_ID : string = "input_port";
 const INPUT_PORT_NAME : string = "Input Port";
-const OUTPUT_PORT_ID : string = "output_port";
-const OUTPUT_PORT_NAME : string = "Output Port";
+const EXIT_PORT_ID : string = "exit_port";
+const EXIT_PORT_NAME : string = "Exit Port";
 
-const FIELD : Field = new Field("Field Text", "Field Name", "Field Value", "Field Desc");
-const INPUT_APP_FIELD : Field = new Field("Input App Field Text", "Input App Field Name", "Input App Field Value", "Input App Field Desc");
-const OUTPUT_APP_FIELD : Field = new Field("Output App Field Text", "Output App Field Name", "Output App Field Value", "Output App Field Desc");
+const FIELD : Field = new Field("Field Text", "Field Name", "Field Value", "Field Desc", true, "String");
+const INPUT_APP_FIELD : Field = new Field("Input App Field Text", "Input App Field Name", "Input App Field Value", "Input App Field Desc", false, "Number");
+const EXIT_APP_FIELD : Field = new Field("Exit App Field Text", "Exit App Field Name", "Exit App Field Value", "Exit App Field Desc", false, "Boolean");
 
 // create table to contain results
 var table : any[] = [];
@@ -63,35 +56,46 @@ primaryNode.setParentKey(PARENT_KEY);
 primaryNode.setCollapsed(COLLAPSED);
 primaryNode.setStreaming(STREAMING);
 primaryNode.setShowPorts(SHOW_PORTS);
-primaryNode.setIsData(IS_DATA);
-primaryNode.setIsGroup(IS_GROUP);
-primaryNode.setCanHaveInputs(CAN_HAVE_INPUTS);
-primaryNode.setCanHaveOutputs(CAN_HAVE_OUTPUTS);
 primaryNode.setSelected(SELECTED);
-primaryNode.setInputApplicationType(INPUT_APPLICATION_TYPE);
-primaryNode.setOutputApplicationType(OUTPUT_APPLICATION_TYPE);
-primaryNode.setExitApplicationType(EXIT_APPLICATION_TYPE);
-primaryNode.setInputApplicationName(INPUT_APPLICATION_NAME);
-primaryNode.setOutputApplicationName(OUTPUT_APPLICATION_NAME);
-primaryNode.setExitApplicationName(EXIT_APPLICATION_NAME);
 primaryNode.setExpanded(EXPANDED);
 
-primaryNode.addPort(new Port(OUTPUT_PORT_ID, OUTPUT_PORT_NAME), false, false);
-primaryNode.addPort(new Port(OUTPUT_LOCAL_PORT_ID, OUTPUT_LOCAL_PORT_NAME), false, true);
-primaryNode.addPort(new Port(INPUT_PORT_ID, INPUT_PORT_NAME), true, false);
-primaryNode.addPort(new Port(INPUT_LOCAL_PORT_ID, INPUT_LOCAL_PORT_NAME), true, true);
+// input app
+let inputApplication = Node.createEmbeddedApplicationNode(INPUT_APPLICATION_NAME, INPUT_APPLICATION_CATEGORY, INPUT_APPLICATION_KEY);
+inputApplication.addField(INPUT_APP_FIELD.clone());
+inputApplication.addPort(new Port(INPUT_PORT_ID, INPUT_PORT_NAME, true), true);
+
+// exit app
+let exitApplication = Node.createEmbeddedApplicationNode(EXIT_APPLICATION_NAME, EXIT_APPLICATION_CATEGORY, EXIT_APPLICATION_KEY);
+exitApplication.addField(EXIT_APP_FIELD.clone());
+exitApplication.addPort(new Port(EXIT_PORT_ID, EXIT_PORT_NAME, false), false);
+
+primaryNode.setInputApplication(inputApplication);
+primaryNode.setExitApplication(exitApplication);
 
 primaryNode.addField(FIELD.clone());
-primaryNode.addAppField(OUTPUT_APP_FIELD.clone(), false);
-primaryNode.addAppField(INPUT_APP_FIELD.clone(), true);
 
 console.log("Test toOJSJson/fromOJSJson");
 // write node to JSON
 var json : object = Node.toOJSJson(primaryNode);
-//console.log(json);
+console.log(json);
 
 // read the node back from JSON
 var secondaryNode : Node = Node.fromOJSJson(json);
+
+console.log("secondaryNode has:");
+console.log("inputPorts", secondaryNode.getInputPorts().length);
+console.log("outputPorts", secondaryNode.getOutputPorts().length);
+console.log("fields", secondaryNode.getFields().length);
+console.log("inputApp inputPorts", secondaryNode.getInputApplication()?.getInputPorts().length);
+console.log("inputApp outputPorts", secondaryNode.getInputApplication()?.getOutputPorts().length);
+console.log("inputApp fields", secondaryNode.getInputApplication()?.getFields().length);
+console.log("outputApp inputPorts", secondaryNode.getOutputApplication()?.getInputPorts().length);
+console.log("outputApp outputPorts", secondaryNode.getOutputApplication()?.getOutputPorts().length);
+console.log("outputApp fields", secondaryNode.getOutputApplication()?.getFields().length);
+console.log("exitApp inputPorts", secondaryNode.getExitApplication()?.getInputPorts().length);
+console.log("exitApp outputPorts", secondaryNode.getExitApplication()?.getOutputPorts().length);
+console.log("exitApp fields", secondaryNode.getExitApplication()?.getFields().length);
+
 checkNode(primaryNode, secondaryNode, true);
 
 console.log("Test clone");
@@ -123,42 +127,38 @@ function checkNode(n0 : Node, n1 : Node, displayTable : boolean){
     checkBoolean("Collapsed", n0.isCollapsed(), n1.isCollapsed(), COLLAPSED);
     checkBoolean("Streaming", n0.isStreaming(), n1.isStreaming(), STREAMING);
     checkBoolean("Show Ports", n0.isShowPorts(), n1.isShowPorts(), SHOW_PORTS);
-    checkBoolean("Is Data", n0.isData(), n1.isData(), IS_DATA);
-    checkBoolean("Is Group", n0.isGroup(), n1.isGroup(), IS_GROUP);
-    checkBoolean("Can Have Inputs", n0.canHaveInputs(), n1.canHaveInputs(), CAN_HAVE_INPUTS);
-    checkBoolean("Can Have Outputs", n0.canHaveOutputs(), n1.canHaveOutputs(), CAN_HAVE_OUTPUTS);
     checkBoolean("Selected", n0.getSelected(), n1.getSelected(), SELECTED);
-    checkString("Input Application Type", n0.getInputApplicationType(), n1.getInputApplicationType(), INPUT_APPLICATION_TYPE);
-    checkString("Output Application Type", n0.getOutputApplicationType(), n1.getOutputApplicationType(), OUTPUT_APPLICATION_TYPE);
-    checkString("Exit Application Type", n0.getExitApplicationType(), n1.getExitApplicationType(), EXIT_APPLICATION_TYPE);
-    checkString("Input Application Name", n0.getInputApplicationName(), n1.getInputApplicationName(), INPUT_APPLICATION_NAME);
-    checkString("Output Application Name", n0.getOutputApplicationName(), n1.getOutputApplicationName(), OUTPUT_APPLICATION_NAME);
-    checkString("Exit Application Name", n0.getExitApplicationName(), n1.getExitApplicationName(), EXIT_APPLICATION_NAME);
     checkBoolean("Expanded", n0.getExpanded(), n1.getExpanded(), EXPANDED);
 
+    checkString("Input Application Type",  n0.getInputApplication().getCategory(),  n1.getInputApplication().getCategory(),  INPUT_APPLICATION_CATEGORY );
+    checkString("Exit Application Type",   n0.getExitApplication().getCategory(),   n1.getExitApplication().getCategory(),   EXIT_APPLICATION_CATEGORY  );
+    checkString("Input Application Name",  n0.getInputApplication().getName(),      n1.getInputApplication().getName(),      INPUT_APPLICATION_NAME);
+    checkString("Exit Application Name",   n0.getExitApplication().getName(),       n1.getExitApplication().getName(),       EXIT_APPLICATION_NAME);
+
     // ports
-    checkString("Output Port Id", n0.getOutputPorts()[0].getId(), n1.getOutputPorts()[0].getId(), OUTPUT_PORT_ID);
-    checkString("Output Port Name", n0.getOutputPorts()[0].getName(), n1.getOutputPorts()[0].getName(), OUTPUT_PORT_NAME);
-    checkString("Output Local Port Id", n0.getOutputLocalPorts()[0].getId(), n1.getOutputLocalPorts()[0].getId(), OUTPUT_LOCAL_PORT_ID);
-    checkString("Output Local Port Name", n0.getOutputLocalPorts()[0].getName(), n1.getOutputLocalPorts()[0].getName(), OUTPUT_LOCAL_PORT_NAME);
-    checkString("Input Port Id", n0.getInputPorts()[0].getId(), n1.getInputPorts()[0].getId(), INPUT_PORT_ID);
-    checkString("Input Port Name", n0.getInputPorts()[0].getName(), n1.getInputPorts()[0].getName(), INPUT_PORT_NAME);
-    checkString("Input Local Port Id", n0.getInputLocalPorts()[0].getId(), n1.getInputLocalPorts()[0].getId(), INPUT_LOCAL_PORT_ID);
-    checkString("Input Local Port Name", n0.getInputLocalPorts()[0].getName(), n1.getInputLocalPorts()[0].getName(), INPUT_LOCAL_PORT_NAME);
+    checkString("Input Port Id",    n0.getInputApplication().getInputPorts()[0].getId(), n1.getInputApplication().getInputPorts()[0].getId(), INPUT_PORT_ID);
+    checkString("Input Port Name",  n0.getInputApplication().getInputPorts()[0].getName(), n1.getInputApplication().getInputPorts()[0].getName(), INPUT_PORT_NAME);
+    checkString("Exit Port Id",     n0.getExitApplication().getOutputPorts()[0].getId(), n1.getExitApplication().getOutputPorts()[0].getId(), EXIT_PORT_ID);
+    checkString("Exit Port Name",   n0.getExitApplication().getOutputPorts()[0].getName(), n1.getExitApplication().getOutputPorts()[0].getName(), EXIT_PORT_NAME);
 
     // fields
     checkString("Field Text", n0.getFields()[0].getText(), n1.getFields()[0].getText(), FIELD.getText());
     checkString("Field Name", n0.getFields()[0].getName(), n1.getFields()[0].getName(), FIELD.getName());
     checkString("Field Value", n0.getFields()[0].getValue(), n1.getFields()[0].getValue(), FIELD.getValue());
     checkString("Field Description", n0.getFields()[0].getDescription(), n1.getFields()[0].getDescription(), FIELD.getDescription());
-    checkString("Input App Field Text", n0.getInputAppFields()[0].getText(), n1.getInputAppFields()[0].getText(), INPUT_APP_FIELD.getText());
-    checkString("Input App Field Name", n0.getInputAppFields()[0].getName(), n1.getInputAppFields()[0].getName(), INPUT_APP_FIELD.getName());
-    checkString("Input App Field Value", n0.getInputAppFields()[0].getValue(), n1.getInputAppFields()[0].getValue(), INPUT_APP_FIELD.getValue());
-    checkString("Input App Field Description", n0.getInputAppFields()[0].getDescription(), n1.getInputAppFields()[0].getDescription(), INPUT_APP_FIELD.getDescription());
-    checkString("Output App Field Text", n0.getOutputAppFields()[0].getText(), n1.getOutputAppFields()[0].getText(), OUTPUT_APP_FIELD.getText());
-    checkString("Output App Field Name", n0.getOutputAppFields()[0].getName(), n1.getOutputAppFields()[0].getName(), OUTPUT_APP_FIELD.getName());
-    checkString("Output App Field Value", n0.getOutputAppFields()[0].getValue(), n1.getOutputAppFields()[0].getValue(), OUTPUT_APP_FIELD.getValue());
-    checkString("Output App Field Description", n0.getOutputAppFields()[0].getDescription(), n1.getOutputAppFields()[0].getDescription(), OUTPUT_APP_FIELD.getDescription());
+
+    // app fields
+    checkString("Input App Field Text",        n0.getInputApplication().getFields()[0].getText(),        n1.getInputApplication().getFields()[0].getText(),        INPUT_APP_FIELD.getText());
+    checkString("Input App Field Name",        n0.getInputApplication().getFields()[0].getName(),        n1.getInputApplication().getFields()[0].getName(),        INPUT_APP_FIELD.getName());
+    checkString("Input App Field Value",       n0.getInputApplication().getFields()[0].getValue(),       n1.getInputApplication().getFields()[0].getValue(),       INPUT_APP_FIELD.getValue());
+    checkString("Input App Field Description", n0.getInputApplication().getFields()[0].getDescription(), n1.getInputApplication().getFields()[0].getDescription(), INPUT_APP_FIELD.getDescription());
+    // TODO: readonly, type
+
+    checkString("Exit App Field Text",        n0.getExitApplication().getFields()[0].getText(),        n1.getExitApplication().getFields()[0].getText(),        EXIT_APP_FIELD.getText());
+    checkString("Exit App Field Name",        n0.getExitApplication().getFields()[0].getName(),        n1.getExitApplication().getFields()[0].getName(),        EXIT_APP_FIELD.getName());
+    checkString("Exit App Field Value",       n0.getExitApplication().getFields()[0].getValue(),       n1.getExitApplication().getFields()[0].getValue(),       EXIT_APP_FIELD.getValue());
+    checkString("Exit App Field Description", n0.getExitApplication().getFields()[0].getDescription(), n1.getExitApplication().getFields()[0].getDescription(), EXIT_APP_FIELD.getDescription());
+    // TODO: readonly, type
 
     // print table
     if (displayTable){

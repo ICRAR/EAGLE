@@ -2,28 +2,14 @@
     <!-- ko if: $root.allowComponentEditing -->
     <div class="input-group-prepend">
         <!-- ko if: input -->
-        <!-- ko ifnot: local -->
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), true, false);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveInputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
-            <i class="material-icons md-18">remove</i>
-        </button>
-        <!-- /ko -->
-        <!-- ko if: local -->
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), true, true);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveInputLocalPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
-            <i class="material-icons md-18">remove</i>
-        </button>
-        <!-- /ko -->
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), true);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveInputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
+                <i class="material-icons md-18">remove</i>
+            </button>
         <!-- /ko -->
         <!-- ko if: !input -->
-        <!-- ko ifnot: local -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), false, false);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveOutputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), false);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveOutputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
                 <i class="material-icons md-18">remove</i>
             </button>
-        <!-- /ko -->
-        <!-- ko if: local -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), false, true);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveOutputLocalPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
-                <i class="material-icons md-18">remove</i>
-            </button>
-        <!-- /ko -->
         <!-- /ko -->
     </div>
     <!-- /ko -->

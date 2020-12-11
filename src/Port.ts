@@ -12,7 +12,6 @@ export class Port {
         this._id = id;
         this.name = name;
         this.nodeKey = 0;
-        this.local = false;
         this.event = event;
     }
 
@@ -32,19 +31,10 @@ export class Port {
         this.nodeKey = key;
     }
 
-    isLocal = () : boolean => {
-        return this.local;
-    }
-
-    setLocal = (local : boolean) : void => {
-        this.local = local;
-    }
-
     clear = () : void => {
         this._id = "";
         this.name = "";
         this.nodeKey = 0;
-        this.local = false;
         this.event = false;
     }
 
@@ -72,16 +62,22 @@ export class Port {
             Id:port._id,
             IdText:port.name,
             event:port.event
-        }
+        };
+    }
+
+    static toV3Json = (port : Port) : object => {
+        return {
+            name:port.name,
+            event:port.event
+        };
     }
 
     static fromOJSJson = (data : any) : Port => {
-        let isEvent = false;
+        let event = false;
 
-        if (typeof data.event !== 'undefined'){
-            isEvent = data.event;
-        }
+        if (typeof data.event !== 'undefined')
+            event = data.event;
 
-        return new Port(data.Id, data.IdText, isEvent);
+        return new Port(data.Id, data.IdText, event);
     }
 }

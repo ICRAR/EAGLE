@@ -77,18 +77,94 @@ export class Utils {
         });
     }
 
-    static newKey(nodes : Node[]) : number {
+    static findNewKey(usedKeys : number[]): number {
         for (var i = -1 ; ; i--){
-            var nodeIndex = -1;
-            for (var j = 0 ; j < nodes.length ; j++){
-                if (nodes[j].getKey() === i){
-                    nodeIndex = j;
+            //console.log("newKey, searching for ", i, "amongst", usedKeys.length, "keys");
+            let found = false;
+
+            for (var j = 0 ; j < usedKeys.length ; j++){
+                // debug
+                //console.log("findNewKey, checking key", j, "key is", usedKeys[j]);
+
+                if (i === usedKeys[j]){
+                    found = true;
                     break;
                 }
             }
 
-            if (nodeIndex === -1){
+            if (!found){
                 return i;
+            }
+        }
+    }
+
+    static getUsedKeys(nodes : Node[]) : number[] {
+        // build a list of used keys
+        let usedKeys: number[] = [];
+
+        for (var i = 0 ; i < nodes.length ; i++){
+            usedKeys.push(nodes[i].getKey())
+
+            // if this node has inputApp, add the inputApp key
+            if (nodes[i].hasInputApplication()){
+                usedKeys.push(nodes[i].getInputApplication().getKey());
+            }
+
+            // if this node has outputApp, add the outputApp key
+            if (nodes[i].hasOutputApplication()){
+                usedKeys.push(nodes[i].getOutputApplication().getKey());
+            }
+
+            // if this node has exitApp, add the exitApp key
+            if (nodes[i].hasExitApplication()){
+                usedKeys.push(nodes[i].getExitApplication().getKey());
+            }
+        }
+
+        return usedKeys;
+    }
+
+    static newKey(nodes: Node[]): number {
+        let usedKeys = Utils.getUsedKeys(nodes);
+        return Utils.findNewKey(usedKeys);
+    }
+
+    static setEmbeddedApplicationNodeKeys(lg: LogicalGraph): void {
+        let nodes: Node[] = lg.getNodes();
+        let usedKeys: number[] = Utils.getUsedKeys(nodes);
+
+        // loop through nodes, look for embedded nodes with null key, create new key, add to usedKeys
+        for (var i = 0 ; i < nodes.length ; i++){
+            usedKeys.push(nodes[i].getKey())
+
+            // if this node has inputApp, add the inputApp key
+            if (nodes[i].hasInputApplication()){
+                if (nodes[i].getInputApplication().getKey() === null){
+                    let newKey = Utils.findNewKey(usedKeys);
+                    nodes[i].getInputApplication().setKey(newKey);
+                    usedKeys.push(newKey);
+                    //console.log("set node", nodes[i].getKey(), "exit input key", newKey);
+                }
+            }
+
+            // if this node has outputApp, add the outputApp key
+            if (nodes[i].hasOutputApplication()){
+                if (nodes[i].getOutputApplication().getKey() === null){
+                    let newKey = Utils.findNewKey(usedKeys);
+                    nodes[i].getOutputApplication().setKey(newKey);
+                    usedKeys.push(newKey);
+                    //console.log("set node", nodes[i].getKey(), "output app key", newKey);
+                }
+            }
+
+            // if this node has exitApp, add the exitApp key
+            if (nodes[i].hasExitApplication()){
+                if (nodes[i].getExitApplication().getKey() === null){
+                    let newKey = Utils.findNewKey(usedKeys);
+                    nodes[i].getExitApplication().setKey(newKey);
+                    usedKeys.push(newKey);
+                    //console.log("set node", nodes[i].getKey(), "exit app key", newKey);
+                }
             }
         }
     }
@@ -657,14 +733,6 @@ export class Utils {
                 }
             }
 
-            // add input local port names into the list
-            for (var j = 0; j < node.getInputLocalPorts().length; j++) {
-                let port : Port = node.getInputLocalPorts()[j];
-                if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
-                }
-            }
-
             // add output port names into the list
             for (var j = 0; j < node.getOutputPorts().length; j++) {
                 let port : Port = node.getOutputPorts()[j];
@@ -673,27 +741,60 @@ export class Utils {
                 }
             }
 
-            // add output local port names into the list
-            for (var j = 0; j < node.getOutputLocalPorts().length; j++) {
-                let port : Port = node.getOutputLocalPorts()[j];
-                if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
+            // add input application input and output ports
+            if (node.hasInputApplication()){
+                // input ports
+                for (var j = 0; j < node.getInputApplication().getInputPorts().length; j++) {
+                    let port : Port = node.getInputApplication().getInputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+
+                // output ports
+                for (var j = 0; j < node.getInputApplication().getOutputPorts().length; j++) {
+                    let port : Port = node.getInputApplication().getOutputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
                 }
             }
 
-            // add exit port names into the list
-            for (var j = 0; j < node.getExitPorts().length; j++) {
-                let port : Port = node.getExitPorts()[j];
-                if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
+            // add output application input and output ports
+            if (node.hasOutputApplication()){
+                // input ports
+                for (var j = 0; j < node.getOutputApplication().getInputPorts().length; j++) {
+                    let port : Port = node.getOutputApplication().getInputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+
+                // output ports
+                for (var j = 0; j < node.getOutputApplication().getOutputPorts().length; j++) {
+                    let port : Port = node.getOutputApplication().getOutputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
                 }
             }
 
-            // add exit local port names into the list
-            for (var j = 0; j < node.getExitLocalPorts().length; j++) {
-                let port : Port = node.getExitLocalPorts()[j];
-                if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
+            // add exit application input and output ports
+            if (node.hasExitApplication()){
+                // input ports
+                for (var j = 0; j < node.getExitApplication().getInputPorts().length; j++) {
+                    let port : Port = node.getExitApplication().getInputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+
+                // output ports
+                for (var j = 0; j < node.getExitApplication().getOutputPorts().length; j++) {
+                    let port : Port = node.getExitApplication().getOutputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
                 }
             }
         }

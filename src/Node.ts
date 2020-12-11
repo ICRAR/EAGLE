@@ -44,6 +44,7 @@ export class Node {
                                     // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
     private parentKey : number | null;
+    private embedKey : number | null;
     private collapsed : boolean;
     private streaming : boolean;
     private showPorts : boolean;
@@ -91,6 +92,7 @@ export class Node {
         this.drawOrderHint = 0;
 
         this.parentKey = null;
+        this.embedKey = null;
         this.collapsed = false;
         this.streaming = false;
         this.showPorts = false;
@@ -144,33 +146,6 @@ export class Node {
         } else {
             return this.name;
         }
-    }
-
-    // TODO: better name for function
-    getInputLocalPorts = () : Port[] => {
-        if (this.inputApplication() === null){
-            return [];
-        }
-
-        return this.inputApplication().getOutputPorts();
-    }
-
-    // TODO: better name for function
-    getOutputLocalPorts = () : Port[] => {
-        if (this.outputApplication() === null){
-            return [];
-        }
-
-        return this.outputApplication().getInputPorts();
-    }
-
-    // TODO: better name for function
-    getExitLocalPorts = () : Port[] => {
-        if (this.exitApplication() === null){
-            return [];
-        }
-
-        return this.exitApplication().getInputPorts();
     }
 
     getDescription = () : string => {
@@ -242,7 +217,6 @@ export class Node {
     }
 
     setParentKey = (key : number) : void => {
-
         // check that we are not making this node its own parent
         if (key === this.key){
             console.warn("Setting node as its own parent!");
@@ -250,6 +224,18 @@ export class Node {
         }
 
         this.parentKey = key;
+    }
+
+    getEmbedKey = () : number => {
+        return this.embedKey;
+    }
+
+    setEmbedKey = (key : number) : void => {
+        this.embedKey = key;
+    }
+
+    isEmbedded = () : boolean => {
+        return this.embedKey !== null;
     }
 
     isCollapsed = () : boolean => {
@@ -297,32 +283,64 @@ export class Node {
     }
 
     getInputPorts = () : Port[] => {
-        if (this.inputApplication() === null){
-            return this.inputPorts;
-        } else {
-            return this.inputApplication().inputPorts;
-        }
+        return this.inputPorts;
     }
 
     getOutputPorts = () : Port[] => {
-        if (this.outputApplication() === null){
-            return this.outputPorts;
-        } else {
-            return this.outputApplication().outputPorts;
-        }
+        return this.outputPorts;
     }
 
-    getExitPorts = () : Port[] => {
+    getInputApplicationInputPorts = () : Port[] => {
+        if (this.inputApplication() === null){
+            return [];
+        }
+
+        return this.inputApplication().inputPorts;
+    }
+
+    getInputApplicationOutputPorts = () : Port[] => {
+        if (this.inputApplication() === null){
+            return [];
+        }
+
+        return this.inputApplication().outputPorts;
+    }
+
+    getOutputApplicationInputPorts = () : Port[] => {
+        if (this.outputApplication() === null){
+            return [];
+        }
+
+        return this.outputApplication().inputPorts;
+    }
+
+    getOutputApplicationOutputPorts = () : Port[] => {
+        if (this.outputApplication() === null){
+            return [];
+        }
+
+        return this.outputApplication().outputPorts;
+    }
+
+    getExitApplicationInputPorts = () : Port[] => {
         if (this.exitApplication() === null){
             return [];
-        } else {
-            return this.exitApplication().outputPorts;
         }
+
+        return this.exitApplication().inputPorts;
+    }
+
+    getExitApplicationOutputPorts = () : Port[] => {
+        if (this.exitApplication() === null){
+            return [];
+        }
+
+        return this.exitApplication().outputPorts;
     }
 
     hasLocalPortWithId = (id : string) : boolean => {
         // check output ports of input application, if one exists
-        if (this.inputApplication() !== null){
+        if (this.hasInputApplication()){
             for (var i = 0; i < this.inputApplication().outputPorts.length ; i++){
                 if (this.inputApplication().outputPorts[i].getId() === id){
                     return true;
@@ -330,13 +348,22 @@ export class Node {
             }
         }
         // check input ports of outputApplication, if one exists
-        if (this.outputApplication() !== null){
+        if (this.hasOutputApplication()){
             for (var i = 0; i < this.outputApplication().inputPorts.length ; i++){
                 if (this.outputApplication().inputPorts[i].getId() === id){
                     return true;
                 }
             }
         }
+        // check input ports of exitApplication, if one exists
+        if (this.hasExitApplication()){
+            for (var i = 0; i < this.exitApplication().inputPorts.length ; i++){
+                if (this.exitApplication().inputPorts[i].getId() === id){
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -454,6 +481,7 @@ export class Node {
 
     setInputApplication = (inputApplication : Node) : void => {
         this.inputApplication(inputApplication);
+        inputApplication.setEmbedKey(this.getKey());
 
         if (inputApplication !== null){
             console.assert(inputApplication.getCategoryType() === Eagle.CategoryType.Application);
@@ -465,8 +493,13 @@ export class Node {
         return this.inputApplication();
     }
 
+    hasInputApplication = () : boolean => {
+        return this.inputApplication() !== null;
+    }
+
     setOutputApplication = (outputApplication : Node) : void => {
         this.outputApplication(outputApplication);
+        outputApplication.setEmbedKey(this.getKey());
 
         if (outputApplication !== null){
             console.assert(outputApplication.getCategoryType() === Eagle.CategoryType.Application);
@@ -478,8 +511,13 @@ export class Node {
         return this.outputApplication();
     }
 
+    hasOutputApplication = () : boolean => {
+        return this.outputApplication() !== null;
+    }
+
     setExitApplication = (exitApplication : Node) : void => {
         this.exitApplication(exitApplication);
+        exitApplication.setEmbedKey(this.getKey());
 
         if (exitApplication !== null){
             console.assert(exitApplication.getCategoryType() === Eagle.CategoryType.Application);
@@ -489,6 +527,10 @@ export class Node {
 
     getExitApplication = () : Node => {
         return this.exitApplication();
+    }
+
+    hasExitApplication = () : boolean => {
+        return this.exitApplication() !== null;
     }
 
     clear = () : void => {
@@ -503,6 +545,7 @@ export class Node {
         this.drawOrderHint = 0;
 
         this.parentKey = null;
+        this.embedKey = null;
         this.collapsed = false;
         this.streaming = false;
 
@@ -549,8 +592,18 @@ export class Node {
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
-        var leftHeight = (this.getInputPorts().length + this.getOutputLocalPorts().length + 2) * 24;
-        var rightHeight = (this.getOutputPorts().length + this.getInputLocalPorts().length + 2) * 24;
+        var leftHeight = (
+            this.getInputPorts().length +
+            this.getInputApplicationInputPorts().length +
+            this.getInputApplicationOutputPorts().length +
+            2) * 24;
+        var rightHeight = (
+            this.getOutputPorts().length +
+            this.getOutputApplicationInputPorts().length +
+            this.getOutputApplicationOutputPorts().length +
+            this.getExitApplicationInputPorts().length +
+            this.getExitApplicationOutputPorts().length +
+            2) * 24;
 
         return Math.max(leftHeight, rightHeight);
     }
@@ -588,7 +641,7 @@ export class Node {
         }
 
         // if node has an inputApplication, check those ports too
-        if (this.inputApplication() !== null){
+        if (this.hasInputApplication()){
             for (var i = 0; i < this.inputApplication().inputPorts.length; i++){
                 var port = this.inputApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -604,7 +657,7 @@ export class Node {
         }
 
         // if node has an outputApplication, check those ports too
-        if (this.outputApplication() !== null){
+        if (this.hasOutputApplication()){
             for (var i = 0; i < this.outputApplication().inputPorts.length; i++){
                 var port = this.outputApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -620,7 +673,7 @@ export class Node {
         }
 
         // if node has an exitApplication, check those ports too
-        if (this.exitApplication() !== null){
+        if (this.hasExitApplication()){
             for (var i = 0; i < this.exitApplication().inputPorts.length; i++){
                 var port = this.exitApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -657,7 +710,7 @@ export class Node {
         }
 
         // if node has an inputApplication, check those ports too
-        if (this.inputApplication() !== null){
+        if (this.hasInputApplication()){
             for (var i = 0; i < this.inputApplication().inputPorts.length; i++){
                 var port = this.inputApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -673,7 +726,7 @@ export class Node {
         }
 
         // if node has an outputApplication, check those ports too
-        if (this.outputApplication() !== null){
+        if (this.hasOutputApplication()){
             for (var i = 0; i < this.outputApplication().inputPorts.length; i++){
                 var port = this.outputApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -689,7 +742,7 @@ export class Node {
         }
 
         // if node has an exitApplication, check those ports too
-        if (this.exitApplication() !== null){
+        if (this.hasExitApplication()){
             for (var i = 0; i < this.exitApplication().inputPorts.length; i++){
                 var port = this.exitApplication().inputPorts[i];
                 if (port.getId() === portId){
@@ -792,6 +845,7 @@ export class Node {
         result.drawOrderHint = this.drawOrderHint;
 
         result.parentKey = this.parentKey;
+        result.embedKey = this.embedKey;
 
         result.collapsed = this.collapsed;
         result.streaming = this.streaming;
@@ -993,34 +1047,40 @@ export class Node {
 
     findPortIsInputById = (portId: string) : boolean => {
         // find the port within the node
-        for (var i = 0 ; i < this.getInputPorts().length ; i++){
-            var port : Port = this.getInputPorts()[i];
+        for (var i = 0 ; i < this.inputPorts.length ; i++){
+            var port : Port = this.inputPorts[i];
             if (port.getId() === portId){
                 return true;
             }
         }
 
-        for (var i = 0 ; i < this.getOutputPorts().length ; i++){
-            var port : Port = this.getOutputPorts()[i];
+        for (var i = 0 ; i < this.outputPorts.length ; i++){
+            var port : Port = this.outputPorts[i];
             if (port.getId() === portId){
                 return false;
             }
         }
 
-        // check local ports too
-        for (var i = 0 ; i < this.getInputLocalPorts().length ; i++){
-            var port : Port = this.getInputLocalPorts()[i];
-            if (port.getId() === portId){
-                return false;
+        // check input application ports
+        if (this.hasInputApplication()){
+            for (var i = 0 ; i < this.inputApplication().inputPorts.length ; i++){
+                var port : Port = this.inputApplication().inputPorts[i];
+                if (port.getId() === portId){
+                    return false;
+                }
+            }
+
+            for (var i = 0 ; i < this.inputApplication().outputPorts.length ; i++){
+                var port : Port = this.inputApplication().outputPorts[i];
+                if (port.getId() === portId){
+                    return true;
+                }
             }
         }
 
-        for (var i = 0 ; i < this.getOutputLocalPorts().length ; i++){
-            var port : Port = this.getOutputLocalPorts()[i];
-            if (port.getId() === portId){
-                return true;
-            }
-        }
+        // TODO: check output application ports
+
+        // TODO: check exit application ports
 
         return null;
     }
@@ -1131,27 +1191,27 @@ export class Node {
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
         if (nodeData.inputAppName !== undefined && nodeData.inputAppName !== ""){
-            node.inputApplication(Node.createUnkeyedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType));
+            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType, node.getKey()));
         }
 
         if (nodeData.inputApplicationName !== undefined && nodeData.inputApplicationName !== ""){
-            node.inputApplication(Node.createUnkeyedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType));
+            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType, node.getKey()));
         }
 
         if (nodeData.outputAppName !== undefined && nodeData.outputAppName !== ""){
-            node.outputApplication(Node.createUnkeyedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType));
+            node.outputApplication(Node.createEmbeddedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType, node.getKey()));
         }
 
         if (nodeData.outputApplicationName !== undefined && nodeData.outputApplicationName !== ""){
-            node.outputApplication(Node.createUnkeyedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType));
+            node.outputApplication(Node.createEmbeddedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType, node.getKey()));
         }
 
         if (nodeData.exitAppName !== undefined && nodeData.exitAppName !== ""){
-            node.exitApplication(Node.createUnkeyedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType));
+            node.exitApplication(Node.createEmbeddedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType, node.getKey()));
         }
 
         if (nodeData.exitApplicationName !== undefined && nodeData.exitApplicationName !== ""){
-            node.exitApplication(Node.createUnkeyedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType));
+            node.exitApplication(Node.createEmbeddedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType, node.getKey()));
         }
 
         // set parentKey if a group is defined
@@ -1159,21 +1219,29 @@ export class Node {
             node.parentKey = nodeData.group;
         }
 
+        // set embedKey if defined
+        if (typeof nodeData.embedKey !== 'undefined'){
+            node.embedKey = nodeData.embedKey;
+        }
+
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
         if (nodeData.application !== undefined && nodeData.application !== ""){
             console.warn("only found old application type, not new input application type and output application type", categoryType, category);
-            node.inputApplication(Node.createUnkeyedApplicationNode(nodeData.application, category));
+            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application, category, node.getKey()));
         }
 
         // read the 'real' input and output apps, correctly specified as nested nodes
         if (typeof nodeData.inputApplication !== 'undefined' && nodeData.inputApplication !== null){
             node.inputApplication(Node.fromOJSJson(nodeData.inputApplication));
+            node.inputApplication().setEmbedKey(node.getKey());
         }
         if (typeof nodeData.outputApplication !== 'undefined' && nodeData.outputApplication !== null){
             node.outputApplication(Node.fromOJSJson(nodeData.outputApplication));
+            node.outputApplication().setEmbedKey(node.getKey());
         }
         if (typeof nodeData.exitApplication !== 'undefined' && nodeData.exitApplication !== null){
             node.exitApplication(Node.fromOJSJson(nodeData.exitApplication));
+            node.exitApplication().setEmbedKey(node.getKey());
         }
 
         // collapsed
@@ -1200,13 +1268,14 @@ export class Node {
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (let j = 0 ; j < nodeData.inputPorts.length; j++){
-                let portData = nodeData.inputPorts[j];
-                let port = Port.fromOJSJson(portData);
-                port.setLocal(false);
-                if (node.inputApplication() !== null){
+                let port = Port.fromOJSJson(nodeData.inputPorts[j]);
+
+                if (node.hasInputApplication()){
+                    //console.log("read inputPort to inputApp inputPort");
                     node.inputApplication().addPort(port, true);
                     port.setNodeKey(node.getKey());
                 } else {
+                    //console.log("read inputPort to inputPort");
                     node.addPort(port, true);
                 }
             }
@@ -1215,13 +1284,20 @@ export class Node {
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (let j = 0 ; j < nodeData.outputPorts.length; j++){
-                let portData = nodeData.outputPorts[j];
-                let port = Port.fromOJSJson(portData);
-                port.setLocal(false);
-                if (node.inputApplication() !== null){
-                    node.inputApplication().addPort(port, false);
+                let port = Port.fromOJSJson(nodeData.outputPorts[j]);
+
+                if (node.hasOutputApplication()){
+                    //console.log("read outputPort to outputApp outputPort");
+                    node.outputApplication().addPort(port, false);
                     port.setNodeKey(node.getKey());
-                } else {
+                }
+                if (node.hasExitApplication()){
+                    //console.log("read outputPort to exitApp outputPort");
+                    node.exitApplication().addPort(port, false);
+                    port.setNodeKey(node.getKey());
+                }
+                if (!node.hasOutputApplication() && !node.hasInputApplication()){
+                    //console.log("read outputPort to outputPort");
                     node.addPort(port, false);
                 }
             }
@@ -1231,31 +1307,39 @@ export class Node {
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (var j = 0 ; j < nodeData.inputLocalPorts.length; j++){
                 var portData = nodeData.inputLocalPorts[j];
-                if (node.inputApplication() === null){
-                    console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
+                if (node.hasInputApplication()){
+                    let port = Port.fromOJSJson(portData);
+                    //console.log("read inputLocalPort to inputApp outputPort");
+                    node.inputApplication().addPort(port, false); // I or O?
+                    port.setNodeKey(node.getKey());
                 } else {
-                    let p = Port.fromOJSJson(portData);
-                    node.inputApplication().addPort(p, true); // I or O?
-                    p.setNodeKey(node.getKey());
-                    p.setLocal(true);
+                    console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
                 }
             }
         }
 
         // add output local ports
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
-        for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
+            for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
                 var portData = nodeData.outputLocalPorts[j];
-                if (node.inputApplication() === null){
-                    console.warn("Can't add outputLocal port", portData.IdText, "to node", node.getName());
-                } else {
-                    let p = Port.fromOJSJson(portData);
-                    node.inputApplication().addPort(p, false); // I or O?
-                    p.setNodeKey(node.getKey());
-                    p.setLocal(true);
+                let port = Port.fromOJSJson(portData);
+                if (node.hasOutputApplication()){
+                    //console.log("read outputLocalPort to outputApp inputPort");
+                    node.outputApplication().addPort(port, true); // I or O?
+                    port.setNodeKey(node.getKey());
                 }
-             }
-         }
+
+                if (node.hasExitApplication()){
+                    //console.log("read outputLocalPort to exitApp inputPort");
+                    node.exitApplication().addPort(port, true); // I or O?
+                    port.setNodeKey(node.getKey());
+                }
+
+                if (!node.hasOutputApplication() && !node.hasExitApplication()){
+                    console.warn("Can't add outputLocal port", portData.IdText, "to node", node.getName());
+                }
+            }
+        }
 
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
@@ -1290,13 +1374,30 @@ export class Node {
             }
         }
 
+        // add exitAppFields
+        if (typeof nodeData.exitAppFields !== 'undefined'){
+            for (var j = 0 ; j < nodeData.exitAppFields.length ; j++){
+                var fieldData = nodeData.exitAppFields[j];
+                var fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
+                var fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
+                var fieldType : Eagle.FieldDataType = fieldData.type === undefined ? Eagle.FieldDataType.Unknown : fieldData.type;
+                node.exitApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
+            }
+        }
+
         return node;
+    }
+
+    private static copyPorts(src: Port[], dest: {}[]):void{
+        for (var i = 0 ; i < src.length; i++){
+            dest.push(Port.toOJSJson(src[i]));
+        }
     }
 
     static toOJSJson = (node : Node) : object => {
         var result : any = {};
 
-        let useNewCategories : boolean = Eagle.findSetting(Utils.TRANSLATE_WITH_NEW_CATEGORIES).value();
+        let useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category) : node.category;
         result.categoryType = node.categoryType;
@@ -1326,91 +1427,126 @@ export class Node {
             result.group = node.parentKey;
         }
 
+        if (node.embedKey !== null){
+            result.embedKey = node.embedKey;
+        }
+
         // add input ports
         result.inputPorts = [];
-        for (var i = 0 ; i < node.inputPorts.length; i++){
-            let port = node.inputPorts[i];
-            result.inputPorts.push(Port.toOJSJson(port));
+        if (node.hasInputApplication()){
+            //console.log("copy", node.inputApplication().inputPorts.length, "inputApp inputPorts to result inputPorts")
+            Node.copyPorts(node.inputApplication().inputPorts, result.inputPorts);
+        } else {
+            //console.log("copy", node.inputPorts.length, "inputPorts to result inputPorts")
+            Node.copyPorts(node.inputPorts, result.inputPorts);
         }
 
         // add output ports
         result.outputPorts = [];
-        for (var i = 0 ; i < node.outputPorts.length; i++){
-            let port = node.outputPorts[i];
-            result.outputPorts.push(Port.toOJSJson(port));
+        if (node.hasOutputApplication()){
+            // add outputApp output ports here
+            //console.log("copy", node.outputApplication().outputPorts.length, "outputApp outputPorts to result outputPorts")
+            Node.copyPorts(node.outputApplication().outputPorts, result.outputPorts);
+        }
+        if (node.hasExitApplication()){
+            // add exitApp output ports here
+            //console.log("copy", node.exitApplication().outputPorts.length, "exitApp outputPorts to result outputPorts")
+            Node.copyPorts(node.exitApplication().outputPorts, result.outputPorts);
+        }
+        if (!node.hasOutputApplication() && !node.hasExitApplication()){
+            //console.log("copy", node.outputPorts.length, "outputPorts to result outputPorts")
+            Node.copyPorts(node.outputPorts, result.outputPorts);
         }
 
         // add input ports from the inputApplication
+        // ! should be inputApp output ports - i think !
         result.inputLocalPorts = [];
-        if (node.inputApplication() !== null){
-            for (var i = 0 ; i < node.inputApplication().inputPorts.length ; i++){
-                let port = node.inputApplication().inputPorts[i];
+        if (node.hasInputApplication()){
+            for (var i = 0 ; i < node.inputApplication().outputPorts.length ; i++){
+                var port = node.inputApplication().outputPorts[i];
 
-                // could be inputPorts, or inputLocalPorts
-                if (port.isLocal()){
-                    result.inputLocalPorts.push(Port.toOJSJson(port));
-                } else {
-                    result.inputPorts.push(Port.toOJSJson(port));
-                }
+                result.inputLocalPorts.push(Port.toOJSJson(port));
+                //console.log("copy inputApp outputPort to result inputLocalPorts");
             }
         }
 
-        // add output ports from the inputApplication
+        // add input ports from the outputApplication
+        // ! should be outputApp input ports - i think !
+        // ! AND       exitApp input ports - i think !
         result.outputLocalPorts = [];
-        if (node.inputApplication() !== null){
-            for (var i = 0 ; i < node.inputApplication().outputPorts.length ; i++){
-                let port = node.inputApplication().outputPorts[i];
+        if (node.hasOutputApplication()){
+            for (var i = 0 ; i < node.outputApplication().inputPorts.length ; i++){
+                var port = node.outputApplication().inputPorts[i];
 
-                // could be outputPorts, or outputLocalPorts
-                if (port.isLocal()){
-                    result.outputLocalPorts.push(Port.toOJSJson(port));
-                } else {
-                    result.outputPorts.push(Port.toOJSJson(port));
-                }
+                result.outputLocalPorts.push(Port.toOJSJson(port));
+                //console.log("copy outputApp inputPort to result outputLocalPorts");
+            }
+        }
+        if (node.hasExitApplication()){
+            for (var i = 0 ; i < node.exitApplication().inputPorts.length ; i++){
+                var port = node.exitApplication().inputPorts[i];
+
+                result.outputLocalPorts.push(Port.toOJSJson(port));
+                //console.log("copy exitApp inputPort to result outputLocalPorts");
             }
         }
 
         // add fields
         result.fields = [];
         for (var i = 0 ; i < node.fields.length ; i++){
-            var field = node.fields[i];
+            let field = node.fields[i];
             result.fields.push(Field.toOJSJson(field));
         }
 
         // add fields from inputApplication
         result.inputAppFields = [];
-        if (node.inputApplication() !== null){
+        if (node.hasInputApplication()){
             for (var i = 0 ; i < node.inputApplication().fields.length ; i++){
-                var field = node.inputApplication().fields[i];
+                let field = node.inputApplication().fields[i];
                 result.inputAppFields.push(Field.toOJSJson(field));
             }
         }
 
+        // add fields from outputApplication
+        result.outputAppFields = [];
+        if (node.hasOutputApplication()){
+            for (var i = 0 ; i < node.outputApplication().fields.length ; i++){
+                let field = node.outputApplication().fields[i];
+                result.outputAppFields.push(Field.toOJSJson(field));
+            }
+        }
+
+        // add fields from exitApplication
+        result.exitAppFields = [];
+        if (node.hasExitApplication()){
+            for (var i = 0 ; i < node.exitApplication().fields.length ; i++){
+                let field = node.exitApplication().fields[i];
+                result.exitAppFields.push(Field.toOJSJson(field));
+            }
+        }
+
         // write application names and types
-        if (node.inputApplication() !== null){
+        if (node.hasInputApplication()){
             result.inputApplicationName = node.inputApplication().name;
             result.inputApplicationType = node.inputApplication().category;
         } else {
             result.inputApplicationName = "";
             result.inputApplicationType = Eagle.Category.None;
         }
-        if (node.outputApplication() !== null){
+        if (node.hasOutputApplication()){
             result.outputApplicationName = node.outputApplication().name;
             result.outputApplicationType = node.outputApplication().category;
         } else {
             result.outputApplicationName = "";
             result.outputApplicationType = Eagle.Category.None;
         }
-        if (node.exitApplication() !== null){
+        if (node.hasExitApplication()){
             result.exitApplicationName = node.exitApplication().name;
             result.exitApplicationType = node.exitApplication().category;
         } else {
             result.exitApplicationName = "";
             result.exitApplicationType = Eagle.Category.None;
         }
-
-        // add fields from outputApplication
-        result.outputAppFields = [];
 
         return result;
     }
@@ -1443,7 +1579,7 @@ export class Node {
     static toV3ComponentJson = (node : Node) : object => {
         let result : any = {};
 
-        let useNewCategories : boolean = Eagle.findSetting(Utils.TRANSLATE_WITH_NEW_CATEGORIES).value();
+        let useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category) : node.category;
         result.categoryType = node.categoryType;
@@ -1456,9 +1592,9 @@ export class Node {
         result.streaming = node.streaming;
         result.subject = node.subject; // TODO: not sure if this should be here or in Node JSON
 
-        if (node.parentKey !== null){
-            result.group = node.parentKey;
-        }
+
+        result.parentKey = node.parentKey;
+        result.embedKey = node.embedKey;
 
         result.inputApplicationKey = -1;
         result.outputApplicationKey = -1;
@@ -1468,36 +1604,30 @@ export class Node {
         result.inputPorts = {};
         for (let i = 0 ; i < node.inputPorts.length; i++){
             let port = node.inputPorts[i];
-            let portData = {
-                name:port.getName(),
-                isEvent:port.isEvent()
-            };
-            result.inputPorts[port.getId()] = portData;
+            result.inputPorts[port.getId()] = Port.toV3Json(port);
         }
 
         // add output ports
         result.outputPorts = {};
         for (let i = 0 ; i < node.outputPorts.length; i++){
             let port = node.outputPorts[i];
-            let portData = {
-                name:port.getName(),
-                isEvent:port.isEvent()
-            };
-            result.outputPorts[port.getId()] = portData;
+            result.outputPorts[port.getId()] = Port.toV3Json(port);
         }
 
         // add parameters
         result.parameters = {};
         for (let i = 0 ; i < node.fields.length ; i++){
             let field = node.fields[i];
-            result.parameters[i] = Field.toOJSJson(field);
+            result.parameters[i] = Field.toV3Json(field);
         }
 
         return result;
     }
 
-    private static createUnkeyedApplicationNode = (name : string, category: Eagle.Category) : Node => {
-        console.log("createUnkeyedApplicationNode(", name, category, ")");
-        return new Node(0, name, "", category, Eagle.CategoryType.Application, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+    static createEmbeddedApplicationNode = (name : string, category: Eagle.Category, embedKey: number) : Node => {
+        console.log("createEmbeddedApplicationNode(", name, category, ")");
+        let n = new Node(null, name, "", category, Eagle.CategoryType.Application, Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+        n.setEmbedKey(embedKey);
+        return n;
     }
 }

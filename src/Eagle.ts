@@ -25,7 +25,6 @@
 "use strict";
 
 import * as ko from "knockout";
-import * as ij from "intro.js";
 
 import {Utils} from './Utils';
 import {Config} from './Config';
@@ -412,6 +411,11 @@ export class Eagle {
                 var n : Node = <Node>selection;
                 while(true){
                     var parentKey : number = n.getParentKey();
+
+                    if (parentKey === null){
+                        break;
+                    }
+
                     var parentNode : Node = this.logicalGraph().findNodeByKey(parentKey);
 
                     if (parentNode === null){
@@ -1380,6 +1384,7 @@ export class Eagle {
         console.log("runTutorial(" + name + ")");
 
         // start the tutorial
+        // @ts-ignore
         ij(name).setOption("showStepNumbers", false).setOption("skipLabel", "Exit").start();
     }
 
@@ -1407,7 +1412,12 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    static findSetting = (key : string) : Setting => {
+    private static findSetting = (key : string) : Setting => {
+        // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
+        if (typeof Eagle.settings === 'undefined'){
+            return null;
+        }
+
         for (var i = 0 ; i < Eagle.settings().length ; i++){
             var s = Eagle.settings()[i];
 
@@ -1416,6 +1426,17 @@ export class Eagle {
             }
         }
         return null;
+    }
+
+    static findSettingValue = (key : string) : any => {
+        let setting = Eagle.findSetting(key);
+
+        if (setting === null){
+            console.warn("No setting", key);
+            return null;
+        }
+
+        return setting.value();
     }
 
     getSettings = () : Setting[] => {
@@ -1774,8 +1795,8 @@ export class Eagle {
         }
     }
 
-    removePortFromNodeByIndex = (node : Node, index : number, input : boolean, local : boolean) : void => {
-        console.log("removePortFromNodeByIndex(): node", node.getName(), "index", index, "input", input, "local", local);
+    removePortFromNodeByIndex = (node : Node, index : number, input : boolean) : void => {
+        console.log("removePortFromNodeByIndex(): node", node.getName(), "index", index, "input", input);
 
         if (node === null){
             console.warn("Could not remove port from null node");
@@ -1785,34 +1806,18 @@ export class Eagle {
         // remember port id
         var portId;
         if (input){
-            if (local){
-                portId = node.getInputLocalPorts()[index].getId();
-            } else {
-                portId = node.getInputPorts()[index].getId();
-            }
+            portId = node.getInputPorts()[index].getId();
         } else {
-            if (local){
-                portId = node.getOutputLocalPorts()[index].getId();
-            } else {
-                portId = node.getOutputPorts()[index].getId();
-            }
+            portId = node.getOutputPorts()[index].getId();
         }
 
         console.log("Found portId to remove:", portId);
 
         // remove port
         if (input){
-            if (local){
-                node.getInputLocalPorts().splice(index, 1);
-            } else {
-                node.getInputPorts().splice(index, 1);
-            }
+            node.getInputPorts().splice(index, 1);
         } else {
-            if (local){
-                node.getOutputLocalPorts().splice(index, 1);
-            } else {
-                node.getOutputPorts().splice(index, 1);
-            }
+            node.getOutputPorts().splice(index, 1);
         }
 
         // remove any edges connected to that port
@@ -1908,7 +1913,6 @@ export class Eagle {
             });
 
             // update title on all right window component buttons
-            // TODO: update outputApplication and exitApplication too
             if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
                 $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
             if (eagle.selectedNode() !== null && eagle.selectedNode().getOutputApplication() !== null)
@@ -1930,7 +1934,19 @@ export class Eagle {
         for (var i = 0; i < this.logicalGraph().getNodes().length; i++){
             var node : Node = this.logicalGraph().getNodes()[i];
 
-            tableData.push({"name":node.getName(), "key":node.getKey(), "categoryType":node.getCategoryType(), "category":node.getCategory(), "expanded":node.getExpanded()});
+            tableData.push({
+                "name":node.getName(),
+                "key":node.getKey(),
+                "categoryType":node.getCategoryType(),
+                "category":node.getCategory(),
+                "expanded":node.getExpanded(),
+                "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
+                "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
+                "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
+                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey(),
+                "exitAppKey":node.getExitApplication() === null ? null : node.getExitApplication().getKey(),
+                "exitAppEmbedKey":node.getExitApplication() === null ? null : node.getExitApplication().getEmbedKey()
+            });
         }
 
         console.table(tableData);
@@ -2090,7 +2106,8 @@ export class Eagle {
             // clone the input application to make a local copy
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
             let clone : Node = application.clone();
-            clone.setKey(Math.floor(Math.random() * 1000000));
+            let newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+            clone.setKey(newKey);
 
             // set nodeKey on clone's ports to match the clone
             for (let i = 0 ; i < clone.getInputPorts().length ; i++){
@@ -2169,7 +2186,7 @@ export class Eagle {
         ExclusiveForceNode : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
 
         Variables          : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Branch             : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true},
+        Branch             : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
 
         Unknown            : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
         None               : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false}
