@@ -6,27 +6,25 @@
         <div class="template-palette container px-0">
             <!-- ko if: templatePalette() != null -->
                 <!-- ko foreach: templatePalette().nodes -->
-                    <!-- ko if: $data.getCategoryType() !== Eagle.CategoryType.Data -->
-                        <div class="row">
-                            <div class="col">
-                                <div class="input-group mb-1">
-                                    <div class="input-group-prepend" data-bind="attr: {title: $data.getHelpHTML()}" data-toggle="tooltip" data-html="true" data-placement="right">
-                                        <span class="input-group-text" data-bind="style: {'background-color': $data.getColor()}">
-                                            <i class="material-icons" data-bind="text: $data.getIcon()"></i>
-                                        </span>
-                                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group mb-1">
+                                <div class="input-group-prepend" data-bind="attr: {title: $data.getHelpHTML()}" data-toggle="tooltip" data-html="true" data-placement="right">
+                                    <span class="input-group-text" data-bind="style: {'background-color': $data.getColor()}">
+                                        <i class="material-icons" data-bind="text: $data.getIcon()"></i>
+                                    </span>
+                                </div>
 
-                                    <input type="text" class="form-control" readonly data-bind="value: $root.templatePalette().nodes[$index()].getDisplayName()">
+                                <input type="text" class="form-control" readonly data-bind="value: $root.templatePalette().nodes[$index()].getDisplayName()">
 
-                                    <div class="input-group-append">
-                                        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $root.addNodeToEditorPalette, attr: {id: 'addTemplatePaletteNode' + $index(), title: 'Add component to palette'}" data-toggle="tooltip" data-html="true" data-placement="right">
-                                            <i class="material-icons md-18">add</i>
-                                        </button>
-                                    </div>
+                                <div class="input-group-append">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $root.addNodeToEditorPalette, attr: {id: 'addTemplatePaletteNode' + $index(), title: 'Add component to palette'}" data-toggle="tooltip" data-html="true" data-placement="right">
+                                        <i class="material-icons md-18">add</i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    <!-- /ko -->
+                    </div>
                 <!-- /ko -->
             <!-- /ko -->
         </div>

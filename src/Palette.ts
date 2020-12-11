@@ -124,23 +124,6 @@ export class Palette {
         return this.nodes;
     }
 
-    getNthNonDataNode = (n : number) : Node => {
-        var index : number = -1;
-
-        for (var i = 0 ; i < this.nodes.length ; i++){
-            if (this.nodes[i].getCategoryType() === Eagle.CategoryType.Data){
-                continue;
-            }
-            index += 1;
-
-            if (index === n){
-                return this.nodes[i];
-            }
-        }
-
-        return null;
-    }
-
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Palette;

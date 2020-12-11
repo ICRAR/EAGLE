@@ -28,9 +28,8 @@ ko.bindingHandlers.paletteRenderer = {
 
 
 function render(palette : Palette, elementId : string, eagle : Eagle){
-    var nodeData = palette.getNodes().filter(function(node : Node){
-        return node.getCategoryType() !== Eagle.CategoryType.Data;
-    });
+    var nodeData = palette.getNodes();
+    
     var selectedNodeIndex : number = -1;
 
     var svgContainer = d3.select("#" + elementId)

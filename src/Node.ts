@@ -892,51 +892,7 @@ export class Node {
 
     // find the right icon for this node
     getIcon = () : string => {
-        switch(this.category){
-            case Eagle.Category.Start:
-                return "play_arrow";
-            case Eagle.Category.End:
-                return "stop";
-            case Eagle.Category.Comment:
-                return "comment";
-            case Eagle.Category.Description:
-                return "note";
-            case Eagle.Category.Scatter:
-                return "call_split";
-            case Eagle.Category.GroupBy:
-                return "group_work";
-            case Eagle.Category.Gather:
-                return "call_merge";
-            case Eagle.Category.PythonApp:
-                return "extension";
-            case Eagle.Category.File:
-                return "description";
-            case Eagle.Category.Memory:
-                return "memory";
-            case Eagle.Category.Docker:
-                return "computer";
-            case Eagle.Category.BashShellApp:
-                return "arrow_forward_ios";
-            case Eagle.Category.Loop:
-                return "loop";
-            case Eagle.Category.MKN:
-                return "waves";
-            case Eagle.Category.MPI:
-                return "apps";
-            case Eagle.Category.DynlibApp:
-                return "menu_book";
-            case Eagle.Category.Service:
-                return "build";
-            case Eagle.Category.ExclusiveForceNode:
-                return "picture_in_picture";
-            case Eagle.Category.Variables:
-                return "tune";
-            case Eagle.Category.Branch:
-                return "share";
-            default:
-                console.warn("No icon for node with category", this.category);
-                return "warning";
-        }
+        return Eagle.getCategoryData(this.category).icon;
     }
 
     getInputMultiplicity = () : number => {

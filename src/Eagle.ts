@@ -1906,13 +1906,13 @@ export class Eagle {
 
             // update title on all left window template palette buttons
             $('.leftWindowDisplay.templatePalette .input-group-prepend').each(function(index: number, element: HTMLElement){
-                $(element).attr('data-original-title', eagle.templatePalette().getNthNonDataNode(index).getHelpHTML());
+                $(element).attr('data-original-title', eagle.templatePalette().getNodes()[index].getHelpHTML());
             });
 
             // update title on all left window palette buttons
             $('.leftWindowDisplay .palette').each(function(i: number, iElement: HTMLElement){
                 $(iElement).find('.input-group-prepend').each(function(j: number, jElement: HTMLElement){
-                    $(jElement).attr('data-original-title', eagle.palettes()[i].getNthNonDataNode(j).getHelpHTML());
+                    $(jElement).attr('data-original-title', eagle.palettes()[i].getNodes()[j].getHelpHTML());
                 });
             });
 
@@ -2177,42 +2177,43 @@ export class Eagle {
                     canHaveInputApplication: false,
                     canHaveOutputApplication: false,
                     canHaveExitApplication: false,
-                    canHaveParameters: false};
+                    canHaveParameters: false,
+                    icon: "error"};
         }
 
         return c;
     }
 
     static readonly cData : {[category:string] : Eagle.CategoryData} = {
-        Start              : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        End                : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Comment            : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-        Description        : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-        Scatter            : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Gather             : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        MKN                : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
-        GroupBy            : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
-        Loop               : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true},
+        Start              : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "play_arrow"},
+        End                : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "stop"},
+        Comment            : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "comment"},
+        Description        : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "note"},
+        Scatter            : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_split"},
+        Gather             : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_merge"},
+        MKN                : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "waves"},
+        GroupBy            : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "group_work"},
+        Loop               : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true, icon: "loop"},
 
-        PythonApp          : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        BashShellApp       : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        DynlibApp          : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        PythonApp          : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "extension"},
+        BashShellApp       : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "arrow_forward_ios"},
+        DynlibApp          : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "menu_book"},
 
-        NGAS               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        S3                 : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Mpi                : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Docker             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Memory             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        File               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        NGAS               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "save"},
+        S3                 : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "cloud_queue"},
+        Mpi                : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "apps"},
+        Docker             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "computer"},
+        Memory             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "memory"},
+        File               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "description"},
 
-        Service            : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        ExclusiveForceNode : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
+        Service            : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "build"},
+        ExclusiveForceNode : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "picture_in_picture"},
 
-        Variables          : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
-        Branch             : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true},
+        Variables          : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune"},
+        Branch             : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "share"},
 
-        Unknown            : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
-        None               : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false}
+        Unknown            : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "device_unknown"},
+        None               : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block"}
     };
 }
 
@@ -2330,5 +2331,5 @@ export namespace Eagle
         export var Unknown : CategoryType = "Unknown";
     }
 
-    export type CategoryData = {isData: boolean, isGroup:boolean, canHaveInputs: boolean, canHaveOutputs:boolean, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean};
+    export type CategoryData = {isData: boolean, isGroup:boolean, canHaveInputs: boolean, canHaveOutputs:boolean, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean, icon: string};
 }
