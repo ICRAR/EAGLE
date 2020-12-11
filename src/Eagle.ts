@@ -395,6 +395,11 @@ export class Eagle {
         switch (rightWindowMode){
             case Eagle.RightWindowMode.Hierarchy:
             case Eagle.RightWindowMode.NodeInspector:
+                // abort if already selected
+                if (this.selectedNode() === selection){
+                    return;
+                }
+
                 // de-select all the nodes and then select this node
                 for (var i = 0 ; i < this.logicalGraph().getNodes().length; i++){
                     this.logicalGraph().getNodes()[i].setSelected(false);
