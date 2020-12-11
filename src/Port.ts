@@ -66,4 +66,15 @@ export class Port {
             event:port.event
         };
     }
+
+    static fromOJSJson = (data : any) : Port => {
+        let id = data.Id;
+        let name = data.IdText;
+        let event = false;
+
+        if (typeof data.event !== 'undefined')
+            event = data.event;
+
+        return new Port(id, name, event);
+    }
 }

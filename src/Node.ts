@@ -1248,8 +1248,7 @@ export class Node {
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (let j = 0 ; j < nodeData.inputPorts.length; j++){
-                let portData = nodeData.inputPorts[j];
-                let port = new Port(portData.Id, portData.IdText, false);
+                let port = Port.fromOJSJson(nodeData.inputPorts[j]);
 
                 if (node.hasInputApplication()){
                     //console.log("read inputPort to inputApp inputPort");
@@ -1265,8 +1264,7 @@ export class Node {
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (let j = 0 ; j < nodeData.outputPorts.length; j++){
-                let portData = nodeData.outputPorts[j];
-                let port = new Port(portData.Id, portData.IdText, false);
+                let port = Port.fromOJSJson(nodeData.outputPorts[j]);
 
                 if (node.hasOutputApplication()){
                     //console.log("read outputPort to outputApp outputPort");
@@ -1290,10 +1288,10 @@ export class Node {
             for (var j = 0 ; j < nodeData.inputLocalPorts.length; j++){
                 var portData = nodeData.inputLocalPorts[j];
                 if (node.hasInputApplication()){
-                    let p = new Port(portData.Id, portData.IdText, false);
+                    let port = Port.fromOJSJson(portData);
                     //console.log("read inputLocalPort to inputApp outputPort");
-                    node.inputApplication().addPort(p, false); // I or O?
-                    p.setNodeKey(node.getKey());
+                    node.inputApplication().addPort(port, false); // I or O?
+                    port.setNodeKey(node.getKey());
                 } else {
                     console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
                 }
@@ -1304,18 +1302,17 @@ export class Node {
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
                 var portData = nodeData.outputLocalPorts[j];
+                let port = Port.fromOJSJson(portData);
                 if (node.hasOutputApplication()){
-                    let p = new Port(portData.Id, portData.IdText, false);
                     //console.log("read outputLocalPort to outputApp inputPort");
-                    node.outputApplication().addPort(p, true); // I or O?
-                    p.setNodeKey(node.getKey());
+                    node.outputApplication().addPort(port, true); // I or O?
+                    port.setNodeKey(node.getKey());
                 }
 
                 if (node.hasExitApplication()){
-                    let p = new Port(portData.Id, portData.IdText, false);
                     //console.log("read outputLocalPort to exitApp inputPort");
-                    node.exitApplication().addPort(p, true); // I or O?
-                    p.setNodeKey(node.getKey());
+                    node.exitApplication().addPort(port, true); // I or O?
+                    port.setNodeKey(node.getKey());
                 }
 
                 if (!node.hasOutputApplication() && !node.hasExitApplication()){
