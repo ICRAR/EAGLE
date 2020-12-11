@@ -46,6 +46,11 @@ export class Port {
         this.event = event;
     }
 
+    toggleEvent = () : void => {
+        console.log("toggleEvent()", this._id, !this.event);
+        this.event = !this.event;
+    }
+
     clone = () : Port => {
         var p = new Port(this._id, this.name, this.event);
         p.local = this.local;
@@ -68,13 +73,11 @@ export class Port {
     }
 
     static fromOJSJson = (data : any) : Port => {
-        let id = data.Id;
-        let name = data.IdText;
         let event = false;
 
         if (typeof data.event !== 'undefined')
             event = data.event;
 
-        return new Port(id, name, event);
+        return new Port(data.Id, data.IdText, event);
     }
 }

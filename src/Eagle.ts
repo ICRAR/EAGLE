@@ -112,7 +112,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Confirm Delete Nodes", "Prompt user to confirm when deleting a node from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
         Eagle.settings.push(new Setting("Confirm Delete Edges", "Prompt user to confirm when deleting an edge from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
         Eagle.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
-        Eagle.settings.push(new Setting("Allow invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, false));
+        Eagle.settings.push(new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, false));
         Eagle.settings.push(new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, false));
         Eagle.settings.push(new Setting("Enable Palette Editor Mode", "Enable the palette editor mode in EAGLE.", Setting.Type.Boolean, Utils.ENABLE_PALETTE_EDITOR_MODE, false));
         Eagle.settings.push(new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false));
@@ -694,11 +694,13 @@ export class Eagle {
             // clone the logical graph and remove github info ready for local save
             var lg_clone : LogicalGraph = this.logicalGraph().clone();
             lg_clone.fileInfo().removeGitInfo();
+            lg_clone.fileInfo().updateEagleInfo();
             json = LogicalGraph.toOJSJson(lg_clone);
         } else {
             // clone the palette and remove github info ready for local save
             var p_clone : Palette = this.editorPalette().clone();
             p_clone.fileInfo().removeGitInfo();
+            p_clone.fileInfo().updateEagleInfo();
             json = Palette.toOJSJson(p_clone);
         }
 
@@ -759,8 +761,6 @@ export class Eagle {
                 return;
         }
 
-        // DEBUG:
-        console.log("url", url);
 
         Utils.httpPostJSON(url, json, (error : string, data: string) : void => {
             if (error !== null){
@@ -838,6 +838,9 @@ export class Eagle {
             // Change the title name.
             activeFileInfo().name = fileName;
 
+            // set the EAGLE version etc according to this running version
+            activeFileInfo().updateEagleInfo();
+
             // flag fileInfo object as modified
             activeFileInfo.valueHasMutated();
 
@@ -879,6 +882,9 @@ export class Eagle {
                 console.log("Abort commit");
                 return;
             }
+
+            // set the EAGLE version etc according to this running version
+            this.activeFileInfo().updateEagleInfo();
 
             this.saveDiagramToGit(this.getRepository(this.activeFileInfo().repositoryService, this.activeFileInfo().repositoryName, this.activeFileInfo().repositoryBranch), fileType, this.activeFileInfo().path, this.activeFileInfo().name, userString);
         });
@@ -938,6 +944,9 @@ export class Eagle {
      */
     exportV3Json = () : void => {
         var fileName : string = this.activeFileInfo().name;
+
+        // set the EAGLE version etc according to this running version
+        this.logicalGraph().fileInfo().updateEagleInfo();
 
         var json = LogicalGraph.toV3Json(this.logicalGraph());
 
@@ -1655,6 +1664,7 @@ export class Eagle {
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
+            this.flagActiveFileModified();
         });
     }
 
@@ -1903,10 +1913,13 @@ export class Eagle {
             });
 
             // update title on all right window component buttons
-            // TODO: update outputApplication and exitApplication too
-            if (eagle.selectedNode() !== null && eagle.selectedNode().hasInputApplication())
-                $('.rightWindowDisplay inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
-        }, 50);
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
+                $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getOutputApplication() !== null)
+                $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getOutputApplication().getHelpHTML());
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getExitApplication() !== null)
+                $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getExitApplication().getHelpHTML());
+        }, 150);
     }
 
     selectedEdgeValid = () : Eagle.LinkValid => {
@@ -2046,14 +2059,18 @@ export class Eagle {
                 }
             }
 
-            // HACK to make sure that new value is shown in the UI
-            var x = this.selectedNode();
-            this.selectedNode(null);
-            var that = this;
-            setTimeout(function(){
-                that.selectedNode(x);
-            }, 1);
+            this.hackNodeUpdate();
         });
+    }
+
+    hackNodeUpdate = () : void => {
+        // HACK to make sure that new value is shown in the UI
+        var x = this.selectedNode();
+        this.selectedNode(null);
+        var that = this;
+        setTimeout(function(){
+            that.selectedNode(x);
+        }, 1);
     }
 
     private setNodeApplication = (title: string, message: string, callback:(node:Node) => void) : void => {
@@ -2165,7 +2182,7 @@ export class Eagle {
         Memory             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
         File               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
 
-        Service            : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
+        Service            : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},
         ExclusiveForceNode : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false},
 
         Variables          : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true},

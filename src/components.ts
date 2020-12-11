@@ -50,12 +50,13 @@ ko.components.register('field', {
 });
 
 ko.components.register('port', {
-    viewModel: function(params : {id : string, name : string, multiplicity : number, isEventPort : boolean, input : boolean, local: boolean}){
+    viewModel: function(params : {id : string, name : string, multiplicity : number, isEventPort : boolean, toggleEvent : boolean, input : boolean, local: boolean}){
         return {
             id: params.id,
             name: params.name,
             multiplicity: params.multiplicity,
             isEventPort: params.isEventPort,
+            toggleEvent: params.toggleEvent,
             input: params.input,
             local: params.local
         };
