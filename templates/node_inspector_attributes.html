@@ -1,38 +1,19 @@
 <div class="card">
     <h5 class="card-header">
         <i class="material-icons">settings</i>
-        <span data-bind="text: selectedNode().getCategory() + ' : ' + selectedNode().getName()"></span>
+        <span data-bind="text: selectedNode().getCategoryType() + ' : ' + selectedNode().getCategory() + ' : ' + selectedNode().getName() + ' : ' + selectedNode().getKey()"></span>
     </h5>
     <div class="card-body">
 
-        <div class="input-group mb-1">
-            <div class="input-group-prepend">
-                <span class="input-group-text mw-140" id="node-key">Key</span>
-            </div>
-            <input type="text" class="form-control" id="nodeKeyValue" placeholder="" aria-label="Key" aria-describedby="node-key" readonly data-bind="value: selectedNode().getKey()">
-        </div>
-
-        <div class="input-group mb-1">
-            <div class="input-group-prepend">
-                <span class="input-group-text mw-140" id="node-category-type">Category Type</span>
-            </div>
-            <input type="text" class="form-control" id="nodeCategoryTypeValue" placeholder="" aria-label="Category Type" aria-describedby="node-category-type" readonly data-bind="value: selectedNode().getCategoryType()">
-        </div>
-
-        <div class="input-group mb-1">
-            <div class="input-group-prepend">
-                <span class="input-group-text mw-140" id="node-category">Category</span>
-            </div>
-            <input type="text" class="form-control" id="nodeCategoryValue" placeholder="" aria-label="Category Type" aria-describedby="node-category" readonly data-bind="value: selectedNode().getCategory()">
-        </div>
-
         <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
-        <div class="input-group mb-1">
-            <div class="input-group-prepend">
-                <span class="input-group-text mw-140" id="node-name">Name</span>
-            </div>
-            <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="nodeDataProperty: 'name', readonly: !$root.allowComponentEditing()">
-        </div>
+            <!-- ko if: $root.allowComponentEditing() -->
+                <div class="input-group mb-1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text mw-140" id="node-name">Name</span>
+                    </div>
+                    <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="nodeDataProperty: 'name'">
+                </div>
+            <!-- /ko -->
         <!-- /ko -->
 
         <div class="input-group mb-1">
