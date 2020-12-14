@@ -1578,6 +1578,54 @@ export class Eagle {
         }
     }
 
+    addSelectedNodeToPalette = () : void => {
+        console.log("addSelectedNodeToPalette()");
+
+        // build a list of palette names
+        let paletteNames : string[] = [];
+        for (let i = 0 ; i < this.palettes().length; i++){
+            paletteNames.push(this.palettes()[i].fileInfo().name);
+        }
+
+        // if no palettes available, abort
+        if (paletteNames.length === 0){
+            Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
+            return;
+        }
+
+        // ask user to select the destination node
+        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node", paletteNames, 0, false, "", (completed : boolean, userString : string) => {
+            // abort if the user aborted
+            if (!completed){
+                return;
+            }
+
+            console.log("userString", userString);
+
+            // get reference to palette (based on userString)
+            let destinationPalette = null;
+            for (let i = 0 ; i < this.palettes().length ; i++){
+                if (this.palettes()[i].fileInfo().name === userString){
+                    destinationPalette = this.palettes()[i];
+                    break;
+                }
+            }
+
+            if (destinationPalette === null){
+                Utils.showUserMessage("Error", "Unable to find selected palette!");
+                return;
+            }
+
+            // copy nodes to palette
+            let clone : Node = this.selectedNode().clone();
+            destinationPalette.addNode(clone);
+            console.log("Copy LG node", clone.getName(), "to destination palette", destinationPalette.fileInfo().name, "now contains", destinationPalette.getNodes().length);
+
+            // mark the palette as modified
+            destinationPalette.fileInfo().modified = true;
+        });
+    }
+
     deleteSelectedNode = () : void => {
         if (this.selectedNode() === null){
             console.log("Unable to delete selected node: No node selected");
@@ -1694,8 +1742,8 @@ export class Eagle {
                 console.log("Copy LG node", clone.getName(), "to destination palette", destinationPalette.fileInfo().name, "now contains", destinationPalette.getNodes().length);
             }
 
-            // trigger update
-            this.palettes.valueHasMutated();
+            // mark the palette as modified
+            destinationPalette.fileInfo().modified = true;
         });
     }
 
