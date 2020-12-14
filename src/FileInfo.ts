@@ -171,6 +171,10 @@ export class FileInfo {
         this.eagleCommitHash = (<any>window).commit_hash;
     }
 
+    getNameAndModifiedIndicator = () : string => {
+        return this._name + (this._modified ? "*" : "");
+    }
+
     getSummaryHTML = () : string => {
         return "<p>" + this._repositoryService + " : " + this._repositoryName + ((this._repositoryBranch == "") ? "" : ("(" + this._repositoryBranch + ")")) + " : " + this._path + "/" + this._name + "</p>";
     }

@@ -5,7 +5,7 @@
                 <i class="material-icons interactive" data-toggle="tooltip" data-placement="right" data-html="true" data-bind="attr:{title:'Expand/Collapse'},text:getCollapseIcon()"></i>
                 <i class="material-icons interactive" data-toggle="tooltip" data-placement="right" data-html="true" data-bind="attr:{title:fileInfo().getSummaryHTML()}">info</i>
                 <span>&nbsp;</span>
-                <h5 class="template-title" data-bind="text: fileInfo().name"></h5>
+                <h5 class="template-title" data-bind="text: fileInfo().getNameAndModifiedIndicator()"></h5>
                 <button type="button" class="close" aria-label="Close" data-bind="click: function(palette, event){$root.closePalette(palette);event.stopPropagation()}">
                     <i class="material-icons">close</i>
                 </button>
