@@ -128,6 +128,27 @@ export class Eagle {
         this.selectedNode.subscribe(this.updateTooltips);
     }
 
+    areAnyFilesModified = () : boolean => {
+        // check the logical graph
+        if (this.logicalGraph().fileInfo().modified){
+            return true;
+        }
+
+        // check the editor palette
+        if (this.editorPalette().fileInfo().modified){
+            return true;
+        }
+
+        // check all the open palettes
+        for (let i = 0 ; i < this.palettes().length ; i++){
+            if (this.palettes()[i].fileInfo().modified){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     isPaletteEditorModeEnabled = () : boolean => {
         return Eagle.findSetting(Utils.ENABLE_PALETTE_EDITOR_MODE).value();
     }
