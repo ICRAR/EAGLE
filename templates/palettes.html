@@ -9,6 +9,10 @@
                 <button type="button" class="close" aria-label="Close" data-bind="click: function(palette, event){$root.closePalette(palette);event.stopPropagation()}">
                     <i class="material-icons">close</i>
                 </button>
+                <span>&nbsp;</span>
+                <button type="button" class="close" aria-label="Save" data-bind="click: function(palette, event){$root.savePalette(palette);event.stopPropagation()}">
+                    <i class="material-icons">save</i>
+                </button>
             </div>
             <div class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" data-bind="attr:{id:'collapse' + $index()}">
                 <div class="card-body">

@@ -181,6 +181,24 @@ export class FileInfo {
         return "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
     }
 
+    toString = () : string => {
+        let s = "";
+
+        s += "Name:" + this._name();
+        s += " Path:" + this._path();
+        s += " Type:" + Utils.translateFileTypeToString(this._type());
+        s += " Git URL:" + this._gitUrl();
+        s += " Repository Service:" + this._repositoryService();
+        s += " Repository Name:" + this._repositoryName();
+        s += " Repository Branch:" + this._repositoryBranch();
+        s += " SHA:" + this._sha();
+        s += " Modified:" + this._modified();
+        s += " EAGLE Version:" + this._eagleVersion();
+        s += " EAGLE Commit Hash:" + this._eagleCommitHash();
+
+        return s;
+    }
+
     static toOJSJson = (fileInfo : FileInfo) : object => {
         return {
             fileType: Utils.translateFileTypeToString(fileInfo.type),
