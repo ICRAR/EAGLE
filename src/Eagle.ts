@@ -252,6 +252,8 @@ export class Eagle {
     };
 
     getRepository = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
+        console.log("getRepository()", service, name, branch);
+
         for (var i = 0 ; i < this.repositories().length ; i++){
             if (this.repositories()[i].service === service && this.repositories()[i].name === name && this.repositories()[i].branch === branch){
                 return this.repositories()[i];
@@ -892,7 +894,16 @@ export class Eagle {
             // set the EAGLE version etc according to this running version
             this.activeFileInfo().updateEagleInfo();
 
-            this.saveDiagramToGit(this.getRepository(this.activeFileInfo().repositoryService, this.activeFileInfo().repositoryName, this.activeFileInfo().repositoryBranch), fileType, this.activeFileInfo().path, this.activeFileInfo().name, userString);
+            // get the repository for this file
+            let repository = this.getRepository(this.activeFileInfo().repositoryService, this.activeFileInfo().repositoryName, this.activeFileInfo().repositoryBranch);
+
+            // check that repository was found
+            if (repository === null){
+                Utils.showUserMessage("Error", "Unable to get find correct repository from the information from the active file.<br/>Service:" + this.activeFileInfo().repositoryService + "<br/>Name:" + this.activeFileInfo().repositoryName + "<br/>Branch:" + this.activeFileInfo().repositoryBranch);
+                return;
+            }
+
+            this.saveDiagramToGit(repository, fileType, this.activeFileInfo().path, this.activeFileInfo().name, userString);
         });
     };
 
@@ -1250,8 +1261,8 @@ export class Eagle {
                 Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
             }
 
-            //.update the activeFileInfo with details of the repository the file was loaded from
-            if (fileTypeLoaded === Eagle.FileType.Graph){
+            // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
+            if ((this.userMode() === Eagle.UserMode.LogicalGraphEditor && fileTypeLoaded === Eagle.FileType.Graph) || (this.userMode() === Eagle.UserMode.PaletteEditor && fileTypeLoaded === Eagle.FileType.Palette)){
                 this.updateActiveFileInfo(fileTypeLoaded, file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
             }
         });
@@ -1295,7 +1306,9 @@ export class Eagle {
     }
 
     private updateActiveFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
-        //.update the activeFileInfo with details of the repository the file was loaded from
+        console.log("updateActiveFileInfo(): fileType:", Utils.translateFileTypeToString(fileType), "repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
+
+        // update the activeFileInfo with details of the repository the file was loaded from
         this.activeFileInfo().repositoryName = repositoryName;
         this.activeFileInfo().repositoryBranch = repositoryBranch;
         this.activeFileInfo().repositoryService = repositoryService;
