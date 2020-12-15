@@ -235,6 +235,14 @@
     cursor: pointer;
 }
 
+.leftWindow .card-header button.save-to-git {
+    margin-right: 16px;
+}
+
+.leftWindow .card-header button.save-to-disk {
+    margin-right: 8px;
+}
+
 .rightWindow h5 i.material-icons {
     position: relative;
     top: 5px;

@@ -1608,7 +1608,7 @@ export class Eagle {
         }
 
         // ask user to select the destination node
-        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node", paletteNames, 0, false, "", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node", paletteNames, 0, true, "New Palette Name", (completed : boolean, userString : string) => {
             // abort if the user aborted
             if (!completed){
                 return;
@@ -1617,20 +1617,15 @@ export class Eagle {
             console.log("userString", userString);
 
             // get reference to palette (based on userString)
-            let destinationPalette = null;
-            for (let i = 0 ; i < this.palettes().length ; i++){
-                if (this.palettes()[i].fileInfo().name === userString){
-                    destinationPalette = this.palettes()[i];
-                    break;
-                }
-            }
+            let destinationPalette = this.findPalette(userString);
 
+            // check that a palette was found
             if (destinationPalette === null){
                 Utils.showUserMessage("Error", "Unable to find selected palette!");
                 return;
             }
 
-            // copy nodes to palette
+            // copy node to palette
             let clone : Node = this.selectedNode().clone();
             destinationPalette.addNode(clone);
             console.log("Copy LG node", clone.getName(), "to destination palette", destinationPalette.fileInfo().name, "now contains", destinationPalette.getNodes().length);
@@ -1723,7 +1718,7 @@ export class Eagle {
         }
 
         // ask user to select the destination node
-        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, false, "", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name", (completed : boolean, userString : string) => {
             // abort if the user aborted
             if (!completed){
                 return;
@@ -1732,14 +1727,9 @@ export class Eagle {
             console.log("userString", userString);
 
             // get reference to palette (based on userString)
-            let destinationPalette = null;
-            for (let i = 0 ; i < this.palettes().length ; i++){
-                if (this.palettes()[i].fileInfo().name === userString){
-                    destinationPalette = this.palettes()[i];
-                    break;
-                }
-            }
+            let destinationPalette = this.findPalette(userString);
 
+            // check that a palette was found
             if (destinationPalette === null){
                 Utils.showUserMessage("Error", "Unable to find selected palette!");
                 return;
@@ -1768,7 +1758,29 @@ export class Eagle {
 
             paletteNames.push(this.palettes()[i].fileInfo().name);
         }
+
         return paletteNames;
+    }
+
+    private findPalette = (name: string) : Palette => {
+        let p: Palette = null;
+
+        // look for palette in open palettes
+        for (let i = 0 ; i < this.palettes().length ; i++){
+            if (this.palettes()[i].fileInfo().name === name){
+                p = this.palettes()[i];
+                break;
+            }
+        }
+
+        // if user asked for a new palette, create one
+        if (p === null){
+            p = new Palette();
+            p.fileInfo().name = name;
+            this.palettes.push(p);
+        }
+
+        return p;
     }
 
     toggleLeftWindow = () : void => {
