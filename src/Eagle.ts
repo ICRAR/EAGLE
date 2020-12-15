@@ -25,6 +25,7 @@
 "use strict";
 
 import * as ko from "knockout";
+import * as ij from "intro.js";
 
 import {Utils} from './Utils';
 import {Config} from './Config';
@@ -1570,7 +1571,6 @@ export class Eagle {
         console.log("runTutorial(" + name + ")");
 
         // start the tutorial
-        // @ts-ignore
         ij(name).setOption("showStepNumbers", false).setOption("skipLabel", "Exit").start();
     }
 
