@@ -41,6 +41,10 @@ export class Repository {
         this.folders.removeAll();
     }
 
+    getNameAndBranch = () : string => {
+        return this.name + " (" + this.branch + ")";
+    }
+
     // sorting order
     // 1. alphabetically by service
     // 2. alphabetically by name

@@ -1,169 +1,171 @@
+import * as ko from "knockout";
+
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {GraphUpdater} from './GraphUpdater';
 
 export class FileInfo {
-    private _name : string;
-    private _path : string;
-    private _type : Eagle.FileType;
-    private _gitUrl : string;
-    private _repositoryService : Eagle.RepositoryService;
-    private _repositoryBranch : string;
-    private _repositoryName : string;
-    private _sha : string;
-    private _modified : boolean;
-    private _eagleVersion : string;
-    private _eagleCommitHash : string;
+    private _name : ko.Observable<string>;
+    private _path : ko.Observable<string>;
+    private _type : ko.Observable<Eagle.FileType>;
+    private _gitUrl : ko.Observable<string>;
+    private _repositoryService : ko.Observable<Eagle.RepositoryService>;
+    private _repositoryBranch : ko.Observable<string>;
+    private _repositoryName : ko.Observable<string>;
+    private _sha : ko.Observable<string>;
+    private _modified : ko.Observable<boolean>;
+    private _eagleVersion : ko.Observable<string>;
+    private _eagleCommitHash : ko.Observable<string>;
 
     constructor(){
-        this._name = "";
-        this._path = "";
-        this._type = Eagle.FileType.Unknown;
-        this._gitUrl = "";
-        this._repositoryService = Eagle.RepositoryService.Unknown;
-        this._repositoryBranch = "";
-        this._repositoryName = "";
-        this._sha = "";
-        this._modified = false;
-        this._eagleVersion = "";
-        this._eagleCommitHash = "";
+        this._name = ko.observable("");
+        this._path = ko.observable("");
+        this._type = ko.observable(Eagle.FileType.Unknown);
+        this._gitUrl = ko.observable("");
+        this._repositoryService = ko.observable(Eagle.RepositoryService.Unknown);
+        this._repositoryBranch = ko.observable("");
+        this._repositoryName = ko.observable("");
+        this._sha = ko.observable("");
+        this._modified = ko.observable(false);
+        this._eagleVersion = ko.observable("");
+        this._eagleCommitHash = ko.observable("");
     }
 
     get name() : string{
-        return this._name;
+        return this._name();
     }
 
     set name(name : string){
-        this._name = name;
+        this._name(name);
     }
 
     get path() : string{
-        return this._path;
+        return this._path();
     }
 
     set path(path : string){
-        this._path = path;
+        this._path(path);
     }
 
     get type() : Eagle.FileType {
-        return this._type;
+        return this._type();
     }
 
     set type(type : Eagle.FileType){
-        this._type = type;
+        this._type(type);
     }
 
     get gitUrl() : string {
-        return this._gitUrl;
+        return this._gitUrl();
     }
 
     set gitUrl(gitUrl : string){
-        this._gitUrl = gitUrl;
+        this._gitUrl(gitUrl);
     }
 
     get repositoryService() : Eagle.RepositoryService {
-        return this._repositoryService;
+        return this._repositoryService();
     }
 
     set repositoryService(repositoryService : Eagle.RepositoryService){
-        this._repositoryService = repositoryService;
+        this._repositoryService(repositoryService);
     }
 
     get repositoryBranch() : string {
-        return this._repositoryBranch;
+        return this._repositoryBranch();
     }
 
     set repositoryBranch(repositoryBranch : string){
-        this._repositoryBranch = repositoryBranch;
+        this._repositoryBranch(repositoryBranch);
     }
 
     get repositoryName() : string {
-        return this._repositoryName;
+        return this._repositoryName();
     }
 
     set repositoryName(repositoryName : string){
-        this._repositoryName = repositoryName;
+        this._repositoryName(repositoryName);
     }
 
     get sha() : string{
-        return this._sha;
+        return this._sha();
     }
 
     set sha(sha : string){
-        this._sha = sha;
+        this._sha(sha);
     }
 
     get modified() : boolean{
-        return this._modified;
+        return this._modified();
     }
 
     set modified(modified : boolean){
-        this._modified = modified;
+        this._modified(modified);
     }
 
     get eagleVersion() : string{
-        return this._eagleVersion;
+        return this._eagleVersion();
     }
 
     set eagleVersion(version : string){
-        this._eagleVersion = version;
+        this._eagleVersion(version);
     }
 
     get eagleCommitHash() : string{
-        return this._eagleCommitHash;
+        return this._eagleCommitHash();
     }
 
     set eagleCommitHash(hash : string){
-        this._eagleCommitHash = hash;
+        this._eagleCommitHash(hash);
     }
 
     clear = () : void => {
-        this._name = "";
-        this._path = "";
-        this._type = Eagle.FileType.Unknown;
-        this._gitUrl = "";
-        this._repositoryService = Eagle.RepositoryService.Unknown;
-        this._repositoryBranch = "";
-        this._repositoryName = "";
-        this._sha = "";
-        this._modified = false;
-        this._eagleVersion = "";
-        this._eagleCommitHash = ""
+        this._name("");
+        this._path("");
+        this._type(Eagle.FileType.Unknown);
+        this._gitUrl("");
+        this._repositoryService(Eagle.RepositoryService.Unknown);
+        this._repositoryBranch("");
+        this._repositoryName("");
+        this._sha("");
+        this._modified(false);
+        this._eagleVersion("");
+        this._eagleCommitHash("");
     }
 
     clone = () : FileInfo => {
         var result : FileInfo = new FileInfo();
 
-        result.name = this._name;
-        result.path = this._path;
-        result.type = this._type;
-        result.gitUrl = this._gitUrl;
-        result.repositoryService = this._repositoryService;
-        result.repositoryBranch = this._repositoryBranch;
-        result.repositoryName = this._repositoryName;
-        result.sha = this._sha;
-        result.modified = this._modified;
-        result.eagleVersion = this._eagleVersion;
-        result.eagleCommitHash = this._eagleCommitHash;
+        result.name = this._name();
+        result.path = this._path();
+        result.type = this._type();
+        result.gitUrl = this._gitUrl();
+        result.repositoryService = this._repositoryService();
+        result.repositoryBranch = this._repositoryBranch();
+        result.repositoryName = this._repositoryName();
+        result.sha = this._sha();
+        result.modified = this._modified();
+        result.eagleVersion = this._eagleVersion();
+        result.eagleCommitHash = this._eagleCommitHash();
 
         return result;
     }
 
     fullPath = () : string => {
-        if (this._path === ""){
-            return this._name;
+        if (this._path() === ""){
+            return this._name();
         } else {
-            return this._path + "/" + this._name;
+            return this._path() + "/" + this._name();
         }
     }
 
     removeGitInfo = () : void => {
-        this._repositoryService = Eagle.RepositoryService.Unknown;
-        this._repositoryBranch = "";
-        this._repositoryName = "";
-        this._gitUrl = "";
-        this._sha = "";
-        this._path = "";
+        this._repositoryService(Eagle.RepositoryService.Unknown);
+        this._repositoryBranch("");
+        this._repositoryName("");
+        this._gitUrl("");
+        this._sha("");
+        this._path("");
     }
 
     updateEagleInfo = () : void => {
@@ -171,8 +173,30 @@ export class FileInfo {
         this.eagleCommitHash = (<any>window).commit_hash;
     }
 
+    nameAndModifiedIndicator : ko.PureComputed<string> = ko.pureComputed(() => {
+        return this._name() + (this._modified() ? "*" : "");
+    }, this);
+
     getSummaryHTML = () : string => {
-        return "<p>" + this._repositoryService + " : " + this._repositoryName + ((this._repositoryBranch == "") ? "" : ("(" + this._repositoryBranch + ")")) + " : " + this._path + "/" + this._name + "</p>";
+        return "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
+    }
+
+    toString = () : string => {
+        let s = "";
+
+        s += "Name:" + this._name();
+        s += " Path:" + this._path();
+        s += " Type:" + Utils.translateFileTypeToString(this._type());
+        s += " Git URL:" + this._gitUrl();
+        s += " Repository Service:" + this._repositoryService();
+        s += " Repository Name:" + this._repositoryName();
+        s += " Repository Branch:" + this._repositoryBranch();
+        s += " SHA:" + this._sha();
+        s += " Modified:" + this._modified();
+        s += " EAGLE Version:" + this._eagleVersion();
+        s += " EAGLE Commit Hash:" + this._eagleCommitHash();
+
+        return s;
     }
 
     static toOJSJson = (fileInfo : FileInfo) : object => {

@@ -33,12 +33,14 @@ import {RepositoryFile} from './RepositoryFile';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
-    private nodes : Node[];
+    private nodes : ko.ObservableArray<Node>;
+
+    public static readonly DYNAMIC_PALETTE_NAME: string = "All Nodes";
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Palette;
-        this.nodes = [];
+        this.nodes = ko.observableArray([]);
     }
 
     static fromOJSJson = (data : string, file : RepositoryFile, showErrors : boolean) : Palette => {
@@ -109,8 +111,8 @@ export class Palette {
 
         // add nodes
         result.nodeDataArray = [];
-        for (var i = 0 ; i < palette.getNodes().length ; i++){
-            var node : Node = palette.getNodes()[i];
+        for (var i = 0 ; i < palette.nodes().length ; i++){
+            var node : Node = palette.nodes()[i];
             result.nodeDataArray.push(Node.toOJSJson(node));
         }
 
@@ -121,7 +123,7 @@ export class Palette {
     }
 
     getNodes = () : Node[] => {
-        return this.nodes;
+        return this.nodes();
     }
 
     // TODO: this should return different icons based on whether the palette is currently expanded or collapsed
@@ -133,7 +135,7 @@ export class Palette {
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Palette;
-        this.nodes = [];
+        this.nodes([]);
     }
 
     clone = () : Palette => {
@@ -141,8 +143,8 @@ export class Palette {
 
         result.fileInfo(this.fileInfo().clone());
 
-        for (var i = 0 ; i < this.nodes.length ; i++){
-            var n_clone = this.nodes[i].clone();
+        for (var i = 0 ; i < this.nodes().length ; i++){
+            var n_clone = this.nodes()[i].clone();
             result.nodes.push(n_clone);
         }
 
@@ -154,17 +156,17 @@ export class Palette {
     }
 
     findNodeByKey = (key : number) : Node => {
-        for (var i = this.nodes.length - 1; i >= 0 ; i--){
-            if (this.nodes[i].getKey() === key){
-                return this.nodes[i];
+        for (var i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getKey() === key){
+                return this.nodes()[i];
             }
         }
         return null;
     }
 
     removeNodeByKey = (key : number) : void => {
-        for (var i = this.nodes.length - 1; i >= 0 ; i--){
-            if (this.nodes[i].getKey() === key){
+        for (var i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getKey() === key){
                 this.nodes.splice(i, 1);
             }
         }
@@ -176,8 +178,8 @@ export class Palette {
      * NOTE: don't add anything to groups, since ports should be added to inputApplication and outputApplication, and they don't exist yet
      */
     addEventPorts = () : void => {
-        for (var i = 0 ; i < this.nodes.length ; i++){
-            let n = this.nodes[i];
+        for (var i = 0 ; i < this.nodes().length ; i++){
+            let n = this.nodes()[i];
 
             // add event ports
             if (n.getCategoryType() === Eagle.CategoryType.Application ||

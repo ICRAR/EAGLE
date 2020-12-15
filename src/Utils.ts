@@ -29,6 +29,7 @@ import {Palette} from './Palette';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
 import {Port} from './Port';
+import {Repository} from './Repository';
 
 export class Utils {
     // Allowed file extenstions.
@@ -479,12 +480,12 @@ export class Utils {
 
             // check selected option in select tag
             var repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
-            var repositories : string[] = $('#gitCommitModal').data('repositories');
+            var repositories : Repository[] = $('#gitCommitModal').data('repositories');
             var repositoryNameChoice : number = parseInt(<string>$('#gitCommitModalRepositoryNameSelect').val(), 10);
 
             // split repository text (with form: "name (branch)") into name and branch strings
-            var repositoryName : string = repositories[repositoryNameChoice].substring(0, repositories[repositoryNameChoice].indexOf(" ("));
-            var repositoryBranch : string = repositories[repositoryNameChoice].substring(repositories[repositoryNameChoice].indexOf(" (") + 2, repositories[repositoryNameChoice].length - 1);
+            var repositoryName : string = repositories[repositoryNameChoice].name;
+            var repositoryBranch : string = repositories[repositoryNameChoice].branch;
 
             var filePath : string = <string>$('#gitCommitModalFilePathInput').val();
             var fileName : string = <string>$('#gitCommitModalFileNameInput').val();
@@ -494,9 +495,9 @@ export class Utils {
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
             var repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
-            var repositories = eagle.getRepositoryList(repositoryService);
+            var repositories: Repository[] = eagle.getRepositoryList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
-            Utils.updateGitCommitRepositoriesList(repositories);
+            Utils.updateGitCommitRepositoriesList(repositories, null);
         });
 
         // #gitCustomRepositoryModal - requestUserAddCustomRepository()
@@ -654,13 +655,19 @@ export class Utils {
         $('#confirmModal').modal();
     }
 
-    static requestUserGitCommit(service : Eagle.RepositoryService, repositories: string[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ){
+    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ){
         console.log("requestUserGitCommit()");
 
         $('#gitCommitModal').data('completed', false);
         $('#gitCommitModal').data('callback', callback);
         $('#gitCommitModal').data('repositories', repositories);
         $('#gitCommitModal').modal();
+
+        //
+        let defaultRepositoryService: Eagle.RepositoryService = Eagle.RepositoryService.Unknown;
+        if (defaultRepository !== null){
+            defaultRepositoryService = defaultRepository.service;
+        }
 
         // remove existing options from the repository service select tag
         $('#gitCommitModalRepositoryServiceSelect').empty();
@@ -669,15 +676,15 @@ export class Utils {
         $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
             value: Eagle.RepositoryService.GitHub,
             text: Eagle.RepositoryService.GitHub,
-            selected: service === Eagle.RepositoryService.GitHub
+            selected: defaultRepositoryService === Eagle.RepositoryService.GitHub
         }));
         $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
             value: Eagle.RepositoryService.GitLab,
             text: Eagle.RepositoryService.GitLab,
-            selected: service === Eagle.RepositoryService.GitLab
+            selected: defaultRepositoryService === Eagle.RepositoryService.GitLab
         }));
 
-        Utils.updateGitCommitRepositoriesList(repositories);
+        Utils.updateGitCommitRepositoriesList(repositories, defaultRepository);
 
         // pre-selected the currently selected index
         //$('#gitCommitModalRepositorySelect').val(selectedChoiceIndex);
@@ -699,15 +706,22 @@ export class Utils {
         $('#gitCustomRepositoryModal').modal();
     }
 
-    static updateGitCommitRepositoriesList(repositories : string[]){
+    static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository){
         // remove existing options from the repository name select tag
         $('#gitCommitModalRepositoryNameSelect').empty();
 
         // add options to the repository name select tag
         for (var i = 0 ; i < repositories.length ; i++){
+            // check if this repository matches the given default repository
+            let isDefault: boolean = false;
+            if (defaultRepository !== null){
+                isDefault = (repositories[i].name === defaultRepository.name) && (repositories[i].branch === defaultRepository.branch) && (repositories[i].service === defaultRepository.service);
+            }
+
             $('#gitCommitModalRepositoryNameSelect').append($('<option>', {
                 value: i,
-                text: repositories[i]
+                text: repositories[i].getNameAndBranch(),
+                selected: isDefault
             }));
         }
     }
@@ -1039,5 +1053,24 @@ export class Utils {
         }
 
         return result;
+    }
+
+    // check if a node already exists in a palette, if so replace the node with the new one
+    // otherwise, add the node to the end of the palette
+    static addOrUpdateNodeInPalette(palette: Palette, node: Node): void {
+        // try to find a matching node that already exists in the palette
+        // TODO: at the moment, we only match by name and category, but we should match by ID (once the ID is unique)
+        for (let i = 0 ; i < palette.getNodes().length; i++){
+            let paletteNode = palette.getNodes()[i];
+
+            if (paletteNode.getName() === node.getName() && paletteNode.getCategory() === node.getCategory()){
+                palette.getNodes()[i] = node;
+                //console.log("Replace node", node.getName(), "in destination palette", palette.fileInfo().name);
+                return;
+            }
+        }
+
+        //console.log("Copy node", node.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
+        palette.addNode(node);
     }
 }

@@ -260,12 +260,12 @@ export class Eagle {
         }
     }, this);
 
-    getRepositoryList = (service : Eagle.RepositoryService) : string[] => {
-        var list : string[] = [];
+    getRepositoryList = (service : Eagle.RepositoryService) : Repository[] => {
+        var list : Repository[] = [];
 
         for (var i = 0 ; i < this.repositories().length ; i++){
             if (this.repositories()[i].service === service){
-                list.push(this.repositories()[i].name + " (" + this.repositories()[i].branch + ")");
+                list.push(this.repositories()[i]);
             }
         }
 
@@ -827,7 +827,19 @@ export class Eagle {
     commitToGitAs = (fileType : Eagle.FileType) : void => {
         console.log("commitToGitAs()");
 
-        Utils.requestUserGitCommit(Eagle.RepositoryService.GitHub, this.getRepositoryList(Eagle.RepositoryService.GitHub),  this.activeFileInfo().path, this.activeFileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        // create default repository to supply to modal so that the modal is populated with useful defaults
+        let defaultRepository: Repository;
+        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
+            if (this.logicalGraph()){
+                defaultRepository = new Repository(this.logicalGraph().fileInfo().repositoryService, this.logicalGraph().fileInfo().repositoryName, this.logicalGraph().fileInfo().repositoryBranch, false);
+            }
+        } else {
+            if (this.editorPalette()){
+                defaultRepository = new Repository(this.editorPalette().fileInfo().repositoryService, this.editorPalette().fileInfo().repositoryName, this.editorPalette().fileInfo().repositoryBranch, false);
+            }
+        }
+
+        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(Eagle.RepositoryService.GitHub),  this.activeFileInfo().path, this.activeFileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -1041,7 +1053,7 @@ export class Eagle {
                 console.log("Generate default palette");
                 let palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", ""), false);
                 palette.fileInfo().clear();
-                palette.fileInfo().name = "All Nodes";
+                palette.fileInfo().name = Palette.DYNAMIC_PALETTE_NAME;
                 this.palettes.push(palette);
                 this.leftWindowShown(true);
             }
@@ -1361,10 +1373,135 @@ export class Eagle {
             var p = this.palettes()[i];
 
             if (p.fileInfo().name === palette.fileInfo().name){
-                this.palettes.splice(i, 1);
+
+                // check if the palette is modified, and if so, ask the user to confirm they wish to close
+                if (p.fileInfo().modified){
+                    Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", (confirmed : boolean) : void => {
+                        if (confirmed){
+                            this.palettes.splice(i, 1);
+                        }
+                    });
+                } else {
+                    this.palettes.splice(i, 1);
+                }
+
                 break;
             }
         }
+    }
+
+    // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
+    savePaletteToDisk = (palette : Palette) : void => {
+        console.log("savePaletteToDisk()", palette.fileInfo().name);
+
+        let fileName = palette.fileInfo().name;
+        let json : object;
+
+        // clone the palette and remove github info ready for local save
+        let p_clone : Palette = palette.clone();
+        p_clone.fileInfo().removeGitInfo();
+        p_clone.fileInfo().updateEagleInfo();
+        json = Palette.toOJSJson(p_clone);
+
+        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+            if (error != null){
+                Utils.showUserMessage("Error", "Error saving the file!");
+                console.error(error);
+                return;
+            }
+
+            // NOTE: this stuff is a hacky way of saving a file locally
+            var blob = new Blob([data]);
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+
+            // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
+            // clear the modified flag
+            palette.fileInfo().modified = false;
+            palette.fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
+            palette.fileInfo().repositoryName = "";
+            palette.fileInfo().gitUrl = "";
+            palette.fileInfo().sha = "";
+            palette.fileInfo.valueHasMutated();
+        });
+    }
+
+    // TODO: shares some code with savePaletteToGit(), we should try to factor out the common stuff at some stage
+    savePaletteToGit = (palette: Palette): void => {
+        console.log("savePaletteToGit()", palette.fileInfo().name);
+
+        let defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
+
+        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(Eagle.RepositoryService.GitHub),  palette.fileInfo().path, palette.fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+            // check completed boolean
+            if (!completed){
+                console.log("Abort commit");
+                return;
+            }
+
+            // check repository name
+            var repository : Repository = this.getRepository(repositoryService, repositoryName, repositoryBranch);
+            if (repository === null){
+                console.log("Abort commit");
+                return;
+            }
+
+            // update the fileInfo of the palette
+            palette.fileInfo().modified = false;
+            palette.fileInfo().repositoryService = repositoryService;
+            palette.fileInfo().repositoryName = repositoryName;
+            palette.fileInfo().repositoryBranch = repositoryBranch;
+            palette.fileInfo().path = filePath;
+            palette.fileInfo().type = Eagle.FileType.Palette;
+            palette.fileInfo().name = fileName;
+
+            // set the EAGLE version etc according to this running version
+            palette.fileInfo().updateEagleInfo();
+
+            // flag fileInfo object as modified
+            palette.fileInfo.valueHasMutated();
+
+            // get access token for this type of repository
+            let token : string;
+
+            switch (repositoryService){
+                case Eagle.RepositoryService.GitHub:
+                    token = GitHub.getAccessToken();
+                    break;
+                case Eagle.RepositoryService.GitLab:
+                    token = GitLab.getAccessToken();
+                    break;
+                default:
+                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+                    return;
+            }
+
+            // check that access token is defined
+            if (token == undefined) {
+                Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
+                return;
+            }
+
+            var fullFileName : string = Utils.joinPath(filePath, fileName);
+
+            var json : object;
+            json = Palette.toOJSJson(palette);
+
+            var jsonData : object = {
+                jsonData: json,
+                repositoryBranch: repository.branch,
+                repositoryName: repository.name,
+                repositoryService: repository.service,
+                token: token,
+                filename: fullFileName,
+                commitMessage: commitMessage
+            };
+
+            this.saveFileToRemote(repository, jsonData);
+        });
     }
 
     setGitHubAccessToken = () : void => {
@@ -1578,6 +1715,64 @@ export class Eagle {
         }
     }
 
+    addSelectedNodeToPalette = () : void => {
+        console.log("addSelectedNodeToPalette()");
+
+        // build a list of palette names
+        let paletteNames: string[] = this.buildPaletteNamesList();
+
+        // ask user to select the destination node
+        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node", paletteNames, 0, true, "New Palette Name", (completed : boolean, userString : string) => {
+            // abort if the user aborted
+            if (!completed){
+                return;
+            }
+
+            // Adding file extension to the title if it does not have it.
+            if (!Utils.verifyFileExtension(userString)) {
+                userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+            }
+
+            // get reference to palette (based on userString)
+            let destinationPalette = this.findPalette(userString);
+
+            // check that a palette was found
+            if (destinationPalette === null){
+                Utils.showUserMessage("Error", "Unable to find selected palette!");
+                return;
+            }
+
+            // clone node
+            let clone : Node = this.selectedNode().clone();
+
+            // check if clone has embedded applications, if so, add them to destination palette and remove
+            if (clone.hasInputApplication()){
+                let inputClone = clone.getInputApplication().clone();
+                clone.setInputApplication(null);
+                Utils.addOrUpdateNodeInPalette(destinationPalette, inputClone);
+            }
+            if (clone.hasOutputApplication()){
+                let outputClone = clone.getOutputApplication().clone();
+                clone.setOutputApplication(null);
+                Utils.addOrUpdateNodeInPalette(destinationPalette, outputClone);
+            }
+            if (clone.hasExitApplication()){
+                let exitClone = clone.getExitApplication().clone();
+                clone.setExitApplication(null);
+                Utils.addOrUpdateNodeInPalette(destinationPalette, exitClone);
+            }
+
+            // add clone to palette
+            Utils.addOrUpdateNodeInPalette(destinationPalette, clone);
+
+            // mark the palette as modified
+            destinationPalette.fileInfo().modified = true;
+
+            // update tooltips
+            this.updateTooltips();
+        });
+    }
+
     deleteSelectedNode = () : void => {
         if (this.selectedNode() === null){
             console.log("Unable to delete selected node: No node selected");
@@ -1646,6 +1841,100 @@ export class Eagle {
 
         this.editorPalette().addNode(newNode);
         this.editorPalette.valueHasMutated();
+    }
+
+    addGraphNodesToPalette = () : void => {
+        console.log("addGraphNodesToPalette()");
+
+        // build a list of palette names
+        let paletteNames: string[] = this.buildPaletteNamesList();
+
+        // ask user to select the destination node
+        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name", (completed : boolean, userString : string) => {
+            // abort if the user aborted
+            if (!completed){
+                return;
+            }
+
+            // Adding file extension to the title if it does not have it.
+            if (!Utils.verifyFileExtension(userString)) {
+                userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+            }
+
+            // get reference to palette (based on userString)
+            let destinationPalette = this.findPalette(userString);
+
+            // check that a palette was found
+            if (destinationPalette === null){
+                Utils.showUserMessage("Error", "Unable to find selected palette!");
+                return;
+            }
+
+            // copy nodes to palette
+            for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
+                let clone : Node = this.logicalGraph().getNodes()[i].clone();
+
+                // check if clone has embedded applications, if so, add them to destination palette and remove
+                if (clone.hasInputApplication()){
+                    let inputClone = clone.getInputApplication().clone();
+                    clone.setInputApplication(null);
+                    Utils.addOrUpdateNodeInPalette(destinationPalette, inputClone);
+                }
+                if (clone.hasOutputApplication()){
+                    let outputClone = clone.getOutputApplication().clone();
+                    clone.setOutputApplication(null);
+                    Utils.addOrUpdateNodeInPalette(destinationPalette, outputClone);
+                }
+                if (clone.hasExitApplication()){
+                    let exitClone = clone.getExitApplication().clone();
+                    clone.setExitApplication(null);
+                    Utils.addOrUpdateNodeInPalette(destinationPalette, exitClone);
+                }
+
+                Utils.addOrUpdateNodeInPalette(destinationPalette, clone);
+            }
+
+            // mark the palette as modified
+            destinationPalette.fileInfo().modified = true;
+
+            // update tooltips
+            this.updateTooltips();
+        });
+    }
+
+    private buildPaletteNamesList = () : string[] => {
+        let paletteNames : string[] = [];
+        for (let i = 0 ; i < this.palettes().length; i++){
+            // skip the dynamically generated palette that contains all nodes
+            if (this.palettes()[i].fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
+                continue;
+            }
+
+            paletteNames.push(this.palettes()[i].fileInfo().name);
+        }
+
+        return paletteNames;
+    }
+
+    private findPalette = (name: string) : Palette => {
+        let p: Palette = null;
+
+        // look for palette in open palettes
+        for (let i = 0 ; i < this.palettes().length ; i++){
+            if (this.palettes()[i].fileInfo().name === name){
+                p = this.palettes()[i];
+                break;
+            }
+        }
+
+        // if user asked for a new palette, create one
+        if (p === null){
+            p = new Palette();
+            p.fileInfo().name = name;
+            this.palettes.push(p);
+        }
+
+        return p;
     }
 
     toggleLeftWindow = () : void => {
@@ -2245,10 +2534,10 @@ export class Eagle {
         Loop               : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true, icon: "loop"},
 
         PythonApp          : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "extension"},
-        BashShellApp       : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "arrow_forward_ios"},
+        BashShellApp       : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "attach_money"},
         DynlibApp          : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "menu_book"},
 
-        NGAS               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "save"},
+        NGAS               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "storage"},
         S3                 : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "cloud_queue"},
         Mpi                : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "apps"},
         Docker             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "computer"},
