@@ -10,10 +10,10 @@
                     <i class="material-icons">close</i>
                 </button>
                 <!-- ko if: $data.fileInfo().modified -->
-                    <button type="button" class="close save-to-git" aria-label="Save to Git" data-bind="click: function(palette, event){$root.savePalette(palette);event.stopPropagation()}">
+                    <button type="button" class="close save-to-git" aria-label="Save to Git" data-bind="click: function(palette, event){$root.savePaletteToGit(palette);event.stopPropagation()}">
                         <i class="material-icons">cloud_upload</i>
                     </button>
-                    <button type="button" class="close save-to-disk" aria-label="Save to Disk" data-bind="click: function(palette, event){$root.savePalette(palette);event.stopPropagation()}">
+                    <button type="button" class="close save-to-disk" aria-label="Save to Disk" data-bind="click: function(palette, event){$root.savePaletteToDisk(palette);event.stopPropagation()}">
                         <i class="material-icons">save</i>
                     </button>
                 <!-- /ko -->

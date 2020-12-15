@@ -260,12 +260,12 @@ export class Eagle {
         }
     }, this);
 
-    getRepositoryList = (service : Eagle.RepositoryService) : string[] => {
-        var list : string[] = [];
+    getRepositoryList = (service : Eagle.RepositoryService) : Repository[] => {
+        var list : Repository[] = [];
 
         for (var i = 0 ; i < this.repositories().length ; i++){
             if (this.repositories()[i].service === service){
-                list.push(this.repositories()[i].name + " (" + this.repositories()[i].branch + ")");
+                list.push(this.repositories()[i]);
             }
         }
 
@@ -827,7 +827,19 @@ export class Eagle {
     commitToGitAs = (fileType : Eagle.FileType) : void => {
         console.log("commitToGitAs()");
 
-        Utils.requestUserGitCommit(Eagle.RepositoryService.GitHub, this.getRepositoryList(Eagle.RepositoryService.GitHub),  this.activeFileInfo().path, this.activeFileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        // create default repository to supply to modal so that the modal is populated with useful defaults
+        let defaultRepository: Repository;
+        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
+            if (this.logicalGraph()){
+                defaultRepository = new Repository(this.logicalGraph().fileInfo().repositoryService, this.logicalGraph().fileInfo().repositoryName, this.logicalGraph().fileInfo().repositoryBranch, false);
+            }
+        } else {
+            if (this.editorPalette()){
+                defaultRepository = new Repository(this.editorPalette().fileInfo().repositoryService, this.editorPalette().fileInfo().repositoryName, this.editorPalette().fileInfo().repositoryBranch, false);
+            }
+        }
+
+        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(Eagle.RepositoryService.GitHub),  this.activeFileInfo().path, this.activeFileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -1378,10 +1390,123 @@ export class Eagle {
         }
     }
 
-    savePalette = (palette : Palette) : void => {
-        console.log("savePalette()", palette.fileInfo().name);
+    // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
+    savePaletteToDisk = (palette : Palette) : void => {
+        console.log("savePaletteToDisk()", palette.fileInfo().name);
 
+        let fileName = palette.fileInfo().name;
+        let json : object;
 
+        // clone the palette and remove github info ready for local save
+        let p_clone : Palette = palette.clone();
+        p_clone.fileInfo().removeGitInfo();
+        p_clone.fileInfo().updateEagleInfo();
+        json = Palette.toOJSJson(p_clone);
+
+        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+            if (error != null){
+                Utils.showUserMessage("Error", "Error saving the file!");
+                console.error(error);
+                return;
+            }
+
+            // NOTE: this stuff is a hacky way of saving a file locally
+            var blob = new Blob([data]);
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+
+            // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
+            // clear the modified flag
+            palette.fileInfo().modified = false;
+            palette.fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
+            palette.fileInfo().repositoryName = "";
+            palette.fileInfo().gitUrl = "";
+            palette.fileInfo().sha = "";
+            palette.fileInfo.valueHasMutated();
+        });
+    }
+
+    // TODO: shares some code with savePaletteToGit(), we should try to factor out the common stuff at some stage
+    savePaletteToGit = (palette: Palette): void => {
+        console.log("savePaletteToGit()", palette.fileInfo().name);
+
+        let defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
+
+        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(Eagle.RepositoryService.GitHub),  palette.fileInfo().path, palette.fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+            // check completed boolean
+            if (!completed){
+                console.log("Abort commit");
+                return;
+            }
+
+            // check repository name
+            var repository : Repository = this.getRepository(repositoryService, repositoryName, repositoryBranch);
+            if (repository === null){
+                console.log("Abort commit");
+                return;
+            }
+
+            // update the fileInfo of the palette
+            palette.fileInfo().modified = false;
+            palette.fileInfo().repositoryService = repositoryService;
+            palette.fileInfo().repositoryName = repositoryName;
+            palette.fileInfo().repositoryBranch = repositoryBranch;
+            palette.fileInfo().path = filePath;
+            palette.fileInfo().type = Eagle.FileType.Palette;
+
+            // Adding file extension to the title if it does not have it.
+            if (!Utils.verifyFileExtension(fileName)) {
+                fileName = fileName + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+            }
+            palette.fileInfo().name = fileName;
+
+            // set the EAGLE version etc according to this running version
+            palette.fileInfo().updateEagleInfo();
+
+            // flag fileInfo object as modified
+            palette.fileInfo.valueHasMutated();
+
+            // get access token for this type of repository
+            let token : string;
+
+            switch (repositoryService){
+                case Eagle.RepositoryService.GitHub:
+                    token = GitHub.getAccessToken();
+                    break;
+                case Eagle.RepositoryService.GitLab:
+                    token = GitLab.getAccessToken();
+                    break;
+                default:
+                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+                    return;
+            }
+
+            // check that access token is defined
+            if (token == undefined) {
+                Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
+                return;
+            }
+
+            var fullFileName : string = Utils.joinPath(filePath, fileName);
+
+            var json : object;
+            json = Palette.toOJSJson(palette);
+
+            var jsonData : object = {
+                jsonData: json,
+                repositoryBranch: repository.branch,
+                repositoryName: repository.name,
+                repositoryService: repository.service,
+                token: token,
+                filename: fullFileName,
+                commitMessage: commitMessage
+            };
+
+            this.saveFileToRemote(repository, jsonData);
+        });
     }
 
     setGitHubAccessToken = () : void => {
