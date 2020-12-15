@@ -1041,7 +1041,7 @@ export class Eagle {
                 console.log("Generate default palette");
                 let palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", ""), false);
                 palette.fileInfo().clear();
-                palette.fileInfo().name = "All Nodes";
+                palette.fileInfo().name = Palette.DYNAMIC_PALETTE_NAME;
                 this.palettes.push(palette);
                 this.leftWindowShown(true);
             }
@@ -1381,7 +1381,7 @@ export class Eagle {
     savePalette = (palette : Palette) : void => {
         console.log("savePalette()", palette.fileInfo().name);
 
-        
+
     }
 
     setGitHubAccessToken = () : void => {
@@ -1599,10 +1599,7 @@ export class Eagle {
         console.log("addSelectedNodeToPalette()");
 
         // build a list of palette names
-        let paletteNames : string[] = [];
-        for (let i = 0 ; i < this.palettes().length; i++){
-            paletteNames.push(this.palettes()[i].fileInfo().name);
-        }
+        let paletteNames : string[] = this.buildPaletteNamesList();
 
         // if no palettes available, abort
         if (paletteNames.length === 0){
@@ -1717,10 +1714,7 @@ export class Eagle {
         console.log("addGraphNodesToPalette()");
 
         // build a list of palette names
-        let paletteNames : string[] = [];
-        for (let i = 0 ; i < this.palettes().length; i++){
-            paletteNames.push(this.palettes()[i].fileInfo().name);
-        }
+        let paletteNames: string[] = this.buildPaletteNamesList();
 
         // if no palettes available, abort
         if (paletteNames.length === 0){
@@ -1762,6 +1756,19 @@ export class Eagle {
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
         });
+    }
+
+    private buildPaletteNamesList = () : string[] => {
+        let paletteNames : string[] = [];
+        for (let i = 0 ; i < this.palettes().length; i++){
+            // skip the dynamically generated palette that contains all nodes
+            if (this.palettes()[i].fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
+                continue;
+            }
+
+            paletteNames.push(this.palettes()[i].fileInfo().name);
+        }
+        return paletteNames;
     }
 
     toggleLeftWindow = () : void => {

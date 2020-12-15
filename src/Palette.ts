@@ -35,6 +35,8 @@ export class Palette {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.ObservableArray<Node>;
 
+    public static readonly DYNAMIC_PALETTE_NAME: string = "All Nodes";
+
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Palette;
