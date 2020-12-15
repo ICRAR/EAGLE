@@ -1749,22 +1749,21 @@ export class Eagle {
             if (clone.hasInputApplication()){
                 let inputClone = clone.getInputApplication().clone();
                 clone.setInputApplication(null);
-                destinationPalette.addNode(inputClone);
+                Utils.addOrUpdateNodeInPalette(destinationPalette, inputClone);
             }
             if (clone.hasOutputApplication()){
                 let outputClone = clone.getOutputApplication().clone();
                 clone.setOutputApplication(null);
-                destinationPalette.addNode(outputClone);
+                Utils.addOrUpdateNodeInPalette(destinationPalette, outputClone);
             }
             if (clone.hasExitApplication()){
                 let exitClone = clone.getExitApplication().clone();
                 clone.setExitApplication(null);
-                destinationPalette.addNode(exitClone);
+                Utils.addOrUpdateNodeInPalette(destinationPalette, exitClone);
             }
 
             // add clone to palette
-            destinationPalette.addNode(clone);
-            console.log("Copy LG node", clone.getName(), "to destination palette", destinationPalette.fileInfo().name, "now contains", destinationPalette.getNodes().length);
+            Utils.addOrUpdateNodeInPalette(destinationPalette, clone);
 
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
@@ -1879,22 +1878,20 @@ export class Eagle {
                 if (clone.hasInputApplication()){
                     let inputClone = clone.getInputApplication().clone();
                     clone.setInputApplication(null);
-                    destinationPalette.addNode(inputClone);
+                    Utils.addOrUpdateNodeInPalette(destinationPalette, inputClone);
                 }
                 if (clone.hasOutputApplication()){
                     let outputClone = clone.getOutputApplication().clone();
                     clone.setOutputApplication(null);
-                    destinationPalette.addNode(outputClone);
+                    Utils.addOrUpdateNodeInPalette(destinationPalette, outputClone);
                 }
                 if (clone.hasExitApplication()){
                     let exitClone = clone.getExitApplication().clone();
                     clone.setExitApplication(null);
-                    destinationPalette.addNode(exitClone);
+                    Utils.addOrUpdateNodeInPalette(destinationPalette, exitClone);
                 }
 
-                destinationPalette.addNode(clone);
-
-                console.log("Copy LG node", clone.getName(), "to destination palette", destinationPalette.fileInfo().name, "now contains", destinationPalette.getNodes().length);
+                Utils.addOrUpdateNodeInPalette(destinationPalette, clone);
             }
 
             // mark the palette as modified
