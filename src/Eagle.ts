@@ -1724,13 +1724,7 @@ export class Eagle {
         console.log("addSelectedNodeToPalette()");
 
         // build a list of palette names
-        let paletteNames : string[] = this.buildPaletteNamesList();
-
-        // if no palettes available, abort
-        if (paletteNames.length === 0){
-            Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
-            return;
-        }
+        let paletteNames: string[] = this.buildPaletteNamesList();
 
         // ask user to select the destination node
         Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node", paletteNames, 0, true, "New Palette Name", (completed : boolean, userString : string) => {
@@ -1835,12 +1829,6 @@ export class Eagle {
 
         // build a list of palette names
         let paletteNames: string[] = this.buildPaletteNamesList();
-
-        // if no palettes available, abort
-        if (paletteNames.length === 0){
-            Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
-            return;
-        }
 
         // ask user to select the destination node
         Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name", (completed : boolean, userString : string) => {
