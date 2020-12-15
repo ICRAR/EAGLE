@@ -1751,6 +1751,9 @@ export class Eagle {
 
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
+
+            // update tooltips
+            this.updateTooltips();
         });
     }
 
@@ -1858,6 +1861,9 @@ export class Eagle {
 
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
+
+            // update tooltips
+            this.updateTooltips();
         });
     }
 
