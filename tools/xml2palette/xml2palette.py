@@ -184,6 +184,7 @@ def write_palette_json(outputfile, nodes, gitrepo, version):
             "repoService": "GitHub",
             "repoBranch": "master",
             "repo": "ICRAR/EAGLE_test_repo",
+            "readonly": True,
             "filePath": outputfile,
             "sha": version,
             "git_url": gitrepo
