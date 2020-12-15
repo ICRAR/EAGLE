@@ -1456,11 +1456,6 @@ export class Eagle {
             palette.fileInfo().repositoryBranch = repositoryBranch;
             palette.fileInfo().path = filePath;
             palette.fileInfo().type = Eagle.FileType.Palette;
-
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(fileName)) {
-                fileName = fileName + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
-            }
             palette.fileInfo().name = fileName;
 
             // set the EAGLE version etc according to this running version
@@ -1733,7 +1728,10 @@ export class Eagle {
                 return;
             }
 
-            console.log("userString", userString);
+            // Adding file extension to the title if it does not have it.
+            if (!Utils.verifyFileExtension(userString)) {
+                userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+            }
 
             // get reference to palette (based on userString)
             let destinationPalette = this.findPalette(userString);
@@ -1840,7 +1838,10 @@ export class Eagle {
                 return;
             }
 
-            console.log("userString", userString);
+            // Adding file extension to the title if it does not have it.
+            if (!Utils.verifyFileExtension(userString)) {
+                userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+            }
 
             // get reference to palette (based on userString)
             let destinationPalette = this.findPalette(userString);
