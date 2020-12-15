@@ -1742,8 +1742,27 @@ export class Eagle {
                 return;
             }
 
-            // copy node to palette
+            // clone node
             let clone : Node = this.selectedNode().clone();
+
+            // check if clone has embedded applications, if so, add them to destination palette and remove
+            if (clone.hasInputApplication()){
+                let inputClone = clone.getInputApplication().clone();
+                clone.setInputApplication(null);
+                destinationPalette.addNode(inputClone);
+            }
+            if (clone.hasOutputApplication()){
+                let outputClone = clone.getOutputApplication().clone();
+                clone.setOutputApplication(null);
+                destinationPalette.addNode(outputClone);
+            }
+            if (clone.hasExitApplication()){
+                let exitClone = clone.getExitApplication().clone();
+                clone.setExitApplication(null);
+                destinationPalette.addNode(exitClone);
+            }
+
+            // add clone to palette
             destinationPalette.addNode(clone);
             console.log("Copy LG node", clone.getName(), "to destination palette", destinationPalette.fileInfo().name, "now contains", destinationPalette.getNodes().length);
 
@@ -1855,6 +1874,24 @@ export class Eagle {
             // copy nodes to palette
             for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
                 let clone : Node = this.logicalGraph().getNodes()[i].clone();
+
+                // check if clone has embedded applications, if so, add them to destination palette and remove
+                if (clone.hasInputApplication()){
+                    let inputClone = clone.getInputApplication().clone();
+                    clone.setInputApplication(null);
+                    destinationPalette.addNode(inputClone);
+                }
+                if (clone.hasOutputApplication()){
+                    let outputClone = clone.getOutputApplication().clone();
+                    clone.setOutputApplication(null);
+                    destinationPalette.addNode(outputClone);
+                }
+                if (clone.hasExitApplication()){
+                    let exitClone = clone.getExitApplication().clone();
+                    clone.setExitApplication(null);
+                    destinationPalette.addNode(exitClone);
+                }
+
                 destinationPalette.addNode(clone);
 
                 console.log("Copy LG node", clone.getName(), "to destination palette", destinationPalette.fileInfo().name, "now contains", destinationPalette.getNodes().length);

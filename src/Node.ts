@@ -479,9 +479,9 @@ export class Node {
 
     setInputApplication = (inputApplication : Node) : void => {
         this.inputApplication(inputApplication);
-        inputApplication.setEmbedKey(this.getKey());
 
         if (inputApplication !== null){
+            inputApplication.setEmbedKey(this.getKey());
             console.assert(inputApplication.getCategoryType() === Eagle.CategoryType.Application);
             console.assert(this.canHaveInputApplication());
         }
@@ -497,9 +497,9 @@ export class Node {
 
     setOutputApplication = (outputApplication : Node) : void => {
         this.outputApplication(outputApplication);
-        outputApplication.setEmbedKey(this.getKey());
 
         if (outputApplication !== null){
+            outputApplication.setEmbedKey(this.getKey());
             console.assert(outputApplication.getCategoryType() === Eagle.CategoryType.Application);
             console.assert(this.canHaveOutputApplication());
         }
@@ -515,9 +515,9 @@ export class Node {
 
     setExitApplication = (exitApplication : Node) : void => {
         this.exitApplication(exitApplication);
-        exitApplication.setEmbedKey(this.getKey());
 
         if (exitApplication !== null){
+            exitApplication.setEmbedKey(this.getKey());
             console.assert(exitApplication.getCategoryType() === Eagle.CategoryType.Application);
             console.assert(this.canHaveExitApplication());
         }
