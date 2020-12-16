@@ -429,6 +429,14 @@ export class Eagle {
                     this.logicalGraph().getNodes()[i].setSelected(false);
                     this.logicalGraph().getNodes()[i].setShowPorts(false);
                 }
+
+                // abort if new selection is null
+                if (selection === null){
+                    Eagle.selectedNodeKey = undefined;
+                    this.flagActiveDiagramHasMutated();
+                    return;
+                }
+
                 (<Node>selection).setSelected(true);
                 (<Node>selection).setShowPorts(true);
 

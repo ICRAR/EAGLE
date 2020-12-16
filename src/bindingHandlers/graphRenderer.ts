@@ -136,6 +136,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     .attr("class", "background");
 
     var backgroundDragHandler = d3.drag()
+                                    .on("end", function(){
+                                        console.log("setSelection(null)");
+                                        eagle.setSelection(eagle.rightWindowMode(), null);
+                                    })
                                     .on("drag", function(){
                                         eagle.globalOffsetX += d3.event.dx;
                                         eagle.globalOffsetY += d3.event.dy;
