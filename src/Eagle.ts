@@ -1549,6 +1549,20 @@ export class Eagle {
         this.flagActiveDiagramHasMutated();
     }
 
+    expandAllNodes = () : void => {
+        console.log("expandAllNodes");
+
+        for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
+            let node: Node = this.logicalGraph().getNodes()[i];
+
+            if (node.isGroup()){
+                node.setCollapsed(false);
+            }
+        }
+
+        this.flagActiveDiagramHasMutated();
+    }
+
     showAbout = () : void => {
         $('#aboutModal').modal('show');
     }
