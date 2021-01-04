@@ -86,6 +86,33 @@ def create_field(text, name, value, description, access, type):
     }
 
 
+def parse_param_key(key):
+    parts = key.split("/")
+
+    param = ""
+    name = ""
+    default_value = ""
+    type = "String"
+    access = "readwrite"
+
+    #print("parse_param_key: " + key)
+
+    if len(parts) > 0:
+        param = parts[0]
+    if len(parts) > 1:
+        name = parts[1]
+    if len(parts) > 2:
+        default_value = parts[2]
+    if len(parts) > 3:
+        type = parts[3]
+    if len(parts) > 4:
+        access = parts[4]
+    else:
+        print("param (" + name + ") has no 'access' descriptor, using default (readwrite)")
+
+    return (param, name, default_value, type, access)
+
+
 # NOTE: color, x, y, width, height are not specified in palette node, they will be set by the EAGLE importer
 def create_palette_node_from_params(params):
     text = ""
@@ -112,7 +139,7 @@ def create_palette_node_from_params(params):
             description = value
         elif key.startswith("param/"):
             # parse the param key into name, type etc
-            (param, name, default_value, type, access) = key.split("/")
+            (param, name, default_value, type, access) = parse_param_key(key)
 
             # check that access is a known value
             if access != "readonly" and access != "readwrite":
