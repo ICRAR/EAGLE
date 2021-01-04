@@ -16,10 +16,12 @@ test('Set token', async t =>{
         // wait for the page to settle down
         .wait(3000)
 
+        // click the settings button
+        .click("#openSettings")
+
         // enter the github access token
-        .click('#setGitHubAccessToken')
-        .typeText(Selector('#inputModalInput'), EAGLE_GITHUB_ACCESS_TOKEN)
-        .click('#inputModal .modal-footer button')
+        .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN)
+        .click('#settingsModal .modal-footer button')
 
         // end
         .wait(3000);
