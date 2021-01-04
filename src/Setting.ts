@@ -1,5 +1,7 @@
 import * as ko from "knockout";
 
+import {Utils} from './Utils';
+
 export class Setting {
 
     value : ko.Observable<any>;
@@ -66,6 +68,14 @@ export class Setting {
 
         // save to localStorage
         this.save();
+    }
+
+    copy = () : void => {
+        navigator.clipboard.writeText(this.value().toString()).then(function() {
+            Utils.showNotification("Success", "Copying to clipboard was successful!", "success");
+        }, function(err) {
+            Utils.showNotification("Error", "Could not copy setting. " + err, "danger");
+        });
     }
 
     resetDefault = () : void => {
