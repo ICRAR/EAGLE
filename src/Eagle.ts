@@ -1535,6 +1535,20 @@ export class Eagle {
         }
     };
 
+    collapseAllNodes = () : void => {
+        console.log("collapseAllNodes");
+
+        for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
+            let node: Node = this.logicalGraph().getNodes()[i];
+
+            if (node.isGroup()){
+                node.setCollapsed(true);
+            }
+        }
+
+        this.flagActiveDiagramHasMutated();
+    }
+
     showAbout = () : void => {
         $('#aboutModal').modal('show');
     }
