@@ -120,6 +120,8 @@ export class Eagle {
         Eagle.settings.push(new Setting("Allow Readonly Parameter Editing", "Allow the user to edit values of readonly parameters in components.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PARAMETER_EDITING, false));
         Eagle.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"));
         Eagle.settings.push(new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, true));
+        Eagle.settings.push(new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""));
+        Eagle.settings.push(new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, ""));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -960,10 +962,10 @@ export class Eagle {
 
         switch (repository.service){
             case Eagle.RepositoryService.GitHub:
-                token = GitHub.getAccessToken();
+                token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
                 break;
             case Eagle.RepositoryService.GitLab:
-                token = GitLab.getAccessToken();
+                token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
                 break;
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
@@ -971,7 +973,7 @@ export class Eagle {
         }
 
         // check that access token is defined
-        if (token == undefined) {
+        if (token === null) {
             Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
             return;
         }
@@ -1478,10 +1480,10 @@ export class Eagle {
 
             switch (repositoryService){
                 case Eagle.RepositoryService.GitHub:
-                    token = GitHub.getAccessToken();
+                    token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
                     break;
                 case Eagle.RepositoryService.GitLab:
-                    token = GitLab.getAccessToken();
+                    token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
                     break;
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
@@ -1489,7 +1491,7 @@ export class Eagle {
             }
 
             // check that access token is defined
-            if (token == undefined) {
+            if (token === null) {
                 Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
                 return;
             }
@@ -1512,44 +1514,6 @@ export class Eagle {
             this.saveFileToRemote(repository, jsonData);
         });
     }
-
-    setGitHubAccessToken = () : void => {
-        var currentToken = localStorage.getItem(Utils.GITHUB_ACCESS_TOKEN_KEY);
-        if (currentToken === null) {
-            currentToken = "";
-        }
-
-        Utils.requestUserString("GitHub Access Token", "Enter the GitHub Access Token<br /><span style='color:grey;font-style:italic;'>Required permissions are: read:public_key, read:user, repo</span>", currentToken, true, (completed : boolean, userString : string) : void => {
-            // abort if user cancelled the action
-            if (!completed)
-                return;
-
-            // Set the new token value.
-            localStorage.setItem(Utils.GITHUB_ACCESS_TOKEN_KEY, userString);
-
-            // Reload the repository list.
-            this.refreshRepositoryList();
-        });
-    };
-
-    setGitLabAccessToken = () : void => {
-        var currentToken = localStorage.getItem(Utils.GITLAB_ACCESS_TOKEN_KEY);
-        if (currentToken === null) {
-            currentToken = "";
-        }
-
-        Utils.requestUserString("GitLab Access Token", "Enter the GitLab Access Token<br /><span style='color:grey;font-style:italic;'>Required permissions are: </span>", currentToken, true, (completed : boolean, userString : string) : void => {
-            // abort if user cancelled the action
-            if (!completed)
-                return;
-
-            // Set the new token value.
-            localStorage.setItem(Utils.GITLAB_ACCESS_TOKEN_KEY, userString);
-
-            // Reload the repository list.
-            this.refreshRepositoryList();
-        });
-    };
 
     setTranslatorUrl = () : void => {
         var translatorURLSetting : Setting = Eagle.findSetting(Utils.TRANSLATOR_URL);

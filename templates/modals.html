@@ -299,6 +299,19 @@
                         </div>
                     </div>
                     <!-- /ko -->
+                    <!-- ko if: $data.getType() === 3 -->
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" data-bind="attr:{id:'setting'+$index(),title:$data.getDescription()},text:$data.getName()" data-toggle="tooltip" data-html="true" data-placement="left"></span>
+                        </div>
+                        <input type="password" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$index()+'Value'}">
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.copy, attr:{id:'setting'+$index()+'Copy'}">
+                                <i class="material-icons md-18">content_copy</i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /ko -->
                 <!-- /ko -->
                 <button class="btn btn-danger btn-block" id="resetSettingsDefaults" type="button" data-bind="click: $root.resetSettingsDefaults">Reset Defaults</button>
             </div>

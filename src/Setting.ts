@@ -1,5 +1,7 @@
 import * as ko from "knockout";
 
+import {Utils} from './Utils';
+
 export class Setting {
 
     value : ko.Observable<any>;
@@ -68,6 +70,14 @@ export class Setting {
         this.save();
     }
 
+    copy = () : void => {
+        navigator.clipboard.writeText(this.value().toString()).then(function() {
+            Utils.showNotification("Success", "Copying to clipboard was successful!", "success");
+        }, function(err) {
+            Utils.showNotification("Error", "Could not copy setting. " + err, "danger");
+        });
+    }
+
     resetDefault = () : void => {
         this.value(this.defaultValue);
         this.save();
@@ -80,11 +90,15 @@ export class Setting {
     private stringToValue = (s : string) : any => {
         switch (this.type){
             case Setting.Type.String:
+            case Setting.Type.Password:
                 return s;
             case Setting.Type.Number:
                 return Number(s);
             case Setting.Type.Boolean:
                 return s === "true";
+            default:
+                console.warn("Unknown setting type", this.type);
+                return s;
         }
     }
 }
@@ -92,6 +106,7 @@ export namespace Setting {
     export enum Type {
         String,
         Number,
-        Boolean
+        Boolean,
+        Password
     }
 }
