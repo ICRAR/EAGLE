@@ -80,11 +80,15 @@ export class Setting {
     private stringToValue = (s : string) : any => {
         switch (this.type){
             case Setting.Type.String:
+            case Setting.Type.Password:
                 return s;
             case Setting.Type.Number:
                 return Number(s);
             case Setting.Type.Boolean:
                 return s === "true";
+            default:
+                console.warn("Unknown setting type", this.type);
+                return s;
         }
     }
 }
@@ -92,6 +96,7 @@ export namespace Setting {
     export enum Type {
         String,
         Number,
-        Boolean
+        Boolean,
+        Password
     }
 }

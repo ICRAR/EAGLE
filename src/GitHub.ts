@@ -80,18 +80,12 @@ export class GitHub {
     }
 
     /**
-     * Returns the GitHub access token.
-     */
-    static getAccessToken() : string {
-        return localStorage[Utils.GITHUB_ACCESS_TOKEN_KEY];
-    }
-
-    /**
      * Shows the remote files on the GitHub.
      */
     static loadRepoContent(repository : Repository) : void {
-        var token = GitHub.getAccessToken();
-        if (token == undefined) {
+        var token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+
+        if (token === null) {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
             return;
         }
@@ -200,9 +194,9 @@ export class GitHub {
      * @param filePath File path.
      */
     static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        var token = GitHub.getAccessToken();
+        var token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
 
-        if (token == undefined) {
+        if (token === null) {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
             return;
         }
