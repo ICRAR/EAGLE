@@ -2015,14 +2015,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getEdgeDisplay(edge : Edge) : string {
-        var sourceNode : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
+        var srcNode : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
+        var destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
 
-        if (findAncestorCollapsedNode(sourceNode) !== null){
+        if (findAncestorCollapsedNode(srcNode) !== null && findAncestorCollapsedNode(destNode) !== null){
             return "none";
         }
 
         // also collapse if source port is local port of collapsed node
-        if (sourceNode.hasLocalPortWithId(edge.getSrcPortId()) && sourceNode.isCollapsed()){
+        if (srcNode.hasLocalPortWithId(edge.getSrcPortId()) && srcNode.isCollapsed()){
             return "none";
         }
 
@@ -2032,18 +2033,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function edgeGetX1(edge: Edge) : number {
         var node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
 
+        // check if an ancestor is collapsed, if so, use center of ancestor
+        var collapsedAncestor : Node = findAncestorCollapsedNode(node);
+        if (collapsedAncestor !== null){
+            return collapsedAncestor.getPosition().x + Node.COLLAPSED_WIDTH;
+        }
+
         if (node.isCollapsed()){
             return node.getPosition().x + Node.COLLAPSED_WIDTH;
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
             return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
-        }
-
-        // check if an ancestor is collapsed, if so, use center of ancestor
-        var collapsedAncestor : Node = findAncestorCollapsedNode(node);
-        if (collapsedAncestor !== null){
-            return collapsedAncestor.getPosition().x + Node.COLLAPSED_WIDTH;
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -2058,18 +2059,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function edgeGetY1(edge: Edge) : number {
         var node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
 
+        // check if an ancestor is collapsed, if so, use center of ancestor
+        var collapsedAncestor : Node = findAncestorCollapsedNode(node);
+        if (collapsedAncestor !== null){
+            return collapsedAncestor.getPosition().y;
+        }
+
         if (node.isCollapsed()){
             return node.getPosition().y;
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
-        }
-
-        // check if an ancestor is collapsed, if so, use center of ancestor
-        var collapsedAncestor : Node = findAncestorCollapsedNode(node);
-        if (collapsedAncestor !== null){
-            return collapsedAncestor.getPosition().y;
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -2084,18 +2085,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function edgeGetX2(edge: Edge) : number {
         var node : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
 
+        // check if an ancestor is collapsed, if so, use center of ancestor
+        var collapsedAncestor : Node = findAncestorCollapsedNode(node);
+        if (collapsedAncestor !== null){
+            return collapsedAncestor.getPosition().x;
+        }
+
         if (node.isCollapsed()){
             return node.getPosition().x;
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
             return node.getPosition().x + getIconLocationX(node);
-        }
-
-        // check if an ancestor is collapsed, if so, use center of ancestor
-        var collapsedAncestor : Node = findAncestorCollapsedNode(node);
-        if (collapsedAncestor !== null){
-            return collapsedAncestor.getPosition().x;
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -2110,18 +2111,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function edgeGetY2(edge: Edge) : number {
         var node : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
 
+        // check if an ancestor is collapsed, if so, use center of ancestor
+        var collapsedAncestor : Node = findAncestorCollapsedNode(node);
+        if (collapsedAncestor !== null){
+            return collapsedAncestor.getPosition().y;
+        }
+
         if (node.isCollapsed()){
             return node.getPosition().y;
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
-        }
-
-        // check if an ancestor is collapsed, if so, use center of ancestor
-        var collapsedAncestor : Node = findAncestorCollapsedNode(node);
-        if (collapsedAncestor !== null){
-            return collapsedAncestor.getPosition().y;
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
