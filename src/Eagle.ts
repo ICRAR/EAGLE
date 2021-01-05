@@ -1535,28 +1535,31 @@ export class Eagle {
         }
     };
 
-    collapseAllNodes = () : void => {
-        console.log("collapseAllNodes");
+    toggleCollapseAllNodes = () : void => {
+        console.log("toggleCollapseAllNodes");
 
+        // first work out whether we should be collapsing or expanding
+        let numCollapsed: number = 0;
+        let numExpanded: number = 0;
         for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
             let node: Node = this.logicalGraph().getNodes()[i];
 
             if (node.isGroup()){
-                node.setCollapsed(true);
+                if (node.isCollapsed()){
+                    numCollapsed += 1;
+                } else {
+                    numExpanded += 1;
+                }
             }
         }
+        let collapse: boolean = numExpanded > numCollapsed;
 
-        this.flagActiveDiagramHasMutated();
-    }
-
-    expandAllNodes = () : void => {
-        console.log("expandAllNodes");
-
+        // now loop through and collapse or expand all group nodes
         for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
             let node: Node = this.logicalGraph().getNodes()[i];
 
             if (node.isGroup()){
-                node.setCollapsed(false);
+                node.setCollapsed(collapse);
             }
         }
 
