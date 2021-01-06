@@ -566,8 +566,12 @@ export class Node {
     }
 
     getDisplayWidth = () : number => {
-        if (this.isCollapsed()){
+        if (this.isGroup() && this.isCollapsed()){
             return Node.COLLAPSED_WIDTH;
+        }
+
+        if (!this.isGroup() && this.isCollapsed()){
+            return this.width;
         }
 
         if (this.getCategoryType() === Eagle.CategoryType.Data && !this.isShowPorts()){
@@ -584,6 +588,10 @@ export class Node {
             } else {
                 return this.height;
             }
+        }
+
+        if (!this.isGroup() && this.isCollapsed()){
+            return 32;
         }
 
         if (this.getCategoryType() === Eagle.CategoryType.Data && !this.isShowPorts()){

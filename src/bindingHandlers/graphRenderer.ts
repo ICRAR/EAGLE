@@ -2552,7 +2552,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // whether or not an object in the graph should be rendered or not
     function getPortsDisplay(node : Node) : string {
-        if (node.isGroup() && node.isCollapsed()){
+        if (node.isCollapsed()){
             return "none";
         }
 
