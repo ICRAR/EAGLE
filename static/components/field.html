@@ -28,11 +28,13 @@
         <!-- /ko -->
     <!-- /ko -->
 
-    <!-- ko if: $data.editable() -->
-    <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index()}">
-            <i class="material-icons md-18">edit</i>
-        </button>
-    </div>
+    <!-- ko if: $root.userMode() === Eagle.UserMode.LogicalGraphEditor -->
+        <!-- ko if: $data.editable() -->
+        <div class="input-group-append">
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index()}">
+                <i class="material-icons md-18">edit</i>
+            </button>
+        </div>
+        <!-- /ko -->
     <!-- /ko -->
 </div>
