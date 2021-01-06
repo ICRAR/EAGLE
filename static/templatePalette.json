@@ -36,7 +36,8 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5"
+                "value": "5",
+                "description": "Estimate of execution time (in seconds) for this application."
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
@@ -63,7 +64,8 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5"
+                "value": "5",
+                "description": "Estimate of execution time (in seconds) for this application."
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
@@ -93,7 +95,8 @@
             }, {
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5"
+                "value": "5",
+                "description": "Estimate of execution time (in seconds) for this application."
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
@@ -115,7 +118,8 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5"
+                "value": "5",
+                "description": "Estimate of execution time (in seconds) for this application."
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
@@ -164,7 +168,8 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5"
+                "value": "5",
+                "description": "Estimate of execution time (in seconds) for this application."
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
@@ -176,7 +181,8 @@
             }, {
                 "text": "Appclass",
                 "name": "appclass",
-                "value": "test.graphsRepository"
+                "value": "test.graphsRepository",
+                "description": "The python class that implements this application"
             }],
             "categoryType": "Application",
             "inputPorts": []
