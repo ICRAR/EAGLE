@@ -62,7 +62,7 @@ app.config.from_object("config")
 version = "Unknown"
 commit_hash = "Unknown"
 try:
-    with open("VERSION") as vfile:
+    with open(staticdir+"/VERSION") as vfile:
         for line in vfile.readlines():
             if "SW_VER" in line:
                 version = line.split("SW_VER ")[1].strip()[1:-1]
