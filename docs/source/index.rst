@@ -3,6 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+
 Welcome to EAGLE's documentation!
 =================================
 
@@ -10,11 +11,13 @@ Welcome to EAGLE's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   Quick Start Guide <quickStart2>
+   Components <components>
+   Palettes <palettes>
+.. Modules <modules>
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. Indices and tables
+.. ==================
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
