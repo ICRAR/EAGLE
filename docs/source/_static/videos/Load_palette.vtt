@@ -7,7 +7,7 @@ This video will demonstrate how to load a palette of components from a repositor
 A GitHub Access Token is required to be able to access the ICRAR/EAGLE repositories. This will need the correct permissions - "read:public_key", "read:user", and "repo"
 
 00:07.746 --> 00:10.746
-To create a token, navigate to GitHub and log in to your account. 
+To create a token, navigate to GitHub and log in to your account.
 
 00:13.197 --> 00:19.197
 You will need to go to your account settings, then to "Developer settings", and click on "Personal access tokens". This will take you to the page where you can generate a new token.
@@ -25,5 +25,4 @@ Back in Eagle, you may now enter the access token you have copied.
 Navigate to the palette file in the ICRAR/EAGLE graph repository. It will end in ".palette".
 
 01:07.059 --> 01:10.059
-The list of nodes from the palette will now appear in the panel that slides out from the left.
-
+The list of components from the palette will now appear in the panel that slides out from the left.
