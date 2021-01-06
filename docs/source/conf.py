@@ -21,8 +21,8 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = u'EAGLE'
-copyright = u'2020, James Strauss, Vitaliy Ogarko, Andreas Wicenec'
-author = u'James Strauss, Vitaliy Ogarko, Andreas Wicenec'
+copyright = u'2020, James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans'
+author = u'James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans'
 
 # The short X.Y version
 version = u''
@@ -77,6 +77,12 @@ pygments_style = None
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
+
+# Adding this so we can increase the width of the central column of text.
+# The custom.css file is in the _static directory.
+html_css_files = [
+    'css/custom.css',
+]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

@@ -36,6 +36,10 @@ export class Field {
         return this.description;
     }
 
+    setDescription = (description: string): void => {
+        this.description = description;
+    }
+
     getDescriptionText = () : string => {
         return this.description == "" ? "No description available" + " (" + this.type + ")" : this.description + " (" + this.type + ")";
     }

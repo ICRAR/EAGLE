@@ -1,0 +1,75 @@
+<figure>
+	<video controls id="save_graph">
+		<source src="_static/videos/Save_graph_01.mp4">
+		<!-- <source src="downtown-los-angeles.webm"> -->
+		<track kind="chapters" label="Locations" src="_static/videos/Save_graph.vtt" srclang="en" default>
+	</video>
+	<figcaption>
+		<ol id="save_graph_captions"  class="captions">
+		</ol>
+	</figcaption>
+
+	<!-- Trigger/Open The Modal -->
+	<button id="myBtn3" style="float: right">Click to see a larger video</button>
+
+</figure>
+
+<!-- The Modal -->
+<div id="myModal3" class="modal">
+
+  <!-- Modal content -->
+	<figure class="modal-content">
+		<button class="close">close &times;</button>
+		<video controls id="save_graph_modal">
+			<source src="_static/videos/Save_graph_01.mp4">
+			<!-- <source src="downtown-los-angeles.webm"> -->
+			<track kind="chapters" label="Locations" src="_static/videos/Save_graph.vtt" srclang="en" default>
+		</video>
+		<figcaption>
+			<ol id="save_graph_captions_modal"  class="captions">
+			</ol>
+		</figcaption>
+	</figure>
+
+</div>
+
+<script>
+var locationList = document.getElementById("save_graph_captions"),
+video = document.getElementById("save_graph"),
+trackElement = video.getElementsByTagName("track")[0];
+
+all_videos.push([locationList, video, trackElement]);
+
+var locationList = document.getElementById("save_graph_captions_modal"),
+video = document.getElementById("save_graph_modal"),
+trackElement = video.getElementsByTagName("track")[0];
+
+all_videos.push([locationList, video, trackElement]);
+
+// Get the modal
+var modal = document.getElementById("myModal3");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn3");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[2];
+
+// When the user clicks on the button, open the modal
+btn.onclick = function() {
+  modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+</script>

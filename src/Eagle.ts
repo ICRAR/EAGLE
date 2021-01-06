@@ -2349,6 +2349,34 @@ export class Eagle {
         this.selectedNode(this.selectedNode().getExitApplication());
     }
 
+    editFieldDescription = (fieldIndex: number, fieldType: Eagle.FieldType, input: boolean): void => {
+        console.log("Edit Field Description() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "fieldType", fieldType, "input", input);
+
+        // get a reference to the field we are editing
+        let field: Field;
+        if (fieldType === Eagle.FieldType.Field){
+            field = this.selectedNode().getFields()[fieldIndex];
+        } else {
+            if (input){
+                field = this.selectedNode().getInputApplication().getFields()[fieldIndex];
+            } else {
+                field = this.selectedNode().getOutputApplication().getFields()[fieldIndex];
+            }
+        }
+
+        // get the current description of this field
+        let currentDescription: string = field.getDescription();
+
+        Utils.requestUserString("Edit Parameter Description", "Enter a description for this parameter", currentDescription, false, (completed : boolean, userString : string) => {
+            // abort if the user aborted
+            if (!completed){
+                return;
+            }
+
+            field.setDescription(userString);
+        });
+    }
+
     showFieldValuePicker = (fieldIndex : number, fieldType : Eagle.FieldType, input : boolean) : void => {
         console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "fieldType", fieldType, "input", input);
 

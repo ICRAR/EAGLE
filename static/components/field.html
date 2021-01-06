@@ -1,12 +1,12 @@
 <div class="input-group mb-1">
     <div class="input-group-prepend">
         <!-- ko if: $data._type === Eagle.FieldType.Field -->
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index()}">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index(), title:'Remove parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
             <i class="material-icons md-18">remove</i>
         </button>
         <!-- /ko -->
         <!-- ko if: $data._type === Eagle.FieldType.AppField -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeAppFieldByIndex($index(), $data.input);$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveAppField' + $index()}">
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeAppFieldByIndex($index(), $data.input);$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveAppField' + $index(), title:'Remove parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
                 <i class="material-icons md-18">remove</i>
             </button>
         <!-- /ko -->
@@ -28,9 +28,19 @@
         <!-- /ko -->
     <!-- /ko -->
 
+    <!-- ko if: $root.userMode() === Eagle.UserMode.LogicalGraphEditor -->
+        <!-- ko if: $data.editable() -->
+        <div class="input-group-append">
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Open Field Value Wizard'}" data-toggle="tooltip" data-html="true" data-placement="left">
+                <i class="material-icons md-18">link</i>
+            </button>
+        </div>
+        <!-- /ko -->
+    <!-- /ko -->
+
     <!-- ko if: $data.editable() -->
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index()}">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editFieldDescription($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditFieldDescription' + $index(), title: 'Edit description'}" data-toggle="tooltip" data-html="true" data-placement="left">
             <i class="material-icons md-18">edit</i>
         </button>
     </div>
