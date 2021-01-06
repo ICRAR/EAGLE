@@ -2367,7 +2367,7 @@ export class Eagle {
         // get the current description of this field
         let currentDescription: string = field.getDescription();
 
-        Utils.requestUserString("Edit Field Description", "Enter a description for this field", currentDescription, false, (completed : boolean, userString : string) => {
+        Utils.requestUserString("Edit Parameter Description", "Enter a description for this parameter", currentDescription, false, (completed : boolean, userString : string) => {
             // abort if the user aborted
             if (!completed){
                 return;
