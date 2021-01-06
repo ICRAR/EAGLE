@@ -1597,6 +1597,19 @@ export class Eagle {
         );
     }
 
+    submitIssue = () : void => {
+        console.log("submitIssue");
+
+        // automatically add the EAGLE version and commit hash to the body of the new issue
+        let bodyText: string = "\n\nVersion: "+(<any>window).version+"\nCommit Hash: "+(<any>window).commit_hash;
+
+        // url encode the body text
+        bodyText = encodeURI(bodyText);
+
+        // open in new tab
+        window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
+    }
+
     openSettings = () : void => {
         Utils.showSettingsModal();
     }
