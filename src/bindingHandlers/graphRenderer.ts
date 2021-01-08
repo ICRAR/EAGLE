@@ -2039,8 +2039,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().x + Node.COLLAPSED_WIDTH;
         }
 
-        if (node.isCollapsed()){
-            return node.getPosition().x + Node.COLLAPSED_WIDTH;
+        if (node.isCollapsed() && !node.isData()){
+            return node.getPosition().x + node.getWidth();
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
@@ -2065,7 +2065,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().y;
         }
 
-        if (node.isCollapsed()){
+        if (node.isCollapsed() && !node.isData()){
             return node.getPosition().y;
         }
 
@@ -2091,7 +2091,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().x;
         }
 
-        if (node.isCollapsed()){
+        if (node.isCollapsed() && !node.isData()){
             return node.getPosition().x;
         }
 
@@ -2117,7 +2117,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return collapsedAncestor.getPosition().y;
         }
 
-        if (node.isCollapsed()){
+        if (node.isCollapsed() && !node.isData()){
             return node.getPosition().y;
         }
 
@@ -2552,7 +2552,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // whether or not an object in the graph should be rendered or not
     function getPortsDisplay(node : Node) : string {
-        if (node.isGroup() && node.isCollapsed()){
+        if (node.isCollapsed()){
             return "none";
         }
 

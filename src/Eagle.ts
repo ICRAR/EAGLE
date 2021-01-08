@@ -1535,8 +1535,8 @@ export class Eagle {
         }
     };
 
-    toggleCollapseAllNodes = () : void => {
-        console.log("toggleCollapseAllNodes");
+    toggleCollapseAllGroups = () : void => {
+        console.log("toggleCollapseAllGroups");
 
         // first work out whether we should be collapsing or expanding
         let numCollapsed: number = 0;
@@ -1559,6 +1559,37 @@ export class Eagle {
             let node: Node = this.logicalGraph().getNodes()[i];
 
             if (node.isGroup()){
+                node.setCollapsed(collapse);
+            }
+        }
+
+        this.flagActiveDiagramHasMutated();
+    }
+
+    toggleCollapseAllNodes = () : void => {
+        console.log("toggleCollapseAllNodes");
+
+        // first work out whether we should be collapsing or expanding
+        let numCollapsed: number = 0;
+        let numExpanded: number = 0;
+        for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
+            let node: Node = this.logicalGraph().getNodes()[i];
+
+            if (!node.isGroup()){
+                if (node.isCollapsed()){
+                    numCollapsed += 1;
+                } else {
+                    numExpanded += 1;
+                }
+            }
+        }
+        let collapse: boolean = numExpanded > numCollapsed;
+
+        // now loop through and collapse or expand all group nodes
+        for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
+            let node: Node = this.logicalGraph().getNodes()[i];
+
+            if (!node.isGroup()){
                 node.setCollapsed(collapse);
             }
         }
@@ -2583,8 +2614,8 @@ export class Eagle {
 
         NGAS               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "storage"},
         S3                 : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "cloud_queue"},
-        Mpi                : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "apps"},
-        Docker             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "computer"},
+        Mpi                : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "apps"},
+        Docker             : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "computer"},
         Memory             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "memory"},
         File               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "description"},
 
