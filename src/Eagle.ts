@@ -2078,6 +2078,8 @@ export class Eagle {
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
+            this.flagActiveFileModified();
+            this.selectedNode.valueHasMutated();
         });
     }
 
