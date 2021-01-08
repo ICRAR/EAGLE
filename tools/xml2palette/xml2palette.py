@@ -57,22 +57,25 @@ def find_field_by_name(fields, name):
 def add_required_fields_for_category(fields, category):
     if category == "DynlibApp":
         if find_field_by_name(fields, "execution_time") is None:
-            fields.append(create_field("Execution time", "execution_time", 5, "", "readwrite", "Float"))
+            fields.append(create_field("Execution time", "execution_time", 5, "Estimated execution time", "readwrite", "Float"))
         if find_field_by_name(fields, "num_cpus") is None:
-            fields.append(create_field("Num CPUs", "num_cpus", 1, "", "readwrite", "Integer"))
+            fields.append(create_field("Num CPUs", "num_cpus", 1, "Number of cores used", "readwrite", "Integer"))
         if find_field_by_name(fields, "group_start") is None:
-            fields.append(create_field("Group start", "group_start", 0, "", "readwrite", "Boolean"))
+            fields.append(create_field("Group start", "group_start", 0, "Component is start of a group", "readwrite", "Boolean"))
         if find_field_by_name(fields, "libpath") is None:
             fields.append(create_field("Library path", "libpath", "", "", "readwrite", "String"))
     elif category == "PythonApp":
         if find_field_by_name(fields, "execution_time") is None:
-            fields.append(create_field("Execution time", "execution_time", 5, "", "readwrite", "Float"))
+            fields.append(create_field("Execution time", "execution_time",
+                                       5, "Estimated execution time", "readwrite", "Float"))
         if find_field_by_name(fields, "num_cpus") is None:
-            fields.append(create_field("Num CPUs", "num_cpus", 1, "", "readwrite", "Integer"))
+            fields.append(create_field("Num CPUs", "num_cpus", 1,
+                                       "Number of cores used", "readwrite", "Integer"))
         if find_field_by_name(fields, "group_start") is None:
-            fields.append(create_field("Group start", "group_start", 0, "", "readwrite", "Boolean"))
+            fields.append(create_field("Group start", "group_start", 0,
+                                       "Component is start of a group", "readwrite", "Boolean"))
         if find_field_by_name(fields, "appclass") is None:
-            fields.append(create_field("Appclass", "appclass", "test.graphsRepository", "", "readwrite", "String"))
+            fields.append(create_field("Appclass", "appclass", "dlg.apps.simple.SleepApp", "Application class", "readwrite", "String"))
 
 
 def create_field(text, name, value, description, access, type):
