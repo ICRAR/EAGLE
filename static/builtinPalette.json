@@ -1,0 +1,43 @@
+{
+    "class": "go.GraphLinksModel",
+    "modelData": {
+        "fileType": "palette",
+        "repoService": "Unknown",
+        "repoBranch": "",
+        "repo": "",
+        "filePath": "builtinPalette.json",
+        "sha": "",
+        "git_url": ""
+    },
+    "nodeDataArray": [
+        {
+            "category": "PythonApp",
+            "outputPorts": [],
+            "text": "HelloWorldApp",
+            "description": "Placeholder",
+            "key": -2,
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": "5",
+                "description": "Estimate of execution time (in seconds) for this application."
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": "1"
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": "0"
+            }, {
+                "text": "Appclass",
+                "name": "appclass",
+                "value": "dlg.apps.simple.HelloWorldApp",
+                "description": "The python class that implements this application"
+            }],
+            "categoryType": "Application",
+            "inputPorts": []
+        }
+    ],
+    "linkDataArray": []
+}
