@@ -260,6 +260,26 @@ export class Utils {
         return "";
     }
 
+    static translateRightWindowModeToString(rightWindowMode: Eagle.RightWindowMode): string {
+        switch(rightWindowMode){
+            case Eagle.RightWindowMode.EdgeInspector:
+                return "EdgeInspector";
+            case Eagle.RightWindowMode.Hierarchy:
+                return "Hierarchy";
+            case Eagle.RightWindowMode.NodeInspector:
+                return "NodeInspector";
+            case Eagle.RightWindowMode.Repository:
+                return "Repository";
+            case Eagle.RightWindowMode.TranslationMenu:
+                return "TranslationMenu";
+            case Eagle.RightWindowMode.None:
+                return "None";
+            default:
+                console.warn("Unknown rightWindowMode", rightWindowMode);
+                return "";
+        }
+    }
+
     static httpGet(url : string, callback : (error : string, data : string) => void){
         $.ajax({
             url: url,

@@ -418,6 +418,8 @@ export class Eagle {
     }
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
+        //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
+
         switch (rightWindowMode){
             case Eagle.RightWindowMode.Hierarchy:
             case Eagle.RightWindowMode.NodeInspector:
@@ -435,6 +437,8 @@ export class Eagle {
                 // abort if new selection is null
                 if (selection === null){
                     Eagle.selectedNodeKey = undefined;
+                    this.selectedNode(null);
+                    this.selectedEdge(null);
                     this.flagActiveDiagramHasMutated();
                     return;
                 }
@@ -1693,19 +1697,12 @@ export class Eagle {
     };
 
     flagActiveDiagramHasMutated = () => {
-        // remember the currently selected objects
-        var sn = this.getSelection();
-        var rwm = this.rightWindowMode();
-
         // flag diagram as mutated
         if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
             this.logicalGraph.valueHasMutated();
         } else {
             this.editorPalette.valueHasMutated();
         }
-
-        // reselect object
-        this.setSelection(rwm, sn);
     }
 
     deleteSelectedEdge = () => {
@@ -2081,6 +2078,8 @@ export class Eagle {
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
+            this.flagActiveFileModified();
+            this.selectedNode.valueHasMutated();
         });
     }
 
