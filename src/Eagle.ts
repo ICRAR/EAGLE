@@ -498,6 +498,11 @@ export class Eagle {
             return;
         }
 
+        if (this.logicalGraph().fileInfo().name === ""){
+            Utils.showUserMessage("Error", "Unable to translate. Logical graph does not have a name! Please save the graph first.");
+            return;
+        }
+
         var translatorURL : string = Eagle.findSetting(Utils.TRANSLATOR_URL).value();
 
         console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
@@ -730,7 +735,8 @@ export class Eagle {
 
         var fileName = this.activeFileInfo().name;
         if (fileName === "") {
-            fileName = "Diagram" + "." + Utils.getDiagramExtension(fileType);
+            fileName = "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
+            this.activeFileInfo().name = fileName;
         }
 
         var json : object;
