@@ -1035,7 +1035,7 @@ export class Eagle {
     /**
      * Loads template palette from the server.
      */
-     // TODO: data is not a string here, it is already an object
+    // TODO: data is not a string here, it is already an object
     loadTemplatePalette = () => {
         console.log("loadTemplatePalette()");
 
@@ -1072,6 +1072,27 @@ export class Eagle {
                 this.palettes.push(palette);
                 this.leftWindowShown(true);
             }
+        });
+    }
+
+    /**
+     * Loads builtin palette from the server.
+     */
+    loadBuiltinPalette = () => {
+        console.log("loadBuiltinPalette()");
+
+        Utils.httpGet("./static/" + Config.builtinPaletteFileName, (error : string, data : string) => {
+            if (error !== null){
+                console.error(error);
+                return;
+            }
+
+            var showErrors = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+
+            let builtinPalette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.builtinPaletteFileName), showErrors);
+            builtinPalette.fileInfo().clear();
+            builtinPalette.fileInfo().name = Palette.BUILTIN_PALETTE_NAME;
+            this.palettes.push(builtinPalette);
         });
     }
 
