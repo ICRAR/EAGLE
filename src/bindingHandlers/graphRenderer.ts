@@ -2051,7 +2051,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isCollapsed() && !node.isData()){
-            return node.getPosition().x + node.getWidth();
+            if (node.isFlipPorts()){
+                return node.getPosition().x;
+            } else {
+                return node.getPosition().x + node.getWidth();
+            }
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
@@ -2107,7 +2111,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isCollapsed() && !node.isData()){
-            return node.getPosition().x;
+            if (node.isFlipPorts()){
+                return node.getPosition().x + node.getWidth();
+            } else {
+                return node.getPosition().x;
+            }
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
