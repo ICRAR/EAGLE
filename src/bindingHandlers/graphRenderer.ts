@@ -670,9 +670,19 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function createLink(edge : Edge) : string {
         // determine if edge is "forward" or not
-        var node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
-        var portType : string = node.findPortTypeById(edge.getSrcPortId());
-        var forward : boolean = portType === "output" || portType === "inputLocal";
+        var srcNode : Node  = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
+        var destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
+        var srcPortType : string =  srcNode.findPortTypeById(edge.getSrcPortId());
+        var destPortType : string = destNode.findPortTypeById(edge.getDestPortId());
+        var startRight : boolean = srcPortType === "output" || srcPortType === "inputLocal";
+        var endLeft : boolean = destPortType === "input" || destPortType === "outputLocal";
+
+        if (srcNode.isFlipPorts()){
+            startRight = !startRight;
+        }
+        if (destNode.isFlipPorts()){
+            endLeft = !endLeft;
+        }
 
         let x1 = REAL_TO_DISPLAY_POSITION_X(edgeGetX1(edge));
         let y1 = REAL_TO_DISPLAY_POSITION_Y(edgeGetY1(edge));
@@ -685,7 +695,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         console.assert(!isNaN(x2));
         console.assert(!isNaN(y2));
 
-        return createBezier(x1, y1, x2, y2, forward);
+        return createBezier(x1, y1, x2, y2, startRight, endLeft);
     }
 
     // create one link that is only used during the creation of a new link
@@ -2045,7 +2055,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
+            if (node.isFlipPorts()){
+                return node.getPosition().x + getIconLocationX(node);
+            } else {
+                return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
+            }
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -2097,7 +2111,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return node.getPosition().x + getIconLocationX(node);
+            if (node.isFlipPorts()){
+                return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
+            } else {
+                return node.getPosition().x + getIconLocationX(node);
+            }
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -2336,7 +2354,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // find subject node
         var subjectNode : Node = findNodeWithKey(node.getSubjectKey(), nodeData);
 
-        return createBezier(node.getPosition().x, node.getPosition().y, subjectNode.getPosition().x, subjectNode.getPosition().y, true);
+        return createBezier(node.getPosition().x, node.getPosition().y, subjectNode.getPosition().x, subjectNode.getPosition().y, true, true);
     }
 
     function getCommentLinkDisplay(node : Node) : string {
@@ -2351,12 +2369,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return "inline";
     }
 
-    // forward - direction of edge. A forward edge goes from an output port to an input port. A non-forward edge goes from an input edge to an output edge
-    function createBezier(x1: number, y1: number, x2: number, y2: number, forward: boolean) : string {
+    // startRight - does the edge start on the right-hand side of a node, affects the control points in the bezier
+    // endLeft    - does the edge end   on the left-hand  side of a node, affects the control points in the bezier
+    function createBezier(x1: number, y1: number, x2: number, y2: number, startRight: boolean, endLeft: boolean) : string {
         // find control points
-        var c1x = x1 + (forward?50:-50);
+        var c1x = x1 + (startRight?50:-50);
         var c1y = y1;
-        var c2x = x2 - (forward?50:-50);
+        var c2x = x2 - (endLeft?50:-50);
         var c2y = y2;
 
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
