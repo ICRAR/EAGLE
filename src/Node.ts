@@ -57,7 +57,7 @@ export class Node {
     private inputPorts : Port[];
     private outputPorts : Port[];
 
-    private fields : Field[];
+    private fields : ko.ObservableArray<Field>;
 
     private category : Eagle.Category;
     private categoryType : Eagle.CategoryType;
@@ -103,7 +103,7 @@ export class Node {
         this.inputPorts = [];
         this.outputPorts = [];
 
-        this.fields = [];
+        this.fields = ko.observableArray([]);
 
         this.category = category;
         this.categoryType = categoryType;
@@ -367,8 +367,8 @@ export class Node {
 
     getFieldByName = (name : string) : Field | null => {
         for (var i = 0 ; i < this.fields.length ; i++){
-            if (this.fields[i].getName() === name){
-                return this.fields[i];
+            if (this.fields()[i].getName() === name){
+                return this.fields()[i];
             }
         }
 
@@ -376,7 +376,7 @@ export class Node {
     }
 
     getFields = () : Field[] => {
-        return this.fields;
+        return this.fields();
     }
 
     getNumFields = () : number => {
@@ -555,7 +555,7 @@ export class Node {
         this.inputPorts = [];
         this.outputPorts = [];
 
-        this.fields = [];
+        this.fields([]);
 
         this.category = Eagle.Category.Unknown;
         this.categoryType = Eagle.CategoryType.Unknown;
@@ -797,7 +797,7 @@ export class Node {
 
     hasFieldWithName = (name : string) => {
         for (var i = 0 ; i < this.fields.length ; i++){
-            if (this.fields[i].getName() === name){
+            if (this.fields()[i].getName() === name){
                 return true;
             }
         }
@@ -827,14 +827,14 @@ export class Node {
     }
 
     removeAllFields = () : void => {
-        this.fields = [];
+        this.fields([]);
     }
 
     removeAllNonArgFields = () : Field[] => {
         var result : Field[] = [];
 
         for (var i = this.fields.length - 1 ; i >= 0 ; i--){
-            var field : Field = this.fields[i];
+            var field : Field = this.fields()[i];
             if (!Utils.isParameterArgument(field.getName())){
                 result.push(this.fields.splice(i, 1)[0]);
             }
@@ -890,7 +890,7 @@ export class Node {
 
         // clone fields
         for (var i = 0; i < this.fields.length; i++){
-            result.fields.push(this.fields[i].clone());
+            result.fields.push(this.fields()[i].clone());
         }
 
         result.expanded(this.expanded());
@@ -992,7 +992,7 @@ export class Node {
             return "";
         }
 
-        return this.fields[0].getValue();
+        return this.fields()[0].getValue();
     }
 
     customDataChanged = (eagle : Eagle, event : JQueryEventObject) : void => {
@@ -1005,7 +1005,7 @@ export class Node {
             this.addField(new Field("", "", "", "", false, Eagle.FieldDataType.Unknown));
         }
 
-        this.fields[0].setValue(e.value);
+        this.fields()[0].setValue(e.value);
 
         eagle.flagActiveDiagramHasMutated();
     }
@@ -1462,7 +1462,7 @@ export class Node {
         // add fields
         result.fields = [];
         for (var i = 0 ; i < node.fields.length ; i++){
-            let field = node.fields[i];
+            let field = node.fields()[i];
             result.fields.push(Field.toOJSJson(field));
         }
 
@@ -1470,7 +1470,7 @@ export class Node {
         result.inputAppFields = [];
         if (node.hasInputApplication()){
             for (var i = 0 ; i < node.inputApplication().fields.length ; i++){
-                let field = node.inputApplication().fields[i];
+                let field = node.inputApplication().fields()[i];
                 result.inputAppFields.push(Field.toOJSJson(field));
             }
         }
@@ -1479,7 +1479,7 @@ export class Node {
         result.outputAppFields = [];
         if (node.hasOutputApplication()){
             for (var i = 0 ; i < node.outputApplication().fields.length ; i++){
-                let field = node.outputApplication().fields[i];
+                let field = node.outputApplication().fields()[i];
                 result.outputAppFields.push(Field.toOJSJson(field));
             }
         }
@@ -1488,7 +1488,7 @@ export class Node {
         result.exitAppFields = [];
         if (node.hasExitApplication()){
             for (var i = 0 ; i < node.exitApplication().fields.length ; i++){
-                let field = node.exitApplication().fields[i];
+                let field = node.exitApplication().fields()[i];
                 result.exitAppFields.push(Field.toOJSJson(field));
             }
         }
@@ -1585,7 +1585,7 @@ export class Node {
         // add parameters
         result.parameters = {};
         for (let i = 0 ; i < node.fields.length ; i++){
-            let field = node.fields[i];
+            let field = node.fields()[i];
             result.parameters[i] = Field.toV3Json(field);
         }
 
