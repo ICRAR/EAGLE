@@ -1090,6 +1090,8 @@ export class Eagle {
             var showErrors = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             let builtinPalette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.builtinPaletteFileName), showErrors);
+            builtinPalette.fileInfo().clear();
+            builtinPalette.fileInfo().name = Palette.BUILTIN_PALETTE_NAME;
             this.palettes.push(builtinPalette);
         });
     }
