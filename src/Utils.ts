@@ -29,6 +29,7 @@ import {Palette} from './Palette';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
 import {Port} from './Port';
+import {Field} from './Field';
 import {Repository} from './Repository';
 
 export class Utils {
@@ -295,6 +296,24 @@ export class Utils {
                 console.warn("Unknown rightWindowMode", rightWindowMode);
                 return "";
         }
+    }
+
+    static translateStringToFieldDataType(fieldDataType: string): Eagle.FieldDataType {
+        if (fieldDataType === "Boolean"){
+            return Eagle.FieldDataType.Boolean;
+        }
+        if (fieldDataType === "Float"){
+            return Eagle.FieldDataType.Float;
+        }
+        if (fieldDataType === "Integer"){
+            return Eagle.FieldDataType.Integer;
+        }
+        if (fieldDataType === "String"){
+            return Eagle.FieldDataType.String;
+        }
+
+        console.warn("Unknown FieldDataType", fieldDataType);
+        return Eagle.FieldDataType.Unknown;
     }
 
     static httpGet(url : string, callback : (error : string, data : string) => void){
@@ -572,6 +591,46 @@ export class Utils {
         $('#settingsModal').on('shown.bs.modal', function(){
             $('#settingsModalAffirmativeButton').focus();
         });
+
+        // #editFieldModal - requestUserEditField()
+        $('#editFieldModalAffirmativeButton').on('click', function(){
+            $('#editFieldModal').data('completed', true);
+        });
+        $('#editFieldModalNegativeButton').on('click', function(){
+            $('#editFieldModal').data('completed', false);
+        });
+        $('#editFieldModal').on('shown.bs.modal', function(){
+            $('#editFieldModalAffirmativeButton').focus();
+        });
+        $('#editFieldModal').on('hidden.bs.modal', function(){
+            console.log("editFieldModal hidden");
+
+            var callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
+            var completed : boolean = $('#editFieldModal').data('completed');
+            console.log("completed", completed);
+
+            // check if the modal was completed (user clicked OK), if not, return false
+            if (!completed){
+                callback(false, null);
+                return;
+            }
+
+            // extract field data from HTML elements
+            let text : string = <string>$('#editFieldModalTextInput').val();
+            let name : string = <string>$('#editFieldModalNameInput').val();
+            let value : string = <string>$('#editFieldModalValueInput').val();
+            let description: string = <string>$('#editFieldModalDescriptionInput').val();
+            let access: string = <string>$('#editFieldModalAccessSelect').val();
+            let type: string = <string>$('#editFieldModalTypeSelect').val();
+
+            // translate access and type
+            let readonly: boolean = access === 'readonly';
+            let realType: Eagle.FieldDataType = Utils.translateStringToFieldDataType(type);
+
+            let newField = new Field(text, name, value, description, readonly, realType);
+
+            callback(true, newField);
+        });
     }
 
     static showUserMessage (title : string, message : string) {
@@ -728,8 +787,60 @@ export class Utils {
 
         $('#gitCommitModalFilePathInput').val(filePath);
         $('#gitCommitModalFileNameInput').val(fileName);
+    }
 
+    static requestUserEditField(field: Field, callback: (completed: boolean, field: Field) => void){
+        console.log("requestUserEditField()");
 
+        // populate UI with current field data
+        $('#editFieldModalTextInput').val(field.getText());
+        $('#editFieldModalNameInput').val(field.getName());
+        $('#editFieldModalValueInput').val(field.getValue());
+        $('#editFieldModalDescriptionInput').val(field.getDescription());
+        $('#editFieldModalAccessSelect').empty();
+
+        // add options to the access select tag
+        $('#editFieldModalAccessSelect').append($('<option>', {
+            value: "readonly",
+            text: "readonly",
+            selected: field.isReadonly()
+        }));
+        $('#editFieldModalAccessSelect').append($('<option>', {
+            value: "readwrite",
+            text: "readwrite",
+            selected: !field.isReadonly()
+        }));
+
+        $('#editFieldModalTypeSelect').empty();
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Integer",
+            text: "Integer",
+            selected: field.getType() === Eagle.FieldDataType.Integer
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Float",
+            text: "Float",
+            selected: field.getType() === Eagle.FieldDataType.Float
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "String",
+            text: "String",
+            selected: field.getType() === Eagle.FieldDataType.String
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Boolean",
+            text: "Boolean",
+            selected: field.getType() === Eagle.FieldDataType.Boolean
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Unknown",
+            text: "Unknown",
+            selected: field.getType() === Eagle.FieldDataType.Unknown
+        }));
+
+        $('#editFieldModal').data('completed', false);
+        $('#editFieldModal').data('callback', callback);
+        $('#editFieldModal').modal();
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void){

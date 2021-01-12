@@ -4,76 +4,92 @@ import {Utils} from './Utils';
 import {Eagle} from './Eagle';
 
 export class Field {
-    private text : string;
-    private name : string;
-    private value : string;
-    private description : string;
-    private readonly : boolean;
-    private type : Eagle.FieldDataType;
+    private text : ko.Observable<string>;
+    private name : ko.Observable<string>;
+    private value : ko.Observable<string>;
+    private description : ko.Observable<string>;
+    private readonly : ko.Observable<boolean>;
+    private type : ko.Observable<Eagle.FieldDataType>;
 
     constructor(text: string, name: string, value: string, description: string, readonly: boolean, type: Eagle.FieldDataType){
-        this.text = text;
-        this.name = name;
-        this.value = value;
-        this.description = description;
-        this.readonly = readonly;
-        this.type = type;
+        this.text = ko.observable(text);
+        this.name = ko.observable(name);
+        this.value = ko.observable(value);
+        this.description = ko.observable(description);
+        this.readonly = ko.observable(readonly);
+        this.type = ko.observable(type);
     }
 
     getText = () : string => {
-        return this.text;
+        return this.text();
+    }
+
+    setText = (text: string): void => {
+        this.text(text);
     }
 
     getName = () : string => {
-        return this.name;
+        return this.name();
+    }
+
+    setName = (name: string): void => {
+        this.name(name);
     }
 
     getValue = () : string => {
-        return this.value;
+        return this.value();
+    }
+
+    setValue = (value: string): void => {
+        this.value(value);
     }
 
     getDescription = () : string => {
-        return this.description;
+        return this.description();
     }
 
     setDescription = (description: string): void => {
-        this.description = description;
+        this.description(description);
     }
 
     getDescriptionText = () : string => {
-        return this.description == "" ? "No description available" + " (" + this.type + ")" : this.description + " (" + this.type + ")";
+        return this.description() == "" ? "No description available" + " (" + this.type() + ")" : this.description() + " (" + this.type() + ")";
     }
 
     isReadonly = () : boolean => {
-        return this.readonly;
+        return this.readonly();
+    }
+
+    setReadonly = (readonly: boolean): void => {
+        this.readonly(readonly);
     }
 
     getType = () : Eagle.FieldDataType => {
-        return this.type;
+        return this.type();
     }
 
-    setValue = (value : string) : void => {
-        this.value = value;
+    setType = (type: Eagle.FieldDataType) : void => {
+        this.type(type);
     }
 
     clear = () : void => {
-        this.text = "";
-        this.name = "";
-        this.value = "";
-        this.description = "";
-        this.readonly = false;
-        this.type = Eagle.FieldDataType.Unknown;
+        this.text("");
+        this.name("");
+        this.value("");
+        this.description("");
+        this.readonly(false);
+        this.type(Eagle.FieldDataType.Unknown);
     }
 
     clone = () : Field => {
-        return new Field(this.text, this.name, this.value, this.description, this.readonly, this.type);
+        return new Field(this.text(), this.name(), this.value(), this.description(), this.readonly(), this.type());
     }
 
     editable : ko.PureComputed<boolean> = ko.pureComputed(() => {
         let allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
         let allowCompo : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
 
-        let result : boolean = (allowCompo && allowParam) || (allowCompo && !allowParam && !this.readonly);
+        let result : boolean = (allowCompo && allowParam) || (allowCompo && !allowParam && !this.readonly());
         //console.log("check if", this.name, "editable:", result, "(", allowCompo, allowParam, this.readonly, ")");
         return result;
     }, this);
