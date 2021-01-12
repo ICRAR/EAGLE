@@ -96,23 +96,23 @@ export class Field {
 
     static toOJSJson = (field : Field) : object => {
         return {
-            text:field.text,
-            name:field.name,
-            value:field.value,
-            description:field.description,
-            readonly:field.readonly,
-            type:field.type
+            text:field.text(),
+            name:field.name(),
+            value:field.value(),
+            description:field.description(),
+            readonly:field.readonly(),
+            type:field.type()
         };
     }
 
     static toV3Json = (field : Field) : object => {
         return {
-            text:field.text,
-            name:field.name,
-            value:field.value,
-            description:field.description,
-            readonly:field.readonly,
-            type:field.type
+            text:field.text(),
+            name:field.name(),
+            value:field.value(),
+            description:field.description(),
+            readonly:field.readonly(),
+            type:field.type()
         };
     }
 

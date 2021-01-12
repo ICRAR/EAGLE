@@ -366,7 +366,7 @@ export class Node {
     }
 
     getFieldByName = (name : string) : Field | null => {
-        for (var i = 0 ; i < this.fields.length ; i++){
+        for (var i = 0 ; i < this.fields().length ; i++){
             if (this.fields()[i].getName() === name){
                 return this.fields()[i];
             }
@@ -796,7 +796,7 @@ export class Node {
     }
 
     hasFieldWithName = (name : string) => {
-        for (var i = 0 ; i < this.fields.length ; i++){
+        for (var i = 0 ; i < this.fields().length ; i++){
             if (this.fields()[i].getName() === name){
                 return true;
             }
@@ -833,7 +833,7 @@ export class Node {
     removeAllNonArgFields = () : Field[] => {
         var result : Field[] = [];
 
-        for (var i = this.fields.length - 1 ; i >= 0 ; i--){
+        for (var i = this.fields().length - 1 ; i >= 0 ; i--){
             var field : Field = this.fields()[i];
             if (!Utils.isParameterArgument(field.getName())){
                 result.push(this.fields.splice(i, 1)[0]);
@@ -988,7 +988,7 @@ export class Node {
     }
 
     getCustomData = () : string => {
-        if (this.fields.length === 0){
+        if (this.fields().length === 0){
             return "";
         }
 
@@ -1001,7 +1001,7 @@ export class Node {
         console.log("customDataChanged()", e.value);
 
         // if no fields exist, create at least one, to store the custom data
-        if (this.fields.length === 0){
+        if (this.fields().length === 0){
             this.addField(new Field("", "", "", "", false, Eagle.FieldDataType.Unknown));
         }
 
@@ -1461,7 +1461,7 @@ export class Node {
 
         // add fields
         result.fields = [];
-        for (var i = 0 ; i < node.fields.length ; i++){
+        for (var i = 0 ; i < node.fields().length ; i++){
             let field = node.fields()[i];
             result.fields.push(Field.toOJSJson(field));
         }
@@ -1469,7 +1469,7 @@ export class Node {
         // add fields from inputApplication
         result.inputAppFields = [];
         if (node.hasInputApplication()){
-            for (var i = 0 ; i < node.inputApplication().fields.length ; i++){
+            for (var i = 0 ; i < node.inputApplication().fields().length ; i++){
                 let field = node.inputApplication().fields()[i];
                 result.inputAppFields.push(Field.toOJSJson(field));
             }
@@ -1478,7 +1478,7 @@ export class Node {
         // add fields from outputApplication
         result.outputAppFields = [];
         if (node.hasOutputApplication()){
-            for (var i = 0 ; i < node.outputApplication().fields.length ; i++){
+            for (var i = 0 ; i < node.outputApplication().fields().length ; i++){
                 let field = node.outputApplication().fields()[i];
                 result.outputAppFields.push(Field.toOJSJson(field));
             }
@@ -1487,7 +1487,7 @@ export class Node {
         // add fields from exitApplication
         result.exitAppFields = [];
         if (node.hasExitApplication()){
-            for (var i = 0 ; i < node.exitApplication().fields.length ; i++){
+            for (var i = 0 ; i < node.exitApplication().fields().length ; i++){
                 let field = node.exitApplication().fields()[i];
                 result.exitAppFields.push(Field.toOJSJson(field));
             }
@@ -1584,7 +1584,7 @@ export class Node {
 
         // add parameters
         result.parameters = {};
-        for (let i = 0 ; i < node.fields.length ; i++){
+        for (let i = 0 ; i < node.fields().length ; i++){
             let field = node.fields()[i];
             result.parameters[i] = Field.toV3Json(field);
         }
