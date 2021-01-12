@@ -2362,7 +2362,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // find subject node
         var subjectNode : Node = findNodeWithKey(node.getSubjectKey(), nodeData);
 
-        return createBezier(node.getPosition().x, node.getPosition().y, subjectNode.getPosition().x, subjectNode.getPosition().y, true, true);
+        let x1 = REAL_TO_DISPLAY_POSITION_X(node.getPosition().x + node.getWidth());
+        let y1 = REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y);
+        let x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x);
+        let y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
+
+        return createBezier(x1, y1, x2, y2, true, true);
     }
 
     function getCommentLinkDisplay(node : Node) : string {
