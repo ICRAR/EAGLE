@@ -2362,12 +2362,25 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // find subject node
         var subjectNode : Node = findNodeWithKey(node.getSubjectKey(), nodeData);
 
-        let x1 = REAL_TO_DISPLAY_POSITION_X(node.getPosition().x + node.getWidth());
-        let y1 = REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y);
-        let x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x);
-        let y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
+        let x1, y1, x2, y2;
 
-        return createBezier(x1, y1, x2, y2, true, true);
+        if (node.isFlipPorts()){
+            x1 = REAL_TO_DISPLAY_POSITION_X(node.getPosition().x);
+            y1 = REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y);
+        } else {
+            x1 = REAL_TO_DISPLAY_POSITION_X(node.getPosition().x + node.getWidth());
+            y1 = REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y);
+        }
+
+        if (node.isFlipPorts()){
+            x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + subjectNode.getWidth());
+            y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
+        } else {
+            x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x);
+            y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
+        }
+
+        return createBezier(x1, y1, x2, y2, !node.isFlipPorts(), !node.isFlipPorts());
     }
 
     function getCommentLinkDisplay(node : Node) : string {
