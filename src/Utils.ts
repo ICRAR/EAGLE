@@ -79,6 +79,23 @@ export class Utils {
         });
     }
 
+    static padStart(input: number, length: number): string {
+        let result: string = input.toString();
+
+        while (result.length < length){
+            result = "0" + result;
+        }
+
+        return result;
+    }
+
+    static generateDateTimeString(): string {
+        let now = new Date();
+
+        // NOTE: JavaScript months are 0-based
+        return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
+    }
+
     static findNewKey(usedKeys : number[]): number {
         for (var i = -1 ; ; i--){
             //console.log("newKey, searching for ", i, "amongst", usedKeys.length, "keys");
