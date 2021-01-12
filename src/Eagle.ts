@@ -2589,12 +2589,16 @@ export class Eagle {
     }
 
     getNewNodePosition = () : {x:number, y:number} => {
-        let x = 1920 / 2;
-        let y = 1080 / 2;
+        // get screen size
+        let width = $('#logicalGraphD3Div').width();
+        let height = $('#logicalGraphD3Div').height();
+
+        let x = width / 2;
+        let y = height / 2;
 
         // choose random position centered around the 0, min -200, max 200
-        x += Math.floor(Math.random() * (401)) - 200;
-        y += Math.floor(Math.random() * (401)) - 200;
+        x += Math.floor(Math.random() * (201)) - 100;
+        y += Math.floor(Math.random() * (201)) - 100;
 
         // modify random positions using current translation of viewport
         x -= this.globalOffsetX;
