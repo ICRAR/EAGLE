@@ -380,7 +380,7 @@ export class Node {
     }
 
     getNumFields = () : number => {
-        return this.fields.length;
+        return this.fields().length;
     }
 
     getCategory = () : Eagle.Category => {
@@ -889,7 +889,7 @@ export class Node {
         }
 
         // clone fields
-        for (var i = 0; i < this.fields.length; i++){
+        for (var i = 0; i < this.fields().length; i++){
             result.fields.push(this.fields()[i].clone());
         }
 
