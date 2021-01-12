@@ -1977,6 +1977,10 @@ export class Eagle {
             if (this.palettes()[i].fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
                 continue;
             }
+            // skip the built-in palette
+            if (this.palettes()[i].fileInfo().name === Palette.BUILTIN_PALETTE_NAME){
+                continue;
+            }
 
             paletteNames.push(this.palettes()[i].fileInfo().name);
         }
