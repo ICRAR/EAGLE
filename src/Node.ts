@@ -54,8 +54,8 @@ export class Node {
     private outputApplication : ko.Observable<Node>;
     private exitApplication : ko.Observable<Node>;
 
-    private inputPorts : Port[];
-    private outputPorts : Port[];
+    private inputPorts : ko.ObservableArray<Port>;
+    private outputPorts : ko.ObservableArray<Port>;
 
     private fields : ko.ObservableArray<Field>;
 
@@ -100,8 +100,8 @@ export class Node {
         this.outputApplication = ko.observable(null);
         this.exitApplication = ko.observable(null);
 
-        this.inputPorts = [];
-        this.outputPorts = [];
+        this.inputPorts = ko.observableArray([]);
+        this.outputPorts = ko.observableArray([]);
 
         this.fields = ko.observableArray([]);
 
@@ -122,11 +122,11 @@ export class Node {
         this.key = key;
 
         // go through all ports on this node, and make sure their nodeKeys are all updated
-        for (var i = 0; i < this.inputPorts.length ; i++){
-            this.inputPorts[i].setNodeKey(key);
+        for (var i = 0; i < this.inputPorts().length ; i++){
+            this.inputPorts()[i].setNodeKey(key);
         }
-        for (var i = 0; i < this.outputPorts.length ; i++){
-            this.outputPorts[i].setNodeKey(key);
+        for (var i = 0; i < this.outputPorts().length ; i++){
+            this.outputPorts()[i].setNodeKey(key);
         }
     }
 
@@ -281,11 +281,11 @@ export class Node {
     }
 
     getInputPorts = () : Port[] => {
-        return this.inputPorts;
+        return this.inputPorts();
     }
 
     getOutputPorts = () : Port[] => {
-        return this.outputPorts;
+        return this.outputPorts();
     }
 
     getInputApplicationInputPorts = () : Port[] => {
@@ -293,7 +293,7 @@ export class Node {
             return [];
         }
 
-        return this.inputApplication().inputPorts;
+        return this.inputApplication().inputPorts();
     }
 
     getInputApplicationOutputPorts = () : Port[] => {
@@ -301,7 +301,7 @@ export class Node {
             return [];
         }
 
-        return this.inputApplication().outputPorts;
+        return this.inputApplication().outputPorts();
     }
 
     getOutputApplicationInputPorts = () : Port[] => {
@@ -309,7 +309,7 @@ export class Node {
             return [];
         }
 
-        return this.outputApplication().inputPorts;
+        return this.outputApplication().inputPorts();
     }
 
     getOutputApplicationOutputPorts = () : Port[] => {
@@ -317,7 +317,7 @@ export class Node {
             return [];
         }
 
-        return this.outputApplication().outputPorts;
+        return this.outputApplication().outputPorts();
     }
 
     getExitApplicationInputPorts = () : Port[] => {
@@ -325,7 +325,7 @@ export class Node {
             return [];
         }
 
-        return this.exitApplication().inputPorts;
+        return this.exitApplication().inputPorts();
     }
 
     getExitApplicationOutputPorts = () : Port[] => {
@@ -333,30 +333,30 @@ export class Node {
             return [];
         }
 
-        return this.exitApplication().outputPorts;
+        return this.exitApplication().outputPorts();
     }
 
     hasLocalPortWithId = (id : string) : boolean => {
         // check output ports of input application, if one exists
         if (this.hasInputApplication()){
-            for (var i = 0; i < this.inputApplication().outputPorts.length ; i++){
-                if (this.inputApplication().outputPorts[i].getId() === id){
+            for (var i = 0; i < this.inputApplication().outputPorts().length ; i++){
+                if (this.inputApplication().outputPorts()[i].getId() === id){
                     return true;
                 }
             }
         }
         // check input ports of outputApplication, if one exists
         if (this.hasOutputApplication()){
-            for (var i = 0; i < this.outputApplication().inputPorts.length ; i++){
-                if (this.outputApplication().inputPorts[i].getId() === id){
+            for (var i = 0; i < this.outputApplication().inputPorts().length ; i++){
+                if (this.outputApplication().inputPorts()[i].getId() === id){
                     return true;
                 }
             }
         }
         // check input ports of exitApplication, if one exists
         if (this.hasExitApplication()){
-            for (var i = 0; i < this.exitApplication().inputPorts.length ; i++){
-                if (this.exitApplication().inputPorts[i].getId() === id){
+            for (var i = 0; i < this.exitApplication().inputPorts().length ; i++){
+                if (this.exitApplication().inputPorts()[i].getId() === id){
                     return true;
                 }
             }
@@ -552,8 +552,8 @@ export class Node {
         this.outputApplication = null;
         this.exitApplication = null;
 
-        this.inputPorts = [];
-        this.outputPorts = [];
+        this.inputPorts([]);
+        this.outputPorts([]);
 
         this.fields([]);
 
@@ -632,16 +632,16 @@ export class Node {
 
     findPortById = (portId : string) : Port => {
         // check input ports
-        for (var i = 0; i < this.inputPorts.length; i++){
-            var port = this.inputPorts[i];
+        for (var i = 0; i < this.inputPorts().length; i++){
+            var port = this.inputPorts()[i];
             if (port.getId() === portId){
                 return port;
             }
         }
 
         // check output ports
-        for (var i = 0; i < this.outputPorts.length; i++){
-            var port = this.outputPorts[i];
+        for (var i = 0; i < this.outputPorts().length; i++){
+            var port = this.outputPorts()[i];
             if (port.getId() === portId){
                 return port;
             }
@@ -649,14 +649,14 @@ export class Node {
 
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
-            for (var i = 0; i < this.inputApplication().inputPorts.length; i++){
-                var port = this.inputApplication().inputPorts[i];
+            for (var i = 0; i < this.inputApplication().inputPorts().length; i++){
+                var port = this.inputApplication().inputPorts()[i];
                 if (port.getId() === portId){
                     return port;
                 }
             }
-            for (var i = 0; i < this.inputApplication().outputPorts.length; i++){
-                var port = this.inputApplication().outputPorts[i];
+            for (var i = 0; i < this.inputApplication().outputPorts().length; i++){
+                var port = this.inputApplication().outputPorts()[i];
                 if (port.getId() === portId){
                     return port;
                 }
@@ -665,14 +665,14 @@ export class Node {
 
         // if node has an outputApplication, check those ports too
         if (this.hasOutputApplication()){
-            for (var i = 0; i < this.outputApplication().inputPorts.length; i++){
-                var port = this.outputApplication().inputPorts[i];
+            for (var i = 0; i < this.outputApplication().inputPorts().length; i++){
+                var port = this.outputApplication().inputPorts()[i];
                 if (port.getId() === portId){
                     return port;
                 }
             }
-            for (var i = 0; i < this.outputApplication().outputPorts.length; i++){
-                var port = this.outputApplication().outputPorts[i];
+            for (var i = 0; i < this.outputApplication().outputPorts().length; i++){
+                var port = this.outputApplication().outputPorts()[i];
                 if (port.getId() === portId){
                     return port;
                 }
@@ -681,14 +681,14 @@ export class Node {
 
         // if node has an exitApplication, check those ports too
         if (this.hasExitApplication()){
-            for (var i = 0; i < this.exitApplication().inputPorts.length; i++){
-                var port = this.exitApplication().inputPorts[i];
+            for (var i = 0; i < this.exitApplication().inputPorts().length; i++){
+                var port = this.exitApplication().inputPorts()[i];
                 if (port.getId() === portId){
                     return port;
                 }
             }
-            for (var i = 0; i < this.exitApplication().outputPorts.length; i++){
-                var port = this.exitApplication().outputPorts[i];
+            for (var i = 0; i < this.exitApplication().outputPorts().length; i++){
+                var port = this.exitApplication().outputPorts()[i];
                 if (port.getId() === portId){
                     return port;
                 }
@@ -701,16 +701,16 @@ export class Node {
 
     findPortTypeById = (portId : string) : string => {
         // check input ports
-        for (var i = 0; i < this.inputPorts.length; i++){
-            var port = this.inputPorts[i];
+        for (var i = 0; i < this.inputPorts().length; i++){
+            var port = this.inputPorts()[i];
             if (port.getId() === portId){
                 return "input";
             }
         }
 
         // check output ports
-        for (var i = 0; i < this.outputPorts.length; i++){
-            var port = this.outputPorts[i];
+        for (var i = 0; i < this.outputPorts().length; i++){
+            var port = this.outputPorts()[i];
             if (port.getId() === portId){
                 return "output";
             }
@@ -718,14 +718,14 @@ export class Node {
 
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
-            for (var i = 0; i < this.inputApplication().inputPorts.length; i++){
-                var port = this.inputApplication().inputPorts[i];
+            for (var i = 0; i < this.inputApplication().inputPorts().length; i++){
+                var port = this.inputApplication().inputPorts()[i];
                 if (port.getId() === portId){
                     return "input";
                 }
             }
-            for (var i = 0; i < this.inputApplication().outputPorts.length; i++){
-                var port = this.inputApplication().outputPorts[i];
+            for (var i = 0; i < this.inputApplication().outputPorts().length; i++){
+                var port = this.inputApplication().outputPorts()[i];
                 if (port.getId() === portId){
                     return "inputLocal";
                 }
@@ -734,14 +734,14 @@ export class Node {
 
         // if node has an outputApplication, check those ports too
         if (this.hasOutputApplication()){
-            for (var i = 0; i < this.outputApplication().inputPorts.length; i++){
-                var port = this.outputApplication().inputPorts[i];
+            for (var i = 0; i < this.outputApplication().inputPorts().length; i++){
+                var port = this.outputApplication().inputPorts()[i];
                 if (port.getId() === portId){
                     return "outputLocal";
                 }
             }
-            for (var i = 0; i < this.outputApplication().outputPorts.length; i++){
-                var port = this.outputApplication().outputPorts[i];
+            for (var i = 0; i < this.outputApplication().outputPorts().length; i++){
+                var port = this.outputApplication().outputPorts()[i];
                 if (port.getId() === portId){
                     return "output";
                 }
@@ -750,14 +750,14 @@ export class Node {
 
         // if node has an exitApplication, check those ports too
         if (this.hasExitApplication()){
-            for (var i = 0; i < this.exitApplication().inputPorts.length; i++){
-                var port = this.exitApplication().inputPorts[i];
+            for (var i = 0; i < this.exitApplication().inputPorts().length; i++){
+                var port = this.exitApplication().inputPorts()[i];
                 if (port.getId() === portId){
                     return "outputLocal";
                 }
             }
-            for (var i = 0; i < this.exitApplication().outputPorts.length; i++){
-                var port = this.exitApplication().outputPorts[i];
+            for (var i = 0; i < this.exitApplication().outputPorts().length; i++){
+                var port = this.exitApplication().outputPorts()[i];
                 if (port.getId() === portId){
                     return "output";
                 }
@@ -773,16 +773,16 @@ export class Node {
 
         if (input){
             // check input ports
-            for (var i = 0; i < this.inputPorts.length; i++){
-                var port = this.inputPorts[i];
+            for (var i = 0; i < this.inputPorts().length; i++){
+                var port = this.inputPorts()[i];
                 if (port.getName() === name){
                     return port;
                 }
             }
         } else {
             // check output ports
-            for (var i = 0; i < this.outputPorts.length; i++){
-                var port = this.outputPorts[i];
+            for (var i = 0; i < this.outputPorts().length; i++){
+                var port = this.outputPorts()[i];
                 if (port.getName() === name){
                     return port;
                 }
@@ -881,11 +881,11 @@ export class Node {
         result.subject = this.subject;
 
         // clone ports
-        for (var i = 0; i < this.inputPorts.length; i++){
-            result.addPort(this.inputPorts[i].clone(), true);
+        for (var i = 0; i < this.inputPorts().length; i++){
+            result.addPort(this.inputPorts()[i].clone(), true);
         }
-        for (var i = 0; i < this.outputPorts.length; i++){
-            result.addPort(this.outputPorts[i].clone(), false);
+        for (var i = 0; i < this.outputPorts().length; i++){
+            result.addPort(this.outputPorts()[i].clone(), false);
         }
 
         // clone fields
@@ -1012,15 +1012,15 @@ export class Node {
 
     findPortIsInputById = (portId: string) : boolean => {
         // find the port within the node
-        for (var i = 0 ; i < this.inputPorts.length ; i++){
-            var port : Port = this.inputPorts[i];
+        for (var i = 0 ; i < this.inputPorts().length ; i++){
+            var port : Port = this.inputPorts()[i];
             if (port.getId() === portId){
                 return true;
             }
         }
 
-        for (var i = 0 ; i < this.outputPorts.length ; i++){
-            var port : Port = this.outputPorts[i];
+        for (var i = 0 ; i < this.outputPorts().length ; i++){
+            var port : Port = this.outputPorts()[i];
             if (port.getId() === portId){
                 return false;
             }
@@ -1028,15 +1028,15 @@ export class Node {
 
         // check input application ports
         if (this.hasInputApplication()){
-            for (var i = 0 ; i < this.inputApplication().inputPorts.length ; i++){
-                var port : Port = this.inputApplication().inputPorts[i];
+            for (var i = 0 ; i < this.inputApplication().inputPorts().length ; i++){
+                var port : Port = this.inputApplication().inputPorts()[i];
                 if (port.getId() === portId){
                     return false;
                 }
             }
 
-            for (var i = 0 ; i < this.inputApplication().outputPorts.length ; i++){
-                var port : Port = this.inputApplication().outputPorts[i];
+            for (var i = 0 ; i < this.inputApplication().outputPorts().length ; i++){
+                var port : Port = this.inputApplication().outputPorts()[i];
                 if (port.getId() === portId){
                     return true;
                 }
@@ -1403,10 +1403,10 @@ export class Node {
         result.inputPorts = [];
         if (node.hasInputApplication()){
             //console.log("copy", node.inputApplication().inputPorts.length, "inputApp inputPorts to result inputPorts")
-            Node.copyPorts(node.inputApplication().inputPorts, result.inputPorts);
+            Node.copyPorts(node.inputApplication().inputPorts(), result.inputPorts);
         } else {
             //console.log("copy", node.inputPorts.length, "inputPorts to result inputPorts")
-            Node.copyPorts(node.inputPorts, result.inputPorts);
+            Node.copyPorts(node.inputPorts(), result.inputPorts);
         }
 
         // add output ports
@@ -1414,24 +1414,24 @@ export class Node {
         if (node.hasOutputApplication()){
             // add outputApp output ports here
             //console.log("copy", node.outputApplication().outputPorts.length, "outputApp outputPorts to result outputPorts")
-            Node.copyPorts(node.outputApplication().outputPorts, result.outputPorts);
+            Node.copyPorts(node.outputApplication().outputPorts(), result.outputPorts);
         }
         if (node.hasExitApplication()){
             // add exitApp output ports here
             //console.log("copy", node.exitApplication().outputPorts.length, "exitApp outputPorts to result outputPorts")
-            Node.copyPorts(node.exitApplication().outputPorts, result.outputPorts);
+            Node.copyPorts(node.exitApplication().outputPorts(), result.outputPorts);
         }
         if (!node.hasOutputApplication() && !node.hasExitApplication()){
             //console.log("copy", node.outputPorts.length, "outputPorts to result outputPorts")
-            Node.copyPorts(node.outputPorts, result.outputPorts);
+            Node.copyPorts(node.outputPorts(), result.outputPorts);
         }
 
         // add input ports from the inputApplication
         // ! should be inputApp output ports - i think !
         result.inputLocalPorts = [];
         if (node.hasInputApplication()){
-            for (var i = 0 ; i < node.inputApplication().outputPorts.length ; i++){
-                var port = node.inputApplication().outputPorts[i];
+            for (var i = 0 ; i < node.inputApplication().outputPorts().length ; i++){
+                var port = node.inputApplication().outputPorts()[i];
 
                 result.inputLocalPorts.push(Port.toOJSJson(port));
                 //console.log("copy inputApp outputPort to result inputLocalPorts");
@@ -1443,16 +1443,16 @@ export class Node {
         // ! AND       exitApp input ports - i think !
         result.outputLocalPorts = [];
         if (node.hasOutputApplication()){
-            for (var i = 0 ; i < node.outputApplication().inputPorts.length ; i++){
-                var port = node.outputApplication().inputPorts[i];
+            for (var i = 0 ; i < node.outputApplication().inputPorts().length ; i++){
+                var port = node.outputApplication().inputPorts()[i];
 
                 result.outputLocalPorts.push(Port.toOJSJson(port));
                 //console.log("copy outputApp inputPort to result outputLocalPorts");
             }
         }
         if (node.hasExitApplication()){
-            for (var i = 0 ; i < node.exitApplication().inputPorts.length ; i++){
-                var port = node.exitApplication().inputPorts[i];
+            for (var i = 0 ; i < node.exitApplication().inputPorts().length ; i++){
+                var port = node.exitApplication().inputPorts()[i];
 
                 result.outputLocalPorts.push(Port.toOJSJson(port));
                 //console.log("copy exitApp inputPort to result outputLocalPorts");
@@ -1570,15 +1570,15 @@ export class Node {
 
         // add input ports
         result.inputPorts = {};
-        for (let i = 0 ; i < node.inputPorts.length; i++){
-            let port = node.inputPorts[i];
+        for (let i = 0 ; i < node.inputPorts().length; i++){
+            let port = node.inputPorts()[i];
             result.inputPorts[port.getId()] = Port.toV3Json(port);
         }
 
         // add output ports
         result.outputPorts = {};
-        for (let i = 0 ; i < node.outputPorts.length; i++){
-            let port = node.outputPorts[i];
+        for (let i = 0 ; i < node.outputPorts().length; i++){
+            let port = node.outputPorts()[i];
             result.outputPorts[port.getId()] = Port.toV3Json(port);
         }
 

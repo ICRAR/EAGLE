@@ -1061,9 +1061,6 @@ export class Eagle {
                 return;
             }
 
-            // Adding event ports.
-            this.templatePalette().addEventPorts();
-
             // Extracting data from the palette template.
             Eagle.dataNodes = Utils.buildNodeList(this.templatePalette(), Eagle.CategoryType.Data);
             Eagle.dataCategories = Utils.buildCategoryList(this.templatePalette(), Eagle.CategoryType.Data);
@@ -1886,7 +1883,7 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
-        console.log("addNodeToLogicalGraph()", node);
+        console.log("addNodeToLogicalGraph()", node.getName(), node.getCategory(), node.getInputPorts().length, node.getOutputPorts().length, node.getFields().length);
 
         // get new position for node
         let pos = this.getNewNodePosition();
