@@ -998,85 +998,11 @@ export class Utils {
     }
 
     static isKnownCategory(category : string) : boolean {
-        return category === Eagle.Category.BashShellApp ||
-        category === Eagle.Category.Comment ||
-        category === Eagle.Category.Description ||
-        category === Eagle.Category.Docker ||
-        category === Eagle.Category.DynlibApp ||
-        category === Eagle.Category.End ||
-        category === Eagle.Category.ExclusiveForceNode ||
-        category === Eagle.Category.File ||
-        category === Eagle.Category.Gather ||
-        category === Eagle.Category.GroupBy ||
-        category === Eagle.Category.Loop ||
-        category === Eagle.Category.Memory ||
-        category === Eagle.Category.MKN ||
-        category === Eagle.Category.MPI ||
-        category === Eagle.Category.NGAS ||
-        category === Eagle.Category.None ||
-        category === Eagle.Category.PythonApp ||
-        category === Eagle.Category.S3 ||
-        category === Eagle.Category.Scatter ||
-        category === Eagle.Category.Service ||
-        category === Eagle.Category.Variables ||
-        category === Eagle.Category.Branch ||
-        category === Eagle.Category.Start ||
-        category === Eagle.Category.Unknown;
+        return typeof Eagle.cData[category] !== 'undefined';
     }
 
     static getColorForNode(category : Eagle.Category) : string {
-        switch (category){
-            case Eagle.Category.Start:
-                return "#229954";
-            case Eagle.Category.End:
-                return "#CB4335";
-            case Eagle.Category.Comment:
-                return "#799938";
-            case Eagle.Category.Description:
-                return "#9B3065";
-            case Eagle.Category.PythonApp:
-            case "Component":
-                return "#3498DB";
-            case Eagle.Category.BashShellApp:
-                return "#1C2833";
-            case Eagle.Category.DynlibApp:
-                return "#3470AA";
-            case Eagle.Category.MPI:
-                return "#1E90FF";
-            case Eagle.Category.Docker:
-                return "#331C54";
-            case Eagle.Category.GroupBy:
-                return "#7F8C8D";
-            case Eagle.Category.Scatter:
-                return "#DDAD00";
-            case Eagle.Category.Gather:
-                return "#D35400";
-            case Eagle.Category.MKN:
-                return "#D32000";
-            case Eagle.Category.Loop:
-                return "#512E5F";
-            case Eagle.Category.Memory:
-                return "#394BB2";
-            case Eagle.Category.File:
-                return "#394BB2";
-            case Eagle.Category.S3:
-                return "#394BB2";
-            case Eagle.Category.NGAS:
-                return "#394BB2";
-            case Eagle.Category.Service:
-                return "#EB1672";
-            case Eagle.Category.ExclusiveForceNode:
-                return "#000000";
-            case Eagle.Category.Branch:
-                return "#00BDA1"
-            case Eagle.Category.Variables:
-                return "#C10000";
-            case Eagle.Category.Unknown:
-                return "#FF66CC";
-            default:
-                console.warn("No color for node with category", category);
-                return "";
-        }
+        return Eagle.getCategoryData(category).color;
     }
 
     static saveAsPNG(selector: string, filename: string) : void {
