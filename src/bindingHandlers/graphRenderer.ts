@@ -169,6 +169,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     var rects = nodes.append("rect")
                               .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
                               .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeight(node));})
+                              .style("display", getNodeRectDisplay)
                               .style("fill", nodeGetFill)
                               .style("stroke", nodeGetStroke)
                               .style("stroke-width", NODE_STROKE_WIDTH)
@@ -770,6 +771,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(nodeData)
                                 .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
                                 .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeight(node));})
+                                .style("display", getNodeRectDisplay)
                                 .style("fill", nodeGetFill)
                                 .style("stroke", nodeGetStroke)
                                 .style("stroke-width", NODE_STROKE_WIDTH)
@@ -2560,6 +2562,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return "inline";
+    }
+
+    function getNodeRectDisplay(node: Node): string {
+        if (node.isBranch()){
+            return "none";
+        }
+        return "inline";
+    }
+
+    function getNodeRhombusDisplay(node: Node): string {
+        if (node.isBranch()){
+            return "inline";
+        }
+        return "none";
     }
 
     function getResizeControlDisplay(node : Node) : string {

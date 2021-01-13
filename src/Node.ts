@@ -415,6 +415,10 @@ export class Node {
         return this.category === Eagle.Category.Loop;
     }
 
+    isBranch = () : boolean => {
+        return this.category === Eagle.Category.Branch;
+    }
+
     isResizable = () : boolean => {
         return this.isGroup() ||
                this.category === Eagle.Category.Comment ||
