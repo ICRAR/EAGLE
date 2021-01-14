@@ -2073,7 +2073,7 @@ export class Eagle {
             }
 
             // add port with the chosen name
-            node.addPort(new Port(Utils.uuidv4(), userString, false), isInputPort);
+            node.addPort(new Port(Utils.uuidv4(), userString, false, Eagle.DataType.Unknown), isInputPort);
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
@@ -2102,7 +2102,7 @@ export class Eagle {
             var fieldName = Utils.fieldTextToFieldName(userString);
 
             // add the field
-            node.addField(new Field(userString, fieldName, "", "", false, Eagle.FieldDataType.Unknown));
+            node.addField(new Field(userString, fieldName, "", "", false, Eagle.DataType.Unknown));
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
@@ -2722,13 +2722,14 @@ export namespace Eagle
         AppField
     }
 
-    export type FieldDataType = string;
-    export namespace FieldDataType {
-        export var Unknown : FieldDataType = "Unknown";
-        export var String : FieldDataType = "String";
-        export var Integer : FieldDataType = "Integer";
-        export var Float : FieldDataType = "Float";
-        export var Boolean : FieldDataType = "Boolean";
+    export type DataType = string;
+    export namespace DataType {
+        export var Unknown : DataType = "Unknown";
+        export var String : DataType = "String";
+        export var Integer : DataType = "Integer";
+        export var Float : DataType = "Float";
+        export var Complex : DataType = "Complex";
+        export var Boolean : DataType = "Boolean";
     }
 
     export type RepositoryService = string;

@@ -1006,7 +1006,7 @@ export class Node {
 
         // if no fields exist, create at least one, to store the custom data
         if (this.fields().length === 0){
-            this.addField(new Field("", "", "", "", false, Eagle.FieldDataType.Unknown));
+            this.addField(new Field("", "", "", "", false, Eagle.DataType.Unknown));
         }
 
         this.fields()[0].setValue(e.value);
@@ -1319,7 +1319,7 @@ export class Node {
                 var fieldData = nodeData.fields[j];
                 var fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
                 var fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                var fieldType : Eagle.FieldDataType = fieldData.type === undefined ? Eagle.FieldDataType.Unknown : fieldData.type;
+                var fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
                 node.addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
             }
         }
@@ -1330,7 +1330,7 @@ export class Node {
                 var fieldData = nodeData.inputAppFields[j];
                 var fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
                 var fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                var fieldType : Eagle.FieldDataType = fieldData.type === undefined ? Eagle.FieldDataType.Unknown : fieldData.type;
+                var fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
                 node.inputApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
             }
         }
@@ -1341,7 +1341,7 @@ export class Node {
                 var fieldData = nodeData.outputAppFields[j];
                 var fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
                 var fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                var fieldType : Eagle.FieldDataType = fieldData.type === undefined ? Eagle.FieldDataType.Unknown : fieldData.type;
+                var fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
                 node.outputApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
             }
         }
@@ -1352,7 +1352,7 @@ export class Node {
                 var fieldData = nodeData.exitAppFields[j];
                 var fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
                 var fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                var fieldType : Eagle.FieldDataType = fieldData.type === undefined ? Eagle.FieldDataType.Unknown : fieldData.type;
+                var fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
                 node.exitApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
             }
         }
