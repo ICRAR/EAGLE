@@ -420,10 +420,7 @@ export class Node {
     }
 
     isResizable = () : boolean => {
-        return this.isGroup() ||
-               this.category === Eagle.Category.Comment ||
-               this.category === Eagle.Category.Description ||
-               this.category === Eagle.Category.Branch;
+        return Eagle.getCategoryData(this.category).isResizable;
     }
 
     canHaveInputs = () : boolean => {

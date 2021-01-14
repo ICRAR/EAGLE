@@ -176,6 +176,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                               .attr("stroke-dasharray", nodeGetStrokeDashArray)
                               .on("click", nodeOnClick);
 
+    var customShapes = nodes.append("polygon")
+                              .attr("points", getNodeCustomShapePoints)
+                              .style("display", getNodeCustomShapeDisplay)
+                              .style("fill", nodeGetColor)
+                              .style("stroke", nodeGetStroke)
+                              .style("stroke-width", NODE_STROKE_WIDTH)
+                              .attr("stroke-dasharray", nodeGetStrokeDashArray)
+                              .on("click", nodeOnClick);
+
     var nodeDragHandler = d3.drag()
                             .on("start", function (node : Node, index : number) {
                                 deltaX = getX(node) - d3.event.x;
@@ -778,6 +787,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .attr("stroke-dasharray", nodeGetStrokeDashArray)
                                 .on("click", nodeOnClick);
 
+        svgContainer.selectAll("g.node polygon")
+                                .data(nodeData)
+                                .attr("points", getNodeCustomShapePoints)
+                                .style("display", getNodeCustomShapeDisplay)
+                                .style("fill", nodeGetColor)
+                                .style("stroke", nodeGetStroke)
+                                .style("stroke-width", NODE_STROKE_WIDTH)
+                                .attr("stroke-dasharray", nodeGetStrokeDashArray)
+                                .on("click", nodeOnClick);
+
         svgContainer.selectAll("g.node rect.header-background")
                                 .data(nodeData)
                                 .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
@@ -1291,7 +1310,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // don't show header background for comment, description and ExclusiveForceNode nodes
         if (node.getCategory() === Eagle.Category.Comment ||
             node.getCategory() === Eagle.Category.Description ||
-            node.getCategory() === Eagle.Category.ExclusiveForceNode ){
+            node.getCategory() === Eagle.Category.ExclusiveForceNode ||
+            node.getCategory() === Eagle.Category.Branch) {
             return "none";
         }
 
@@ -1353,6 +1373,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 case Eagle.Category.NGAS:
                     return HEADER_OFFSET_Y_NGAS;
             }
+        }
+
+        if (node.getCategory() === Eagle.Category.Branch){
+            return 54;
         }
 
         return 20;
@@ -2571,11 +2595,23 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return "inline";
     }
 
-    function getNodeRhombusDisplay(node: Node): string {
+    function getNodeCustomShapeDisplay(node: Node): string {
         if (node.isBranch()){
             return "inline";
         }
         return "none";
+    }
+
+    function getNodeCustomShapePoints(node: Node): string {
+        switch(node.getCategory()){
+            case Eagle.Category.Branch:
+                let half_width = REAL_TO_DISPLAY_SCALE(200) / 2;
+                let half_height = REAL_TO_DISPLAY_SCALE(100) / 2;
+
+                return half_width + ", " + 0 + " " + half_width*2 + ", " + half_height + " " + half_width + ", " + half_height*2 + " " + 0 + ", " + half_height;
+            default:
+                return "";
+        }
     }
 
     function getResizeControlDisplay(node : Node) : string {
