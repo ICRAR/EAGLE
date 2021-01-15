@@ -232,6 +232,71 @@ export class LogicalGraph {
         return result;
     }
 
+    static toAppRefJson = (graph : LogicalGraph) : object => {
+        var result : any = {};
+
+        //result.class = "go.GraphLinksModel";
+
+        result.modelData = FileInfo.toOJSJson(graph.fileInfo());
+
+        // add nodes
+        result.nodeDataArray = [];
+        for (var i = 0 ; i < graph.getNodes().length ; i++){
+            var node : Node = graph.getNodes()[i];
+            var nodeData : any = Node.toAppRefJson(node);
+
+            result.nodeDataArray.push(nodeData);
+        }
+
+        // add embedded nodes
+        for (var i = 0 ; i < graph.getNodes().length ; i++){
+            var node : Node = graph.getNodes()[i];
+
+            if (node.hasInputApplication()){
+                var nodeData : any = Node.toAppRefJson(node.getInputApplication());
+
+                // update ref in parent
+                result.nodeDataArray[i].inputApplicationRef = nodeData.key;
+
+                // add child to nodeDataArray
+                result.nodeDataArray.push(nodeData);
+            }
+
+            if (node.hasOutputApplication()){
+                var nodeData : any = Node.toAppRefJson(node.getOutputApplication());
+
+                // update ref in parent
+                result.nodeDataArray[i].outputApplicationRef = nodeData.key;
+
+                // add child to nodeDataArray
+                result.nodeDataArray.push(nodeData);
+            }
+
+            if (node.hasExitApplication()){
+                var nodeData : any = Node.toAppRefJson(node.getExitApplication());
+
+                // update ref in parent
+                result.nodeDataArray[i].exitApplicationRef = nodeData.key;
+
+                // add child to nodeDataArray
+                result.nodeDataArray.push(nodeData);
+            }
+        }
+
+        // add links
+        result.linkDataArray = [];
+        for (var i = 0 ; i < graph.getEdges().length ; i++){
+            var edge : Edge = graph.getEdges()[i];
+            var linkData : any = Edge.toOJSJson(edge);
+            linkData.from = edge.getSrcNodeKey();
+            linkData.to   = edge.getDestNodeKey();
+
+            result.linkDataArray.push(linkData);
+        }
+
+        return result;
+    }
+
     addNodeComplete = (node : Node) => {
         this.nodes.push(node);
     }

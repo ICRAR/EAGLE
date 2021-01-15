@@ -1519,6 +1519,72 @@ export class Node {
         return result;
     }
 
+    static toAppRefJson = (node : Node) : object => {
+        var result : any = {};
+
+        let useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
+
+        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category) : node.category;
+        result.categoryType = node.categoryType;
+        result.isData = node.isData();
+        result.isGroup = node.isGroup();
+        result.canHaveInputs = node.canHaveInputs();
+        result.canHaveOutputs = node.canHaveOutputs();
+        result.color = node.color;
+        result.drawOrderHint = node.drawOrderHint;
+
+        result.key = node.key;
+        result.text = node.name;
+        result.description = node.description;
+        result.x = node.x;
+        result.y = node.y;
+        result.width = node.width;
+        result.height = node.height;
+        result.collapsed = node.collapsed;
+        result.showPorts = node.showPorts;
+        result.flipPorts = node.flipPorts;
+        result.streaming = node.streaming;
+        result.subject = node.subject;
+        result.selected = node.selected();
+        result.expanded = node.expanded();
+
+        if (node.parentKey !== null){
+            result.group = node.parentKey;
+        }
+
+        if (node.embedKey !== null){
+            result.embedKey = node.embedKey;
+        }
+
+        // add input ports
+        result.inputPorts = [];
+        Node.copyPorts(node.inputPorts(), result.inputPorts);
+
+        // add output ports
+        result.outputPorts = [];
+        Node.copyPorts(node.outputPorts(), result.outputPorts);
+
+        // add fields
+        result.fields = [];
+        for (var i = 0 ; i < node.fields().length ; i++){
+            let field = node.fields()[i];
+            result.fields.push(Field.toOJSJson(field));
+        }
+
+        // write application names and types
+        if (node.hasInputApplication()){
+            result.inputApplicationRef = "not set";
+        }
+        if (node.hasOutputApplication()){
+            result.outputApplicationRef = "not set";
+        }
+        if (node.hasExitApplication()){
+            result.exitApplicationRef = "not set";
+        }
+
+        return result;
+    }
+
     // display/visualisation data
     static toV3NodeJson = (node : Node, index : number) : object => {
         var result : any = {};

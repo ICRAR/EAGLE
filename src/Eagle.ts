@@ -1038,6 +1038,39 @@ export class Eagle {
         });
     }
 
+
+    /**
+     * Export file to AppRef Json
+     * This is an experimental new JSON format that moves embedded application
+     * nodes out of constructs to the end of the node array, and then refers to
+     * them by ID and key within the node
+     */
+    exportAppRefJson = () : void => {
+        var fileName : string = this.activeFileInfo().name;
+
+        // set the EAGLE version etc according to this running version
+        this.logicalGraph().fileInfo().updateEagleInfo();
+
+        var json = LogicalGraph.toAppRefJson(this.logicalGraph());
+
+        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+            if (error != null){
+                Utils.showUserMessage("Error", "Error saving the file!");
+                console.error(error);
+                return;
+            }
+
+            // NOTE: this stuff is a hacky way of saving a file locally
+            var blob = new Blob([data]);
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+        });
+    }
+
+
     /**
      * Loads template palette from the server.
      */
