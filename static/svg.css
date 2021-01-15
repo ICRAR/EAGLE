@@ -103,6 +103,10 @@ g.node g.outputPorts.no-flip text, g.node g.exitPorts.no-flip text, g.node g.inp
     user-select: none;
 }
 
+g.node g.outputPorts.no-flip text.middle, g.node g.exitPorts.no-flip text.middle, g.node g.inputPorts.flipped text.middle {
+    text-anchor: middle;
+}
+
 g.node g.outputLocalPorts.no-flip text, g.node g.exitLocalPorts.no-flip text, g.node g.inputLocalPorts.flipped text {
     text-anchor: end;
     font-family: sans-serif;

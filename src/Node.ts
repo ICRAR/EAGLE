@@ -424,11 +424,11 @@ export class Node {
     }
 
     canHaveInputs = () : boolean => {
-        return Eagle.getCategoryData(this.category).canHaveInputs;
+        return Eagle.getCategoryData(this.category).maxInputs > 0;
     }
 
     canHaveOutputs = () : boolean => {
-        return Eagle.getCategoryData(this.category).canHaveOutputs;
+        return Eagle.getCategoryData(this.category).maxOutputs > 0;
     }
 
     canHaveInputApplication = () : boolean => {
@@ -767,6 +767,26 @@ export class Node {
 
         console.warn("Could not find port TYPE by Id (" + portId + ") on node " + this.getKey());
         return "";
+    }
+
+    findPortIndexById = (portId : string) : number => {
+        // check input ports
+        for (var i = 0; i < this.inputPorts().length; i++){
+            var port = this.inputPorts()[i];
+            if (port.getId() === portId){
+                return i;
+            }
+        }
+
+        // check output ports
+        for (var i = 0; i < this.outputPorts().length; i++){
+            var port = this.outputPorts()[i];
+            if (port.getId() === portId){
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     findPortByName = (name : string, input : boolean, local : boolean) : Port => {
