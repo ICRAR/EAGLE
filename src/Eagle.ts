@@ -2783,5 +2783,13 @@ export namespace Eagle
         export var Unknown : CategoryType = "Unknown";
     }
 
+    export type Direction = string;
+    export namespace Direction {
+        export var Up : Direction = "Up";
+        export var Down : Direction = "Down";
+        export var Left : Direction = "Left";
+        export var Right : Direction = "Right";
+    }
+
     export type CategoryData = {isData: boolean, isGroup:boolean, isResizable:boolean, canHaveInputs: boolean, canHaveOutputs:boolean, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean, icon: string, color: string};
 }

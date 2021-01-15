@@ -431,7 +431,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
                             .enter()
                             .append("text")
-                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+                            .attr("class", getInputPortClass)
                             .attr("x", getInputPortPositionX)
                             .attr("y", getInputPortPositionY)
                             .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
@@ -678,21 +678,47 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .attr("marker-end", "url(#black-arrowhead)")
                             .style("display", getCommentLinkDisplay);
 
+    function determineDirection(source: boolean, node: Node, portType: string): Eagle.Direction {
+        if (source){
+            if (node.isBranch()){
+                return Eagle.Direction.Down;
+            }
+
+            if (portType === "output" || portType === "inputLocal"){
+                return Eagle.Direction.Right;
+            } else {
+                return Eagle.Direction.Left;
+            }
+        } else {
+            if (node.isBranch()){
+                return Eagle.Direction.Down;
+            }
+
+            if (portType === "input" || portType === "outputLocal"){
+                return Eagle.Direction.Right;
+            } else {
+                return Eagle.Direction.Left;
+            }
+        }
+    }
+
     function createLink(edge : Edge) : string {
         // determine if edge is "forward" or not
         var srcNode : Node  = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
         var destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
         var srcPortType : string =  srcNode.findPortTypeById(edge.getSrcPortId());
         var destPortType : string = destNode.findPortTypeById(edge.getDestPortId());
-        var startRight : boolean = srcPortType === "output" || srcPortType === "inputLocal";
-        var endLeft : boolean = destPortType === "input" || destPortType === "outputLocal";
+        //var startRight : boolean = srcPortType === "output" || srcPortType === "inputLocal";
+        //var endLeft : boolean = destPortType === "input" || destPortType === "outputLocal";
 
+        /*
         if (srcNode.isFlipPorts()){
             startRight = !startRight;
         }
         if (destNode.isFlipPorts()){
             endLeft = !endLeft;
         }
+        */
 
         let x1 = REAL_TO_DISPLAY_POSITION_X(edgeGetX1(edge));
         let y1 = REAL_TO_DISPLAY_POSITION_Y(edgeGetY1(edge));
@@ -705,7 +731,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         console.assert(!isNaN(x2));
         console.assert(!isNaN(y2));
 
-        return createBezier(x1, y1, x2, y2, startRight, endLeft);
+        let startDirection = determineDirection(true, srcNode, srcPortType);
+        let endDirection = determineDirection(false, destNode, destPortType);
+
+        console.log("edge", srcNode.getKey(), "->", destNode.getKey(), "start", startDirection, "end", endDirection);
+
+        return createBezier(x1, y1, x2, y2, startDirection, endDirection);
     }
 
     // create one link that is only used during the creation of a new link
@@ -945,7 +976,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         nodes.selectAll("g.inputPorts text")
                                 .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+                                .attr("class", getInputPortClass)
                                 .attr("x", getInputPortPositionX)
                                 .attr("y", getInputPortPositionY)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
@@ -1610,7 +1641,19 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
+    function getInputPortClass(port : Port): string {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+            return port.isEvent() ? "event middle" : "middle";
+        }
+
+        return port.isEvent() ? "event" : "";
+    }
+
     function getInputPortGroupTransform(node : Node) : string {
+        if (node.isBranch()){
+            return buildTranslation(0, 0);
+        }
+
         if (node.isFlipPorts()){
             return getRightSidePortGroupTransform(node);
         } else {
@@ -1692,6 +1735,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // TODO: one level of indirection here (getInput/Output -> getLeft/Right -> position)
     function getInputPortPositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+            return REAL_TO_DISPLAY_SCALE(200) / 2;
+        }
+
         if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
             return getRightSidePortPositionX(port, index);
         } else {
@@ -1700,6 +1747,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getInputPortPositionY(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+            return REAL_TO_DISPLAY_SCALE(24);
+        }
+
         return getPortPositionY(port, index);
     }
 
@@ -1780,6 +1831,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // port circle positions
     function getInputPortCirclePositionX(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+            return REAL_TO_DISPLAY_SCALE(200) / 2;
+        }
+
         if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
             return getRightSidePortCirclePositionX(port, index);
         } else {
@@ -1787,6 +1842,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
     function getInputPortCirclePositionY(port : Port, index : number) : number {
+        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+            return 0;
+        }
+
         return getPortCirclePositionY(port, index);
     }
     function getOutputPortCirclePositionX(port : Port, index : number) : number {
@@ -2152,6 +2211,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
+        if (node.isBranch()){
+            return node.getPosition().x + node.getWidth()/2;
+        }
+
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             let containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
@@ -2176,6 +2239,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
+        }
+
+        if (node.isBranch()){
+            return node.getPosition().y;
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -2406,7 +2473,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
         }
 
-        return createBezier(x1, y1, x2, y2, !node.isFlipPorts(), !node.isFlipPorts());
+        // determine incident directions for start and end of edge
+        let startDirection = node.isFlipPorts() ? Eagle.Direction.Right : Eagle.Direction.Left;
+        let endDirection = node.isFlipPorts() ? Eagle.Direction.Left : Eagle.Direction.Right;
+
+        return createBezier(x1, y1, x2, y2, startDirection, endDirection);
     }
 
     function getCommentLinkDisplay(node : Node) : string {
@@ -2421,14 +2492,34 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return "inline";
     }
 
-    // startRight - does the edge start on the right-hand side of a node, affects the control points in the bezier
-    // endLeft    - does the edge end   on the left-hand  side of a node, affects the control points in the bezier
-    function createBezier(x1: number, y1: number, x2: number, y2: number, startRight: boolean, endLeft: boolean) : string {
+    function directionOffset(x: boolean, direction: Eagle.Direction){
+        if (x){
+            switch (direction){
+                case Eagle.Direction.Left:
+                    return -50;
+                case Eagle.Direction.Right:
+                    return 50;
+                default:
+                    return 0;
+            }
+        } else {
+            switch (direction){
+                case Eagle.Direction.Up:
+                    return -50;
+                case Eagle.Direction.Down:
+                    return 50;
+                default:
+                    return 0;
+            }
+        }
+    }
+
+    function createBezier(x1: number, y1: number, x2: number, y2: number, startDirection: Eagle.Direction, endDirection: Eagle.Direction) : string {
         // find control points
-        var c1x = x1 + (startRight?50:-50);
-        var c1y = y1;
-        var c2x = x2 - (endLeft?50:-50);
-        var c2y = y2;
+        var c1x = x1 + directionOffset(true, startDirection);
+        var c1y = y1 + directionOffset(false, startDirection);
+        var c2x = x2 - directionOffset(true, endDirection);
+        var c2y = y2 - directionOffset(false, endDirection);
 
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
     }
