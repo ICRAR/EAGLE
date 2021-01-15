@@ -5,6 +5,7 @@ import getopt
 import xml.etree.ElementTree as ET
 import json
 import uuid
+import csv
 
 next_key = -1
 
@@ -90,16 +91,20 @@ def create_field(text, name, value, description, access, type):
 
 
 def parse_param_key(key):
-    parts = key.split("/")
+    # parse the key as csv (delimited by '/')
+    parts = []
+    reader = csv.reader([key], delimiter='/', quotechar='"')
+    for row in reader:
+        parts = row
 
+    # init attributes of the param
     param = ""
     name = ""
     default_value = ""
     type = "String"
     access = "readwrite"
 
-    #print("parse_param_key: " + key)
-
+    # assign attributes (if present)
     if len(parts) > 0:
         param = parts[0]
     if len(parts) > 1:
@@ -305,7 +310,7 @@ def process_compounddef(compounddef):
                 direction = pichild[0].attrib.get("direction", "").strip()
             elif pichild.tag == "parameterdescription":
                 if key == "gitrepo":
-                    if pichild[0].text is None:
+                    if pichild[0][0].text is None:
                         print("No gitrepo text")
                         value = ""
                     else:
