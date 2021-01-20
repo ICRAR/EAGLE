@@ -735,7 +735,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let startDirection = determineDirection(true, srcNode, srcPortIndex, srcPortType);
         let endDirection = determineDirection(false, destNode, destPortIndex, destPortType);
 
-        console.log("edge", srcNode.getKey(), "->", destNode.getKey(), "start", startDirection, "end", endDirection);
+        //console.log("edge", srcNode.getKey(), "->", destNode.getKey(), "start", startDirection, "end", endDirection);
 
         return createBezier(x1, y1, x2, y2, startDirection, endDirection);
     }
@@ -2217,6 +2217,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isCollapsed() && !node.isData()){
+            if (node.isBranch()){
+                return node.getPosition().x + node.getWidth()/2;
+            }
+
             if (node.isFlipPorts()){
                 return node.getPosition().x;
             } else {
@@ -2262,6 +2266,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isCollapsed() && !node.isData()){
+            if (node.isBranch()){
+                return node.getPosition().y + 100;
+            }
+
             return node.getPosition().y;
         }
 
@@ -2301,6 +2309,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isCollapsed() && !node.isData()){
+            if (node.isBranch()){
+                return node.getPosition().x + node.getWidth()/2;
+            }
+
             if (node.isFlipPorts()){
                 return node.getPosition().x + node.getWidth();
             } else {
@@ -2346,6 +2358,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isCollapsed() && !node.isData()){
+            if (node.isBranch()){
+                return node.getPosition().y;
+            }
+
             return node.getPosition().y;
         }
 
