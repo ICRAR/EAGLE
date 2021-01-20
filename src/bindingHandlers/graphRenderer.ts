@@ -1643,7 +1643,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getInputPortClass(port : Port, index: number): string {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+        if (node === null){
+            console.warn("Unable to find node from port's node key");
+            return "";
+        }
+
+
+        if (node.isBranch()){
             if (index === 0){
                 return port.isEvent() ? "event middle" : "middle";
             }
@@ -1656,7 +1663,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getOutputPortClass(port : Port, index: number): string {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+        if (node === null){
+            console.warn("Unable to find node from port's node key");
+            return "";
+        }
+
+        if (node.isBranch()){
             if (index === 0){
                 return port.isEvent() ? "event middle" : "middle";
             }
@@ -1758,7 +1771,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // TODO: one level of indirection here (getInput/Output -> getLeft/Right -> position)
     function getInputPortPositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key");
+            return getLeftSidePortPositionX(port, index);
+        }
+
+        if (node.isBranch()){
             if (index === 0){
                 return REAL_TO_DISPLAY_SCALE(200) / 2;
             }
@@ -1767,7 +1787,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        if (node.isFlipPorts()){
             return getRightSidePortPositionX(port, index);
         } else {
             return getLeftSidePortPositionX(port, index);
@@ -1775,7 +1795,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getInputPortPositionY(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key");
+            return getPortPositionY(port, index);
+        }
+
+        if (node.isBranch()){
             if (index === 0){
                 return REAL_TO_DISPLAY_SCALE(24);
             }
@@ -1789,7 +1816,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getOutputPortPositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key");
+            return getRightSidePortPositionX(port, index);
+        }
+
+        if (node.isBranch()){
             if (index === 0){
                 return REAL_TO_DISPLAY_SCALE(200) / 2;
             }
@@ -1798,7 +1832,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        if (node.isFlipPorts()){
             return getLeftSidePortPositionX(port, index);
         } else {
             return getRightSidePortPositionX(port, index);
@@ -1806,7 +1840,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getOutputPortPositionY(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key");
+            return getPortPositionY(port, index);
+        }
+
+        if (node.isBranch()){
             if (index === 0){
                 return REAL_TO_DISPLAY_SCALE(100 - 16);
             }
