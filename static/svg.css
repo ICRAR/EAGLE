@@ -83,6 +83,10 @@ g.node g.inputPorts.no-flip text, g.node g.outputPorts.flipped text, g.node g.ex
     user-select: none;
 }
 
+g.node g.inputPorts.no-flip text.middle, g.node g.outputPorts.flipped text.middle, g.node g.exitPorts.flipped text.middle {
+    text-anchor: middle;
+}
+
 g.node g.inputLocalPorts.no-flip text, g.node g.outputLocalPorts.flipped text, g.node g.exitLocalPorts.flipped text {
     text-anchor: start;
     font-family: sans-serif;
@@ -97,6 +101,10 @@ g.node g.outputPorts.no-flip text, g.node g.exitPorts.no-flip text, g.node g.inp
     pointer-events: none;
     fill: #444444;
     user-select: none;
+}
+
+g.node g.outputPorts.no-flip text.middle, g.node g.exitPorts.no-flip text.middle, g.node g.inputPorts.flipped text.middle {
+    text-anchor: middle;
 }
 
 g.node g.outputLocalPorts.no-flip text, g.node g.exitLocalPorts.no-flip text, g.node g.inputLocalPorts.flipped text {

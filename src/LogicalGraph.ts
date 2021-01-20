@@ -279,7 +279,7 @@ export class LogicalGraph {
     }
 
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
-        console.log("addNode()", node.getName());
+        //console.log("addNode()", node.getName());
 
         // copy node
         var newNode : Node = node.clone();
@@ -490,10 +490,10 @@ export class LogicalGraph {
 
                 // add input port and output port for dataType (if they don't exist)
                 if (!newNode.hasPortWithName(dataType, true, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false), true);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, srcPort.getType()), true);
                 }
                 if (!newNode.hasPortWithName(dataType, false, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false), false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, destPort.getType()), false);
                 }
 
                 // set the parent of the new node

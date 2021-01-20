@@ -298,22 +298,22 @@ export class Utils {
         }
     }
 
-    static translateStringToFieldDataType(fieldDataType: string): Eagle.FieldDataType {
-        if (fieldDataType === "Boolean"){
-            return Eagle.FieldDataType.Boolean;
+    static translateStringToDataType(dataType: string): Eagle.DataType {
+        if (dataType === "Boolean"){
+            return Eagle.DataType.Boolean;
         }
-        if (fieldDataType === "Float"){
-            return Eagle.FieldDataType.Float;
+        if (dataType === "Float"){
+            return Eagle.DataType.Float;
         }
-        if (fieldDataType === "Integer"){
-            return Eagle.FieldDataType.Integer;
+        if (dataType === "Integer"){
+            return Eagle.DataType.Integer;
         }
-        if (fieldDataType === "String"){
-            return Eagle.FieldDataType.String;
+        if (dataType === "String"){
+            return Eagle.DataType.String;
         }
 
-        console.warn("Unknown FieldDataType", fieldDataType);
-        return Eagle.FieldDataType.Unknown;
+        console.warn("Unknown DataType", dataType);
+        return Eagle.DataType.Unknown;
     }
 
     static httpGet(url : string, callback : (error : string, data : string) => void){
@@ -625,7 +625,7 @@ export class Utils {
 
             // translate access and type
             let readonly: boolean = access === 'readonly';
-            let realType: Eagle.FieldDataType = Utils.translateStringToFieldDataType(type);
+            let realType: Eagle.DataType = Utils.translateStringToDataType(type);
 
             let newField = new Field(text, name, value, description, readonly, realType);
 
@@ -812,30 +812,36 @@ export class Utils {
         }));
 
         $('#editFieldModalTypeSelect').empty();
+        // TODO: we should iterate through the values in the Eagle.DataType enum, rather than hard-code each type
         $('#editFieldModalTypeSelect').append($('<option>', {
             value: "Integer",
             text: "Integer",
-            selected: field.getType() === Eagle.FieldDataType.Integer
+            selected: field.getType() === Eagle.DataType.Integer
         }));
         $('#editFieldModalTypeSelect').append($('<option>', {
             value: "Float",
             text: "Float",
-            selected: field.getType() === Eagle.FieldDataType.Float
+            selected: field.getType() === Eagle.DataType.Float
         }));
         $('#editFieldModalTypeSelect').append($('<option>', {
             value: "String",
             text: "String",
-            selected: field.getType() === Eagle.FieldDataType.String
+            selected: field.getType() === Eagle.DataType.String
         }));
         $('#editFieldModalTypeSelect').append($('<option>', {
             value: "Boolean",
             text: "Boolean",
-            selected: field.getType() === Eagle.FieldDataType.Boolean
+            selected: field.getType() === Eagle.DataType.Boolean
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Complex",
+            text: "Complex",
+            selected: field.getType() === Eagle.DataType.Complex
         }));
         $('#editFieldModalTypeSelect').append($('<option>', {
             value: "Unknown",
             text: "Unknown",
-            selected: field.getType() === Eagle.FieldDataType.Unknown
+            selected: field.getType() === Eagle.DataType.Unknown
         }));
 
         $('#editFieldModal').data('completed', false);

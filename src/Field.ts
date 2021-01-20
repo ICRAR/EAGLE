@@ -9,9 +9,9 @@ export class Field {
     private value : ko.Observable<string>;
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
-    private type : ko.Observable<Eagle.FieldDataType>;
+    private type : ko.Observable<Eagle.DataType>;
 
-    constructor(text: string, name: string, value: string, description: string, readonly: boolean, type: Eagle.FieldDataType){
+    constructor(text: string, name: string, value: string, description: string, readonly: boolean, type: Eagle.DataType){
         this.text = ko.observable(text);
         this.name = ko.observable(name);
         this.value = ko.observable(value);
@@ -64,11 +64,11 @@ export class Field {
         this.readonly(readonly);
     }
 
-    getType = () : Eagle.FieldDataType => {
+    getType = () : Eagle.DataType => {
         return this.type();
     }
 
-    setType = (type: Eagle.FieldDataType) : void => {
+    setType = (type: Eagle.DataType) : void => {
         this.type(type);
     }
 
@@ -78,7 +78,7 @@ export class Field {
         this.value("");
         this.description("");
         this.readonly(false);
-        this.type(Eagle.FieldDataType.Unknown);
+        this.type(Eagle.DataType.Unknown);
     }
 
     clone = () : Field => {
@@ -118,7 +118,7 @@ export class Field {
 
     static fromOJSJson = (data : any) : Field => {
         let readonly = false;
-        let type = Eagle.FieldDataType.Unknown;
+        let type = Eagle.DataType.Unknown;
 
         if (typeof data.readonly !== 'undefined')
             readonly = data.readonly;

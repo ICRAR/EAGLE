@@ -87,7 +87,7 @@
             </div>
             <!-- /ko -->
 
-            <!-- ko ifnot: selectedNode().isGroup() -->
+            <!-- ko ifnot: selectedNode().isGroup() || selectedNode().isBranch() -->
             <div class="col">
                 <div class="input-group mb-1">
                     <input type="text" class="form-control" id="nodeFlipPortsValue" placeholder="" aria-label="Flip Ports" aria-describedby="node-flip-ports" value="Flip Ports" readonly>
