@@ -2031,7 +2031,16 @@ export class Eagle {
      * Adds an input port to the selected node via HTML.
      */
     addInputPortHTML = () : void => {
-        var node = this.getSelection();
+        var node: Node = <Node>this.getSelection();
+
+        // check whether node already has maximum number of ports
+        let maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxInputs;
+        console.log("maxPorts", maxPorts, "currentPorts", node.getInputPorts().length);
+        if (node.getInputPorts().length >= maxPorts ){
+            Utils.showUserMessage("Error", "This node may not contain more input ports. Maximum is " + maxPorts + " for " + node.getCategory() + " nodes.");
+            return;
+        }
+
         this.selectPortName(<Node>node, true);
     }
 
@@ -2039,7 +2048,16 @@ export class Eagle {
      * Adds an output port to the selected node via HTML arguments.
      */
     addOutputPortHTML = () : void => {
-        var node = this.getSelection();
+        var node: Node = <Node>this.getSelection();
+
+        // check whether node already has maximum number of ports
+        let maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxOutputs;
+        console.log("maxPorts", maxPorts, "currentPorts", node.getOutputPorts().length);
+        if (node.getOutputPorts().length >= maxPorts ){
+            Utils.showUserMessage("Error", "This node may not contain more output ports. Maximum is " + maxPorts + " for " + node.getCategory() + " nodes.");
+            return;
+        }
+
         this.selectPortName(<Node>node, false);
     }
 
