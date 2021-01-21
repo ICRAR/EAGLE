@@ -322,6 +322,17 @@ export class LogicalGraph {
         } else {
             this.nodes.push(newNode);
 
+            // set new keys for embedded applications within node
+            if (newNode.hasInputApplication()){
+                newNode.getInputApplication().setKey(Utils.newKey(this.getNodes()));
+            }
+            if (newNode.hasOutputApplication()){
+                newNode.getOutputApplication().setKey(Utils.newKey(this.getNodes()));
+            }
+            if (newNode.hasExitApplication()){
+                newNode.getExitApplication().setKey(Utils.newKey(this.getNodes()));
+            }
+
             // flag that the logical graph has been modified
             this.fileInfo().modified = true;
             this.fileInfo.valueHasMutated();
