@@ -1645,7 +1645,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function getInputPortClass(port : Port, index: number): string {
         let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
         if (node === null){
-            console.warn("Unable to find node from port's node key");
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
             return "";
         }
 
@@ -1665,7 +1665,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function getOutputPortClass(port : Port, index: number): string {
         let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
         if (node === null){
-            console.warn("Unable to find node from port's node key");
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
             return "";
         }
 
@@ -1774,7 +1774,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
 
         if (node === null){
-            console.warn("Unable to find node from port's node key");
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
             return getLeftSidePortPositionX(port, index);
         }
 
@@ -1798,7 +1798,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
 
         if (node === null){
-            console.warn("Unable to find node from port's node key");
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
             return getPortPositionY(port, index);
         }
 
@@ -1819,7 +1819,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
 
         if (node === null){
-            console.warn("Unable to find node from port's node key");
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
             return getRightSidePortPositionX(port, index);
         }
 
@@ -1843,7 +1843,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
 
         if (node === null){
-            console.warn("Unable to find node from port's node key");
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
             return getPortPositionY(port, index);
         }
 
@@ -1860,7 +1860,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getExitPortPositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getRightSidePortPositionX(port, index);
+        }
+
+        if (node.isFlipPorts()){
             return getLeftSidePortPositionX(port, index);
         } else {
             return getRightSidePortPositionX(port, index);
@@ -1872,7 +1879,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getInputLocalPortPositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getLeftSidePortPositionX(port, index);
+        }
+
+        if (node.isFlipPorts()){
             return getRightSidePortPositionX(port, index);
         } else {
             return getLeftSidePortPositionX(port, index);
@@ -1884,7 +1898,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getOutputLocalPortPositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getRightSidePortPositionX(port, index);
+        }
+
+        if (node.isFlipPorts()){
             return getLeftSidePortPositionX(port, index);
         } else {
             return getRightSidePortPositionX(port, index);
@@ -1896,7 +1917,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getExitLocalPortPositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getRightSidePortPositionX(port, index);
+        }
+
+        if (node.isFlipPorts()){
             return getLeftSidePortPositionX(port, index);
         } else {
             return getRightSidePortPositionX(port, index);
@@ -1924,7 +1952,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // port circle positions
     function getInputPortCirclePositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getLeftSidePortCirclePositionX(port, index);
+        }
+
+        if (node.isBranch()){
             if (index === 0){
                 return REAL_TO_DISPLAY_SCALE(200) / 2;
             }
@@ -1933,14 +1968,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        if (node.isFlipPorts()){
             return getRightSidePortCirclePositionX(port, index);
         } else {
             return getLeftSidePortCirclePositionX(port, index);
         }
     }
     function getInputPortCirclePositionY(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getPortCirclePositionY(port, index);
+        }
+
+        if (node.isBranch()){
             if (index === 0){
                 return 0;
             }
@@ -1952,7 +1994,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return getPortCirclePositionY(port, index);
     }
     function getOutputPortCirclePositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getRightSidePortCirclePositionX(port, index);
+        }
+
+        if (node.isBranch()){
             if (index === 0){
                 return REAL_TO_DISPLAY_SCALE(200) / 2;
             }
@@ -1961,14 +2010,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        if (node.isFlipPorts()){
             return getLeftSidePortCirclePositionX(port, index);
         } else {
             return getRightSidePortCirclePositionX(port, index);
         }
     }
     function getOutputPortCirclePositionY(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isBranch()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getPortCirclePositionY(port, index);
+        }
+
+        if (node.isBranch()){
             // TODO: magic number
             if (index === 0){
                 return REAL_TO_DISPLAY_SCALE(100);
@@ -1981,7 +2037,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return getPortCirclePositionY(port, index);
     }
     function getExitPortCirclePositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getRightSidePortCirclePositionX(port, index);
+        }
+
+        if (node.isFlipPorts()){
             return getLeftSidePortCirclePositionX(port, index);
         } else {
             return getRightSidePortCirclePositionX(port, index);
@@ -1991,7 +2054,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return getPortCirclePositionY(port, index);
     }
     function getInputLocalPortCirclePositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getLeftSidePortCirclePositionX(port, index);
+        }
+
+        if (node.isFlipPorts()){
             return getRightSidePortCirclePositionX(port, index);
         } else {
             return getLeftSidePortCirclePositionX(port, index);
@@ -2001,7 +2071,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return getPortCirclePositionY(port, index);
     }
     function getOutputLocalPortCirclePositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getRightSidePortCirclePositionX(port, index);
+        }
+
+        if (node.isFlipPorts()){
             return getLeftSidePortCirclePositionX(port, index);
         } else {
             return getRightSidePortCirclePositionX(port, index);
@@ -2011,7 +2088,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return getPortCirclePositionY(port, index);
     }
     function getExitLocalPortCirclePositionX(port : Port, index : number) : number {
-        if (findNodeWithKey(port.getNodeKey(), nodeData).isFlipPorts()){
+        let node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
+
+        if (node === null){
+            console.warn("Unable to find node from port's node key", port.getNodeKey());
+            return getRightSidePortCirclePositionX(port, index);
+        }
+
+        if (node.isFlipPorts()){
             return getLeftSidePortCirclePositionX(port, index);
         } else {
             return getRightSidePortCirclePositionX(port, index);
