@@ -1072,6 +1072,7 @@ export class Eagle {
                 let palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", ""), false);
                 palette.fileInfo().clear();
                 palette.fileInfo().name = Palette.DYNAMIC_PALETTE_NAME;
+                palette.fileInfo().readonly = false;
                 this.palettes.push(palette);
                 this.leftWindowShown(true);
             }
