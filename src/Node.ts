@@ -288,6 +288,11 @@ export class Node {
         return this.readonly;
     }
 
+    isLocked = (): boolean => {
+        let allowComponentEditing : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
+        return this.readonly && !allowComponentEditing;
+    }
+
     getInputPorts = () : Port[] => {
         return this.inputPorts();
     }

@@ -2018,16 +2018,6 @@ export class Eagle {
         this.rightWindowShown(!this.rightWindowShown());
     }
 
-    // check the "allow component editing" setting to check if the selection
-    // can be edited
-    allowComponentEditing : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
-    }, this);
-
-    allowReadonlyParameterEditing : ko.PureComputed<boolean> = ko.pureComputed(() =>{
-        return Eagle.findSetting(Utils.ALLOW_READONLY_PARAMETER_EDITING).value();
-    }, this);
-
     /**
      * Adds an input port to the selected node via HTML.
      */

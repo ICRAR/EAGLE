@@ -1,12 +1,17 @@
 <div class="card">
     <h5 class="card-header">
-        <i class="material-icons">settings</i>
+        <!-- ko if: selectedNode().isLocked() -->
+            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
+        <!-- /ko -->
+        <!-- ko ifnot: selectedNode().isLocked() -->
+            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
+        <!-- /ko -->
         <span data-bind="text: selectedNode().getCategoryType() + ' : ' + selectedNode().getCategory() + ' : ' + selectedNode().getName() + ' : ' + selectedNode().getKey()"></span>
     </h5>
     <div class="card-body">
 
         <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
-            <!-- ko if: $root.allowComponentEditing() -->
+            <!-- ko ifnot: selectedNode().isLocked() -->
                 <div class="input-group mb-1">
                     <div class="input-group-prepend">
                         <span class="input-group-text mw-140" id="node-name">Name</span>
