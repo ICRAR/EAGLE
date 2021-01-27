@@ -1297,7 +1297,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function selectNode(node : Node){
         if (node !== null){
-            console.log("setSelection()", node.getName());
+            //console.log("setSelection()", node.getName());
             eagle.setSelection(Eagle.RightWindowMode.NodeInspector, node);
         }
     }

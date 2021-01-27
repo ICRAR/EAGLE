@@ -2053,7 +2053,7 @@ export class Eagle {
 
         // check whether node already has maximum number of ports
         let maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxOutputs;
-        console.log("maxPorts", maxPorts, "currentPorts", node.getOutputPorts().length);
+        //console.log("maxPorts", maxPorts, "currentPorts", node.getOutputPorts().length);
         if (node.getOutputPorts().length >= maxPorts ){
             Utils.showUserMessage("Error", "This node may not contain more output ports. Maximum is " + maxPorts + " for " + node.getCategory() + " nodes.");
             return;
