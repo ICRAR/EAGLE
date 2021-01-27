@@ -299,11 +299,111 @@
                         </div>
                     </div>
                     <!-- /ko -->
+                    <!-- ko if: $data.getType() === 3 -->
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" data-bind="attr:{id:'setting'+$index(),title:$data.getDescription()},text:$data.getName()" data-toggle="tooltip" data-html="true" data-placement="left"></span>
+                        </div>
+                        <input type="password" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$index()+'Value'}">
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.copy, attr:{id:'setting'+$index()+'Copy'}">
+                                <i class="material-icons md-18">content_copy</i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /ko -->
                 <!-- /ko -->
                 <button class="btn btn-danger btn-block" id="resetSettingsDefaults" type="button" data-bind="click: $root.resetSettingsDefaults">Reset Defaults</button>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="editFieldModalNegativeButton" data-dismiss="modal"><span id="editFieldModalNegativeAnswer">Cancel</span></button>
                 <button type="button" class="btn btn-primary" id="settingsModalAffirmativeButton" data-dismiss="modal"><span id="settingsModalAffirmativeAnswer">OK</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Field Modal -->
+<div class="modal fade" id="editFieldModal" tabindex="-1" role="dialog" aria-labelledby="editFieldModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editFieldModalTitle">Edit Parameter</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Text:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="editFieldModalTextInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Name:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="editFieldModalNameInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Value:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="editFieldModalValueInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Description:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="editFieldModalDescriptionInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Readonly:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="editFieldModalAccessSelect">
+                                    <option>Readonly</option>
+                                    <option>Readwrite</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Type:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="editFieldModalTypeSelect">
+                                    <!-- options are added dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="editFieldModalAffirmativeButton" data-dismiss="modal"><span id="editFieldModalAffirmativeAnswer">OK</span></button>
             </div>
         </div>
     </div>

@@ -33,12 +33,15 @@ import {RepositoryFile} from './RepositoryFile';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
-    private nodes : Node[];
+    private nodes : ko.ObservableArray<Node>;
+
+    public static readonly DYNAMIC_PALETTE_NAME: string = "All Nodes";
+    public static readonly BUILTIN_PALETTE_NAME: string = "Built-in Palette";
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Palette;
-        this.nodes = [];
+        this.nodes = ko.observableArray([]);
     }
 
     static fromOJSJson = (data : string, file : RepositoryFile, showErrors : boolean) : Palette => {
@@ -69,12 +72,12 @@ export class Palette {
             }
 
             // check that x, y, position is the default
-            if (newNode.getPosition().x !== Node.DEFAULT_POSITION_X || newNode.getPosition().y !== Node.DEFAULT_POSITION_Y){
+            if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
                 var error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
                 console.warn(error);
                 errors.push(error);
 
-                newNode.setPosition(Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+                newNode.setPosition(0, 0);
             }
 
             // add node to palette
@@ -109,8 +112,8 @@ export class Palette {
 
         // add nodes
         result.nodeDataArray = [];
-        for (var i = 0 ; i < palette.getNodes().length ; i++){
-            var node : Node = palette.getNodes()[i];
+        for (var i = 0 ; i < palette.nodes().length ; i++){
+            var node : Node = palette.nodes()[i];
             result.nodeDataArray.push(Node.toOJSJson(node));
         }
 
@@ -121,30 +124,19 @@ export class Palette {
     }
 
     getNodes = () : Node[] => {
-        return this.nodes;
+        return this.nodes();
     }
 
-    getNthNonDataNode = (n : number) : Node => {
-        var index : number = -1;
-
-        for (var i = 0 ; i < this.nodes.length ; i++){
-            if (this.nodes[i].getCategoryType() === Eagle.CategoryType.Data){
-                continue;
-            }
-            index += 1;
-
-            if (index === n){
-                return this.nodes[i];
-            }
-        }
-
-        return null;
+    // TODO: this should return different icons based on whether the palette is currently expanded or collapsed
+    //       but at the moment, that expand/collapse state is stored internally within bootstrap and is not available here
+    getCollapseIcon = () : string => {
+        return "keyboard_arrow_down";
     }
 
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Palette;
-        this.nodes = [];
+        this.nodes([]);
     }
 
     clone = () : Palette => {
@@ -152,8 +144,8 @@ export class Palette {
 
         result.fileInfo(this.fileInfo().clone());
 
-        for (var i = 0 ; i < this.nodes.length ; i++){
-            var n_clone = this.nodes[i].clone();
+        for (var i = 0 ; i < this.nodes().length ; i++){
+            var n_clone = this.nodes()[i].clone();
             result.nodes.push(n_clone);
         }
 
@@ -165,49 +157,18 @@ export class Palette {
     }
 
     findNodeByKey = (key : number) : Node => {
-        for (var i = this.nodes.length - 1; i >= 0 ; i--){
-            if (this.nodes[i].getKey() === key){
-                return this.nodes[i];
+        for (var i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getKey() === key){
+                return this.nodes()[i];
             }
         }
         return null;
     }
 
     removeNodeByKey = (key : number) : void => {
-        for (var i = this.nodes.length - 1; i >= 0 ; i--){
-            if (this.nodes[i].getKey() === key){
+        for (var i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getKey() === key){
                 this.nodes.splice(i, 1);
-            }
-        }
-    }
-
-    /**
-     * Add event type I/O ports.
-     *
-     * NOTE: don't add anything to groups, since ports should be added to inputApplication and outputApplication, and they don't exist yet
-     */
-    addEventPorts = () : void => {
-        for (var i = 0 ; i < this.nodes.length ; i++){
-            let n = this.nodes[i];
-
-            // add event ports
-            if (n.getCategoryType() === Eagle.CategoryType.Application ||
-                n.getCategoryType() === Eagle.CategoryType.Data) {
-                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
-                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false); // external output
-            }
-            else if (n.getCategoryType() === Eagle.CategoryType.Control) {
-                if (n.getCategory() === Eagle.Category.Start) {
-                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false); // external output
-                }
-                else if (n.getCategory() === Eagle.Category.End) {
-                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
-                }
-            }
-            else if (n.getCategoryType() === Eagle.CategoryType.Other){
-                if (n.getCategory() === Eagle.Category.Service){
-                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
-                }
             }
         }
     }

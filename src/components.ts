@@ -1,6 +1,3 @@
-import {Utils} from './Utils';
-import {Eagle} from './Eagle';
-
 import * as ko from "knockout";
 
 ko.components.register('repository-file', {
@@ -38,24 +35,24 @@ ko.components.register('repository', {
     template: { require: "text!static/components/repository.html" }
 });
 
-// custom component for a field (or appField)
+// custom component for a field
 ko.components.register('field', {
-    viewModel: function(params : {data : any, type : any, input : boolean}){
+    viewModel: function(params : {data : any, ro: boolean}){
         var vm = params.data;
-        vm.type = params.type;
-        vm.input = params.input;
+        vm.ro = params.ro;
         return vm;
     },
     template: { require: "text!static/components/field.html" }
 });
 
 ko.components.register('port', {
-    viewModel: function(params : {id : string, name : string, multiplicity : number, isEventPort : boolean, input : boolean, local: boolean}){
+    viewModel: function(params : {id : string, name : string, multiplicity : number, isEventPort : boolean, toggleEvent : boolean, input : boolean, local: boolean}){
         return {
             id: params.id,
             name: params.name,
             multiplicity: params.multiplicity,
             isEventPort: params.isEventPort,
+            toggleEvent: params.toggleEvent,
             input: params.input,
             local: params.local
         };
@@ -89,8 +86,8 @@ ko.components.register('hierarchy-node', {
 
 // custom component for a component that appears in the inspector
 ko.components.register('inspector-component', {
-    viewModel: function(params : {data : any}){
-        return params.data;
+    viewModel: function(params : {node : any, callback: any}){
+        return params;
     },
     template: { require: "text!static/components/inspector-component.html" }
 });

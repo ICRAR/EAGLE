@@ -5,6 +5,7 @@ import getopt
 import xml.etree.ElementTree as ET
 import json
 import uuid
+import csv
 
 next_key = -1
 
@@ -57,30 +58,67 @@ def find_field_by_name(fields, name):
 def add_required_fields_for_category(fields, category):
     if category == "DynlibApp":
         if find_field_by_name(fields, "execution_time") is None:
-            fields.append(create_field("Execution time", "execution_time", 5, ""))
+            fields.append(create_field("execution_time", "Execution time", 5, "Estimated execution time", "readwrite", "Float"))
         if find_field_by_name(fields, "num_cpus") is None:
-            fields.append(create_field("Num CPUs", "num_cpus", 1, ""))
+            fields.append(create_field("num_cpus", "Num CPUs", 1, "Number of cores used", "readwrite", "Integer"))
         if find_field_by_name(fields, "group_start") is None:
-            fields.append(create_field("Group start", "group_start", 0, ""))
+            fields.append(create_field("group_start", "Group start", 0, "Component is start of a group", "readwrite", "Boolean"))
         if find_field_by_name(fields, "libpath") is None:
-            fields.append(create_field("Library path", "libpath", "", ""))
+            fields.append(create_field("libpath", "Library path", "", "", "readwrite", "String"))
     elif category == "PythonApp":
         if find_field_by_name(fields, "execution_time") is None:
-            fields.append(create_field("Execution time", "execution_time", 5, ""))
+            fields.append(create_field("execution_time", "Execution time", 5, "Estimated execution time", "readwrite", "Float"))
         if find_field_by_name(fields, "num_cpus") is None:
-            fields.append(create_field("Num CPUs", "num_cpus", 1, ""))
+            fields.append(create_field("num_cpus", "Num CPUs", 1, "Number of cores used", "readwrite", "Integer"))
         if find_field_by_name(fields, "group_start") is None:
-            fields.append(create_field("Group start", "group_start", 0, ""))
+            fields.append(create_field("group_start", "Group start", 0, "Component is start of a group", "readwrite", "Boolean"))
         if find_field_by_name(fields, "appclass") is None:
-            fields.append(create_field("Appclass", "appclass", "test.graphsRepository", ""))
+            fields.append(create_field("appclass", "Appclass", "dlg.apps.simple.SleepApp", "Application class", "readwrite", "String"))
 
-def create_field(text, name, value, description):
+
+def create_field(internal_name, name, value, description, access, type):
     return {
-        "text": text,
-        "name": name,
+        "text": name,
+        "name": internal_name,
         "value": value,
-        "description": description
+        "description": description,
+        "readonly": access == "readonly",
+        "type": type
     }
+
+
+def parse_param_key(key):
+    # parse the key as csv (delimited by '/')
+    parts = []
+    reader = csv.reader([key], delimiter='/', quotechar='"')
+    for row in reader:
+        parts = row
+
+    # init attributes of the param
+    param = ""
+    internal_name = ""
+    name = ""
+    default_value = ""
+    type = "String"
+    access = "readwrite"
+
+    # assign attributes (if present)
+    if len(parts) > 0:
+        param = parts[0]
+    if len(parts) > 1:
+        internal_name = parts[1]
+    if len(parts) > 2:
+        name = parts[2]
+    if len(parts) > 3:
+        default_value = parts[3]
+    if len(parts) > 4:
+        type = parts[4]
+    if len(parts) > 5:
+        access = parts[5]
+    else:
+        print("param (" + name + ") has no 'access' descriptor, using default (readwrite)")
+
+    return (param, internal_name, name, default_value, type, access)
 
 
 # NOTE: color, x, y, width, height are not specified in palette node, they will be set by the EAGLE importer
@@ -109,9 +147,14 @@ def create_palette_node_from_params(params):
             description = value
         elif key.startswith("param/"):
             # parse the param key into name, type etc
-            (param, name, default_value, type) = key.split("/")
+            (param, internal_name, name, default_value, type, access) = parse_param_key(key)
+
+            # check that access is a known value
+            if access != "readonly" and access != "readwrite":
+                print("ERROR: Unknown access: " + access)
+
             # add a field
-            fields.append(create_field(name + " (" + type + ")", name, default_value, value))
+            fields.append(create_field(internal_name, name, default_value, value, access, type))
             pass
         elif key.startswith("port/") or key.startswith("local-port/"):
             # parse the port into data
@@ -176,6 +219,7 @@ def write_palette_json(outputfile, nodes, gitrepo, version):
             "repoService": "GitHub",
             "repoBranch": "master",
             "repo": "ICRAR/EAGLE_test_repo",
+            "readonly": True,
             "filePath": outputfile,
             "sha": version,
             "git_url": gitrepo
@@ -266,7 +310,7 @@ def process_compounddef(compounddef):
                 direction = pichild[0].attrib.get("direction", "").strip()
             elif pichild.tag == "parameterdescription":
                 if key == "gitrepo":
-                    if pichild[0].text is None:
+                    if pichild[0][0].text is None:
                         print("No gitrepo text")
                         value = ""
                     else:

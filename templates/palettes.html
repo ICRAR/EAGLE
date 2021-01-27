@@ -2,12 +2,27 @@
     <div data-bind="foreach: palettes">
         <div class="card">
             <div class="card-header" data-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
-                <i class="material-icons interactive" data-toggle="tooltip" data-placement="right" data-html="true" data-bind="attr:{title:fileInfo().getSummaryHTML()}">info</i>
+                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'},text:getCollapseIcon()"></i>
+                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:fileInfo().getSummaryHTML()}">info</i>
+                <!-- ko if: $data.fileInfo().readonly -->
+                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
+                <!-- /ko -->
+                <!-- ko ifnot: $data.fileInfo().readonly -->
+                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
+                <!-- /ko -->
                 <span>&nbsp;</span>
-                <h5 class="template-title" data-bind="text: fileInfo().name"></h5>
-                <button type="button" class="close" aria-label="Close" data-bind="click: function(palette, event){$root.closePalette(palette);event.stopPropagation()}">
+                <h5 class="template-title" data-bind="text: fileInfo().nameAndModifiedIndicator()"></h5>
+                <button type="button" class="close" aria-label="Close" data-bind="click: function(palette, event){$root.closePalette(palette);event.stopPropagation()}, attr:{title:'Close'}" data-toggle="tooltip" data-html="true" data-placement="top">
                     <i class="material-icons">close</i>
                 </button>
+                <!-- ko if: $data.fileInfo().modified -->
+                    <button type="button" class="close save-to-git" aria-label="Save to Git" data-bind="click: function(palette, event){$root.savePaletteToGit(palette);event.stopPropagation()}, attr:{title:'Save to Git'}" data-toggle="tooltip" data-html="true" data-placement="top">
+                        <i class="material-icons">cloud_upload</i>
+                    </button>
+                    <button type="button" class="close save-to-disk" aria-label="Save to Disk" data-bind="click: function(palette, event){$root.savePaletteToDisk(palette);event.stopPropagation()}, attr:{title:'Save to Disk'}" data-toggle="tooltip" data-html="true" data-placement="top">
+                        <i class="material-icons">save</i>
+                    </button>
+                <!-- /ko -->
             </div>
             <div class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" data-bind="attr:{id:'collapse' + $index()}">
                 <div class="card-body">

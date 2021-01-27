@@ -25,6 +25,7 @@
 export class Config {
     // File name of the palette template.
     static readonly templatePaletteFileName : string = "templatePalette.json";
+    static readonly builtinPaletteFileName : string = "builtinPalette.json";
 
     // schemas
     static readonly graphSchemaFileName : string = "assets/schema/dlg-lg.graph.schema";

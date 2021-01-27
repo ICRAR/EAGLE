@@ -75,8 +75,9 @@ install_requires = [
 #    "pycrypto",
     "pygithub",
     "python-gitlab",
-    "sphinx",
-    "uwsgi"
+    "sphinx==3.2.1",
+    "uwsgi",
+    "six"
 ]
 
 setup(
@@ -91,7 +92,7 @@ setup(
     url="",
     license="",
     packages=find_packages(),
-    include_package_data=True,
+#    include_package_data=True,
     package_data={
         "EAGLE": ["README", "*.txt"],
         "templates": ["*.html"],

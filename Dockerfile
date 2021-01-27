@@ -6,7 +6,7 @@ COPY . .
 RUN apk add --update npm bash git curl alpine-sdk linux-headers
 RUN npm install -g typescript
 RUN python updateVersion.py
-RUN mv VERSION /tmp/.
+RUN cp VERSION /tmp/.
 RUN pip install .
 RUN sphinx-apidoc -o docs/source eagleServer
 RUN cd docs; make html

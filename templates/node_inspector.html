@@ -3,10 +3,8 @@
 
         {% include 'node_inspector_attributes.html' %}
 
-        <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
         <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
         {% include 'node_inspector_description.html' %}
-        <!-- /ko -->
         <!-- /ko -->
 
         <!-- node component parameters list -->
@@ -50,6 +48,11 @@
         <div class="row mt-1">
             <div class="col">
                 <button type="button" id="duplicateSelectedNode" class="btn btn-primary btn-block" data-bind="click: duplicateSelectedNode">Duplicate Node</button>
+            </div>
+        </div>
+        <div class="row mt-1">
+            <div class="col">
+                <button type="button" id="addSelectedNodeToPalette" class="btn btn-primary btn-block" data-bind="click: addSelectedNodeToPalette">Add Node to Palette</button>
             </div>
         </div>
         <div class="row mt-1">

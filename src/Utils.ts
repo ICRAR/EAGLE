@@ -31,6 +31,8 @@ import {Palette} from './Palette';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
 import {Port} from './Port';
+import {Field} from './Field';
+import {Repository} from './Repository';
 
 export class Utils {
     // Allowed file extenstions.
@@ -56,12 +58,15 @@ export class Utils {
 
     static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
+    static readonly ALLOW_READONLY_PARAMETER_EDITING : string = "AllowReadonlyParameterEditing";
 
     static readonly ENABLE_PALETTE_EDITOR_MODE : string = "EnablePaletteEditorMode";
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
+
+    static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
 
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};
@@ -81,18 +86,111 @@ export class Utils {
         });
     }
 
-    static newKey(nodes : Node[]) : number {
+    static padStart(input: number, length: number): string {
+        let result: string = input.toString();
+
+        while (result.length < length){
+            result = "0" + result;
+        }
+
+        return result;
+    }
+
+    static generateDateTimeString(): string {
+        let now = new Date();
+
+        // NOTE: JavaScript months are 0-based
+        return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
+    }
+
+    static findNewKey(usedKeys : number[]): number {
         for (var i = -1 ; ; i--){
-            var nodeIndex = -1;
-            for (var j = 0 ; j < nodes.length ; j++){
-                if (nodes[j].getKey() === i){
-                    nodeIndex = j;
+            //console.log("newKey, searching for ", i, "amongst", usedKeys.length, "keys");
+            let found = false;
+
+            for (var j = 0 ; j < usedKeys.length ; j++){
+                // debug
+                //console.log("findNewKey, checking key", j, "key is", usedKeys[j]);
+
+                if (i === usedKeys[j]){
+                    found = true;
                     break;
                 }
             }
 
-            if (nodeIndex === -1){
+            if (!found){
                 return i;
+            }
+        }
+    }
+
+    static getUsedKeys(nodes : Node[]) : number[] {
+        // build a list of used keys
+        let usedKeys: number[] = [];
+
+        for (var i = 0 ; i < nodes.length ; i++){
+            usedKeys.push(nodes[i].getKey())
+
+            // if this node has inputApp, add the inputApp key
+            if (nodes[i].hasInputApplication()){
+                usedKeys.push(nodes[i].getInputApplication().getKey());
+            }
+
+            // if this node has outputApp, add the outputApp key
+            if (nodes[i].hasOutputApplication()){
+                usedKeys.push(nodes[i].getOutputApplication().getKey());
+            }
+
+            // if this node has exitApp, add the exitApp key
+            if (nodes[i].hasExitApplication()){
+                usedKeys.push(nodes[i].getExitApplication().getKey());
+            }
+        }
+
+        return usedKeys;
+    }
+
+    static newKey(nodes: Node[]): number {
+        let usedKeys = Utils.getUsedKeys(nodes);
+        return Utils.findNewKey(usedKeys);
+    }
+
+    static setEmbeddedApplicationNodeKeys(lg: LogicalGraph): void {
+        let nodes: Node[] = lg.getNodes();
+        let usedKeys: number[] = Utils.getUsedKeys(nodes);
+
+        // loop through nodes, look for embedded nodes with null key, create new key, add to usedKeys
+        for (var i = 0 ; i < nodes.length ; i++){
+            usedKeys.push(nodes[i].getKey())
+
+            // if this node has inputApp, add the inputApp key
+            if (nodes[i].hasInputApplication()){
+                if (nodes[i].getInputApplication().getKey() === null){
+                    let newKey = Utils.findNewKey(usedKeys);
+                    nodes[i].getInputApplication().setKey(newKey);
+                    usedKeys.push(newKey);
+                    //console.log("set node", nodes[i].getKey(), "exit input key", newKey);
+                }
+            }
+
+            // if this node has outputApp, add the outputApp key
+            if (nodes[i].hasOutputApplication()){
+                if (nodes[i].getOutputApplication().getKey() === null){
+                    let newKey = Utils.findNewKey(usedKeys);
+                    nodes[i].getOutputApplication().setKey(newKey);
+                    usedKeys.push(newKey);
+                    //console.log("set node", nodes[i].getKey(), "output app key", newKey);
+                }
+            }
+
+            // if this node has exitApp, add the exitApp key
+            if (nodes[i].hasExitApplication()){
+                if (nodes[i].getExitApplication().getKey() === null){
+                    let newKey = Utils.findNewKey(usedKeys);
+                    nodes[i].getExitApplication().setKey(newKey);
+                    usedKeys.push(newKey);
+                    //console.log("set node", nodes[i].getKey(), "exit app key", newKey);
+                }
             }
         }
     }
@@ -184,6 +282,44 @@ export class Utils {
 
         //console.warn("Unknown file type (", fileType, ") can't be translated!");
         return "";
+    }
+
+    static translateRightWindowModeToString(rightWindowMode: Eagle.RightWindowMode): string {
+        switch(rightWindowMode){
+            case Eagle.RightWindowMode.EdgeInspector:
+                return "EdgeInspector";
+            case Eagle.RightWindowMode.Hierarchy:
+                return "Hierarchy";
+            case Eagle.RightWindowMode.NodeInspector:
+                return "NodeInspector";
+            case Eagle.RightWindowMode.Repository:
+                return "Repository";
+            case Eagle.RightWindowMode.TranslationMenu:
+                return "TranslationMenu";
+            case Eagle.RightWindowMode.None:
+                return "None";
+            default:
+                console.warn("Unknown rightWindowMode", rightWindowMode);
+                return "";
+        }
+    }
+
+    static translateStringToDataType(dataType: string): Eagle.DataType {
+        if (dataType === "Boolean"){
+            return Eagle.DataType.Boolean;
+        }
+        if (dataType === "Float"){
+            return Eagle.DataType.Float;
+        }
+        if (dataType === "Integer"){
+            return Eagle.DataType.Integer;
+        }
+        if (dataType === "String"){
+            return Eagle.DataType.String;
+        }
+
+        console.warn("Unknown DataType", dataType);
+        return Eagle.DataType.Unknown;
     }
 
     static translateVersionToString(version : Eagle.DALiuGESchemaVersion) : string {
@@ -415,12 +551,12 @@ export class Utils {
 
             // check selected option in select tag
             var repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
-            var repositories : string[] = $('#gitCommitModal').data('repositories');
+            var repositories : Repository[] = $('#gitCommitModal').data('repositories');
             var repositoryNameChoice : number = parseInt(<string>$('#gitCommitModalRepositoryNameSelect').val(), 10);
 
             // split repository text (with form: "name (branch)") into name and branch strings
-            var repositoryName : string = repositories[repositoryNameChoice].substring(0, repositories[repositoryNameChoice].indexOf(" ("));
-            var repositoryBranch : string = repositories[repositoryNameChoice].substring(repositories[repositoryNameChoice].indexOf(" (") + 2, repositories[repositoryNameChoice].length - 1);
+            var repositoryName : string = repositories[repositoryNameChoice].name;
+            var repositoryBranch : string = repositories[repositoryNameChoice].branch;
 
             var filePath : string = <string>$('#gitCommitModalFilePathInput').val();
             var fileName : string = <string>$('#gitCommitModalFileNameInput').val();
@@ -430,9 +566,9 @@ export class Utils {
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
             var repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
-            var repositories = eagle.getRepositoryList(repositoryService);
+            var repositories: Repository[] = eagle.getRepositoryList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
-            Utils.updateGitCommitRepositoriesList(repositories);
+            Utils.updateGitCommitRepositoriesList(repositories, null);
         });
 
         // #gitCustomRepositoryModal - requestUserAddCustomRepository()
@@ -469,6 +605,46 @@ export class Utils {
         // #settingsModal - showSettingsModal()
         $('#settingsModal').on('shown.bs.modal', function(){
             $('#settingsModalAffirmativeButton').focus();
+        });
+
+        // #editFieldModal - requestUserEditField()
+        $('#editFieldModalAffirmativeButton').on('click', function(){
+            $('#editFieldModal').data('completed', true);
+        });
+        $('#editFieldModalNegativeButton').on('click', function(){
+            $('#editFieldModal').data('completed', false);
+        });
+        $('#editFieldModal').on('shown.bs.modal', function(){
+            $('#editFieldModalAffirmativeButton').focus();
+        });
+        $('#editFieldModal').on('hidden.bs.modal', function(){
+            console.log("editFieldModal hidden");
+
+            var callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
+            var completed : boolean = $('#editFieldModal').data('completed');
+            console.log("completed", completed);
+
+            // check if the modal was completed (user clicked OK), if not, return false
+            if (!completed){
+                callback(false, null);
+                return;
+            }
+
+            // extract field data from HTML elements
+            let text : string = <string>$('#editFieldModalTextInput').val();
+            let name : string = <string>$('#editFieldModalNameInput').val();
+            let value : string = <string>$('#editFieldModalValueInput').val();
+            let description: string = <string>$('#editFieldModalDescriptionInput').val();
+            let access: string = <string>$('#editFieldModalAccessSelect').val();
+            let type: string = <string>$('#editFieldModalTypeSelect').val();
+
+            // translate access and type
+            let readonly: boolean = access === 'readonly';
+            let realType: Eagle.DataType = Utils.translateStringToDataType(type);
+
+            let newField = new Field(text, name, value, description, readonly, realType);
+
+            callback(true, newField);
         });
     }
 
@@ -590,13 +766,19 @@ export class Utils {
         $('#confirmModal').modal();
     }
 
-    static requestUserGitCommit(service : Eagle.RepositoryService, repositories: string[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ){
+    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ){
         console.log("requestUserGitCommit()");
 
         $('#gitCommitModal').data('completed', false);
         $('#gitCommitModal').data('callback', callback);
         $('#gitCommitModal').data('repositories', repositories);
         $('#gitCommitModal').modal();
+
+        //
+        let defaultRepositoryService: Eagle.RepositoryService = Eagle.RepositoryService.Unknown;
+        if (defaultRepository !== null){
+            defaultRepositoryService = defaultRepository.service;
+        }
 
         // remove existing options from the repository service select tag
         $('#gitCommitModalRepositoryServiceSelect').empty();
@@ -605,23 +787,81 @@ export class Utils {
         $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
             value: Eagle.RepositoryService.GitHub,
             text: Eagle.RepositoryService.GitHub,
-            selected: service === Eagle.RepositoryService.GitHub
+            selected: defaultRepositoryService === Eagle.RepositoryService.GitHub
         }));
         $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
             value: Eagle.RepositoryService.GitLab,
             text: Eagle.RepositoryService.GitLab,
-            selected: service === Eagle.RepositoryService.GitLab
+            selected: defaultRepositoryService === Eagle.RepositoryService.GitLab
         }));
 
-        Utils.updateGitCommitRepositoriesList(repositories);
+        Utils.updateGitCommitRepositoriesList(repositories, defaultRepository);
 
         // pre-selected the currently selected index
         //$('#gitCommitModalRepositorySelect').val(selectedChoiceIndex);
 
         $('#gitCommitModalFilePathInput').val(filePath);
         $('#gitCommitModalFileNameInput').val(fileName);
+    }
 
+    static requestUserEditField(field: Field, callback: (completed: boolean, field: Field) => void){
+        console.log("requestUserEditField()");
 
+        // populate UI with current field data
+        $('#editFieldModalTextInput').val(field.getText());
+        $('#editFieldModalNameInput').val(field.getName());
+        $('#editFieldModalValueInput').val(field.getValue());
+        $('#editFieldModalDescriptionInput').val(field.getDescription());
+        $('#editFieldModalAccessSelect').empty();
+
+        // add options to the access select tag
+        $('#editFieldModalAccessSelect').append($('<option>', {
+            value: "readonly",
+            text: "readonly",
+            selected: field.isReadonly()
+        }));
+        $('#editFieldModalAccessSelect').append($('<option>', {
+            value: "readwrite",
+            text: "readwrite",
+            selected: !field.isReadonly()
+        }));
+
+        $('#editFieldModalTypeSelect').empty();
+        // TODO: we should iterate through the values in the Eagle.DataType enum, rather than hard-code each type
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Integer",
+            text: "Integer",
+            selected: field.getType() === Eagle.DataType.Integer
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Float",
+            text: "Float",
+            selected: field.getType() === Eagle.DataType.Float
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "String",
+            text: "String",
+            selected: field.getType() === Eagle.DataType.String
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Boolean",
+            text: "Boolean",
+            selected: field.getType() === Eagle.DataType.Boolean
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Complex",
+            text: "Complex",
+            selected: field.getType() === Eagle.DataType.Complex
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Unknown",
+            text: "Unknown",
+            selected: field.getType() === Eagle.DataType.Unknown
+        }));
+
+        $('#editFieldModal').data('completed', false);
+        $('#editFieldModal').data('callback', callback);
+        $('#editFieldModal').modal();
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void){
@@ -635,15 +875,22 @@ export class Utils {
         $('#gitCustomRepositoryModal').modal();
     }
 
-    static updateGitCommitRepositoriesList(repositories : string[]){
+    static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository){
         // remove existing options from the repository name select tag
         $('#gitCommitModalRepositoryNameSelect').empty();
 
         // add options to the repository name select tag
         for (var i = 0 ; i < repositories.length ; i++){
+            // check if this repository matches the given default repository
+            let isDefault: boolean = false;
+            if (defaultRepository !== null){
+                isDefault = (repositories[i].name === defaultRepository.name) && (repositories[i].branch === defaultRepository.branch) && (repositories[i].service === defaultRepository.service);
+            }
+
             $('#gitCommitModalRepositoryNameSelect').append($('<option>', {
                 value: i,
-                text: repositories[i]
+                text: repositories[i].getNameAndBranch(),
+                selected: isDefault
             }));
         }
     }
@@ -670,14 +917,6 @@ export class Utils {
                 }
             }
 
-            // add input local port names into the list
-            for (var j = 0; j < node.getInputLocalPorts().length; j++) {
-                let port : Port = node.getInputLocalPorts()[j];
-                if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
-                }
-            }
-
             // add output port names into the list
             for (var j = 0; j < node.getOutputPorts().length; j++) {
                 let port : Port = node.getOutputPorts()[j];
@@ -686,11 +925,60 @@ export class Utils {
                 }
             }
 
-            // add output local port names into the list
-            for (var j = 0; j < node.getOutputLocalPorts().length; j++) {
-                let port : Port = node.getOutputLocalPorts()[j];
-                if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
+            // add input application input and output ports
+            if (node.hasInputApplication()){
+                // input ports
+                for (var j = 0; j < node.getInputApplication().getInputPorts().length; j++) {
+                    let port : Port = node.getInputApplication().getInputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+
+                // output ports
+                for (var j = 0; j < node.getInputApplication().getOutputPorts().length; j++) {
+                    let port : Port = node.getInputApplication().getOutputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+            }
+
+            // add output application input and output ports
+            if (node.hasOutputApplication()){
+                // input ports
+                for (var j = 0; j < node.getOutputApplication().getInputPorts().length; j++) {
+                    let port : Port = node.getOutputApplication().getInputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+
+                // output ports
+                for (var j = 0; j < node.getOutputApplication().getOutputPorts().length; j++) {
+                    let port : Port = node.getOutputApplication().getOutputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+            }
+
+            // add exit application input and output ports
+            if (node.hasExitApplication()){
+                // input ports
+                for (var j = 0; j < node.getExitApplication().getInputPorts().length; j++) {
+                    let port : Port = node.getExitApplication().getInputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
+                }
+
+                // output ports
+                for (var j = 0; j < node.getExitApplication().getOutputPorts().length; j++) {
+                    let port : Port = node.getExitApplication().getOutputPorts()[j];
+                    if (!port.isEvent()) {
+                        allPortNames.push(port.getName());
+                    }
                 }
             }
         }
@@ -731,85 +1019,11 @@ export class Utils {
     }
 
     static isKnownCategory(category : string) : boolean {
-        return category === Eagle.Category.BashShellApp ||
-        category === Eagle.Category.Comment ||
-        category === Eagle.Category.Description ||
-        category === Eagle.Category.Docker ||
-        category === Eagle.Category.DynlibApp ||
-        category === Eagle.Category.End ||
-        category === Eagle.Category.ExclusiveForceNode ||
-        category === Eagle.Category.File ||
-        category === Eagle.Category.Gather ||
-        category === Eagle.Category.GroupBy ||
-        category === Eagle.Category.Loop ||
-        category === Eagle.Category.Memory ||
-        category === Eagle.Category.MKN ||
-        category === Eagle.Category.MPI ||
-        category === Eagle.Category.NGAS ||
-        category === Eagle.Category.None ||
-        category === Eagle.Category.PythonApp ||
-        category === Eagle.Category.S3 ||
-        category === Eagle.Category.Scatter ||
-        category === Eagle.Category.Service ||
-        category === Eagle.Category.Variables ||
-        category === Eagle.Category.Branch ||
-        category === Eagle.Category.Start ||
-        category === Eagle.Category.Unknown;
+        return typeof Eagle.cData[category] !== 'undefined';
     }
 
     static getColorForNode(category : Eagle.Category) : string {
-        switch (category){
-            case Eagle.Category.Start:
-                return "#229954";
-            case Eagle.Category.End:
-                return "#CB4335";
-            case Eagle.Category.Comment:
-                return "#799938";
-            case Eagle.Category.Description:
-                return "#9B3065";
-            case Eagle.Category.PythonApp:
-            case "Component":
-                return "#3498DB";
-            case Eagle.Category.BashShellApp:
-                return "#1C2833";
-            case Eagle.Category.DynlibApp:
-                return "#3470AA";
-            case Eagle.Category.MPI:
-                return "#1E90FF";
-            case Eagle.Category.Docker:
-                return "#331C54";
-            case Eagle.Category.GroupBy:
-                return "#7F8C8D";
-            case Eagle.Category.Scatter:
-                return "#DDAD00";
-            case Eagle.Category.Gather:
-                return "#D35400";
-            case Eagle.Category.MKN:
-                return "#D32000";
-            case Eagle.Category.Loop:
-                return "#512E5F";
-            case Eagle.Category.Memory:
-                return "#394BB2";
-            case Eagle.Category.File:
-                return "#394BB2";
-            case Eagle.Category.S3:
-                return "#394BB2";
-            case Eagle.Category.NGAS:
-                return "#394BB2";
-            case Eagle.Category.Service:
-                return "#EB1672";
-            case Eagle.Category.ExclusiveForceNode:
-                return "#000000";
-            case Eagle.Category.Branch:
-                return "#00BDA1"
-            case Eagle.Category.Variables:
-                return "#C10000";
-            case Eagle.Category.Unknown:
-                return "#FF66CC";
-            default:
-                console.warn("No color for node with category", category);
-                return "";
-        }
+        return Eagle.getCategoryData(category).color;
     }
 
     static saveAsPNG(selector: string, filename: string) : void {
@@ -934,6 +1148,25 @@ export class Utils {
         }
 
         return result;
+    }
+
+    // check if a node already exists in a palette, if so replace the node with the new one
+    // otherwise, add the node to the end of the palette
+    static addOrUpdateNodeInPalette(palette: Palette, node: Node): void {
+        // try to find a matching node that already exists in the palette
+        // TODO: at the moment, we only match by name and category, but we should match by ID (once the ID is unique)
+        for (let i = 0 ; i < palette.getNodes().length; i++){
+            let paletteNode = palette.getNodes()[i];
+
+            if (paletteNode.getName() === node.getName() && paletteNode.getCategory() === node.getCategory()){
+                palette.getNodes()[i] = node;
+                //console.log("Replace node", node.getName(), "in destination palette", palette.fileInfo().name);
+                return;
+            }
+        }
+
+        //console.log("Copy node", node.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
+        palette.addNode(node);
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {

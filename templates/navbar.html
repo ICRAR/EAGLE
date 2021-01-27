@@ -108,6 +108,7 @@
                     <a class="dropdown-item" id="navbarIntroduction" href="#" data-bind="click: function(){runTutorial('nav.navbar');}">Navbar Introduction</a>
                     <a class="dropdown-item" id="onlineHelp" href="#" data-bind="click: onlineHelp">Online Help</a>
                     <a class="dropdown-item" id="readme" href="#" data-bind="click: readme">GitHub README</a>
+                    <a class="dropdown-item" id="submitIssue" href="#" data-bind="click: submitIssue">Submit Issue</a>
                 </div>
             </li>
         </ul>
@@ -129,14 +130,23 @@
                         <i class="material-icons md-18">grid_on</i>
                     </button>
                     -->
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Save as PNG" data-bind="click: saveAsPNG">
+                    <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Save as PNG" data-bind="click: saveAsPNG">
                         <i class="material-icons md-18">image</i>
                     </button>
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Center Graph" data-bind="click: centerGraph">
+                    <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Center Graph" data-bind="click: centerGraph">
                         <i class="material-icons md-18">filter_center_focus</i>
                     </button>
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Open Settings" data-bind="click: openSettings">
+                    <button id="openSettings" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Open Settings" data-bind="click: openSettings">
                         <i class="material-icons md-18">settings</i>
+                    </button>
+                    <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Add Graph Nodes to Palette" data-bind="click: addGraphNodesToPalette">
+                        <i class="material-icons md-18">palette</i>
+                    </button>
+                    <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Groups" data-bind="click: toggleCollapseAllGroups">
+                        <i class="material-icons md-18">tab_unselected</i>
+                    </button>
+                    <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Nodes" data-bind="click: toggleCollapseAllNodes">
+                        <i class="material-icons md-18">vertical_align_center</i>
                     </button>
                 </div>
             </form>

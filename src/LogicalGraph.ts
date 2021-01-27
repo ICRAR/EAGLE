@@ -93,6 +93,9 @@ export class LogicalGraph {
             result.nodes.push(Node.fromOJSJson(nodeData));
         }
 
+        // set keys for all embedded nodes
+        Utils.setEmbeddedApplicationNodeKeys(result);
+
         // make sure to set parentId for all nodes
         for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
@@ -108,7 +111,7 @@ export class LogicalGraph {
             var linkData = dataObject.linkDataArray[i];
 
             // find source node
-            var srcNode : Node  = result.nodes[GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, linkData.from)];
+            let srcNode : Node = result.findNodeByKey(linkData.from);
 
             // abort if source node not found
             if (typeof srcNode === 'undefined'){
@@ -130,7 +133,7 @@ export class LogicalGraph {
             }
 
             // find destination node
-            var destNode : Node  = result.nodes[GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, linkData.to)];
+            let destNode : Node = result.findNodeByKey(linkData.to);
 
             // abort if dest node not found
             if (typeof destNode === 'undefined'){
@@ -275,14 +278,15 @@ export class LogicalGraph {
         return result;
     }
 
-    addNode = (node : Node, callback : (node: Node) => void) : void => {
-        console.log("addNode()", node.getName());
+    addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
+        //console.log("addNode()", node.getName());
 
         // copy node
         var newNode : Node = node.clone();
 
         // set appropriate key for node (one that is not already in use)
         newNode.setKey(Utils.newKey(this.getNodes()));
+        newNode.setPosition(x, y);
 
         // convert start of end nodes to data components
         if (node.getCategory() === Eagle.Category.Start || node.getCategory() === Eagle.Category.End) {
@@ -317,6 +321,17 @@ export class LogicalGraph {
             });
         } else {
             this.nodes.push(newNode);
+
+            // set new keys for embedded applications within node
+            if (newNode.hasInputApplication()){
+                newNode.getInputApplication().setKey(Utils.newKey(this.getNodes()));
+            }
+            if (newNode.hasOutputApplication()){
+                newNode.getOutputApplication().setKey(Utils.newKey(this.getNodes()));
+            }
+            if (newNode.hasExitApplication()){
+                newNode.getExitApplication().setKey(Utils.newKey(this.getNodes()));
+            }
 
             // flag that the logical graph has been modified
             this.fileInfo().modified = true;
@@ -384,10 +399,35 @@ export class LogicalGraph {
 
     findNodeByKey = (key : number) : Node => {
         for (var i = this.nodes.length - 1; i >= 0 ; i--){
+
+            // check if the node itself has a matching key
             if (this.nodes[i].getKey() === key){
                 return this.nodes[i];
             }
+
+            // check if the node's inputApp has a matching key
+            if (this.nodes[i].hasInputApplication()){
+                if (this.nodes[i].getInputApplication().getKey() === key){
+                    return this.nodes[i].getInputApplication();
+                }
+            }
+
+            // check if the node's outputApp has a matching key
+            if (this.nodes[i].hasOutputApplication()){
+                if (this.nodes[i].getOutputApplication().getKey() === key){
+                    return this.nodes[i].getOutputApplication();
+                }
+            }
+
+            // check if the node's exitApp has a matching key
+            if (this.nodes[i].hasExitApplication()){
+                if (this.nodes[i].getExitApplication().getKey() === key){
+                    return this.nodes[i].getExitApplication();
+                }
+            }
         }
+
+        console.warn("findNodeByKey(): could not find node with key (", key, ")");
         return null;
     }
 
@@ -461,10 +501,10 @@ export class LogicalGraph {
 
                 // add input port and output port for dataType (if they don't exist)
                 if (!newNode.hasPortWithName(dataType, true, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false), true);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, srcPort.getType()), true);
                 }
                 if (!newNode.hasPortWithName(dataType, false, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false), false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, destPort.getType()), false);
                 }
 
                 // set the parent of the new node
