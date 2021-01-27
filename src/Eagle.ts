@@ -2439,20 +2439,11 @@ export class Eagle {
         this.selectedNode(this.selectedNode().getExitApplication());
     }
 
-    editField = (fieldIndex: number, fieldType: Eagle.FieldType, input: boolean): void => {
-        console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "fieldType", fieldType, "input", input);
+    editField = (fieldIndex: number, input: boolean): void => {
+        console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
         // get a reference to the field we are editing
-        let field: Field;
-        if (fieldType === Eagle.FieldType.Field){
-            field = this.selectedNode().getFields()[fieldIndex];
-        } else {
-            if (input){
-                field = this.selectedNode().getInputApplication().getFields()[fieldIndex];
-            } else {
-                field = this.selectedNode().getOutputApplication().getFields()[fieldIndex];
-            }
-        }
+        let field: Field = this.selectedNode().getFields()[fieldIndex];
 
         Utils.requestUserEditField(field, (completed : boolean, newField: Field) => {
             // abort if the user aborted
@@ -2470,8 +2461,8 @@ export class Eagle {
         });
     }
 
-    showFieldValuePicker = (fieldIndex : number, fieldType : Eagle.FieldType, input : boolean) : void => {
-        console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "fieldType", fieldType, "input", input);
+    showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
+        console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
         // get the key for the currently selected node
         var selectedNodeKey : number = this.selectedNode().getKey();
@@ -2514,16 +2505,8 @@ export class Eagle {
                 newValue = "%o[" + key + "]";
             }
 
-            // update the correct field based on type and input
-            if (fieldType === Eagle.FieldType.Field){
-                this.selectedNode().getFields()[fieldIndex].setValue(newValue);
-            } else {
-                if (input){
-                    this.selectedNode().getInputApplication().getFields()[fieldIndex].setValue(newValue);
-                } else {
-                    this.selectedNode().getOutputApplication().getFields()[fieldIndex].setValue(newValue);
-                }
-            }
+            // update the correct field
+            this.selectedNode().getFields()[fieldIndex].setValue(newValue);
 
             this.hackNodeUpdate();
         });
@@ -2735,11 +2718,6 @@ export namespace Eagle
         Invalid,
         Warning,
         Valid
-    }
-
-    export enum FieldType {
-        Field,
-        AppField
     }
 
     export type DataType = string;

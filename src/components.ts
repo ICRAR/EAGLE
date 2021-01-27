@@ -38,12 +38,10 @@ ko.components.register('repository', {
     template: { require: "text!static/components/repository.html" }
 });
 
-// custom component for a field (or appField)
+// custom component for a field
 ko.components.register('field', {
-    viewModel: function(params : {data : any, type : any, input : boolean}){
+    viewModel: function(params : {data : any}){
         var vm = params.data;
-        vm._type = params.type;
-        vm.input = params.input;
         return vm;
     },
     template: { require: "text!static/components/field.html" }
