@@ -122,6 +122,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, true));
         Eagle.settings.push(new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""));
         Eagle.settings.push(new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, ""));
+        Eagle.settings.push(new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -507,15 +508,28 @@ export class Eagle {
 
         console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
 
+        // get json for logical graph
+        let json = LogicalGraph.toOJSJson(this.logicalGraph());
+
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
+        }
+
         this.translator().submit(translatorURL, {
             algo: Config.translationAlgorithms[algorithmIndex],
             lg_name: this.logicalGraph().fileInfo().name,
-            json_data: JSON.stringify(LogicalGraph.toOJSJson(this.logicalGraph()))
+            json_data: JSON.stringify(json)
         });
 
         console.log("json data");
         console.log("---------");
-        console.log(LogicalGraph.toOJSJson(this.logicalGraph()));
+        console.log(json);
         console.log("---------");
     }
 
@@ -754,6 +768,15 @@ export class Eagle {
             json = Palette.toOJSJson(p_clone);
         }
 
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
+        }
 
         Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
             if (error != null){
@@ -997,6 +1020,16 @@ export class Eagle {
             json = Palette.toOJSJson(this.editorPalette());
         }
 
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
+        }
+
         var jsonData : object = {
             jsonData: json,
             repositoryBranch: repository.branch,
@@ -1020,6 +1053,16 @@ export class Eagle {
         this.logicalGraph().fileInfo().updateEagleInfo();
 
         var json = LogicalGraph.toV3Json(this.logicalGraph());
+
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.V3, Eagle.FileType.Graph);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
+        }
 
         Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
             if (error != null){
@@ -1097,6 +1140,26 @@ export class Eagle {
             builtinPalette.fileInfo().clear();
             builtinPalette.fileInfo().name = Palette.BUILTIN_PALETTE_NAME;
             this.palettes.push(builtinPalette);
+        });
+    }
+
+    loadSchemas = () => {
+        console.log("loadSchemas()");
+
+        Utils.httpGet("./static/" + Config.graphSchemaFileName, (error : string, data : string) => {
+            if (error !== null){
+                console.error(error);
+                return;
+            }
+
+            Utils.ojsGraphSchema = JSON.parse(data);
+
+            // NOTE: in the short-term we'll just use the graph schema for palettes
+            //       both file formats are base on the OJS format, so they are similar
+            Utils.ojsPaletteSchema = JSON.parse(data);
+
+            // NOTE: we don't have a schema for the V3 version
+            Utils.v3GraphSchema = JSON.parse(data);
         });
     }
 
@@ -2700,6 +2763,7 @@ export namespace Eagle
     }
 
     export enum DALiuGESchemaVersion {
+        OJS,
         V3
     }
 

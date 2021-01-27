@@ -9,6 +9,7 @@ require.config({
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
         "introjs": "./static/externals/intro.min",
         "d3": "./static/externals/d3.v5.min",
+        "ajv": "./static/externals/ajv.min",
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
         "bindingHandlers/graphRenderer":"./static/built/bindingHandlers/graphRenderer",

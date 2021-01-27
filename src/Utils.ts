@@ -22,6 +22,8 @@
 #
 */
 
+import * as Ajv from "ajv";
+
 import {Config} from './Config';
 
 import {Eagle} from './Eagle';
@@ -65,6 +67,11 @@ export class Utils {
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
 
     static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
+    static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
+
+    static ojsGraphSchema : object = {};
+    static ojsPaletteSchema : object = {};
+    static v3GraphSchema : object = {};
 
     /**
      * Generates a UUID.
@@ -264,7 +271,7 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static translateFileTypeToString(fileType : Eagle.FileType){
+    static translateFileTypeToString(fileType : Eagle.FileType) : string {
         if (fileType === Eagle.FileType.Graph)
             return "graph";
         if (fileType === Eagle.FileType.Palette)
@@ -314,6 +321,15 @@ export class Utils {
 
         console.warn("Unknown DataType", dataType);
         return Eagle.DataType.Unknown;
+    }
+
+    static translateVersionToString(version : Eagle.DALiuGESchemaVersion) : string {
+        if (version === Eagle.DALiuGESchemaVersion.OJS)
+            return "ojs";
+        if (version === Eagle.DALiuGESchemaVersion.V3)
+            return "v3";
+
+        return "";
     }
 
     static httpGet(url : string, callback : (error : string, data : string) => void){
@@ -1152,5 +1168,42 @@ export class Utils {
 
         //console.log("Copy node", node.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
         palette.addNode(node);
+    }
+
+    static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {
+        console.log("validateJSON(): version:", Utils.translateVersionToString(version), "fileType:", Utils.translateFileTypeToString(fileType));
+
+        var ajv = new Ajv();
+        let valid : boolean;
+
+        switch(version){
+            case Eagle.DALiuGESchemaVersion.OJS:
+                switch(fileType){
+                    case Eagle.FileType.Graph:
+                        valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
+                        break;
+                    case Eagle.FileType.Palette:
+                        valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
+                        break;
+                    default:
+                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        valid = true;
+                        break;
+                }
+                break;
+            case Eagle.DALiuGESchemaVersion.V3:
+                switch(fileType){
+                    case Eagle.FileType.Graph:
+                        valid = ajv.validate(Utils.v3GraphSchema, json) as boolean;
+                        break;
+                    default:
+                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        valid = true;
+                        break;
+                }
+                break;
+        }
+
+        return valid;
     }
 }
