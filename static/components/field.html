@@ -1,9 +1,12 @@
 <div class="input-group mb-1">
-    <div class="input-group-prepend">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index(), title:'Remove parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
-            <i class="material-icons md-18">remove</i>
-        </button>
-    </div>
+
+    <!-- ko ifnot: $root.selectedNode().isLocked() -->
+        <div class="input-group-prepend">
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index(), title:'Remove parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
+                <i class="material-icons md-18">remove</i>
+            </button>
+        </div>
+    <!-- /ko -->
 
     <div class="input-group-prepend">
         <span class="input-group-text mw-140" id="group-addon" data-bind="text: $data.text, attr: {title: $data.getDescriptionText()}" data-toggle="tooltip" data-html="true" data-placement="left"></span>
