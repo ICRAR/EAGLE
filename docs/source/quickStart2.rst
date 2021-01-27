@@ -6,7 +6,7 @@ Here are some step-by-step instructions and videos to help you get up and runnin
 Loading a Palette
 -----------------
 
-EAGLE workflows are made up of :doc:`components <components>` that represent executable code or data that will be called when the graph is translated and executed. To simplify the process of creating a workflow, multiple components may be collected together in a :doc:`palette <palettes>` designed for a certain domain, such as Radio Astronomy.
+EAGLE workflows are made up of :doc:`components <components>` that represent executable code or data that will be called when the graph is executed. To simplify the process of creating a workflow, multiple components may be collected together in a :doc:`palette <palettes>` designed for a certain domain, such as Radio Astronomy.
 
 To load a palette from a GitHub repository, you first need to create a GitHub Personal Access Token. The steps required are demonstrated in this video.
 
@@ -21,7 +21,7 @@ You can begin creating a new graph by using the "New" menu and selecting "Create
 * Components processed by each node on the cluster are set as parents, with components processed by GPUs on each node set as children.
 * Selecting "Memory" for Data Components minimises the number of times data is moved around.
 
-The following video provides a walkthrough for the creation of a specific graph, showing many of the features used to construct a workflow in EAGLE.
+The following video provides a walkthrough for the creation of a specific graph, showing many of the features used to construct a workflow in EAGLE. A video providing a brief background overview of this workflow `may be viewed here <https://vimeo.com/458850054>`_, with a more detailed presentation `available here <https://vimeo.com/481476735>`_.
 
 .. raw:: html
     :file: _static/video2.html

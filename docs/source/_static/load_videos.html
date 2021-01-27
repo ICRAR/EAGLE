@@ -18,10 +18,10 @@ function displayChapters(locationList, video, trackElement){
         var cue = textTrack.cues[i],
         chapterName = cue.text,
         start = cue.startTime,
-        <!-- end = cue.endTime, -->
+        cue_end = cue.endTime,
         newLocale = document.createElement("li"),
         location = document.createElement("a");
-        location.className = "chapLink " + start;
+        location.className = "chapLink " + start + " " + cue_end;
         // location.setAttribute('id', start);
         location.setAttribute('tabindex', '0');
         var localeStart = document.createElement("div");
@@ -36,7 +36,20 @@ function displayChapters(locationList, video, trackElement){
         location.addEventListener("click",
           function() {
             video.currentTime = this.classList[1];
+            cue_end = this.classList[2];
             video.play();
+
+            //Make the video pause at the correct time
+            var pausing_function = function(){
+              if(this.currentTime >= cue_end) {
+                this.pause();
+
+                // remove the event listener after you paused the playback
+                this.removeEventListener("timeupdate",pausing_function);
+              }
+            };
+
+            video.addEventListener("timeupdate", pausing_function);
           },
           false);
         }

@@ -11,10 +11,11 @@ Welcome to EAGLE's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   Quick Start Guide <quickStart2>
+   Hello World Example <helloWorld>
    Components <components>
    Palettes <palettes>
 .. Modules <modules>
+.. Quick Start Guide <quickStart2>
 
 .. Indices and tables
 .. ==================
