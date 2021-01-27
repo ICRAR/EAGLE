@@ -284,6 +284,10 @@ export class Node {
         this.flipPorts = !this.flipPorts;
     }
 
+    isReadonly = (): boolean => {
+        return this.readonly;
+    }
+
     getInputPorts = () : Port[] => {
         return this.inputPorts();
     }
@@ -449,6 +453,20 @@ export class Node {
 
     canHaveParameters = () : boolean => {
         return Eagle.getCategoryData(this.category).canHaveParameters;
+    }
+
+    getFieldReadonly = (index: number) : boolean => {
+        console.assert(index < this.fields().length);
+
+        let field: Field = this.fields()[index];
+
+        // modify using settings and node readonly
+        let allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
+        let result = field.isReadonly() && this.readonly && !allowParam;
+
+        //console.log("getFieldReadonly()", index, "field.readonly", field.isReadonly(), "node.readonly", this.readonly, "allowParam", allowParam, "result", result);
+
+        return result;
     }
 
     getHelpHTML = () : string => {

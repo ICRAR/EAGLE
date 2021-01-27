@@ -91,7 +91,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -155,7 +156,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -232,7 +234,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -333,7 +336,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -405,7 +409,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         }
     ],
     "linkDataArray": []

@@ -19,7 +19,8 @@
             "text": "Start",
             "description": "The starting point for workflow execution",
             "categoryType": "Control",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "End",
@@ -29,7 +30,8 @@
             "text": "End",
             "description": "The end of workflow execution",
             "categoryType": "Control",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "BashShellApp",
@@ -57,7 +59,8 @@
             "text": "Bash Shell App",
             "description": "An application component run within the Bash Shell",
             "categoryType": "Application",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "DynlibApp",
@@ -84,7 +87,8 @@
             "text": "Dynlib App",
             "description": "An application component run from a dynamic library",
             "categoryType": "Application",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "Mpi",
@@ -111,7 +115,8 @@
             "text": "MPI",
             "description":"An application component using the Message Passing Interface (MPI)",
             "categoryType": "Application",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "Docker",
@@ -158,7 +163,8 @@
             "text": "Docker",
             "description":"An application component run from a Docker image",
             "categoryType": "Application",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "PythonApp",
@@ -186,7 +192,8 @@
                 "description": "The python class that implements this application"
             }],
             "categoryType": "Application",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "Memory",
@@ -204,7 +211,8 @@
             "key": -4,
             "text": "Memory",
             "categoryType": "Data",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "File",
@@ -234,7 +242,8 @@
             "key": -5,
             "text": "File",
             "categoryType": "Data",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "S3",
@@ -267,7 +276,8 @@
             "key": -6,
             "text": "S3",
             "categoryType": "Data",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "NGAS",
@@ -295,7 +305,8 @@
             "key": -7,
             "text": "NGAS",
             "categoryType": "Data",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "GroupBy",
@@ -315,7 +326,8 @@
                 "name": "group_axis",
                 "value": "frequency"
             }],
-            "categoryType": "Group"
+            "categoryType": "Group",
+            "readonly": false
         },
         {
             "category": "Gather",
@@ -335,7 +347,8 @@
                 "name": "gather_axis",
                 "value": "frequency"
             }],
-            "categoryType": "Group"
+            "categoryType": "Group",
+            "readonly": false
         },
         {
             "category": "Scatter",
@@ -355,7 +368,8 @@
                 "name": "scatter_axis",
                 "value": "time"
             }],
-            "categoryType": "Group"
+            "categoryType": "Group",
+            "readonly": false
         },
         {
             "category": "MKN",
@@ -379,7 +393,8 @@
                 "name": "n",
                 "value": "1"
             }],
-            "categoryType": "Group"
+            "categoryType": "Group",
+            "readonly": false
         },
         {
             "category": "Loop",
@@ -395,7 +410,8 @@
                 "name": "num_of_iter",
                 "value": "5"
             }],
-            "categoryType": "Group"
+            "categoryType": "Group",
+            "readonly": false
         },
         {
             "category": "Service",
@@ -407,7 +423,8 @@
             "outputPorts": [],
             "key": -19,
             "fields": [],
-            "categoryType": "Other"
+            "categoryType": "Other",
+            "readonly": false
         },
         {
             "category": "Comment",
@@ -423,7 +440,8 @@
             "text": "Comment",
             "description": "A node that places a comment in the graph. The comment can be used to communicate important information or intention",
             "categoryType": "Other",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "Description",
@@ -438,7 +456,8 @@
             "text": "Description",
             "description": "A node that places a description in the graph. The description should be used to communicate the purpose of the graph",
             "categoryType": "Other",
-            "inputPorts": []
+            "inputPorts": [],
+            "readonly": false
         },
         {
             "category": "ExclusiveForceNode",
@@ -450,7 +469,8 @@
             "outputPorts": [],
             "key": -19,
             "fields": [],
-            "categoryType": "Control"
+            "categoryType": "Control",
+            "readonly": false
         },
         {
             "category": "Variables",
@@ -462,7 +482,8 @@
             "outputPorts": [],
             "key": -22,
             "fields": [],
-            "categoryType": "Other"
+            "categoryType": "Other",
+            "readonly": false
         },
         {
             "category": "Branch",
@@ -492,7 +513,8 @@
                 "value": "dlg.apps.simple.BranchBaseApp",
                 "description": "The python class that implements this branch"
             }],
-            "categoryType": "Control"
+            "categoryType": "Control",
+            "readonly": false
         }
     ],
     "linkDataArray": []

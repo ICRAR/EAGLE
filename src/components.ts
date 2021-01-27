@@ -1,6 +1,3 @@
-import {Utils} from './Utils';
-import {Eagle} from './Eagle';
-
 import * as ko from "knockout";
 
 ko.components.register('repository-file', {
@@ -40,8 +37,9 @@ ko.components.register('repository', {
 
 // custom component for a field
 ko.components.register('field', {
-    viewModel: function(params : {data : any}){
+    viewModel: function(params : {data : any, ro: boolean}){
         var vm = params.data;
+        vm.ro = params.ro;
         return vm;
     },
     template: { require: "text!static/components/field.html" }
