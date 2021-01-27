@@ -665,7 +665,7 @@ export class Eagle {
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
-            var node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other);
+            var node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
             let pos = this.getNewNodePosition();
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.logicalGraph().addNode(node, pos.x, pos.y, null);
@@ -682,19 +682,19 @@ export class Eagle {
             this.editorPalette(new Palette());
             this.editorPalette().fileInfo().name = name;
 
-            var startNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control);
+            var startNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control, false);
             startNode.setColor(Utils.getColorForNode(Eagle.Category.Start));
             this.editorPalette().addNode(startNode);
 
-            var endNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "End", "", Eagle.Category.End, Eagle.CategoryType.Control);
+            var endNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "End", "", Eagle.Category.End, Eagle.CategoryType.Control, false);
             endNode.setColor(Utils.getColorForNode(Eagle.Category.End));
             this.editorPalette().addNode(endNode);
 
-            var commentNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other);
+            var commentNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other, false);
             commentNode.setColor(Utils.getColorForNode(Eagle.Category.Comment));
             this.editorPalette().addNode(commentNode);
 
-            var descriptionNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other);
+            var descriptionNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
             descriptionNode.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.editorPalette().addNode(descriptionNode);
 
@@ -1072,6 +1072,7 @@ export class Eagle {
                 let palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", ""), false);
                 palette.fileInfo().clear();
                 palette.fileInfo().name = Palette.DYNAMIC_PALETTE_NAME;
+                palette.fileInfo().readonly = false;
                 this.palettes.push(palette);
                 this.leftWindowShown(true);
             }
@@ -2052,7 +2053,7 @@ export class Eagle {
 
         // check whether node already has maximum number of ports
         let maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxOutputs;
-        console.log("maxPorts", maxPorts, "currentPorts", node.getOutputPorts().length);
+        //console.log("maxPorts", maxPorts, "currentPorts", node.getOutputPorts().length);
         if (node.getOutputPorts().length >= maxPorts ){
             Utils.showUserMessage("Error", "This node may not contain more output ports. Maximum is " + maxPorts + " for " + node.getCategory() + " nodes.");
             return;
@@ -2438,20 +2439,11 @@ export class Eagle {
         this.selectedNode(this.selectedNode().getExitApplication());
     }
 
-    editField = (fieldIndex: number, fieldType: Eagle.FieldType, input: boolean): void => {
-        console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "fieldType", fieldType, "input", input);
+    editField = (fieldIndex: number, input: boolean): void => {
+        console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
         // get a reference to the field we are editing
-        let field: Field;
-        if (fieldType === Eagle.FieldType.Field){
-            field = this.selectedNode().getFields()[fieldIndex];
-        } else {
-            if (input){
-                field = this.selectedNode().getInputApplication().getFields()[fieldIndex];
-            } else {
-                field = this.selectedNode().getOutputApplication().getFields()[fieldIndex];
-            }
-        }
+        let field: Field = this.selectedNode().getFields()[fieldIndex];
 
         Utils.requestUserEditField(field, (completed : boolean, newField: Field) => {
             // abort if the user aborted
@@ -2469,8 +2461,8 @@ export class Eagle {
         });
     }
 
-    showFieldValuePicker = (fieldIndex : number, fieldType : Eagle.FieldType, input : boolean) : void => {
-        console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "fieldType", fieldType, "input", input);
+    showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
+        console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
         // get the key for the currently selected node
         var selectedNodeKey : number = this.selectedNode().getKey();
@@ -2513,16 +2505,8 @@ export class Eagle {
                 newValue = "%o[" + key + "]";
             }
 
-            // update the correct field based on type and input
-            if (fieldType === Eagle.FieldType.Field){
-                this.selectedNode().getFields()[fieldIndex].setValue(newValue);
-            } else {
-                if (input){
-                    this.selectedNode().getInputApplication().getFields()[fieldIndex].setValue(newValue);
-                } else {
-                    this.selectedNode().getOutputApplication().getFields()[fieldIndex].setValue(newValue);
-                }
-            }
+            // update the correct field
+            this.selectedNode().getFields()[fieldIndex].setValue(newValue);
 
             this.hackNodeUpdate();
         });
@@ -2734,11 +2718,6 @@ export namespace Eagle
         Invalid,
         Warning,
         Valid
-    }
-
-    export enum FieldType {
-        Field,
-        AppField
     }
 
     export type DataType = string;

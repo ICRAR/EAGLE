@@ -7,7 +7,8 @@
         "readonly": true,
         "filePath": "builtinPalette.json",
         "sha": "",
-        "git_url": ""
+        "git_url": "",
+        "readonly": true
     },
     "nodeDataArray": [
         {
@@ -90,7 +91,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -154,7 +156,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -231,7 +234,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -332,7 +336,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -404,7 +409,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         }
     ],
     "linkDataArray": []

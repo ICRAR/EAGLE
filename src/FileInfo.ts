@@ -16,6 +16,7 @@ export class FileInfo {
     private _modified : ko.Observable<boolean>;
     private _eagleVersion : ko.Observable<string>;
     private _eagleCommitHash : ko.Observable<string>;
+    private _readonly : ko.Observable<boolean>;
 
     constructor(){
         this._name = ko.observable("");
@@ -29,6 +30,7 @@ export class FileInfo {
         this._modified = ko.observable(false);
         this._eagleVersion = ko.observable("");
         this._eagleCommitHash = ko.observable("");
+        this._readonly = ko.observable(true);
     }
 
     get name() : string{
@@ -119,6 +121,14 @@ export class FileInfo {
         this._eagleCommitHash(hash);
     }
 
+    get readonly() : boolean{
+        return this._readonly();
+    }
+
+    set readonly(readonly : boolean){
+        this._readonly(readonly);
+    }
+
     clear = () : void => {
         this._name("");
         this._path("");
@@ -131,6 +141,7 @@ export class FileInfo {
         this._modified(false);
         this._eagleVersion("");
         this._eagleCommitHash("");
+        this._readonly(true);
     }
 
     clone = () : FileInfo => {
@@ -147,6 +158,7 @@ export class FileInfo {
         result.modified = this._modified();
         result.eagleVersion = this._eagleVersion();
         result.eagleCommitHash = this._eagleCommitHash();
+        result.readonly = this._readonly();
 
         return result;
     }
@@ -195,6 +207,7 @@ export class FileInfo {
         s += " Modified:" + this._modified();
         s += " EAGLE Version:" + this._eagleVersion();
         s += " EAGLE Commit Hash:" + this._eagleCommitHash();
+        s += " readonly:" + this._readonly();
 
         return s;
     }
@@ -209,7 +222,8 @@ export class FileInfo {
             sha: fileInfo.sha,
             git_url: fileInfo.gitUrl,
             eagleVersion: fileInfo.eagleVersion,
-            eagleCommitHash: fileInfo.eagleCommitHash
+            eagleCommitHash: fileInfo.eagleCommitHash,
+            readonly: fileInfo.readonly
         };
     }
 
@@ -228,6 +242,8 @@ export class FileInfo {
 
         result.eagleVersion = modelData.eagleVersion == undefined ? "" : modelData.eagleVersion;
         result.eagleCommitHash = modelData.eagleCommitHash == undefined ? "" : modelData.eagleCommitHash;
+
+        result.readonly = modelData.readonly == undefined ? true : modelData.readonly;
 
         return result;
     }
