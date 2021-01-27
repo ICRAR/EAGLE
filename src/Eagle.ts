@@ -118,6 +118,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Enable Palette Editor Mode", "Enable the palette editor mode in EAGLE.", Setting.Type.Boolean, Utils.ENABLE_PALETTE_EDITOR_MODE, false));
         Eagle.settings.push(new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false));
         Eagle.settings.push(new Setting("Allow Readonly Parameter Editing", "Allow the user to edit values of readonly parameters in components.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PARAMETER_EDITING, false));
+        Eagle.settings.push(new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false));
         Eagle.settings.push(new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"));
         Eagle.settings.push(new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, true));
         Eagle.settings.push(new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""));
@@ -511,11 +512,13 @@ export class Eagle {
         let json = LogicalGraph.toOJSJson(this.logicalGraph());
 
         // validate json
-        let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
-        if (!isValid){
-            console.error("JSON Invalid, saving anyway");
-            Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
-            //return;
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
         }
 
         this.translator().submit(translatorURL, {
@@ -766,11 +769,13 @@ export class Eagle {
         }
 
         // validate json
-        let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
-        if (!isValid){
-            console.error("JSON Invalid, saving anyway");
-            Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
-            //return;
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
         }
 
         Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
@@ -1016,11 +1021,13 @@ export class Eagle {
         }
 
         // validate json
-        let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
-        if (!isValid){
-            console.error("JSON Invalid, saving anyway");
-            Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
-            //return;
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
         }
 
         var jsonData : object = {
@@ -1048,11 +1055,13 @@ export class Eagle {
         var json = LogicalGraph.toV3Json(this.logicalGraph());
 
         // validate json
-        let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.V3, Eagle.FileType.Graph);
-        if (!isValid){
-            console.error("JSON Invalid, saving anyway");
-            Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
-            //return;
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.V3, Eagle.FileType.Graph);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
         }
 
         Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {

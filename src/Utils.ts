@@ -67,6 +67,7 @@ export class Utils {
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
 
     static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
+    static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
 
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};
