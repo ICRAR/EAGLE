@@ -659,6 +659,12 @@ export class Utils {
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
         $('#messageModal').modal();
+
+
+        // debug
+        if (title === "Error"){
+            Utils.addToHTMLElementLog(title + ":" + message);
+        }
     }
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger"){
@@ -677,6 +683,10 @@ export class Utils {
             } /*,
             delay:0 */
         });
+    }
+
+    static addToHTMLElementLog(message: string){
+        $('#htmlElementLog').text($('#htmlElementLog').text() + message + "\n");
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) {

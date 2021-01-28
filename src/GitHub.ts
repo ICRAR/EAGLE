@@ -129,6 +129,9 @@ export class GitHub {
 
             var fileNames : string[] = data[""];
 
+            // debug
+            Utils.addToHTMLElementLog("fileNames:" + fileNames);
+
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
 

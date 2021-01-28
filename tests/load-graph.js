@@ -19,7 +19,13 @@ test('Load graph', async t => {
         .wait(2000)
 
         .click('#ICRAR_EAGLE_test_repo')
-        .wait(12000)
+        .wait(12000);
+
+    await t
+        const log = await Selector("#htmlElementLog").innerText;
+        console.log("log:", log);
+
+    await t
         .click('#id_Vitaliy_long_graph')
         .wait(2000)
 
@@ -40,7 +46,13 @@ test('Load palette', async t => {
         .wait(2000)
 
         .click('#ICRAR_EAGLE_test_repo')
-        .wait(12000)
+        .wait(12000);
+
+    await t
+        const log = await Selector("#htmlElementLog").innerText;
+        console.log("log2:", log);
+
+    await t
         .click('#id_HelloWorld_palette')
         .wait(2000)
 
