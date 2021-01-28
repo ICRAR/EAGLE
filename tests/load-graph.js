@@ -3,16 +3,19 @@ import { Selector } from 'testcafe';
 var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 var SUCCESS_MESSAGE = "Success:";
 
-fixture `EAGLE`
+fixture `EAGLE Load Files`
     .page `http://localhost:8888/`
 
 test('Load graph', async t => {
     await t
         .wait(2000)
-        .click('#navbarDropdownGit')
-        .click('#setGitHubAccessToken')
-        .typeText(Selector('#inputModalInput'), EAGLE_GITHUB_ACCESS_TOKEN, {replace:true})
-        .click('#inputModal .modal-footer button')
+
+        // open settings
+        .click('#openSettings')
+
+        // enter the github access token
+        .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN)
+        .click('#settingsModal .modal-footer button')
 
         .click('#ICRAR_EAGLE_test_repo')
         .wait(2000)
@@ -26,11 +29,13 @@ test('Load graph', async t => {
 test('Load palette', async t => {
     await t
         .wait(2000)
-        .click('#navbarDropdownGit')
-        .click('#setGitHubAccessToken')
-        .wait(1000)
-        .typeText(Selector('#inputModalInput'), EAGLE_GITHUB_ACCESS_TOKEN, {replace:true})
-        .click('#inputModal .modal-footer button')
+
+        // open settings
+        .click('#openSettings')
+
+        // enter the github access token
+        .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN)
+        .click('#settingsModal .modal-footer button')
 
         .click('#ICRAR_EAGLE_test_repo')
         .wait(2000)
