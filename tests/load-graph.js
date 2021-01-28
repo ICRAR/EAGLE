@@ -16,6 +16,7 @@ test('Load graph', async t => {
         // enter the github access token
         .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN)
         .click('#settingsModal .modal-footer button')
+        .wait(2000)
 
         .click('#ICRAR_EAGLE_test_repo')
         .wait(2000)
@@ -36,7 +37,8 @@ test('Load palette', async t => {
         // enter the github access token
         .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN)
         .click('#settingsModal .modal-footer button')
-
+        .wait(2000)
+        
         .click('#ICRAR_EAGLE_test_repo')
         .wait(2000)
         .click('#id_HelloWorld_palette')
