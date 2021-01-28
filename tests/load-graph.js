@@ -19,7 +19,7 @@ test('Load graph', async t => {
         .wait(2000)
 
         .click('#ICRAR_EAGLE_test_repo')
-        .wait(2000)
+        .wait(12000)
         .click('#id_Vitaliy_long_graph')
         .wait(2000)
 
@@ -38,9 +38,9 @@ test('Load palette', async t => {
         .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN)
         .click('#settingsModal .modal-footer button')
         .wait(2000)
-        
+
         .click('#ICRAR_EAGLE_test_repo')
-        .wait(2000)
+        .wait(12000)
         .click('#id_HelloWorld_palette')
         .wait(2000)
 
