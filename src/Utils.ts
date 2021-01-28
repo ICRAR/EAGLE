@@ -345,7 +345,7 @@ export class Utils {
     }
 
     static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void){
-        console.log("httpPostJSON() : ", url);
+        console.log("httpGetJSON() : ", url);
         $.ajax({
             url : url,
             type : 'GET',
@@ -387,7 +387,11 @@ export class Utils {
                 callback(null, data);
             },
             error: function(xhr, status, error : string) {
-                callback(error, xhr.responseJSON.error);
+                if (typeof xhr.responseJSON === 'undefined'){
+                    callback(error, null);
+                } else {
+                    callback(error, xhr.responseJSON.error);
+                }
             }
         });
     }
