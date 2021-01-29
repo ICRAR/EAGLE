@@ -696,12 +696,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         } else {
             if (node.isBranch()){
-                if (portIndex === 0){
-                    return Eagle.Direction.Down;
-                }
-                if (portIndex === 1){
-                    return Eagle.Direction.Right;
-                }
+                return Eagle.Direction.Down;
             }
 
             if (portType === "input" || portType === "outputLocal"){
@@ -1779,12 +1774,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isBranch()){
-            if (index === 0){
-                return REAL_TO_DISPLAY_SCALE(200) / 2;
-            }
-            if (index === 1){
-                return REAL_TO_DISPLAY_SCALE(24);
-            }
+            let numPorts = node.getInputPorts().length;
+
+            return REAL_TO_DISPLAY_SCALE(100 - 76 * (index / (numPorts - 1)));
         }
 
         if (node.isFlipPorts()){
@@ -1803,13 +1795,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isBranch()){
-            if (index === 0){
-                return REAL_TO_DISPLAY_SCALE(24);
-            }
-            if (index === 1){
-                // TODO: magic number
-                return REAL_TO_DISPLAY_SCALE(54);
-            }
+            let numPorts = node.getInputPorts().length;
+
+            return REAL_TO_DISPLAY_SCALE(24 + 30 * (index / (numPorts - 1)));
         }
 
         return getPortPositionY(port, index);
@@ -1960,12 +1948,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isBranch()){
-            if (index === 0){
-                return REAL_TO_DISPLAY_SCALE(200) / 2;
-            }
-            if (index === 1){
-                return 0;
-            }
+            let numPorts = node.getInputPorts().length;
+
+            return REAL_TO_DISPLAY_SCALE(100 - 100 * (index / (numPorts - 1)));
         }
 
         if (node.isFlipPorts()){
@@ -1983,12 +1968,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isBranch()){
-            if (index === 0){
-                return 0;
-            }
-            if (index === 1){
-                return REAL_TO_DISPLAY_SCALE(100) / 2;
-            }
+            let numPorts = node.getInputPorts().length;
+
+            return REAL_TO_DISPLAY_SCALE(50 * (index / (numPorts - 1)));
         }
 
         return getPortCirclePositionY(port, index);
@@ -2455,13 +2437,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isBranch()){
             let portIndex = findNodePortIndex(node, edge.getDestPortId());
+            let numPorts = node.getInputPorts().length;
 
-            if (portIndex === 0){
-                return node.getPosition().x + node.getWidth()/2;
-            }
-            if (portIndex === 1){
-                return node.getPosition().x;
-            }
+            return node.getPosition().x + node.getWidth()/2 - node.getWidth()/2*(portIndex / (numPorts - 1));
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -2496,14 +2474,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isBranch()){
             let portIndex = findNodePortIndex(node, edge.getDestPortId());
+            let numPorts = node.getInputPorts().length;
 
-            if (portIndex === 0){
-                return node.getPosition().y;
-            }
-            if (portIndex === 1){
-                // TODO: magic number
-                return node.getPosition().y + 50;
-            }
+            return node.getPosition().y + 50*(portIndex / (numPorts - 1));
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
