@@ -2716,7 +2716,7 @@ export class Eagle {
         ExclusiveForceNode : {isData: false, isGroup: true, isResizable: true, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "picture_in_picture", color: "#000000"},
 
         Variables          : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
-        Branch             : {isData: false, isGroup: false, isResizable: false, maxInputs: 2, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
+        Branch             : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
 
         Unknown            : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "device_unknown", color: "#FF66CC"},
         None               : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block", color: "#FF66CC"}
