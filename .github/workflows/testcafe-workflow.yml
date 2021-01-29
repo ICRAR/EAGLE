@@ -27,4 +27,4 @@ jobs:
         env:
             EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
         with:
-            args: "chrome tests/simple.js tests/load-graph.js"
+            args: "chrome tests/simple.js"

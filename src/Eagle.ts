@@ -1354,7 +1354,7 @@ export class Eagle {
         openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
             var fileTypeLoaded : Eagle.FileType = Eagle.FileType.Unknown;
 
-            // flag fetching as incomplete
+            // flag fetching as complete
             file.isFetching(false);
 
             // display error if one occurred
