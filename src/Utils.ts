@@ -170,7 +170,7 @@ export class Utils {
                     let newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getInputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    //console.log("set node", nodes[i].getKey(), "exit input key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "input app key", newKey);
                 }
             }
 
@@ -180,7 +180,7 @@ export class Utils {
                     let newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getOutputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    //console.log("set node", nodes[i].getKey(), "output app key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "output app key", newKey);
                 }
             }
 
@@ -190,7 +190,7 @@ export class Utils {
                     let newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getExitApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    //console.log("set node", nodes[i].getKey(), "exit app key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "exit app key", newKey);
                 }
             }
         }

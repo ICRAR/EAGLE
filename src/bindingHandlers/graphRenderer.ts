@@ -2883,7 +2883,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var iterations = 0;
 
         while (true){
-            if (iterations > 10){
+            if (iterations > 32){
                 console.error("too many iterations in findAncestorCollapsedNode()");
                 return null;
             }
@@ -2900,8 +2900,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             //console.log("oldKey", oldKey);
             //console.log("parentKey", n.getParentKey());
 
-            // move up one level
-            n = findNodeWithKey(n.getParentKey(), nodeData);
+            // move up one level (preference using the node's embed key, then the parent key)
+            if (n.getEmbedKey() !== null){
+                n = findNodeWithKey(n.getEmbedKey(), nodeData);
+            } else {
+                n = findNodeWithKey(n.getParentKey(), nodeData);
+            }
 
             // if node is null, return "inline"
             if (n === null){
