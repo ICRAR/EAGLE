@@ -1204,6 +1204,20 @@ export class Node {
             node.drawOrderHint = nodeData.drawOrderHint;
         }
 
+        // keys for embedded applications
+        let inputApplicationKey: number = null;
+        let outputApplicationKey: number = null;
+        let exitApplicationKey: number = null;
+        if (typeof nodeData.inputApplicationKey !== 'undefined'){
+            inputApplicationKey = nodeData.inputApplicationKey;
+        }
+        if (typeof nodeData.outputApplicationKey !== 'undefined'){
+            outputApplicationKey = nodeData.outputApplicationKey;
+        }
+        if (typeof nodeData.exitApplicationKey !== 'undefined'){
+            exitApplicationKey = nodeData.exitApplicationKey;
+        }
+
         // debug
         //console.log("inputAppName", nodeData.inputAppName, "inputApplicationName", nodeData.inputApplicationName);
         //console.log("outputAppName", nodeData.outputAppName, "outputApplicationName", nodeData.outputApplicationName);
@@ -1213,27 +1227,27 @@ export class Node {
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
         if (nodeData.inputAppName !== undefined && nodeData.inputAppName !== ""){
-            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.inputAppName, nodeData.inputApplicationType, node.getKey(), readonly));
+            node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputAppName, nodeData.inputApplicationType, node.getKey(), readonly));
         }
 
         if (nodeData.inputApplicationName !== undefined && nodeData.inputApplicationName !== ""){
-            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.inputApplicationName, nodeData.inputApplicationType, node.getKey(), readonly));
+            node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputApplicationName, nodeData.inputApplicationType, node.getKey(), readonly));
         }
 
         if (nodeData.outputAppName !== undefined && nodeData.outputAppName !== ""){
-            node.outputApplication(Node.createEmbeddedApplicationNode(nodeData.outputAppName, nodeData.outputApplicationType, node.getKey(), readonly));
+            node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputAppName, nodeData.outputApplicationType, node.getKey(), readonly));
         }
 
         if (nodeData.outputApplicationName !== undefined && nodeData.outputApplicationName !== ""){
-            node.outputApplication(Node.createEmbeddedApplicationNode(nodeData.outputApplicationName, nodeData.outputApplicationType, node.getKey(), readonly));
+            node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputApplicationName, nodeData.outputApplicationType, node.getKey(), readonly));
         }
 
         if (nodeData.exitAppName !== undefined && nodeData.exitAppName !== ""){
-            node.exitApplication(Node.createEmbeddedApplicationNode(nodeData.exitAppName, nodeData.exitApplicationType, node.getKey(), readonly));
+            node.exitApplication(Node.createEmbeddedApplicationNode(exitApplicationKey, nodeData.exitAppName, nodeData.exitApplicationType, node.getKey(), readonly));
         }
 
         if (nodeData.exitApplicationName !== undefined && nodeData.exitApplicationName !== ""){
-            node.exitApplication(Node.createEmbeddedApplicationNode(nodeData.exitApplicationName, nodeData.exitApplicationType, node.getKey(), readonly));
+            node.exitApplication(Node.createEmbeddedApplicationNode(exitApplicationKey, nodeData.exitApplicationName, nodeData.exitApplicationType, node.getKey(), readonly));
         }
 
         // set parentKey if a group is defined
@@ -1249,7 +1263,7 @@ export class Node {
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
         if (nodeData.application !== undefined && nodeData.application !== ""){
             console.warn("only found old application type, not new input application type and output application type", categoryType, category);
-            node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application, category, node.getKey(), readonly));
+            node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, node.getKey(), readonly));
         }
 
         // read the 'real' input and output apps, correctly specified as nested nodes
@@ -1552,23 +1566,29 @@ export class Node {
         if (node.hasInputApplication()){
             result.inputApplicationName = node.inputApplication().name;
             result.inputApplicationType = node.inputApplication().category;
+            result.inputApplicationKey  = node.inputApplication().key;
         } else {
             result.inputApplicationName = "";
             result.inputApplicationType = Eagle.Category.None;
+            result.inputApplicationKey  = null;
         }
         if (node.hasOutputApplication()){
             result.outputApplicationName = node.outputApplication().name;
             result.outputApplicationType = node.outputApplication().category;
+            result.outputApplicationKey  = node.outputApplication().key;
         } else {
             result.outputApplicationName = "";
             result.outputApplicationType = Eagle.Category.None;
+            result.outputApplicationKey  = null;
         }
         if (node.hasExitApplication()){
             result.exitApplicationName = node.exitApplication().name;
             result.exitApplicationType = node.exitApplication().category;
+            result.exitApplicationKey  = node.exitApplication().key;
         } else {
             result.exitApplicationName = "";
             result.exitApplicationType = Eagle.Category.None;
+            result.exitApplicationKey  = null;
         }
 
         return result;
@@ -1648,9 +1668,9 @@ export class Node {
         return result;
     }
 
-    static createEmbeddedApplicationNode = (name : string, category: Eagle.Category, embedKey: number, readonly: boolean) : Node => {
-        console.log("createEmbeddedApplicationNode(", name, category, ")");
-        let n = new Node(null, name, "", category, Eagle.CategoryType.Application, readonly);
+    static createEmbeddedApplicationNode = (key: number, name : string, category: Eagle.Category, embedKey: number, readonly: boolean) : Node => {
+        //console.log("createEmbeddedApplicationNode(", key, name, category, ")");
+        let n = new Node(key, name, "", category, Eagle.CategoryType.Application, readonly);
         n.setEmbedKey(embedKey);
         return n;
     }
