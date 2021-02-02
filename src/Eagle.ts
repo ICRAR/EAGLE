@@ -252,16 +252,7 @@ export class Eagle {
             return "";
         }
 
-        // TODO: move to a function on the FileInfo class
-        if (fileInfo.repositoryName !== ""){
-            if (fileInfo.path === ""){
-                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + " (" + fileInfo.repositoryBranch + "): " + fileInfo.name;
-            } else {
-                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + " (" + fileInfo.repositoryBranch + "): " + fileInfo.path + "/" + fileInfo.name;
-            }
-        } else {
-            return fileInfo.name;
-        }
+        return fileInfo.getText();
     }, this);
 
     getRepositoryList = (service : Eagle.RepositoryService) : Repository[] => {

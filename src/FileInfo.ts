@@ -193,6 +193,18 @@ export class FileInfo {
         return "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
     }
 
+    getText = () : string => {
+        if (this.repositoryName !== ""){
+            if (this.path === ""){
+                return this.repositoryService + ": " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.name;
+            } else {
+                return this.repositoryService + ": " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.path + "/" + this.name;
+            }
+        } else {
+            return this.name;
+        }
+    }
+
     toString = () : string => {
         let s = "";
 
