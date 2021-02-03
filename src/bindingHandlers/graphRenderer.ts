@@ -1775,8 +1775,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isBranch()){
             let numPorts = node.getInputPorts().length;
-
-            return REAL_TO_DISPLAY_SCALE(100 - 76 * (index / (numPorts - 1)));
+            return REAL_TO_DISPLAY_SCALE(100 - 76 * portIndexRatio(index, numPorts));
         }
 
         if (node.isFlipPorts()){
@@ -1797,7 +1796,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (node.isBranch()){
             let numPorts = node.getInputPorts().length;
 
-            return REAL_TO_DISPLAY_SCALE(24 + 30 * (index / (numPorts - 1)));
+            return REAL_TO_DISPLAY_SCALE(24 + 30 * portIndexRatio(index, numPorts));
         }
 
         return getPortPositionY(port, index);
@@ -1950,7 +1949,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (node.isBranch()){
             let numPorts = node.getInputPorts().length;
 
-            return REAL_TO_DISPLAY_SCALE(100 - 100 * (index / (numPorts - 1)));
+            return REAL_TO_DISPLAY_SCALE(100 - 100 * portIndexRatio(index, numPorts));
         }
 
         if (node.isFlipPorts()){
@@ -1970,7 +1969,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (node.isBranch()){
             let numPorts = node.getInputPorts().length;
 
-            return REAL_TO_DISPLAY_SCALE(50 * (index / (numPorts - 1)));
+            return REAL_TO_DISPLAY_SCALE(50 * portIndexRatio(index, numPorts));
         }
 
         return getPortCirclePositionY(port, index);
@@ -2439,7 +2438,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             let portIndex = findNodePortIndex(node, edge.getDestPortId());
             let numPorts = node.getInputPorts().length;
 
-            return node.getPosition().x + node.getWidth()/2 - node.getWidth()/2*(portIndex / (numPorts - 1));
+            return node.getPosition().x + node.getWidth()/2 - node.getWidth()/2 * portIndexRatio(portIndex, numPorts);
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -2476,7 +2475,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             let portIndex = findNodePortIndex(node, edge.getDestPortId());
             let numPorts = node.getInputPorts().length;
 
-            return node.getPosition().y + 50*(portIndex / (numPorts - 1));
+            return node.getPosition().y + 50 * portIndexRatio(portIndex, numPorts);
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -2486,6 +2485,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return findNodePortPosition(node, edge.getDestPortId(), false).y - PORT_ICON_HEIGHT;
+    }
+
+    function portIndexRatio(portIndex: number, numPorts: number){
+        if (numPorts <= 1){
+            return 0;
+        }
+
+        return portIndex / (numPorts - 1);
     }
 
     function findNodePortPosition(node : Node, portId: string, inset: boolean) : {x: number, y: number} {
