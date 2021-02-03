@@ -1606,7 +1606,7 @@ export class Eagle {
             if (!completed)
                 return;
 
-            translatorURLSetting.setValue(userString);
+            translatorURLSetting.value(userString);
         });
     };
 

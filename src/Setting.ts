@@ -20,7 +20,12 @@ export class Setting {
         this.defaultValue = defaultValue;
 
         this.load();
-        this.save();
+
+        let that = this;
+        this.value.subscribe(function(newValue){
+            console.log("subscribe");
+            that.save();
+        });
     }
 
     getName = () : string => {
@@ -39,12 +44,8 @@ export class Setting {
         return this.key;
     }
 
-    setValue = (value : any) : void => {
-        this.value(value);
-        this.save();
-    }
-
     save = () : void => {
+        console.log("save", this.key);
         localStorage.setItem(this.key, this.valueToString(this.value()));
     }
 
@@ -65,9 +66,6 @@ export class Setting {
 
         // update the value
         this.value(!this.value());
-
-        // save to localStorage
-        this.save();
     }
 
     copy = () : void => {
@@ -80,7 +78,6 @@ export class Setting {
 
     resetDefault = () : void => {
         this.value(this.defaultValue);
-        this.save();
     }
 
     private valueToString = (value : any) : string => {
