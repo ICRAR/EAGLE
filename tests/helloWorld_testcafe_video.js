@@ -212,10 +212,10 @@ test('Hello World graph', async t =>{
         .wait(3000)
         .setTestSpeed(TEST_SPEED*0.7);
 
-    await t
-      .click(page.openSettings)
-      .click(page.allowComponentEditing)
-      .click(page.settingsSubmit);
+    // await t
+    //   .click(page.openSettings)
+    //   .click(page.allowComponentEditing)
+    //   .click(page.settingsSubmit);
 
     await showMessageBox('Creating a Hello World graph'); // This is all you need for a messageBox
 
