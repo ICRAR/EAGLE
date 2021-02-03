@@ -14,6 +14,9 @@ Welcome to EAGLE's documentation!
    Hello World Example <helloWorld>
    Components <components>
    Palettes <palettes>
+   Templates and Graphs <graphs>
+   Translation <translation>
+   Execution <execution>
 .. Modules <modules>
 .. Quick Start Guide <quickStart2>
 

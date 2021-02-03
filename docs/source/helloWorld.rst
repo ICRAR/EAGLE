@@ -1,10 +1,12 @@
 Hello World Example
 ===================
 
-This video provides detailed instructions for constructing the "Hello World" graph.
+This video provides detailed instructions for constructing the "Hello World" :doc:`Logical Graph Template <graphs>`. In most documentation, and the EAGLE interface, this is referred to as a graph. It is a visual depiction of the relationships between different :doc:`components <components>` integrated into a workflow.
 
 .. raw:: html
     :file: _static/helloWorld_creation_video.html
+
+The graph cannot itself be executed on any hardware; it must first be :doc:`translated <translation>` into a :doc:`Physical Graph Template <graphs>` via an algorithm that will optimise it for efficiency and parallel processing. This translated graph can then be entered into the queue on the chosen facility for :doc:`execution <execution>`.
 
 |
 
