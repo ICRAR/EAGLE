@@ -22,8 +22,7 @@ export class Setting {
         this.load();
 
         let that = this;
-        this.value.subscribe(function(newValue){
-            console.log("subscribe");
+        this.value.subscribe(function(){
             that.save();
         });
     }
@@ -45,7 +44,6 @@ export class Setting {
     }
 
     save = () : void => {
-        console.log("save", this.key);
         localStorage.setItem(this.key, this.valueToString(this.value()));
     }
 
