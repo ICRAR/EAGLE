@@ -1219,9 +1219,10 @@ export class Node {
         }
 
         // debug
-        //console.log("inputAppName", nodeData.inputAppName, "inputApplicationName", nodeData.inputApplicationName);
-        //console.log("outputAppName", nodeData.outputAppName, "outputApplicationName", nodeData.outputApplicationName);
-        //console.log("exitAppName", nodeData.exitAppName, "exitApplicationName", nodeData.exitApplicationName);
+        //console.log("node", nodeData.text);
+        //console.log("inputAppName", nodeData.inputAppName, "inputApplicationName", nodeData.inputApplicationName, "inpuApplication", nodeData.inputApplication);
+        //console.log("outputAppName", nodeData.outputAppName, "outputApplicationName", nodeData.outputApplicationName, "outputApplication", nodeData.outputApplication);
+        //console.log("exitAppName", nodeData.exitAppName, "exitApplicationName", nodeData.exitApplicationName, "exitApplication", nodeData.exitApplication);
 
         // these next six if statements are covering old versions of nodes, that
         // specified input and output applications using name strings rather than nested nodes.
@@ -1230,7 +1231,7 @@ export class Node {
             node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputAppName, nodeData.inputApplicationType, node.getKey(), readonly));
         }
 
-        if (nodeData.inputApplicationName !== undefined && nodeData.inputApplicationName !== ""){
+        if (nodeData.inputApplicationName !== undefined && nodeData.inputApplicationType !== Eagle.Category.None){
             node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputApplicationName, nodeData.inputApplicationType, node.getKey(), readonly));
         }
 
@@ -1238,7 +1239,7 @@ export class Node {
             node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputAppName, nodeData.outputApplicationType, node.getKey(), readonly));
         }
 
-        if (nodeData.outputApplicationName !== undefined && nodeData.outputApplicationName !== ""){
+        if (nodeData.outputApplicationName !== undefined && nodeData.outputApplicationType !== Eagle.Category.None){
             node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputApplicationName, nodeData.outputApplicationType, node.getKey(), readonly));
         }
 
@@ -1246,7 +1247,7 @@ export class Node {
             node.exitApplication(Node.createEmbeddedApplicationNode(exitApplicationKey, nodeData.exitAppName, nodeData.exitApplicationType, node.getKey(), readonly));
         }
 
-        if (nodeData.exitApplicationName !== undefined && nodeData.exitApplicationName !== ""){
+        if (nodeData.exitApplicationName !== undefined && nodeData.exitApplicationType !== Eagle.Category.None){
             node.exitApplication(Node.createEmbeddedApplicationNode(exitApplicationKey, nodeData.exitApplicationName, nodeData.exitApplicationType, node.getKey(), readonly));
         }
 
