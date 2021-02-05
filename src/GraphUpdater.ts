@@ -318,6 +318,7 @@ export class GraphUpdater {
     }
 
     // TODO: this function replicates data that is stored in templatePalette.json, we should only store in one place
+    /*
     static getCanHaveInputsForCategory(category : Eagle.Category) : boolean {
         switch (category){
             case Eagle.Category.BashShellApp:
@@ -348,8 +349,10 @@ export class GraphUpdater {
                 return false;
         }
     }
+    */
 
     // TODO: this function replicates data that is stored in templatePalette.json, we should only store in one place
+    /*
     static getCanHaveOutputsForCategory(category : Eagle.Category) : boolean {
         switch (category){
             case Eagle.Category.BashShellApp:
@@ -380,8 +383,10 @@ export class GraphUpdater {
                 return false;
         }
     }
+    */
 
     // TODO: this function replicates data that is stored in templatePalette.json, we should only store in one place
+    /*
     static getIsDataForCategory(category : Eagle.Category) : boolean {
         switch (category){
             case Eagle.Category.File:
@@ -412,8 +417,10 @@ export class GraphUpdater {
                 return false;
         }
     }
+    */
 
     // TODO: this function replicates data that is stored in templatePalette.json, we should only store in one place
+    /*
     static getIsGroupForCategory(category : Eagle.Category) : boolean {
         switch (category){
             case Eagle.Category.ExclusiveForceNode:
@@ -445,4 +452,5 @@ export class GraphUpdater {
                 return false;
         }
     }
+    */
 }

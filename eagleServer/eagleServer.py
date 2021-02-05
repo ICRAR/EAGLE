@@ -346,7 +346,6 @@ def save_git_hub_file():
 
     return "ok"
 
-# TODO: update for gitlab
 @app.route("/saveFileToRemoteGitlab", methods=["POST"])
 def save_git_lab_file():
     # Extract parameters and file content from json.

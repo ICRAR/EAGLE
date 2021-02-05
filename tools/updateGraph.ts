@@ -107,8 +107,8 @@ function readFileInfo(modelData : any, inputFilename : string) : FileInfo {
 }
 
 function readNode(nodeData : any) : Node {
-    var x = Node.DEFAULT_POSITION_X;
-    var y = Node.DEFAULT_POSITION_Y;
+    var x = 0;
+    var y = 0;
     if (typeof nodeData.loc !== 'undefined'){
         x = parseInt(nodeData.loc.substring(0, nodeData.loc.indexOf(' ')), 10);
         y = parseInt(nodeData.loc.substring(nodeData.loc.indexOf(' ')), 10);
@@ -146,7 +146,7 @@ function readNode(nodeData : any) : Node {
     }
 
     // create new node
-    var node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, x, y);
+    var node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, true);
 
     // get description (if exists)
     if (typeof nodeData.description !== 'undefined'){
@@ -171,22 +171,6 @@ function readNode(nodeData : any) : Node {
             logMessage("Using default height for node " + i);
             node.setHeight(Node.DEFAULT_HEIGHT);
         }
-    }
-
-    if (typeof nodeData.isData !== 'undefined'){
-        node.setIsData(nodeData.isData);
-    }
-
-    if (typeof nodeData.isGroup !== 'undefined'){
-        node.setIsGroup(nodeData.isGroup);
-    }
-
-    if (typeof nodeData.canHaveInputs !== 'undefined'){
-        node.setCanHaveInputs(nodeData.canHaveInputs);
-    }
-
-    if (typeof nodeData.canHaveOutputs !== 'undefined'){
-        node.setCanHaveOutputs(nodeData.canHaveOutputs);
     }
 
     if (typeof nodeData.inputAppName !== 'undefined'){
