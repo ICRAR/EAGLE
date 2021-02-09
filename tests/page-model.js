@@ -61,8 +61,9 @@ class Page {
 
     //this.setGitToken = Selector('#setGitHubAccessToken');
     this.openSettings = Selector('#openSettings');
-    this.setGitToken = Selector('#setting13Value');
     this.allowComponentEditing = Selector('#setting7Button');
+    this.setGitToken = Selector('#setting13Value');
+    this.disableJSONval = Selector('#setting15Button');
     this.settingsSubmit = Selector('#settingsModalAffirmativeAnswer');
 
     this.centerGraph = Selector('#centerGraph');

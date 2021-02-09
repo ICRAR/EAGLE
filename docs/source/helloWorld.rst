@@ -1,5 +1,8 @@
-Hello World Example
-===================
+Hello World Examples
+====================
+
+Graph Creation
+--------------
 
 This video provides detailed instructions for constructing the "Hello World" :doc:`Logical Graph Template <graphs>`. In most documentation, and the EAGLE interface, this is referred to as a graph. It is a visual depiction of the relationships between different :doc:`components <components>` integrated into a workflow.
 
@@ -7,6 +10,16 @@ This video provides detailed instructions for constructing the "Hello World" :do
     :file: _static/helloWorld_creation_video.html
 
 The graph cannot itself be executed on any hardware; it must first be :doc:`translated <translation>` into a :doc:`Physical Graph Template <graphs>` via an algorithm that will optimise it for efficiency and parallel processing. This translated graph can then be entered into the queue on the chosen facility for :doc:`execution <execution>`.
+
+Saving a graph to GitHub
+------------------------
+
+To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don't already have access to one.
+
+A GitHub Personal Access Token is required to save a graph to a repository. These steps are demonstrated in the following video, as well as adding a custom repository.
+
+.. raw:: html
+    :file: _static/helloWorld_save_graph.html
 
 |
 
@@ -37,16 +50,16 @@ To load a palette from a GitHub repository, you first need to create a GitHub Pe
 ..
 .. .. raw:: html
 ..     :file: _static/video2.html
-
-Saving a graph to gitHub
-------------------------
-
-To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don't already have access to one.
-
-Similarly to loading a palette, a GitHub Personal Access Token is required to save a graph to a repository. These steps are repeated in the following video, as well as adding a custom repository.
-
-.. raw:: html
-    :file: _static/video3.html
-
+..
+.. Saving a graph to GitHub
+.. ------------------------
+..
+.. To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don't already have access to one.
+..
+.. Similarly to loading a palette, a GitHub Personal Access Token is required to save a graph to a repository. These steps are repeated in the following video, as well as adding a custom repository.
+..
+.. .. raw:: html
+..     :file: _static/video3.html
+..
 .. raw:: html
     :file: _static/load_videos.html

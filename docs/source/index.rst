@@ -11,6 +11,7 @@ Welcome to EAGLE's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   Introduction to EAGLE <introduction>
    Hello World Example <helloWorld>
    Components <components>
    Palettes <palettes>

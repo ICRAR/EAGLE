@@ -310,3 +310,221 @@ test('Hello World graph', async t =>{
 
 
 });
+
+test('Hello World save graph', async t =>{
+
+  await t
+      // wait for the page to settle down
+      //.resizeWindow(1920, 1080)
+      .maximizeWindow()
+      .wait(3000)
+      .setTestSpeed(TEST_SPEED);
+
+  // Don't capture this
+  await showMessageBox('Setting up for video');
+
+  // create a new graph
+  await page.createNewGraph(graph_filename);
+  //await t.click(page.centerGraph);
+
+  await page.selectNode('#node0');
+
+  // Add a description to the description node
+  await t.typeText(page.descriptionField, "A graph saving the output of a HelloWorldApp to disk");
+  // Move it to the bottom left (small screen resolution)
+  await page.moveNode('#node0', 110, 480);
+
+  // Collapse the top palette (the bottom palette isn't visible otherwise in the videos)
+  await t.click(page.collapseTopPalette);
+
+  // Add HelloWorldApp node and move it
+  await page.addPaletteNode(1,2);
+  await page.moveNode('#node1', 160,200);
+
+  // Drag out the right panel (needed for small screen)
+  await t.drag(page.rightAdjuster, -70, 0);
+
+  // Change the parameter
+  await t.typeText(page.changeGreet, 'Felicia', { replace: true});
+
+ // Open top palette again
+  await t.click(page.collapseTopPalette);
+
+  // Add file node
+  await page.addPaletteNode(0,8);
+
+  // The file node is node2. Select and move it
+  await page.selectNode("#node2");
+  await page.moveNode('#node2', 550, 200);
+
+  // Add a port to the node for the HelloWordApp output
+  // Hover first to get the button onto the screen
+  await t.hover(page.addInputPort);
+  await t.click(page.addInputPort);
+
+  // Choose the option "hello"
+  await page.selectOption("hello");
+
+  //Connect the nodes
+  await page.connectNodes("#node1", "#node2", 0, 0);
+
+  // Disable JSON validation due to a bug
+  await t
+    .click(page.openSettings)
+    .click(page.disableJSONval)
+    .click(page.settingsSubmit);
+
+
+
+
+  // Start the video capture here
+  await showMessageBox('Saving a graph to a Git repository');
+
+  // Note
+  var rect = await page.getRect(page.repoMode);
+  await showNoteBox('Click here to open the repositories', rect, 'below', 1.0);
+
+  // switch back to the repositories tab
+  await t.click(page.repoMode);
+
+  // Note
+  var rect = await page.getRect(page.addRepo);
+  await showNoteBox('You can add a new repository that you have write access to', rect, 'left', 1.0);
+
+  // Not using the function in the page model for this because I needed to add a note
+  //await page.addNewRepo(SAVE_REPOSITORY, SAVE_REPOSITORY_BRANCH);
+  await t
+    .click(page.addRepo)
+    .typeText(page.newRepoName, SAVE_REPOSITORY, { replace : true });
+
+  // Note
+  var rect = await page.getRect(page.newRepoBranch);
+  await showNoteBox('The branch might be \"master\" or \"main\" depending on when you created it', rect, 'left', 1.3);
+
+  // Complete adding the repo
+  await t
+    .typeText(page.newRepoBranch, SAVE_REPOSITORY_BRANCH, { replace : true })
+    .click(page.newRepoSubmit);
+
+  // Note
+  var rect = await page.getRect(page.openSettings);
+  await showNoteBox('You need to enter a GitHub access token in your settings with all \"repo\" permissions for the added repository', rect, 'below', 1.5);
+
+
+  // Get the current window to switch back to later
+  const initialWindow = await t.getCurrentWindow();
+
+  // How to create a token on github
+  // First navigate to github and login
+  await t
+      .setTestSpeed(TEST_SPEED*0.7)
+      .setNativeDialogHandler(() => true);
+      //.navigateTo('https://github.com')
+
+  const github_window = await t.openWindow('https://github.com');
+
+  const url = await t.eval(() => document.documentURI);
+  await t
+      .expect(url).eql('https://github.com')
+      .maximizeWindow()
+      .wait(1000)
+      .useRole(gitHubUser);
+
+  // Using the github page model to complete the following steps
+  var rect = await page.getRect(github.accountIcon);
+  await showNoteBox('Go to your Settings, then choose Developer settings', rect, 'left', 1.3);
+
+  // Navigate to developer settings
+  await github.developerSettings();
+
+  // Note
+  var rect = await page.getRect(github.accountTokens);
+  await showNoteBox('Click on Personal access tokens, then generate a new token', rect, 'right', 1.3);
+
+  // Generating a new token
+  await github.generateNewToken();
+
+  // Note
+  var rect = await page.getRect(github.tokenDescription);
+  await showNoteBox('Enter a description and the following permissions', rect, 'above', 1.3);
+
+  // Enter scope and submit
+  await github.setTokenScope("Eagle access token");
+
+  // Note
+  var rect = await page.getRect(github.copyToken);
+  await showNoteBox('Copy the token here and return to Eagle', rect, 'above', 1.2);
+
+  // // Wait for a moment, then return to Eagle
+  // await t
+  //     .wait(500)
+  //     .navigateTo('http://localhost:8888/');
+
+  // Switch back to Eagle
+  await t.closeWindow(github_window);
+
+  // Set the git token
+  await t
+    .setTestSpeed(TEST_SPEED)
+    .click(page.openSettings);
+
+  // The script doesn't try to use the new access token, just the one already set
+  await page.changeSetting(page.setGitToken, GITHUB_ACCESS_TOKEN);
+
+  // Close the left pane as we are not using it
+  await t.click(page.leftHandle);
+
+  // //Loading a graph to be saved
+  // //I had to do this after getting back from Github, otherwise it was erased
+  // var graph = await page.loadFileFromRepo(PALETTE_REPOSITORY, PALETTE_PATH, PALETTE_FILENAME);
+  //
+  // // Note
+  // var rect = await page.getRect(graph.repo);
+  // await showNoteBox('Loading an existing graph from GitHub so it can be saved', rect, 'left', 1.0);
+  //
+  // // Loading the graph
+  // await t
+  //   .click(graph.repo)
+  //   .click('#folder_leap')
+  //   .click('#id_LeapDocker_graph')
+  //   .click(page.centerGraph);
+
+  // Note
+  var rect = await page.getRect(page.navbarGit);
+  await showNoteBox('Click here to save the graph to GitHub', rect, 'below', 1.0);
+
+  // Save to github menu navigation
+  await t
+      // save graph to github as...
+      .click(page.navbarGit)
+      .click(page.saveGitAs);
+
+  // Note
+  var rect = await page.getRect(page.commitRepo);
+  await showNoteBox('Fill in all the details for the repository you added', rect, 'above', 1.2);
+
+  // Saving the graph
+  await t
+      .click(page.commitRepo)
+      .click(page.commitRepo.find('option').withText(SAVE_REPOSITORY + " (" + SAVE_REPOSITORY_BRANCH + ")"))
+
+      // Enter the path
+      .typeText(page.commitPath, graph_filepath, { replace : true })
+
+      // use default filename for save graph as...
+      .typeText(page.commitFile, graph_filename, { replace: true })
+
+      // enter commit message for save graph as...
+      .typeText(page.commitMessage, graph_commit_message, { replace: true })
+
+      // commit
+      .click(page.commitSubmit)
+
+      // Use the assertion to check if the actual header text is equal to the expected one
+      .expect(Selector("div[data-notify='container'] span[data-notify='title']").innerText).eql(SUCCESS_MESSAGE)
+
+      // end
+      .wait(10000);
+      //.takeScreenshot();
+
+});
