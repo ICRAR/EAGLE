@@ -16,6 +16,7 @@ export class FileInfo {
     private _modified : ko.Observable<boolean>;
     private _eagleVersion : ko.Observable<string>;
     private _eagleCommitHash : ko.Observable<string>;
+    private _schemaVersion : ko.Observable<Eagle.DALiuGESchemaVersion>;
 
     constructor(){
         this._name = ko.observable("");
@@ -29,6 +30,7 @@ export class FileInfo {
         this._modified = ko.observable(false);
         this._eagleVersion = ko.observable("");
         this._eagleCommitHash = ko.observable("");
+        this._schemaVersion = ko.observable(Eagle.DALiuGESchemaVersion.Unknown);
     }
 
     get name() : string{
@@ -119,6 +121,14 @@ export class FileInfo {
         this._eagleCommitHash(hash);
     }
 
+    get schemaVersion(): Eagle.DALiuGESchemaVersion{
+        return this._schemaVersion();
+    }
+
+    set schemaVersion(version: Eagle.DALiuGESchemaVersion){
+        this._schemaVersion(version);
+    }
+
     clear = () : void => {
         this._name("");
         this._path("");
@@ -131,6 +141,7 @@ export class FileInfo {
         this._modified(false);
         this._eagleVersion("");
         this._eagleCommitHash("");
+        this._schemaVersion(Eagle.DALiuGESchemaVersion.Unknown);
     }
 
     clone = () : FileInfo => {
@@ -147,6 +158,7 @@ export class FileInfo {
         result.modified = this._modified();
         result.eagleVersion = this._eagleVersion();
         result.eagleCommitHash = this._eagleCommitHash();
+        result.schemaVersion = this._schemaVersion();
 
         return result;
     }
@@ -195,6 +207,7 @@ export class FileInfo {
         s += " Modified:" + this._modified();
         s += " EAGLE Version:" + this._eagleVersion();
         s += " EAGLE Commit Hash:" + this._eagleCommitHash();
+        s += " Schema Version:" + this._schemaVersion();
 
         return s;
     }
@@ -209,7 +222,8 @@ export class FileInfo {
             sha: fileInfo.sha,
             git_url: fileInfo.gitUrl,
             eagleVersion: fileInfo.eagleVersion,
-            eagleCommitHash: fileInfo.eagleCommitHash
+            eagleCommitHash: fileInfo.eagleCommitHash,
+            schemaVersion: fileInfo.schemaVersion
         };
     }
 
@@ -228,6 +242,7 @@ export class FileInfo {
 
         result.eagleVersion = modelData.eagleVersion == undefined ? "" : modelData.eagleVersion;
         result.eagleCommitHash = modelData.eagleCommitHash == undefined ? "" : modelData.eagleCommitHash;
+        result.schemaVersion = modelData.schemaVersion == undefined ? "" : modelData.schemaVersion;
 
         return result;
     }

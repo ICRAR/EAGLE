@@ -2740,7 +2740,9 @@ export namespace Eagle
     }
 
     export enum DALiuGESchemaVersion {
-        V3
+        Unknown,
+        V3,
+        AppRef
     }
 
     export enum LinkValid {

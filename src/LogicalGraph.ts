@@ -238,6 +238,7 @@ export class LogicalGraph {
         //result.class = "go.GraphLinksModel";
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
+        result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.AppRef;
 
         // add nodes
         result.nodeDataArray = [];
