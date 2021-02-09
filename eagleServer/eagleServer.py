@@ -450,15 +450,22 @@ def open_git_lab_file():
     if folder_name != "":
         filename = folder_name + "/" + filename
 
+    #print("folder_name", folder_name, "repo_name", repo_name, "filename", filename)
+
     # get the data from gitlab
     gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
     gl.auth()
 
     project = gl.projects.get(repo_name)
-    f = project.files.get(file_path=filename, ref=repo_branch)
+
+    try:
+        f = project.files.get(file_path=filename, ref=repo_branch)
+    except gitlab.exceptions.GitlabGetError as gle:
+        print("GitLabGetError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
+        return app.response_class(response=str(gle), status=404, mimetype="application/json")
 
     # get the decoded content
-    raw_data = f.decode()
+    raw_data = f.decode().decode("utf-8")
 
     # Add the GitHub file reference.
     #graph = json.loads(raw_data)
@@ -505,12 +512,17 @@ def parse_gitlab_folder(items, path):
             folders = path.split('/')
             #print("tree", name, path, folders)
 
+            # find folder in hierarchy
             x = result
-            for folder in folders:
-                #print("Add", folder, "to", x)
-                if folder not in x:
-                    x[folder] = {"" : []};
-                x = x[folder]
+            for i in range(0, len(folders[:-1])):
+                partialPath = "/".join(folders[:i+1])
+                #print("partialPath", partialPath)
+                x = x[partialPath]
+
+            #print("Add", path, "to", x)
+            if path not in x:
+                x[path] = {"" : []};
+            #print("result", result);
 
         if item[u'type'] == u'blob':
             name = item[u'name']
@@ -519,8 +531,9 @@ def parse_gitlab_folder(items, path):
             #print("blob", name, path, folders)
 
             x = result
-            for folder in folders[:-1]:
-                x = x[folder]
+            for i in range(1, len(folders)):
+                partialPath = "/".join(folders[:i])
+                x = x[partialPath]
             x[""].append(item[u'name'])
 
     return result
