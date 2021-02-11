@@ -2752,7 +2752,7 @@ export class Eagle {
         Variables          : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
         Branch             : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
 
-        Unknown            : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "device_unknown", color: "#FF66CC"},
+        Unknown            : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true, icon: "device_unknown", color: "#FF66CC"},
         None               : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block", color: "#FF66CC"}
     };
 }

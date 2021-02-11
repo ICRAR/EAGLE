@@ -1270,7 +1270,7 @@ export class Node {
                     node.exitApplication().addPort(port, false);
                     port.setNodeKey(node.getKey());
                 }
-                if (!node.hasOutputApplication() && !node.hasInputApplication()){
+                if (!node.hasOutputApplication() && !node.hasExitApplication()){
                     //console.log("read outputPort to outputPort");
 
                     if (!node.canHaveOutputs()){
@@ -1299,6 +1299,7 @@ export class Node {
                     port.setNodeKey(node.getKey());
                 } else {
                     console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
+                    errors.push("Can't add inputLocal port " + portData.IdText + " to node " + node.getName());
                 }
             }
         }
@@ -1322,6 +1323,7 @@ export class Node {
 
                 if (!node.hasOutputApplication() && !node.hasExitApplication()){
                     console.warn("Can't add outputLocal port", portData.IdText, "to node", node.getName());
+                    errors.push("Can't add outputLocal port " + portData.IdText + " to node " + node.getName());
                 }
             }
         }
@@ -1386,6 +1388,7 @@ export class Node {
                 node.inputApplication(Node.createEmbeddedApplicationNode(port.getName(), Eagle.Category.Unknown, node.getKey()));
             }
             node.inputApplication().addPort(port, true);
+            port.setNodeKey(node.getKey());
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
             if (node.canHaveOutputApplication()){
@@ -1393,11 +1396,13 @@ export class Node {
                     node.outputApplication(Node.createEmbeddedApplicationNode(port.getName(), Eagle.Category.Unknown, node.getKey()));
                 }
                 node.outputApplication().addPort(port, false);
+                port.setNodeKey(node.getKey());
             } else {
                 if (!node.hasExitApplication()){
                     node.exitApplication(Node.createEmbeddedApplicationNode(port.getName(), Eagle.Category.Unknown, node.getKey()));
                 }
                 node.exitApplication().addPort(port, false);
+                port.setNodeKey(node.getKey());
             }
         }
     }
