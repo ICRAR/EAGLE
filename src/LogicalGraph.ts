@@ -76,21 +76,20 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, showErrors : boolean) : LogicalGraph => {
+    static fromOJSJson = (data : string, file : RepositoryFile, errors : string[]) : LogicalGraph => {
         // parse the JSON first
         var dataObject : any = JSON.parse(data);
-        var errors : string[] = [];
 
         // create new logical graph object
         var result : LogicalGraph = new LogicalGraph();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
         for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
-            result.nodes.push(Node.fromOJSJson(nodeData));
+            result.nodes.push(Node.fromOJSJson(nodeData, errors));
         }
 
         // set keys for all embedded nodes
@@ -176,11 +175,6 @@ export class LogicalGraph {
         var hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(result);
         if (hadNegativePositions){
             console.log("Adjusting position of all nodes to move to positive quadrant.");
-        }
-
-        // show errors (if found)
-        if (errors.length > 0 && showErrors){
-            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
         }
 
         return result;
@@ -298,21 +292,20 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromAppRefJson = (data : string, file : RepositoryFile, showErrors : boolean) : LogicalGraph => {
+    static fromAppRefJson = (data : string, file : RepositoryFile, errors : string[]) : LogicalGraph => {
         // parse the JSON first
         var dataObject : any = JSON.parse(data);
-        var errors : string[] = [];
 
         // create new logical graph object
         var result : LogicalGraph = new LogicalGraph();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
         for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
-            result.nodes.push(Node.fromOJSJson(nodeData));
+            result.nodes.push(Node.fromOJSJson(nodeData, errors));
         }
 
         // set keys for all embedded nodes
@@ -398,11 +391,6 @@ export class LogicalGraph {
         var hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(result);
         if (hadNegativePositions){
             console.log("Adjusting position of all nodes to move to positive quadrant.");
-        }
-
-        // show errors (if found)
-        if (errors.length > 0 && showErrors){
-            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
         }
 
         return result;

@@ -615,12 +615,7 @@ export class Node {
         return Math.max(leftHeight, rightHeight);
     }
 
-    // TODO: if node is a scatter, gather or mkn, we should not be able to add nodes. The nodes must come from the input and output applications.
     addPort = (port : Port, input : boolean) : void => {
-        if (this.isScatter() || this.isGather() || this.isMKN()){
-            console.error("Adding a port to a construct (name:", this.getName(), "category:", this.getCategory() + ") port name", port.getName() );
-        }
-
         port.setNodeKey(this.key);
 
         if (input){
@@ -1074,7 +1069,7 @@ export class Node {
         return Eagle.getCategoryData(node.getCategory()).canHaveExitApplication;
     }
 
-    static fromOJSJson = (nodeData : any) : Node => {
+    static fromOJSJson = (nodeData : any, errors: string[]) : Node => {
         var x = 0;
         var y = 0;
         if (typeof nodeData.loc !== 'undefined'){
@@ -1200,15 +1195,15 @@ export class Node {
 
         // read the 'real' input and output apps, correctly specified as nested nodes
         if (typeof nodeData.inputApplication !== 'undefined' && nodeData.inputApplication !== null){
-            node.inputApplication(Node.fromOJSJson(nodeData.inputApplication));
+            node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errors));
             node.inputApplication().setEmbedKey(node.getKey());
         }
         if (typeof nodeData.outputApplication !== 'undefined' && nodeData.outputApplication !== null){
-            node.outputApplication(Node.fromOJSJson(nodeData.outputApplication));
+            node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errors));
             node.outputApplication().setEmbedKey(node.getKey());
         }
         if (typeof nodeData.exitApplication !== 'undefined' && nodeData.exitApplication !== null){
-            node.exitApplication(Node.fromOJSJson(nodeData.exitApplication));
+            node.exitApplication(Node.fromOJSJson(nodeData.exitApplication, errors));
             node.exitApplication().setEmbedKey(node.getKey());
         }
 
@@ -1244,6 +1239,12 @@ export class Node {
                     port.setNodeKey(node.getKey());
                 } else {
                     //console.log("read inputPort to inputPort");
+
+                    if (!Eagle.getCategoryData(node.category).canHaveInputs){
+                        errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
+                        continue;
+                    }
+
                     node.addPort(port, true);
                 }
             }
@@ -1266,6 +1267,12 @@ export class Node {
                 }
                 if (!node.hasOutputApplication() && !node.hasInputApplication()){
                     //console.log("read outputPort to outputPort");
+
+                    if (!Eagle.getCategoryData(node.category).canHaveOutputs){
+                        errors.push("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
+                        continue;
+                    }
+
                     node.addPort(port, false);
                 }
             }

@@ -227,7 +227,8 @@ export class FileInfo {
         };
     }
 
-    static fromOJSJson = (modelData : any) : FileInfo => {
+    // TODO: use errors array if attributes cannot be found
+    static fromOJSJson = (modelData : any, errors: string[]) : FileInfo => {
         var result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
