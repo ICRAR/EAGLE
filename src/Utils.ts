@@ -65,6 +65,7 @@ export class Utils {
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
 
     static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
+    static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
 
     /**
      * Generates a UUID.
