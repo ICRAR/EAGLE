@@ -646,19 +646,19 @@ export class Node {
         return null;
     }
 
-    findPortInApplicationsById = (portId : string) : Port => {
+    findPortInApplicationsById = (portId : string) : {key: number, port: Port} => {
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
             for (var i = 0; i < this.inputApplication().inputPorts().length; i++){
                 var port = this.inputApplication().inputPorts()[i];
                 if (port.getId() === portId){
-                    return port;
+                    return {key: this.inputApplication().getKey(), port: port};
                 }
             }
             for (var i = 0; i < this.inputApplication().outputPorts().length; i++){
                 var port = this.inputApplication().outputPorts()[i];
                 if (port.getId() === portId){
-                    return port;
+                    return {key: this.inputApplication().getKey(), port: port};
                 }
             }
         }
@@ -668,13 +668,13 @@ export class Node {
             for (var i = 0; i < this.outputApplication().inputPorts().length; i++){
                 var port = this.outputApplication().inputPorts()[i];
                 if (port.getId() === portId){
-                    return port;
+                    return {key: this.outputApplication().getKey(), port: port};
                 }
             }
             for (var i = 0; i < this.outputApplication().outputPorts().length; i++){
                 var port = this.outputApplication().outputPorts()[i];
                 if (port.getId() === portId){
-                    return port;
+                    return {key: this.outputApplication().getKey(), port: port};
                 }
             }
         }
@@ -684,19 +684,19 @@ export class Node {
             for (var i = 0; i < this.exitApplication().inputPorts().length; i++){
                 var port = this.exitApplication().inputPorts()[i];
                 if (port.getId() === portId){
-                    return port;
+                    return {key: this.exitApplication().getKey(), port: port};
                 }
             }
             for (var i = 0; i < this.exitApplication().outputPorts().length; i++){
                 var port = this.exitApplication().outputPorts()[i];
                 if (port.getId() === portId){
-                    return port;
+                    return {key: this.exitApplication().getKey(), port: port};
                 }
             }
         }
 
         console.warn("Could not find port by Id (" + portId + ") on node " + this.getKey());
-        return null;
+        return {key: null, port: null};
     }
 
     // TODO: I have a feeling this should not be necessary. Especially the 'inputLocal' and 'outputLocal' stuff
@@ -1238,7 +1238,6 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (let j = 0 ; j < nodeData.inputPorts.length; j++){
                 let port = Port.fromOJSJson(nodeData.inputPorts[j]);
-                console.log(nodeData.key, "inputPort", j);
 
                 if (node.canHaveInputs()){
                     node.addPort(port, true);
@@ -1252,7 +1251,6 @@ export class Node {
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (let j = 0 ; j < nodeData.outputPorts.length; j++){
                 let port = Port.fromOJSJson(nodeData.outputPorts[j]);
-                console.log(nodeData.key, "outputPort", j);
 
                 if (node.canHaveOutputs()){
                     node.addPort(port, false);
@@ -1366,7 +1364,7 @@ export class Node {
             }
             node.inputApplication().addPort(port, true);
             port.setNodeKey(node.inputApplication().getKey());
-            errors.push("Moved input port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded input application (" + node.inputApplication().getKey() + ")");
+            errors.push("Moved input port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded input application");
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
             if (node.canHaveOutputApplication()){
@@ -1375,14 +1373,14 @@ export class Node {
                 }
                 node.outputApplication().addPort(port, false);
                 port.setNodeKey(node.outputApplication().getKey());
-                errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded output application (" + node.outputApplication().getKey() + ")");
+                errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded output application");
             } else {
                 if (!node.hasExitApplication()){
                     node.exitApplication(Node.createEmbeddedApplicationNode(port.getName(), Eagle.Category.Unknown, node.getKey()));
                 }
                 node.exitApplication().addPort(port, false);
                 port.setNodeKey(node.exitApplication().getKey());
-                errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded exit application (" + node.exitApplication().getKey() + ")");
+                errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded exit application");
             }
         }
     }
@@ -1684,7 +1682,7 @@ export class Node {
     }
 
     static createEmbeddedApplicationNode = (name : string, category: Eagle.Category, embedKey: number) : Node => {
-        console.log("createEmbeddedApplicationNode(", name, category, ")");
+        //console.log("createEmbeddedApplicationNode(", name, category, ")");
         let n = new Node(null, name, "", category, Eagle.CategoryType.Application);
         n.setEmbedKey(embedKey);
         return n;

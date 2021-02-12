@@ -123,6 +123,19 @@ export class LogicalGraph {
             // find source port on source node
             var srcPort : Port = srcNode.findPortById(linkData.fromPort);
 
+            // if source port was not found on source node, check the source node's embedded application nodes
+            // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
+            if (srcPort === null){
+                let found: {key: number, port: Port} = srcNode.findPortInApplicationsById(linkData.fromPort);
+                if (found.port !== null){
+                    var error: string = "Updated edge " + i + " source node from construct " + linkData.from + " to embedded application node " + found.key;
+                    srcPort = found.port;
+                    linkData.from = found.key;
+                    console.warn(error);
+                    errors.push(error);
+                }
+            }
+
             // abort if source port not found
             if (srcPort === null){
                 var error : string = "Unable to find port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i;
@@ -144,6 +157,19 @@ export class LogicalGraph {
 
             // find dest port on dest node
             var destPort : Port = destNode.findPortById(linkData.toPort);
+
+            // if destination port was not found on destination node, check the destination node's embedded application nodes
+            // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
+            if (destPort === null){
+                let found: {key: number, port: Port} = destNode.findPortInApplicationsById(linkData.toPort);
+                if (found.port !== null){
+                    var error: string = "Updated edge " + i + " destination node from construct " + linkData.to + " to embedded application node " + found.key;
+                    destPort = found.port;
+                    linkData.to = found.key;
+                    console.warn(error);
+                    errors.push(error);
+                }
+            }
 
             // abort if dest port not found
             if (destPort === null){
