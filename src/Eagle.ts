@@ -559,19 +559,32 @@ export class Eagle {
                 return;
             }
 
-            // check that file contains a "modelData" attribute
-            if (typeof dataObject.modelData === 'undefined'){
-                Utils.showUserMessage("Missing 'modelData' section", "You'll need to add this section manually. More details at: https://jira.icrar.uwa.edu.au/projects/EAGLE/issues/EAGLE-65");
-                return;
-            }
-
-            var fileType : Eagle.FileType = Utils.translateStringToFileType(dataObject.modelData.fileType);
+            var fileType : Eagle.FileType = Utils.determineFileType(dataObject);
 
             // Only load graph files.
             if (fileType == Eagle.FileType.Graph) {
-                let errors: string[] = [];
+                // attempt to determine schema version from FileInfo
+                let schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
+                console.log("!!!!! Determined Schema Version", schemaVersion);
 
-                this.logicalGraph(LogicalGraph.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath), errors));
+                let errors: string[] = [];
+                let dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
+
+                // use the correct parsing function based on schema version
+                switch (schemaVersion){
+                    case Eagle.DALiuGESchemaVersion.AppRef:
+                        this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
+                        break;
+                    case Eagle.DALiuGESchemaVersion.V3:
+                        // TODO: load V3
+                        Utils.showUserMessage("Error Loading File", "Unable to load V3 Schema. TODO.");
+                        //this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
+                        break;
+                    case Eagle.DALiuGESchemaVersion.OJS:
+                    case Eagle.DALiuGESchemaVersion.Unknown:
+                        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
+                        break;
+                }
 
                 // show errors (if found)
                 if (errors.length > 0){
@@ -1375,23 +1388,34 @@ export class Eagle {
                     return;
                 }
 
+                // attempt to parse the JSON
+                try {
+                    var dataObject = JSON.parse(data);
+                }
+                catch(err){
+                    Utils.showUserMessage("Error parsing file JSON", err.message);
+                    return;
+                }
+
                 // attempt to determine schema version from FileInfo
-                let schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(data);
-                console.log("Determined Schema Version", schemaVersion);
+                let schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
+                console.log("!!!!! Determined Schema Version", schemaVersion);
 
                 let errors: string[] = [];
 
                 // use the correct parsing function based on schema version
-                switch(schemaVersion){
+                switch (schemaVersion){
                     case Eagle.DALiuGESchemaVersion.AppRef:
-                        this.logicalGraph(LogicalGraph.fromAppRefJson(data, file, errors));
+                        this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errors));
                         break;
                     case Eagle.DALiuGESchemaVersion.V3:
-                        this.logicalGraph(LogicalGraph.fromV3Json(data, file, errors));
+                        // TODO: load V3
+                        Utils.showUserMessage("Error Loading File", "Unable to load V3 Schema. TODO.");
+                        //this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
                         break;
                     case Eagle.DALiuGESchemaVersion.OJS:
                     case Eagle.DALiuGESchemaVersion.Unknown:
-                        this.logicalGraph(LogicalGraph.fromOJSJson(data, file, errors));
+                        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
                         break;
                 }
 

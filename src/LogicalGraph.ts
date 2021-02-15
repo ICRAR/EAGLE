@@ -52,6 +52,7 @@ export class LogicalGraph {
         //result.class = "go.GraphLinksModel";
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
+        result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.OJS;
 
         // add nodes
         result.nodeDataArray = [];
@@ -76,10 +77,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, errors : string[]) : LogicalGraph => {
-        // parse the JSON first
-        var dataObject : any = JSON.parse(data);
-
+    static fromOJSJson = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
         // create new logical graph object
         var result : LogicalGraph = new LogicalGraph();
 
@@ -252,7 +250,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromV3Json = (data : string, file : RepositoryFile, errors : string[]) : LogicalGraph => {
+    static fromV3Json = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
         return new LogicalGraph();
     }
 
@@ -322,7 +320,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromAppRefJson = (data : string, file : RepositoryFile, errors : string[]) : LogicalGraph => {
+    static fromAppRefJson = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
         return new LogicalGraph();
     }
 
