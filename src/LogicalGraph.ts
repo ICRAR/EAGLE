@@ -310,18 +310,90 @@ export class LogicalGraph {
         result.linkDataArray = [];
         for (var i = 0 ; i < graph.getEdges().length ; i++){
             var edge : Edge = graph.getEdges()[i];
-            var linkData : any = Edge.toOJSJson(edge);
-            linkData.from = edge.getSrcNodeKey();
-            linkData.to   = edge.getDestNodeKey();
-
-            result.linkDataArray.push(linkData);
+            result.linkDataArray.push(Edge.toAppRefJson(edge));
         }
 
         return result;
     }
 
     static fromAppRefJson = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
-        return new LogicalGraph();
+        // create new logical graph object
+        var result : LogicalGraph = new LogicalGraph();
+
+        // copy modelData into fileInfo
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
+
+        // add nodes
+        for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            var nodeData = dataObject.nodeDataArray[i];
+            let node;
+
+            // check if node is an embedded node, if so, don't push to nodes array
+            if (nodeData.embedKey === null){
+                node = Node.fromAppRefJson(nodeData, errors);
+            } else {
+                // skip node
+                continue;
+            }
+
+            // check if this node has an embedded input application, if so, find and copy it now
+            if (typeof nodeData.inputApplicationRef !== 'undefined'){
+                let inputAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.inputApplicationRef);
+                node.setInputApplication(Node.fromAppRefJson(inputAppNodeData, errors));
+            }
+            // check if this node has an embedded output application, if so, find and copy it now
+            if (typeof nodeData.outputApplicationRef !== 'undefined'){
+                let outputAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.outputApplicationRef);
+                node.setOutputApplication(Node.fromAppRefJson(outputAppNodeData, errors));
+            }
+            // check if this node has an embedded exit application, if so, find and copy it now
+            if (typeof nodeData.exitApplicationRef !== 'undefined'){
+                let exitAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.exitApplicationRef);
+                node.setExitApplication(Node.fromAppRefJson(exitAppNodeData, errors));
+            }
+
+            result.nodes.push(node);
+        }
+
+        // set keys for all embedded nodes
+        //Utils.setEmbeddedApplicationNodeKeys(result);
+
+        // make sure to set parentId for all nodes
+        //for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+        //    var nodeData = dataObject.nodeDataArray[i];
+        //    var parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.group);
+        //
+        //    if (parentIndex !== -1){
+        //        result.nodes[i].setParentKey(result.nodes[parentIndex].getKey());
+        //    }
+        //}
+
+        // add edges
+        for (var i = 0 ; i < dataObject.linkDataArray.length ; i++){
+            var linkData = dataObject.linkDataArray[i];
+
+            result.edges.push(Edge.fromAppRefJson(linkData, errors));
+        }
+
+        // check for missing name
+        if (result.fileInfo().name === ""){
+            var error : string = "FileInfo.name is empty. Setting name to " + file.name;
+            console.warn(error);
+            errors.push(error);
+
+            result.fileInfo().name = file.name;
+        }
+
+        return result;
+    }
+
+    static _findNodeDataWithKey = (nodeDataArray: any[], key: number): any => {
+        for (var i = 0 ; i < nodeDataArray.length ; i++){
+            if (nodeDataArray[i].key === key){
+                return nodeDataArray[i];
+            }
+        }
+        return null;
     }
 
     addNodeComplete = (node : Node) => {

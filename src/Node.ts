@@ -1604,7 +1604,7 @@ export class Node {
         result.expanded = node.expanded();
 
         if (node.parentKey !== null){
-            result.group = node.parentKey;
+            result.parentKey = node.parentKey;
         }
 
         if (node.embedKey !== null){
@@ -1638,6 +1638,33 @@ export class Node {
         }
 
         return result;
+    }
+
+    static fromAppRefJson = (nodeData : any, errors: string[]) : Node => {
+        let node = new Node(nodeData.key, nodeData.text, nodeData.description, nodeData.category, nodeData.categoryType);
+
+        node.color = nodeData.color;
+        node.drawOrderHint = nodeData.drawOrderHint;
+        node.x = nodeData.x;
+        node.y = nodeData.y;
+        node.width = nodeData.width;
+        node.height = nodeData.height;
+        node.collapsed = nodeData.collapsed;
+        node.showPorts = nodeData.showPorts;
+        node.flipPorts = nodeData.flipPorts;
+        node.streaming = nodeData.streaming;
+        node.subject = nodeData.subject;
+        node.selected(nodeData.selected);
+        node.expanded(nodeData.expanded);
+        node.parentKey = nodeData.parentKey;
+        node.embedKey = nodeData.embedKey;
+
+        // TODO: incomplete
+        node.inputPorts([]);
+        node.outputPorts([]);
+        node.fields([]);
+
+        return node;
     }
 
     // display/visualisation data
