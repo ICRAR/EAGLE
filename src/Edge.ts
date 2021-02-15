@@ -136,7 +136,8 @@ export class Edge {
     }
 
     static fromAppRefJson = (edgeData: any, errors: string[]): Edge => {
-        let edge = new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, edgeData.dataType);
+        //console.log("Edge.fromAppRefJson()", edgeData);
+        let edge = new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType);
         edge.loopAware = edgeData.loopAware;
         return edge;
     }

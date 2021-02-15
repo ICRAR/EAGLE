@@ -565,7 +565,7 @@ export class Eagle {
             if (fileType == Eagle.FileType.Graph) {
                 // attempt to determine schema version from FileInfo
                 let schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
-                console.log("!!!!! Determined Schema Version", schemaVersion);
+                //console.log("!!!!! Determined Schema Version", schemaVersion);
 
                 let errors: string[] = [];
                 let dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
@@ -1399,7 +1399,7 @@ export class Eagle {
 
                 // attempt to determine schema version from FileInfo
                 let schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
-                console.log("!!!!! Determined Schema Version", schemaVersion);
+                //console.log("!!!!! Determined Schema Version", schemaVersion);
 
                 let errors: string[] = [];
 

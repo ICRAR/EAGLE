@@ -1603,13 +1603,8 @@ export class Node {
         result.selected = node.selected();
         result.expanded = node.expanded();
 
-        if (node.parentKey !== null){
-            result.parentKey = node.parentKey;
-        }
-
-        if (node.embedKey !== null){
-            result.embedKey = node.embedKey;
-        }
+        result.parentKey = node.parentKey;
+        result.embedKey = node.embedKey;
 
         // add input ports
         result.inputPorts = [];
@@ -1659,10 +1654,20 @@ export class Node {
         node.parentKey = nodeData.parentKey;
         node.embedKey = nodeData.embedKey;
 
-        // TODO: incomplete
         node.inputPorts([]);
+        for (var i = 0 ; i < nodeData.inputPorts.length ; i++){
+            node.addPort(Port.fromOJSJson(nodeData.inputPorts[i]), true);
+        }
+
         node.outputPorts([]);
+        for (var i = 0 ; i < nodeData.outputPorts.length ; i++){
+            node.addPort(Port.fromOJSJson(nodeData.outputPorts[i]), false);
+        }
+
         node.fields([]);
+        for (var i = 0 ; i < nodeData.fields.length ; i++){
+            node.addField(Field.fromOJSJson(nodeData.fields[i]));
+        }
 
         return node;
     }

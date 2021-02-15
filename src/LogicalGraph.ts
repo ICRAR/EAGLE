@@ -329,6 +329,7 @@ export class LogicalGraph {
             let node;
 
             // check if node is an embedded node, if so, don't push to nodes array
+            //console.log("node index", i, "key", nodeData.key, "embedKey", nodeData.embedKey);
             if (nodeData.embedKey === null){
                 node = Node.fromAppRefJson(nodeData, errors);
             } else {
