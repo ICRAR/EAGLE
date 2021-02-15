@@ -1369,7 +1369,7 @@ export class Node {
             errors.push("Moved input port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded input application");
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
-            if (node.canHaveOutputApplication()){
+            if (node.canHaveOutputApplication() && !node.canHaveExitApplication()){
                 if (!node.hasOutputApplication()){
                     if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                         node.outputApplication(Node.createEmbeddedApplicationNode(port.getName(), Eagle.Category.Unknown, node.getKey()));
@@ -1381,7 +1381,8 @@ export class Node {
                 node.outputApplication().addPort(port, false);
                 port.setNodeKey(node.outputApplication().getKey());
                 errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded output application");
-            } else {
+            }
+            if (!node.canHaveOutputApplication() && node.canHaveExitApplication()){
                 if (!node.hasExitApplication()){
                     if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                         node.exitApplication(Node.createEmbeddedApplicationNode(port.getName(), Eagle.Category.Unknown, node.getKey()));
@@ -1393,6 +1394,25 @@ export class Node {
                 node.exitApplication().addPort(port, false);
                 port.setNodeKey(node.exitApplication().getKey());
                 errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded exit application");
+            }
+
+            if (!node.canHaveOutputApplication() && !node.canHaveExitApplication()){
+                // if possible, add port to output side of input application
+                if (node.canHaveInputApplication()){
+                    if (!node.hasInputApplication()){
+                        if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
+                            node.inputApplication(Node.createEmbeddedApplicationNode(port.getName(), Eagle.Category.Unknown, node.getKey()));
+                        } else {
+                            errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
+                            return;
+                        }
+                    }
+                    node.inputApplication().addPort(port, false);
+                    port.setNodeKey(node.inputApplication().getKey());
+                    errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application");
+                } else {
+                    errors.push("Can't add port to embedded application. Node can't have output OR exit application.");
+                }
             }
         }
     }

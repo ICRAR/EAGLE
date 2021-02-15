@@ -1375,8 +1375,27 @@ export class Eagle {
                     return;
                 }
 
+                // attempt to determine schema version from FileInfo
+                let schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(data);
+                console.log("Determined Schema Version", schemaVersion);
+
                 let errors: string[] = [];
-                this.logicalGraph(LogicalGraph.fromOJSJson(data, file, errors));
+
+                // use the correct parsing function based on schema version
+                switch(schemaVersion){
+                    case Eagle.DALiuGESchemaVersion.AppRef:
+                        this.logicalGraph(LogicalGraph.fromAppRefJson(data, file, errors));
+                        break;
+                    case Eagle.DALiuGESchemaVersion.V3:
+                        this.logicalGraph(LogicalGraph.fromV3Json(data, file, errors));
+                        break;
+                    case Eagle.DALiuGESchemaVersion.OJS:
+                    case Eagle.DALiuGESchemaVersion.Unknown:
+                        this.logicalGraph(LogicalGraph.fromOJSJson(data, file, errors));
+                        break;
+                }
+
+
                 if (errors.length > 0){
                     if (showErrors){
                         Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
@@ -2797,9 +2816,10 @@ export namespace Eagle
     }
 
     export enum DALiuGESchemaVersion {
-        Unknown,
-        V3,
-        AppRef
+        Unknown = "Unknown",
+        OJS = "OJS",
+        V3 = "V3",
+        AppRef = "AppRef"
     }
 
     export enum LinkValid {

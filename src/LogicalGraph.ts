@@ -252,6 +252,10 @@ export class LogicalGraph {
         return result;
     }
 
+    static fromV3Json = (data : string, file : RepositoryFile, errors : string[]) : LogicalGraph => {
+        return new LogicalGraph();
+    }
+
     static toAppRefJson = (graph : LogicalGraph) : object => {
         var result : any = {};
 
@@ -316,6 +320,10 @@ export class LogicalGraph {
         }
 
         return result;
+    }
+
+    static fromAppRefJson = (data : string, file : RepositoryFile, errors : string[]) : LogicalGraph => {
+        return new LogicalGraph();
     }
 
     addNodeComplete = (node : Node) => {

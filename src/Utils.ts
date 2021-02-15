@@ -1148,4 +1148,9 @@ export class Utils {
         //console.log("Copy node", node.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
         palette.addNode(node);
     }
+
+    // TODO: incomplete
+    static determineSchemaVersion(data: any){
+        return Eagle.DALiuGESchemaVersion.OJS;
+    }
 }
