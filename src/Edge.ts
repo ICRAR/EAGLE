@@ -124,6 +124,12 @@ export class Edge {
         }
     }
 
+    static fromV3Json = (edgeData: any, errors: string[]): Edge => {
+        let edge = new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.FieldDataType.Unknown);
+        edge.loopAware = edgeData.loop_aware === "1";
+        return edge;
+    }
+
     static toAppRefJson = (edge : Edge) : object => {
         return {
             from: edge.srcNodeKey,

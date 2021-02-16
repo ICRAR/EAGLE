@@ -576,9 +576,7 @@ export class Eagle {
                         this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
                         break;
                     case Eagle.DALiuGESchemaVersion.V3:
-                        // TODO: load V3
-                        Utils.showUserMessage("Error Loading File", "Unable to load V3 Schema. TODO.");
-                        //this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
+                        this.logicalGraph(LogicalGraph.fromV3Json(dataObject, dummyFile, errors));
                         break;
                     case Eagle.DALiuGESchemaVersion.OJS:
                     case Eagle.DALiuGESchemaVersion.Unknown:
@@ -1409,9 +1407,7 @@ export class Eagle {
                         this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errors));
                         break;
                     case Eagle.DALiuGESchemaVersion.V3:
-                        // TODO: load V3
-                        Utils.showUserMessage("Error Loading File", "Unable to load V3 Schema. TODO.");
-                        //this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
+                        this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
                         break;
                     case Eagle.DALiuGESchemaVersion.OJS:
                     case Eagle.DALiuGESchemaVersion.Unknown:

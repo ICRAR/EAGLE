@@ -251,7 +251,33 @@ export class LogicalGraph {
     }
 
     static fromV3Json = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
-        return new LogicalGraph();
+        var result: LogicalGraph = new LogicalGraph();
+        var dlgg = dataObject.DALiuGEGraph;
+
+        result.fileInfo().type = dlgg.type;
+        result.fileInfo().name = dlgg.name;
+        result.fileInfo().schemaVersion = dlgg.schemaVersion;
+        result.fileInfo().sha = dlgg.commitHash;
+        result.fileInfo().repositoryService = dlgg.repositoryService;
+        result.fileInfo().repositoryBranch = dlgg.repositoryBranch;
+        result.fileInfo().repositoryName = dlgg.repositoryName;
+        result.fileInfo().path = dlgg.repositoryPath;
+
+        for (var key in dlgg.nodeData){
+            var node = Node.fromV3NodeJson(dlgg.nodeData[key], key, errors);
+            var componentKey = dlgg.nodeData[key].componentKey;
+
+            Node.fromV3ComponentJson(dlgg.componentData[componentKey], node, errors);
+
+            result.nodes.push(node);
+        }
+
+        for (var key in dlgg.linkData){
+            var edge = Edge.fromV3Json(dlgg.linkData[key], errors);
+            result.edges.push(edge);
+        }
+
+        return result;
     }
 
     static toAppRefJson = (graph : LogicalGraph) : object => {

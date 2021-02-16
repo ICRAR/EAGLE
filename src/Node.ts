@@ -1695,6 +1695,23 @@ export class Node {
         return result;
     }
 
+    static fromV3NodeJson = (nodeData : any, key: string, errors: string[]) : Node => {
+        var result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown, Eagle.CategoryType.Unknown);
+
+        result.x = nodeData.x;
+        result.y = nodeData.y;
+        result.width = nodeData.width;
+        result.height = nodeData.height;
+        result.collapsed = nodeData.collapsed;
+        result.showPorts = nodeData.showPorts;
+        result.flipPorts = nodeData.flipPorts;
+
+        result.selected(nodeData.selected);
+        result.expanded(nodeData.expanded);
+
+        return result;
+    }
+
     // graph data
     // "name" and "description" are considered part of the structure of the graph, it would be hard to add them to the display part (parameters would have to be treated the same way)
     static toV3ComponentJson = (node : Node) : object => {
@@ -1743,6 +1760,19 @@ export class Node {
         }
 
         return result;
+    }
+
+    static fromV3ComponentJson = (nodeData: any, node: Node, errors: string[]): void => {
+        node.category = nodeData.category;
+        node.categoryType = nodeData.categoryType;
+        node.name = nodeData.name;
+        node.description = nodeData.description;
+
+        node.streaming = nodeData.streaming;
+        node.subject = nodeData.subject;
+
+        node.parentKey = nodeData.parentKey;
+        node.embedKey = nodeData.embedKey;
     }
 
     static createEmbeddedApplicationNode = (name : string, category: Eagle.Category, embedKey: number) : Node => {
