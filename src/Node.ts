@@ -1468,7 +1468,7 @@ export class Node {
         if (input){
             if (!node.hasInputApplication()){
                 if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(555, port.getName(), Eagle.Category.Unknown, node.getKey(), readonly));
+                    node.inputApplication(Node.createEmbeddedApplicationNode(Utils.newRandomKey(), port.getName(), Eagle.Category.Unknown, node.getKey(), readonly));
                 } else {
                     errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
                     return;
@@ -1482,7 +1482,7 @@ export class Node {
             if (node.canHaveOutputApplication() && !node.canHaveExitApplication()){
                 if (!node.hasOutputApplication()){
                     if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                        node.outputApplication(Node.createEmbeddedApplicationNode(555, port.getName(), Eagle.Category.Unknown, node.getKey(), readonly));
+                        node.outputApplication(Node.createEmbeddedApplicationNode(Utils.newRandomKey(), port.getName(), Eagle.Category.Unknown, node.getKey(), readonly));
                     } else {
                         errors.push("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
                         return;
@@ -1495,7 +1495,7 @@ export class Node {
             if (!node.canHaveOutputApplication() && node.canHaveExitApplication()){
                 if (!node.hasExitApplication()){
                     if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                        node.exitApplication(Node.createEmbeddedApplicationNode(555, port.getName(), Eagle.Category.Unknown, node.getKey(), readonly));
+                        node.exitApplication(Node.createEmbeddedApplicationNode(Utils.newRandomKey(), port.getName(), Eagle.Category.Unknown, node.getKey(), readonly));
                     } else {
                         errors.push("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
                         return;
@@ -1511,7 +1511,7 @@ export class Node {
                 if (node.canHaveInputApplication()){
                     if (!node.hasInputApplication()){
                         if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                            node.inputApplication(Node.createEmbeddedApplicationNode(555, port.getName(), Eagle.Category.Unknown, node.getKey(), readonly));
+                            node.inputApplication(Node.createEmbeddedApplicationNode(Utils.newRandomKey(), port.getName(), Eagle.Category.Unknown, node.getKey(), readonly));
                         } else {
                             errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
                             return;

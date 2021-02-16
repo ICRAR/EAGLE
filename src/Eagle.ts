@@ -1445,8 +1445,9 @@ export class Eagle {
                 }
 
                 // attempt to parse the JSON
+                let dataObject;
                 try {
-                    var dataObject = JSON.parse(data);
+                    dataObject = JSON.parse(data);
                 }
                 catch(err){
                     Utils.showUserMessage("Error parsing file JSON", err.message);
@@ -1491,9 +1492,19 @@ export class Eagle {
 
             } else if (file.type === Eagle.FileType.JSON) {
                 if (this.userMode() === Eagle.UserMode.LogicalGraphEditor) {
+                    // attempt to parse the JSON
+                    let dataObject;
+                    try {
+                        dataObject = JSON.parse(data);
+                    }
+                    catch(err){
+                        Utils.showUserMessage("Error parsing file JSON", err.message);
+                        return;
+                    }
+
                     //Utils.showUserMessage("Warning", "Opening JSON file as graph, make sure this is correct.");
                     let errors: string[] = [];
-                    this.logicalGraph(LogicalGraph.fromOJSJson(data, file, errors));
+                    this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
 
                     if (errors.length > 0){
                         if (showErrors){

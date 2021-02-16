@@ -157,6 +157,10 @@ export class Utils {
         return Utils.findNewKey(usedKeys);
     }
 
+    static newRandomKey(): number {
+        return -Math.floor(Math.random() * (Number.MAX_SAFE_INTEGER - 1000 + 1)) + 1000;
+    }
+
     static setEmbeddedApplicationNodeKeys(lg: LogicalGraph): void {
         let nodes: Node[] = lg.getNodes();
         let usedKeys: number[] = Utils.getUsedKeys(nodes);

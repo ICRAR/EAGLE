@@ -104,5 +104,6 @@ $(function(){
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "summit", "summit.palette"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "trash", "collapsed_mkn_test.graph"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "lofar_std.json"));
+    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "test_grpby_gather.json"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "eagle_gather.json"));
 });
