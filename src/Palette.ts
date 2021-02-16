@@ -44,23 +44,22 @@ export class Palette {
         this.nodes = ko.observableArray([]);
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, showErrors : boolean) : Palette => {
+    static fromOJSJson = (data : string, file : RepositoryFile, errors : string[]) : Palette => {
         // parse the JSON first
         var dataObject : any = JSON.parse(data);
-        var errors : string[] = [];
 
         // TODO: use correct name from dataObject above
         var result : Palette = new Palette();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
         for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
 
             // read node
-            var newNode : Node = Node.fromOJSJson(nodeData);
+            var newNode : Node = Node.fromOJSJson(nodeData, errors);
 
             // check that node has no group
             if (newNode.getParentKey() !== null){
@@ -93,12 +92,7 @@ export class Palette {
             result.fileInfo().name = file.name;
         }
 
-        // check for duplicate keys
-
-        // show errors (if found)
-        if (errors.length > 0 && showErrors){
-            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
-        }
+        // TODO: check for duplicate keys
 
         return result;
     }

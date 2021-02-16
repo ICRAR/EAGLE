@@ -16,6 +16,7 @@ export class FileInfo {
     private _modified : ko.Observable<boolean>;
     private _eagleVersion : ko.Observable<string>;
     private _eagleCommitHash : ko.Observable<string>;
+    private _schemaVersion : ko.Observable<Eagle.DALiuGESchemaVersion>;
     private _readonly : ko.Observable<boolean>;
 
     constructor(){
@@ -30,6 +31,7 @@ export class FileInfo {
         this._modified = ko.observable(false);
         this._eagleVersion = ko.observable("");
         this._eagleCommitHash = ko.observable("");
+        this._schemaVersion = ko.observable(Eagle.DALiuGESchemaVersion.Unknown);
         this._readonly = ko.observable(true);
     }
 
@@ -121,6 +123,14 @@ export class FileInfo {
         this._eagleCommitHash(hash);
     }
 
+    get schemaVersion(): Eagle.DALiuGESchemaVersion{
+        return this._schemaVersion();
+    }
+
+    set schemaVersion(version: Eagle.DALiuGESchemaVersion){
+        this._schemaVersion(version);
+    }
+
     get readonly() : boolean{
         return this._readonly();
     }
@@ -141,6 +151,7 @@ export class FileInfo {
         this._modified(false);
         this._eagleVersion("");
         this._eagleCommitHash("");
+        this._schemaVersion(Eagle.DALiuGESchemaVersion.Unknown);
         this._readonly(true);
     }
 
@@ -158,6 +169,7 @@ export class FileInfo {
         result.modified = this._modified();
         result.eagleVersion = this._eagleVersion();
         result.eagleCommitHash = this._eagleCommitHash();
+        result.schemaVersion = this._schemaVersion();
         result.readonly = this._readonly();
 
         return result;
@@ -219,6 +231,7 @@ export class FileInfo {
         s += " Modified:" + this._modified();
         s += " EAGLE Version:" + this._eagleVersion();
         s += " EAGLE Commit Hash:" + this._eagleCommitHash();
+        s += " Schema Version:" + this._schemaVersion();
         s += " readonly:" + this._readonly();
 
         return s;
@@ -235,11 +248,13 @@ export class FileInfo {
             git_url: fileInfo.gitUrl,
             eagleVersion: fileInfo.eagleVersion,
             eagleCommitHash: fileInfo.eagleCommitHash,
+            schemaVersion: fileInfo.schemaVersion,
             readonly: fileInfo.readonly
         };
     }
 
-    static fromOJSJson = (modelData : any) : FileInfo => {
+    // TODO: use errors array if attributes cannot be found
+    static fromOJSJson = (modelData : any, errors: string[]) : FileInfo => {
         var result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
@@ -254,6 +269,7 @@ export class FileInfo {
 
         result.eagleVersion = modelData.eagleVersion == undefined ? "" : modelData.eagleVersion;
         result.eagleCommitHash = modelData.eagleCommitHash == undefined ? "" : modelData.eagleCommitHash;
+        result.schemaVersion = modelData.schemaVersion == undefined ? "" : modelData.schemaVersion;
 
         result.readonly = modelData.readonly == undefined ? true : modelData.readonly;
 

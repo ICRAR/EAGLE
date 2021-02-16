@@ -52,6 +52,7 @@ export class LogicalGraph {
         //result.class = "go.GraphLinksModel";
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
+        result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.OJS;
 
         // add nodes
         result.nodeDataArray = [];
@@ -76,21 +77,17 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, showErrors : boolean) : LogicalGraph => {
-        // parse the JSON first
-        var dataObject : any = JSON.parse(data);
-        var errors : string[] = [];
-
+    static fromOJSJson = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
         // create new logical graph object
         var result : LogicalGraph = new LogicalGraph();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
         for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
-            result.nodes.push(Node.fromOJSJson(nodeData));
+            result.nodes.push(Node.fromOJSJson(nodeData, errors));
         }
 
         // set keys for all embedded nodes
@@ -124,6 +121,19 @@ export class LogicalGraph {
             // find source port on source node
             var srcPort : Port = srcNode.findPortById(linkData.fromPort);
 
+            // if source port was not found on source node, check the source node's embedded application nodes
+            // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
+            if (srcPort === null){
+                let found: {key: number, port: Port} = srcNode.findPortInApplicationsById(linkData.fromPort);
+                if (found.port !== null){
+                    var error: string = "Updated edge " + i + " source node from construct " + linkData.from + " to embedded application node " + found.key;
+                    srcPort = found.port;
+                    linkData.from = found.key;
+                    console.warn(error);
+                    errors.push(error);
+                }
+            }
+
             // abort if source port not found
             if (srcPort === null){
                 var error : string = "Unable to find port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i;
@@ -145,6 +155,19 @@ export class LogicalGraph {
 
             // find dest port on dest node
             var destPort : Port = destNode.findPortById(linkData.toPort);
+
+            // if destination port was not found on destination node, check the destination node's embedded application nodes
+            // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
+            if (destPort === null){
+                let found: {key: number, port: Port} = destNode.findPortInApplicationsById(linkData.toPort);
+                if (found.port !== null){
+                    var error: string = "Updated edge " + i + " destination node from construct " + linkData.to + " to embedded application node " + found.key;
+                    destPort = found.port;
+                    linkData.to = found.key;
+                    console.warn(error);
+                    errors.push(error);
+                }
+            }
 
             // abort if dest port not found
             if (destPort === null){
@@ -176,11 +199,6 @@ export class LogicalGraph {
         var hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(result);
         if (hadNegativePositions){
             console.log("Adjusting position of all nodes to move to positive quadrant.");
-        }
-
-        // show errors (if found)
-        if (errors.length > 0 && showErrors){
-            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
         }
 
         return result;
@@ -230,6 +248,178 @@ export class LogicalGraph {
         }
 
         return result;
+    }
+
+    static fromV3Json = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
+        var result: LogicalGraph = new LogicalGraph();
+        var dlgg = dataObject.DALiuGEGraph;
+
+        result.fileInfo().type = dlgg.type;
+        result.fileInfo().name = dlgg.name;
+        result.fileInfo().schemaVersion = dlgg.schemaVersion;
+        result.fileInfo().sha = dlgg.commitHash;
+        result.fileInfo().repositoryService = dlgg.repositoryService;
+        result.fileInfo().repositoryBranch = dlgg.repositoryBranch;
+        result.fileInfo().repositoryName = dlgg.repositoryName;
+        result.fileInfo().path = dlgg.repositoryPath;
+
+        for (var key in dlgg.nodeData){
+            var node = Node.fromV3NodeJson(dlgg.nodeData[key], key, errors);
+
+            Node.fromV3ComponentJson(dlgg.componentData[key], node, errors);
+
+            result.nodes.push(node);
+        }
+
+        for (var key in dlgg.linkData){
+            var edge = Edge.fromV3Json(dlgg.linkData[key], errors);
+            result.edges.push(edge);
+        }
+
+        return result;
+    }
+
+    static toAppRefJson = (graph : LogicalGraph) : object => {
+        var result : any = {};
+
+        //result.class = "go.GraphLinksModel";
+
+        result.modelData = FileInfo.toOJSJson(graph.fileInfo());
+        result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.AppRef;
+
+        // add nodes
+        result.nodeDataArray = [];
+        for (var i = 0 ; i < graph.getNodes().length ; i++){
+            var node : Node = graph.getNodes()[i];
+            var nodeData : any = Node.toAppRefJson(node);
+
+            result.nodeDataArray.push(nodeData);
+        }
+
+        // add embedded nodes
+        for (var i = 0 ; i < graph.getNodes().length ; i++){
+            var node : Node = graph.getNodes()[i];
+
+            if (node.hasInputApplication()){
+                var nodeData : any = Node.toAppRefJson(node.getInputApplication());
+
+                // update ref in parent
+                result.nodeDataArray[i].inputApplicationRef = nodeData.key;
+
+                // add child to nodeDataArray
+                result.nodeDataArray.push(nodeData);
+            }
+
+            if (node.hasOutputApplication()){
+                var nodeData : any = Node.toAppRefJson(node.getOutputApplication());
+
+                // update ref in parent
+                result.nodeDataArray[i].outputApplicationRef = nodeData.key;
+
+                // add child to nodeDataArray
+                result.nodeDataArray.push(nodeData);
+            }
+
+            if (node.hasExitApplication()){
+                var nodeData : any = Node.toAppRefJson(node.getExitApplication());
+
+                // update ref in parent
+                result.nodeDataArray[i].exitApplicationRef = nodeData.key;
+
+                // add child to nodeDataArray
+                result.nodeDataArray.push(nodeData);
+            }
+        }
+
+        // add links
+        result.linkDataArray = [];
+        for (var i = 0 ; i < graph.getEdges().length ; i++){
+            var edge : Edge = graph.getEdges()[i];
+            result.linkDataArray.push(Edge.toAppRefJson(edge));
+        }
+
+        return result;
+    }
+
+    static fromAppRefJson = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
+        // create new logical graph object
+        var result : LogicalGraph = new LogicalGraph();
+
+        // copy modelData into fileInfo
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
+
+        // add nodes
+        for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            var nodeData = dataObject.nodeDataArray[i];
+            let node;
+
+            // check if node is an embedded node, if so, don't push to nodes array
+            //console.log("node index", i, "key", nodeData.key, "embedKey", nodeData.embedKey);
+            if (nodeData.embedKey === null){
+                node = Node.fromAppRefJson(nodeData, errors);
+            } else {
+                // skip node
+                continue;
+            }
+
+            // check if this node has an embedded input application, if so, find and copy it now
+            if (typeof nodeData.inputApplicationRef !== 'undefined'){
+                let inputAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.inputApplicationRef);
+                node.setInputApplication(Node.fromAppRefJson(inputAppNodeData, errors));
+            }
+            // check if this node has an embedded output application, if so, find and copy it now
+            if (typeof nodeData.outputApplicationRef !== 'undefined'){
+                let outputAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.outputApplicationRef);
+                node.setOutputApplication(Node.fromAppRefJson(outputAppNodeData, errors));
+            }
+            // check if this node has an embedded exit application, if so, find and copy it now
+            if (typeof nodeData.exitApplicationRef !== 'undefined'){
+                let exitAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.exitApplicationRef);
+                node.setExitApplication(Node.fromAppRefJson(exitAppNodeData, errors));
+            }
+
+            result.nodes.push(node);
+        }
+
+        // set keys for all embedded nodes
+        //Utils.setEmbeddedApplicationNodeKeys(result);
+
+        // make sure to set parentId for all nodes
+        //for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+        //    var nodeData = dataObject.nodeDataArray[i];
+        //    var parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.group);
+        //
+        //    if (parentIndex !== -1){
+        //        result.nodes[i].setParentKey(result.nodes[parentIndex].getKey());
+        //    }
+        //}
+
+        // add edges
+        for (var i = 0 ; i < dataObject.linkDataArray.length ; i++){
+            var linkData = dataObject.linkDataArray[i];
+
+            result.edges.push(Edge.fromAppRefJson(linkData, errors));
+        }
+
+        // check for missing name
+        if (result.fileInfo().name === ""){
+            var error : string = "FileInfo.name is empty. Setting name to " + file.name;
+            console.warn(error);
+            errors.push(error);
+
+            result.fileInfo().name = file.name;
+        }
+
+        return result;
+    }
+
+    static _findNodeDataWithKey = (nodeDataArray: any[], key: number): any => {
+        for (var i = 0 ; i < nodeDataArray.length ; i++){
+            if (nodeDataArray[i].key === key){
+                return nodeDataArray[i];
+            }
+        }
+        return null;
     }
 
     addNodeComplete = (node : Node) => {

@@ -122,6 +122,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, true));
         Eagle.settings.push(new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""));
         Eagle.settings.push(new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, ""));
+        Eagle.settings.push(new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true));
         Eagle.settings.push(new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
@@ -531,7 +532,7 @@ export class Eagle {
     uploadGraphFile = () : void => {
         var uploadedGraphFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFile");
         var fileFullPath : string = uploadedGraphFileInputElement.value;
-        var showErrors : boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+        var showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -563,18 +564,40 @@ export class Eagle {
                 return;
             }
 
-            // check that file contains a "modelData" attribute
-            if (typeof dataObject.modelData === 'undefined'){
-                Utils.showUserMessage("Missing 'modelData' section", "You'll need to add this section manually. More details at: https://jira.icrar.uwa.edu.au/projects/EAGLE/issues/EAGLE-65");
-                return;
-            }
-
-            var fileType : Eagle.FileType = Utils.translateStringToFileType(dataObject.modelData.fileType);
+            var fileType : Eagle.FileType = Utils.determineFileType(dataObject);
 
             // Only load graph files.
             if (fileType == Eagle.FileType.Graph) {
-                this.logicalGraph(LogicalGraph.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", fileFullPath), showErrors));
-                Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+                // attempt to determine schema version from FileInfo
+                let schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
+                //console.log("!!!!! Determined Schema Version", schemaVersion);
+
+                let errors: string[] = [];
+                let dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
+
+                // use the correct parsing function based on schema version
+                switch (schemaVersion){
+                    case Eagle.DALiuGESchemaVersion.AppRef:
+                        this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
+                        break;
+                    case Eagle.DALiuGESchemaVersion.V3:
+                        Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
+                        this.logicalGraph(LogicalGraph.fromV3Json(dataObject, dummyFile, errors));
+                        break;
+                    case Eagle.DALiuGESchemaVersion.OJS:
+                    case Eagle.DALiuGESchemaVersion.Unknown:
+                        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
+                        break;
+                }
+
+                // show errors (if found)
+                if (errors.length > 0){
+                    if (showErrors){
+                        Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+                    }
+                } else {
+                    Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+                }
             } else {
                 Utils.showUserMessage("Error", "This is not a graph file!");
             }
@@ -590,7 +613,7 @@ export class Eagle {
     uploadPaletteFile = () : void => {
         var uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFile");
         var fileFullPath : string = uploadedPaletteFileInputElement.value;
-        var showErrors : boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+        var showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -631,7 +654,13 @@ export class Eagle {
                 return;
             }
 
-            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), showErrors);
+            let errors: string[] = [];
+            var p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errors);
+
+            // show errors (if found)
+            if (errors.length > 0 && showErrors){
+                Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+            }
 
             if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
                 this.palettes.push(p);
@@ -1038,6 +1067,8 @@ export class Eagle {
      * Export file to V3 Json
      */
     exportV3Json = () : void => {
+        Utils.showUserMessage("Unsupported feature", "Saving files using the V3 schema is not supported.");
+
         var fileName : string = this.activeFileInfo().name;
 
         // set the EAGLE version etc according to this running version
@@ -1072,6 +1103,39 @@ export class Eagle {
         });
     }
 
+
+    /**
+     * Export file to AppRef Json
+     * This is an experimental new JSON format that moves embedded application
+     * nodes out of constructs to the end of the node array, and then refers to
+     * them by ID and key within the node
+     */
+    exportAppRefJson = () : void => {
+        var fileName : string = this.activeFileInfo().name;
+
+        // set the EAGLE version etc according to this running version
+        this.logicalGraph().fileInfo().updateEagleInfo();
+
+        var json = LogicalGraph.toAppRefJson(this.logicalGraph());
+
+        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+            if (error != null){
+                Utils.showUserMessage("Error", "Error saving the file!");
+                console.error(error);
+                return;
+            }
+
+            // NOTE: this stuff is a hacky way of saving a file locally
+            var blob = new Blob([data]);
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+        });
+    }
+
+
     /**
      * Loads template palette from the server.
      */
@@ -1085,11 +1149,17 @@ export class Eagle {
                 return;
             }
 
-            var fileType : Eagle.FileType = Utils.translateStringToFileType((<any>data).modelData.fileType);
-            var showErrors = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+            var fileType: Eagle.FileType = Utils.translateStringToFileType((<any>data).modelData.fileType);
+            var showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             if (fileType == Eagle.FileType.TemplatePalette) {
-                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), showErrors));
+                let errors: string[] = [];
+                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), errors));
+
+                // TODO: show errors (if required)
+                if (errors.length > 0 && showErrors){
+                    Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+                }
             } else {
                 Utils.showUserMessage("Error", "File type is not a template palette!");
                 return;
@@ -1103,7 +1173,12 @@ export class Eagle {
 
             if (Eagle.findSettingValue(Utils.OPEN_DEFAULT_PALETTE)){
                 console.log("Generate default palette");
-                let palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", ""), false);
+                let errors: string[] = [];
+                let palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", ""), errors);
+                if (errors.length > 0){
+                    console.warn(errors.length, "errors during loading default palette", errors);
+                }
+
                 palette.fileInfo().clear();
                 palette.fileInfo().name = Palette.DYNAMIC_PALETTE_NAME;
                 palette.fileInfo().readonly = false;
@@ -1125,9 +1200,14 @@ export class Eagle {
                 return;
             }
 
-            var showErrors = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+            var showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+            let errors: string[] = [];
 
-            let builtinPalette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.builtinPaletteFileName), showErrors);
+            let builtinPalette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.builtinPaletteFileName), errors);
+            if (errors.length > 0 && showErrors){
+                Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+            }
+
             builtinPalette.fileInfo().clear();
             builtinPalette.fileInfo().name = Palette.BUILTIN_PALETTE_NAME;
             this.palettes.push(builtinPalette);
@@ -1356,7 +1436,7 @@ export class Eagle {
             }
 
             // if setting dictates, show errors during loading
-            var showErrors = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+            var showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             if (file.type === Eagle.FileType.Graph) {
                 if (this.userMode() === Eagle.UserMode.PaletteEditor) {
@@ -1364,23 +1444,69 @@ export class Eagle {
                     return;
                 }
 
-                this.logicalGraph(LogicalGraph.fromOJSJson(data, file, showErrors));
+                // attempt to parse the JSON
+                try {
+                    var dataObject = JSON.parse(data);
+                }
+                catch(err){
+                    Utils.showUserMessage("Error parsing file JSON", err.message);
+                    return;
+                }
+
+                // attempt to determine schema version from FileInfo
+                let schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
+                //console.log("!!!!! Determined Schema Version", schemaVersion);
+
+                let errors: string[] = [];
+
+                // use the correct parsing function based on schema version
+                switch (schemaVersion){
+                    case Eagle.DALiuGESchemaVersion.AppRef:
+                        this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errors));
+                        break;
+                    case Eagle.DALiuGESchemaVersion.V3:
+                        Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
+                        this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
+                        break;
+                    case Eagle.DALiuGESchemaVersion.OJS:
+                    case Eagle.DALiuGESchemaVersion.Unknown:
+                        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
+                        break;
+                }
+
+
+                if (errors.length > 0){
+                    if (showErrors){
+                        Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+                    }
+                } else {
+                    Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+                }
+
                 fileTypeLoaded = Eagle.FileType.Graph;
-                Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
 
             } else if (file.type === Eagle.FileType.Palette) {
                 fileTypeLoaded = Eagle.FileType.Palette;
-                this._remotePaletteLoaded(file, data, showErrors);
+                this._remotePaletteLoaded(file, data);
 
             } else if (file.type === Eagle.FileType.JSON) {
                 if (this.userMode() === Eagle.UserMode.LogicalGraphEditor) {
                     //Utils.showUserMessage("Warning", "Opening JSON file as graph, make sure this is correct.");
-                    this.logicalGraph(LogicalGraph.fromOJSJson(data, file, showErrors));
+                    let errors: string[] = [];
+                    this.logicalGraph(LogicalGraph.fromOJSJson(data, file, errors));
+
+                    if (errors.length > 0){
+                        if (showErrors){
+                            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+                        }
+                    } else {
+                        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+                    }
+
                     fileTypeLoaded = Eagle.FileType.Graph;
-                    Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                 } else {
                     fileTypeLoaded = Eagle.FileType.Palette;
-                    this._remotePaletteLoaded(file, data, showErrors);
+                    this._remotePaletteLoaded(file, data);
                 }
 
             } else {
@@ -1395,12 +1521,13 @@ export class Eagle {
         });
     };
 
-    private _remotePaletteLoaded = (file : RepositoryFile, data : string, showErrors : boolean) : void => {
+    private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
         // if EAGLE is in palette editor mode, load the remote palette into EAGLE's editorPalette object.
         // if EAGLE is in graph editor mode, load the remote palette into EAGLE's palettes object.
 
         if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            this.editorPalette(Palette.fromOJSJson(data, file, showErrors));
+            let errors: string[] = [];
+            this.editorPalette(Palette.fromOJSJson(data, file, errors));
             this.leftWindowShown(true);
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
         } else {
@@ -1411,25 +1538,31 @@ export class Eagle {
             if (alreadyLoadedPalette !== null && Eagle.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
                 Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
                     if (confirmed){
-                        this._reloadPalette(file, data, showErrors, alreadyLoadedPalette);
+                        this._reloadPalette(file, data, alreadyLoadedPalette);
                     }
                 });
             } else {
-                this._reloadPalette(file, data, showErrors, alreadyLoadedPalette);
+                this._reloadPalette(file, data, alreadyLoadedPalette);
             }
         }
     }
 
-    private _reloadPalette = (file : RepositoryFile, data : string, showErrors : boolean, palette : Palette) : void => {
+    private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
         // close the existing version of the open palette
         if (palette !== null){
             this.closePalette(palette);
         }
 
         // load the new palette
-        this.palettes.push(Palette.fromOJSJson(data, file, showErrors));
-        this.leftWindowShown(true);
-        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+        let errors: string[] = [];
+        this.palettes.push(Palette.fromOJSJson(data, file, errors));
+
+        if (errors.length > 0){
+            // TODO: do stuff with the errors
+        } else {
+            this.leftWindowShown(true);
+            Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+        }
     }
 
     private updateActiveFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
@@ -2709,7 +2842,7 @@ export class Eagle {
         Variables          : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
         Branch             : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
 
-        Unknown            : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "device_unknown", color: "#FF66CC"},
+        Unknown            : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true, icon: "device_unknown", color: "#FF66CC"},
         None               : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block", color: "#FF66CC"}
     };
 }
@@ -2754,8 +2887,10 @@ export namespace Eagle
     }
 
     export enum DALiuGESchemaVersion {
-        OJS,
-        V3
+        Unknown = "Unknown",
+        OJS = "OJS",
+        V3 = "V3",
+        AppRef = "AppRef"
     }
 
     export enum LinkValid {

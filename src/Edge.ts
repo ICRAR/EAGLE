@@ -124,6 +124,31 @@ export class Edge {
         }
     }
 
+    static fromV3Json = (edgeData: any, errors: string[]): Edge => {
+        let edge = new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown);
+        edge.loopAware = edgeData.loop_aware === "1";
+        return edge;
+    }
+
+    static toAppRefJson = (edge : Edge) : object => {
+        return {
+            from: edge.srcNodeKey,
+            fromPort: edge.srcPortId,
+            to: edge.destNodeKey,
+            toPort: edge.destPortId,
+            loopAware: edge.loopAware,
+            dataType: edge.dataType
+        };
+    }
+
+    static fromAppRefJson = (edgeData: any, errors: string[]): Edge => {
+        //console.log("Edge.fromAppRefJson()", edgeData);
+        let edge = new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType);
+        edge.loopAware = edgeData.loopAware;
+        return edge;
+    }
+
+
     static isValid = (graph : LogicalGraph, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, showNotification : boolean, showConsole : boolean) : Eagle.LinkValid => {
         //console.log("IsValid()", "sourceNodeKey", sourceNodeKey, "sourcePortId", sourcePortId, "destinationNodeKey", destinationNodeKey, "destinationPortId", destinationPortId);
 

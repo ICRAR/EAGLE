@@ -67,6 +67,7 @@ export class Utils {
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
 
     static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
+    static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
 
     static ojsGraphSchema : object = {};
@@ -1182,6 +1183,43 @@ export class Utils {
 
         //console.log("Copy node", node.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
         palette.addNode(node);
+    }
+
+    static determineFileType(data: any): Eagle.FileType {
+        if (typeof data.modelData !== 'undefined'){
+            if (typeof data.modelData.fileType !== 'undefined'){
+                return Utils.translateStringToFileType(data.modelData.fileType);
+            }
+        }
+
+        if (typeof data.DALiuGEGraph !== 'undefined'){
+            return Eagle.FileType.Graph;
+        }
+
+        return Eagle.FileType.Unknown;
+    }
+
+    static determineSchemaVersion(data: any): Eagle.DALiuGESchemaVersion {
+        // v3
+        if (typeof data.DALiuGEGraph !== 'undefined'){
+            if (typeof data.DALiuGEGraph.schemaVersion !== 'undefined'){
+                return Eagle.DALiuGESchemaVersion.V3;
+            }
+        }
+
+        // appref
+        if (typeof data.modelData !== 'undefined'){
+            if (typeof data.modelData.schemaVersion !== 'undefined'){
+                if (data.modelData.schemaVersion === Eagle.DALiuGESchemaVersion.AppRef){
+                    return Eagle.DALiuGESchemaVersion.AppRef;
+                }
+                if (data.modelData.schemaVersion === Eagle.DALiuGESchemaVersion.OJS){
+                    return Eagle.DALiuGESchemaVersion.OJS;
+                }
+            }
+        }
+
+        return Eagle.DALiuGESchemaVersion.Unknown;
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {
