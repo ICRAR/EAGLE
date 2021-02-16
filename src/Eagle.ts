@@ -1390,7 +1390,7 @@ export class Eagle {
                 break;
             case Eagle.RepositoryService.GitLab:
                 localStorage.removeItem(repository.name + ".gitlab_repository");
-                localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
+                localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
                 GitLab.loadRepoList(this);
                 break;
             default:
