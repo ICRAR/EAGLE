@@ -265,9 +265,8 @@ export class LogicalGraph {
 
         for (var key in dlgg.nodeData){
             var node = Node.fromV3NodeJson(dlgg.nodeData[key], key, errors);
-            var componentKey = dlgg.nodeData[key].componentKey;
 
-            Node.fromV3ComponentJson(dlgg.componentData[componentKey], node, errors);
+            Node.fromV3ComponentJson(dlgg.componentData[key], node, errors);
 
             result.nodes.push(node);
         }

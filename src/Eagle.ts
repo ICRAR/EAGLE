@@ -576,6 +576,7 @@ export class Eagle {
                         this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
                         break;
                     case Eagle.DALiuGESchemaVersion.V3:
+                        Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
                         this.logicalGraph(LogicalGraph.fromV3Json(dataObject, dummyFile, errors));
                         break;
                     case Eagle.DALiuGESchemaVersion.OJS:
@@ -1042,6 +1043,8 @@ export class Eagle {
      * Export file to V3 Json
      */
     exportV3Json = () : void => {
+        Utils.showUserMessage("Unsupported feature", "Saving files using the V3 schema is not supported.");
+
         var fileName : string = this.activeFileInfo().name;
 
         // set the EAGLE version etc according to this running version
@@ -1407,6 +1410,7 @@ export class Eagle {
                         this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errors));
                         break;
                     case Eagle.DALiuGESchemaVersion.V3:
+                        Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
                         this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
                         break;
                     case Eagle.DALiuGESchemaVersion.OJS:

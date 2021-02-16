@@ -672,6 +672,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // determine if edge is "forward" or not
         var srcNode : Node  = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
         var destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
+
+        if (srcNode === null || destNode === null){
+            console.warn("Can't find srcNode or can't find destNode for edge.");
+            return createBezier(0,0,0,0,false,false);
+        }
+
         var srcPortType : string =  srcNode.findPortTypeById(edge.getSrcPortId());
         var destPortType : string = destNode.findPortTypeById(edge.getDestPortId());
         var startRight : boolean = srcPortType === "output" || srcPortType === "inputLocal";
@@ -2029,6 +2035,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var srcNode : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
         var destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
 
+        if (srcNode === null || destNode === null){
+            return "none";
+        }
+
         if (findAncestorCollapsedNode(srcNode) !== null && findAncestorCollapsedNode(destNode) !== null){
             return "none";
         }
@@ -2292,6 +2302,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
         let srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+
+        // if we can't find the edge
+        if (srcNode === null){
+            return "";
+        }
+
         let srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
 
         if (srcPort.isEvent()){

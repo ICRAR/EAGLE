@@ -1698,6 +1698,9 @@ export class Node {
     static fromV3NodeJson = (nodeData : any, key: string, errors: string[]) : Node => {
         var result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown, Eagle.CategoryType.Unknown);
 
+        result.color = nodeData.color;
+        result.drawOrderHint = nodeData.drawOrderHint;
+
         result.x = nodeData.x;
         result.y = nodeData.y;
         result.width = nodeData.width;
