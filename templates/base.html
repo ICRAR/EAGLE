@@ -22,6 +22,7 @@
             require(["bootstrap"]);
             require(["bootstrap-notify"]);
             require(["introjs"]);
+            require(["ajv"]);
             require(["bindingHandlers/readonly"]);
             require(["bindingHandlers/disabled"]);
             require(["bindingHandlers/graphRenderer"]);
@@ -113,5 +114,7 @@
         </div>
 
         {% include 'modals.html' %}
+
+        <div id="htmlElementLog" style="display: none;"></div>
     </body>
 </html>

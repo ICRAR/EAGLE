@@ -123,6 +123,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""));
         Eagle.settings.push(new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, ""));
         Eagle.settings.push(new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true));
+        Eagle.settings.push(new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -252,16 +253,7 @@ export class Eagle {
             return "";
         }
 
-        // TODO: move to a function on the FileInfo class
-        if (fileInfo.repositoryName !== ""){
-            if (fileInfo.path === ""){
-                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + " (" + fileInfo.repositoryBranch + "): " + fileInfo.name;
-            } else {
-                return fileInfo.repositoryService + ": " + fileInfo.repositoryName + " (" + fileInfo.repositoryBranch + "): " + fileInfo.path + "/" + fileInfo.name;
-            }
-        } else {
-            return fileInfo.name;
-        }
+        return fileInfo.getText();
     }, this);
 
     getRepositoryList = (service : Eagle.RepositoryService) : Repository[] => {
@@ -508,15 +500,28 @@ export class Eagle {
 
         console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
 
+        // get json for logical graph
+        let json = LogicalGraph.toOJSJson(this.logicalGraph());
+
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
+        }
+
         this.translator().submit(translatorURL, {
             algo: Config.translationAlgorithms[algorithmIndex],
             lg_name: this.logicalGraph().fileInfo().name,
-            json_data: JSON.stringify(LogicalGraph.toOJSJson(this.logicalGraph()))
+            json_data: JSON.stringify(json)
         });
 
         console.log("json data");
         console.log("---------");
-        console.log(LogicalGraph.toOJSJson(this.logicalGraph()));
+        console.log(json);
         console.log("---------");
     }
 
@@ -694,7 +699,7 @@ export class Eagle {
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
-            var node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other);
+            var node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
             let pos = this.getNewNodePosition();
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.logicalGraph().addNode(node, pos.x, pos.y, null);
@@ -711,19 +716,19 @@ export class Eagle {
             this.editorPalette(new Palette());
             this.editorPalette().fileInfo().name = name;
 
-            var startNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control);
+            var startNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control, false);
             startNode.setColor(Utils.getColorForNode(Eagle.Category.Start));
             this.editorPalette().addNode(startNode);
 
-            var endNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "End", "", Eagle.Category.End, Eagle.CategoryType.Control);
+            var endNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "End", "", Eagle.Category.End, Eagle.CategoryType.Control, false);
             endNode.setColor(Utils.getColorForNode(Eagle.Category.End));
             this.editorPalette().addNode(endNode);
 
-            var commentNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other);
+            var commentNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other, false);
             commentNode.setColor(Utils.getColorForNode(Eagle.Category.Comment));
             this.editorPalette().addNode(commentNode);
 
-            var descriptionNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other);
+            var descriptionNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
             descriptionNode.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.editorPalette().addNode(descriptionNode);
 
@@ -783,6 +788,15 @@ export class Eagle {
             json = Palette.toOJSJson(p_clone);
         }
 
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
+        }
 
         Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
             if (error != null){
@@ -1026,6 +1040,16 @@ export class Eagle {
             json = Palette.toOJSJson(this.editorPalette());
         }
 
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
+        }
+
         var jsonData : object = {
             jsonData: json,
             repositoryBranch: repository.branch,
@@ -1051,6 +1075,16 @@ export class Eagle {
         this.logicalGraph().fileInfo().updateEagleInfo();
 
         var json = LogicalGraph.toV3Json(this.logicalGraph());
+
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.V3, Eagle.FileType.Graph);
+            if (!isValid){
+                console.error("JSON Invalid, saving anyway");
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                //return;
+            }
+        }
 
         Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
             if (error != null){
@@ -1147,6 +1181,7 @@ export class Eagle {
 
                 palette.fileInfo().clear();
                 palette.fileInfo().name = Palette.DYNAMIC_PALETTE_NAME;
+                palette.fileInfo().readonly = false;
                 this.palettes.push(palette);
                 this.leftWindowShown(true);
             }
@@ -1176,6 +1211,26 @@ export class Eagle {
             builtinPalette.fileInfo().clear();
             builtinPalette.fileInfo().name = Palette.BUILTIN_PALETTE_NAME;
             this.palettes.push(builtinPalette);
+        });
+    }
+
+    loadSchemas = () => {
+        console.log("loadSchemas()");
+
+        Utils.httpGet("./static/" + Config.graphSchemaFileName, (error : string, data : string) => {
+            if (error !== null){
+                console.error(error);
+                return;
+            }
+
+            Utils.ojsGraphSchema = JSON.parse(data);
+
+            // NOTE: in the short-term we'll just use the graph schema for palettes
+            //       both file formats are base on the OJS format, so they are similar
+            Utils.ojsPaletteSchema = JSON.parse(data);
+
+            // NOTE: we don't have a schema for the V3 version
+            Utils.v3GraphSchema = JSON.parse(data);
         });
     }
 
@@ -1370,7 +1425,7 @@ export class Eagle {
         openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
             var fileTypeLoaded : Eagle.FileType = Eagle.FileType.Unknown;
 
-            // flag fetching as incomplete
+            // flag fetching as complete
             file.isFetching(false);
 
             // display error if one occurred
@@ -1684,7 +1739,7 @@ export class Eagle {
             if (!completed)
                 return;
 
-            translatorURLSetting.setValue(userString);
+            translatorURLSetting.value(userString);
         });
     };
 
@@ -2016,7 +2071,7 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
-        console.log("addNodeToLogicalGraph()", node.getName(), node.getCategory(), node.getInputPorts().length, node.getOutputPorts().length, node.getFields().length);
+        //console.log("addNodeToLogicalGraph()", node.getName(), node.getCategory(), node.getInputPorts().length, node.getOutputPorts().length, node.getFields().length);
 
         // get new position for node
         let pos = this.getNewNodePosition();
@@ -2150,21 +2205,20 @@ export class Eagle {
         this.rightWindowShown(!this.rightWindowShown());
     }
 
-    // check the "allow component editing" setting to check if the selection
-    // can be edited
-    allowComponentEditing : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
-    }, this);
-
-    allowReadonlyParameterEditing : ko.PureComputed<boolean> = ko.pureComputed(() =>{
-        return Eagle.findSetting(Utils.ALLOW_READONLY_PARAMETER_EDITING).value();
-    }, this);
-
     /**
      * Adds an input port to the selected node via HTML.
      */
     addInputPortHTML = () : void => {
-        var node = this.getSelection();
+        var node: Node = <Node>this.getSelection();
+
+        // check whether node already has maximum number of ports
+        let maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxInputs;
+        console.log("maxPorts", maxPorts, "currentPorts", node.getInputPorts().length);
+        if (node.getInputPorts().length >= maxPorts ){
+            Utils.showUserMessage("Error", "This node may not contain more input ports. Maximum is " + maxPorts + " for " + node.getCategory() + " nodes.");
+            return;
+        }
+
         this.selectPortName(<Node>node, true);
     }
 
@@ -2172,7 +2226,16 @@ export class Eagle {
      * Adds an output port to the selected node via HTML arguments.
      */
     addOutputPortHTML = () : void => {
-        var node = this.getSelection();
+        var node: Node = <Node>this.getSelection();
+
+        // check whether node already has maximum number of ports
+        let maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxOutputs;
+        //console.log("maxPorts", maxPorts, "currentPorts", node.getOutputPorts().length);
+        if (node.getOutputPorts().length >= maxPorts ){
+            Utils.showUserMessage("Error", "This node may not contain more output ports. Maximum is " + maxPorts + " for " + node.getCategory() + " nodes.");
+            return;
+        }
+
         this.selectPortName(<Node>node, false);
     }
 
@@ -2206,7 +2269,7 @@ export class Eagle {
             }
 
             // add port with the chosen name
-            node.addPort(new Port(Utils.uuidv4(), userString, false), isInputPort);
+            node.addPort(new Port(Utils.uuidv4(), userString, false, Eagle.DataType.Unknown), isInputPort);
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
@@ -2235,7 +2298,7 @@ export class Eagle {
             var fieldName = Utils.fieldTextToFieldName(userString);
 
             // add the field
-            node.addField(new Field(userString, fieldName, "", "", false, Eagle.FieldDataType.Unknown));
+            node.addField(new Field(userString, fieldName, "", "", false, Eagle.DataType.Unknown));
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
@@ -2553,20 +2616,11 @@ export class Eagle {
         this.selectedNode(this.selectedNode().getExitApplication());
     }
 
-    editField = (fieldIndex: number, fieldType: Eagle.FieldType, input: boolean): void => {
-        console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "fieldType", fieldType, "input", input);
+    editField = (fieldIndex: number, input: boolean): void => {
+        console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
         // get a reference to the field we are editing
-        let field: Field;
-        if (fieldType === Eagle.FieldType.Field){
-            field = this.selectedNode().getFields()[fieldIndex];
-        } else {
-            if (input){
-                field = this.selectedNode().getInputApplication().getFields()[fieldIndex];
-            } else {
-                field = this.selectedNode().getOutputApplication().getFields()[fieldIndex];
-            }
-        }
+        let field: Field = this.selectedNode().getFields()[fieldIndex];
 
         Utils.requestUserEditField(field, (completed : boolean, newField: Field) => {
             // abort if the user aborted
@@ -2584,8 +2638,8 @@ export class Eagle {
         });
     }
 
-    showFieldValuePicker = (fieldIndex : number, fieldType : Eagle.FieldType, input : boolean) : void => {
-        console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "fieldType", fieldType, "input", input);
+    showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
+        console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
         // get the key for the currently selected node
         var selectedNodeKey : number = this.selectedNode().getKey();
@@ -2628,16 +2682,8 @@ export class Eagle {
                 newValue = "%o[" + key + "]";
             }
 
-            // update the correct field based on type and input
-            if (fieldType === Eagle.FieldType.Field){
-                this.selectedNode().getFields()[fieldIndex].setValue(newValue);
-            } else {
-                if (input){
-                    this.selectedNode().getInputApplication().getFields()[fieldIndex].setValue(newValue);
-                } else {
-                    this.selectedNode().getOutputApplication().getFields()[fieldIndex].setValue(newValue);
-                }
-            }
+            // update the correct field
+            this.selectedNode().getFields()[fieldIndex].setValue(newValue);
 
             this.hackNodeUpdate();
         });
@@ -2753,8 +2799,9 @@ export class Eagle {
             return {
                 isData: false,
                 isGroup: false,
-                canHaveInputs: false,
-                canHaveOutputs: false,
+                isResizable: false,
+                maxInputs: 0,
+                maxOutputs: 0,
                 canHaveInputApplication: false,
                 canHaveOutputApplication: false,
                 canHaveExitApplication: false,
@@ -2768,35 +2815,35 @@ export class Eagle {
     }
 
     static readonly cData : {[category:string] : Eagle.CategoryData} = {
-        Start              : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "play_arrow", color: "#229954"},
-        End                : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "stop", color: "#CB4335"},
-        Comment            : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "comment", color: "#799938"},
-        Description        : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "note", color: "#9B3065"},
-        Scatter            : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_split", color: "#DDAD00"},
-        Gather             : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_merge", color: "#D35400"},
-        MKN                : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "waves", color: "#D32000"},
-        GroupBy            : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "group_work", color: "#7F8C8D"},
-        Loop               : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true, icon: "loop", color: "#512E5F"},
+        Start              : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "play_arrow", color: "#229954"},
+        End                : {isData: false, isGroup: false, isResizable: false, maxInputs: 1, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "stop", color: "#CB4335"},
+        Comment            : {isData: false, isGroup: false, isResizable: true, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "comment", color: "#799938"},
+        Description        : {isData: false, isGroup: false, isResizable: true, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "note", color: "#9B3065"},
+        Scatter            : {isData: false, isGroup: true, isResizable: true, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_split", color: "#DDAD00"},
+        Gather             : {isData: false, isGroup: true, isResizable: true, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_merge", color: "#D35400"},
+        MKN                : {isData: false, isGroup: true, isResizable: true, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "waves", color: "#D32000"},
+        GroupBy            : {isData: false, isGroup: true, isResizable: true, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "group_work", color: "#7F8C8D"},
+        Loop               : {isData: false, isGroup: true, isResizable: true, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true, icon: "loop", color: "#512E5F"},
 
-        PythonApp          : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "extension", color: "#3498DB"},
-        BashShellApp       : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "attach_money", color: "#1C2833"},
-        DynlibApp          : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "menu_book", color: "#3470AA"},
+        PythonApp          : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "extension", color: "#3498DB"},
+        BashShellApp       : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "attach_money", color: "#1C2833"},
+        DynlibApp          : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "menu_book", color: "#3470AA"},
+        Mpi                : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "apps", color: "#1E90FF"},
+        Docker             : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "computer", color: "#331C54"},
 
-        NGAS               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "storage", color: "#394BB2"},
-        S3                 : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "cloud_queue", color: "#394BB2"},
-        Mpi                : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "apps", color: "#1E90FF"},
-        Docker             : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "computer", color: "#331C54"},
-        Memory             : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "memory", color: "#394BB2"},
-        File               : {isData: true, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "description", color: "#394BB2"},
+        NGAS               : {isData: true, isGroup: false, isResizable: false, maxInputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "storage", color: "#394BB2"},
+        S3                 : {isData: true, isGroup: false, isResizable: false, maxInputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "cloud_queue", color: "#394BB2"},
+        Memory             : {isData: true, isGroup: false, isResizable: false, maxInputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "memory", color: "#394BB2"},
+        File               : {isData: true, isGroup: false, isResizable: false, maxInputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "description", color: "#394BB2"},
 
-        Service            : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "build", color: "#EB1672"},
-        ExclusiveForceNode : {isData: false, isGroup: true, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "picture_in_picture", color: "#000000"},
+        Service            : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "build", color: "#EB1672"},
+        ExclusiveForceNode : {isData: false, isGroup: true, isResizable: true, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "picture_in_picture", color: "#000000"},
 
-        Variables          : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
-        Branch             : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
+        Variables          : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
+        Branch             : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
 
-        Unknown            : {isData: false, isGroup: false, canHaveInputs: true, canHaveOutputs: true, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true, icon: "device_unknown", color: "#FF66CC"},
-        None               : {isData: false, isGroup: false, canHaveInputs: false, canHaveOutputs: false, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block", color: "#FF66CC"}
+        Unknown            : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true, icon: "device_unknown", color: "#FF66CC"},
+        None               : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block", color: "#FF66CC"}
     };
 }
 
@@ -2853,18 +2900,14 @@ export namespace Eagle
         Valid
     }
 
-    export enum FieldType {
-        Field,
-        AppField
-    }
-
-    export type FieldDataType = string;
-    export namespace FieldDataType {
-        export var Unknown : FieldDataType = "Unknown";
-        export var String : FieldDataType = "String";
-        export var Integer : FieldDataType = "Integer";
-        export var Float : FieldDataType = "Float";
-        export var Boolean : FieldDataType = "Boolean";
+    export type DataType = string;
+    export namespace DataType {
+        export var Unknown : DataType = "Unknown";
+        export var String : DataType = "String";
+        export var Integer : DataType = "Integer";
+        export var Float : DataType = "Float";
+        export var Complex : DataType = "Complex";
+        export var Boolean : DataType = "Boolean";
     }
 
     export type RepositoryService = string;
@@ -2917,5 +2960,13 @@ export namespace Eagle
         export var Unknown : CategoryType = "Unknown";
     }
 
-    export type CategoryData = {isData: boolean, isGroup:boolean, canHaveInputs: boolean, canHaveOutputs:boolean, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean, icon: string, color: string};
+    export type Direction = string;
+    export namespace Direction {
+        export var Up : Direction = "Up";
+        export var Down : Direction = "Down";
+        export var Left : Direction = "Left";
+        export var Right : Direction = "Right";
+    }
+
+    export type CategoryData = {isData: boolean, isGroup:boolean, isResizable:boolean, maxInputs: number, maxOutputs: number, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean, icon: string, color: string};
 }

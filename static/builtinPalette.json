@@ -7,7 +7,8 @@
         "readonly": true,
         "filePath": "builtinPalette.json",
         "sha": "",
-        "git_url": ""
+        "git_url": "",
+        "readonly": true
     },
     "nodeDataArray": [
         {
@@ -30,8 +31,8 @@
             "inputApplicationName": "",
             "outputApplicationName": "",
             "exitApplicationName": "",
-            "inputApplicationType": "Unknown",
-            "outputApplicationType": "Unknown",
+            "inputApplicationType": "None",
+            "outputApplicationType": "None",
             "exitApplicationType": "None",
             "inputPorts": [
                 {
@@ -90,7 +91,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -112,8 +114,8 @@
             "inputApplicationName": "",
             "outputApplicationName": "",
             "exitApplicationName": "",
-            "inputApplicationType": "Unknown",
-            "outputApplicationType": "Unknown",
+            "inputApplicationType": "None",
+            "outputApplicationType": "None",
             "exitApplicationType": "None",
             "inputPorts": [],
             "outputPorts": [],
@@ -154,7 +156,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -176,8 +179,8 @@
             "inputApplicationName": "",
             "outputApplicationName": "",
             "exitApplicationName": "",
-            "inputApplicationType": "Unknown",
-            "outputApplicationType": "Unknown",
+            "inputApplicationType": "None",
+            "outputApplicationType": "None",
             "exitApplicationType": "None",
             "inputPorts": [],
             "outputPorts": [
@@ -231,7 +234,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -253,8 +257,8 @@
             "inputApplicationName": "",
             "outputApplicationName": "",
             "exitApplicationName": "",
-            "inputApplicationType": "Unknown",
-            "outputApplicationType": "Unknown",
+            "inputApplicationType": "None",
+            "outputApplicationType": "None",
             "exitApplicationType": "None",
             "inputPorts": [],
             "outputPorts": [
@@ -332,7 +336,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -354,8 +359,8 @@
             "inputApplicationName": "",
             "outputApplicationName": "",
             "exitApplicationName": "",
-            "inputApplicationType": "Unknown",
-            "outputApplicationType": "Unknown",
+            "inputApplicationType": "None",
+            "outputApplicationType": "None",
             "exitApplicationType": "None",
             "inputPorts": [],
             "outputPorts": [],
@@ -404,7 +409,8 @@
                     "readonly": false,
                     "type": "Boolean"
                 }
-            ]
+            ],
+            "readonly": true
         }
     ],
     "linkDataArray": []

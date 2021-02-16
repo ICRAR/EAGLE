@@ -5,13 +5,13 @@
     </h5>
     <div class="card-body">
         <!-- ko foreach: selectedNode().getFields() -->
-        <field params="data: $data, type: Eagle.FieldType.Field"></field>
+            <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
         <!-- /ko -->
 
-        <!-- ko if: $root.allowComponentEditing() -->
-        <button class="btn btn-secondary btn-block" id="nodeInspectorAddField" type="button" data-bind="click: $root.addFieldHTML, attr:{title:'Add parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
-            <i class="material-icons md-18">add</i>
-        </button>
+        <!-- ko ifnot: selectedNode().isLocked()-->
+            <button class="btn btn-secondary btn-block" id="nodeInspectorAddField" type="button" data-bind="click: $root.addFieldHTML, attr:{title:'Add parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
+                <i class="material-icons md-18">add</i>
+            </button>
         <!-- /ko -->
     </div>
 </div>

@@ -1,5 +1,5 @@
 <div class="input-group mb-1">
-    <!-- ko if: $root.allowComponentEditing -->
+    <!-- ko ifnot: $root.selectedNode().isLocked() -->
     <div class="input-group-prepend">
         <!-- ko if: input -->
             <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), true);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveInputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">

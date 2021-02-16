@@ -22,6 +22,8 @@
 #
 */
 
+import * as Ajv from "ajv";
+
 import {Config} from './Config';
 
 import {Eagle} from './Eagle';
@@ -66,6 +68,11 @@ export class Utils {
 
     static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
     static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
+    static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
+
+    static ojsGraphSchema : object = {};
+    static ojsPaletteSchema : object = {};
+    static v3GraphSchema : object = {};
 
     /**
      * Generates a UUID.
@@ -164,7 +171,7 @@ export class Utils {
                     let newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getInputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    //console.log("set node", nodes[i].getKey(), "exit input key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "input app key", newKey);
                 }
             }
 
@@ -174,7 +181,7 @@ export class Utils {
                     let newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getOutputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    //console.log("set node", nodes[i].getKey(), "output app key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "output app key", newKey);
                 }
             }
 
@@ -184,7 +191,7 @@ export class Utils {
                     let newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getExitApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    //console.log("set node", nodes[i].getKey(), "exit app key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "exit app key", newKey);
                 }
             }
         }
@@ -265,7 +272,7 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static translateFileTypeToString(fileType : Eagle.FileType){
+    static translateFileTypeToString(fileType : Eagle.FileType) : string {
         if (fileType === Eagle.FileType.Graph)
             return "graph";
         if (fileType === Eagle.FileType.Palette)
@@ -299,22 +306,31 @@ export class Utils {
         }
     }
 
-    static translateStringToFieldDataType(fieldDataType: string): Eagle.FieldDataType {
-        if (fieldDataType === "Boolean"){
-            return Eagle.FieldDataType.Boolean;
+    static translateStringToDataType(dataType: string): Eagle.DataType {
+        if (dataType === "Boolean"){
+            return Eagle.DataType.Boolean;
         }
-        if (fieldDataType === "Float"){
-            return Eagle.FieldDataType.Float;
+        if (dataType === "Float"){
+            return Eagle.DataType.Float;
         }
-        if (fieldDataType === "Integer"){
-            return Eagle.FieldDataType.Integer;
+        if (dataType === "Integer"){
+            return Eagle.DataType.Integer;
         }
-        if (fieldDataType === "String"){
-            return Eagle.FieldDataType.String;
+        if (dataType === "String"){
+            return Eagle.DataType.String;
         }
 
-        console.warn("Unknown FieldDataType", fieldDataType);
-        return Eagle.FieldDataType.Unknown;
+        console.warn("Unknown DataType", dataType);
+        return Eagle.DataType.Unknown;
+    }
+
+    static translateVersionToString(version : Eagle.DALiuGESchemaVersion) : string {
+        if (version === Eagle.DALiuGESchemaVersion.OJS)
+            return "ojs";
+        if (version === Eagle.DALiuGESchemaVersion.V3)
+            return "v3";
+
+        return "";
     }
 
     static httpGet(url : string, callback : (error : string, data : string) => void){
@@ -330,7 +346,7 @@ export class Utils {
     }
 
     static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void){
-        console.log("httpPostJSON() : ", url);
+        console.log("httpGetJSON() : ", url);
         $.ajax({
             url : url,
             type : 'GET',
@@ -372,7 +388,11 @@ export class Utils {
                 callback(null, data);
             },
             error: function(xhr, status, error : string) {
-                callback(error, xhr.responseJSON.error);
+                if (typeof xhr.responseJSON === 'undefined'){
+                    callback(error, null);
+                } else {
+                    callback(error, xhr.responseJSON.error);
+                }
             }
         });
     }
@@ -626,7 +646,7 @@ export class Utils {
 
             // translate access and type
             let readonly: boolean = access === 'readonly';
-            let realType: Eagle.FieldDataType = Utils.translateStringToFieldDataType(type);
+            let realType: Eagle.DataType = Utils.translateStringToDataType(type);
 
             let newField = new Field(text, name, value, description, readonly, realType);
 
@@ -640,6 +660,12 @@ export class Utils {
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
         $('#messageModal').modal();
+
+
+        // debug
+        if (title === "Error"){
+            Utils.addToHTMLElementLog(title + ":" + message);
+        }
     }
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger"){
@@ -658,6 +684,10 @@ export class Utils {
             } /*,
             delay:0 */
         });
+    }
+
+    static addToHTMLElementLog(message: string){
+        $('#htmlElementLog').text($('#htmlElementLog').text() + message + "\n");
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) {
@@ -813,30 +843,36 @@ export class Utils {
         }));
 
         $('#editFieldModalTypeSelect').empty();
+        // TODO: we should iterate through the values in the Eagle.DataType enum, rather than hard-code each type
         $('#editFieldModalTypeSelect').append($('<option>', {
             value: "Integer",
             text: "Integer",
-            selected: field.getType() === Eagle.FieldDataType.Integer
+            selected: field.getType() === Eagle.DataType.Integer
         }));
         $('#editFieldModalTypeSelect').append($('<option>', {
             value: "Float",
             text: "Float",
-            selected: field.getType() === Eagle.FieldDataType.Float
+            selected: field.getType() === Eagle.DataType.Float
         }));
         $('#editFieldModalTypeSelect').append($('<option>', {
             value: "String",
             text: "String",
-            selected: field.getType() === Eagle.FieldDataType.String
+            selected: field.getType() === Eagle.DataType.String
         }));
         $('#editFieldModalTypeSelect').append($('<option>', {
             value: "Boolean",
             text: "Boolean",
-            selected: field.getType() === Eagle.FieldDataType.Boolean
+            selected: field.getType() === Eagle.DataType.Boolean
+        }));
+        $('#editFieldModalTypeSelect').append($('<option>', {
+            value: "Complex",
+            text: "Complex",
+            selected: field.getType() === Eagle.DataType.Complex
         }));
         $('#editFieldModalTypeSelect').append($('<option>', {
             value: "Unknown",
             text: "Unknown",
-            selected: field.getType() === Eagle.FieldDataType.Unknown
+            selected: field.getType() === Eagle.DataType.Unknown
         }));
 
         $('#editFieldModal').data('completed', false);
@@ -1184,5 +1220,42 @@ export class Utils {
         }
 
         return Eagle.DALiuGESchemaVersion.Unknown;
+    }
+
+    static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {
+        console.log("validateJSON(): version:", Utils.translateVersionToString(version), "fileType:", Utils.translateFileTypeToString(fileType));
+
+        var ajv = new Ajv();
+        let valid : boolean;
+
+        switch(version){
+            case Eagle.DALiuGESchemaVersion.OJS:
+                switch(fileType){
+                    case Eagle.FileType.Graph:
+                        valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
+                        break;
+                    case Eagle.FileType.Palette:
+                        valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
+                        break;
+                    default:
+                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        valid = true;
+                        break;
+                }
+                break;
+            case Eagle.DALiuGESchemaVersion.V3:
+                switch(fileType){
+                    case Eagle.FileType.Graph:
+                        valid = ajv.validate(Utils.v3GraphSchema, json) as boolean;
+                        break;
+                    default:
+                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        valid = true;
+                        break;
+                }
+                break;
+        }
+
+        return valid;
     }
 }

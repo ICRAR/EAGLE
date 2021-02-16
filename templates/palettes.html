@@ -4,6 +4,12 @@
             <div class="card-header" data-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
                 <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'},text:getCollapseIcon()"></i>
                 <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:fileInfo().getSummaryHTML()}">info</i>
+                <!-- ko if: $data.fileInfo().readonly -->
+                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
+                <!-- /ko -->
+                <!-- ko ifnot: $data.fileInfo().readonly -->
+                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
+                <!-- /ko -->
                 <span>&nbsp;</span>
                 <h5 class="template-title" data-bind="text: fileInfo().nameAndModifiedIndicator()"></h5>
                 <button type="button" class="close" aria-label="Close" data-bind="click: function(palette, event){$root.closePalette(palette);event.stopPropagation()}, attr:{title:'Close'}" data-toggle="tooltip" data-html="true" data-placement="top">

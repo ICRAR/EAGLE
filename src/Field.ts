@@ -1,6 +1,5 @@
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
 import {Eagle} from './Eagle';
 
 export class Field {
@@ -9,9 +8,9 @@ export class Field {
     private value : ko.Observable<string>;
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
-    private type : ko.Observable<Eagle.FieldDataType>;
+    private type : ko.Observable<Eagle.DataType>;
 
-    constructor(text: string, name: string, value: string, description: string, readonly: boolean, type: Eagle.FieldDataType){
+    constructor(text: string, name: string, value: string, description: string, readonly: boolean, type: Eagle.DataType){
         this.text = ko.observable(text);
         this.name = ko.observable(name);
         this.value = ko.observable(value);
@@ -64,11 +63,11 @@ export class Field {
         this.readonly(readonly);
     }
 
-    getType = () : Eagle.FieldDataType => {
+    getType = () : Eagle.DataType => {
         return this.type();
     }
 
-    setType = (type: Eagle.FieldDataType) : void => {
+    setType = (type: Eagle.DataType) : void => {
         this.type(type);
     }
 
@@ -78,21 +77,12 @@ export class Field {
         this.value("");
         this.description("");
         this.readonly(false);
-        this.type(Eagle.FieldDataType.Unknown);
+        this.type(Eagle.DataType.Unknown);
     }
 
     clone = () : Field => {
         return new Field(this.text(), this.name(), this.value(), this.description(), this.readonly(), this.type());
     }
-
-    editable : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        let allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
-        let allowCompo : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
-
-        let result : boolean = (allowCompo && allowParam) || (allowCompo && !allowParam && !this.readonly());
-        //console.log("check if", this.name, "editable:", result, "(", allowCompo, allowParam, this.readonly, ")");
-        return result;
-    }, this);
 
     static toOJSJson = (field : Field) : object => {
         return {
@@ -118,7 +108,7 @@ export class Field {
 
     static fromOJSJson = (data : any) : Field => {
         let readonly = false;
-        let type = Eagle.FieldDataType.Unknown;
+        let type = Eagle.DataType.Unknown;
 
         if (typeof data.readonly !== 'undefined')
             readonly = data.readonly;

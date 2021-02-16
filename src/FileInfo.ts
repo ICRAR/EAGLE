@@ -17,6 +17,7 @@ export class FileInfo {
     private _eagleVersion : ko.Observable<string>;
     private _eagleCommitHash : ko.Observable<string>;
     private _schemaVersion : ko.Observable<Eagle.DALiuGESchemaVersion>;
+    private _readonly : ko.Observable<boolean>;
 
     constructor(){
         this._name = ko.observable("");
@@ -31,6 +32,7 @@ export class FileInfo {
         this._eagleVersion = ko.observable("");
         this._eagleCommitHash = ko.observable("");
         this._schemaVersion = ko.observable(Eagle.DALiuGESchemaVersion.Unknown);
+        this._readonly = ko.observable(true);
     }
 
     get name() : string{
@@ -129,6 +131,14 @@ export class FileInfo {
         this._schemaVersion(version);
     }
 
+    get readonly() : boolean{
+        return this._readonly();
+    }
+
+    set readonly(readonly : boolean){
+        this._readonly(readonly);
+    }
+
     clear = () : void => {
         this._name("");
         this._path("");
@@ -142,6 +152,7 @@ export class FileInfo {
         this._eagleVersion("");
         this._eagleCommitHash("");
         this._schemaVersion(Eagle.DALiuGESchemaVersion.Unknown);
+        this._readonly(true);
     }
 
     clone = () : FileInfo => {
@@ -159,6 +170,7 @@ export class FileInfo {
         result.eagleVersion = this._eagleVersion();
         result.eagleCommitHash = this._eagleCommitHash();
         result.schemaVersion = this._schemaVersion();
+        result.readonly = this._readonly();
 
         return result;
     }
@@ -193,6 +205,18 @@ export class FileInfo {
         return "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
     }
 
+    getText = () : string => {
+        if (this.repositoryName !== ""){
+            if (this.path === ""){
+                return this.repositoryService + ": " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.name;
+            } else {
+                return this.repositoryService + ": " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.path + "/" + this.name;
+            }
+        } else {
+            return this.name;
+        }
+    }
+
     toString = () : string => {
         let s = "";
 
@@ -208,6 +232,7 @@ export class FileInfo {
         s += " EAGLE Version:" + this._eagleVersion();
         s += " EAGLE Commit Hash:" + this._eagleCommitHash();
         s += " Schema Version:" + this._schemaVersion();
+        s += " readonly:" + this._readonly();
 
         return s;
     }
@@ -223,7 +248,8 @@ export class FileInfo {
             git_url: fileInfo.gitUrl,
             eagleVersion: fileInfo.eagleVersion,
             eagleCommitHash: fileInfo.eagleCommitHash,
-            schemaVersion: fileInfo.schemaVersion
+            schemaVersion: fileInfo.schemaVersion,
+            readonly: fileInfo.readonly
         };
     }
 
@@ -244,6 +270,8 @@ export class FileInfo {
         result.eagleVersion = modelData.eagleVersion == undefined ? "" : modelData.eagleVersion;
         result.eagleCommitHash = modelData.eagleCommitHash == undefined ? "" : modelData.eagleCommitHash;
         result.schemaVersion = modelData.schemaVersion == undefined ? "" : modelData.schemaVersion;
+
+        result.readonly = modelData.readonly == undefined ? true : modelData.readonly;
 
         return result;
     }

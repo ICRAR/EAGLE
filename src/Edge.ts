@@ -125,7 +125,7 @@ export class Edge {
     }
 
     static fromV3Json = (edgeData: any, errors: string[]): Edge => {
-        let edge = new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.FieldDataType.Unknown);
+        let edge = new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown);
         edge.loopAware = edgeData.loop_aware === "1";
         return edge;
     }
