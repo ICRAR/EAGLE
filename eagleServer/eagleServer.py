@@ -275,13 +275,13 @@ def get_git_lab_files_all():
         items = project.repository_tree(recursive='true', all=True, ref=repo_branch)
     except gitlab.exceptions.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
-        return jsonify({"error": str(gge)})
+        return jsonify({"error": "Unable to get repository. Please check the repository and branch names are correct."})
 
     d = parse_gitlab_folder(items, "")
 
     # return correct result
     return jsonify(d)
-    
+
 
 @app.route("/saveFileToRemoteGithub", methods=["POST"])
 def save_git_hub_file():
