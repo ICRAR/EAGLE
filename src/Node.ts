@@ -1144,8 +1144,8 @@ export class Node {
         }
 
         // translate categories if required
-        var category : string = GraphUpdater.translateOldCategory(nodeData.category);
-        var categoryType : string = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
+        var category: Eagle.Category = GraphUpdater.translateOldCategory(nodeData.category);
+        var categoryType: Eagle.CategoryType = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
 
         var node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, readonly);
 

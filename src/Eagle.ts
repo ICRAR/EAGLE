@@ -1316,7 +1316,7 @@ export class Eagle {
 
     // TODO: update with custom modal to ask user for repository service and url at the same time
     addCustomRepository = () : void => {
-        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) : void => {
+        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : void => {
             console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
 
             if (!completed){
@@ -2888,13 +2888,12 @@ export namespace Eagle
         Unknown
     }
 
-    export type DALiuGEFileType = string;
-    export namespace DALiuGEFileType {
-        export var LogicalGraph : DALiuGEFileType = "LogicalGraph";
-        export var LogicalGraphTemplate : DALiuGEFileType = "LogicalGraphTemplate";
-        export var PhysicalGraph : DALiuGEFileType = "PhysicalGraph";
-        export var PhysicalGraphTemplate : DALiuGEFileType = "PhysicalGraphTemplate";
-        export var Unknown : DALiuGEFileType = "Unknown";
+    export enum DALiuGEFileType {
+        LogicalGraph = "LogicalGraph",
+        LogicalGraphTemplate = "LogicalGraphTemplate",
+        PhysicalGraph = "PhysicalGraph",
+        PhysicalGraphTemplate = "PhysicalGraphTemplate",
+        Unknown = "Unknown"
     }
 
     export enum DALiuGESchemaVersion {
@@ -2911,72 +2910,69 @@ export namespace Eagle
         Valid
     }
 
-    export type DataType = string;
-    export namespace DataType {
-        export var Unknown : DataType = "Unknown";
-        export var String : DataType = "String";
-        export var Integer : DataType = "Integer";
-        export var Float : DataType = "Float";
-        export var Complex : DataType = "Complex";
-        export var Boolean : DataType = "Boolean";
+    export enum DataType {
+        Unknown = "Unknown",
+        String = "String",
+        Integer = "Integer",
+        Float = "Float",
+        Complex = "Complex",
+        Boolean = "Boolean"
     }
 
-    export type RepositoryService = string;
-    export namespace RepositoryService {
-        export var GitHub : RepositoryService = "GitHub";
-        export var GitLab : RepositoryService = "GitLab";
-        export var Unknown : RepositoryService = "Unknown";
+    export enum RepositoryService {
+        GitHub = "GitHub",
+        GitLab = "GitLab",
+        Unknown = "Unknown"
     }
 
-    export type Category = string;
-    export namespace Category {
-        export var Start : Category = "Start";
-        export var End : Category = "End";
-        export var Comment : Category = "Comment";
-        export var Description : Category = "Description";
-        export var Scatter : Category = "Scatter";
-        export var Gather : Category = "Gather";
-        export var MKN : Category = "MKN";
-        export var GroupBy : Category = "GroupBy";
-        export var Loop : Category = "Loop";
+    export enum Category {
+        Start = "Start",
+        End = "End",
+        Comment = "Comment",
+        Description = "Description",
+        Scatter = "Scatter",
+        Gather = "Gather",
+        MKN = "MKN",
+        GroupBy = "GroupBy",
+        Loop = "Loop",
 
-        export var PythonApp : Category = "PythonApp";
-        export var BashShellApp : Category = "BashShellApp";
-        export var DynlibApp : Category = "DynlibApp";
+        PythonApp = "PythonApp",
+        BashShellApp = "BashShellApp",
+        DynlibApp = "DynlibApp",
 
-        export var NGAS : Category = "NGAS";
-        export var S3 : Category = "S3";
-        export var MPI : Category = "Mpi";
-        export var Docker : Category = "Docker";
-        export var Memory : Category = "Memory";
-        export var File : Category = "File";
+        NGAS = "NGAS",
+        S3 = "S3",
+        MPI = "Mpi",
+        Docker = "Docker",
+        Memory = "Memory",
+        File = "File",
 
-        export var Service : Category = "Service";
-        export var ExclusiveForceNode : Category = "ExclusiveForceNode";
+        Service = "Service",
+        ExclusiveForceNode = "ExclusiveForceNode",
 
-        export var Variables : Category = "Variables";
-        export var Branch : Category = "Branch";
+        Variables = "Variables",
+        Branch = "Branch",
 
-        export var Unknown : Category = "Unknown";
-        export var None : Category = "None";
+        Unknown = "Unknown",
+        None = "None",
+
+        Component = "Component" // legacy only
     }
 
-    export type CategoryType = string;
-    export namespace CategoryType {
-        export var Control : CategoryType = "Control";
-        export var Application : CategoryType = "Application";
-        export var Group : CategoryType = "Group";
-        export var Data : CategoryType = "Data";
-        export var Other : CategoryType = "Other";
-        export var Unknown : CategoryType = "Unknown";
+    export enum CategoryType {
+        Control = "Control",
+        Application = "Application",
+        Group = "Group",
+        Data = "Data",
+        Other = "Other",
+        Unknown = "Unknown"
     }
 
-    export type Direction = string;
-    export namespace Direction {
-        export var Up : Direction = "Up";
-        export var Down : Direction = "Down";
-        export var Left : Direction = "Left";
-        export var Right : Direction = "Right";
+    export enum Direction {
+        Up = "Up",
+        Down = "Down",
+        Left = "Left",
+        Right = "Right"
     }
 
     export type CategoryData = {isData: boolean, isGroup:boolean, isResizable:boolean, maxInputs: number, maxOutputs: number, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean, icon: string, color: string};

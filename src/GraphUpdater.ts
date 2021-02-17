@@ -146,7 +146,7 @@ export class GraphUpdater {
         }
     ];
 
-    static translateOldCategory(category : string) : string {
+    static translateOldCategory(category : string) : Eagle.Category {
         if (typeof category === "undefined"){
             return Eagle.Category.Unknown;
         }
@@ -191,7 +191,7 @@ export class GraphUpdater {
             return Eagle.Category.File;
         }
 
-        return category;
+        return <Eagle.Category>category;
     }
 
     static translateNewCategory(category : string) : string {
@@ -203,7 +203,7 @@ export class GraphUpdater {
         return category;
     }
 
-    static translateOldCategoryType(categoryType : string, category : Eagle.Category) : string {
+    static translateOldCategoryType(categoryType : string, category : Eagle.Category) : Eagle.CategoryType {
         if (typeof categoryType === "undefined"){
             // try to determine categoryType based on category
             switch(category){
@@ -260,7 +260,7 @@ export class GraphUpdater {
             return Eagle.CategoryType.Data;
         }
 
-        return categoryType;
+        return <Eagle.CategoryType>categoryType;
     }
 
     // NOTE: for use in translation of OJS object to internal graph representation

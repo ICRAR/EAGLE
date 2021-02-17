@@ -1164,7 +1164,7 @@ export class Utils {
 
         // debug until PythonApp is used everywhere
         if (categoryType === Eagle.CategoryType.Application){
-            result.push("Component");
+            result.push(Eagle.Category.Component);
         }
 
         return result;
