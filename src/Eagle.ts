@@ -498,31 +498,50 @@ export class Eagle {
 
         var translatorURL : string = Eagle.findSetting(Utils.TRANSLATOR_URL).value();
 
-        console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
-
-        // get json for logical graph
-        let json = LogicalGraph.toOJSJson(this.logicalGraph());
-
-        // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            let isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
-            if (!isValid){
-                console.error("JSON Invalid, saving anyway");
-                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
-                //return;
+        // ask user to specify graph format to be sent to translator
+        Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", [Eagle.DALiuGESchemaVersion.OJS, Eagle.DALiuGESchemaVersion.AppRef], 0, false, "", (completed: boolean, userString: string) => {
+            if (!completed){
+                console.log("User aborted translation.");
+                return;
             }
-        }
 
-        this.translator().submit(translatorURL, {
-            algo: Config.translationAlgorithms[algorithmIndex],
-            lg_name: this.logicalGraph().fileInfo().name,
-            json_data: JSON.stringify(json)
+            console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
+
+            // get json for logical graph
+            let json;
+            switch (userString){
+                case Eagle.DALiuGESchemaVersion.OJS:
+                    json = LogicalGraph.toOJSJson(this.logicalGraph());
+                    break;
+                case Eagle.DALiuGESchemaVersion.AppRef:
+                    json = LogicalGraph.toAppRefJson(this.logicalGraph());
+                    break;
+                default:
+                    console.error("Unsupported graph format for translator!");
+                    return;
+            }
+
+            // validate json
+            if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+                let isValid : boolean = Utils.validateJSON(json, <Eagle.DALiuGESchemaVersion>userString, Eagle.FileType.Graph);
+                if (!isValid){
+                    console.error("JSON Invalid, saving anyway");
+                    Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                    //return;
+                }
+            }
+
+            this.translator().submit(translatorURL, {
+                algo: Config.translationAlgorithms[algorithmIndex],
+                lg_name: this.logicalGraph().fileInfo().name,
+                json_data: JSON.stringify(json)
+            });
+
+            console.log("json data");
+            console.log("---------");
+            console.log(json);
+            console.log("---------");
         });
-
-        console.log("json data");
-        console.log("---------");
-        console.log(json);
-        console.log("---------");
     }
 
     /**
@@ -1229,8 +1248,9 @@ export class Eagle {
             //       both file formats are base on the OJS format, so they are similar
             Utils.ojsPaletteSchema = JSON.parse(data);
 
-            // NOTE: we don't have a schema for the V3 version
+            // NOTE: we don't have a schema for the V3 or appRef versions
             Utils.v3GraphSchema = JSON.parse(data);
+            Utils.appRefGraphSchema = JSON.parse(data);
         });
     }
 

@@ -73,6 +73,7 @@ export class Utils {
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};
     static v3GraphSchema : object = {};
+    static appRefGraphSchema : object = {};
 
     /**
      * Generates a UUID.
@@ -326,15 +327,6 @@ export class Utils {
 
         console.warn("Unknown DataType", dataType);
         return Eagle.DataType.Unknown;
-    }
-
-    static translateVersionToString(version : Eagle.DALiuGESchemaVersion) : string {
-        if (version === Eagle.DALiuGESchemaVersion.OJS)
-            return "ojs";
-        if (version === Eagle.DALiuGESchemaVersion.V3)
-            return "v3";
-
-        return "";
     }
 
     static httpGet(url : string, callback : (error : string, data : string) => void){
@@ -1227,7 +1219,7 @@ export class Utils {
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {
-        console.log("validateJSON(): version:", Utils.translateVersionToString(version), "fileType:", Utils.translateFileTypeToString(fileType));
+        console.log("validateJSON(): version:", version, "fileType:", Utils.translateFileTypeToString(fileType));
 
         var ajv = new Ajv();
         let valid : boolean;
@@ -1257,6 +1249,24 @@ export class Utils {
                         valid = true;
                         break;
                 }
+                break;
+            case Eagle.DALiuGESchemaVersion.AppRef:
+                switch(fileType){
+                    case Eagle.FileType.Graph:
+                        // TODO: enable validation once a schema is ready
+                        //valid = ajv.validate(Utils.appRefGraphSchema, json) as boolean;
+                        console.warn("No AppRef schema, abort validation.");
+                        valid = true;
+                        break;
+                    default:
+                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        valid = true;
+                        break;
+                }
+                break;
+            default:
+                console.warn("Unknown format for validation");
+                valid = true;
                 break;
         }
 
