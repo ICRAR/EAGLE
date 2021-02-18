@@ -484,8 +484,8 @@ export class LogicalGraph {
             var nodePosition = newNode.getPosition();
 
             // ask the user which data type should be added
-            this.addDataComponentDialog([], (category : string) : void => {
-                if (category !== "") {
+            this.addDataComponentDialog([], (category: Eagle.Category) : void => {
+                if (category !== null) {
                     // Add a data component to the graph.
                     newNode = this.addDataComponentToGraph(category, nodePosition);
 
@@ -674,14 +674,14 @@ export class LogicalGraph {
         };
 
         // if destination node is a BashShellApp, then the inserted data component may not be a Memory
-        var ineligibleTypes : string[] = [];
+        var ineligibleTypes : Eagle.Category[] = [];
         if (destNode.getCategory() === Eagle.Category.BashShellApp){
             ineligibleTypes.push(Eagle.Category.Memory);
         }
 
         // if edge DOES connect two applications, insert data component (of type chosen by user except ineligibleTypes)
-        this.addDataComponentDialog(ineligibleTypes, (category : string) : void => {
-            if (category !== "") {
+        this.addDataComponentDialog(ineligibleTypes, (category : Eagle.Category) : void => {
+            if (category !== null) {
                 // Add a data component to the graph.
                 var newNode : Node = this.addDataComponentToGraph(category, dataComponentPosition);
                 var newNodeKey : number = newNode.getKey();
