@@ -77,6 +77,9 @@ pygments_style = None
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
+html_theme_options = {
+    'fixed_sidebar':'true'
+}
 
 # Adding this so we can increase the width of the central column of text.
 # The custom.css file is in the _static directory.
