@@ -3,13 +3,17 @@ Templates and Graphs
 
 The process of constructing a workflow using EAGLE begins at the most general level -- a Logical Graph Template, and moves through a series of steps to the most specific level -- a Physical Graph. The steps are shown in the following diagram:
 
-.. figure:: _static/images/templates_and_graphs.png
-  :width: 500px
-  :align: center
-  :alt: The progression of a workflow from Logical Graph Template to Physical Graph
-  :figclass: align-center
+.. raw:: html
+    :file: _static/graphs_map.html
 
-  The progression of a workflow from Logical Graph Template to Physical Graph
+.. 
+.. .. figure:: _static/images/templates_and_graphs.png
+..   :width: 500px
+..   :align: center
+..   :alt: The progression of a workflow from Logical Graph Template to Physical Graph
+..   :figclass: align-center
+..
+..   The progression of a workflow from Logical Graph Template to Physical Graph
 
 Logical Graph Template
 ----------------------
