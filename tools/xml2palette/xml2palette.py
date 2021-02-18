@@ -116,7 +116,7 @@ def parse_param_key(key):
     if len(parts) > 5:
         access = parts[5]
     else:
-        print("param (" + name + ") has no 'access' descriptor, using default (readwrite)")
+        print("param (" + name + ") has no 'access' descriptor, using default (readwrite) : " + key)
 
     return (param, internal_name, name, default_value, type, access)
 
@@ -199,8 +199,8 @@ def create_palette_node_from_params(params):
         "inputApplicationName": "",
         "outputApplicationName": "",
         "exitApplicationName": "",
-        "inputApplicationType": "Unknown",
-        "outputApplicationType": "Unknown",
+        "inputApplicationType": "None",
+        "outputApplicationType": "None",
         "exitApplicationType": "None",
         "inputPorts": inputPorts,
         "outputPorts": outputPorts,
