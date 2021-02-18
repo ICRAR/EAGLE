@@ -2670,6 +2670,10 @@ export class Eagle {
         });
     }
 
+    allowEdgeEditing = (): boolean => {
+        return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
+    }
+
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
         console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 

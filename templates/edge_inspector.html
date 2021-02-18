@@ -10,25 +10,25 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="edge-addon1">From Node</span>
                 </div>
-                <input type="text" class="form-control" placeholder="" aria-label="From Node" aria-describedby="edge-addon1" readonly data-bind="value: selectedEdge().srcNodeKey">
+                <input type="text" class="form-control" placeholder="" aria-label="From Node" aria-describedby="edge-addon1" data-bind="value: selectedEdge().srcNodeKey, attr: {readonly:!$root.allowEdgeEditing()}">
             </div>
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="edge-addon2">From Port</span>
                 </div>
-                <input type="text" class="form-control" placeholder="" aria-label="From Port" aria-describedby="edge-addon2" readonly data-bind="value: selectedEdge().srcPortId">
+                <input type="text" class="form-control" placeholder="" aria-label="From Port" aria-describedby="edge-addon2" data-bind="value: selectedEdge().srcPortId, attr: {readonly:!$root.allowEdgeEditing()}">
             </div>
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="edge-addon3">To Node</span>
                 </div>
-                <input type="text" class="form-control" placeholder="" aria-label="To Node" aria-describedby="edge-addon3" readonly data-bind="value: selectedEdge().destNodeKey">
+                <input type="text" class="form-control" placeholder="" aria-label="To Node" aria-describedby="edge-addon3" data-bind="value: selectedEdge().destNodeKey, attr: {readonly:!$root.allowEdgeEditing()}">
             </div>
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="edge-addon4">To Port</span>
                 </div>
-                <input type="text" class="form-control" placeholder="" aria-label="To Port" aria-describedby="edge-addon4" readonly data-bind="value: selectedEdge().destPortId">
+                <input type="text" class="form-control" placeholder="" aria-label="To Port" aria-describedby="edge-addon4" data-bind="value: selectedEdge().destPortId, attr: {readonly:!$root.allowEdgeEditing()}">
             </div>
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
