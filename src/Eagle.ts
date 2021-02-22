@@ -1949,6 +1949,24 @@ export class Eagle {
         }
     }
 
+    editSelectedEdge = () => {
+        if (this.selectedEdge() === null){
+            console.log("Unable to edit selected edge: No edge selected");
+            return;
+        }
+
+        console.log("editSelectedEdge()");
+
+        Utils.requestUserEditEdge(this.selectedEdge(), this.logicalGraph(), (completed: boolean, edge: Edge) => {
+            if (!completed){
+                console.log("User aborted editSelectedEdge()");
+                return;
+            }
+
+            // TODO: copy edge attributes?
+        });
+    }
+
     deleteSelectedEdge = () => {
         if (this.selectedEdge() === null){
             console.log("Unable to delete selected edge: No edge selected");
@@ -2571,7 +2589,7 @@ export class Eagle {
         return Edge.isValid(this.logicalGraph(), this.selectedEdge().getSrcNodeKey(), this.selectedEdge().getSrcPortId(), this.selectedEdge().getDestNodeKey(), this.selectedEdge().getDestPortId(), false, true);
     }
 
-    printLogicalGraphTable = () : void => {
+    printLogicalGraphNodesTable = () : void => {
         var tableData : any[] = [];
 
         // add logical graph nodes to table
@@ -2590,6 +2608,27 @@ export class Eagle {
                 "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey(),
                 "exitAppKey":node.getExitApplication() === null ? null : node.getExitApplication().getKey(),
                 "exitAppEmbedKey":node.getExitApplication() === null ? null : node.getExitApplication().getEmbedKey()
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    printLogicalGraphEdgesTable = () : void => {
+        var tableData : any[] = [];
+
+        // add logical graph nodes to table
+        for (var i = 0; i < this.logicalGraph().getEdges().length; i++){
+            var edge : Edge = this.logicalGraph().getEdges()[i];
+
+            tableData.push({
+                "_id":edge.getId(),
+                "sourceNodeKey":edge.getSrcNodeKey(),
+                "sourcePortId":edge.getSrcPortId(),
+                "destNodeKey":edge.getDestNodeKey(),
+                "destPortId":edge.getDestPortId(),
+                "dataType":edge.getDataType(),
+                "loopAware":edge.isLoopAware()
             });
         }
 

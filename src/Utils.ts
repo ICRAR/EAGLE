@@ -30,6 +30,7 @@ import {Eagle} from './Eagle';
 import {Palette} from './Palette';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
+import {Edge} from './Edge';
 import {Port} from './Port';
 import {Field} from './Field';
 import {Repository} from './Repository';
@@ -649,6 +650,42 @@ export class Utils {
 
             callback(true, newField);
         });
+
+        // #editEdgeModal - requestUserEditEdge()
+        $('#editEdgeModalAffirmativeButton').on('click', function(){
+            $('#editEdgeModal').data('completed', true);
+        });
+        $('#editEdgeModalNegativeButton').on('click', function(){
+            $('#editEdgeModal').data('completed', false);
+        });
+        $('#editEdgeModal').on('shown.bs.modal', function(){
+            $('#editEdgeModalAffirmativeButton').focus();
+        });
+        $('#editEdgeModal').on('hidden.bs.modal', function(){
+            console.log("editEdgeModal hidden");
+
+            var callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
+            var completed : boolean = $('#editEdgeModal').data('completed');
+            console.log("completed", completed);
+
+            // check if the modal was completed (user clicked OK), if not, return false
+            if (!completed){
+                callback(false, null);
+                return;
+            }
+
+            // extract field data from HTML elements
+            let srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+            let srcPortId : string = <string>$('#editEdgeModalSrcPortIdSelect').val();
+            let destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+            let destPortId: string = <string>$('#editEdgeModalDestPortIdSelect').val();
+            let dataType: string = <string>$('#editEdgeModalDataTypeInput').val();
+            console.log("srcNodeKey", srcNodeKey, "srcPortId", srcPortId, "destNodeKey", destNodeKey, "destPortId", destPortId, "dataType", dataType);
+
+            let newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType);
+
+            callback(true, newEdge);
+        });
     }
 
     static showUserMessage (title : string, message : string) {
@@ -910,6 +947,123 @@ export class Utils {
 
     static showSettingsModal(){
         $('#settingsModal').modal();
+    }
+
+    static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void){
+        console.log("requestUserEditEdge()");
+
+        let srcNode: Node = null;
+        let destNode: Node = null;
+
+        // populate UI with current edge data
+        // add src node keys
+        $('#editEdgeModalSrcNodeKeySelect').empty();
+        for (let i = 0 ; i < logicalGraph.getNodes().length; i++){
+            let node = logicalGraph.getNodes()[i];
+
+            if (node.canHaveOutputs()){
+                console.log("add node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
+                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getSrcNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getSrcNodeKey()){
+                    srcNode = node;
+                }
+            } else {
+                // add input application node, if present
+                if (node.hasInputApplication()){
+                    node = node.getInputApplication();
+
+                    console.log("add input app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
+                    $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
+                        value: node.getKey(),
+                        text: node.getName(),
+                        selected: edge.getSrcNodeKey() === node.getKey()
+                    }));
+
+                    if (node.getKey() === edge.getSrcNodeKey()){
+                        srcNode = node;
+                    }
+                }
+            }
+        }
+
+        // check that source node was found, if not, disable SrcPortIdSelect?
+        $('#editEdgeModalSrcPortIdSelect').empty();
+        if (srcNode === null){
+            $('#editEdgeModalSrcPortIdSelect').attr('disabled', 'true');
+        } else {
+            // add src port ids
+            for (let i = 0 ; i < srcNode.getOutputPorts().length; i++){
+                let port: Port = srcNode.getOutputPorts()[i];
+                console.log("add source output port", port.getName(), "selected", edge.getSrcPortId() === port.getId());
+                $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
+                    value: port.getId(),
+                    text: port.getName(),
+                    selected: edge.getSrcPortId() === port.getId()
+                }));
+            }
+        }
+
+        // add dest node keys
+        $('#editEdgeModalDestNodeKeySelect').empty();
+        for (let i = 0 ; i < logicalGraph.getNodes().length; i++){
+            let node = logicalGraph.getNodes()[i];
+
+            if (node.canHaveInputs()){
+                console.log("add node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
+                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getDestNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getDestNodeKey()){
+                    destNode = node;
+                }
+            } else {
+                if (node.hasOutputApplication()){
+                    node = node.getOutputApplication();
+
+                    console.log("add output app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
+                    $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
+                        value: node.getKey(),
+                        text: node.getName(),
+                        selected: edge.getDestNodeKey() === node.getKey()
+                    }));
+
+                    if (node.getKey() === edge.getDestNodeKey()){
+                        destNode = node;
+                    }
+                }
+            }
+        }
+
+        // check that dest node was found, if not, disable DestPortIdSelect?
+        $('#editEdgeModalDestPortIdSelect').empty();
+        if (destNode === null){
+            $('#editEdgeModalDestPortIdSelect').attr('disabled', 'true');
+        } else {
+            // add dest port ids
+            for (let i = 0 ; i < destNode.getInputPorts().length; i++){
+                let port: Port = destNode.getInputPorts()[i];
+                console.log("add dest input port", port.getName(), "selected", edge.getDestPortId() === port.getId());
+                $('#editEdgeModalDestPortIdSelect').append($('<option>', {
+                    value: port.getId(),
+                    text: port.getName(),
+                    selected: edge.getDestPortId() === port.getId()
+                }));
+            }
+        }
+
+        $('#editEdgeModalDataTypeInput').val(edge.getDataType());
+
+        $('#editEdgeModal').data('completed', false);
+        $('#editEdgeModal').data('callback', callback);
+        $('#editEdgeModal').modal();
     }
 
     /**
