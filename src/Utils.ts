@@ -961,6 +961,7 @@ export class Utils {
         for (let i = 0 ; i < logicalGraph.getNodes().length; i++){
             let node = logicalGraph.getNodes()[i];
 
+            // if node itself can have output ports, add the node to the list
             if (node.canHaveOutputs()){
                 console.log("add node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
@@ -972,21 +973,53 @@ export class Utils {
                 if (node.getKey() === edge.getSrcNodeKey()){
                     srcNode = node;
                 }
-            } else {
-                // add input application node, if present
-                if (node.hasInputApplication()){
-                    node = node.getInputApplication();
+            }
 
-                    console.log("add input app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
-                    $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                        value: node.getKey(),
-                        text: node.getName(),
-                        selected: edge.getSrcNodeKey() === node.getKey()
-                    }));
+            // add input application node, if present
+            if (node.hasInputApplication()){
+                node = node.getInputApplication();
 
-                    if (node.getKey() === edge.getSrcNodeKey()){
-                        srcNode = node;
-                    }
+                console.log("add input app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
+                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getSrcNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getSrcNodeKey()){
+                    srcNode = node;
+                }
+            }
+
+            // add output application node, if present
+            if (node.hasOutputApplication()){
+                node = node.getOutputApplication();
+
+                console.log("add output app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
+                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getSrcNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getSrcNodeKey()){
+                    srcNode = node;
+                }
+            }
+
+            // add exit applicaiton node, if present
+            if (node.hasExitApplication()){
+                node = node.getExitApplication();
+
+                console.log("add exit app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
+                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getSrcNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getSrcNodeKey()){
+                    srcNode = node;
                 }
             }
         }
@@ -1024,22 +1057,56 @@ export class Utils {
                 if (node.getKey() === edge.getDestNodeKey()){
                     destNode = node;
                 }
-            } else {
-                if (node.hasOutputApplication()){
-                    node = node.getOutputApplication();
+            }
 
-                    console.log("add output app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
-                    $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                        value: node.getKey(),
-                        text: node.getName(),
-                        selected: edge.getDestNodeKey() === node.getKey()
-                    }));
+            // input application node, if present
+            if (node.hasInputApplication()){
+                node = node.getInputApplication();
 
-                    if (node.getKey() === edge.getDestNodeKey()){
-                        destNode = node;
-                    }
+                console.log("add input app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
+                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getDestNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getDestNodeKey()){
+                    destNode = node;
                 }
             }
+
+            // output application node, if present
+            if (node.hasOutputApplication()){
+                node = node.getOutputApplication();
+
+                console.log("add output app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
+                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getDestNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getDestNodeKey()){
+                    destNode = node;
+                }
+            }
+
+            // exit application node, if present
+            if (node.hasExitApplication()){
+                node = node.getExitApplication();
+
+                console.log("add exit app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
+                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getDestNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getDestNodeKey()){
+                    destNode = node;
+                }
+            }
+
         }
 
         // check that dest node was found, if not, disable DestPortIdSelect?
