@@ -21,6 +21,14 @@ A GitHub Personal Access Token is required to save a graph to a repository. Thes
 .. raw:: html
     :file: _static/helloWorld_save_graph.html
 
+Translating a graph
+-------------------
+
+The graph created in EAGLE needs to be :doc:`translated <translation>` into a :doc:`Physical Graph Template <graphs>` before it can be executed. This video will step you through the process of translating a simple Hello World graph.
+
+.. raw:: html
+    :file: _static/helloWorld_translate_graph.html
+
 |
 
 Quick Start Guides

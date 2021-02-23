@@ -52,7 +52,7 @@ class Page {
     this.navbarGit = Selector('#navbarDropdownGit');
     this.saveGitAs = Selector('#commitToGitAsGraph');
 
-    this.descriptionField = Selector('textarea');
+    this.descriptionField = Selector('textarea.form-control');
 
     this.addRepo = Selector('#addRepository');
     this.newRepoName = Selector('#gitCustomRepositoryModalRepositoryNameInput');
@@ -63,7 +63,7 @@ class Page {
     this.openSettings = Selector('#openSettings');
     this.allowComponentEditing = Selector('#setting7Button');
     this.setGitToken = Selector('#setting13Value');
-    this.disableJSONval = Selector('#setting15Button');
+    this.disableJSONval = Selector('#setting16Button');
     this.settingsSubmit = Selector('#settingsModalAffirmativeAnswer');
 
     this.centerGraph = Selector('#centerGraph');
@@ -234,6 +234,61 @@ class Page {
     })
     await t.wait(wtime);
   }
+
+  async createHelloWorldFile (graph_filename, node0, node1, node2, greet) {
+
+    // create a new graph
+    await this.createNewGraph(graph_filename);
+    //await t.click(page.centerGraph);
+
+    await this.selectNode(node0);
+
+    // Add a description to the description node
+    await t.typeText(this.descriptionField, "A graph saving the output of a HelloWorldApp to disk");
+    // Move it to the bottom left (small screen resolution)
+    await this.moveNode(node0, 110, 480);
+
+    // Collapse the top palette (the bottom palette isn't visible otherwise in the videos)
+    await t.click(this.collapseTopPalette);
+
+    // Add HelloWorldApp node and move it
+    await this.addPaletteNode(1,2);
+    await this.moveNode(node1, 160,200);
+
+    // Drag out the right panel (needed for small screen)
+    await t.drag(this.rightAdjuster, -70, 0);
+
+    // Change the parameter
+    await t.typeText(this.changeGreet, greet, { replace: true});
+
+   // Open top palette again
+    await t.click(this.collapseTopPalette);
+
+    // Add file node
+    await this.addPaletteNode(0,8);
+
+    // The file node is node2. Select and move it
+    await this.selectNode(node2);
+    await this.moveNode(node2, 550, 200);
+
+    // Add a port to the node for the HelloWordApp output
+    // Hover first to get the button onto the screen
+    await t.hover(this.addInputPort);
+    await t.click(this.addInputPort);
+
+    // Choose the option "hello"
+    await this.selectOption("hello");
+
+    //Connect the nodes
+    await this.connectNodes(node1, node2, 0, 0);
+
+    // Disable JSON validation due to a bug
+    await t
+      .click(this.openSettings)
+      .click(this.disableJSONval)
+      .click(this.settingsSubmit);
+  }
+
 }
 
 

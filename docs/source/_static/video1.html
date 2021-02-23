@@ -10,12 +10,12 @@
 	</figcaption>
 
 	<!-- Trigger/Open The Modal -->
-	<button id="myBtn3" style="float: right">Click to see a larger video</button>
+	<button id="myBtn4" style="float: right">Click to see a larger video</button>
 
 </figure>
 
 <!-- The Modal -->
-<div id="myModal3" class="modal">
+<div id="myModal4" class="modal">
 
   <!-- Modal content -->
 	<figure class="modal-content">
@@ -34,44 +34,44 @@
 </div>
 
 <script>
-var locationList3 = document.getElementById("load_palette_captions"),
-video3 = document.getElementById("load_palette"),
-trackElement3 = video3.getElementsByTagName("track")[0];
+var locationList4 = document.getElementById("load_palette_captions"),
+video4 = document.getElementById("load_palette"),
+trackElement4 = video4.getElementsByTagName("track")[0];
 
-all_videos.push([locationList3, video3, trackElement3]);
+all_videos.push([locationList4, video4, trackElement4]);
 
-var locationList3m = document.getElementById("load_palette_captions_modal"),
-video3m = document.getElementById("load_palette_modal"),
-trackElement3m = video3m.getElementsByTagName("track")[0];
+var locationList4m = document.getElementById("load_palette_captions_modal"),
+video4m = document.getElementById("load_palette_modal"),
+trackElement4m = video4m.getElementsByTagName("track")[0];
 
-all_videos.push([locationList3m, video3m, trackElement3m]);
+all_videos.push([locationList4m, video4m, trackElement4m]);
 
 // Get the modal
-var modal3 = document.getElementById("myModal3");
+var modal4 = document.getElementById("myModal4");
 
 // Get the button that opens the modal
-var btn3 = document.getElementById("myBtn3");
+var btn4 = document.getElementById("myBtn4");
 
 // Get the <span> element that closes the modal
-var span3 = document.getElementsByClassName("close")[2];
+var span4 = document.getElementsByClassName("close")[3];
 
 // When the user clicks on the button, open the modal
-btn3.onclick = function() {
-	video3.pause();
-  modal3.style.display = "block";
+btn4.onclick = function() {
+	video4.pause();
+  modal4.style.display = "block";
 }
 
 // When the user clicks on <span> (x), close the modal
-span3.onclick = function() {
-	video3m.pause();
-  modal3.style.display = "none";
+span4.onclick = function() {
+	video4m.pause();
+  modal4.style.display = "none";
 }
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-  if (event.target == modal3) {
-		video3m.pause();
-    modal3.style.display = "none";
+  if (event.target == modal4) {
+		video4m.pause();
+    modal4.style.display = "none";
   }
 }
 

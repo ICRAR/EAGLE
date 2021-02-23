@@ -175,7 +175,8 @@ var SAVE_REPOSITORY = "eagle-testcafe/Saved-Graphs";
 var SAVE_PATH = "testcafe";
 var SAVE_REPOSITORY_BRANCH = "main";
 
-var TRANSURL = "http://18.212.69.141:8084/gen_pgt";
+//var TRANSURL = "http://18.212.69.141:8084/gen_pgt";
+var TRANSURL = "http://localhost:8084/gen_pgt";
 
 var CHOICE_MODAL_CUSTOM = "Custom (enter below)";
 var SPEAD2_STREAM = "spead2Stream";
@@ -526,5 +527,49 @@ test('Hello World save graph', async t =>{
       // end
       .wait(10000);
       //.takeScreenshot();
+
+});
+
+test('Hello World translate', async t =>{
+
+  await t
+      // wait for the page to settle down
+      //.resizeWindow(1920, 1080)
+      .maximizeWindow()
+      .wait(3000)
+      .setTestSpeed(TEST_SPEED);
+
+  // Don't capture this
+  await showMessageBox('Setting up for video');
+
+  await page.createHelloWorldFile(graph_filename, "#node0", "#node1", "#node2", "Felicia")
+
+  // Start the video capture here
+  await showMessageBox('Translating a Hello World graph');
+
+  // Note
+  var rect = await page.getRect(page.transMode);
+  await showNoteBox('Click here to access the different translation algorithms', rect, 'below', 1.0);
+
+  await t.click(page.transMode);
+
+  // Note
+  var rect = await page.getRect(page.setTransURL);
+  await showNoteBox('The URL for the translator you are using needs to be set here', rect, 'left', 1.3);
+
+  await t.click(page.setTransURL);
+  await page.submitName(TRANSURL);
+
+  // Note
+  var rect = await page.getRect(page.algorithm0);
+  await showNoteBox('Different algorithms will optimise the translated graph in different ways', rect, 'left', 1.0);
+
+  await t
+    .click(page.algorithm0)
+    .click(page.alg0Button);
+
+  await page.selectOption("OJS");
+
+
 
 });
