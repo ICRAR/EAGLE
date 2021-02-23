@@ -686,6 +686,25 @@ export class Utils {
 
             callback(true, newEdge);
         });
+        $('#editEdgeModalSrcNodeKeySelect').on('change', function(){
+            let edge: Edge = $('#editEdgeModal').data('edge');
+            let logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
+
+            let srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+            edge.setSrcNodeKey(srcNodeKey);
+
+            Utils.updateEditEdgeModal(edge, logicalGraph);
+        });
+        $('#editEdgeModalDestNodeKeySelect').on('change', function(){
+            let edge: Edge = $('#editEdgeModal').data('edge');
+            let logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
+
+            let destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+            edge.setDestNodeKey(destNodeKey);
+
+            Utils.updateEditEdgeModal(edge, logicalGraph);
+        });
+
     }
 
     static showUserMessage (title : string, message : string) {
@@ -952,6 +971,18 @@ export class Utils {
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void){
         console.log("requestUserEditEdge()");
 
+        Utils.updateEditEdgeModal(edge, logicalGraph);
+
+        $('#editEdgeModal').data('completed', false);
+        $('#editEdgeModal').data('callback', callback);
+
+        $('#editEdgeModal').data('edge', edge);
+        $('#editEdgeModal').data('logicalGraph', logicalGraph);
+
+        $('#editEdgeModal').modal();
+    }
+
+    static updateEditEdgeModal(edge: Edge, logicalGraph: LogicalGraph): void {
         let srcNode: Node = null;
         let destNode: Node = null;
 
@@ -1032,7 +1063,7 @@ export class Utils {
             // add src port ids
             for (let i = 0 ; i < srcNode.getOutputPorts().length; i++){
                 let port: Port = srcNode.getOutputPorts()[i];
-                console.log("add source output port", port.getName(), "selected", edge.getSrcPortId() === port.getId());
+                console.log("add source (" + srcNode.getName() + ") output port", port.getName(), "selected", edge.getSrcPortId() === port.getId());
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getName(),
@@ -1117,7 +1148,7 @@ export class Utils {
             // add dest port ids
             for (let i = 0 ; i < destNode.getInputPorts().length; i++){
                 let port: Port = destNode.getInputPorts()[i];
-                console.log("add dest input port", port.getName(), "selected", edge.getDestPortId() === port.getId());
+                console.log("add dest (" + destNode.getName() + ") input port", port.getName(), "selected", edge.getDestPortId() === port.getId());
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getName(),
@@ -1127,10 +1158,6 @@ export class Utils {
         }
 
         $('#editEdgeModalDataTypeInput').val(edge.getDataType());
-
-        $('#editEdgeModal').data('completed', false);
-        $('#editEdgeModal').data('callback', callback);
-        $('#editEdgeModal').modal();
     }
 
     /**

@@ -57,12 +57,20 @@ export class Edge {
         return this.srcNodeKey;
     }
 
+    setSrcNodeKey = (key: number): void => {
+        this.srcNodeKey = key;
+    }
+
     getSrcPortId = () : string => {
         return this.srcPortId;
     }
 
     getDestNodeKey = () : number => {
         return this.destNodeKey;
+    }
+
+    setDestNodeKey = (key: number): void => {
+        this.destNodeKey = key;
     }
 
     getDestPortId = () : string => {
