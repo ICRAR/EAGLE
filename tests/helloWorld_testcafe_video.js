@@ -324,58 +324,7 @@ test('Hello World save graph', async t =>{
   // Don't capture this
   await showMessageBox('Setting up for video');
 
-  // create a new graph
-  await page.createNewGraph(graph_filename);
-  //await t.click(page.centerGraph);
-
-  await page.selectNode('#node0');
-
-  // Add a description to the description node
-  await t.typeText(page.descriptionField, "A graph saving the output of a HelloWorldApp to disk");
-  // Move it to the bottom left (small screen resolution)
-  await page.moveNode('#node0', 110, 480);
-
-  // Collapse the top palette (the bottom palette isn't visible otherwise in the videos)
-  await t.click(page.collapseTopPalette);
-
-  // Add HelloWorldApp node and move it
-  await page.addPaletteNode(1,2);
-  await page.moveNode('#node1', 160,200);
-
-  // Drag out the right panel (needed for small screen)
-  await t.drag(page.rightAdjuster, -70, 0);
-
-  // Change the parameter
-  await t.typeText(page.changeGreet, 'Felicia', { replace: true});
-
- // Open top palette again
-  await t.click(page.collapseTopPalette);
-
-  // Add file node
-  await page.addPaletteNode(0,8);
-
-  // The file node is node2. Select and move it
-  await page.selectNode("#node2");
-  await page.moveNode('#node2', 550, 200);
-
-  // Add a port to the node for the HelloWordApp output
-  // Hover first to get the button onto the screen
-  await t.hover(page.addInputPort);
-  await t.click(page.addInputPort);
-
-  // Choose the option "hello"
-  await page.selectOption("hello");
-
-  //Connect the nodes
-  await page.connectNodes("#node1", "#node2", 0, 0);
-
-  // Disable JSON validation due to a bug
-  await t
-    .click(page.openSettings)
-    .click(page.disableJSONval)
-    .click(page.settingsSubmit);
-
-
+  await page.createHelloWorldFile(graph_filename, "#node0", "#node1", "#node2", "Felicia")
 
 
   // Start the video capture here
@@ -557,6 +506,7 @@ test('Hello World translate', async t =>{
   var rect = await page.getRect(page.setTransURL);
   await showNoteBox('The URL for the translator you are using needs to be set here', rect, 'left', 1.3);
 
+  // This script currently uses localhost for the translation, but should work with a different url as well.
   await t.click(page.setTransURL);
   await page.submitName(TRANSURL);
 

@@ -112,3 +112,92 @@ test('Hello World graph', async t =>{
 
 
 });
+
+test('Hello World save graph', async t =>{
+
+  await t
+      // wait for the page to settle down
+      //.resizeWindow(1920, 1080)
+      .maximizeWindow()
+      .wait(3000)
+      .setTestSpeed(TEST_SPEED);
+
+
+  // Set up a standard HelloWorld graph
+  await page.createHelloWorldFile(graph_filename, "#node0", "#node1", "#node2", "Felicia")
+
+  // switch back to the repositories tab
+  await t.click(page.repoMode);
+
+  await page.addNewRepo(SAVE_REPOSITORY, SAVE_REPOSITORY_BRANCH);
+
+  // Set the git token
+  await t
+    .setTestSpeed(TEST_SPEED)
+    .click(page.openSettings);
+
+  // The script doesn't try to use the new access token, just the one already set
+  await page.changeSetting(page.setGitToken, GITHUB_ACCESS_TOKEN);
+
+  // Save to github menu navigation
+  await t
+      // save graph to github as...
+      .click(page.navbarGit)
+      .click(page.saveGitAs);
+
+  // Saving the graph
+  await t
+      .click(page.commitRepo)
+      .click(page.commitRepo.find('option').withText(SAVE_REPOSITORY + " (" + SAVE_REPOSITORY_BRANCH + ")"))
+
+      // Enter the path
+      .typeText(page.commitPath, graph_filepath, { replace : true })
+
+      // use default filename for save graph as...
+      .typeText(page.commitFile, graph_filename, { replace: true })
+
+      // enter commit message for save graph as...
+      .typeText(page.commitMessage, graph_commit_message, { replace: true })
+
+      // commit
+      .click(page.commitSubmit)
+
+      // Use the assertion to check if the actual header text is equal to the expected one
+      .expect(Selector("div[data-notify='container'] span[data-notify='title']").innerText).eql(SUCCESS_MESSAGE)
+
+      // end
+      .wait(10000);
+      //.takeScreenshot();
+
+});
+
+test('Hello World translate', async t =>{
+
+  await t
+      // wait for the page to settle down
+      //.resizeWindow(1920, 1080)
+      .maximizeWindow()
+      .wait(3000)
+      .setTestSpeed(TEST_SPEED);
+
+  // Create a standard Hello World graph
+  await page.createHelloWorldFile(graph_filename, "#node0", "#node1", "#node2", "Felicia")
+
+  await t.click(page.transMode);
+
+  // Set the translation engine url
+  // This script uses http://18.212.69.141:8084/gen_pgt
+  await t.click(page.setTransURL);
+  await page.submitName(TRANSURL);
+
+  // Select an algorithm
+  await t
+    .click(page.algorithm0)
+    .click(page.alg0Button);
+
+  // Select a file type and translate
+  await page.selectOption("OJS");
+
+
+
+});
