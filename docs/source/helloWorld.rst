@@ -29,6 +29,14 @@ The graph created in EAGLE needs to be :doc:`translated <translation>` into a :d
 .. raw:: html
     :file: _static/helloWorld_translate_graph.html
 
+Executing a graph
+-----------------
+
+This video shows one method of executing the :doc:`Physical Graph Template <graphs>` using a an execution engine that is running in a local Docker container. There are many other ways this step may be performed.
+
+.. raw:: html
+    :file: _static/helloWorld_execute_graph.html
+
 |
 
 Quick Start Guides
@@ -44,7 +52,7 @@ EAGLE workflows are made up of :doc:`components <components>` that represent exe
 To load a palette from a GitHub repository, you first need to create a GitHub Personal Access Token. The steps required are demonstrated in this video.
 
 .. raw:: html
-    :file: _static/video1.html
+    :file: _static/quickStart_load_palette.html
 
 
 .. raw:: html
