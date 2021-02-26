@@ -314,6 +314,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                      .attr("class", "content")
                      .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionX(node));})
                      .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionY(node));})
+                     .attr("eagle-wrap-width", getWrapWidth)
                      .style("fill", getContentFill)
                      .style("font-size", REAL_TO_DISPLAY_SCALE(CONTENT_TEXT_FONT_SIZE) + "px")
                      .style("display", getContentDisplay)
@@ -900,11 +901,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(nodeData)
                                 .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionX(node));})
                                 .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionY(node));})
+                                .attr("eagle-wrap-width", getWrapWidth)
                                 .style("fill", getContentFill)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(CONTENT_TEXT_FONT_SIZE) + "px")
                                 .style("display", getContentDisplay)
                                 .text(getContentText)
-                                .call(wrap, Node.DEFAULT_WIDTH);
+                                .call(wrap);
 
         svgContainer.selectAll("image")
                                 .data(nodeData)
@@ -3124,11 +3126,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return s;
     }
 
-    function wrap(text : any, width : number) {
-        //console.log("wrap", width);
+    function getWrapWidth(node: Node) {
+        return node.getDisplayWidth();
+    }
+
+    function wrap(text : any) {
         text.each(function() {
             var text = d3.select(this),
                 words = text.text().split(/\s+/).reverse(),
+                wordWrapWidth = parseInt(text.attr("eagle-wrap-width"), 10),
                 word,
                 line : string[] = [],
                 lineNumber = 0,
@@ -3141,7 +3147,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             while (word = words.pop()) {
                 line.push(word);
                 tspan.text(line.join(" "));
-                if (tspan.node().getComputedTextLength() > width) {
+                if (tspan.node().getComputedTextLength() > wordWrapWidth) {
                     line.pop();
                     tspan.text(line.join(" "));
                     line = [word];
