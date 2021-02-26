@@ -319,7 +319,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                      .style("font-size", REAL_TO_DISPLAY_SCALE(CONTENT_TEXT_FONT_SIZE) + "px")
                      .style("display", getContentDisplay)
                      .text(getContentText)
-                     .call(wrap, Node.DEFAULT_WIDTH);
+                     .call(wrap);
 
     var icons = nodes.append("svg:image")
                     .attr("href", getDataIcon)
