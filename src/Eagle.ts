@@ -1955,7 +1955,7 @@ export class Eagle {
             return;
         }
 
-        console.log("editSelectedEdge()");
+        //console.log("editSelectedEdge()");
 
         Utils.requestUserEditEdge(this.selectedEdge(), this.logicalGraph(), (completed: boolean, edge: Edge) => {
             if (!completed){
@@ -1963,7 +1963,14 @@ export class Eagle {
                 return;
             }
 
-            // TODO: copy edge attributes?
+            // copy edge attributes
+            this.selectedEdge().setSrcNodeKey(edge.getSrcNodeKey());
+            this.selectedEdge().setSrcPortId(edge.getSrcPortId());
+            this.selectedEdge().setDestNodeKey(edge.getDestNodeKey());
+            this.selectedEdge().setDestPortId(edge.getDestPortId());
+
+            // trigger the diagram to re-draw with the modified edge
+            this.flagActiveDiagramHasMutated();
         });
     }
 

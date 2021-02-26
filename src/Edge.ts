@@ -65,6 +65,10 @@ export class Edge {
         return this.srcPortId;
     }
 
+    setSrcPortId = (id: string) => {
+        this.srcPortId = id;
+    }
+
     getDestNodeKey = () : number => {
         return this.destNodeKey;
     }
@@ -75,6 +79,10 @@ export class Edge {
 
     getDestPortId = () : string => {
         return this.destPortId;
+    }
+
+    setDestPortId = (id: string) => {
+        this.destPortId = id;
     }
 
     getDataType = () : string => {
