@@ -986,6 +986,8 @@ export class Utils {
         let srcNode: Node = null;
         let destNode: Node = null;
 
+        // TODO: make local copy of edge, so that original is not changed! original might come from inside the active graph
+
         // populate UI with current edge data
         // add src node keys
         $('#editEdgeModalSrcNodeKeySelect').empty();
@@ -1053,6 +1055,15 @@ export class Utils {
                     srcNode = node;
                 }
             }
+        }
+
+        // make sure srcNode reflects what is actually selected in the UI
+        let srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+        //console.log("srcNodeKey", srcNodeKey);
+        if (isNaN(srcNodeKey)){
+            srcNode = null;
+        } else {
+            srcNode = logicalGraph.findNodeByKey(srcNodeKey);
         }
 
         // check that source node was found, if not, disable SrcPortIdSelect?
@@ -1137,7 +1148,15 @@ export class Utils {
                     destNode = node;
                 }
             }
+        }
 
+        // make sure srcNode reflects what is actually selected in the UI
+        let destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+        //console.log("destNodeKey", destNodeKey);
+        if (isNaN(destNodeKey)){
+            destNode = null;
+        } else {
+            destNode = logicalGraph.findNodeByKey(destNodeKey);
         }
 
         // check that dest node was found, if not, disable DestPortIdSelect?

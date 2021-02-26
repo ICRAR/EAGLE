@@ -1949,6 +1949,41 @@ export class Eagle {
         }
     }
 
+    addEdgeToLogicalGraph = () => {
+        // check that there is at least one node in the graph, otherwise it is difficult to create an edge
+        if (this.logicalGraph().getNumNodes() === 0){
+            Utils.showUserMessage("Error", "Can't add an edge to a graph with zero nodes.");
+            return;
+        }
+
+        // if input edge is null, then we are creating a new edge here, so initialise it with some default values
+        let edge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "");
+
+        // display edge editing modal UI
+        Utils.requestUserEditEdge(edge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
+            if (!completed){
+                console.log("User aborted addEdgeToLogicalGraph()");
+                return;
+            }
+
+            // validate edge
+            if (!this._validateEdge(edge)){
+                Utils.showUserMessage("Error", "Invalid edge");
+                return;
+            }
+
+            // create new edge
+            let newEdge: Edge = new Edge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType());
+
+            // TODO: new edges might require creation of new nodes, don't use addEdgeComplete here!
+            // add edge to the graph
+            this.logicalGraph().addEdgeComplete(newEdge);
+
+            // trigger the diagram to re-draw with the modified edge
+            this.flagActiveDiagramHasMutated();
+        });
+    }
+
     editSelectedEdge = () => {
         if (this.selectedEdge() === null){
             console.log("Unable to edit selected edge: No edge selected");
@@ -1963,6 +1998,14 @@ export class Eagle {
                 return;
             }
 
+            // validate edge
+            if (!this._validateEdge(edge)){
+                Utils.showUserMessage("Error", "Invalid edge");
+                return;
+            }
+
+            // TODO: new edges might require creation of new nodes, we probably should delete the existing edge and then create a new one using the full new edge pathway
+
             // copy edge attributes
             this.selectedEdge().setSrcNodeKey(edge.getSrcNodeKey());
             this.selectedEdge().setSrcPortId(edge.getSrcPortId());
@@ -1972,6 +2015,39 @@ export class Eagle {
             // trigger the diagram to re-draw with the modified edge
             this.flagActiveDiagramHasMutated();
         });
+    }
+
+    // TODO: combine with Edge.isValid()
+    private _validateEdge = (edge: Edge) : boolean => {
+        // check the return values are OK
+        //console.log("return values", edge.getSrcNodeKey(), edge.getSrcPortId(), "->", edge.getDestNodeKey(), edge.getDestPortId());
+
+        // check for problems
+        if (isNaN(edge.getSrcNodeKey())){
+            return false;
+        }
+
+        if (isNaN(edge.getDestNodeKey())){
+            return false;
+        }
+
+        if (edge.getSrcPortId() === ""){
+            return false;
+        }
+
+        if (edge.getDestPortId() === ""){
+            return false;
+        }
+
+        if (edge.getSrcPortId() === null){
+            return false;
+        }
+
+        if (edge.getDestPortId() === null){
+            return false;
+        }
+
+        return true;
     }
 
     deleteSelectedEdge = () => {

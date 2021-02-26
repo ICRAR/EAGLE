@@ -56,6 +56,7 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
                     <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: newLogicalGraph">Create New Graph</a>
+                    <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph</a>
                     <!-- /ko -->
                     <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
                     <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette</a>
