@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+    alpine:
+        image: icrar/eagle:${VCS_TAG}
+        restart: "no"
+        build:
+            context: .
+            dockerfile: Dockerfile.dep
+        ports:
+            - 8888:80/tcp
+        volumes:
+            - .:/app

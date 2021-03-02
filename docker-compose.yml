@@ -1,8 +1,1 @@
-version: '3.8'
-services:
-    alpine:
-        image: icrar/eagle:${vcs_tag}
-        restart: "no"
-        build: .
-        ports:
-            - 8888:80/tcp
+docker-compose.dev.yml

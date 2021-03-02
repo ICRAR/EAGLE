@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+    alpine:
+        image: icrar/eagle:dev
+        restart: "no"
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        ports:
+            - 8888:80/tcp
+        volumes:
+            - .:/app

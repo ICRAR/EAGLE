@@ -1,0 +1,10 @@
+# Development version for EAGLE docker build. This enables a developer
+# to work on the host directory and see the changes reflected in the
+# conrainer.
+
+FROM tiangolo/meinheld-gunicorn-flask:python3.7-alpine3.8
+COPY . .
+RUN apk add --update npm bash git curl alpine-sdk linux-headers &&\
+    npm install -g typescript &&\
+    python updateVersion.py &&\
+    pip install --upgrade pip

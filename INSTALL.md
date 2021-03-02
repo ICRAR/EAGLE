@@ -1,39 +1,45 @@
 # EAGLE Installation Guide
 
-### Docker Images
+## Docker Images
 
-#### alpine based docker image
+### alpine based docker images
 
-This is the preferred way to get EAGLE up and running both in an operational and in a local environment. It is based on an an image from https://github.com/tiangolo/meinheld-gunicorn-flask-docker and packs gunicorn, flask and EAGLE into a small 142 MB image. When started it runs EAGLE as a Flask WSGI application served by multiple gunicorn tasks. To build and run enter:
+This is the preferred way to get EAGLE up and running both in an operational and in a development environment. It is based on an an image from https://github.com/tiangolo/meinheld-gunicorn-flask-docker and packs meinheld, gunicorn, flask and EAGLE into a small, less than 200 MB image. When started it runs EAGLE as a Flask WSGI application served by multiple gunicorn tasks.
+
+There are two versions of the docker image build procedures, one for deployment and one for local development.
+
+#### Deployment Image
+
+To build a deployment image:
 
     $ git clone https://github.com/ICRAR/EAGLE.git; cd EAGLE
-    $ docker-compose up -d
+    $ ./build_eagle.dep.sh
 
-This will build and start an image called eagle_alpine. Navigate to the EAGLE access point and start creating workflows:
+This will build an image and tag it with the latest tag found on git. To start this image run:
+
+    $ ./run_eagle.dep.sh
+
+The container will be started in the background. To us it locally, navigate to the EAGLE access point and start creating workflows:
 
     http://localhost:8888
 
-Once the image is built instances can be started and stopped like this:
+To stop and remove the deployment container run:
 
-    $ docker-compose start
+    $ ./stop_eagle.dep.sh
 
-...
+#### Development Image
 
-    $ docker-compose stop
+The development image maps the local host directory to the EAGLE instance installed inside the container and thus allows to modify things on-the-fly. To build a development image run:
 
-### Centos7 based docker image
+    $ ./build_eagle.dev.sh
 
-The fabric script also allows to create a docker image. In order to enable that the virtualenv in addition needs the python docker module.
+To start this image run:
 
-    $ pip install docker
+    $ ./start_eagle.dev.sh
 
-then
+This will start the development image in forground and watch the typescript files for any changes. If changes are detected the compiler will translate the affected files. All changes in the static subdirectory will directly affect the deployed EAGLE instance. The only files which will not be reflected live in the docker image are the main eagleServer files under the eagleServer subdirectory. In order to make this possible the actual installation all the EAGLE system is carried out during the start of the container and not during the build of the image.
 
-    $ fab hl.docker_image
-
-will generate the image based on Centos7. The server can be started using:
-
-    $ docker run -ti -p 8888:8888 icrar/eagle:latest /home/eagle/eagle_rt/bin/eagleServer
+To stop the running container press CTRL+C in the terminal where the image was started.
 
 ## Debugging and Testing
 For debugging and testing EAGLE has an internal web server, which is provided
@@ -82,6 +88,22 @@ Fabric is a sophisticated ssh client library. It is used for EAGLE's more comple
 The installation procedure also allows installing EAGLE on an AWS instance and thus the boto library is required in your local environment as well:
 
     $ pip install boto   # optional
+
+### Centos7 based docker image
+
+NOTE: This is deprecated. The above methods should be used instead.
+
+The fabric script also allows to create a docker image. In order to enable that the virtualenv in addition needs the python docker module.
+
+    $ pip install docker
+
+then
+
+    $ fab hl.docker_image
+
+will generate the image based on Centos7. The server can be started using:
+
+    $ docker run -ti -p 8888:8888 icrar/eagle:latest /home/eagle/eagle_rt/bin/eagleServer
 
 ### Operational Installation
 NOTE: This requires root or sudo on the remote host, since it is installing

@@ -1,0 +1,26 @@
+# we are doing a two-stage build to keep the size of
+# the final image low.
+
+FROM tiangolo/meinheld-gunicorn-flask:python3.7-alpine3.8
+COPY . .
+RUN apk add --update npm bash git curl alpine-sdk linux-headers &&\
+    npm install -g typescript &&\
+    python updateVersion.py &&\
+    cp VERSION /tmp/. &&\
+    pip install --upgrade pip &&\
+    pip install . &&\
+    sphinx-apidoc -o docs/source eagleServer &&\
+    cd docs; make html; cd .. &&\
+    pip list | grep -i sphinx | awk '{print $1}'|xargs pip uninstall -y &&\
+    pip uninstall -y pip &&\
+    mv prestart.dep.sh /tmp/prestart.sh &&\
+    cp -R static/docs /usr/local/lib/python3.7/site-packages/static &&\
+    npm uninstall -g typescript &&\
+    apk del git curl alpine-sdk linux-headers npm &&\
+    rm -rf * .[egv]* &&\
+    mv /tmp/* .
+
+FROM tiangolo/meinheld-gunicorn-flask:python3.7-alpine3.8
+COPY --from=0 /app/. .
+COPY --from=0 /usr/local/lib/python3.7/site-packages/. /usr/local/lib/python3.7/site-packages/. 
+# RUN pip uninstall -y pip
