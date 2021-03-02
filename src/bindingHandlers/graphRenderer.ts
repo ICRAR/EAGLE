@@ -257,11 +257,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                      .attr("class", "header")
                      .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionX(node));})
                      .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionY(node));})
+                     .attr("eagle-wrap-width", getWrapWidth)
                      .style("fill", getHeaderFill)
                      .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
                      .style("display", getHeaderDisplay)
-                     .text(getHeaderText);
-                     //.call(wrap, COLLAPSED_NODE_WIDTH);
+                     .text(getHeaderText)
+                     .call(wrap);
 
     var subHeader = nodes.append("text")
                     .attr("class", "subheader")
@@ -850,11 +851,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(nodeData)
                                 .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionX(node));})
                                 .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionY(node));})
+                                .attr("eagle-wrap-width", getWrapWidth)
                                 .style("fill", getHeaderFill)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
                                 .style("display", getHeaderDisplay)
-                                .text(getHeaderText);
-                                //.call(wrap, COLLAPSED_NODE_WIDTH);
+                                .text(getHeaderText)
+                                .call(wrap);
 
         svgContainer.selectAll("g.node text.subheader")
                                 .data(nodeData)
@@ -3144,10 +3146,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 line : string[] = [],
                 lineNumber = 0,
                 lineHeight = 1.1, // ems
+                x = text.attr("x"),
                 y = text.attr("y"),
                 //dy = parseFloat(text.attr("dy")),
                 dy = 0.0,
-                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+                tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
 
             while (word = words.pop()) {
                 line.push(word);
@@ -3156,7 +3159,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     line.pop();
                     tspan.text(line.join(" "));
                     line = [word];
-                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
                 }
             }
         });
