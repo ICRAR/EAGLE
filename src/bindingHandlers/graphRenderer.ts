@@ -354,6 +354,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .on("drag", function (node : Node) {
                                     var newWidth = node.getWidth() + DISPLAY_TO_REAL_SCALE(d3.event.dx);
                                     var newHeight = node.getHeight() + DISPLAY_TO_REAL_SCALE(d3.event.dy);
+
+                                    // ensure node are of at least a minimum size
+                                    newWidth = Math.max(newWidth, Node.MINIMUM_WIDTH);
+                                    newHeight = Math.max(newHeight, Node.MINIMUM_HEIGHT);
+
                                     node.setWidth(newWidth);
                                     node.setHeight(newHeight);
                                     tick();

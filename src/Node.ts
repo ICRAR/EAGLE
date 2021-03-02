@@ -71,6 +71,8 @@ export class Node {
 
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 200;
+    public static readonly MINIMUM_WIDTH : number = 200;
+    public static readonly MINIMUM_HEIGHT : number = 100;
     public static readonly DEFAULT_COLOR : string = "ffffff";
 
     public static readonly COLLAPSED_WIDTH : number = 128;
