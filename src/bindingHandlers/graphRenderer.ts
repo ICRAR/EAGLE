@@ -3159,6 +3159,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getWrapWidth(node: Node) {
+        if (node.isData()){
+            return Number.POSITIVE_INFINITY;
+        }
+
         return node.getDisplayWidth();
     }
 
