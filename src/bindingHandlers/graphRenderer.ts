@@ -47,7 +47,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     var isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
     var mousePosition = {x:0, y:0};
 
-    const HEADER_HEIGHT : number = 28;
     const APPS_HEIGHT : number = 28;
     const PORT_HEIGHT : number = 24;
 
@@ -257,11 +256,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                      .attr("class", "header")
                      .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionX(node));})
                      .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionY(node));})
+                     .attr("eagle-wrap-width", getWrapWidth)
                      .style("fill", getHeaderFill)
                      .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
                      .style("display", getHeaderDisplay)
-                     .text(getHeaderText);
-                     //.call(wrap, COLLAPSED_NODE_WIDTH);
+                     .text(getHeaderText)
+                     .call(wrap, false);
 
     var subHeader = nodes.append("text")
                     .attr("class", "subheader")
@@ -275,8 +275,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add a app names background to each node
     var appsBackgrounds = nodes.append("rect")
                                     .attr("class", "apps-background")
-                                    .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
-                                    .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
+                                    .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundWidth(node));})
+                                    .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundHeight(node));})
                                     .attr("x", HEADER_INSET)
                                     .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(HEADER_INSET + getHeaderBackgroundHeight(node));})
                                     .style("fill", nodeGetColor)
@@ -314,11 +314,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                      .attr("class", "content")
                      .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionX(node));})
                      .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionY(node));})
+                     .attr("eagle-wrap-width", getWrapWidth)
                      .style("fill", getContentFill)
                      .style("font-size", REAL_TO_DISPLAY_SCALE(CONTENT_TEXT_FONT_SIZE) + "px")
                      .style("display", getContentDisplay)
                      .text(getContentText)
-                     .call(wrap, Node.DEFAULT_WIDTH);
+                     .call(wrap, true);
 
     var icons = nodes.append("svg:image")
                     .attr("href", getDataIcon)
@@ -353,6 +354,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .on("drag", function (node : Node) {
                                     var newWidth = node.getWidth() + DISPLAY_TO_REAL_SCALE(d3.event.dx);
                                     var newHeight = node.getHeight() + DISPLAY_TO_REAL_SCALE(d3.event.dy);
+
+                                    // ensure node are of at least a minimum size
+                                    newWidth = Math.max(newWidth, Node.MINIMUM_WIDTH);
+                                    newHeight = Math.max(newHeight, Node.MINIMUM_HEIGHT);
+
                                     node.setWidth(newWidth);
                                     node.setHeight(newHeight);
                                     tick();
@@ -844,11 +850,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(nodeData)
                                 .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionX(node));})
                                 .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionY(node));})
+                                .attr("eagle-wrap-width", getWrapWidth)
                                 .style("fill", getHeaderFill)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
                                 .style("display", getHeaderDisplay)
-                                .text(getHeaderText);
-                                //.call(wrap, COLLAPSED_NODE_WIDTH);
+                                .text(getHeaderText)
+                                .call(wrap, false);
 
         svgContainer.selectAll("g.node text.subheader")
                                 .data(nodeData)
@@ -861,8 +868,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         svgContainer.selectAll("g.node rect.apps-background")
                                 .data(nodeData)
-                                .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
-                                .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
+                                .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundWidth(node));})
+                                .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundHeight(node));})
                                 .attr("x", HEADER_INSET)
                                 .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(HEADER_INSET + getHeaderBackgroundHeight(node));})
                                 .style("fill", nodeGetColor)
@@ -900,11 +907,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .data(nodeData)
                                 .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionX(node));})
                                 .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionY(node));})
+                                .attr("eagle-wrap-width", getWrapWidth)
                                 .style("fill", getContentFill)
                                 .style("font-size", REAL_TO_DISPLAY_SCALE(CONTENT_TEXT_FONT_SIZE) + "px")
                                 .style("display", getContentDisplay)
                                 .text(getContentText)
-                                .call(wrap, Node.DEFAULT_WIDTH);
+                                .call(wrap, true);
 
         svgContainer.selectAll("image")
                                 .data(nodeData)
@@ -1365,7 +1373,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // default height
-        return HEADER_HEIGHT;
+        return 8 + (20 * node.getNameNumLines(node.getDisplayWidth()));
     }
 
     function getHeaderDisplay(node : Node) : string {
@@ -1392,6 +1400,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeaderPositionY(node : Node) : number {
         if (node.isGroup() && node.isCollapsed()){
+
+            // decide how many lines this will be and move upwards some amount
+            if (node.getNameNumLines(node.getDisplayWidth()) > 1){
+                return Node.COLLAPSED_HEIGHT / 3;
+            }
+
+
             return Node.COLLAPSED_HEIGHT / 2;
         }
 
@@ -1514,6 +1529,23 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return "none";
     }
 
+    function getAppsBackgroundWidth(node : Node) : number {
+        return getWidth(node) - HEADER_INSET*2;
+    }
+
+    function getAppsBackgroundHeight(node : Node) : number {
+        if (node.isGroup() && node.isCollapsed()){
+            return Node.COLLAPSED_HEIGHT;
+        }
+
+        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+            return Node.DATA_COMPONENT_HEIGHT;
+        }
+
+        // default height
+        return APPS_HEIGHT;
+    }
+
     function getInputAppText(node:Node) : string {
         if (!Node.canHaveInputApp(node)){
             return "";
@@ -1538,7 +1570,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         //    return Node.COLLAPSED_HEIGHT / 2;
         //}
 
-        return HEADER_HEIGHT + 20;
+        return getHeaderBackgroundHeight(node) + 20;
     }
 
     function getOutputAppText(node:Node) : string {
@@ -1565,7 +1597,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         //    return Node.COLLAPSED_HEIGHT / 2;
         //}
 
-        return HEADER_HEIGHT + 20;
+        return getHeaderBackgroundHeight(node) + 20;
     }
 
     function getExitAppText(node:Node) : string {
@@ -1592,7 +1624,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         //    return Node.COLLAPSED_HEIGHT / 2;
         //}
 
-        return HEADER_HEIGHT + 20;
+        return getHeaderBackgroundHeight(node) + 20;
     }
 
     function getInputPortGroupClass(node : Node) : string {
@@ -1740,33 +1772,33 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getLeftSidePortGroupTransform(node : Node) : string {
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT));
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node) + APPS_HEIGHT));
         } else {
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT));
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node)));
         }
     }
 
     function getRightSidePortGroupTransform(node : Node) : string {
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT));
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node) + APPS_HEIGHT));
         } else {
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT));
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node)));
         }
     }
 
     function getLeftSideLocalPortGroupTransform(node : Node) : string {
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + node.getInputApplicationInputPorts().length * PORT_HEIGHT));
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node) + APPS_HEIGHT + node.getInputApplicationInputPorts().length * PORT_HEIGHT));
         } else {
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + node.getInputPorts().length * PORT_HEIGHT));
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node) + node.getInputPorts().length * PORT_HEIGHT));
         }
     }
 
     function getRightSideLocalPortGroupTransform(node : Node) : string {
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + APPS_HEIGHT + (node.getOutputApplicationOutputPorts().length + node.getExitApplicationOutputPorts().length) * PORT_HEIGHT));
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node) + APPS_HEIGHT + (node.getOutputApplicationOutputPorts().length + node.getExitApplicationOutputPorts().length) * PORT_HEIGHT));
         } else {
-            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(HEADER_HEIGHT + node.getOutputPorts().length * PORT_HEIGHT));
+            return buildTranslation(REAL_TO_DISPLAY_SCALE(getWidth(node)-PORT_OFFSET_X), REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node) + node.getOutputPorts().length * PORT_HEIGHT));
         }
     }
 
@@ -2594,6 +2626,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             appsOffset = APPS_HEIGHT;
         }
 
+        let headerHeight: number = getHeaderBackgroundHeight(node);
+
         // translate the three pieces of info into the x,y position
         // outer if is an XOR
         if ((input && !flipped) || (!input && flipped)){
@@ -2602,9 +2636,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 position.x += PORT_INSET;
             }
             if (local){
-                position.y += HEADER_HEIGHT + appsOffset + (node.getInputPorts().length + index + 1) * PORT_HEIGHT;
+                position.y += headerHeight + appsOffset + (node.getInputPorts().length + index + 1) * PORT_HEIGHT;
             } else {
-                position.y += HEADER_HEIGHT + appsOffset + (index + 1) * PORT_HEIGHT;
+                position.y += headerHeight + appsOffset + (index + 1) * PORT_HEIGHT;
             }
         } else {
             // right hand side
@@ -2614,9 +2648,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 position.x += node.getWidth();
             }
             if (local){
-                position.y += HEADER_HEIGHT + appsOffset + (node.getOutputPorts().length + index + 1) * PORT_HEIGHT;
+                position.y += headerHeight + appsOffset + (node.getOutputPorts().length + index + 1) * PORT_HEIGHT;
             } else {
-                position.y += HEADER_HEIGHT + appsOffset + (index + 1) * PORT_HEIGHT;
+                position.y += headerHeight + appsOffset + (index + 1) * PORT_HEIGHT;
             }
         }
 
@@ -3124,28 +3158,41 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return s;
     }
 
-    function wrap(text : any, width : number) {
-        //console.log("wrap", width);
+    function getWrapWidth(node: Node) {
+        if (node.isData()){
+            return Number.POSITIVE_INFINITY;
+        }
+
+        return node.getDisplayWidth();
+    }
+
+    function wrap(text: any, padding: boolean) {
         text.each(function() {
             var text = d3.select(this),
                 words = text.text().split(/\s+/).reverse(),
+                wordWrapWidth = parseInt(text.attr("eagle-wrap-width"), 10),
                 word,
                 line : string[] = [],
                 lineNumber = 0,
                 lineHeight = 1.1, // ems
-                y = text.attr("y"),
+                x = parseInt(text.attr("x"), 10),
+                y = parseInt(text.attr("y"), 10),
                 //dy = parseFloat(text.attr("dy")),
                 dy = 0.0,
-                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+                tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+
+            if (padding){
+                wordWrapWidth = wordWrapWidth - x - x;
+            }
 
             while (word = words.pop()) {
                 line.push(word);
                 tspan.text(line.join(" "));
-                if (tspan.node().getComputedTextLength() > width) {
+                if (tspan.node().getComputedTextLength() > wordWrapWidth) {
                     line.pop();
                     tspan.text(line.join(" "));
                     line = [word];
-                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
                 }
             }
         });
