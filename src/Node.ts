@@ -144,6 +144,10 @@ export class Node {
         this.name = name;
     }
 
+    getNameNumLines = (width: number) : number => {
+        return Math.ceil(this.name.length / (width / 8));
+    }
+
     getDisplayName = () : string => {
         if (this.name === 'Enter label' || this.name == ''){
             return this.category;
