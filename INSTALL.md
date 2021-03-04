@@ -35,7 +35,7 @@ The development image maps the local host directory to the EAGLE instance instal
 
 To start this image run:
 
-    $ ./start_eagle.dev.sh
+    $ ./run_eagle.dev.sh
 
 This will start the development image in forground and watch the typescript files for any changes. If changes are detected the compiler will translate the affected files. All changes in the static subdirectory will directly affect the deployed EAGLE instance. The only files which will not be reflected live in the docker image are the main eagleServer files under the eagleServer subdirectory. In order to make this possible the actual installation all the EAGLE system is carried out during the start of the container and not during the build of the image.
 
