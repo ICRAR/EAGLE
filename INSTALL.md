@@ -13,11 +13,11 @@ There are two versions of the docker image build procedures, one for deployment 
 To build a deployment image:
 
     $ git clone https://github.com/ICRAR/EAGLE.git; cd EAGLE
-    $ ./build_eagle.dep.sh
+    $ ./build_eagle.sh dep
 
 This will build an image and tag it with the latest tag found on git. To start this image run:
 
-    $ ./run_eagle.dep.sh
+    $ ./run_eagle.sh dep
 
 The container will be started in the background. To us it locally, navigate to the EAGLE access point and start creating workflows:
 
@@ -25,21 +25,27 @@ The container will be started in the background. To us it locally, navigate to t
 
 To stop and remove the deployment container run:
 
-    $ ./stop_eagle.dep.sh
+    $ docker/stop_eagle.dep.sh
 
 #### Development Image
 
 The development image maps the local host directory to the EAGLE instance installed inside the container and thus allows to modify things on-the-fly. To build a development image run:
 
-    $ ./build_eagle.dev.sh
+    $ ./build_eagle.sh dev
 
 To start this image run:
 
-    $ ./run_eagle.dev.sh
+    $ ./run_eagle.sh dev
 
 This will start the development image in forground and watch the typescript files for any changes. If changes are detected the compiler will translate the affected files. All changes in the static subdirectory will directly affect the deployed EAGLE instance. The only files which will not be reflected live in the docker image are the main eagleServer files under the eagleServer subdirectory. In order to make this possible the actual installation all the EAGLE system is carried out during the start of the container and not during the build of the image.
 
 To stop the running container press CTRL+C in the terminal where the image was started.
+
+Sometimes caching is preventing some changes to propagate through the stack in that case calling
+
+    $ docker/restart_gunicorn.sh
+
+might help.
 
 ## Debugging and Testing
 For debugging and testing EAGLE has an internal web server, which is provided
