@@ -4,6 +4,7 @@ case "$1" in
         exit 1;;
     "dev")
         docker stop eagle-dev
+        rm prestart.sh
         exit 1;;
     *)
         echo "Usage stop_eagle.sh <dep|dev>"
