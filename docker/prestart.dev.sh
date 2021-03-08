@@ -10,6 +10,7 @@ echo "This will take a bit..."
 echo "<<<<<"
 echo ""
 pip install -e .
+python updateVersion.py dev
 npm install --production-only 
 # compile the typescript code
 tsc
