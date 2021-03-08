@@ -25,7 +25,7 @@ The container will be started in the background. To us it locally, navigate to t
 
 To stop and remove the deployment container run:
 
-    $ docker/stop_eagle.dep.sh
+    $ stop_eagle.sh dep
 
 #### Development Image
 
@@ -39,7 +39,7 @@ To start this image run:
 
 This will start the development image in forground and watch the typescript files for any changes. If changes are detected the compiler will translate the affected files. All changes in the static subdirectory will directly affect the deployed EAGLE instance. The only files which will not be reflected live in the docker image are the main eagleServer files under the eagleServer subdirectory. In order to make this possible the actual installation all the EAGLE system is carried out during the start of the container and not during the build of the image.
 
-To stop the running container press CTRL+C in the terminal where the image was started.
+To stop the running container press CTRL+C in the terminal where the image was started (it is also possible to use './stop_eagle dev' from another command prompt).
 
 Sometimes caching is preventing some changes to propagate through the stack in that case calling
 
@@ -48,13 +48,16 @@ Sometimes caching is preventing some changes to propagate through the stack in t
 might help.
 
 ## Debugging and Testing
+
 For debugging and testing EAGLE has an internal web server, which is provided
 by the underlying Flask framework.
 
 ### Clone EAGLE repository
+
     $ git clone https://github.com/ICRAR/EAGLE  
 
 ### Install NPM
+
 EAGLE is based on typescript and that and the supporting infrastructure needs to be installed first.
 
 MacOSX users should download the latest NodeJS Long Term Support (LTS) installer from https://nodejs.org
@@ -64,11 +67,13 @@ Linux users should use apt
     $ sudo apt install npm
 
 ### Install typescript
+
 This is a useful tool to install globally
 
     $ sudo npm install -g typescript
 
 ### Install, create and activate virtualenv
+
 Virtualenvs are standard in python3 and the recommended method
 is to use pyenv. EAGLE does not impose any particular way of
 using virtual environments, but strongly recommends to use a separate one for EAGLE. Please refer to the documentation of your virtual environment system on how to do this. EAGLE has only been tested with the plain virtualenv and the pyenv. With pyenv this would look like:
@@ -77,9 +82,11 @@ using virtual environments, but strongly recommends to use a separate one for EA
     $ pyenv activate eagle
 
 ### Install EAGLE
+
     $ pip install .   
 
 ### Start Server`
+
 Simply start it using in the main directory:
 
 $ eagleServer -t /tmp
@@ -87,6 +94,7 @@ $ eagleServer -t /tmp
 ## Full Installation
 
 ## Fabric Installations
+
 Fabric is a sophisticated ssh client library. It is used for EAGLE's more complex installations. In order to be able to use it you need to install the fabric module into your python environment first by executing:
 
     $ pip install https://github.com/ICRAR/fabfileTemplate
@@ -112,20 +120,24 @@ will generate the image based on Centos7. The server can be started using:
     $ docker run -ti -p 8888:8888 icrar/eagle:latest /home/eagle/eagle_rt/bin/eagleServer
 
 ### Operational Installation
+
 NOTE: This requires root or sudo on the remote host, since it is installing
 required system packages. Only the main Linux distributions are supported.
 
     $ fab hl.operations_deploy -u \<username\> -H \<hostname\> [-i <path_to_ssh_keyfile>]
 
 ### AWS Installation
+
 This installation task starts a new instance on AWS and thus requires an AWS
 account and the setup of AWS credentials. Once that is done you can running
 
     $ fab hl.aws_deploy
 
-The installation will use an AWS micro instance and install all the required software, launch EAGLE under uwsgi and nginx and you can then connect using the URL http://\<ec2-instance-name\>/
+The installation will use an AWS micro instance and install all the required software,
+launch EAGLE under uwsgi and nginx and you can then connect using the URL http://\<ec2-instance-name\>/
 
 ### Docker Image
+
 The fabric script also allows to create a docker image. In order to enable that the virtualenv in addition needs the python docker module.
 
 $ pip install docker
