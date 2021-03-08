@@ -9,7 +9,7 @@ echo "we first need to install the environemnt inside the docker container"
 echo "This will take a bit..."
 echo "<<<<<"
 echo ""
-pip install .
+pip install -e .
 npm install --production-only 
 # compile the typescript code
 tsc

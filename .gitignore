@@ -12,3 +12,5 @@ static/built
 venv
 static/docs/build
 package-lock.json
+prestart.sh
+docker-compose.yml
