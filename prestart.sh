@@ -1,1 +1,1 @@
-prestart.dep.sh
+docker/prestart.dev.sh

@@ -1,12 +1,11 @@
 case "$1" in
     "dep")
         VCS_TAG=`git describe --tags --abbrev=0|sed s/v//`
-        ln -sf prestart.dep.sh prestart.sh
         echo "Running EAGLE deployment version in background"
         docker run -d --name eagle-dep --rm -p 8888:80/tcp icrar/eagle:${VCS_TAG}
         exit 1;;
     "dev")
-        ln -sf setup/prestart.dev.sh prestart.sh
+        ln -sf docker/prestart.dev.sh prestart.sh
         echo "Running EAGLE development version in foreground..."
         docker run --volume $PWD:/app --name eagle-dev --rm -p 8888:80/tcp icrar/eagle:dev
         exit 1;;
