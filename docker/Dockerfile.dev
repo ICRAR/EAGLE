@@ -6,6 +6,6 @@ FROM tiangolo/meinheld-gunicorn-flask:python3.8-alpine3.11
 COPY . .
 RUN apk add --update npm bash git curl alpine-sdk linux-headers &&\
     npm install -g typescript &&\
-    cd /app ; python updateVersion.py &&\
+    cd /app ; python updateVersion.py dev &&\
     pip install --upgrade pip &&\
     cd /app ; ln -sf docker/prestart.dev.sh prestart.sh
