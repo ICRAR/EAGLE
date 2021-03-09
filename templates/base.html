@@ -63,11 +63,12 @@
                     {% include 'templatePalette.html' %}
                 </div>
 
-                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart }">
+                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart , dragend: leftWindowAdjustEnd }">
                 </div>
             </div>
 
-            <div id="logicalGraphParent">
+            <!-- dragdrop target WIP -->
+            <div id="logicalGraphParent" data-bind="event:{dragover:nodeDragOver, drop: nodeDrop }">
                 <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
                     <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
                     </div>
@@ -108,7 +109,7 @@
                     {% include 'hierarchy.html' %}
                 </div>
 
-                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart }">
+                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart, dragend: rightWindowAdjustEnd }">
                 </div>
             </div>
         </div>

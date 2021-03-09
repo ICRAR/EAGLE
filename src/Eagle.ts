@@ -82,6 +82,7 @@ export class Eagle {
 
     static dragStartX : number;
     static adjustingLeftWindow : boolean; // true if adjusting left window, false if adjusting right window
+    static adjustingRightWindow : boolean; // true if adjusting left window, false if adjusting right window
 
     static selectedNodeKey : number;
 
@@ -2475,13 +2476,43 @@ export class Eagle {
             }
         }
     }
+    
+    //dragdrop WIP
+    nodeDragStart = (e : JQueryEventObject) => {
+        console.log("1");
+        return true;
+    }
+
+    nodeDrag = (e : JQueryEventObject) => {
+        console.log("2");
+        return true;    
+    }
+
+    nodeDragOver = (e : JQueryEventObject) => {
+        console.log("3");
+        return true;    
+    }
+
+    nodeDrop = (e : JQueryEventObject) => {
+        console.log("4");
+    }
 
     rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
         var img : HTMLImageElement = document.createElement("img");
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
-
+        
         Eagle.dragStartX = e.clientX;
         Eagle.adjustingLeftWindow = false;
+        Eagle.adjustingRightWindow = true;
+
+        return true;
+    }
+
+    //workaround to aviod left or right window adjusting on any and all drag events
+    rightWindowAdjustEnd = (eagle : Eagle, e : JQueryEventObject) => {
+        
+        Eagle.adjustingLeftWindow = false;
+        Eagle.adjustingRightWindow = false;
 
         return true;
     }
@@ -2504,27 +2535,40 @@ export class Eagle {
         var dragDiff : number = e.clientX - Eagle.dragStartX;
         var newWidth : number;
 
+
         if (Eagle.adjustingLeftWindow){
             newWidth = this.leftWindowWidth() + dragDiff;
             this.leftWindowWidth(newWidth);
             Utils.setLeftWindowWidth(newWidth);
-        } else {
+        } else if(Eagle.adjustingRightWindow) {
             newWidth = this.rightWindowWidth() - dragDiff;
             this.rightWindowWidth(newWidth);
             Utils.setRightWindowWidth(newWidth);
         }
 
         Eagle.dragStartX = e.clientX;
-
+        
+        
         return true;
     }
 
+   
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
         var img : HTMLImageElement = document.createElement("img");
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
 
         Eagle.dragStartX = e.clientX;
         Eagle.adjustingLeftWindow = true;
+        Eagle.adjustingRightWindow = false;
+
+        return true;
+    }
+
+    //workaround to aviod left or right window adjusting on any and all drag events
+    leftWindowAdjustEnd = (eagle : Eagle, e : JQueryEventObject) => {
+        
+        Eagle.adjustingLeftWindow = false;
+        Eagle.adjustingRightWindow = false;
 
         return true;
     }
