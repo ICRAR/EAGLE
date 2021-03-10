@@ -59,7 +59,9 @@ export class Palette {
             var nodeData = dataObject.nodeDataArray[i];
 
             // read node
-            var newNode : Node = Node.fromOJSJson(nodeData, errors);
+            var newNode : Node = Node.fromOJSJson(nodeData, errors, (): number => {
+                return Utils.newKey(result.nodes());
+            });
 
             // check that node has no group
             if (newNode.getParentKey() !== null){
