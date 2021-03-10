@@ -87,7 +87,18 @@ export class LogicalGraph {
         // add nodes
         for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
-            result.nodes.push(Node.fromOJSJson(nodeData, errors));
+            let extraUsedKeys: number[] = [];
+
+            result.nodes.push(Node.fromOJSJson(nodeData, errors, (): number => {
+                let resultKeys: number[] = Utils.getUsedKeys(result.nodes);
+                let combinedKeys: number[] = resultKeys.concat(extraUsedKeys);
+                console.log("resultKeys", resultKeys, "extraUsedKeys", extraUsedKeys);
+
+                let newKey = Utils.findNewKey(combinedKeys);
+                console.log("generated new key", newKey);
+                extraUsedKeys.push(newKey);
+                return newKey;
+            }));
         }
 
         // set keys for all embedded nodes
