@@ -100,6 +100,7 @@ $(function(){
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "LEAP", "leap.palette"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "trash", "test_branch_new.graph"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "trash", "test_appref.graph"));
+    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "trash", "basic_mkn.graph"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "", "HelloWorldMulti.graph"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "summit", "summit.palette"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "trash", "collapsed_mkn_test.graph"));

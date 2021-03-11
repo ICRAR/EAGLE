@@ -68,8 +68,23 @@ export class LogicalGraph {
         for (var i = 0 ; i < graph.getEdges().length ; i++){
             var edge : Edge = graph.getEdges()[i];
             var linkData : any = Edge.toOJSJson(edge);
-            linkData.from = edge.getSrcNodeKey();
-            linkData.to   = edge.getDestNodeKey();
+
+            var srcKey = edge.getSrcNodeKey();
+            var destKey = edge.getDestNodeKey();
+
+            var srcNode = graph.findNodeByKey(srcKey);
+            var destNode = graph.findNodeByKey(destKey);
+
+            // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
+            if (srcNode.isEmbedded()){
+                srcKey = srcNode.getEmbedKey();
+            }
+            if (destNode.isEmbedded()){
+                destKey = destNode.getEmbedKey();
+            }
+
+            linkData.from = srcKey;
+            linkData.to   = destKey;
 
             result.linkDataArray.push(linkData);
         }
@@ -87,7 +102,18 @@ export class LogicalGraph {
         // add nodes
         for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
-            result.nodes.push(Node.fromOJSJson(nodeData, errors));
+            let extraUsedKeys: number[] = [];
+
+            result.nodes.push(Node.fromOJSJson(nodeData, errors, (): number => {
+                let resultKeys: number[] = Utils.getUsedKeys(result.nodes);
+                let combinedKeys: number[] = resultKeys.concat(extraUsedKeys);
+                console.log("resultKeys", resultKeys, "extraUsedKeys", extraUsedKeys);
+
+                let newKey = Utils.findNewKey(combinedKeys);
+                console.log("generated new key", newKey);
+                extraUsedKeys.push(newKey);
+                return newKey;
+            }));
         }
 
         // set keys for all embedded nodes

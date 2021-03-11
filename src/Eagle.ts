@@ -2584,10 +2584,13 @@ export class Eagle {
                 "category":node.getCategory(),
                 "expanded":node.getExpanded(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
+                "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
                 "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
                 "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
+                "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
                 "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey(),
                 "exitAppKey":node.getExitApplication() === null ? null : node.getExitApplication().getKey(),
+                "exitAppCategory":node.getExitApplication() === null ? null : node.getExitApplication().getCategory(),
                 "exitAppEmbedKey":node.getExitApplication() === null ? null : node.getExitApplication().getEmbedKey()
             });
         }
