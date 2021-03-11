@@ -68,8 +68,23 @@ export class LogicalGraph {
         for (var i = 0 ; i < graph.getEdges().length ; i++){
             var edge : Edge = graph.getEdges()[i];
             var linkData : any = Edge.toOJSJson(edge);
-            linkData.from = edge.getSrcNodeKey();
-            linkData.to   = edge.getDestNodeKey();
+
+            var srcKey = edge.getSrcNodeKey();
+            var destKey = edge.getDestNodeKey();
+
+            var srcNode = graph.findNodeByKey(srcKey);
+            var destNode = graph.findNodeByKey(destKey);
+
+            // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
+            if (srcNode.isEmbedded()){
+                srcKey = srcNode.getEmbedKey();
+            }
+            if (destNode.isEmbedded()){
+                destKey = destNode.getEmbedKey();
+            }
+
+            linkData.from = srcKey;
+            linkData.to   = destKey;
 
             result.linkDataArray.push(linkData);
         }
