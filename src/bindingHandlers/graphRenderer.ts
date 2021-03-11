@@ -88,6 +88,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const SUBHEADER_OFFSET_Y_S3 : number = 8;
     const HEADER_OFFSET_Y_NGAS : number = 4;
     const SUBHEADER_OFFSET_Y_NGAS : number = 8;
+    const HEADER_OFFSET_Y_PLASMA : number = 4;
+    const SUBHEADER_OFFSET_Y_PLASMA : number = 8;
+
 
     //console.log("pre-sort", printDrawOrder(graph.getNodes()));
     //console.log("render()", printDrawOrder(nodeData));
@@ -1420,6 +1423,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     return HEADER_OFFSET_Y_S3;
                 case Eagle.Category.NGAS:
                     return HEADER_OFFSET_Y_NGAS;
+                case Eagle.Category.Plasma:
+                    return HEADER_OFFSET_Y_PLASMA;
             }
         }
 
@@ -1494,6 +1499,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     break;
                 case Eagle.Category.NGAS:
                     y += SUBHEADER_OFFSET_Y_NGAS;
+                    break;
+                case Eagle.Category.Plasma:
+                    y += SUBHEADER_OFFSET_Y_PLASMA;
                     break;
             }
 
@@ -2174,6 +2182,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     return "/static/assets/svg/s3_bucket.svg";
                 case Eagle.Category.NGAS:
                     return "/static/assets/svg/ngas.svg";
+                case Eagle.Category.Plasma:
+                    return "/static/assets/svg/plasma.svg";
+                default:
+                    console.warn("No icon available for node category", node.getCategory());
+                    return "";
             }
         }
 
