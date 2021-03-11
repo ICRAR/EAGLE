@@ -1470,8 +1470,6 @@ export class Node {
     }
 
     private static addPortToEmbeddedApplication(node: Node, port: Port, input: boolean, errors: string[], readonly: boolean, generateKeyFunc: () => number){
-        console.log("addPortToEmbeddedApplication()", node.getKey(), node.getCategory(), port.getName(), input);
-
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
             if (!node.hasInputApplication()){
