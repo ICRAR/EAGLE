@@ -158,6 +158,8 @@
     cursor: col-resize;
 }
 
+
+
 #graphArea #logicalGraphParent {
     position: absolute;
     top: 0px;
@@ -283,4 +285,13 @@ nav.navbar .introjs-helperLayer {
 
 .template-title {
     display: inline-block;
+}
+
+.noDropTarget{
+    filter: brightness(50%);
+}
+
+.nodeBtn{
+    border:none;
+    padding:0;
 }

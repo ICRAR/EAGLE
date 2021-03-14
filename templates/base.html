@@ -45,7 +45,7 @@
 
         {% include 'navbar.html' %}
 
-        <div class="container-fluid" id="graphArea" data-bind="event: { dragover: sideWindowAdjust }">
+        <div class="container-fluid" id="graphArea" data-bind="event: { dragover: sideWindowAdjust}">
             <div class="leftWindow" data-bind="style: { width: leftWindowWidth(), left: leftWindowShown() ? 0 : -leftWindowWidth()}">
                 <div class="leftWindowHandle" data-bind="click: toggleLeftWindow">
                     <span style="display: none" data-bind="visible: leftWindowShown()">
@@ -68,7 +68,7 @@
             </div>
 
             <!-- dragdrop target WIP -->
-            <div id="logicalGraphParent" data-bind="event:{dragover:nodeDragOver, drop: nodeDrop }">
+            <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDrop }">
                 <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
                     <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
                     </div>
