@@ -2111,7 +2111,6 @@ export class Eagle {
         //console.log("addNodeToLogicalGraph()", node.getName(), node.getCategory(), node.getInputPorts().length, node.getOutputPorts().length, node.getFields().length);
 
         
-        console.log(Eagle.nodeDropLocation)
         // get new position for node
         if (Eagle.nodeDropLocation.x == 0 && Eagle.nodeDropLocation.y == 0){
             Eagle.pos = this.getNewNodePosition();
@@ -2119,9 +2118,8 @@ export class Eagle {
             Eagle.pos = Eagle.nodeDropLocation;
         }else{
             Eagle.pos = {x:0, y:0};
-            alert("trigger")
+            alert("Unexpected error occurred")
         }
-        console.log(Eagle.pos);
 
         this.logicalGraph().addNode(node, Eagle.pos.x, Eagle.pos.y, (newNode: Node) => {
             this.logicalGraph.valueHasMutated();
@@ -2496,23 +2494,16 @@ export class Eagle {
     //dragdrop WIP
 
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) => {
-        console.log("1");
         Eagle.nodeDropped = e.target;
         $(".leftWindow").addClass("noDropTarget");
         $(".rightWindow").addClass("noDropTarget");
         $(".navbar").addClass("noDropTarget");
 
         var drag = Eagle.nodeDropped.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
-    
-        // e.dataTransfer.setDragImage(drag, 0, 0);
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
         return true;
     }
 
-    // nodeDrag = (e : JQueryEventObject) => {
-    //     console.log("2");
-    //     return true;    
-    // }
 
     nodeDragEnd = (e : JQueryEventObject) => {
         $(".leftWindow").removeClass("noDropTarget");
@@ -2536,6 +2527,8 @@ export class Eagle {
         let x = e.clientX;
         let y = e.clientY;
         return {x:x, y:y};
+
+        //potential code for canvas correct locations
         // var rect = canvas.getBoundingClientRect(), // abs. size of element
         //     scaleX = canvas.width / rect.width,    // relationship bitmap vs. element for X
         //     scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
