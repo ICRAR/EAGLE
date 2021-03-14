@@ -2,12 +2,12 @@ case "$1" in
     "dep")
         export VCS_TAG=`git describe --tags --abbrev=0|sed s/v//`
         echo "Building EAGLE version ${VCS_TAG}"
-        docker-compose -f ./docker/docker-compose.dep.yml build
+        docker-compose -f ./docker/docker-compose.dep.yml build --progress plain
         echo "Build finished!"
         exit 1 ;;
     "dev")
         echo "Building EAGLE development version"
-        docker-compose -f ./docker/docker-compose.dev.yml build
+        docker-compose -f ./docker/docker-compose.dev.yml build --progress plain
         echo "Build finished!"
         exit 1;;
     *)
