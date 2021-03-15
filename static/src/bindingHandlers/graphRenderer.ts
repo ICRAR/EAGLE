@@ -151,17 +151,32 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     .translateExtent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
                                     .extent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
                                     .on("zoom", function(){
-                                        // TODO: Try to centre the zoom on mouse position rather than upper left corner.
-                                        // Somehow only the eagle.globalScale does something...
+                                        //d3.mouse()
+                                        // var pos = mousePosition;
                                         var scale = d3.event.transform.k;
                                         var trans = d3.event.transform;
                                         var tx = d3.mouse(svgContainer.node())[0];
                                         var ty = d3.mouse(svgContainer.node())[1];
+                                        var xscale = scale;
+                                        var yscale = scale;
+                                        var mx = tx - $('#logicalGraphD3Div').width() / 2;
+                                        var my = ty - $('#logicalGraphD3Div').height() / 2;
 
-                                        var tform = "translate(" + tx + "," + ty + ")scale(" + scale + ")";
+                                        var dx = (mx - tx) / xscale;
+                                        var dy = (my - ty) / yscale;
+                                        var dx2 = (mx - dx - deltaX) / scale - dx;
+                                        var dy2 = (my - dy - deltaY) / scale - dy;
+
+                                        var tform = "translate(" + dx + "," + dy + ")scale(" + scale + ")translate(" + dx2 + "," + dy2 + ")"
+                                        //var tform = "translate(" + dx + "," + dy + ")scale(" + scale + ")";
                                         svgContainer.style("transform", tform);
+                                        console.log('width: ' + $('#logicalGraphD3Div').width());
+                                        console.log('width: ' + $('#logicalGraphD3Div').height());
+                                        console.log('tform: ' + tform);
+                                        console.log('values: ' + tx, ty, mx, my, xscale, yscale);
                                         eagle.globalScale -= d3.event.sourceEvent.deltaY * (d3.event.sourceEvent.deltaMode ? 120 : 1) / 1500;
 
+                                        //svgContainer.style('transform', 'scale(' + d3.event.transform.k + ')');
                                         tick();
                                     });
 

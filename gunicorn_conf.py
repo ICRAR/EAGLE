@@ -31,6 +31,7 @@ bind = use_bind
 keepalive = 120
 errorlog = "-"
 timeout = 60
+reload = True
 
 # For debugging and testing
 log_data = {

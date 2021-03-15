@@ -18,6 +18,6 @@ file_contents = "#define SW_VER \"" + tag_output + "\"\n" + "#define COMMIT_HASH
 #print(file_contents)
 
 # write version information to file
-version_file = open("VERSION", "w")
+version_file = open("static/VERSION", "w")
 version_file.write(file_contents)
 version_file.close()

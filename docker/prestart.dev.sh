@@ -11,7 +11,8 @@ echo "<<<<<"
 echo ""
 pip install -e .
 python updateVersion.py dev
-npm install --production-only 
+#npm install --production-only 
+npm install
 # compile the typescript code
 tsc
 echo "Install complete. Starting the server..."
