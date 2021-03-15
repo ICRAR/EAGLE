@@ -1,3 +1,6 @@
+body {
+    zoom: 75%;
+}
 #graphArea {
     /*background-color: rgb(222,222,222);*/
     height: calc(100% - 56px);

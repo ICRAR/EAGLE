@@ -2,8 +2,13 @@
 import os, sys
 
 # gather git tag information
+branch = ":"
+tag_stream = os.popen("git rev-parse --abbrev-ref HEAD")
+branch += tag_stream.read().rstrip("\n")
+if branch == ":master":
+    branch = ""
 tag_stream = os.popen("git describe --tags --abbrev=0")
-tag_output = tag_stream.read().rstrip("\n")
+tag_output = tag_stream.read().rstrip("\n") + branch
 if len(sys.argv) == 2:
     tag_output += "-" + sys.argv[1]
 print("tag_output: " + tag_output)
