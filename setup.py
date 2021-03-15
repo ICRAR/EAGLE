@@ -76,7 +76,6 @@ install_requires = [
     "pygithub",
     "python-gitlab",
     "sphinx==3.2.1",
-    "uwsgi",
     "six"
 ]
 
