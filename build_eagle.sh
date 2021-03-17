@@ -6,6 +6,7 @@ case "$1" in
         echo "Build finished!"
         exit 1 ;;
     "dev")
+        export VCS_TAG=`git rev-parse --abbrev-ref HEAD`
         echo "Building EAGLE development version"
         docker-compose -f ./docker/docker-compose.dev.yml build
         echo "Build finished!"
