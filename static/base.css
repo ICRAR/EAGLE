@@ -208,10 +208,6 @@
     color:black;
 }
 
-#repositoryList ul.repositories a{
-    /*color:#f8f9fa;*/
-}
-
 #repositoryList ul.files {
     list-style-type: none;
     text-overflow: ellipsis;
@@ -298,4 +294,8 @@ nav.navbar .introjs-helperLayer {
 .nodeBtn{
     border:none;
     padding:0;
+}
+
+.form-control{
+    pointer-events:none;
 }
