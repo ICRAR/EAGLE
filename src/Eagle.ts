@@ -2842,6 +2842,13 @@ export class Eagle {
         // get reference to the LG fileInfo object
         let fileInfo: FileInfo = this.logicalGraph().fileInfo();
 
+        // if we don't know where this file came from then we can't build a URL
+        // for example, if the graph was loaded from local disk, then we can't build a URL for others to reach it
+        if (fileInfo.repositoryService === Eagle.RepositoryService.Unknown){
+            Utils.showNotification("Graph URL", "Source of graph is unknown or not publicly accessible, unable to create URL for graph.", "danger");
+            return;
+        }
+
         // build graph url
         let graph_url = window.location.origin;
 
