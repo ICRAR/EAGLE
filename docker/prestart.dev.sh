@@ -10,13 +10,15 @@ echo "This will take a bit..."
 echo "<<<<<"
 echo ""
 pip install -e .
-python updateVersion.py dev
-npm install --production-only 
+python updateVersion.py
+#npm install --production-only 
+npm install
 # compile the typescript code
 tsc
 echo "Install complete. Starting the server..."
 export APP_MODULE="eagleServer.eagleServer:app"
 export WORKERS_PER_CORE="1"
+export LOG_LEVEL="debug"
 # start tsc and keep watching for changes
 tsc -w &
 

@@ -1,3 +1,7 @@
+/* body {
+    zoom: 75%;
+} */
+
 #graphArea {
     /*background-color: rgb(222,222,222);*/
     height: calc(100% - 56px);
@@ -158,6 +162,8 @@
     cursor: col-resize;
 }
 
+
+
 #graphArea #logicalGraphParent {
     position: absolute;
     top: 0px;
@@ -200,10 +206,6 @@
     list-style-type: none;
     padding: 0px;
     color:black;
-}
-
-#repositoryList ul.repositories a{
-    /*color:#f8f9fa;*/
 }
 
 #repositoryList ul.files {
@@ -283,4 +285,17 @@ nav.navbar .introjs-helperLayer {
 
 .template-title {
     display: inline-block;
+}
+
+.noDropTarget{
+    filter: brightness(50%);
+}
+
+.nodeBtn{
+    border:none;
+    padding:0;
+}
+
+.form-control{
+    pointer-events:none;
 }
