@@ -2670,10 +2670,13 @@ export class Eagle {
                 "category":node.getCategory(),
                 "expanded":node.getExpanded(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
+                "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
                 "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
                 "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
+                "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
                 "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey(),
                 "exitAppKey":node.getExitApplication() === null ? null : node.getExitApplication().getKey(),
+                "exitAppCategory":node.getExitApplication() === null ? null : node.getExitApplication().getCategory(),
                 "exitAppEmbedKey":node.getExitApplication() === null ? null : node.getExitApplication().getEmbedKey()
             });
         }
@@ -2855,11 +2858,11 @@ export class Eagle {
             // set nodeKey on clone's ports to match the clone
             for (let i = 0 ; i < clone.getInputPorts().length ; i++){
                 let port = clone.getInputPorts()[i];
-                port.setNodeKey(this.selectedNode().getKey());
+                port.setNodeKey(newKey);
             }
             for (let i = 0 ; i < clone.getOutputPorts().length ; i++){
                 let port = clone.getOutputPorts()[i];
-                port.setNodeKey(this.selectedNode().getKey());
+                port.setNodeKey(newKey);
             }
 
             callback(clone);
