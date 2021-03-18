@@ -1,5 +1,6 @@
 <div class="card">
-    <h5 class="card-header">
+    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse0" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: spinCollapseIcon(0)">
+            <i id="nodeCategoryArrow0" class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
         <!-- ko if: selectedNode().isLocked() -->
             <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
         <!-- /ko -->
@@ -8,7 +9,7 @@
         <!-- /ko -->
         <span data-bind="text: selectedNode().getCategoryType() + ' : ' + selectedNode().getCategory() + ' : ' + selectedNode().getName() + ' : ' + selectedNode().getKey()"></span>
     </h5>
-    <div class="card-body">
+    <div class="card-body collapse show" id="nodeCategoryCollapse0">
 
         <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
             <!-- ko ifnot: selectedNode().isLocked() -->

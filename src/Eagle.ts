@@ -2594,7 +2594,11 @@ export class Eagle {
         return true;
     }
 
-   
+    spinCollapseIcon = (id : any, e:JQueryEventObject) => {
+        var test = $(e.target).attr("class")
+        console.log(test)
+    }
+
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
         var img : HTMLImageElement = document.createElement("img");
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
