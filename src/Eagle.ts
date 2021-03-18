@@ -2825,6 +2825,39 @@ export class Eagle {
         return {x:x, y:y};
     }
 
+    autoLoad = (service: Eagle.RepositoryService, repository: string, branch: string, path: string, filename: string): void => {
+        console.log("autoLoadUrl()", service, repository, branch, path, filename);
+
+        // skip empty string urls
+        if (service === Eagle.RepositoryService.Unknown || repository === "" || branch === "" || path === "" || filename === ""){
+            console.log("No auto load");
+            return;
+        }
+
+        // load
+        this.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+    }
+
+    copyGraphUrl = (): void => {
+        // get reference to the LG fileInfo object
+        let fileInfo: FileInfo = this.logicalGraph().fileInfo();
+
+        // build graph url
+        let graph_url = window.location.origin;
+
+        graph_url += "/?service=" + fileInfo.repositoryService;
+        graph_url += "&repository=" + fileInfo.repositoryName;
+        graph_url += "&branch=" + fileInfo.repositoryBranch;
+        graph_url += "&path=" + fileInfo.path;
+        graph_url += "&filename=" + fileInfo.name;
+
+        // copy to cliboard
+        navigator.clipboard.writeText(graph_url);
+
+        // notification
+        Utils.showNotification("Graph URL", "Copied to clipboard", "success");
+    }
+
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         let c = Eagle.cData[category];
 
