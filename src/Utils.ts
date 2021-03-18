@@ -476,6 +476,9 @@ export class Utils {
         $('#choiceModal .modal-footer button').on('click', function(){
             $('#choiceModal').data('completed', true);
         });
+        $('#choiceModal').on('shown.bs.modal', function(){
+            $('#choiceModalAffirmativeButton').focus();
+        });
         $('#choiceModal').on('hidden.bs.modal', function(){
             var callback : (completed : boolean, userString : string) => void = $('#choiceModal').data('callback');
             var completed : boolean = $('#choiceModal').data('completed');
