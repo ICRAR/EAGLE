@@ -714,6 +714,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function createLink(edge : Edge) : string {
+        //console.log("createLink()", edge.getSrcNodeKey(), edge.getSrcPortId(), "->", edge.getDestNodeKey(), edge.getDestPortId());
+
         // determine if edge is "forward" or not
         var srcNode : Node  = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
         var destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
@@ -2746,7 +2748,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeOnClick(edge : Edge, index : number){
-        console.log("clicked on edge", index, "fromNode", edge.getSrcNodeKey(), "toNode", edge.getDestNodeKey());
+        //console.log("clicked on edge", index, "fromNode", edge.getSrcNodeKey(), "toNode", edge.getDestNodeKey());
         selectEdge(edge);
         tick();
     }

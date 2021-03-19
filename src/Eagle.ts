@@ -124,6 +124,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, ""));
         Eagle.settings.push(new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true));
         Eagle.settings.push(new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false));
+        Eagle.settings.push(new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, false));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -1948,14 +1949,77 @@ export class Eagle {
         }
     }
 
-    deleteSelectedEdge = () => {
+    addEdgeToLogicalGraph = () => {
+        // check that there is at least one node in the graph, otherwise it is difficult to create an edge
+        if (this.logicalGraph().getNumNodes() === 0){
+            Utils.showUserMessage("Error", "Can't add an edge to a graph with zero nodes.");
+            return;
+        }
+
+        // if input edge is null, then we are creating a new edge here, so initialise it with some default values
+        let edge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "");
+
+        // display edge editing modal UI
+        Utils.requestUserEditEdge(edge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
+            if (!completed){
+                console.log("User aborted addEdgeToLogicalGraph()");
+                return;
+            }
+
+            // validate edge
+            let isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, true);
+            if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
+                Utils.showUserMessage("Error", "Invalid edge");
+                return;
+            }
+
+            // new edges might require creation of new nodes, don't use addEdgeComplete() here!
+            this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), (edge: Edge) => {
+                // trigger the diagram to re-draw with the modified edge
+                this.flagActiveDiagramHasMutated();
+            });
+        });
+    }
+
+    editSelectedEdge = () => {
+        if (this.selectedEdge() === null){
+            console.log("Unable to edit selected edge: No edge selected");
+            return;
+        }
+
+        // clone selected edge so that no changes to the original can be made by the user request modal
+        let clone: Edge = this.selectedEdge().clone();
+
+        Utils.requestUserEditEdge(clone, this.logicalGraph(), (completed: boolean, edge: Edge) => {
+            if (!completed){
+                console.log("User aborted editSelectedEdge()");
+                return;
+            }
+
+            // validate edge
+            let isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, true);
+            if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
+                Utils.showUserMessage("Error", "Invalid edge");
+                return;
+            }
+
+            // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
+            this.deleteSelectedEdge(true);
+            this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), (edge: Edge) => {
+                // trigger the diagram to re-draw with the modified edge
+                this.flagActiveDiagramHasMutated();
+            });
+        });
+    }
+
+    deleteSelectedEdge = (suppressUserConfirmationRequest: boolean) => {
         if (this.selectedEdge() === null){
             console.log("Unable to delete selected edge: No edge selected");
             return;
         }
 
         // skip confirmation if setting dictates
-        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_EDGES).value()){
+        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_EDGES).value() || suppressUserConfirmationRequest){
             this._deleteSelectedEdge();
             return;
         }
@@ -2570,7 +2634,7 @@ export class Eagle {
         return Edge.isValid(this.logicalGraph(), this.selectedEdge().getSrcNodeKey(), this.selectedEdge().getSrcPortId(), this.selectedEdge().getDestNodeKey(), this.selectedEdge().getDestPortId(), false, true);
     }
 
-    printLogicalGraphTable = () : void => {
+    printLogicalGraphNodesTable = () : void => {
         var tableData : any[] = [];
 
         // add logical graph nodes to table
@@ -2592,6 +2656,27 @@ export class Eagle {
                 "exitAppKey":node.getExitApplication() === null ? null : node.getExitApplication().getKey(),
                 "exitAppCategory":node.getExitApplication() === null ? null : node.getExitApplication().getCategory(),
                 "exitAppEmbedKey":node.getExitApplication() === null ? null : node.getExitApplication().getEmbedKey()
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    printLogicalGraphEdgesTable = () : void => {
+        var tableData : any[] = [];
+
+        // add logical graph nodes to table
+        for (var i = 0; i < this.logicalGraph().getEdges().length; i++){
+            var edge : Edge = this.logicalGraph().getEdges()[i];
+
+            tableData.push({
+                "_id":edge.getId(),
+                "sourceNodeKey":edge.getSrcNodeKey(),
+                "sourcePortId":edge.getSrcPortId(),
+                "destNodeKey":edge.getDestNodeKey(),
+                "destPortId":edge.getDestPortId(),
+                "dataType":edge.getDataType(),
+                "loopAware":edge.isLoopAware()
             });
         }
 
@@ -2670,6 +2755,10 @@ export class Eagle {
             field.setReadonly(newField.isReadonly());
             field.setType(newField.getType());
         });
+    }
+
+    allowEdgeEditing = (): boolean => {
+        return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
     }
 
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {

@@ -30,6 +30,7 @@ import {Eagle} from './Eagle';
 import {Palette} from './Palette';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
+import {Edge} from './Edge';
 import {Port} from './Port';
 import {Field} from './Field';
 import {Repository} from './Repository';
@@ -59,6 +60,7 @@ export class Utils {
     static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PARAMETER_EDITING : string = "AllowReadonlyParameterEditing";
+    static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
 
     static readonly ENABLE_PALETTE_EDITOR_MODE : string = "EnablePaletteEditorMode";
 
@@ -647,6 +649,61 @@ export class Utils {
 
             callback(true, newField);
         });
+
+        // #editEdgeModal - requestUserEditEdge()
+        $('#editEdgeModalAffirmativeButton').on('click', function(){
+            $('#editEdgeModal').data('completed', true);
+        });
+        $('#editEdgeModalNegativeButton').on('click', function(){
+            $('#editEdgeModal').data('completed', false);
+        });
+        $('#editEdgeModal').on('shown.bs.modal', function(){
+            $('#editEdgeModalAffirmativeButton').focus();
+        });
+        $('#editEdgeModal').on('hidden.bs.modal', function(){
+            //console.log("editEdgeModal hidden");
+
+            var callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
+            var completed : boolean = $('#editEdgeModal').data('completed');
+            //console.log("completed", completed);
+
+            // check if the modal was completed (user clicked OK), if not, return false
+            if (!completed){
+                callback(false, null);
+                return;
+            }
+
+            // extract field data from HTML elements
+            let srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+            let srcPortId : string = <string>$('#editEdgeModalSrcPortIdSelect').val();
+            let destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+            let destPortId: string = <string>$('#editEdgeModalDestPortIdSelect').val();
+            let dataType: string = <string>$('#editEdgeModalDataTypeInput').val();
+            //console.log("srcNodeKey", srcNodeKey, "srcPortId", srcPortId, "destNodeKey", destNodeKey, "destPortId", destPortId, "dataType", dataType);
+
+            let newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType);
+
+            callback(true, newEdge);
+        });
+        $('#editEdgeModalSrcNodeKeySelect').on('change', function(){
+            let edge: Edge = $('#editEdgeModal').data('edge');
+            let logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
+
+            let srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+            edge.setSrcNodeKey(srcNodeKey);
+
+            Utils.updateEditEdgeModal(edge, logicalGraph);
+        });
+        $('#editEdgeModalDestNodeKeySelect').on('change', function(){
+            let edge: Edge = $('#editEdgeModal').data('edge');
+            let logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
+
+            let destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+            edge.setDestNodeKey(destNodeKey);
+
+            Utils.updateEditEdgeModal(edge, logicalGraph);
+        });
+
     }
 
     static showUserMessage (title : string, message : string) {
@@ -908,6 +965,217 @@ export class Utils {
 
     static showSettingsModal(){
         $('#settingsModal').modal();
+    }
+
+    static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void){
+        //console.log("requestUserEditEdge()");
+
+        Utils.updateEditEdgeModal(edge, logicalGraph);
+
+        $('#editEdgeModal').data('completed', false);
+        $('#editEdgeModal').data('callback', callback);
+
+        $('#editEdgeModal').data('edge', edge);
+        $('#editEdgeModal').data('logicalGraph', logicalGraph);
+
+        $('#editEdgeModal').modal();
+    }
+
+    static updateEditEdgeModal(edge: Edge, logicalGraph: LogicalGraph): void {
+        let srcNode: Node = null;
+        let destNode: Node = null;
+
+        // TODO: make local copy of edge, so that original is not changed! original might come from inside the active graph
+
+        // populate UI with current edge data
+        // add src node keys
+        $('#editEdgeModalSrcNodeKeySelect').empty();
+        for (let i = 0 ; i < logicalGraph.getNodes().length; i++){
+            let node = logicalGraph.getNodes()[i];
+
+            // if node itself can have output ports, add the node to the list
+            if (node.canHaveOutputs()){
+                //console.log("add node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
+                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getSrcNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getSrcNodeKey()){
+                    srcNode = node;
+                }
+            }
+
+            // add input application node, if present
+            if (node.hasInputApplication()){
+                node = node.getInputApplication();
+
+                //console.log("add input app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
+                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getSrcNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getSrcNodeKey()){
+                    srcNode = node;
+                }
+            }
+
+            // add output application node, if present
+            if (node.hasOutputApplication()){
+                node = node.getOutputApplication();
+
+                //console.log("add output app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
+                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getSrcNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getSrcNodeKey()){
+                    srcNode = node;
+                }
+            }
+
+            // add exit applicaiton node, if present
+            if (node.hasExitApplication()){
+                node = node.getExitApplication();
+
+                //console.log("add exit app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
+                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getSrcNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getSrcNodeKey()){
+                    srcNode = node;
+                }
+            }
+        }
+
+        // make sure srcNode reflects what is actually selected in the UI
+        let srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+        //console.log("srcNodeKey", srcNodeKey);
+        if (isNaN(srcNodeKey)){
+            srcNode = null;
+        } else {
+            srcNode = logicalGraph.findNodeByKey(srcNodeKey);
+        }
+
+        // check that source node was found, if not, disable SrcPortIdSelect?
+        $('#editEdgeModalSrcPortIdSelect').empty();
+        if (srcNode === null){
+            $('#editEdgeModalSrcPortIdSelect').attr('disabled', 'true');
+        } else {
+            // add src port ids
+            for (let i = 0 ; i < srcNode.getOutputPorts().length; i++){
+                let port: Port = srcNode.getOutputPorts()[i];
+                //console.log("add source (" + srcNode.getName() + ") output port", port.getName(), "selected", edge.getSrcPortId() === port.getId());
+                $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
+                    value: port.getId(),
+                    text: port.getName(),
+                    selected: edge.getSrcPortId() === port.getId()
+                }));
+            }
+        }
+
+        // add dest node keys
+        $('#editEdgeModalDestNodeKeySelect').empty();
+        for (let i = 0 ; i < logicalGraph.getNodes().length; i++){
+            let node = logicalGraph.getNodes()[i];
+
+            if (node.canHaveInputs()){
+                //console.log("add node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
+                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getDestNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getDestNodeKey()){
+                    destNode = node;
+                }
+            }
+
+            // input application node, if present
+            if (node.hasInputApplication()){
+                node = node.getInputApplication();
+
+                //console.log("add input app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
+                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getDestNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getDestNodeKey()){
+                    destNode = node;
+                }
+            }
+
+            // output application node, if present
+            if (node.hasOutputApplication()){
+                node = node.getOutputApplication();
+
+                //console.log("add output app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
+                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getDestNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getDestNodeKey()){
+                    destNode = node;
+                }
+            }
+
+            // exit application node, if present
+            if (node.hasExitApplication()){
+                node = node.getExitApplication();
+
+                //console.log("add exit app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
+                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
+                    value: node.getKey(),
+                    text: node.getName(),
+                    selected: edge.getDestNodeKey() === node.getKey()
+                }));
+
+                if (node.getKey() === edge.getDestNodeKey()){
+                    destNode = node;
+                }
+            }
+        }
+
+        // make sure srcNode reflects what is actually selected in the UI
+        let destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+        //console.log("destNodeKey", destNodeKey);
+        if (isNaN(destNodeKey)){
+            destNode = null;
+        } else {
+            destNode = logicalGraph.findNodeByKey(destNodeKey);
+        }
+
+        // check that dest node was found, if not, disable DestPortIdSelect?
+        $('#editEdgeModalDestPortIdSelect').empty();
+        if (destNode === null){
+            $('#editEdgeModalDestPortIdSelect').attr('disabled', 'true');
+        } else {
+            // add dest port ids
+            for (let i = 0 ; i < destNode.getInputPorts().length; i++){
+                let port: Port = destNode.getInputPorts()[i];
+                //console.log("add dest (" + destNode.getName() + ") input port", port.getName(), "selected", edge.getDestPortId() === port.getId());
+                $('#editEdgeModalDestPortIdSelect').append($('<option>', {
+                    value: port.getId(),
+                    text: port.getName(),
+                    selected: edge.getDestPortId() === port.getId()
+                }));
+            }
+        }
+
+        $('#editEdgeModalDataTypeInput').val(edge.getDataType());
     }
 
     /**
