@@ -168,6 +168,32 @@ export class Edge {
     static isValid = (graph : LogicalGraph, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, showNotification : boolean, showConsole : boolean) : Eagle.LinkValid => {
         //console.log("IsValid()", "sourceNodeKey", sourceNodeKey, "sourcePortId", sourcePortId, "destinationNodeKey", destinationNodeKey, "destinationPortId", destinationPortId);
 
+        // check for problems
+        if (isNaN(sourceNodeKey)){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        if (isNaN(destinationNodeKey)){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        if (sourcePortId === ""){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        if (destinationPortId === ""){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        if (sourcePortId === null){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        if (destinationPortId === null){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        // get references to actual source and destination nodes (from the keys)
         var sourceNode : Node = graph.findNodeByKey(sourceNodeKey);
         var destinationNode : Node = graph.findNodeByKey(destinationNodeKey);
 

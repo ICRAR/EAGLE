@@ -1967,7 +1967,8 @@ export class Eagle {
             }
 
             // validate edge
-            if (!this._validateEdge(edge)){
+            let isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, true);
+            if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
@@ -1999,7 +2000,8 @@ export class Eagle {
             }
 
             // validate edge
-            if (!this._validateEdge(edge)){
+            let isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, true);
+            if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
@@ -2015,39 +2017,6 @@ export class Eagle {
             // trigger the diagram to re-draw with the modified edge
             this.flagActiveDiagramHasMutated();
         });
-    }
-
-    // TODO: combine with Edge.isValid()
-    private _validateEdge = (edge: Edge) : boolean => {
-        // check the return values are OK
-        //console.log("return values", edge.getSrcNodeKey(), edge.getSrcPortId(), "->", edge.getDestNodeKey(), edge.getDestPortId());
-
-        // check for problems
-        if (isNaN(edge.getSrcNodeKey())){
-            return false;
-        }
-
-        if (isNaN(edge.getDestNodeKey())){
-            return false;
-        }
-
-        if (edge.getSrcPortId() === ""){
-            return false;
-        }
-
-        if (edge.getDestPortId() === ""){
-            return false;
-        }
-
-        if (edge.getSrcPortId() === null){
-            return false;
-        }
-
-        if (edge.getDestPortId() === null){
-            return false;
-        }
-
-        return true;
     }
 
     deleteSelectedEdge = () => {
