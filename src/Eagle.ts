@@ -1987,9 +1987,10 @@ export class Eagle {
             return;
         }
 
-        //console.log("editSelectedEdge()");
+        // clone selected edge so that no changes to the original can be made by the user request modal
+        let clone: Edge = this.selectedEdge().clone();
 
-        Utils.requestUserEditEdge(this.selectedEdge(), this.logicalGraph(), (completed: boolean, edge: Edge) => {
+        Utils.requestUserEditEdge(clone, this.logicalGraph(), (completed: boolean, edge: Edge) => {
             if (!completed){
                 console.log("User aborted editSelectedEdge()");
                 return;
