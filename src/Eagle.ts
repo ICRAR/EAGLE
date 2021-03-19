@@ -1973,15 +1973,11 @@ export class Eagle {
                 return;
             }
 
-            // create new edge
-            let newEdge: Edge = new Edge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType());
-
-            // TODO: new edges might require creation of new nodes, don't use addEdgeComplete here!
-            // add edge to the graph
-            this.logicalGraph().addEdgeComplete(newEdge);
-
-            // trigger the diagram to re-draw with the modified edge
-            this.flagActiveDiagramHasMutated();
+            // new edges might require creation of new nodes, don't use addEdgeComplete() here!
+            this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), (edge: Edge) => {
+                // trigger the diagram to re-draw with the modified edge
+                this.flagActiveDiagramHasMutated();
+            });
         });
     }
 
@@ -2006,27 +2002,23 @@ export class Eagle {
                 return;
             }
 
-            // TODO: new edges might require creation of new nodes, we probably should delete the existing edge and then create a new one using the full new edge pathway
-
-            // copy edge attributes
-            this.selectedEdge().setSrcNodeKey(edge.getSrcNodeKey());
-            this.selectedEdge().setSrcPortId(edge.getSrcPortId());
-            this.selectedEdge().setDestNodeKey(edge.getDestNodeKey());
-            this.selectedEdge().setDestPortId(edge.getDestPortId());
-
-            // trigger the diagram to re-draw with the modified edge
-            this.flagActiveDiagramHasMutated();
+            // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
+            this.deleteSelectedEdge(true);
+            this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), (edge: Edge) => {
+                // trigger the diagram to re-draw with the modified edge
+                this.flagActiveDiagramHasMutated();
+            });
         });
     }
 
-    deleteSelectedEdge = () => {
+    deleteSelectedEdge = (suppressUserConfirmationRequest: boolean) => {
         if (this.selectedEdge() === null){
             console.log("Unable to delete selected edge: No edge selected");
             return;
         }
 
         // skip confirmation if setting dictates
-        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_EDGES).value()){
+        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_EDGES).value() || suppressUserConfirmationRequest){
             this._deleteSelectedEdge();
             return;
         }
