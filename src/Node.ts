@@ -1189,10 +1189,7 @@ export class Node {
             node.flipPorts = nodeData.flipPorts;
         }
 
-        // selected
-        if (typeof nodeData.selected !== 'undefined'){
-            node.selected(nodeData.selected);
-        }
+        // NOTE: skip the 'selected' boolean on the input data, don't remember the user's selection
 
         // expanded
         if (typeof nodeData.expanded !== 'undefined'){
