@@ -137,7 +137,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     var backgroundDragHandler = d3.drag()
                                     .on("end", function(){
                                         console.log("setSelection(null)");
+                                        let previousSelection = eagle.getSelection();
+
                                         eagle.setSelection(eagle.rightWindowMode(), null);
+
+                                        if (previousSelection !== null){
+                                            eagle.rightWindowMode(Eagle.RightWindowMode.Hierarchy);
+                                        }
                                     })
                                     .on("drag", function(){
                                         eagle.globalOffsetX += d3.event.dx;
