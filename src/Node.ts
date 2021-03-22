@@ -1153,6 +1153,12 @@ export class Node {
         var category: Eagle.Category = GraphUpdater.translateOldCategory(nodeData.category);
         var categoryType: Eagle.CategoryType = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
 
+        // if category is not known, then add error
+        if (!Utils.isKnownCategory(category)){
+            errors.push("Node with key " + nodeData.key + " has unknown category: " + category);
+            category = Eagle.Category.Unknown;
+        }
+
         var node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, readonly);
 
         // set position
