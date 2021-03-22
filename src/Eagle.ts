@@ -2698,8 +2698,6 @@ export class Eagle {
 
     // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
     selectNodeInHierarchy = (nodeViewModel : any) : void => {
-        //console.log("selectNodeInHierarchy()", nodeViewModel);
-
         var node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key);
         node.toggleExpanded();
 
@@ -2711,8 +2709,6 @@ export class Eagle {
         node.setSelected(true);
 
         this.setSelection(Eagle.RightWindowMode.Hierarchy, node);
-
-        //console.log("Node", node.getName(), "selected", "(expanded:" + node.getExpanded() + ")");
 
         this.flagActiveDiagramHasMutated();
     }
