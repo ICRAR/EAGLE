@@ -1157,6 +1157,7 @@ export class Node {
         if (!Utils.isKnownCategory(category)){
             errors.push("Node with key " + nodeData.key + " has unknown category: " + category);
             category = Eagle.Category.Unknown;
+            categoryType = Eagle.CategoryType.Unknown;
         }
 
         var node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, readonly);
