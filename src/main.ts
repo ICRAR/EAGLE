@@ -109,6 +109,7 @@ $(function(){
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "eagle_gather.json"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "cont_img.json"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitLab, "ska-telescope/jacal", "master", false), "jacal/test/daliuge", "test_major_cycle.json"));
+    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "trash", "test_plasma.graph"));
 
     var auto_load_service    = (<any>window).auto_load_service;
     var auto_load_repository = (<any>window).auto_load_repository;

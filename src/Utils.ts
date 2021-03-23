@@ -72,6 +72,8 @@ export class Utils {
     static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
 
+    static readonly GITHUB_USE_OAUTH: string = "GitHubUseOAuth";
+
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};
     static v3GraphSchema : object = {};
