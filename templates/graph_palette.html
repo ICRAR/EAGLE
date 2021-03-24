@@ -1,0 +1,19 @@
+<div class="card">
+    <div class="card-header" data-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'graph-palette', 'data-target':'#collapse-graph-palette', 'aria-controls':'collapse-graph-palette'}">
+        <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+        <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Displays all nodes in the current Logical Graph'}">info</i>
+
+        <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
+        <span>&nbsp;</span>
+        <h5 class="template-title">Logical Graph</h5>
+    </div>
+    <div class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" data-bind="attr:{id:'collapse-graph-palette'}">
+        <div class="card-body">
+            <div class="container px-0">
+                <!-- ko foreach: nodes -->
+                    <palette-component params="data: $data, paletteIndex: -1, index: $index(), showAdd: true, showEdit: false, callback: null"></palette-component>
+                <!-- /ko -->
+            </div>
+        </div>
+    </div>
+</div>
