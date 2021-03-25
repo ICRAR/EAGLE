@@ -87,6 +87,8 @@ def index():
 
 
 @app.route('/src/<path:filename>')
+# This enables debugging in a docker based environment, else the TS files
+# are not accessible.
 def send_src(filename):
     return send_from_directory(srcdir, filename)
 
