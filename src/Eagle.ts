@@ -72,6 +72,7 @@ export class Eagle {
     globalOffsetX : number = 0;
     globalOffsetY : number = 0;
     globalScale : number = 1.0;
+    
 
     static settings : ko.ObservableArray<Setting>;
 
@@ -81,9 +82,13 @@ export class Eagle {
     static applicationCategories : Eagle.Category[] = [];
 
     static dragStartX : number;
-    static adjustingLeftWindow : boolean; // true if adjusting left window, false if adjusting right window
+    static adjustingLeftWindow : boolean; // true if adjusting left window, false if adjusting no window
+    static adjustingRightWindow : boolean; // true if adjusting right window, false if adjusting no window
 
     static selectedNodeKey : number;
+
+    static nodeDropped : Element;
+    static nodeDropLocation = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
 
     constructor(){
         this.editorPalette = ko.observable(null);
@@ -2167,15 +2172,25 @@ export class Eagle {
 
     addNodeToLogicalGraph = (node : Node) : void => {
         //console.log("addNodeToLogicalGraph()", node.getName(), node.getCategory(), node.getInputPorts().length, node.getOutputPorts().length, node.getFields().length);
-
+        let pos = {x:0, y:0};
+        
         // get new position for node
-        let pos = this.getNewNodePosition();
+        if (Eagle.nodeDropLocation.x == 0 && Eagle.nodeDropLocation.y == 0){
+            pos = this.getNewNodePosition();
+        }else if (Eagle.nodeDropLocation){
+            pos = Eagle.nodeDropLocation;
+        }else{
+            //if this is fired something has gone terribly wrong
+            pos = {x:0, y:0};
+            Utils.showNotification("Error", "Unexpected error occurred", "warning");
+        }
 
         this.logicalGraph().addNode(node, pos.x, pos.y, (newNode: Node) => {
             this.logicalGraph.valueHasMutated();
 
             // make sure the new node is selected
             this.setSelection(Eagle.RightWindowMode.NodeInspector, newNode);
+            Eagle.nodeDropLocation = {x:0, y:0};
         });
     }
 
@@ -2539,13 +2554,62 @@ export class Eagle {
             }
         }
     }
+    
+    //dragdrop
+
+    nodeDragStart = (eagle : Eagle, e : JQueryEventObject) => {
+        //specifies where the node can be dropped
+        Eagle.nodeDropped = e.target;
+        $(".leftWindow").addClass("noDropTarget");
+        $(".rightWindow").addClass("noDropTarget");
+        $(".navbar").addClass("noDropTarget");
+
+        //grabs and sets the node's icon and sets it as drag image.
+        var drag = Eagle.nodeDropped.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
+        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
+        return true;
+    }
+
+
+    nodeDragEnd = (e : JQueryEventObject) => {
+        $(".leftWindow").removeClass("noDropTarget");
+        $(".rightWindow").removeClass("noDropTarget");
+        $(".navbar").removeClass("noDropTarget");
+        return true;    
+    }
+
+    nodeDragOver = (e : JQueryEventObject) => {
+        return false;    
+    }
+
+    nodeDrop = (eagle : Eagle,e : JQueryEventObject) => {
+        Eagle.nodeDropLocation = this.getNodeDropLocation(e);
+        let nodeButton = Eagle.nodeDropped.getElementsByTagName('button')[0] as HTMLElement;
+         nodeButton.click();
+    }
+
+    getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number}=> {
+        let x = e.clientX;
+        let y = e.clientY;
+        return {x:x, y:y};
+    };
 
     rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
         var img : HTMLImageElement = document.createElement("img");
+        
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
-
         Eagle.dragStartX = e.clientX;
         Eagle.adjustingLeftWindow = false;
+        Eagle.adjustingRightWindow = true;
+
+        return true;
+    }
+
+    //workaround to aviod left or right window adjusting on any and all drag events
+    rightWindowAdjustEnd = (eagle : Eagle, e : JQueryEventObject) => {
+        
+        Eagle.adjustingLeftWindow = false;
+        Eagle.adjustingRightWindow = false;
 
         return true;
     }
@@ -2568,27 +2632,40 @@ export class Eagle {
         var dragDiff : number = e.clientX - Eagle.dragStartX;
         var newWidth : number;
 
+
         if (Eagle.adjustingLeftWindow){
             newWidth = this.leftWindowWidth() + dragDiff;
             this.leftWindowWidth(newWidth);
             Utils.setLeftWindowWidth(newWidth);
-        } else {
+        } else if(Eagle.adjustingRightWindow) {
             newWidth = this.rightWindowWidth() - dragDiff;
             this.rightWindowWidth(newWidth);
             Utils.setRightWindowWidth(newWidth);
         }
 
         Eagle.dragStartX = e.clientX;
-
+        
+        
         return true;
     }
 
+   
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
         var img : HTMLImageElement = document.createElement("img");
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
 
         Eagle.dragStartX = e.clientX;
         Eagle.adjustingLeftWindow = true;
+        Eagle.adjustingRightWindow = false;
+
+        return true;
+    }
+
+    //workaround to aviod left or right window adjusting on any and all drag events
+    leftWindowAdjustEnd = (eagle : Eagle, e : JQueryEventObject) => {
+        
+        Eagle.adjustingLeftWindow = false;
+        Eagle.adjustingRightWindow = false;
 
         return true;
     }

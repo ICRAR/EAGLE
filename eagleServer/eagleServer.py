@@ -30,7 +30,7 @@ import six
 import github
 import gitlab
 import pkg_resources
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, send_from_directory
 
 import config.config
 from config.config import GITHUB_DEFAULT_REPO_LIST
@@ -55,6 +55,7 @@ TEMP_FILE_FOLDER = config.config.TEMP_FILE_FOLDER
 
 templdir = pkg_resources.resource_filename(__name__, "../templates")
 staticdir = pkg_resources.resource_filename(__name__, "../static")
+srcdir = pkg_resources.resource_filename(__name__, "../src")
 
 app = Flask(__name__, template_folder=templdir, static_folder=staticdir)
 app.config.from_object("config")
@@ -93,6 +94,11 @@ def index():
         return render_template("base.html", version=version, commit_hash=commit_hash)
 
     return render_template("base.html", version=version, commit_hash=commit_hash, auto_load_service=service, auto_load_repository=repository, auto_load_branch=branch, auto_load_path=path, auto_load_filename=filename)
+
+
+@app.route('/src/<path:filename>')
+def send_src(filename):
+    return send_from_directory(srcdir, filename)
 
 
 @app.route("/uploadFile", methods=["POST"])

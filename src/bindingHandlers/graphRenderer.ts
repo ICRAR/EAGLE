@@ -9,6 +9,7 @@ import {Edge} from '../Edge';
 import {Port} from '../Port';
 import {Utils} from '../Utils';
 import {Config} from '../Config';
+import { transform } from "typescript";
 
 ko.bindingHandlers.graphRenderer = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -155,9 +156,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     });
 
     var backgroundZoomHandler = d3.zoom()
+                                    .scaleExtent([1, Infinity])
+                                    .translateExtent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
+                                    .extent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
                                     .on("zoom", function(){
-                                        //console.log("zoom");
+                                        // TODO: Try to centre the zoom on mouse position rather than upper left corner.
+                                        // Somehow only the eagle.globalScale does something...
+                                        var scale = d3.event.transform.k;
+                                        var trans = d3.event.transform;
+                                        var tx = d3.mouse(svgContainer.node())[0];
+                                        var ty = d3.mouse(svgContainer.node())[1];
+
+                                        var tform = "translate(" + tx + "," + ty + ")scale(" + scale + ")";
+                                        svgContainer.style("transform", tform);
                                         eagle.globalScale -= d3.event.sourceEvent.deltaY * (d3.event.sourceEvent.deltaMode ? 120 : 1) / 1500;
+
                                         tick();
                                     });
 
