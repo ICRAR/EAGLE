@@ -88,7 +88,7 @@ export class Eagle {
     static selectedNodeKey : number;
 
     static nodeDropped : Element;
-    static nodeDropLocation = {x:0, y:0};
+    static nodeDropLocation = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
 
     constructor(){
         this.editorPalette = ko.observable(null);
