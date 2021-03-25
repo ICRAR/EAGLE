@@ -2594,9 +2594,10 @@ export class Eagle {
         return true;
     }
 
-    spinCollapseIcon = (id : any, e:JQueryEventObject) => {
-        var test = $(e.target).attr("class")
-        console.log(test)
+    spinCollapseIcon = (item:any, e:JQueryEventObject) => {
+        var test = $(e.currentTarget) as JQuery<HTMLElement>
+        test = test.find('i').first()
+        test.toggleClass("ClosedIcon")
     }
 
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {

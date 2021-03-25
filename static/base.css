@@ -299,3 +299,13 @@ nav.navbar .introjs-helperLayer {
 .form-control{
     pointer-events:none;
 }
+
+.ClosedIcon{
+    transform:rotate(270deg)
+}
+
+.translationTitle{
+    display: inline-block;
+    font-weight: 500;
+    line-height: 1.2;
+}

@@ -1,6 +1,6 @@
 <div class="card">
-    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse0" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="event{click:function(){spinCollapseIcon(0);}}">
-            <i id="nodeCategoryArrow0" class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse0" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="event: {click: $root.spinCollapseIcon}">
+            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
         <!-- ko if: selectedNode().isLocked() -->
             <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
         <!-- /ko -->
@@ -9,103 +9,105 @@
         <!-- /ko -->
         <span data-bind="text: selectedNode().getCategoryType() + ' : ' + selectedNode().getCategory() + ' : ' + selectedNode().getName() + ' : ' + selectedNode().getKey()"></span>
     </h5>
-    <div class="card-body collapse show" id="nodeCategoryCollapse0">
+    <div class="show" id="nodeCategoryCollapse0">
+        <div class="card-body">
 
-        <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
-            <!-- ko ifnot: selectedNode().isLocked() -->
-                <div class="input-group mb-1">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text mw-140" id="node-name">Name</span>
+            <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
+                <!-- ko ifnot: selectedNode().isLocked() -->
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text mw-140" id="node-name">Name</span>
+                        </div>
+                        <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="nodeDataProperty: 'name'">
                     </div>
-                    <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="nodeDataProperty: 'name'">
-                </div>
+                <!-- /ko -->
             <!-- /ko -->
-        <!-- /ko -->
 
-        <div class="input-group mb-1">
-            <div class="input-group-prepend">
-                <span class="input-group-text mw-140" id="node-parent">Parent</span>
-            </div>
-            <input type="text" class="form-control" id="nodeParentValue" placeholder="" aria-label="Name" aria-describedby="node-parent" data-bind="value: selectedNode().getParentKey()" readonly>
-            <div class="input-group-append">
-                <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeParent" type="button" data-bind="click: $root.changeNodeParent">
-                    <i class="material-icons md-18">edit</i>
-                </button>
-            </div>
-        </div>
-
-        <div class="input-group mb-1">
-            <div class="input-group-prepend">
-                <span class="input-group-text mw-140" id="node-draw-order-hint">Draw Order Hint</span>
-            </div>
-            <input type="text" class="form-control" id="nodeDrawOrderHintValue" placeholder="" aria-label="Name" aria-describedby="node-draw-order-hint" data-bind="nodeDataProperty: 'drawOrderHint'" readonly>
-            <div class="input-group-append">
-                <button class="btn btn-secondary btn-sm" id="nodeInspectorDecrementDrawOrderHint" type="button" data-bind="click: function(){$root.selectedNode().decrementDrawOrderHint(); $root.flagActiveDiagramHasMutated();}">
-                    <i class="material-icons md-18">remove</i>
-                </button>
-            </div>
-            <div class="input-group-append">
-                <button class="btn btn-secondary btn-sm" id="nodeInspectorIncrementDrawOrderHint" type="button" data-bind="click: function(){$root.selectedNode().incrementDrawOrderHint(); $root.flagActiveDiagramHasMutated();}">
-                    <i class="material-icons md-18">add</i>
-                </button>
-            </div>
-        </div>
-
-        <!-- ko if: selectedNode().getCategory() === Eagle.Category.Comment -->
-        <div class="input-group mb-1">
-            <div class="input-group-prepend">
-                <span class="input-group-text mw-140" id="node-subject">Subject</span>
-            </div>
-            <input type="text" class="form-control" id="nodeSubjectValue" placeholder="" aria-label="Name" aria-describedby="node-subject" data-bind="value: selectedNode().getSubjectKey()" readonly>
-            <div class="input-group-append">
-                <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeSubject" type="button" data-bind="click: $root.changeNodeSubject">
-                    <i class="material-icons md-18">edit</i>
-                </button>
-            </div>
-        </div>
-        <!-- /ko -->
-
-
-        <div class="row no-gutters">
-            <!-- ko if: selectedNode().getCategoryType() === Eagle.CategoryType.Data -->
-            <div class="col">
-                <div class="input-group mb-1">
-                    <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly>
-                    <div class="input-group-append">
-                        <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleStreaming" type="button" data-bind="click: function(){selectedNode().toggleStreaming();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
-                            <i class="material-icons md-18" data-bind="visible: selectedNode().isStreaming()">radio_button_checked</i>
-                            <i class="material-icons md-18" data-bind="hidden: selectedNode().isStreaming()">radio_button_unchecked</i>
-                        </button>
-                    </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text mw-140" id="node-parent">Parent</span>
+                </div>
+                <input type="text" class="form-control" id="nodeParentValue" placeholder="" aria-label="Name" aria-describedby="node-parent" data-bind="value: selectedNode().getParentKey()" readonly>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeParent" type="button" data-bind="click: $root.changeNodeParent">
+                        <i class="material-icons md-18">edit</i>
+                    </button>
                 </div>
             </div>
 
-            <div class="col">
-                <div class="input-group mb-1">
-                    <input type="text" class="form-control" id="nodeShowPortsValue" placeholder="" aria-label="Show Ports" aria-describedby="node-show-ports" value="Show Ports" readonly>
-                    <div class="input-group-append">
-                        <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleShowPorts" type="button" data-bind="click: function(){selectedNode().toggleShowPorts();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
-                            <i class="material-icons md-18" data-bind="visible: selectedNode().isShowPorts()">radio_button_checked</i>
-                            <i class="material-icons md-18" data-bind="hidden: selectedNode().isShowPorts()">radio_button_unchecked</i>
-                        </button>
-                    </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text mw-140" id="node-draw-order-hint">Draw Order Hint</span>
+                </div>
+                <input type="text" class="form-control" id="nodeDrawOrderHintValue" placeholder="" aria-label="Name" aria-describedby="node-draw-order-hint" data-bind="nodeDataProperty: 'drawOrderHint'" readonly>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorDecrementDrawOrderHint" type="button" data-bind="click: function(){$root.selectedNode().decrementDrawOrderHint(); $root.flagActiveDiagramHasMutated();}">
+                        <i class="material-icons md-18">remove</i>
+                    </button>
+                </div>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorIncrementDrawOrderHint" type="button" data-bind="click: function(){$root.selectedNode().incrementDrawOrderHint(); $root.flagActiveDiagramHasMutated();}">
+                        <i class="material-icons md-18">add</i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ko if: selectedNode().getCategory() === Eagle.Category.Comment -->
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text mw-140" id="node-subject">Subject</span>
+                </div>
+                <input type="text" class="form-control" id="nodeSubjectValue" placeholder="" aria-label="Name" aria-describedby="node-subject" data-bind="value: selectedNode().getSubjectKey()" readonly>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeSubject" type="button" data-bind="click: $root.changeNodeSubject">
+                        <i class="material-icons md-18">edit</i>
+                    </button>
                 </div>
             </div>
             <!-- /ko -->
 
-            <!-- ko ifnot: selectedNode().isGroup() || selectedNode().isBranch() -->
-            <div class="col">
-                <div class="input-group mb-1">
-                    <input type="text" class="form-control" id="nodeFlipPortsValue" placeholder="" aria-label="Flip Ports" aria-describedby="node-flip-ports" value="Flip Ports" readonly>
-                    <div class="input-group-append">
-                        <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleFlipPorts" type="button" data-bind="click: function(){selectedNode().toggleFlipPorts();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
-                            <i class="material-icons md-18" data-bind="visible: selectedNode().isFlipPorts()">radio_button_checked</i>
-                            <i class="material-icons md-18" data-bind="hidden: selectedNode().isFlipPorts()">radio_button_unchecked</i>
-                        </button>
+
+            <div class="row no-gutters">
+                <!-- ko if: selectedNode().getCategoryType() === Eagle.CategoryType.Data -->
+                <div class="col">
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleStreaming" type="button" data-bind="click: function(){selectedNode().toggleStreaming();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                                <i class="material-icons md-18" data-bind="visible: selectedNode().isStreaming()">radio_button_checked</i>
+                                <i class="material-icons md-18" data-bind="hidden: selectedNode().isStreaming()">radio_button_unchecked</i>
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                <div class="col">
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" id="nodeShowPortsValue" placeholder="" aria-label="Show Ports" aria-describedby="node-show-ports" value="Show Ports" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleShowPorts" type="button" data-bind="click: function(){selectedNode().toggleShowPorts();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                                <i class="material-icons md-18" data-bind="visible: selectedNode().isShowPorts()">radio_button_checked</i>
+                                <i class="material-icons md-18" data-bind="hidden: selectedNode().isShowPorts()">radio_button_unchecked</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- /ko -->
+
+                <!-- ko ifnot: selectedNode().isGroup() || selectedNode().isBranch() -->
+                <div class="col">
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" id="nodeFlipPortsValue" placeholder="" aria-label="Flip Ports" aria-describedby="node-flip-ports" value="Flip Ports" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleFlipPorts" type="button" data-bind="click: function(){selectedNode().toggleFlipPorts();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                                <i class="material-icons md-18" data-bind="visible: selectedNode().isFlipPorts()">radio_button_checked</i>
+                                <i class="material-icons md-18" data-bind="hidden: selectedNode().isFlipPorts()">radio_button_unchecked</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- /ko -->
             </div>
-            <!-- /ko -->
         </div>
     </div>
 </div>
