@@ -143,10 +143,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         console.log("setSelection(null)");
                                         let previousSelection = eagle.getSelection();
 
-                                        eagle.setSelection(eagle.rightWindowMode(), null);
+                                        eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null);
 
                                         if (previousSelection !== null){
-                                            eagle.rightWindowMode(Eagle.RightWindowMode.Hierarchy);
+                                            eagle.rightWindow().mode(Eagle.RightWindowMode.Hierarchy);
                                         }
                                     })
                                     .on("drag", function(){
