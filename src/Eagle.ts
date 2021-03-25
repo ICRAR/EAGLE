@@ -82,14 +82,13 @@ export class Eagle {
     static applicationCategories : Eagle.Category[] = [];
 
     static dragStartX : number;
-    static adjustingLeftWindow : boolean; // true if adjusting left window, false if adjusting right window
-    static adjustingRightWindow : boolean; // true if adjusting left window, false if adjusting right window
+    static adjustingLeftWindow : boolean; // true if adjusting left window, false if adjusting no window
+    static adjustingRightWindow : boolean; // true if adjusting right window, false if adjusting no window
 
     static selectedNodeKey : number;
 
     static nodeDropped : Element;
     static nodeDropLocation = {x:0, y:0};
-    static pos = {x:0, y:0};
 
     constructor(){
         this.editorPalette = ko.observable(null);
@@ -2109,19 +2108,19 @@ export class Eagle {
 
     addNodeToLogicalGraph = (node : Node) : void => {
         //console.log("addNodeToLogicalGraph()", node.getName(), node.getCategory(), node.getInputPorts().length, node.getOutputPorts().length, node.getFields().length);
-
+        let pos = {x:0, y:0};
         
         // get new position for node
         if (Eagle.nodeDropLocation.x == 0 && Eagle.nodeDropLocation.y == 0){
-            Eagle.pos = this.getNewNodePosition();
+            pos = this.getNewNodePosition();
         }else if (Eagle.nodeDropLocation){
-            Eagle.pos = Eagle.nodeDropLocation;
+            pos = Eagle.nodeDropLocation;
         }else{
-            Eagle.pos = {x:0, y:0};
+            pos = {x:0, y:0};
             alert("Unexpected error occurred")
         }
 
-        this.logicalGraph().addNode(node, Eagle.pos.x, Eagle.pos.y, (newNode: Node) => {
+        this.logicalGraph().addNode(node, pos.x, pos.y, (newNode: Node) => {
             this.logicalGraph.valueHasMutated();
 
             // make sure the new node is selected
@@ -2491,14 +2490,16 @@ export class Eagle {
         }
     }
     
-    //dragdrop WIP
+    //dragdrop
 
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) => {
+        //specifies where the node can be dropped
         Eagle.nodeDropped = e.target;
         $(".leftWindow").addClass("noDropTarget");
         $(".rightWindow").addClass("noDropTarget");
         $(".navbar").addClass("noDropTarget");
 
+        //grabs and sets the node's icon and sets it as drag image.
         var drag = Eagle.nodeDropped.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
         return true;
@@ -2517,31 +2518,20 @@ export class Eagle {
     }
 
     nodeDrop = (eagle : Eagle,e : JQueryEventObject) => {
+        Eagle.nodeDropLocation = this.getNodeDropLocation(e);
         let nodeButton = Eagle.nodeDropped.getElementsByTagName('button')[0] as HTMLElement;
-        // let canvas = $("#logicalGraphD3Div")
-        Eagle.nodeDropLocation = this.getNodeDropLocation( e)
-        nodeButton.click();
+         nodeButton.click();
     }
 
     getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number}=> {
         let x = e.clientX;
         let y = e.clientY;
         return {x:x, y:y};
-
-        //potential code for canvas correct locations
-        // var rect = canvas.getBoundingClientRect(), // abs. size of element
-        //     scaleX = canvas.width / rect.width,    // relationship bitmap vs. element for X
-        //     scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
-      
-        // return {
-        //   x: (e.clientX - rect.left) * scaleX,   // scale mouse coordinates after they have
-        //   y: (e.clientY - rect.top) * scaleY     // been adjusted to be relative to element
-        // }
     };
 
     rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
         var img : HTMLImageElement = document.createElement("img");
-        //clue
+        
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
         Eagle.dragStartX = e.clientX;
         Eagle.adjustingLeftWindow = false;
