@@ -717,6 +717,10 @@ export class Utils {
             Utils.updateEditEdgeModal(edge, logicalGraph);
         });
 
+        // #messageModal - showUserMessage()
+        $('#messageModal').on('shown.bs.modal', function(){
+            $('#messageModal .modal-footer button').focus();
+        });
     }
 
     static showUserMessage (title : string, message : string) {
