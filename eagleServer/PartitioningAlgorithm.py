@@ -3,5 +3,5 @@ class PartitioningAlgorithm():
         pass
 
 
-    def partition(self):
+    def partition(self, physicalGraphTemplate):
         print("partitiion");

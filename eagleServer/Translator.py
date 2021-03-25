@@ -13,7 +13,7 @@ class Translator:
         print("translate")
 
         # unroll
-        physicalGraphTemplate = unroll(logicalGraph)
+        physicalGraphTemplate = self.unroll(logicalGraph)
 
         # partition
         self.algorithm.partition(physicalGraphTemplate)
