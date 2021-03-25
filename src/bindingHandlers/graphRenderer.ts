@@ -763,6 +763,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         console.assert(!isNaN(x2));
         console.assert(!isNaN(y2));
 
+        // if coordinate isNaN, replace with a default, so at least the edge can be drawn
+        if (isNaN(x1)) x1 = 0;
+        if (isNaN(y1)) y1 = 0;
+        if (isNaN(x2)) x2 = 0;
+        if (isNaN(y2)) y2 = 0;
+
         let startDirection = determineDirection(true, srcNode, srcPortIndex, srcPortType);
         let endDirection = determineDirection(false, destNode, destPortIndex, destPortType);
 
@@ -2730,6 +2736,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         let srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
+
+        if (srcPort === null) return "";
 
         if (srcPort.isEvent()){
             return "8";

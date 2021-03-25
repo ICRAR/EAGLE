@@ -739,6 +739,7 @@ export class Node {
         // check input ports
         for (var i = 0; i < this.inputPorts().length; i++){
             var port = this.inputPorts()[i];
+            //console.log("compare node", this.getKey(), "i ports", port.getId(), portId, port.getId() === portId);
             if (port.getId() === portId){
                 return "input";
             }
@@ -747,6 +748,7 @@ export class Node {
         // check output ports
         for (var i = 0; i < this.outputPorts().length; i++){
             var port = this.outputPorts()[i];
+            //console.log("compare node", this.getKey(), "o ports", port.getId(), portId, port.getId() === portId);
             if (port.getId() === portId){
                 return "output";
             }
@@ -1486,7 +1488,7 @@ export class Node {
             }
             node.inputApplication().addPort(port, true);
             port.setNodeKey(node.inputApplication().getKey());
-            errors.push("Moved input port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded input application");
+            errors.push("Moved input port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded input application (" + node.inputApplication().getKey() + ")");
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
             if (node.canHaveOutputApplication() && !node.canHaveExitApplication()){
@@ -1500,7 +1502,7 @@ export class Node {
                 }
                 node.outputApplication().addPort(port, false);
                 port.setNodeKey(node.outputApplication().getKey());
-                errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded output application");
+                errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded output application (" + node.outputApplication().getKey() + ")");
             }
             if (!node.canHaveOutputApplication() && node.canHaveExitApplication()){
                 if (!node.hasExitApplication()){

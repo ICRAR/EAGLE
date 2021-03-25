@@ -155,6 +155,19 @@ export class Utils {
         return usedKeys;
     }
 
+    static getUsedKeysFromNodeData(nodeData : any[]) : number[] {
+        // build a list of used keys
+        let usedKeys: number[] = [];
+
+        //console.log("nodeData.length", nodeData.length);
+        for (var i = 0 ; i < nodeData.length ; i++){
+            //console.log(i, nodeData[i].key);
+            usedKeys.push(nodeData[i].key);
+        }
+
+        return usedKeys;
+    }
+
     static newKey(nodes: Node[]): number {
         let usedKeys = Utils.getUsedKeys(nodes);
         return Utils.findNewKey(usedKeys);

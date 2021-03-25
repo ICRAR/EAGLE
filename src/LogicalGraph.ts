@@ -106,11 +106,13 @@ export class LogicalGraph {
 
             let newNode = Node.fromOJSJson(nodeData, errors, (): number => {
                 let resultKeys: number[] = Utils.getUsedKeys(result.nodes);
-                let combinedKeys: number[] = resultKeys.concat(extraUsedKeys);
-                console.log("resultKeys", resultKeys, "extraUsedKeys", extraUsedKeys);
+                let nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
+                let combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+                //console.log("resultKeys", resultKeys, "nodeDataKeys", nodeDataKeys, "extraUsedKeys", extraUsedKeys);
+                //console.log("combinedKeys", combinedKeys);
 
                 let newKey = Utils.findNewKey(combinedKeys);
-                console.log("generated new key", newKey);
+                //console.log("generated new key", newKey);
                 extraUsedKeys.push(newKey);
                 return newKey;
             });
