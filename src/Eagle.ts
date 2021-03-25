@@ -2116,8 +2116,9 @@ export class Eagle {
         }else if (Eagle.nodeDropLocation){
             pos = Eagle.nodeDropLocation;
         }else{
+            //if this is fired something has gone terribly wrong
             pos = {x:0, y:0};
-            alert("Unexpected error occurred")
+            Utils.showNotification("Error", "Unexpected error occurred", "warning");
         }
 
         this.logicalGraph().addNode(node, pos.x, pos.y, (newNode: Node) => {
