@@ -26,6 +26,7 @@
 
 import * as ko from "knockout";
 import * as ij from "intro.js";
+import * as d3 from "d3";
 
 import {Utils} from './Utils';
 import {Config} from './Config';
@@ -44,6 +45,7 @@ import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {Setting} from './Setting';
+import { svg } from "d3";
 
 export class Eagle {
     // palette editor mode
@@ -2519,13 +2521,17 @@ export class Eagle {
     nodeDrop = (eagle : Eagle,e : JQueryEventObject) => {
         let nodeButton = Eagle.nodeDropped.getElementsByTagName('button')[0] as HTMLElement;
         // let canvas = $("#logicalGraphD3Div")
-        Eagle.nodeDropLocation = this.getNodeDropLocation( e)
+        Eagle.nodeDropLocation = this.getNodeDropLocation(eagle, e)
         nodeButton.click();
     }
 
-    getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number}=> {
-        let x = e.clientX;
-        let y = e.clientY;
+    getNodeDropLocation = (eagle: Eagle, e : JQueryEventObject)  : {x:number, y:number}=> {
+        let zoom = ((window.outerWidth ) / window.innerWidth);
+        let x = e.clientX * zoom;
+        let y = e.clientY * zoom;
+
+        // let x = d3.mouse(svgContainer.node())[0];
+        // let y = d3.mouse(eagle)[1];
         return {x:x, y:y};
 
         //potential code for canvas correct locations

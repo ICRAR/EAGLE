@@ -54,6 +54,8 @@ class npmBuild(build):
             self.copy_tree(target_dir, os.path.join(self.build_lib, "static", "built"))
 
 version = '0.0'
+tag_stream = os.popen("git describe --tags --abbrev=0")
+version = tag_stream.read().rstrip("\n")
 # with open("VERSION") as vfile:
 #     for line in vfile.readlines():
 #         if "SW_VER" in line:
