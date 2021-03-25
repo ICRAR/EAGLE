@@ -2595,9 +2595,17 @@ export class Eagle {
     }
 
     spinCollapseIcon = (item:any, e:JQueryEventObject) => {
-        var test = $(e.currentTarget) as JQuery<HTMLElement>
-        test = test.find('i').first()
-        test.toggleClass("ClosedIcon")
+        var CollapseTarget = $(e.currentTarget) as JQuery<HTMLElement>
+        CollapseTarget = CollapseTarget.find('i').first()
+        var triggerClass = CollapseTarget.hasClass("translationToggle")
+
+        if (triggerClass){
+            $(".translationToggle").addClass("ClosedIcon")
+            CollapseTarget.toggleClass("ClosedIcon")
+        }else{
+
+        CollapseTarget.toggleClass("ClosedIcon")
+        }
     }
 
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
