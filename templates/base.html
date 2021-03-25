@@ -52,7 +52,7 @@
 
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: sideWindowAdjust}">
             <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: leftWindow().shown() ? 0 : -leftWindow().width()}">
-                <div class="leftWindowHandle" data-bind="click: toggleLeftWindow">
+                <div class="leftWindowHandle" data-bind="click: leftWindow().toggleShown">
                     <span style="display: none" data-bind="visible: leftWindow().shown()">
                         <i class="material-icons">arrow_back</i>
                     </span>
@@ -88,7 +88,7 @@
             </div>
 
             <div class="rightWindow" data-bind="style: { width: rightWindow().width(), right: rightWindow().shown() ? 0 : -rightWindow().width()}">
-                <div class="rightWindowHandle" data-bind="click: toggleRightWindow">
+                <div class="rightWindowHandle" data-bind="click: rightWindow().toggleShown">
                     <span data-bind="visible: rightWindow().shown()">
                         <i class="material-icons">arrow_forward</i>
                     </span>

@@ -2298,14 +2298,6 @@ export class Eagle {
         return p;
     }
 
-    toggleLeftWindow = () : void => {
-        this.leftWindow().toggleShown();
-    }
-
-    toggleRightWindow = () : void => {
-        this.rightWindow().toggleShown();
-    }
-
     /**
      * Adds an input port to the selected node via HTML.
      */
