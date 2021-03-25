@@ -44,6 +44,7 @@ import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {Setting} from './Setting';
+import {SideWindow} from './SideWindow';
 
 export class Eagle {
     // palette editor mode
@@ -56,23 +57,19 @@ export class Eagle {
 
     userMode : ko.Observable<Eagle.UserMode>;
     repositories : ko.ObservableArray<Repository>;
-    leftWindowShown : ko.Observable<boolean>;
-    leftWindowMode : ko.Observable<Eagle.LeftWindowMode>;
-    rightWindowShown : ko.Observable<boolean>;
-    rightWindowMode : ko.Observable<Eagle.RightWindowMode>;
+
+    leftWindow : ko.Observable<SideWindow>;
+    rightWindow : ko.Observable<SideWindow>;
 
     selectedNode : ko.Observable<Node>;
     selectedEdge : ko.Observable<Edge>;
 
     translator : ko.Observable<Translator>;
 
-    rightWindowWidth : ko.Observable<number>;
-    leftWindowWidth : ko.Observable<number>;
-
     globalOffsetX : number = 0;
     globalOffsetY : number = 0;
     globalScale : number = 1.0;
-    
+
 
     static settings : ko.ObservableArray<Setting>;
 
@@ -82,8 +79,6 @@ export class Eagle {
     static applicationCategories : Eagle.Category[] = [];
 
     static dragStartX : number;
-    static adjustingLeftWindow : boolean; // true if adjusting left window, false if adjusting no window
-    static adjustingRightWindow : boolean; // true if adjusting right window, false if adjusting no window
 
     static selectedNodeKey : number;
 
@@ -98,18 +93,14 @@ export class Eagle {
 
         this.userMode = ko.observable(Eagle.UserMode.LogicalGraphEditor);
         this.repositories = ko.observableArray();
-        this.leftWindowShown = ko.observable(false);
-        this.leftWindowMode = ko.observable(Eagle.LeftWindowMode.Palettes);
-        this.rightWindowShown = ko.observable(true);
-        this.rightWindowMode = ko.observable(Eagle.RightWindowMode.Repository);
+
+        this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
+        this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
         this.selectedNode = ko.observable(null);
         this.selectedEdge = ko.observable(null);
 
         this.translator = ko.observable(new Translator());
-
-        this.rightWindowWidth = ko.observable(Utils.getRightWindowWidth());
-        this.leftWindowWidth = ko.observable(Utils.getLeftWindowWidth());
 
         Eagle.settings = ko.observableArray();
         Eagle.settings.push(new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
@@ -377,11 +368,11 @@ export class Eagle {
     setPaletteEditorMode = () => {
         this.userMode(Eagle.UserMode.PaletteEditor);
 
-        this.leftWindowMode(Eagle.LeftWindowMode.TemplatePalette);
-        this.leftWindowShown(true);
+        this.leftWindow().mode(Eagle.LeftWindowMode.TemplatePalette);
+        this.leftWindow().shown(true);
 
         // set the right window mode to show repository
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
     }
 
     setGraphEditorMode = () : void => {
@@ -389,9 +380,9 @@ export class Eagle {
 
         // close left window if no nodes in palette
         if (this.palettes().length === 0){
-            this.leftWindowShown(false);
+            this.leftWindow().shown(false);
         }
-        this.leftWindowMode(Eagle.LeftWindowMode.Palettes);
+        this.leftWindow().mode(Eagle.LeftWindowMode.Palettes);
     }
 
     /**
@@ -403,7 +394,7 @@ export class Eagle {
         this.selectedEdge(null);
 
         // Show the last open repository.
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
     }
 
     getSelection = () : Node | Edge | null => {
@@ -482,7 +473,7 @@ export class Eagle {
 
         // switch to the correct right window mode
         if (rightWindowMode === Eagle.RightWindowMode.EdgeInspector || rightWindowMode === Eagle.RightWindowMode.NodeInspector){
-            this.rightWindowMode(rightWindowMode);
+            this.rightWindow().mode(rightWindowMode);
         }
     }
 
@@ -694,7 +685,7 @@ export class Eagle {
             }
 
             // show the left window
-            this.leftWindowShown(true);
+            this.leftWindow().shown(true);
 
             Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
 
@@ -896,7 +887,7 @@ export class Eagle {
             }
 
             // show repo in the right window
-            this.rightWindowMode(Eagle.RightWindowMode.Repository);
+            this.rightWindow().mode(Eagle.RightWindowMode.Repository);
             // Mark file as non-modified.
             this.activeFileInfo().modified = false;
 
@@ -1208,7 +1199,7 @@ export class Eagle {
                 palette.fileInfo().name = Palette.DYNAMIC_PALETTE_NAME;
                 palette.fileInfo().readonly = false;
                 this.palettes.push(palette);
-                this.leftWindowShown(true);
+                this.leftWindow().shown(true);
             }
         });
     }
@@ -1565,7 +1556,7 @@ export class Eagle {
         if (this.userMode() === Eagle.UserMode.PaletteEditor){
             let errors: string[] = [];
             this.editorPalette(Palette.fromOJSJson(data, file, errors));
-            this.leftWindowShown(true);
+            this.leftWindow().shown(true);
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
         } else {
             // check palette is not already loaded
@@ -1597,7 +1588,7 @@ export class Eagle {
         if (errors.length > 0){
             // TODO: do stuff with the errors
         } else {
-            this.leftWindowShown(true);
+            this.leftWindow().shown(true);
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
         }
     }
@@ -2051,7 +2042,7 @@ export class Eagle {
 
         // no edge left to be selected
         this.selectedEdge(null);
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
 
         // flag the diagram as mutated so that the graph renderer will update
         this.flagActiveDiagramHasMutated();
@@ -2164,7 +2155,7 @@ export class Eagle {
 
         // no node left to be selected
         this.selectedNode(null);
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
 
         // flag the diagram as mutated so that the graph renderer will update
         this.flagActiveDiagramHasMutated();
@@ -2173,7 +2164,7 @@ export class Eagle {
     addNodeToLogicalGraph = (node : Node) : void => {
         //console.log("addNodeToLogicalGraph()", node.getName(), node.getCategory(), node.getInputPorts().length, node.getOutputPorts().length, node.getFields().length);
         let pos = {x:0, y:0};
-        
+
         // get new position for node
         if (Eagle.nodeDropLocation.x == 0 && Eagle.nodeDropLocation.y == 0){
             pos = this.getNewNodePosition();
@@ -2308,11 +2299,11 @@ export class Eagle {
     }
 
     toggleLeftWindow = () : void => {
-        this.leftWindowShown(!this.leftWindowShown());
+        this.leftWindow().toggleShown();
     }
 
     toggleRightWindow = () : void => {
-        this.rightWindowShown(!this.rightWindowShown());
+        this.rightWindow().toggleShown();
     }
 
     /**
@@ -2554,7 +2545,7 @@ export class Eagle {
             }
         }
     }
-    
+
     //dragdrop
 
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) => {
@@ -2575,11 +2566,11 @@ export class Eagle {
         $(".leftWindow").removeClass("noDropTarget");
         $(".rightWindow").removeClass("noDropTarget");
         $(".navbar").removeClass("noDropTarget");
-        return true;    
+        return true;
     }
 
     nodeDragOver = (e : JQueryEventObject) => {
-        return false;    
+        return false;
     }
 
     nodeDrop = (eagle : Eagle,e : JQueryEventObject) => {
@@ -2596,20 +2587,19 @@ export class Eagle {
 
     rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
         var img : HTMLImageElement = document.createElement("img");
-        
+
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
         Eagle.dragStartX = e.clientX;
-        Eagle.adjustingLeftWindow = false;
-        Eagle.adjustingRightWindow = true;
+        this.leftWindow().adjusting(false);
+        this.rightWindow().adjusting(true);
 
         return true;
     }
 
     //workaround to aviod left or right window adjusting on any and all drag events
     rightWindowAdjustEnd = (eagle : Eagle, e : JQueryEventObject) => {
-        
-        Eagle.adjustingLeftWindow = false;
-        Eagle.adjustingRightWindow = false;
+        this.leftWindow().adjusting(false);
+        this.rightWindow().adjusting(false);
 
         return true;
     }
@@ -2620,52 +2610,49 @@ export class Eagle {
             return true;
         }
 
-        if (isNaN(this.leftWindowWidth())){
+        if (isNaN(this.leftWindow().width())){
             console.warn("Had to reset left window width from invalid state (NaN)!");
-            this.leftWindowWidth(Config.defaultLeftWindowWidth);
+            this.leftWindow().width(Config.defaultLeftWindowWidth);
         }
-        if (isNaN(this.rightWindowWidth())){
+        if (isNaN(this.rightWindow().width())){
             console.warn("Had to reset right window width from invalid state (NaN)!");
-            this.rightWindowWidth(Config.defaultRightWindowWidth);
+            this.rightWindow().width(Config.defaultRightWindowWidth);
         }
 
         var dragDiff : number = e.clientX - Eagle.dragStartX;
         var newWidth : number;
 
-
-        if (Eagle.adjustingLeftWindow){
-            newWidth = this.leftWindowWidth() + dragDiff;
-            this.leftWindowWidth(newWidth);
+        if (this.leftWindow().adjusting()){
+            newWidth = this.leftWindow().width() + dragDiff;
+            this.leftWindow().width(newWidth);
             Utils.setLeftWindowWidth(newWidth);
-        } else if(Eagle.adjustingRightWindow) {
-            newWidth = this.rightWindowWidth() - dragDiff;
-            this.rightWindowWidth(newWidth);
+        } else if(this.rightWindow().adjusting()) {
+            newWidth = this.rightWindow().width() - dragDiff;
+            this.rightWindow().width(newWidth);
             Utils.setRightWindowWidth(newWidth);
         }
 
         Eagle.dragStartX = e.clientX;
-        
-        
+
         return true;
     }
 
-   
+
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
         var img : HTMLImageElement = document.createElement("img");
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
 
         Eagle.dragStartX = e.clientX;
-        Eagle.adjustingLeftWindow = true;
-        Eagle.adjustingRightWindow = false;
+        this.leftWindow().adjusting(true);
+        this.rightWindow().adjusting(false);
 
         return true;
     }
 
     //workaround to aviod left or right window adjusting on any and all drag events
     leftWindowAdjustEnd = (eagle : Eagle, e : JQueryEventObject) => {
-        
-        Eagle.adjustingLeftWindow = false;
-        Eagle.adjustingRightWindow = false;
+        this.leftWindow().adjusting(false);
+        this.rightWindow().adjusting(false);
 
         return true;
     }
