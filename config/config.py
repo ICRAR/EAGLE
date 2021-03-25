@@ -22,6 +22,7 @@
 import os
 
 SERVER_PORT = 8888
+TRANSLATOR_SERVER_PORT = 8889
 
 # It's like the password to your computer.
 # The secret plus the data-to-sign are used to create a signature string,
