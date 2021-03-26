@@ -2664,13 +2664,13 @@ export class Eagle {
             });
 
             // update title on all left window template palette buttons
-            $('.leftWindowDisplay.templatePalette .input-group-prepend').each(function(index: number, element: HTMLElement){
+            $('.leftWindowDisplay.templatePalette .input-group').each(function(index: number, element: HTMLElement){
                 $(element).attr('data-original-title', eagle.templatePalette().getNodes()[index].getHelpHTML());
             });
 
             // update title on all left window palette buttons
             $('.leftWindowDisplay .palette').each(function(i: number, iElement: HTMLElement){
-                $(iElement).find('.input-group-prepend').each(function(j: number, jElement: HTMLElement){
+                $(iElement).find('.input-group').each(function(j: number, jElement: HTMLElement){
                     $(jElement).attr('data-original-title', eagle.palettes()[i].getNodes()[j].getHelpHTML());
                 });
             });
