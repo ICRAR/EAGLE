@@ -44,6 +44,7 @@ import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {Setting} from './Setting';
+import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 export class Eagle {
     // palette editor mode
@@ -2601,10 +2602,19 @@ export class Eagle {
 
         if (triggerClass){
             $(".translationToggle").addClass("ClosedIcon")
-            CollapseTarget.toggleClass("ClosedIcon")
+            var toggleState = CollapseTarget.parent().parent().parent().children(".collapse").hasClass('show');
+                if(toggleState){
+                    CollapseTarget.addClass("ClosedIcon")
+                }else{
+                    CollapseTarget.removeClass("ClosedIcon")
+                }
         }else{
-
-        CollapseTarget.toggleClass("ClosedIcon")
+        var toggleState = CollapseTarget.parent().parent().children(".collapse").hasClass('show');
+            if(toggleState){
+                CollapseTarget.addClass("ClosedIcon")
+            }else{
+                CollapseTarget.removeClass("ClosedIcon")
+            }
         }
     }
 
