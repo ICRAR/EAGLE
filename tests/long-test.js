@@ -55,14 +55,16 @@ test('Graph creation', async t =>{
     await page.deleteNode('#node0');
 
     // add the outer scatter from the palette to the graph
-    await page.addPaletteNode(0,true);
+    await page.addPaletteNode(0,14,true);
+    await page.setNodeName("ClusterScatterAverager");
 
     // move and resize the outer scatter
     await page.moveNode('#node0', 20, 0);
     await page.resizeNode('#node0', 370, 200);
 
     // add the inner scatter
-    await page.addPaletteNode(1,true);
+    await page.addPaletteNode(0,14,true);
+    await page.setNodeName("NodeScatterAverager");
 
     // move and resize the inner scatter
     await page.moveNode('#node1', 40, 75);
@@ -72,19 +74,25 @@ test('Graph creation', async t =>{
     await page.setParent("ClusterScatterAverager : -1");
 
     // add the inner Python App
-    await page.addPaletteNode(2,false);
+    await page.addPaletteNode(0,6,false);
+    await page.setNodeName("OSKAR2 Simulator");
 
     // set parent of inner Python App
     await page.setParent("NodeScatterAverager : -2");
+
+    await page.addNodePort("spead2", false);
 
     // move the inner Python App
     await page.moveNode('#node2', 60, 150);
 
     // add the outer Python App
-    await page.addPaletteNode(3,false);
+    await page.addPaletteNode(0,6,false);
+    await page.setNodeName("Average 6 Channels");
 
     // set parent of outer Python App
     await page.setParent("ClusterScatterAverager : -1");
+
+    await page.addNodePort("spead2", true);
 
     // move the outer Python App (NOTE: this is now node 2!)
     await page.moveNode('#node2', 370, 150);
@@ -97,7 +105,7 @@ test('Graph creation', async t =>{
     await page.selectOption("Memory");
 
     // add the gather
-    await page.addPaletteNode(4, false);
+    await page.addPaletteNode(0,13,false);
 
     // move the gather (NOTE: this is now node 1!)
     await page.moveNode('#node1', 640, 100);
@@ -111,7 +119,7 @@ test('Graph creation', async t =>{
 
     // add the end node
     // NOTE: we don't hover the mouse elsewhere after this click, because the click handler opens a modal, and the usual hover target will be hidden
-    await page.addPaletteNode(5, false);
+    await page.addPaletteNode(0,1,false);
 
     // select type of end node
     await page.selectOption("File");

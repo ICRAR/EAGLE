@@ -43,8 +43,10 @@ class Page {
     this.deleteNodeButton = Selector('#deleteSelectedNode');
     this.confirmButton = Selector('#confirmModalAffirmativeButton');
 
+    this.nodeNameValue = Selector('#nodeNameValue');
     this.parentButton = Selector('#nodeInspectorChangeParent');
     this.selectChoice = Selector('#choiceModalSelect');
+    this.selectCustom = Selector('#choiceModalString');
     this.submitChoice = Selector('#choiceModal .modal-footer button');
 
     this.navbarNew = Selector('#navbarDropdown');
@@ -161,6 +163,12 @@ class Page {
     return state.boundingClientRect;
   }
 
+  async setNodeName (name){
+      await t
+        .click(this.nodeMode)
+        .typeText(this.nodeNameValue, name, {replace:true})
+  }
+
   async setParent (parentText) {
     await t
       .click(this.nodeMode)
@@ -168,6 +176,24 @@ class Page {
       .click(this.selectChoice)
       .click(Selector(this.selectChoice).find('option').withText(parentText))
       .click(this.submitChoice);
+  }
+
+  async addNodePort (portName, input){
+     if (input){
+         await t
+            .hover(this.addInputPort)
+            .click(this.addInputPort);
+    } else {
+        await t
+           .hover(this.addOutputPort)
+           .click(this.addOutputPort);
+    }
+
+    await this.selectOption("Custom (enter below)");
+
+    await t.typeText(this.selectCustom, portName, {replace:true});
+
+    await t.click(this.submitChoice);
   }
 
   async createNewGraph (graph_name) {
