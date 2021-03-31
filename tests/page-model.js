@@ -189,7 +189,10 @@ class Page {
            .click(this.addOutputPort);
     }
 
-    await this.selectOption("Custom (enter below)");
+    //await this.selectOption("Custom (enter below)");
+    await t
+        .click(this.selectChoice)
+        .click(Selector(this.selectChoice).find('option').withText("Custom (enter below)"));
 
     await t.typeText(this.selectCustom, portName, {replace:true});
 
