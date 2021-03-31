@@ -5,22 +5,16 @@ FROM tiangolo/meinheld-gunicorn-flask:python3.8-alpine3.11
 COPY .. .
 RUN apk add --update npm bash git curl alpine-sdk linux-headers &&\
     npm install -g typescript &&\
-    python cd ..; updateVersion.py &&\
-    cp VERSION /tmp/. &&\
     pip install --upgrade pip &&\
-    cd ..; pip install . &&\
+    pip install . &&\
     sphinx-apidoc -o docs/source eagleServer &&\
     cd docs; make html; cd .. &&\
 #   pip list | grep -i sphinx | awk '{print $1}'|xargs pip uninstall -y &&\
     pip uninstall -y pip &&\
     mv /app/docker/prestart.dep.sh /tmp/prestart.sh &&\
+    mv static/VERSION /usr/local/lib/python3.8/site-packages/static/. &&\
     cp -R static/docs /usr/local/lib/python3.8/site-packages/static &&\
     npm uninstall -g typescript &&\
     apk del git curl alpine-sdk linux-headers npm &&\
     rm -rf * .[egv]* &&\
     mv /tmp/* .
-
-FROM tiangolo/meinheld-gunicorn-flask:python3.8-alpine3.11
-COPY --from=0 /app/. .
-COPY --from=0 /usr/local/lib/python3.8/site-packages/. /usr/local/lib/python3.8/site-packages/. 
-# RUN pip uninstall -y pip

@@ -2,6 +2,7 @@ case "$1" in
     "dep")
         export VCS_TAG=`git describe --tags --abbrev=0|sed s/v//`
         echo "Building EAGLE version ${VCS_TAG}"
+        python updateVersion.py
         docker-compose -f ./docker/docker-compose.dep.yml build
         echo "Build finished!"
         exit 1 ;;

@@ -3,6 +3,7 @@ case "$1" in
         VCS_TAG=`git describe --tags --abbrev=0|sed s/v//`
         echo "Running EAGLE deployment version in background..."
         docker run -d --name eagle-dep --rm -p 8888:80/tcp icrar/eagle:${VCS_TAG}
+        sleep 5
         python -m webbrowser http://localhost:8888
         exit 1;;
     "dev")
