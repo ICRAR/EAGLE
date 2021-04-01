@@ -309,3 +309,34 @@ nav.navbar .introjs-helperLayer {
     font-weight: 500;
     line-height: 1.2;
 }
+
+.nodeDescriptionTitle{
+    padding: .175rem .75rem;
+    width:100%;
+    background-color: #E9ECEF;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.nodeDescriptionTextbox{
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+
+}
+
+.nodeAttributeSubTitle{
+    font-size: 1rem;
+    font-weight: 400;
+    color: #6c757d;
+}
+
+.nodeDescriptionCol{
+    padding:0px;
+}
+
+.nodeDescriptionCol button{
+    height:100%;
+    width:100%;
+}

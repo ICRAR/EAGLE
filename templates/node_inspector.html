@@ -1,11 +1,11 @@
 <div id="nodeInspector" class="container px-0">
     <!-- ko if: selectedNode() != null -->
 
-        {% include 'node_inspector_attributes.html' %}
-
-        <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
-        {% include 'node_inspector_description.html' %}
+         <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
+         {% include 'node_inspector_attributes.html' %}
         <!-- /ko -->
+
+        {% include 'node_inspector_display_options.html' %}
 
         <!-- node component parameters list -->
         <!-- ko if: selectedNode().canHaveParameters() -->
