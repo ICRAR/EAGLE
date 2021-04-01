@@ -59,7 +59,7 @@ test('Graph creation', async t =>{
     await page.setNodeName("ClusterScatterAverager");
 
     // move and resize the outer scatter
-    await page.moveNode('#node0', 20, 0);
+    await page.moveNode('#node0', 120, 100);
     await page.resizeNode('#node0', 370, 200);
 
     // add the inner scatter
@@ -67,7 +67,7 @@ test('Graph creation', async t =>{
     await page.setNodeName("NodeScatterAverager");
 
     // move and resize the inner scatter
-    await page.moveNode('#node1', 40, 75);
+    await page.moveNode('#node1', 140, 175);
     await page.resizeNode('#node1', 120, 110);
 
     // set parent of inner scatter
@@ -83,7 +83,7 @@ test('Graph creation', async t =>{
     await page.addNodePort("spead2", false);
 
     // move the inner Python App
-    await page.moveNode('#node2', 60, 150);
+    await page.moveNode('#node2', 160, 250);
 
     // add the outer Python App
     await page.addPaletteNode(0,6,false);
@@ -95,11 +95,11 @@ test('Graph creation', async t =>{
     await page.addNodePort("spead2", true);
 
     // move the outer Python App (NOTE: this is now node 2!)
-    await page.moveNode('#node2', 370, 150);
+    await page.moveNode('#node2', 470, 250);
 
     // draw edge from inner Python App to outer Python App
     // The number refers to which numbered port is being connected
-    await page.connectNodes('#node3','#node2',1,1);
+    await page.connectNodes('#node3','#node2',0,0);
 
     // The option chosen for the spead2 data component is Memory
     await page.selectOption("Memory");
@@ -108,11 +108,11 @@ test('Graph creation', async t =>{
     await page.addPaletteNode(0,13,false);
 
     // move the gather (NOTE: this is now node 1!)
-    await page.moveNode('#node1', 640, 100);
+    await page.moveNode('#node1', 740, 200);
 
     // draw edge from outer Python App to gather
     // The number refers to which numbered port is being connected
-    await page.connectNodes('#node3','#node1',1,1);
+    await page.connectNodes('#node3','#node1',0,0);
 
     // The option chosen for the spead2 data component is Memory
     await page.selectOption("Memory");
@@ -125,7 +125,7 @@ test('Graph creation', async t =>{
     await page.selectOption("File");
 
     // move the end node (NOTE: this is now node 2!)
-    await page.moveNode('#node2', 640, 350);
+    await page.moveNode('#node2', 740, 450);
 
     // An extra pause is needed because of warning messages blocking the next connection
     await t.wait(1000);
@@ -136,5 +136,4 @@ test('Graph creation', async t =>{
 
     // click on the outer scatter to finish up
     await page.selectNode('#node0');
-
 });
