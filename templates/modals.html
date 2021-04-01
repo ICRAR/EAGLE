@@ -279,6 +279,7 @@
                 </button>
             </div>
             <div class="modal-body">
+                <form>
                 <!-- ko foreach: getSettings() -->
                     <!-- ko if: $data.getType() === 0 -->
                     <div class="input-group mb-1">
@@ -304,7 +305,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text" data-bind="attr:{id:'setting'+$index(),title:$data.getDescription()},text:$data.getName()" data-toggle="tooltip" data-html="true" data-placement="left"></span>
                         </div>
-                        <input type="password" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$index()+'Value'}">
+                        <input type="password" autocomplete="off" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$index()+'Value'}">
                         <div class="input-group-append">
                             <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.copy, attr:{id:'setting'+$index()+'Copy'}">
                                 <i class="material-icons md-18">content_copy</i>
@@ -313,6 +314,7 @@
                     </div>
                     <!-- /ko -->
                 <!-- /ko -->
+                </form>
                 <button class="btn btn-danger btn-block" id="resetSettingsDefaults" type="button" data-bind="click: $root.resetSettingsDefaults">Reset Defaults</button>
             </div>
             <div class="modal-footer">
@@ -404,6 +406,81 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="editFieldModalAffirmativeButton" data-dismiss="modal"><span id="editFieldModalAffirmativeAnswer">OK</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Edge Modal -->
+<div class="modal fade" id="editEdgeModal" tabindex="-1" role="dialog" aria-labelledby="editEdgeModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEdgeModalTitle">Edit Edge</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Source Node:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="editEdgeModalSrcNodeKeySelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Source Port:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="editEdgeModalSrcPortIdSelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Destination Node:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="editEdgeModalDestNodeKeySelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Destination Port:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="editEdgeModalDestPortIdSelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Data Type:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="editEdgeModalDataTypeInput">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="editEdgeModalAffirmativeButton" data-dismiss="modal"><span id="editEdgeModalAffirmativeAnswer">OK</span></button>
             </div>
         </div>
     </div>

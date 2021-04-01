@@ -33,6 +33,11 @@
 
             window.version = '{{version}}';
             window.commit_hash = '{{commit_hash}}';
+            window.auto_load_service = '{{auto_load_service}}';
+            window.auto_load_repository = '{{auto_load_repository}}';
+            window.auto_load_branch = '{{auto_load_branch}}';
+            window.auto_load_path = '{{auto_load_path}}';
+            window.auto_load_filename = '{{auto_load_filename}}';
         </script>
     </head>
 
@@ -46,20 +51,20 @@
         {% include 'navbar.html' %}
 
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: sideWindowAdjust}">
-            <div class="leftWindow" data-bind="style: { width: leftWindowWidth(), left: leftWindowShown() ? 0 : -leftWindowWidth()}">
-                <div class="leftWindowHandle" data-bind="click: toggleLeftWindow">
-                    <span style="display: none" data-bind="visible: leftWindowShown()">
+            <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: leftWindow().shown() ? 0 : -leftWindow().width()}">
+                <div class="leftWindowHandle" data-bind="click: leftWindow().toggleShown">
+                    <span style="display: none" data-bind="visible: leftWindow().shown()">
                         <i class="material-icons">arrow_back</i>
                     </span>
-                    <span data-bind="visible: !leftWindowShown()">
+                    <span data-bind="visible: !leftWindow().shown()">
                         <i class="material-icons">arrow_forward</i>
                     </span>
                 </div>
 
-                <div class="leftWindowDisplay palettes" data-bind="visible: leftWindowMode() === Eagle.LeftWindowMode.Palettes">
+                <div class="leftWindowDisplay palettes" data-bind="visible: leftWindow().mode() === Eagle.LeftWindowMode.Palettes">
                     {% include 'palettes.html' %}
                 </div>
-                <div class="leftWindowDisplay templatePalette" data-bind="visible: leftWindowMode() === Eagle.LeftWindowMode.TemplatePalette">
+                <div class="leftWindowDisplay templatePalette" data-bind="visible: leftWindow().mode() === Eagle.LeftWindowMode.TemplatePalette">
                     {% include 'templatePalette.html' %}
                 </div>
 
@@ -82,29 +87,29 @@
                 <span id="filename" data-bind="text: repositoryFileName"></span>
             </div>
 
-            <div class="rightWindow" data-bind="style: { width: rightWindowWidth(), right: rightWindowShown() ? 0 : -rightWindowWidth()}">
-                <div class="rightWindowHandle" data-bind="click: toggleRightWindow">
-                    <span data-bind="visible: rightWindowShown()">
+            <div class="rightWindow" data-bind="style: { width: rightWindow().width(), right: rightWindow().shown() ? 0 : -rightWindow().width()}">
+                <div class="rightWindowHandle" data-bind="click: rightWindow().toggleShown">
+                    <span data-bind="visible: rightWindow().shown()">
                         <i class="material-icons">arrow_forward</i>
                     </span>
-                    <span style="display: none" data-bind="visible: !rightWindowShown()">
+                    <span style="display: none" data-bind="visible: !rightWindow().shown()">
                         <i class="material-icons">arrow_back</i>
                     </span>
                 </div>
 
-                <div class="rightWindowDisplay repository" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.Repository">
+                <div class="rightWindowDisplay repository" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Repository">
                     {% include 'repositories.html' %}
                 </div>
-                <div class="rightWindowDisplay nodeInspector" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.NodeInspector">
+                <div class="rightWindowDisplay nodeInspector" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.NodeInspector">
                     {% include 'node_inspector.html' %}
                 </div>
-                <div class="rightWindowDisplay edgeInspector" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.EdgeInspector">
+                <div class="rightWindowDisplay edgeInspector" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.EdgeInspector">
                     {% include 'edge_inspector.html' %}
                 </div>
-                <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.TranslationMenu">
+                <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
                     {% include 'translation_menu.html' %}
                 </div>
-                <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindowMode() === Eagle.RightWindowMode.Hierarchy">
+                <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy">
                     {% include 'hierarchy.html' %}
                 </div>
 

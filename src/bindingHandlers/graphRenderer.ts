@@ -89,6 +89,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const SUBHEADER_OFFSET_Y_S3 : number = 8;
     const HEADER_OFFSET_Y_NGAS : number = 4;
     const SUBHEADER_OFFSET_Y_NGAS : number = 8;
+    const HEADER_OFFSET_Y_PLASMA : number = 4;
+    const SUBHEADER_OFFSET_Y_PLASMA : number = 8;
+
 
     //console.log("pre-sort", printDrawOrder(graph.getNodes()));
     //console.log("render()", printDrawOrder(nodeData));
@@ -138,7 +141,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     var backgroundDragHandler = d3.drag()
                                     .on("end", function(){
                                         console.log("setSelection(null)");
-                                        eagle.setSelection(eagle.rightWindowMode(), null);
+                                        let previousSelection = eagle.getSelection();
+
+                                        eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null);
+
+                                        if (previousSelection !== null){
+                                            eagle.rightWindow().mode(Eagle.RightWindowMode.Hierarchy);
+                                        }
                                     })
                                     .on("drag", function(){
                                         eagle.globalOffsetX += d3.event.dx;
@@ -727,6 +736,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function createLink(edge : Edge) : string {
+        //console.log("createLink()", edge.getSrcNodeKey(), edge.getSrcPortId(), "->", edge.getDestNodeKey(), edge.getDestPortId());
+
         // determine if edge is "forward" or not
         var srcNode : Node  = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
         var destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
@@ -751,6 +762,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         console.assert(!isNaN(y1));
         console.assert(!isNaN(x2));
         console.assert(!isNaN(y2));
+
+        // if coordinate isNaN, replace with a default, so at least the edge can be drawn
+        if (isNaN(x1)) x1 = 0;
+        if (isNaN(y1)) y1 = 0;
+        if (isNaN(x2)) x2 = 0;
+        if (isNaN(y2)) y2 = 0;
 
         let startDirection = determineDirection(true, srcNode, srcPortIndex, srcPortType);
         let endDirection = determineDirection(false, destNode, destPortIndex, destPortType);
@@ -1433,6 +1450,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     return HEADER_OFFSET_Y_S3;
                 case Eagle.Category.NGAS:
                     return HEADER_OFFSET_Y_NGAS;
+                case Eagle.Category.Plasma:
+                    return HEADER_OFFSET_Y_PLASMA;
             }
         }
 
@@ -1507,6 +1526,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     break;
                 case Eagle.Category.NGAS:
                     y += SUBHEADER_OFFSET_Y_NGAS;
+                    break;
+                case Eagle.Category.Plasma:
+                    y += SUBHEADER_OFFSET_Y_PLASMA;
                     break;
             }
 
@@ -2187,6 +2209,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     return "/static/assets/svg/s3_bucket.svg";
                 case Eagle.Category.NGAS:
                     return "/static/assets/svg/ngas.svg";
+                case Eagle.Category.Plasma:
+                    return "/static/assets/svg/plasma.svg";
+                default:
+                    console.warn("No icon available for node category", node.getCategory());
+                    return "";
             }
         }
 
@@ -2710,6 +2737,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         let srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
 
+        if (srcPort === null) return "";
+
         if (srcPort.isEvent()){
             return "8";
         } else {
@@ -2759,7 +2788,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeOnClick(edge : Edge, index : number){
-        console.log("clicked on edge", index, "fromNode", edge.getSrcNodeKey(), "toNode", edge.getDestNodeKey());
+        //console.log("clicked on edge", index, "fromNode", edge.getSrcNodeKey(), "toNode", edge.getDestNodeKey());
         selectEdge(edge);
         tick();
     }

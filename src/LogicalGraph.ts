@@ -104,16 +104,24 @@ export class LogicalGraph {
             var nodeData = dataObject.nodeDataArray[i];
             let extraUsedKeys: number[] = [];
 
-            result.nodes.push(Node.fromOJSJson(nodeData, errors, (): number => {
+            let newNode = Node.fromOJSJson(nodeData, errors, (): number => {
                 let resultKeys: number[] = Utils.getUsedKeys(result.nodes);
-                let combinedKeys: number[] = resultKeys.concat(extraUsedKeys);
-                console.log("resultKeys", resultKeys, "extraUsedKeys", extraUsedKeys);
+                let nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
+                let combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+                //console.log("resultKeys", resultKeys, "nodeDataKeys", nodeDataKeys, "extraUsedKeys", extraUsedKeys);
+                //console.log("combinedKeys", combinedKeys);
 
                 let newKey = Utils.findNewKey(combinedKeys);
-                console.log("generated new key", newKey);
+                //console.log("generated new key", newKey);
                 extraUsedKeys.push(newKey);
                 return newKey;
-            }));
+            });
+
+            if (newNode === null){
+                continue;
+            }
+
+            result.nodes.push(newNode);
         }
 
         // set keys for all embedded nodes
@@ -137,7 +145,7 @@ export class LogicalGraph {
             let srcNode : Node = result.findNodeByKey(linkData.from);
 
             // abort if source node not found
-            if (typeof srcNode === 'undefined'){
+            if (srcNode === null){
                 var error : string = "Unable to find node with key " + linkData.from + " used as source node in link " + i + ". Discarding link!";
                 console.warn(error);
                 errors.push(error);
@@ -172,7 +180,7 @@ export class LogicalGraph {
             let destNode : Node = result.findNodeByKey(linkData.to);
 
             // abort if dest node not found
-            if (typeof destNode === 'undefined'){
+            if (destNode === null){
                 var error : string = "Unable to find node with key " + linkData.to + " used as destination node in link " + i + ". Discarding link!";
                 console.warn(error);
                 errors.push(error);

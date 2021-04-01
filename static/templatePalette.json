@@ -309,6 +309,25 @@
             "readonly": false
         },
         {
+            "category": "Plasma",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": "5"
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": "0"
+            }],
+            "shape": "Card",
+            "key": -24,
+            "text": "Plasma",
+            "categoryType": "Data",
+            "inputPorts": [],
+            "readonly": false
+        },
+        {
             "category": "GroupBy",
             "text": "Group By",
             "description": "Placeholder 'group by' description",

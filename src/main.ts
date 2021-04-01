@@ -109,4 +109,17 @@ $(function(){
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "eagle_gather.json"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "cont_img.json"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitLab, "ska-telescope/jacal", "master", false), "jacal/test/daliuge", "test_major_cycle.json"));
+
+    var auto_load_service    = (<any>window).auto_load_service;
+    var auto_load_repository = (<any>window).auto_load_repository;
+    var auto_load_branch     = (<any>window).auto_load_branch;
+    var auto_load_path       = (<any>window).auto_load_path;
+    var auto_load_filename   = (<any>window).auto_load_filename;
+    //console.log("auto_load_service", auto_load_service, "auto_load_repository", auto_load_repository, "auto_load_branch", auto_load_branch, "auto_load_path", auto_load_path, "auto_load_filename", auto_load_filename);=
+
+    // cast the service string to an enum
+    var service: Eagle.RepositoryService = Eagle.RepositoryService[auto_load_service as keyof typeof Eagle.RepositoryService];
+
+    // auto load the file
+    eagle.autoLoad(service, auto_load_repository, auto_load_branch, auto_load_path, auto_load_filename);
 });

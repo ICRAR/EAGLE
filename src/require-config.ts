@@ -34,6 +34,7 @@ require.config({
         "Edge": "./static/built/Edge",
         "Port": "./static/built/Port",
         "FileInfo": "./static/built/FileInfo",
-        "Setting": "./static/built/Setting"
+        "Setting": "./static/built/Setting",
+        "SideWindow": "./static/built/SideWindow"
     }
 });

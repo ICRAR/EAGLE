@@ -739,6 +739,7 @@ export class Node {
         // check input ports
         for (var i = 0; i < this.inputPorts().length; i++){
             var port = this.inputPorts()[i];
+            //console.log("compare node", this.getKey(), "i ports", port.getId(), portId, port.getId() === portId);
             if (port.getId() === portId){
                 return "input";
             }
@@ -747,6 +748,7 @@ export class Node {
         // check output ports
         for (var i = 0; i < this.outputPorts().length; i++){
             var port = this.outputPorts()[i];
+            //console.log("compare node", this.getKey(), "o ports", port.getId(), portId, port.getId() === portId);
             if (port.getId() === portId){
                 return "output";
             }
@@ -1153,6 +1155,13 @@ export class Node {
         var category: Eagle.Category = GraphUpdater.translateOldCategory(nodeData.category);
         var categoryType: Eagle.CategoryType = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
 
+        // if category is not known, then add error
+        if (!Utils.isKnownCategory(category)){
+            errors.push("Node with key " + nodeData.key + " has unknown category: " + category);
+            category = Eagle.Category.Unknown;
+            categoryType = Eagle.CategoryType.Unknown;
+        }
+
         var node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, readonly);
 
         // set position
@@ -1189,10 +1198,7 @@ export class Node {
             node.flipPorts = nodeData.flipPorts;
         }
 
-        // selected
-        if (typeof nodeData.selected !== 'undefined'){
-            node.selected(nodeData.selected);
-        }
+        // NOTE: skip the 'selected' boolean on the input data, don't remember the user's selection
 
         // expanded
         if (typeof nodeData.expanded !== 'undefined'){
@@ -1475,6 +1481,7 @@ export class Node {
             if (!node.hasInputApplication()){
                 if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                     node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.None, node.getKey(), readonly));
+                    errors.push("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention.");
                 } else {
                     errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
                     return;
@@ -1482,13 +1489,14 @@ export class Node {
             }
             node.inputApplication().addPort(port, true);
             port.setNodeKey(node.inputApplication().getKey());
-            errors.push("Moved input port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded input application");
+            errors.push("Moved input port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getKey() + ")");
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
             if (node.canHaveOutputApplication() && !node.canHaveExitApplication()){
                 if (!node.hasOutputApplication()){
                     if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                         node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.None, node.getKey(), readonly));
+                        errors.push("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention.");
                     } else {
                         errors.push("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
                         return;
@@ -1496,7 +1504,7 @@ export class Node {
                 }
                 node.outputApplication().addPort(port, false);
                 port.setNodeKey(node.outputApplication().getKey());
-                errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded output application");
+                errors.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getKey() + ")");
             }
             if (!node.canHaveOutputApplication() && node.canHaveExitApplication()){
                 if (!node.hasExitApplication()){

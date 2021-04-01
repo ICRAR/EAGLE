@@ -44,6 +44,7 @@ import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {Setting} from './Setting';
+import {SideWindow} from './SideWindow';
 
 export class Eagle {
     // palette editor mode
@@ -56,23 +57,19 @@ export class Eagle {
 
     userMode : ko.Observable<Eagle.UserMode>;
     repositories : ko.ObservableArray<Repository>;
-    leftWindowShown : ko.Observable<boolean>;
-    leftWindowMode : ko.Observable<Eagle.LeftWindowMode>;
-    rightWindowShown : ko.Observable<boolean>;
-    rightWindowMode : ko.Observable<Eagle.RightWindowMode>;
+
+    leftWindow : ko.Observable<SideWindow>;
+    rightWindow : ko.Observable<SideWindow>;
 
     selectedNode : ko.Observable<Node>;
     selectedEdge : ko.Observable<Edge>;
 
     translator : ko.Observable<Translator>;
 
-    rightWindowWidth : ko.Observable<number>;
-    leftWindowWidth : ko.Observable<number>;
-
     globalOffsetX : number = 0;
     globalOffsetY : number = 0;
     globalScale : number = 1.0;
-    
+
 
     static settings : ko.ObservableArray<Setting>;
 
@@ -82,8 +79,6 @@ export class Eagle {
     static applicationCategories : Eagle.Category[] = [];
 
     static dragStartX : number;
-    static adjustingLeftWindow : boolean; // true if adjusting left window, false if adjusting no window
-    static adjustingRightWindow : boolean; // true if adjusting right window, false if adjusting no window
 
     static selectedNodeKey : number;
 
@@ -98,18 +93,14 @@ export class Eagle {
 
         this.userMode = ko.observable(Eagle.UserMode.LogicalGraphEditor);
         this.repositories = ko.observableArray();
-        this.leftWindowShown = ko.observable(false);
-        this.leftWindowMode = ko.observable(Eagle.LeftWindowMode.Palettes);
-        this.rightWindowShown = ko.observable(true);
-        this.rightWindowMode = ko.observable(Eagle.RightWindowMode.Repository);
+
+        this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
+        this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
         this.selectedNode = ko.observable(null);
         this.selectedEdge = ko.observable(null);
 
         this.translator = ko.observable(new Translator());
-
-        this.rightWindowWidth = ko.observable(Utils.getRightWindowWidth());
-        this.leftWindowWidth = ko.observable(Utils.getLeftWindowWidth());
 
         Eagle.settings = ko.observableArray();
         Eagle.settings.push(new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
@@ -129,6 +120,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, ""));
         Eagle.settings.push(new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true));
         Eagle.settings.push(new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false));
+        Eagle.settings.push(new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, false));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -376,11 +368,11 @@ export class Eagle {
     setPaletteEditorMode = () => {
         this.userMode(Eagle.UserMode.PaletteEditor);
 
-        this.leftWindowMode(Eagle.LeftWindowMode.TemplatePalette);
-        this.leftWindowShown(true);
+        this.leftWindow().mode(Eagle.LeftWindowMode.TemplatePalette);
+        this.leftWindow().shown(true);
 
         // set the right window mode to show repository
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
     }
 
     setGraphEditorMode = () : void => {
@@ -388,9 +380,9 @@ export class Eagle {
 
         // close left window if no nodes in palette
         if (this.palettes().length === 0){
-            this.leftWindowShown(false);
+            this.leftWindow().shown(false);
         }
-        this.leftWindowMode(Eagle.LeftWindowMode.Palettes);
+        this.leftWindow().mode(Eagle.LeftWindowMode.Palettes);
     }
 
     /**
@@ -402,7 +394,7 @@ export class Eagle {
         this.selectedEdge(null);
 
         // Show the last open repository.
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
     }
 
     getSelection = () : Node | Edge | null => {
@@ -481,7 +473,7 @@ export class Eagle {
 
         // switch to the correct right window mode
         if (rightWindowMode === Eagle.RightWindowMode.EdgeInspector || rightWindowMode === Eagle.RightWindowMode.NodeInspector){
-            this.rightWindowMode(rightWindowMode);
+            this.rightWindow().mode(rightWindowMode);
         }
     }
 
@@ -693,7 +685,7 @@ export class Eagle {
             }
 
             // show the left window
-            this.leftWindowShown(true);
+            this.leftWindow().shown(true);
 
             Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
 
@@ -895,7 +887,7 @@ export class Eagle {
             }
 
             // show repo in the right window
-            this.rightWindowMode(Eagle.RightWindowMode.Repository);
+            this.rightWindow().mode(Eagle.RightWindowMode.Repository);
             // Mark file as non-modified.
             this.activeFileInfo().modified = false;
 
@@ -1207,7 +1199,7 @@ export class Eagle {
                 palette.fileInfo().name = Palette.DYNAMIC_PALETTE_NAME;
                 palette.fileInfo().readonly = false;
                 this.palettes.push(palette);
-                this.leftWindowShown(true);
+                this.leftWindow().shown(true);
             }
         });
     }
@@ -1564,7 +1556,7 @@ export class Eagle {
         if (this.userMode() === Eagle.UserMode.PaletteEditor){
             let errors: string[] = [];
             this.editorPalette(Palette.fromOJSJson(data, file, errors));
-            this.leftWindowShown(true);
+            this.leftWindow().shown(true);
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
         } else {
             // check palette is not already loaded
@@ -1596,7 +1588,7 @@ export class Eagle {
         if (errors.length > 0){
             // TODO: do stuff with the errors
         } else {
-            this.leftWindowShown(true);
+            this.leftWindow().shown(true);
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
         }
     }
@@ -1953,14 +1945,77 @@ export class Eagle {
         }
     }
 
-    deleteSelectedEdge = () => {
+    addEdgeToLogicalGraph = () => {
+        // check that there is at least one node in the graph, otherwise it is difficult to create an edge
+        if (this.logicalGraph().getNumNodes() === 0){
+            Utils.showUserMessage("Error", "Can't add an edge to a graph with zero nodes.");
+            return;
+        }
+
+        // if input edge is null, then we are creating a new edge here, so initialise it with some default values
+        let edge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "");
+
+        // display edge editing modal UI
+        Utils.requestUserEditEdge(edge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
+            if (!completed){
+                console.log("User aborted addEdgeToLogicalGraph()");
+                return;
+            }
+
+            // validate edge
+            let isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, true);
+            if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
+                Utils.showUserMessage("Error", "Invalid edge");
+                return;
+            }
+
+            // new edges might require creation of new nodes, don't use addEdgeComplete() here!
+            this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), (edge: Edge) => {
+                // trigger the diagram to re-draw with the modified edge
+                this.flagActiveDiagramHasMutated();
+            });
+        });
+    }
+
+    editSelectedEdge = () => {
+        if (this.selectedEdge() === null){
+            console.log("Unable to edit selected edge: No edge selected");
+            return;
+        }
+
+        // clone selected edge so that no changes to the original can be made by the user request modal
+        let clone: Edge = this.selectedEdge().clone();
+
+        Utils.requestUserEditEdge(clone, this.logicalGraph(), (completed: boolean, edge: Edge) => {
+            if (!completed){
+                console.log("User aborted editSelectedEdge()");
+                return;
+            }
+
+            // validate edge
+            let isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, true);
+            if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
+                Utils.showUserMessage("Error", "Invalid edge");
+                return;
+            }
+
+            // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
+            this.deleteSelectedEdge(true);
+            this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), (edge: Edge) => {
+                // trigger the diagram to re-draw with the modified edge
+                this.flagActiveDiagramHasMutated();
+            });
+        });
+    }
+
+    deleteSelectedEdge = (suppressUserConfirmationRequest: boolean) => {
         if (this.selectedEdge() === null){
             console.log("Unable to delete selected edge: No edge selected");
             return;
         }
 
         // skip confirmation if setting dictates
-        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_EDGES).value()){
+        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_EDGES).value() || suppressUserConfirmationRequest){
             this._deleteSelectedEdge();
             return;
         }
@@ -1987,7 +2042,7 @@ export class Eagle {
 
         // no edge left to be selected
         this.selectedEdge(null);
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
 
         // flag the diagram as mutated so that the graph renderer will update
         this.flagActiveDiagramHasMutated();
@@ -2100,7 +2155,7 @@ export class Eagle {
 
         // no node left to be selected
         this.selectedNode(null);
-        this.rightWindowMode(Eagle.RightWindowMode.Repository);
+        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
 
         // flag the diagram as mutated so that the graph renderer will update
         this.flagActiveDiagramHasMutated();
@@ -2109,7 +2164,7 @@ export class Eagle {
     addNodeToLogicalGraph = (node : Node) : void => {
         //console.log("addNodeToLogicalGraph()", node.getName(), node.getCategory(), node.getInputPorts().length, node.getOutputPorts().length, node.getFields().length);
         let pos = {x:0, y:0};
-        
+
         // get new position for node
         if (Eagle.nodeDropLocation.x == 0 && Eagle.nodeDropLocation.y == 0){
             pos = this.getNewNodePosition();
@@ -2241,14 +2296,6 @@ export class Eagle {
         }
 
         return p;
-    }
-
-    toggleLeftWindow = () : void => {
-        this.leftWindowShown(!this.leftWindowShown());
-    }
-
-    toggleRightWindow = () : void => {
-        this.rightWindowShown(!this.rightWindowShown());
     }
 
     /**
@@ -2490,7 +2537,7 @@ export class Eagle {
             }
         }
     }
-    
+
     //dragdrop
 
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) => {
@@ -2511,11 +2558,11 @@ export class Eagle {
         $(".leftWindow").removeClass("noDropTarget");
         $(".rightWindow").removeClass("noDropTarget");
         $(".navbar").removeClass("noDropTarget");
-        return true;    
+        return true;
     }
 
     nodeDragOver = (e : JQueryEventObject) => {
-        return false;    
+        return false;
     }
 
     nodeDrop = (eagle : Eagle,e : JQueryEventObject) => {
@@ -2532,20 +2579,19 @@ export class Eagle {
 
     rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
         var img : HTMLImageElement = document.createElement("img");
-        
+
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
         Eagle.dragStartX = e.clientX;
-        Eagle.adjustingLeftWindow = false;
-        Eagle.adjustingRightWindow = true;
+        this.leftWindow().adjusting(false);
+        this.rightWindow().adjusting(true);
 
         return true;
     }
 
     //workaround to aviod left or right window adjusting on any and all drag events
     rightWindowAdjustEnd = (eagle : Eagle, e : JQueryEventObject) => {
-        
-        Eagle.adjustingLeftWindow = false;
-        Eagle.adjustingRightWindow = false;
+        this.leftWindow().adjusting(false);
+        this.rightWindow().adjusting(false);
 
         return true;
     }
@@ -2556,32 +2602,30 @@ export class Eagle {
             return true;
         }
 
-        if (isNaN(this.leftWindowWidth())){
+        if (isNaN(this.leftWindow().width())){
             console.warn("Had to reset left window width from invalid state (NaN)!");
-            this.leftWindowWidth(Config.defaultLeftWindowWidth);
+            this.leftWindow().width(Config.defaultLeftWindowWidth);
         }
-        if (isNaN(this.rightWindowWidth())){
+        if (isNaN(this.rightWindow().width())){
             console.warn("Had to reset right window width from invalid state (NaN)!");
-            this.rightWindowWidth(Config.defaultRightWindowWidth);
+            this.rightWindow().width(Config.defaultRightWindowWidth);
         }
 
         var dragDiff : number = e.clientX - Eagle.dragStartX;
         var newWidth : number;
 
-
-        if (Eagle.adjustingLeftWindow){
-            newWidth = this.leftWindowWidth() + dragDiff;
-            this.leftWindowWidth(newWidth);
+        if (this.leftWindow().adjusting()){
+            newWidth = this.leftWindow().width() + dragDiff;
+            this.leftWindow().width(newWidth);
             Utils.setLeftWindowWidth(newWidth);
-        } else if(Eagle.adjustingRightWindow) {
-            newWidth = this.rightWindowWidth() - dragDiff;
-            this.rightWindowWidth(newWidth);
+        } else if(this.rightWindow().adjusting()) {
+            newWidth = this.rightWindow().width() - dragDiff;
+            this.rightWindow().width(newWidth);
             Utils.setRightWindowWidth(newWidth);
         }
 
         Eagle.dragStartX = e.clientX;
-        
-        
+
         return true;
     }
 
@@ -2617,17 +2661,16 @@ export class Eagle {
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
 
         Eagle.dragStartX = e.clientX;
-        Eagle.adjustingLeftWindow = true;
-        Eagle.adjustingRightWindow = false;
+        this.leftWindow().adjusting(true);
+        this.rightWindow().adjusting(false);
 
         return true;
     }
 
     //workaround to aviod left or right window adjusting on any and all drag events
     leftWindowAdjustEnd = (eagle : Eagle, e : JQueryEventObject) => {
-        
-        Eagle.adjustingLeftWindow = false;
-        Eagle.adjustingRightWindow = false;
+        this.leftWindow().adjusting(false);
+        this.rightWindow().adjusting(false);
 
         return true;
     }
@@ -2647,13 +2690,13 @@ export class Eagle {
             });
 
             // update title on all left window template palette buttons
-            $('.leftWindowDisplay.templatePalette .input-group-prepend').each(function(index: number, element: HTMLElement){
+            $('.leftWindowDisplay.templatePalette .input-group').each(function(index: number, element: HTMLElement){
                 $(element).attr('data-original-title', eagle.templatePalette().getNodes()[index].getHelpHTML());
             });
 
             // update title on all left window palette buttons
             $('.leftWindowDisplay .palette').each(function(i: number, iElement: HTMLElement){
-                $(iElement).find('.input-group-prepend').each(function(j: number, jElement: HTMLElement){
+                $(iElement).find('.input-group').each(function(j: number, jElement: HTMLElement){
                     $(jElement).attr('data-original-title', eagle.palettes()[i].getNodes()[j].getHelpHTML());
                 });
             });
@@ -2673,7 +2716,7 @@ export class Eagle {
         return Edge.isValid(this.logicalGraph(), this.selectedEdge().getSrcNodeKey(), this.selectedEdge().getSrcPortId(), this.selectedEdge().getDestNodeKey(), this.selectedEdge().getDestPortId(), false, true);
     }
 
-    printLogicalGraphTable = () : void => {
+    printLogicalGraphNodesTable = () : void => {
         var tableData : any[] = [];
 
         // add logical graph nodes to table
@@ -2701,6 +2744,27 @@ export class Eagle {
         console.table(tableData);
     }
 
+    printLogicalGraphEdgesTable = () : void => {
+        var tableData : any[] = [];
+
+        // add logical graph nodes to table
+        for (var i = 0; i < this.logicalGraph().getEdges().length; i++){
+            var edge : Edge = this.logicalGraph().getEdges()[i];
+
+            tableData.push({
+                "_id":edge.getId(),
+                "sourceNodeKey":edge.getSrcNodeKey(),
+                "sourcePortId":edge.getSrcPortId(),
+                "destNodeKey":edge.getDestNodeKey(),
+                "destPortId":edge.getDestPortId(),
+                "dataType":edge.getDataType(),
+                "loopAware":edge.isLoopAware()
+            });
+        }
+
+        console.table(tableData);
+    }
+
     printEditorPaletteTable = () : void => {
         var tableData : any[] = [];
 
@@ -2716,8 +2780,6 @@ export class Eagle {
 
     // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
     selectNodeInHierarchy = (nodeViewModel : any) : void => {
-        console.log("selectNodeInHierarchy()", nodeViewModel);
-
         var node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key);
         node.toggleExpanded();
 
@@ -2730,9 +2792,7 @@ export class Eagle {
 
         this.setSelection(Eagle.RightWindowMode.Hierarchy, node);
 
-        console.log("Node", node.getName(), "selected", "(expanded:" + node.getExpanded() + ")");
-
-        //this.flagActiveDiagramHasMutated();
+        this.flagActiveDiagramHasMutated();
     }
 
     selectInputApplicationNode = (nodeViewModel : any) : void => {
@@ -2773,6 +2833,10 @@ export class Eagle {
             field.setReadonly(newField.isReadonly());
             field.setType(newField.getType());
         });
+    }
+
+    allowEdgeEditing = (): boolean => {
+        return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
     }
 
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
@@ -2928,6 +2992,46 @@ export class Eagle {
         return {x:x, y:y};
     }
 
+    autoLoad = (service: Eagle.RepositoryService, repository: string, branch: string, path: string, filename: string): void => {
+        console.log("autoLoadUrl()", service, repository, branch, path, filename);
+
+        // skip empty string urls
+        if (service === Eagle.RepositoryService.Unknown || repository === "" || branch === "" || path === "" || filename === ""){
+            console.log("No auto load");
+            return;
+        }
+
+        // load
+        this.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+    }
+
+    copyGraphUrl = (): void => {
+        // get reference to the LG fileInfo object
+        let fileInfo: FileInfo = this.logicalGraph().fileInfo();
+
+        // if we don't know where this file came from then we can't build a URL
+        // for example, if the graph was loaded from local disk, then we can't build a URL for others to reach it
+        if (fileInfo.repositoryService === Eagle.RepositoryService.Unknown){
+            Utils.showNotification("Graph URL", "Source of graph is unknown or not publicly accessible, unable to create URL for graph.", "danger");
+            return;
+        }
+
+        // build graph url
+        let graph_url = window.location.origin;
+
+        graph_url += "/?service=" + fileInfo.repositoryService;
+        graph_url += "&repository=" + fileInfo.repositoryName;
+        graph_url += "&branch=" + fileInfo.repositoryBranch;
+        graph_url += "&path=" + fileInfo.path;
+        graph_url += "&filename=" + fileInfo.name;
+
+        // copy to cliboard
+        navigator.clipboard.writeText(graph_url);
+
+        // notification
+        Utils.showNotification("Graph URL", "Copied to clipboard", "success");
+    }
+
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         let c = Eagle.cData[category];
 
@@ -2972,6 +3076,7 @@ export class Eagle {
         S3                 : {isData: true, isGroup: false, isResizable: false, maxInputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "cloud_queue", color: "#394BB2"},
         Memory             : {isData: true, isGroup: false, isResizable: false, maxInputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "memory", color: "#394BB2"},
         File               : {isData: true, isGroup: false, isResizable: false, maxInputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "description", color: "#394BB2"},
+        Plasma             : {isData: true, isGroup: false, isResizable: false, maxInputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "star", color: "#394BB2"},
 
         Service            : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "build", color: "#EB1672"},
         ExclusiveForceNode : {isData: false, isGroup: true, isResizable: true, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "picture_in_picture", color: "#000000"},
@@ -2979,7 +3084,7 @@ export class Eagle {
         Variables          : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
         Branch             : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
 
-        Unknown            : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: true, canHaveParameters: true, icon: "device_unknown", color: "#FF66CC"},
+        Unknown            : {isData: false, isGroup: false, isResizable: false, maxInputs: Number.MAX_SAFE_INTEGER, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "device_unknown", color: "#FF66CC"},
         None               : {isData: false, isGroup: false, isResizable: false, maxInputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block", color: "#FF66CC"}
     };
 }
@@ -3065,13 +3170,14 @@ export namespace Eagle
         PythonApp = "PythonApp",
         BashShellApp = "BashShellApp",
         DynlibApp = "DynlibApp",
+        MPI = "Mpi",
+        Docker = "Docker",
 
         NGAS = "NGAS",
         S3 = "S3",
-        MPI = "Mpi",
-        Docker = "Docker",
         Memory = "Memory",
         File = "File",
+        Plasma = "Plasma",
 
         Service = "Service",
         ExclusiveForceNode = "ExclusiveForceNode",

@@ -83,7 +83,17 @@ def hack():
 
 @app.route("/")
 def index():
-    return render_template("base.html", version=version, commit_hash=commit_hash)
+    service    = request.args.get("service")
+    repository = request.args.get("repository")
+    branch     = request.args.get("branch")
+    path       = request.args.get("path")
+    filename   = request.args.get("filename")
+
+    # if the url does not specify a graph to load, just send render the default template with no additional information
+    if service is None or repository is None or branch is None or path is None or filename is None:
+        return render_template("base.html", version=version, commit_hash=commit_hash)
+
+    return render_template("base.html", version=version, commit_hash=commit_hash, auto_load_service=service, auto_load_repository=repository, auto_load_branch=branch, auto_load_path=path, auto_load_filename=filename)
 
 
 @app.route('/src/<path:filename>')
