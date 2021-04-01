@@ -1,9 +1,12 @@
 <div class="card">
-    <h5 class="card-header">
+    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse7" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: $root.spinCollapseIcon">
+        <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
         <i class="material-icons">apps</i>
         <span>Output Application</span>
     </h5>
-    <div class="card-body output-application">
-        <inspector-component params="node: $root.selectedNode().outputApplication, selectCallback: $root.setNodeOutputApplication, inspectCallback: $root.selectOutputApplicationNode"></inspector-component>
+    <div class="collapse show" id="nodeCategoryCollapse7">
+        <div class="card-body output-application">
+            <inspector-component params="node: $root.selectedNode().outputApplication, selectCallback: $root.setNodeOutputApplication, inspectCallback: $root.selectOutputApplicationNode"></inspector-component>
+        </div>
     </div>
 </div>
