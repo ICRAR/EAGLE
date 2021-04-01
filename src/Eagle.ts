@@ -2539,7 +2539,6 @@ export class Eagle {
     }
 
     //dragdrop
-
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) => {
         //specifies where the node can be dropped
         Eagle.nodeDropped = e.target;
@@ -2552,7 +2551,6 @@ export class Eagle {
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
         return true;
     }
-
 
     nodeDragEnd = (e : JQueryEventObject) => {
         $(".leftWindow").removeClass("noDropTarget");
