@@ -4,7 +4,7 @@
 
 ### alpine based docker images
 
-This is the preferred way to get EAGLE up and running both in an operational and in a development environment. It is based on an an image from https://github.com/tiangolo/meinheld-gunicorn-flask-docker and packs meinheld, gunicorn, flask and EAGLE into a small, less than 200 MB image. When started it runs EAGLE as a Flask WSGI application served by multiple gunicorn tasks.
+This is the preferred way to get EAGLE up and running both in an operational and in a development environment. It is based on an image from https://github.com/tiangolo/meinheld-gunicorn-flask-docker and packs meinheld, gunicorn, flask and EAGLE into a small, less than 200 MB image. When started it runs EAGLE as a Flask WSGI application served by multiple gunicorn tasks.
 
 There are two versions of the docker image build procedures, one for deployment and one for local development.
 
