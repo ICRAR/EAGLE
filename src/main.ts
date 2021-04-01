@@ -87,17 +87,35 @@ $(function(){
     window.onbeforeunload = () => (eagle.areAnyFilesModified() && Eagle.findSettingValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
 
     //keyboard shortcut event listener
-    //currently only used for deleting nodes
+    //currently only used for deleting nodes and edges
     $(document).keydown(function(e : JQueryKeyEventObject) {
-        //if a node is selected
-        if (eagle.selectedNode()===null){
-            return;
+        if($("input,textarea").is(":focus")){
+            //Textbox or Input field is focused
+            return; 
         }else{
-        //delete key calls delete node function
-        if (e.which == 8) {
-            eagle.deleteSelectedNode()
+            //delete edge
+            //if edge selected
+            if (eagle.selectedEdge() != null){
+                //if the backspace key was pressed
+                if (e.which === 8){
+                    eagle.deleteSelectedEdge(false);
+                } 
             }
-        }
+
+            //if a node is selected
+            else if (eagle.selectedNode() != null){
+                //if the backspace key was pressed
+                //delete node
+                if (e.which === 8) {
+                eagle.deleteSelectedNode();
+                }
+                //if "d" key was pressed
+                //duplicate node
+                else if (e.which === 68){
+                    eagle.duplicateSelectedNode();
+                }
+            }
+        }  
     }
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
