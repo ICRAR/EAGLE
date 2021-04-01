@@ -123,10 +123,8 @@ export class Palette {
         return this.nodes();
     }
 
-    // TODO: this should return different icons based on whether the palette is currently expanded or collapsed
-    //       but at the moment, that expand/collapse state is stored internally within bootstrap and is not available here
     getCollapseIcon = () : string => {
-        return "keyboard_arrow_down";
+         return "keyboard_arrow_down"
     }
 
     clear = () : void => {

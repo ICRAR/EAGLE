@@ -1,7 +1,7 @@
 <div id="paletteList">
     <div data-bind="foreach: palettes">
         <div class="card">
-            <div class="card-header" data-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
+            <div class="card-header" data-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}, click: $root.spinCollapseIcon">
                 <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'},text:getCollapseIcon()"></i>
                 <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:fileInfo().getSummaryHTML()}">info</i>
                 <!-- ko if: $data.fileInfo().readonly -->

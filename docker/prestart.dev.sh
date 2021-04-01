@@ -15,6 +15,9 @@ python updateVersion.py
 npm install
 # compile the typescript code
 tsc
+echo "Building the docs..."
+sphinx-apidoc -o docs/source eagleServer
+cd docs; make html; cd ..
 echo "Install complete. Starting the server..."
 export APP_MODULE="eagleServer.eagleServer:app"
 export WORKERS_PER_CORE="1"

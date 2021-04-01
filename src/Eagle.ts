@@ -2629,6 +2629,32 @@ export class Eagle {
         return true;
     }
 
+    spinCollapseIcon = (item:any, e:JQueryEventObject) => {
+        //this function handels only the visible ui element that indicates the state of the collapsable object.
+        //the collapse functyion itself is handled by bootstrap.
+        //getting event target for collapse action.
+        var collapseTarget = $(e.currentTarget) as JQuery<HTMLElement>;
+        collapseTarget = collapseTarget.find('i').first();
+        //getting current state of collapsable object.
+        var triggerClass = collapseTarget.hasClass("translationToggle");
+        var toggleState : boolean
+        
+        if (triggerClass){
+            //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
+            //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
+            $(".translationToggle").addClass("closedIcon")
+            var toggleState = collapseTarget.parent().parent().parent().children(".collapse").hasClass('show');
+        }else{
+            //This is for collapse icon on the node palettes and in the node settings menu.
+            var toggleState = collapseTarget.parent().parent().children(".collapse").hasClass('show');
+        }
+
+        if(toggleState){
+            collapseTarget.addClass("closedIcon");
+        }else{
+            collapseTarget.removeClass("closedIcon");
+        }
+    }
 
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {
         var img : HTMLImageElement = document.createElement("img");
