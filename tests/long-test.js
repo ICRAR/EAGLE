@@ -93,13 +93,14 @@ test('Graph creation', async t =>{
     await page.setParent("ClusterScatterAverager : -1");
 
     await page.addNodePort("spead2", true);
+    await page.addNodePort("spead2", false);
 
     // move the outer Python App (NOTE: this is now node 2!)
     await page.moveNode('#node2', 470, 250);
 
     // draw edge from inner Python App to outer Python App
     // The number refers to which numbered port is being connected
-    await page.connectNodes('#node3','#node2',0,0);
+    await page.connectNodes('#node3','#node2',false,false,0,0);
 
     // The option chosen for the spead2 data component is Memory
     await page.selectOption("Memory");
@@ -107,12 +108,19 @@ test('Graph creation', async t =>{
     // add the gather
     await page.addPaletteNode(0,13,false);
 
+    await page.addNodeInputApplication("All Nodes:Python App");
+
+    await t.click('#nodeInspectorInspectInputApplication');
+
+    await page.addNodePort("spead2", true);
+    await page.addNodePort("event", false);
+
     // move the gather (NOTE: this is now node 1!)
     await page.moveNode('#node1', 740, 200);
 
     // draw edge from outer Python App to gather
     // The number refers to which numbered port is being connected
-    await page.connectNodes('#node3','#node1',0,0);
+    await page.connectNodes('#node3','#node1',false,true,0,0);
 
     // The option chosen for the spead2 data component is Memory
     await page.selectOption("Memory");
@@ -124,15 +132,17 @@ test('Graph creation', async t =>{
     // select type of end node
     await page.selectOption("File");
 
+    await page.addNodePort("event", true);
+
     // move the end node (NOTE: this is now node 2!)
     await page.moveNode('#node2', 740, 450);
 
     // An extra pause is needed because of warning messages blocking the next connection
     await t.wait(1000);
 
-    // draw edge from outer Python App to gather
+    // draw edge from gather to end node
     // The number refers to which numbered port is being connected
-    await page.connectNodes('#node1','#node2',0,0);
+    await page.connectNodes('#node1','#node2',true,false,0,0);
 
     // click on the outer scatter to finish up
     await page.selectNode('#node0');

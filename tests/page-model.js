@@ -1,12 +1,17 @@
 import { Selector, t } from 'testcafe';
 
 class Node {
-  constructor (id, n = 0) {
+  constructor (id, isConstruct, n = 0) {
     this.select = Selector(id + ' image');
     this.resize = Selector(id + ' .resize-control-label');
     //this.select = Selector(id + ' rect:not(.header-background)');
-    this.input = Selector(id + ' g.inputPorts circle').nth(n);
-    this.output = Selector(id + ' g.outputPorts circle').nth(n);
+    if (isConstruct){
+        this.input = Selector(id + ' g.inputPorts circle').nth(n);
+        this.output = Selector(id + ' g.inputLocalPorts circle').nth(n);
+    } else {
+        this.input = Selector(id + ' g.inputPorts circle').nth(n);
+        this.output = Selector(id + ' g.outputPorts circle').nth(n);
+    }
   }
 }
 
@@ -76,8 +81,11 @@ class Page {
     this.componentParameters = Selector('.card-header').withText("Component Parameters");
     this.outputPorts = Selector('span').withText("Output Ports");
     this.changeGreet = Selector('#nodeInspectorFieldValue0');
+
     this.addInputPort = Selector('#nodeInspectorAddInputPort');
     this.addOutputPort = Selector('#nodeInspectorAddOutputPort');
+    this.addInputApplication = Selector('#nodeInspectorAddInputApplication');
+    this.addOutputApplication = Selector('#nodeInspectorAddOutputApplication');
 
     this.commitRepo = Selector('#gitCommitModalRepositoryNameSelect');
     this.commitPath = Selector('#gitCommitModalFilePathInput');
@@ -142,9 +150,9 @@ class Page {
   // The speed is reduced a lot for the videos
   // This is also helpful for automated testing since the warning messages
   // need time to go away. They can sometimes obstruct other elements otherwise.
-  async connectNodes (outID, inID, n1, n2) {
-    var node1 = new Node(outID,n1);
-    var node2 = new Node(inID,n2);
+  async connectNodes (outID, inID, outIsConstruct, inIsConstruct, n1, n2) {
+    var node1 = new Node(outID, outIsConstruct, n1);
+    var node2 = new Node(inID, inIsConstruct, n2);
     await t
       .dragToElement(
         node1.output,
@@ -199,6 +207,14 @@ class Page {
     await t.click(this.submitChoice);
   }
 
+  async addNodeInputApplication(applicationName){
+      await t.click(this.addInputApplication);
+      await t
+          .click(this.selectChoice)
+          .click(Selector(this.selectChoice).find('option').withText(applicationName));
+      await t.click(this.submitChoice);
+  }
+
   async createNewGraph (graph_name) {
     await t
       .click(this.navbarNew)
@@ -208,7 +224,7 @@ class Page {
   }
 
   async deleteNode (id) {
-    var node_toDelete = new Node(id);
+    var node_toDelete = new Node(id, false);
     await t
       .click(node_toDelete.select)
       .click(this.nodeMode)
@@ -224,7 +240,7 @@ class Page {
   // }
 
   async moveNode (id,x,y) {
-    var node_toMove = new Node(id);
+    var node_toMove = new Node(id, false);
     await t.click(node_toMove.select);
     await t.dragToElement(node_toMove.select, this.leftHandle, {
             destinationOffsetX: x,
@@ -233,7 +249,7 @@ class Page {
   }
 
   async resizeNode (id,x,y) {
-    var node_toResize = new Node(id);
+    var node_toResize = new Node(id, false);
     await t
       .drag(node_toResize.resize, x, y, {
           offsetX: 10,
@@ -242,7 +258,7 @@ class Page {
   }
 
   async selectNode (id) {
-    var node_toSelect = new Node(id);
+    var node_toSelect = new Node(id, false);
     await t.click(node_toSelect.select);
   }
 
