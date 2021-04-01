@@ -86,6 +86,20 @@ $(function(){
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
     window.onbeforeunload = () => (eagle.areAnyFilesModified() && Eagle.findSettingValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
 
+    //keyboard shortcut event listener
+    //currently only used for deleting nodes
+    $(document).keydown(function(e : JQueryKeyEventObject) {
+        //if a node is selected
+        if (eagle.selectedNode()===null){
+            return;
+        }else{
+        //delete key calls delete node function
+        if (e.which == 8) {
+            eagle.deleteSelectedNode()
+            }
+        }
+    }
+
     // HACK: automatically load a graph (useful when iterating quickly during development)
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LEAP-Work-Flow.graph"));
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LeapMVP.graph"));

@@ -46,6 +46,22 @@ import {FileInfo} from './FileInfo';
 import {Setting} from './Setting';
 import {SideWindow} from './SideWindow';
 
+ko.bindingHandlers.enterPress = {
+    init: function (element, valueAccessor, allBindingsAccessor, viewModel) {
+        var allBindings = allBindingsAccessor();
+        element.addEventListener('keydown', function (item:any, event:JQueryEventObject) {
+            var keyCode = (event.which ? event.which : event.keyCode);
+            
+            if (keyCode === 13) {
+                allBindings.enterPress.call(viewModel);
+                return false;
+            }
+            alert("nya")
+            return true;
+         });
+      }
+  };
+
 export class Eagle {
     // palette editor mode
     editorPalette : ko.Observable<Palette>;
@@ -85,6 +101,7 @@ export class Eagle {
     static nodeDropped : Element;
     static nodeDropLocation = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
 
+    
     constructor(){
         this.editorPalette = ko.observable(null);
         this.palettes = ko.observableArray();
@@ -2539,7 +2556,6 @@ export class Eagle {
     }
 
     //dragdrop
-
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) => {
         //specifies where the node can be dropped
         Eagle.nodeDropped = e.target;
@@ -2552,7 +2568,6 @@ export class Eagle {
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
         return true;
     }
-
 
     nodeDragEnd = (e : JQueryEventObject) => {
         $(".leftWindow").removeClass("noDropTarget");
