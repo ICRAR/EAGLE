@@ -116,7 +116,7 @@ $(function(){
                 }
             }
         }  
-    }
+    });
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LEAP-Work-Flow.graph"));
