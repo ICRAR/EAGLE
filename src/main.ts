@@ -88,13 +88,13 @@ $(function(){
 
     //keyboard shortcut event listener
     //currently only used for deleting nodes and edges
-    $(document).keydown(function(e : JQueryKeyEventObject) {
+    document.onkeydown = (e:KeyboardEvent) => {
+    // $(document).keydown(function(e : JQueryKeyEventObject) {
         if($("input,textarea").is(":focus")){
             //Textbox or Input field is focused
             return; 
         }else{
-            //delete edge
-            //if edge selected
+            //delete edge, if edge selected
             if (eagle.selectedEdge() != null){
                 //if the backspace key was pressed
                 if (e.which === 8){
@@ -104,19 +104,17 @@ $(function(){
 
             //if a node is selected
             else if (eagle.selectedNode() != null){
-                //if the backspace key was pressed
-                //delete node
+                //if the backspace key was pressed, delete node
                 if (e.which === 8) {
                 eagle.deleteSelectedNode();
                 }
-                //if "d" key was pressed
-                //duplicate node
+                //if "d" key was pressed, duplicate node
                 else if (e.which === 68){
                     eagle.duplicateSelectedNode();
                 }
             }
         }  
-    });
+    }
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LEAP-Work-Flow.graph"));
