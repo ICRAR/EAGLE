@@ -44,7 +44,6 @@ import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {Setting} from './Setting';
-import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 export class Eagle {
     // palette editor mode
@@ -2590,30 +2589,26 @@ export class Eagle {
         //this function handels only the visible ui element that indicates the state of the collapsable object.
         //the collapse functyion itself is handled by bootstrap.
         //getting event target for collapse action.
-        var CollapseTarget = $(e.currentTarget) as JQuery<HTMLElement>
-        CollapseTarget = CollapseTarget.find('i').first()
+        var collapseTarget = $(e.currentTarget) as JQuery<HTMLElement>;
+        collapseTarget = collapseTarget.find('i').first();
         //getting current state of collapsable object.
-        var triggerClass = CollapseTarget.hasClass("translationToggle")
-
+        var triggerClass = collapseTarget.hasClass("translationToggle");
+        var toggleState : boolean
         
         if (triggerClass){
             //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
-            //the class "ClosedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
-            $(".translationToggle").addClass("ClosedIcon")
-            var toggleState = CollapseTarget.parent().parent().parent().children(".collapse").hasClass('show');
-                if(toggleState){
-                    CollapseTarget.addClass("ClosedIcon")
-                }else{
-                    CollapseTarget.removeClass("ClosedIcon")
-                }
+            //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
+            $(".translationToggle").addClass("closedIcon")
+            var toggleState = collapseTarget.parent().parent().parent().children(".collapse").hasClass('show');
         }else{
             //This is for collapse icon on the node palettes and in the node settings menu.
-            var toggleState = CollapseTarget.parent().parent().children(".collapse").hasClass('show');
-            if(toggleState){
-                CollapseTarget.addClass("ClosedIcon")
-            }else{
-                CollapseTarget.removeClass("ClosedIcon")
-            }
+            var toggleState = collapseTarget.parent().parent().children(".collapse").hasClass('show');
+        }
+
+        if(toggleState){
+            collapseTarget.addClass("closedIcon");
+        }else{
+            collapseTarget.removeClass("closedIcon");
         }
     }
 
