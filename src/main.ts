@@ -25,6 +25,7 @@
 import * as ko from "knockout";
 import * as $ from "jquery";
 
+import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {GitHub} from './GitHub';
@@ -68,8 +69,22 @@ $(function(){
     GitLab.loadRepoList(eagle);
 
     // load the default palette
+    if (Eagle.findSettingValue(Utils.OPEN_DEFAULT_PALETTE)){
+        eagle.loadPalettes([
+            {name:Palette.DYNAMIC_PALETTE_NAME, filename:"./static/" + Config.templatePaletteFileName, readonly:false},
+            {name:Palette.BUILTIN_PALETTE_NAME, filename:"./static/" + Config.builtinPaletteFileName, readonly:true}
+        ], (data: Palette[]):void => {
+            for (var i = 0; i < data.length; i++){
+                if (data[i] !== null){
+                    eagle.palettes.push(data[i]);
+                }
+            }
+            eagle.leftWindow().shown(true);
+        });
+    }
+
+    // load template palette (only used for Eagle.PaletteEditor)
     eagle.loadTemplatePalette();
-    eagle.loadBuiltinPalette();
 
     // load schemas
     eagle.loadSchemas();
@@ -85,6 +100,36 @@ $(function(){
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
     window.onbeforeunload = () => (eagle.areAnyFilesModified() && Eagle.findSettingValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
+
+    //keyboard shortcut event listener
+    //currently only used for deleting nodes and edges
+    document.onkeydown = (e:KeyboardEvent) => {
+    // $(document).keydown(function(e : JQueryKeyEventObject) {
+        if($("input,textarea").is(":focus")){
+            //Textbox or Input field is focused
+            return; 
+        }else{
+            //delete edge, if edge selected
+            if (eagle.selectedEdge() != null){
+                //if the backspace key was pressed
+                if (e.which === 8){
+                    eagle.deleteSelectedEdge(false);
+                } 
+            }
+
+            //if a node is selected
+            else if (eagle.selectedNode() != null){
+                //if the backspace key was pressed, delete node
+                if (e.which === 8) {
+                eagle.deleteSelectedNode();
+                }
+                //if "d" key was pressed, duplicate node
+                else if (e.which === 68){
+                    eagle.duplicateSelectedNode();
+                }
+            }
+        }  
+    }
 
     // HACK: automatically load a graph (useful when iterating quickly during development)
     //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LEAP-Work-Flow.graph"));
