@@ -122,6 +122,8 @@ test('Graph creation', async t =>{
     // The number refers to which numbered port is being connected
     await page.connectNodes('#node3','#node1',false,true,0,0);
 
+    await t.takeScreenshot();
+
     // The option chosen for the spead2 data component is Memory
     await page.selectOption("Memory");
 
