@@ -25,6 +25,7 @@
 import * as ko from "knockout";
 import * as $ from "jquery";
 
+import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {GitHub} from './GitHub';
@@ -68,8 +69,22 @@ $(function(){
     GitLab.loadRepoList(eagle);
 
     // load the default palette
+    if (Eagle.findSettingValue(Utils.OPEN_DEFAULT_PALETTE)){
+        eagle.loadPalettes([
+            {name:Palette.DYNAMIC_PALETTE_NAME, filename:"./static/" + Config.templatePaletteFileName, readonly:false},
+            {name:Palette.BUILTIN_PALETTE_NAME, filename:"./static/" + Config.builtinPaletteFileName, readonly:true}
+        ], (data: Palette[]):void => {
+            for (var i = 0; i < data.length; i++){
+                if (data[i] !== null){
+                    eagle.palettes.push(data[i]);
+                }
+            }
+            eagle.leftWindow().shown(true);
+        });
+    }
+
+    // load template palette (only used for Eagle.PaletteEditor)
     eagle.loadTemplatePalette();
-    eagle.loadBuiltinPalette();
 
     // load schemas
     eagle.loadSchemas();
