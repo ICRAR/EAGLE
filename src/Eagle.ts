@@ -1200,7 +1200,6 @@ export class Eagle {
             let index = i;
 
             Utils.httpGet(paletteList[i].filename, (error: string, data: string) => {
-                console.log("reply", index, error, data);
                 complete[index] = true;
 
                 if  (error !== null){
@@ -1214,13 +1213,13 @@ export class Eagle {
                     results[index] = palette;
                 }
 
+                // check if all requests are now complete, then we can call the callback
                 var allComplete = true;
                 for (var j = 0 ; j < complete.length ; j++){
                     if (!complete[j]){
                         allComplete = false;
                     }
                 }
-                console.log("allComplete", allComplete, complete);
                 if (allComplete){
                     callback(results);
                 }
