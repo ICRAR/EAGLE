@@ -164,6 +164,32 @@ class Page {
         });
   }
 
+  async createEdge (srcNode, dstNode, srcIsConstruct, dstIsConstruct, srcPort, dstPort) {
+      await t
+        .click(Selector("#navbarDropdown"))
+        .click(Selector("#addEdgeToLogicalGraph"))
+
+        // choose source node
+        .click(Selector("#editEdgeModalSrcNodeKeySelect"))
+        .click(Selector("#editEdgeModalSrcNodeKeySelect").find('option').withText(srcNode))
+
+        // choose source port
+        .click(Selector("#editEdgeModalSrcPortIdSelect"))
+        .click(Selector("#editEdgeModalSrcPortIdSelect").find('option').withText(srcPort))
+
+        // choose destination node
+        .click(Selector("#editEdgeModalDestNodeKeySelect"))
+        .click(Selector("#editEdgeModalDestNodeKeySelect").find('option').withText(dstNode))
+
+        // choose destination port
+        .click(Selector("#editEdgeModalDestPortIdSelect"))
+        .click(Selector("#editEdgeModalDestPortIdSelect").find('option').withText(dstPort))
+
+        .typeText(Selector("#editEdgeModalDataTypeInput"), srcPort, { replace : true })
+
+        .click(Selector("#editEdgeModalAffirmativeButton"));
+  }
+
   async getRect (id, i = 0) {
     const element = Selector(id).nth(i);
     const state = await element();

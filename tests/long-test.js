@@ -120,9 +120,11 @@ test('Graph creation', async t =>{
 
     // draw edge from outer Python App to gather
     // The number refers to which numbered port is being connected
-    await page.connectNodes('#node3','#node1',false,true,0,0);
 
-    await t.takeScreenshot();
+    //await page.connectNodes('#node3','#node1',false,true,0,0);
+    //await t.takeScreenshot();
+    await page.createEdge("Average 6 Channels", "Python App", false, true, "spead2", "spead2");
+
 
     // The option chosen for the spead2 data component is Memory
     await page.selectOption("Memory");
