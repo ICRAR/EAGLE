@@ -1186,48 +1186,47 @@ export class Eagle {
             Eagle.dataCategories = Utils.buildCategoryList(this.templatePalette(), Eagle.CategoryType.Data);
             Eagle.applicationNodes = Utils.buildNodeList(this.templatePalette(), Eagle.CategoryType.Application);
             Eagle.applicationCategories = Utils.buildCategoryList(this.templatePalette(), Eagle.CategoryType.Application);
-
-            if (Eagle.findSettingValue(Utils.OPEN_DEFAULT_PALETTE)){
-                console.log("Generate default palette");
-                let errors: string[] = [];
-                let palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", ""), errors);
-                if (errors.length > 0){
-                    console.warn(errors.length, "errors during loading default palette", errors);
-                }
-
-                palette.fileInfo().clear();
-                palette.fileInfo().name = Palette.DYNAMIC_PALETTE_NAME;
-                palette.fileInfo().readonly = false;
-                this.palettes.push(palette);
-                this.leftWindow().shown(true);
-            }
         });
     }
 
-    /**
-     * Loads builtin palette from the server.
-     */
-    loadBuiltinPalette = () => {
-        console.log("loadBuiltinPalette()");
+    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) => {
+        let results: Palette[] = [];
+        let complete: boolean[] = [];
+        let errors: string[] = [];
 
-        Utils.httpGet("./static/" + Config.builtinPaletteFileName, (error : string, data : string) => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
+        for (var i = 0 ; i < paletteList.length ; i++){
+            results.push(null);
+            complete.push(false);
+            let index = i;
 
-            var showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-            let errors: string[] = [];
+            Utils.httpGet(paletteList[i].filename, (error: string, data: string) => {
+                console.log("reply", index, error, data);
+                complete[index] = true;
 
-            let builtinPalette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.builtinPaletteFileName), errors);
-            if (errors.length > 0 && showErrors){
-                Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
-            }
+                if  (error !== null){
+                    console.error(error);
+                    errors.push(error);
+                } else {
+                    let palette: Palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errors);
+                    palette.fileInfo().clear();
+                    palette.fileInfo().name = paletteList[index].name;
+                    palette.fileInfo().readonly = paletteList[index].readonly;
+                    results[index] = palette;
+                }
 
-            builtinPalette.fileInfo().clear();
-            builtinPalette.fileInfo().name = Palette.BUILTIN_PALETTE_NAME;
-            this.palettes.push(builtinPalette);
-        });
+                var allComplete = true;
+                for (var j = 0 ; j < complete.length ; j++){
+                    if (!complete[j]){
+                        allComplete = false;
+                    }
+                }
+                console.log("allComplete", allComplete, complete);
+                if (allComplete){
+                    callback(results);
+                }
+
+            });
+        }
     }
 
     loadSchemas = () => {
@@ -2638,7 +2637,7 @@ export class Eagle {
         //getting current state of collapsable object.
         var triggerClass = collapseTarget.hasClass("translationToggle");
         var toggleState : boolean
-        
+
         if (triggerClass){
             //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
             //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
