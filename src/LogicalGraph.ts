@@ -705,7 +705,10 @@ export class LogicalGraph {
         let srcNodePosition = srcNode.getPosition();
         let destNodePosition = destNode.getPosition();
 
-        // if destination node is an embedded application, use position of parent construct node
+        // if source or destination node is an embedded application, use position of parent construct node
+        if (srcNode.isEmbedded()){
+            srcNodePosition = this.findNodeByKey(srcNode.getEmbedKey()).getPosition();
+        }
         if (destNode.isEmbedded()){
             destNodePosition = this.findNodeByKey(destNode.getEmbedKey()).getPosition();
         }
