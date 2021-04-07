@@ -1390,7 +1390,6 @@ export class Node {
                     let port = Port.fromOJSJson(portData);
                     //console.log("read inputLocalPort to inputApp outputPort");
                     node.inputApplication().addPort(port, false); // I or O?
-                    port.setNodeKey(node.getKey());
                 } else {
                     console.warn("Can't add inputLocal port", portData.IdText, "to node", node.getName());
                     errors.push("Can't add inputLocal port " + portData.IdText + " to node " + node.getName());
@@ -1406,13 +1405,11 @@ export class Node {
                 if (node.hasOutputApplication()){
                     //console.log("read outputLocalPort to outputApp inputPort");
                     node.outputApplication().addPort(port, true); // I or O?
-                    port.setNodeKey(node.getKey());
                 }
 
                 if (node.hasExitApplication()){
                     //console.log("read outputLocalPort to exitApp inputPort");
                     node.exitApplication().addPort(port, true); // I or O?
-                    port.setNodeKey(node.getKey());
                 }
 
                 if (!node.hasOutputApplication() && !node.hasExitApplication()){
