@@ -61,7 +61,7 @@
                 "name": "Arg01",
                 "value": "",
                 "description": "The command line to be executed",
-                "readonly", false,
+                "readonly": false,
                 "type": "String"
             }],
             "key": -3,
@@ -123,7 +123,7 @@
             }, {
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
+                "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
                 "type": "Float"
@@ -152,7 +152,7 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
+                "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
                 "type": "Float"
@@ -211,7 +211,7 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
+                "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
                 "type": "Float"
@@ -233,7 +233,9 @@
                 "text": "Appclass",
                 "name": "appclass",
                 "value": "test.graphsRepository",
-                "description": "The python class that implements this application"
+                "description": "The python class that implements this application",
+                "readonly": false,
+                "type": "String"
             }],
             "categoryType": "Application",
             "inputPorts": [],
@@ -245,7 +247,10 @@
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
-                "value": "5"
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Group end",
                 "name": "group_end",
@@ -267,7 +272,10 @@
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
-                "value": "5"
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Group end",
                 "name": "group_end",
@@ -301,7 +309,10 @@
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
-                "value": "5"
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Group end",
                 "name": "group_end",
@@ -338,7 +349,10 @@
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
-                "value": "5"
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Group end",
                 "name": "group_end",
@@ -370,7 +384,10 @@
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
-                "value": "5"
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Group end",
                 "name": "group_end",
