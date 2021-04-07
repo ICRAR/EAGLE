@@ -38,21 +38,31 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the start of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             },{
                 "text": "Arg01",
                 "name": "Arg01",
                 "value": "",
-                "description": "The command line to be executed"
+                "description": "The command line to be executed",
+                "readonly", false,
+                "type": "String"
             }],
             "key": -3,
             "text": "Bash Shell App",
@@ -67,20 +77,31 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the start of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Library path",
                 "name": "libpath",
-                "value": ""
+                "value": "",
+                "description": "The location of the shared object/DLL that implements this application",
+                "readonly": false,
+                "type": "String"
             }],
             "key": -13,
             "text": "Dynlib App",
@@ -95,16 +116,24 @@
             "fields": [{
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Execution time",
                 "name": "execution_time",
                 "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Num procs",
                 "name": "num_of_procs",
@@ -124,15 +153,23 @@
                 "text": "Execution time",
                 "name": "execution_time",
                 "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the start of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Image",
                 "name": "image",
@@ -175,15 +212,23 @@
                 "text": "Execution time",
                 "name": "execution_time",
                 "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the start of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Appclass",
                 "name": "appclass",
@@ -204,7 +249,10 @@
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             }],
             "shape": "Card",
             "key": -4,
@@ -223,7 +271,10 @@
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Check file path exists",
                 "name": "check_filepath_exists",
@@ -254,7 +305,10 @@
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Bucket",
                 "name": "bucket",
@@ -288,7 +342,10 @@
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "NGAS Server",
                 "name": "ngasSrv",
@@ -317,7 +374,10 @@
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             }],
             "shape": "Card",
             "key": -24,
@@ -516,15 +576,23 @@
                 "text": "Execution time",
                 "name": "execution_time",
                 "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": "0"
+                "value": 0,
+                "description": "Is this node the start of a group? Boolean encoded as an integer (0=false,1=true).",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Appclass",
                 "name": "appclass",
