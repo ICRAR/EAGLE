@@ -52,10 +52,10 @@
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": 0,
-                "description": "Is this node the start of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             },{
                 "text": "Arg01",
                 "name": "Arg01",
@@ -91,10 +91,10 @@
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": 0,
-                "description": "Is this node the start of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }, {
                 "text": "Library path",
                 "name": "libpath",
@@ -116,10 +116,10 @@
             "fields": [{
                 "text": "Group end",
                 "name": "group_end",
-                "value": 0,
-                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }, {
                 "text": "Execution time",
                 "name": "execution_time",
@@ -169,10 +169,10 @@
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": 0,
-                "description": "Is this node the start of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }, {
                 "text": "Image",
                 "name": "image",
@@ -246,10 +246,10 @@
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": 0,
-                "description": "Is this node the start of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }, {
                 "text": "Appclass",
                 "name": "appclass",
@@ -275,10 +275,10 @@
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": 0,
-                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }],
             "shape": "Card",
             "key": -4,
@@ -300,10 +300,10 @@
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": 0,
-                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }, {
                 "text": "Check file path exists",
                 "name": "check_filepath_exists",
@@ -346,10 +346,10 @@
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": 0,
-                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }, {
                 "text": "Bucket",
                 "name": "bucket",
@@ -392,10 +392,10 @@
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": 0,
-                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }, {
                 "text": "NGAS Server",
                 "name": "ngasSrv",
@@ -431,10 +431,10 @@
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": 0,
-                "description": "Is this node the end of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }],
             "shape": "Card",
             "key": -24,
@@ -680,10 +680,10 @@
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": 0,
-                "description": "Is this node the start of a group? Boolean encoded as an integer (0=false,1=true).",
+                "value": false,
+                "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }, {
                 "text": "Appclass",
                 "name": "appclass",
