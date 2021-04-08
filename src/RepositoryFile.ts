@@ -27,8 +27,6 @@ export class RepositoryFile {
                 return "device_hub";
             case Eagle.FileType.Palette:
                 return "palette";
-            case Eagle.FileType.TemplatePalette:
-                return "clear";
             case Eagle.FileType.JSON:
                 return "language";
             default:
