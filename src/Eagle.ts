@@ -84,6 +84,7 @@ export class Eagle {
 
     static nodeDropped : Element;
     static nodeDropLocation = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
+    static nodeInspectorCount : number = 0; // this is 0 if all menus collapsed and counts how many are open
 
     constructor(){
         this.editorPalette = ko.observable(null);
@@ -408,13 +409,15 @@ export class Eagle {
     }
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
+        //set amount of collapsed node menus to default (0)
+        Eagle.nodeInspectorCount = 0;
         //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
-
         switch (rightWindowMode){
             case Eagle.RightWindowMode.Hierarchy:
             case Eagle.RightWindowMode.NodeInspector:
                 // abort if already selected
                 if (this.selectedNode() === selection){
+                    this.rightWindow().mode(rightWindowMode);
                     return;
                 }
 
@@ -2645,6 +2648,19 @@ export class Eagle {
         }else{
             //This is for collapse icon on the node palettes and in the node settings menu.
             var toggleState = collapseTarget.parent().parent().children(".collapse").hasClass('show');
+            if(collapseTarget.parent().parent().children(".collapse").hasClass("nodeInspectorCollapseAll")){
+                if(toggleState){
+                    Eagle.nodeInspectorCount --
+                }else{
+                    Eagle.nodeInspectorCount ++
+                }
+
+                if (Eagle.nodeInspectorCount === 0){
+                    $("#nodeInspectorHeading").find('i').first().addClass("closedIcon");
+                }else{
+                    $("#nodeInspectorHeading").find('i').first().removeClass("closedIcon");
+                }
+            }
         }
 
         if(toggleState){
@@ -2652,6 +2668,28 @@ export class Eagle {
         }else{
             collapseTarget.removeClass("closedIcon");
         }
+
+    }
+
+    toggleAllNodeMenus = () => {
+        if(Eagle.nodeInspectorCount != 0){
+            $(".nodeInspectorCollapseAll").collapse("hide");
+            $(".nodeMenuIndicator").addClass("closedIcon");
+            $("#nodeInspectorHeading").find('i').first().addClass("closedIcon");
+            Eagle.nodeInspectorCount = 0;
+        }else{
+            $(".nodeInspectorCollapseAll").collapse("show");
+            $(".nodeMenuIndicator").removeClass("closedIcon");
+            $("#nodeInspectorHeading").find('i').first().removeClass("closedIcon");
+        }
+    }
+
+    countTotalCollapsables = () => {
+        //A hidden boostrap collapsable element was needed to trigger this function to establish how many collapsables have been opened by the expand all button.
+        //this is because boostrap takes a while to add the "show" class onto the expanded element
+        //bootstrap calls this function when it is finished with its transition but the empty collapsable was needed on all node inspectors on and last in line to be collapsed.
+        Eagle.nodeInspectorCount = $(".nodeInspectorCollapseAll.show").length;
+        Eagle.nodeInspectorCount --;
     }
 
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {

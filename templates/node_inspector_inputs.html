@@ -1,10 +1,10 @@
 <div class="card">
     <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse6" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: $root.spinCollapseIcon">
-        <i class="material-icons interactive closedIcon" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
         <i class="material-icons">arrow_back</i>
-        <span>Input Ports</span>
+        <span class="nodeInspectorSubsectionTitle">Input Ports</span>
     </h5>
-    <div class="collapse" id="nodeCategoryCollapse6">
+    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse6">
         <div class="card-body">
 
             <!-- ko foreach: selectedNode().getInputPorts() -->

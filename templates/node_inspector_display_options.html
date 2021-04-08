@@ -1,10 +1,10 @@
 <div class="card">
     <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: spinCollapseIcon">
-        <i class="material-icons interactive closedIcon" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
         <i class="material-icons">note</i>
-        <span>Display Options</span>
+        <span class="nodeInspectorSubsectionTitle">Display Options</span>
     </h5>
-    <div class="collapse" id="nodeCategoryCollapse1">
+    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse1">
         <div class="card-body">
 
             <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
