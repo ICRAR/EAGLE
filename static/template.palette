@@ -2,9 +2,9 @@
     "modelData": {
         "fileType": "palette",
         "repoService": "Unknown",
-        "repoBranch": "",
+        "repoBranch": "master",
         "repo": "",
-        "filePath": "templatePalette.json",
+        "filePath": "template.palette",
         "sha": "",
         "git_url": "",
         "readonly": false

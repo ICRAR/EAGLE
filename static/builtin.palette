@@ -4,8 +4,7 @@
         "repoService": "Unknown",
         "repoBranch": "master",
         "repo": "",
-        "readonly": true,
-        "filePath": "builtinPalette.json",
+        "filePath": "builtin.palette",
         "sha": "",
         "git_url": "",
         "readonly": true
