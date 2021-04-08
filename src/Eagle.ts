@@ -410,6 +410,9 @@ export class Eagle {
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
         //set amount of collapsed node menus to default (0)
+
+        $(".nodeInspectorCollapseAll").collapse("hide");
+        $(".nodeMenuIndicator").addClass("closedIcon");
         Eagle.nodeInspectorCount = 0;
         //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
         switch (rightWindowMode){

@@ -62,9 +62,8 @@
             <!-- /ko -->
 
 
-            <div class="row no-gutters">
                 <!-- ko if: selectedNode().getCategoryType() === Eagle.CategoryType.Data -->
-                <div class="col">
+                
                     <div class="input-group mb-1">
                         <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly>
                         <div class="input-group-append">
@@ -74,9 +73,9 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                
 
-                <div class="col">
+                
                     <div class="input-group mb-1">
                         <input type="text" class="form-control" id="nodeShowPortsValue" placeholder="" aria-label="Show Ports" aria-describedby="node-show-ports" value="Show Ports" readonly>
                         <div class="input-group-append">
@@ -86,11 +85,11 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                
                 <!-- /ko -->
 
                 <!-- ko ifnot: selectedNode().isGroup() || selectedNode().isBranch() -->
-                <div class="col">
+                
                     <div class="input-group mb-1">
                         <input type="text" class="form-control" id="nodeFlipPortsValue" placeholder="" aria-label="Flip Ports" aria-describedby="node-flip-ports" value="Flip Ports" readonly>
                         <div class="input-group-append">
@@ -100,9 +99,8 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                
                 <!-- /ko -->
-            </div>
         </div>
     </div>
 </div>
