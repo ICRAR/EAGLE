@@ -134,7 +134,8 @@ test('Hello World save graph', async t =>{
   // Set the git token
   await t
     .setTestSpeed(TEST_SPEED)
-    .click(page.openSettings);
+    .click(page.navbarHelp)
+    .click(page.settings);
 
   // The script doesn't try to use the new access token, just the one already set
   await page.changeSetting(page.setGitToken, GITHUB_ACCESS_TOKEN);

@@ -215,7 +215,8 @@ test('Load palette', async t =>{
     await showMessageBox('Loading a palette from GitHub'); // This is all you need for a messageBox
 
     // enter the github access token
-    var rect = await page.getRect(page.openSettings);
+    await t.click(page.navbarHelp);
+    var rect = await page.getRect(page.settings);
     await showNoteBox('To access the repositories, create a GitHub access token with the correct permissions and enter it in Settings', rect, 'below', 1.5);
 
     // How to create a token on github
@@ -252,7 +253,8 @@ test('Load palette', async t =>{
     // Set the git token
     await t
       .setTestSpeed(TEST_SPEED)
-      .click(page.openSettings);
+      .click(page.navbarHelp)
+      .click(page.settings);
 
 
     // The script doesn't try to use the new access token, just the one already set
@@ -300,7 +302,8 @@ test('Graph creation', async t =>{
     // Loading a palette needs to be repeated to be ready to create the graph.
     // Doing this at maximum speed because it's not intended to be captured
     await t
-      .click(page.openSettings)
+      .click(page.navbarHelp)
+      .click(page.settings)
       .click(page.allowComponentEditing);
 
     // enter the github access token
@@ -502,7 +505,8 @@ test('Saving a graph', async t =>{
       .click(page.newRepoSubmit);
 
     // Note
-    var rect = await page.getRect(page.openSettings);
+    await t.click(page.navbarHelp);
+    var rect = await page.getRect(page.settings);
     await showNoteBox('You need to enter a GitHub access token in your settings with all \"repo\" permissions for the added repository', rect, 'below', 1.5);
 
     // How to create a token on github
@@ -546,7 +550,8 @@ test('Saving a graph', async t =>{
     // Set the git token
     await t
       .setTestSpeed(TEST_SPEED)
-      .click(page.openSettings);
+      .click(page.navbarHelp)
+      .click(page.settings);
 
     // The script doesn't try to use the new access token, just the one already set
     await page.changeSetting(page.setGitToken, GITHUB_ACCESS_TOKEN);

@@ -58,6 +58,7 @@ class Page {
     this.newGraph = Selector('#createNewGraph');
     this.navbarGit = Selector('#navbarDropdownGit');
     this.saveGitAs = Selector('#commitToGitAsGraph');
+    this.navbarHelp = Selector('#navbarDropdownHelp');
 
     this.descriptionField = Selector('textarea.form-control');
 
@@ -66,8 +67,7 @@ class Page {
     this.newRepoBranch = Selector('#gitCustomRepositoryModalRepositoryBranchInput');
     this.newRepoSubmit = Selector('#gitCustomRepositoryModalAffirmativeAnswer');
 
-    //this.setGitToken = Selector('#setGitHubAccessToken');
-    this.openSettings = Selector('#openSettings');
+    this.settings = Selector('#settings');
     this.allowComponentEditing = Selector('#setting7Button');
     this.setGitToken = Selector('#setting13Value');
     this.disableJSONval = Selector('#setting16Button');

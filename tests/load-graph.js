@@ -11,7 +11,8 @@ test('Load graph', async t => {
         .wait(2000)
 
         // open settings
-        .click('#openSettings')
+        .click('#navbarDropdownHelp')
+        .click('#settings')
 
         // enter the github access token
         .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN)
@@ -38,7 +39,8 @@ test('Load palette', async t => {
         .wait(2000)
 
         // open settings
-        .click('#openSettings')
+        .click('#navbarDropdownHelp')
+        .click('#settings')
 
         // enter the github access token
         .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN)
