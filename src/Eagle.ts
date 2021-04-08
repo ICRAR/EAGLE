@@ -1167,7 +1167,7 @@ export class Eagle {
             var showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             let errors: string[] = [];
-            this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), errors));
+            this.templatePalette(Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), errors));
 
             // show errors (if required)
             if (errors.length > 0 && showErrors){
@@ -1199,7 +1199,7 @@ export class Eagle {
                     console.error(error);
                     errors.push(error);
                 } else {
-                    let palette: Palette = Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errors);
+                    let palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errors);
                     palette.fileInfo().clear();
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;

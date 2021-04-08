@@ -4,7 +4,7 @@
         "repoService": "GitHub",
         "repoBranch": "master",
         "repo": "ICRAR/EAGLE",
-        "filePath": "static/builtinPalette.json",
+        "filePath": "static/builtin.palette",
         "sha": "",
         "git_url": "",
         "eagleVersion": "v3.0.0",
@@ -60,9 +60,9 @@
                     "text": "method",
                     "name": "method",
                     "value": "mean",
-                    "description": "the methd used for averaging",
+                    "description": "the method used for averaging",
                     "readonly": false,
-                    "type": "string"
+                    "type": "String"
                 },
                 {
                     "text": "appclass",
@@ -315,7 +315,7 @@
                     "text": "size",
                     "name": "size",
                     "value": 100,
-                    "description": "the siz of the array",
+                    "description": "the size of the array",
                     "readonly": false,
                     "type": "Integer"
                 },
@@ -330,18 +330,18 @@
                 {
                     "text": "low",
                     "name": "low",
-                    "value": "0",
+                    "value": 0,
                     "description": "low value of range in array [inclusive]",
                     "readonly": false,
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "text": "high",
                     "name": "high",
-                    "value": "1",
+                    "value": 1,
                     "description": "high value of range of array [exclusive]",
                     "readonly": false,
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "text": "appclass",
@@ -483,7 +483,7 @@
             "drawOrderHint": 0,
             "key": -6,
             "text": "Ngas Archiving",
-            "description": "An Application that takes its single data input and archives it in\nan NGAS server. This component does not provide any output.",
+            "description": "An Application that takes its single data input and archives it in an NGAS server. This component does not provide any output.",
             "x": 0,
             "y": 0,
             "width": 200,
@@ -511,26 +511,26 @@
                 {
                     "text": "Execution time",
                     "name": "execution_time",
-                    "value": "5",
+                    "value": 5,
                     "description": "Estimate of execution time (in seconds) for this application.",
                     "readonly": false,
-                    "type": "Unknown"
+                    "type": "Float"
                 },
                 {
                     "text": "Num CPUs",
                     "name": "num_cpus",
-                    "value": "1",
+                    "value": 1,
                     "description": "",
                     "readonly": false,
-                    "type": "Unknown"
+                    "type": "Integer"
                 },
                 {
                     "text": "Group start",
                     "name": "group_start",
-                    "value": "0",
+                    "value": false,
                     "description": "",
                     "readonly": false,
-                    "type": "Unknown"
+                    "type": "Boolean"
                 },
                 {
                     "text": "Appclass",
