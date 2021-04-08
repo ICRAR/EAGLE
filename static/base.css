@@ -366,10 +366,6 @@ nav.navbar .introjs-helperLayer {
     margin-right:-10px;
 }
 
-.show{
-    transition: 5ms;
-}
-
 #hiddenBSTrigger{
     visibility: hidden;
 }

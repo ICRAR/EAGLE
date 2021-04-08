@@ -61,46 +61,39 @@
             </div>
             <!-- /ko -->
 
+            <!-- ko if: selectedNode().getCategoryType() === Eagle.CategoryType.Data -->
+           <div class="input-group mb-1">
+                <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleStreaming" type="button" data-bind="click: function(){selectedNode().toggleStreaming();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                        <i class="material-icons md-18" data-bind="visible: selectedNode().isStreaming()">radio_button_checked</i>
+                        <i class="material-icons md-18" data-bind="hidden: selectedNode().isStreaming()">radio_button_unchecked</i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="input-group mb-1">
+                <input type="text" class="form-control" id="nodeShowPortsValue" placeholder="" aria-label="Show Ports" aria-describedby="node-show-ports" value="Show Ports" readonly>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleShowPorts" type="button" data-bind="click: function(){selectedNode().toggleShowPorts();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                        <i class="material-icons md-18" data-bind="visible: selectedNode().isShowPorts()">radio_button_checked</i>
+                        <i class="material-icons md-18" data-bind="hidden: selectedNode().isShowPorts()">radio_button_unchecked</i>
+                    </button>
+                </div>
+            </div>
+            <!-- /ko -->
 
-                <!-- ko if: selectedNode().getCategoryType() === Eagle.CategoryType.Data -->
-                
-                    <div class="input-group mb-1">
-                        <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly>
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleStreaming" type="button" data-bind="click: function(){selectedNode().toggleStreaming();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
-                                <i class="material-icons md-18" data-bind="visible: selectedNode().isStreaming()">radio_button_checked</i>
-                                <i class="material-icons md-18" data-bind="hidden: selectedNode().isStreaming()">radio_button_unchecked</i>
-                            </button>
-                        </div>
-                    </div>
-                
-
-                
-                    <div class="input-group mb-1">
-                        <input type="text" class="form-control" id="nodeShowPortsValue" placeholder="" aria-label="Show Ports" aria-describedby="node-show-ports" value="Show Ports" readonly>
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleShowPorts" type="button" data-bind="click: function(){selectedNode().toggleShowPorts();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
-                                <i class="material-icons md-18" data-bind="visible: selectedNode().isShowPorts()">radio_button_checked</i>
-                                <i class="material-icons md-18" data-bind="hidden: selectedNode().isShowPorts()">radio_button_unchecked</i>
-                            </button>
-                        </div>
-                    </div>
-                
-                <!-- /ko -->
-
-                <!-- ko ifnot: selectedNode().isGroup() || selectedNode().isBranch() -->
-                
-                    <div class="input-group mb-1">
-                        <input type="text" class="form-control" id="nodeFlipPortsValue" placeholder="" aria-label="Flip Ports" aria-describedby="node-flip-ports" value="Flip Ports" readonly>
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleFlipPorts" type="button" data-bind="click: function(){selectedNode().toggleFlipPorts();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
-                                <i class="material-icons md-18" data-bind="visible: selectedNode().isFlipPorts()">radio_button_checked</i>
-                                <i class="material-icons md-18" data-bind="hidden: selectedNode().isFlipPorts()">radio_button_unchecked</i>
-                            </button>
-                        </div>
-                    </div>
-                
-                <!-- /ko -->
+            <!-- ko ifnot: selectedNode().isGroup() || selectedNode().isBranch() -->
+            <div class="input-group mb-1">
+                <input type="text" class="form-control" id="nodeFlipPortsValue" placeholder="" aria-label="Flip Ports" aria-describedby="node-flip-ports" value="Flip Ports" readonly>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleFlipPorts" type="button" data-bind="click: function(){selectedNode().toggleFlipPorts();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                        <i class="material-icons md-18" data-bind="visible: selectedNode().isFlipPorts()">radio_button_checked</i>
+                        <i class="material-icons md-18" data-bind="hidden: selectedNode().isFlipPorts()">radio_button_unchecked</i>
+                    </button>
+                </div>
+            </div>
+            <!-- /ko -->
         </div>
     </div>
 </div>

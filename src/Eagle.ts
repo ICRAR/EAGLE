@@ -2646,16 +2646,17 @@ export class Eagle {
         if (triggerClass){
             //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
             //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
-            $(".translationToggle").addClass("closedIcon")
+            $(".translationToggle").addClass("closedIcon");
             var toggleState = collapseTarget.parent().parent().parent().children(".collapse").hasClass('show');
         }else{
             //This is for collapse icon on the node palettes and in the node settings menu.
             var toggleState = collapseTarget.parent().parent().children(".collapse").hasClass('show');
+            //this is for the global node inspector collapsable counter to keep the collapse all button state synced
             if(collapseTarget.parent().parent().children(".collapse").hasClass("nodeInspectorCollapseAll")){
                 if(toggleState){
-                    Eagle.nodeInspectorCount --
+                    Eagle.nodeInspectorCount --;
                 }else{
-                    Eagle.nodeInspectorCount ++
+                    Eagle.nodeInspectorCount ++;
                 }
 
                 if (Eagle.nodeInspectorCount === 0){
@@ -2671,10 +2672,10 @@ export class Eagle {
         }else{
             collapseTarget.removeClass("closedIcon");
         }
-
     }
 
     toggleAllNodeMenus = () => {
+        //toggle all node inspector collapsables functionality
         if(Eagle.nodeInspectorCount != 0){
             $(".nodeInspectorCollapseAll").collapse("hide");
             $(".nodeMenuIndicator").addClass("closedIcon");
