@@ -214,7 +214,8 @@ test('Hello World graph', async t =>{
         .setTestSpeed(TEST_SPEED*0.7);
 
     // await t
-    //   .click(page.openSettings)
+    //   .click(page.navbarHelp)
+    //   .click(page.settings)
     //   .click(page.allowComponentEditing)
     //   .click(page.settingsSubmit);
 
@@ -357,7 +358,8 @@ test('Hello World save graph', async t =>{
     .click(page.newRepoSubmit);
 
   // Note
-  var rect = await page.getRect(page.openSettings);
+  await t.click(page.navbarHelp);
+  var rect = await page.getRect(page.settings);
   await showNoteBox('You need to enter a GitHub access token in your settings with all \"repo\" permissions for the added repository', rect, 'below', 1.5);
 
 
@@ -416,7 +418,8 @@ test('Hello World save graph', async t =>{
   // Set the git token
   await t
     .setTestSpeed(TEST_SPEED)
-    .click(page.openSettings);
+    .click(page.navbarHelp)
+    .click(page.settings);
 
   // The script doesn't try to use the new access token, just the one already set
   await page.changeSetting(page.setGitToken, GITHUB_ACCESS_TOKEN);
