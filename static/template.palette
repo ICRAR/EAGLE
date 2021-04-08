@@ -1,12 +1,15 @@
 {
     "modelData": {
         "fileType": "palette",
-        "repoService": "Unknown",
+        "repoService": "GitHub",
         "repoBranch": "master",
-        "repo": "",
-        "filePath": "template.palette",
+        "repo": "ICRAR/EAGLE",
+        "filePath": "static/template.palette",
         "sha": "",
         "git_url": "",
+        "eagleVersion": "v3.0.0",
+        "eagleCommitHash": "",
+        "schemaVersion": "",
         "readonly": false
     },
     "nodeDataArray": [
