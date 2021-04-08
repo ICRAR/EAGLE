@@ -1151,7 +1151,6 @@ export class Eagle {
         });
     }
 
-
     /**
      * Loads template palette from the server.
      */
@@ -1165,20 +1164,14 @@ export class Eagle {
                 return;
             }
 
-            var fileType: Eagle.FileType = Utils.translateStringToFileType((<any>data).modelData.fileType);
             var showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
-            if (fileType == Eagle.FileType.TemplatePalette) {
-                let errors: string[] = [];
-                this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), errors));
+            let errors: string[] = [];
+            this.templatePalette(Palette.fromOJSJson(JSON.stringify(data), new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), errors));
 
-                // TODO: show errors (if required)
-                if (errors.length > 0 && showErrors){
-                    Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
-                }
-            } else {
-                Utils.showUserMessage("Error", "File type is not a template palette!");
-                return;
+            // show errors (if required)
+            if (errors.length > 0 && showErrors){
+                Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
             }
 
             // Extracting data from the palette template.
@@ -3110,7 +3103,6 @@ export namespace Eagle
     export enum FileType {
         Graph,
         Palette,
-        TemplatePalette,
         JSON,
         Unknown
     }

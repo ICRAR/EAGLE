@@ -279,8 +279,6 @@ export class Utils {
             return Eagle.FileType.Graph;
         if (fileType === "palette")
             return Eagle.FileType.Palette;
-        if (fileType === "templatePalette")
-            return Eagle.FileType.TemplatePalette;
         if (fileType === "json")
             return Eagle.FileType.JSON;
 
@@ -293,8 +291,6 @@ export class Utils {
             return "graph";
         if (fileType === Eagle.FileType.Palette)
             return "palette";
-        if (fileType === Eagle.FileType.TemplatePalette)
-            return "templatePalette";
         if (fileType === Eagle.FileType.JSON)
             return "json";
 

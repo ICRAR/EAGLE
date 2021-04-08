@@ -1,5 +1,4 @@
 {
-    "class": "go.GraphLinksModel",
     "modelData": {
         "fileType": "palette",
         "repoService": "Unknown",
@@ -39,21 +38,31 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean"
             },{
                 "text": "Arg01",
                 "name": "Arg01",
                 "value": "",
-                "description": "The command line to be executed"
+                "description": "The command line to be executed",
+                "readonly": false,
+                "type": "String"
             }],
             "key": -3,
             "text": "Bash Shell App",
@@ -68,20 +77,31 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean"
             }, {
                 "text": "Library path",
                 "name": "libpath",
-                "value": ""
+                "value": "",
+                "description": "The location of the shared object/DLL that implements this application",
+                "readonly": false,
+                "type": "String"
             }],
             "key": -13,
             "text": "Dynlib App",
@@ -96,20 +116,31 @@
             "fields": [{
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean"
             }, {
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Num procs",
                 "name": "num_of_procs",
-                "value": "4"
+                "value": "4",
+                "description": "Number of processes used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }],
             "key": -9,
             "text": "MPI",
@@ -124,40 +155,66 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean"
             }, {
                 "text": "Image",
                 "name": "image",
-                "value": ""
+                "value": "",
+                "description": "Name of the docker image to be used for this application",
+                "readonly": false,
+                "type": "String"
             }, {
                 "text": "Command",
                 "name": "command",
-                "value": ""
+                "value": "",
+                "description": "The command line to run within the docker instance",
+                "readonly": false,
+                "type": "String"
             }, {
                 "text": "User",
                 "name": "user",
-                "value": ""
+                "value": "",
+                "description": "Username of the user who will run the application within the docker image",
+                "readonly": false,
+                "type": "String"
             }, {
                 "text": "Ensure User And Switch",
                 "name": "ensureUserAndSwitch",
-                "value": "0"
+                "value": 0,
+                "description":"",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Remove Container",
                 "name": "removeContainer",
-                "value": "1"
+                "value": 1,
+                "description":"",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Additional Bindings",
                 "name": "additionalBindings",
-                "value": ""
+                "value": "",
+                "description":"Any additional bindings that should be passed through to the image",
+                "readonly": false,
+                "type": ""
             }],
             "key": -11,
             "text": "Docker",
@@ -175,21 +232,31 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean"
             }, {
                 "text": "Appclass",
                 "name": "appclass",
                 "value": "test.graphsRepository",
-                "description": "The python class that implements this application"
+                "description": "The python class that implements this application",
+                "readonly": false,
+                "type": "String"
             }],
             "categoryType": "Application",
             "inputPorts": [],
@@ -201,11 +268,17 @@
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
-                "value": "5"
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean"
             }],
             "shape": "Card",
             "key": -4,
@@ -220,23 +293,38 @@
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
-                "value": "5"
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean"
             }, {
                 "text": "Check file path exists",
                 "name": "check_filepath_exists",
-                "value": "1"
+                "value": true,
+                "description": "Perform a check to make sure the file path exists before proceeding with the application",
+                "readonly": false,
+                "type": "Boolean"
             }, {
                 "text": "File path",
                 "name": "filepath",
-                "value": ""
+                "value": "",
+                "description": "Path to the file for this node",
+                "readonly": false,
+                "type": "String"
             }, {
                 "text": "Directory name",
                 "name": "dirname",
-                "value": ""
+                "value": "",
+                "description": "Name of the directory containing the file for this node",
+                "readonly": false,
+                "type": "String"
             }],
             "shape": "Card",
             "key": -5,
@@ -251,26 +339,38 @@
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
-                "value": "5"
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean"
             }, {
                 "text": "Bucket",
                 "name": "bucket",
                 "value": "",
-                "description": "The S3 Bucket"
+                "description": "The S3 Bucket",
+                "readonly": false,
+                "type": "String"
             }, {
                 "text": "Object Name",
                 "name": "object_name",
                 "value": "",
-                "description": "The S3 Object"
+                "description": "The S3 Object",
+                "readonly": false,
+                "type": "String"
             }, {
                 "text": "Profile Name",
                 "name": "profile_name",
                 "value": "",
-                "description": "The S3 Profile"
+                "description": "The S3 Profile",
+                "readonly": false,
+                "type": "String"
             }],
             "shape": "Card",
             "key": -6,
@@ -285,21 +385,31 @@
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
-                "value": "5"
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean"
             }, {
                 "text": "NGAS Server",
                 "name": "ngasSrv",
                 "value": "localhost",
-                "description": "The URL of the NGAS Server"
+                "description": "The URL of the NGAS Server",
+                "readonly": false,
+                "type": "String"
             }, {
                 "text": "NGAS Port",
                 "name": "ngasPort",
-                "value": "7777",
-                "description": "The port of the NGAS Server"
+                "value": 7777,
+                "description": "The port of the NGAS Server",
+                "readonly": false,
+                "type": "Integer"
             }],
             "shape": "Card",
             "key": -7,
@@ -314,11 +424,17 @@
             "fields": [{
                 "text": "Data volume",
                 "name": "data_volume",
-                "value": "5"
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Group end",
                 "name": "group_end",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean"
             }],
             "shape": "Card",
             "key": -24,
@@ -339,11 +455,17 @@
             "fields": [{
                 "text": "Group key",
                 "name": "group_key",
-                "value": "None"
+                "value": "None",
+                "description": "",
+                "readonly": false,
+                "type": "String"
             }, {
                 "text": "Group axis",
                 "name": "group_axis",
-                "value": "frequency"
+                "value": "frequency",
+                "description": "",
+                "readonly": false,
+                "type": "String"
             }],
             "categoryType": "Group",
             "readonly": false
@@ -360,11 +482,17 @@
             "fields": [{
                 "text": "Number of inputs",
                 "name": "num_of_inputs",
-                "value": "2"
+                "value": 2,
+                "description": "The number of inputs that will be gathered together by this construct.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Gather axis",
                 "name": "gather_axis",
-                "value": "frequency"
+                "value": "frequency",
+                "description": "The axis by which to gather the inputs together",
+                "readonly": false,
+                "type": "String"
             }],
             "categoryType": "Group",
             "readonly": false
@@ -381,11 +509,17 @@
             "fields": [{
                 "text": "Number of copies",
                 "name": "num_of_copies",
-                "value": "4"
+                "value": 4,
+                "description": "The number of outputs generated by this construct",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Scatter axis",
                 "name": "scatter_axis",
-                "value": "time"
+                "value": "time",
+                "description": "The axis used to split the input into multiple outputs",
+                "readonly": false,
+                "type": "String"
             }],
             "categoryType": "Group",
             "readonly": false
@@ -402,15 +536,24 @@
             "fields": [{
                 "text": "M",
                 "name": "m",
-                "value": "1"
+                "value": 1,
+                "description": "The input-side multiplicity of this construct",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "K",
                 "name": "k",
-                "value": "1"
+                "value": 1,
+                "description": "The internal multiplicity of this construct",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "N",
                 "name": "n",
-                "value": "1"
+                "value": 1,
+                "description": "The output-side multiplicity of this construct",
+                "readonly": false,
+                "type": "Integer"
             }],
             "categoryType": "Group",
             "readonly": false
@@ -427,7 +570,10 @@
             "fields": [{
                 "text": "Number loops",
                 "name": "num_of_iter",
-                "value": "5"
+                "value": 5,
+                "description": "The number of iterations performed by this loop construct",
+                "readonly": false,
+                "type": "Integer"
             }],
             "categoryType": "Group",
             "readonly": false
@@ -452,7 +598,9 @@
                 "text": "Comment",
                 "name": "comment",
                 "value": "",
-                "description": "The text value of the comment"
+                "description": "The text value of the comment",
+                "readonly": false,
+                "type": "String"
             }],
             "shape": "File",
             "key": -12,
@@ -469,7 +617,9 @@
                 "text": "Description",
                 "name": "description",
                 "value": "",
-                "description": "The text value of the description"
+                "description": "The text value of the description",
+                "readonly": false,
+                "type": "String"
             }],
             "key": -21,
             "text": "Description",
@@ -516,21 +666,31 @@
             "fields": [{
                 "text": "Execution time",
                 "name": "execution_time",
-                "value": "5",
-                "description": "Estimate of execution time (in seconds) for this application."
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
-                "value": "1"
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
             }, {
                 "text": "Group start",
                 "name": "group_start",
-                "value": "0"
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean"
             }, {
                 "text": "Appclass",
                 "name": "appclass",
                 "value": "dlg.apps.simple.BranchBaseApp",
-                "description": "The python class that implements this branch"
+                "description": "The python class that implements this branch construct",
+                "readonly": false,
+                "type": "String"
             }],
             "categoryType": "Control",
             "readonly": false
