@@ -7,7 +7,7 @@ import github from './github-model';
 /*
     run with:
 
-    testcafe -s "/Users/james/testcafe/" --video "/Users/james/testcafe/videos/" "chrome '--window-size=1920,1208'" tests/summit.js
+    testcafe chrome tests/long-test.js
 */
 
 var PROJECT_PATH = "";
@@ -108,7 +108,7 @@ test('Graph creation', async t =>{
     // add the gather
     await page.addPaletteNode(0,13,false);
 
-    await page.addNodeInputApplication("All Nodes:Python App");
+    await page.addNodeInputApplication("Python App");
 
     await t.click('#nodeInspectorInspectInputApplication');
 
