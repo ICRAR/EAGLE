@@ -23,6 +23,10 @@ export class Port {
         return this._id;
     }
 
+    setId = (id: string): void => {
+        this._id = id;
+    }
+
     getName = () : string => {
         return this.name;
     }

@@ -204,8 +204,8 @@ export class Eagle {
     }, this);
 
     // generate a list of Application nodes within the open palettes
-    getApplicationList = () : string[] => {
-        var list : string[] = [];
+    getApplications = () : Node[] => {
+        var list: Node[] = [];
 
         for (var i = 0 ; i < this.palettes().length ; i++){
             var palette : Palette = this.palettes()[i];
@@ -214,7 +214,7 @@ export class Eagle {
                 var node : Node = palette.getNodes()[j];
 
                 if (node.getCategoryType() === Eagle.CategoryType.Application){
-                    list.push(palette.fileInfo().name + ":" + node.getName());
+                    list.push(node);
                 }
             }
         }
@@ -222,6 +222,7 @@ export class Eagle {
         return list;
     }
 
+    /*
     getApplication = (paletteName : string, nodeName : string) : Node => {
         for (var i = 0 ; i < this.palettes().length ; i++){
             var palette : Palette = this.palettes()[i];
@@ -241,6 +242,7 @@ export class Eagle {
 
         return null;
     }
+    */
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
         var fileInfo : FileInfo = this.activeFileInfo();
@@ -495,8 +497,10 @@ export class Eagle {
 
         var translatorURL : string = Eagle.findSetting(Utils.TRANSLATOR_URL).value();
 
+        var schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS, Eagle.DALiuGESchemaVersion.AppRef];
+
         // ask user to specify graph format to be sent to translator
-        Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", [Eagle.DALiuGESchemaVersion.OJS, Eagle.DALiuGESchemaVersion.AppRef], 0, false, "", (completed: boolean, userString: string) => {
+        Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number, useCustomChoice: string) => {
             if (!completed){
                 console.log("User aborted translation.");
                 return;
@@ -506,7 +510,7 @@ export class Eagle {
 
             // get json for logical graph
             let json;
-            switch (userString){
+            switch (schemas[userChoiceIndex]){
                 case Eagle.DALiuGESchemaVersion.OJS:
                     json = LogicalGraph.toOJSJson(this.logicalGraph());
                     break;
@@ -520,7 +524,7 @@ export class Eagle {
 
             // validate json
             if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-                let isValid : boolean = Utils.validateJSON(json, <Eagle.DALiuGESchemaVersion>userString, Eagle.FileType.Graph);
+                let isValid : boolean = Utils.validateJSON(json, schemas[userChoiceIndex], Eagle.FileType.Graph);
                 if (!isValid){
                     console.error("JSON Invalid, saving anyway");
                     Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
@@ -2060,10 +2064,18 @@ export class Eagle {
         let paletteNames: string[] = this.buildPaletteNamesList();
 
         // ask user to select the destination node
-        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node", paletteNames, 0, true, "New Palette Name", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node", paletteNames, 0, true, "New Palette Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
             // abort if the user aborted
             if (!completed){
                 return;
+            }
+
+            // if user made custom choice
+            var userString: string = "";
+            if (userChoiceIndex === paletteNames.length){
+                userString = userCustomChoice;
+            } else {
+                userString = paletteNames[userChoiceIndex];
             }
 
             // Adding file extension to the title if it does not have it.
@@ -2198,10 +2210,18 @@ export class Eagle {
         let paletteNames: string[] = this.buildPaletteNamesList();
 
         // ask user to select the destination node
-        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
             // abort if the user aborted
             if (!completed){
                 return;
+            }
+
+            // if user made custom choice
+            var userString: string = "";
+            if (userChoiceIndex === paletteNames.length){
+                userString = userCustomChoice;
+            } else {
+                userString = paletteNames[userChoiceIndex];
             }
 
             // Adding file extension to the title if it does not have it.
@@ -2335,25 +2355,37 @@ export class Eagle {
      * Shows a list of input/output port names for selection.
      */
     selectPortName = (node : Node, isInputPort : boolean) => {
-        var uniquePortNames : string[];
+        var allPorts: Port[] = [];
 
         // if in palette editor mode, get port names list from the palette,
         // if in logical graph editor mode, get port names list from the logical graph
         if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            uniquePortNames = Utils.getPortNameList(this.editorPalette());
+            allPorts = Utils.getAllPorts(this.editorPalette());
         } else {
-            uniquePortNames = Utils.getPortNameList(this.logicalGraph());
+            allPorts = Utils.getAllPorts(this.logicalGraph());
+        }
+
+        var allPortNames: string[] = [];
+        for (var i = 0 ; i < allPorts.length ; i++){
+            allPortNames.push(allPorts[i].getName());
         }
 
         var titlePrefix : string = isInputPort ? "Input " : "Output ";
-        Utils.requestUserChoice(titlePrefix + "Port Name", "Please select a port name", uniquePortNames, 0, true, "Custom Port Name", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice(titlePrefix + "Port Name", "Please select a port name", allPortNames, 0, true, "Custom Port Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
             // abort if the user aborted
             if (!completed){
                 return;
             }
 
-            // add port with the chosen name
-            node.addPort(new Port(Utils.uuidv4(), userString, false, Eagle.DataType.Unknown), isInputPort);
+            if (userChoiceIndex === allPortNames.length){
+                // add port with the chosen name
+                node.addPort(new Port(Utils.uuidv4(), userCustomChoice, false, Eagle.DataType.Unknown), isInputPort);
+            } else {
+                // clone an existing port
+                var newPort: Port = allPorts[userChoiceIndex].clone();
+                newPort.setId(Utils.uuidv4());
+                node.addPort(newPort, isInputPort);
+            }
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
@@ -2363,26 +2395,33 @@ export class Eagle {
     }
 
     selectFieldName = (node: Node) => {
-        var uniqueFieldNames : string[];
+        var allFields: Field[] = [];
 
         // if in palette editor mode, get field names list from the palette,
         // if in logical graph editor mode, get field names list from the logical graph
         if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            uniqueFieldNames = Utils.getFieldTextList(this.editorPalette());
+            allFields = Utils.getAllFields(this.editorPalette());
         } else {
-            uniqueFieldNames = Utils.getFieldTextList(this.logicalGraph());
+            allFields = Utils.getAllFields(this.logicalGraph());
         }
 
-        Utils.requestUserChoice("Add Parameter", "Please select a parameter name, or create a custom name", uniqueFieldNames, 0, true, "Custom Parameter Name", (completed : boolean, userString : string) => {
+        var allFieldNames: string[] = [];
+        for (var i = 0 ; i < allFields.length ; i++){
+            allFieldNames.push(allFields[i].getName());
+        }
+
+        Utils.requestUserChoice("Add Parameter", "Please select a parameter name, or create a custom name", allFieldNames, 0, true, "Custom Parameter Name", (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
             if (!completed){
                 return;
             }
 
-            // produce a name for this field
-            var fieldName = Utils.fieldTextToFieldName(userString);
-
-            // add the field
-            node.addField(new Field(userString, fieldName, "", "", false, Eagle.DataType.Unknown));
+            // if custom choice
+            if (userChoiceIndex === allFieldNames.length){
+                node.addField(new Field(userCustomChoice, Utils.fieldTextToFieldName(userCustomChoice), "", "", false, Eagle.DataType.Unknown));
+            } else { // if one of the given choices
+                let clone : Field = allFields[userChoiceIndex].clone();
+                node.addField(clone);
+            }
 
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
@@ -2422,12 +2461,14 @@ export class Eagle {
         nodeList.push("None : 0");
 
         // ask user to choose a parent
-        Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
             if (!completed)
                 return;
 
+            var choice: string = nodeList[userChoiceIndex];
+
             // change the parent
-            var newParentKey : number = parseInt(userString.substring(userString.lastIndexOf(" ") + 1), 10);
+            var newParentKey : number = parseInt(choice.substring(choice.lastIndexOf(" ") + 1), 10);
 
             // key '0' is a special case
             if (newParentKey === 0){
@@ -2465,12 +2506,14 @@ export class Eagle {
         }
 
         // ask user for parent
-        Utils.requestUserChoice("Node Subject Id", "Select a subject node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice("Node Subject Id", "Select a subject node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
             if (!completed)
                 return;
 
+            var choice = nodeList[userChoiceIndex];
+
             // change the subject
-            var newSubjectKey : number = parseInt(userString.substring(userString.lastIndexOf(" ") + 1), 10);
+            var newSubjectKey : number = parseInt(choice.substring(choice.lastIndexOf(" ") + 1), 10);
             this.selectedNode().setSubjectKey(newSubjectKey);
             this.selectedNode.valueHasMutated();
             this.flagActiveDiagramHasMutated();
@@ -2855,15 +2898,15 @@ export class Eagle {
         }
 
         // ask the user to choose a node
-        Utils.requestUserChoice("Select node", "Choose the input or output node to connect to this parameter", nodes, 0, false, "", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice("Select node", "Choose the input or output node to connect to this parameter", nodes, 0, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
             // abort if the user aborted
             if (!completed){
                 return;
             }
 
             // split the user string into input/output, name, key
-            var isInput : boolean = userString.split(":")[0] === "input";
-            var key : string = userString.split(":")[2];
+            var isInput : boolean = nodes[userChoiceIndex].split(":")[0] === "input";
+            var key : string = nodes[userChoiceIndex].split(":")[2];
 
             var newValue : string;
             if (isInput){
@@ -2892,48 +2935,35 @@ export class Eagle {
     private setNodeApplication = (title: string, message: string, callback:(node:Node) => void) : void => {
         console.log("setNodeApplication()");
 
-        var applicationList : string[] = this.getApplicationList();
+        var applications: Node[] = this.getApplications();
+        var applicationNames: string[] = [];
+        for (var i = 0 ; i < applications.length ; i++){
+            applicationNames.push(applications[i].getName())
+        }
 
         // add "None" to the application list
-        applicationList.push(Node.NO_APP_STRING);
+        applicationNames.push(Node.NO_APP_STRING);
 
-        Utils.requestUserChoice(title, message, applicationList, 0, false, "", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice(title, message, applicationNames, 0, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
             if (!completed){
                 return;
             }
 
-            console.log("userString:" + userString);
-
             // abort if the user picked "None"
-            if (userString === Node.NO_APP_STRING){
+            if (userChoiceIndex === applicationNames.length - 1){
                 console.log("User selected no application");
                 callback(null);
                 this.updateTooltips();
                 return;
             }
 
-            var paletteName = userString.split(":")[0];
-            var nodeName    = userString.split(":")[1];
-
-            console.log("Find application", paletteName, nodeName);
-
-            var application : Node = this.getApplication(paletteName, nodeName);
+            var application : Node = applications[userChoiceIndex];
 
             // clone the input application to make a local copy
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
             let clone : Node = application.clone();
             let newKey : number = Utils.newKey(this.logicalGraph().getNodes());
             clone.setKey(newKey);
-
-            // set nodeKey on clone's ports to match the clone
-            for (let i = 0 ; i < clone.getInputPorts().length ; i++){
-                let port = clone.getInputPorts()[i];
-                port.setNodeKey(newKey);
-            }
-            for (let i = 0 ; i < clone.getOutputPorts().length ; i++){
-                let port = clone.getOutputPorts()[i];
-                port.setNodeKey(newKey);
-            }
 
             callback(clone);
             this.updateTooltips();
