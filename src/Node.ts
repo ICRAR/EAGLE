@@ -71,6 +71,8 @@ export class Node {
 
     private inspectorSectionCollapsedDescription : ko.Observable<boolean>;
     private inspectorSectionCollapsedDisplayOptions : ko.Observable<boolean>;
+    private inspectorSectionCollapsedParameters : ko.Observable<boolean>;
+    // TODO: more
 
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 200;
@@ -124,6 +126,7 @@ export class Node {
 
         this.inspectorSectionCollapsedDescription = ko.observable(true);
         this.inspectorSectionCollapsedDisplayOptions = ko.observable(true);
+        this.inspectorSectionCollapsedParameters = ko.observable(true);
     }
 
     getKey = () : number => {
@@ -1131,14 +1134,11 @@ export class Node {
 
         this.inspectorSectionCollapsedDescription(!allCollapsed);
         this.inspectorSectionCollapsedDisplayOptions(!allCollapsed);
+        this.inspectorSectionCollapsedParameters(!allCollapsed);
         // TODO: more
 
         // actually ask bootstrap to collapse all the sections
-        if (allCollapsed){
-            $(".nodeInspectorCollapseAll").collapse("show");
-        } else {
-            $(".nodeInspectorCollapseAll").collapse("hide");
-        }
+        $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
     }
 
     toggleInspectorSection = (item: any, e: JQueryEventObject): void => {
@@ -1153,6 +1153,8 @@ export class Node {
             case "Display Options":
                 this.inspectorSectionCollapsedDisplayOptions(!this.inspectorSectionCollapsedDisplayOptions());
                 break;
+            case "Parameters":
+                this.inspectorSectionCollapsedParameters(!this.inspectorSectionCollapsedParameters());
             // TODO: more
             default:
             console.warn("Unknown inspector section", sectionName);
@@ -1174,6 +1176,9 @@ export class Node {
                 case "Display Options":
                     $(element).collapse(this.inspectorSectionCollapsedDisplayOptions() ? "hide" : "show");
                     break;
+                case "Parameters":
+                    $(element).collapse(this.inspectorSectionCollapsedParameters() ? "hide" : "show");
+                    break;
                 // TODO: more
                 default:
                     console.warn("Unknown inspector section", sectionName);
@@ -1184,7 +1189,7 @@ export class Node {
 
     allInspectorSectionsCollapsed : ko.PureComputed<boolean> = ko.pureComputed(() => {
         // TODO: more
-        return this.inspectorSectionCollapsedDescription() && this.inspectorSectionCollapsedDisplayOptions();
+        return this.inspectorSectionCollapsedDescription() && this.inspectorSectionCollapsedDisplayOptions() && this.inspectorSectionCollapsedParameters();
     }, this);
 
     static canHaveInputApp = (node : Node) : boolean => {
