@@ -7,8 +7,8 @@
         "filePath": "static/builtin.palette",
         "sha": "",
         "git_url": "",
-        "eagleVersion": "v3.0.0",
-        "eagleCommitHash": "7b538bf900524e4addf8a2a92b2bf322ae7d299d",
+        "eagleVersion": "v3.0.1",
+        "eagleCommitHash": "932a1061decbdc0412cbe07df0570614e792a160",
         "schemaVersion": "",
         "readonly": true
     },
@@ -483,7 +483,7 @@
             "drawOrderHint": 0,
             "key": -6,
             "text": "Ngas Archiving",
-            "description": "An Application that takes its single data input and archives it in an NGAS server. This component does not provide any output.",
+            "description": "An Application that takes its single data input and archives it on a NGAS server. This component does not provide any output.",
             "x": 0,
             "y": 0,
             "width": 200,
@@ -542,7 +542,7 @@
                 },
                 {
                     "text": "NGAS Server",
-                    "name": "ngas_server",
+                    "name": "ngasSrv",
                     "value": "ngas.ddns.net",
                     "description": "Hostname of the server running NGAS",
                     "readonly": false,
@@ -550,7 +550,7 @@
                 },
                 {
                     "text": "NGAS Port",
-                    "name": "ngas_port",
+                    "name": "ngasPort",
                     "value": 7777,
                     "description": "Port the NGAS server is listening on",
                     "readonly": false,
@@ -571,6 +571,14 @@
                     "description": "NGAS connection timeout",
                     "readonly": false,
                     "type": "Float"
+                },
+                {
+                    "text": "Mime Type",
+                    "name": "ngasMime",
+                    "value": "application/octet-stream",
+                    "description": "Mime type used for NGAS archiving",
+                    "readonly": false,
+                    "type": "String"
                 }
             ],
             "inputAppFields": [],
