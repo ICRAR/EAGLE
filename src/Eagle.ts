@@ -70,6 +70,7 @@ export class Eagle {
     globalOffsetY : number = 0;
     globalScale : number = 1.0;
 
+    nodeInspectorCollapsed: ko.Observable<boolean>;
 
     static settings : ko.ObservableArray<Setting>;
 
@@ -84,7 +85,6 @@ export class Eagle {
 
     static nodeDropped : Element;
     static nodeDropLocation = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
-    static nodeInspectorCount : number = 0; // this is 0 if all menus collapsed and counts how many are open
 
     constructor(){
         this.editorPalette = ko.observable(null);
@@ -129,6 +129,8 @@ export class Eagle {
         this.editorPalette.subscribe(this.updateTooltips);
         this.palettes.subscribe(this.updateTooltips);
         this.selectedNode.subscribe(this.updateTooltips);
+
+        this.nodeInspectorCollapsed = ko.observable(false);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -411,9 +413,8 @@ export class Eagle {
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
         //set amount of collapsed node menus to default (0)
 
-        $(".nodeInspectorCollapseAll").collapse("hide");
-        $(".nodeMenuIndicator").addClass("closedIcon");
-        Eagle.nodeInspectorCount = 0;
+        //$(".nodeMenuIndicator").addClass("closedIcon");
+
         //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
         switch (rightWindowMode){
             case Eagle.RightWindowMode.Hierarchy:
@@ -445,6 +446,9 @@ export class Eagle {
                 Eagle.selectedNodeKey = (<Node>selection).getKey();
                 this.selectedNode(<Node>selection);
                 this.selectedEdge(null);
+
+                // update the display of all the sections of the node inspector (collapse/expand as appropriate)
+                this.selectedNode().updateAllInspectorSections();
 
                 // expand this node's parents, all the way to the root of the hierarchy
                 var n : Node = <Node>selection;
@@ -2633,67 +2637,34 @@ export class Eagle {
         return true;
     }
 
-    spinCollapseIcon = (item:any, e:JQueryEventObject) => {
-        //this function handels only the visible ui element that indicates the state of the collapsable object.
-        //the collapse functyion itself is handled by bootstrap.
-        //getting event target for collapse action.
-        var collapseTarget = $(e.currentTarget) as JQuery<HTMLElement>;
-        collapseTarget = collapseTarget.find('i').first();
-        //getting current state of collapsable object.
-        var triggerClass = collapseTarget.hasClass("translationToggle");
-        var toggleState : boolean
-        
-        if (triggerClass){
+    spinCollapseIcon = (item: any, e: JQueryEventObject) => {
+        // this function handles only the visible ui element that indicates the state of the collapsable object.
+        // the collapse function itself is handled by bootstrap.
+
+        // getting event target for collapse action.
+        var target: JQuery<Element> = $(e.currentTarget);
+        var icon: JQuery<Element> = target.find('i').first();
+
+        // getting current state of collapsable object.
+        var isTranslationToggle = icon.hasClass("translationToggle");
+        var toggleState : boolean;
+
+        if (isTranslationToggle){
             //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
             //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
             $(".translationToggle").addClass("closedIcon");
-            var toggleState = collapseTarget.parent().parent().parent().children(".collapse").hasClass('show');
-        }else{
-            //This is for collapse icon on the node palettes and in the node settings menu.
-            var toggleState = collapseTarget.parent().parent().children(".collapse").hasClass('show');
-            //this is for the global node inspector collapsable counter to keep the collapse all button state synced
-            if(collapseTarget.parent().parent().children(".collapse").hasClass("nodeInspectorCollapseAll")){
-                if(toggleState){
-                    Eagle.nodeInspectorCount --;
-                }else{
-                    Eagle.nodeInspectorCount ++;
-                }
-
-                if (Eagle.nodeInspectorCount === 0){
-                    $("#nodeInspectorHeading").find('i').first().addClass("closedIcon");
-                }else{
-                    $("#nodeInspectorHeading").find('i').first().removeClass("closedIcon");
-                }
-            }
+            toggleState = icon.parent().parent().parent().children(".collapse").hasClass('show');
+        } else {
+            toggleState = icon.parent().parent().children(".collapse").hasClass('show');
         }
 
-        if(toggleState){
-            collapseTarget.addClass("closedIcon");
-        }else{
-            collapseTarget.removeClass("closedIcon");
-        }
-    }
+        console.log("isTranslationToggle", isTranslationToggle, "toggleState", toggleState);
 
-    toggleAllNodeMenus = () => {
-        //toggle all node inspector collapsables functionality
-        if(Eagle.nodeInspectorCount != 0){
-            $(".nodeInspectorCollapseAll").collapse("hide");
-            $(".nodeMenuIndicator").addClass("closedIcon");
-            $("#nodeInspectorHeading").find('i').first().addClass("closedIcon");
-            Eagle.nodeInspectorCount = 0;
-        }else{
-            $(".nodeInspectorCollapseAll").collapse("show");
-            $(".nodeMenuIndicator").removeClass("closedIcon");
-            $("#nodeInspectorHeading").find('i').first().removeClass("closedIcon");
+        if (toggleState){
+            icon.addClass("closedIcon");
+        } else {
+            icon.removeClass("closedIcon");
         }
-    }
-
-    countTotalCollapsables = () => {
-        //A hidden boostrap collapsable element was needed to trigger this function to establish how many collapsables have been opened by the expand all button.
-        //this is because boostrap takes a while to add the "show" class onto the expanded element
-        //bootstrap calls this function when it is finished with its transition but the empty collapsable was needed on all node inspectors on and last in line to be collapsed.
-        Eagle.nodeInspectorCount = $(".nodeInspectorCollapseAll.show").length;
-        Eagle.nodeInspectorCount --;
     }
 
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) => {

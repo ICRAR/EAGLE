@@ -1,8 +1,8 @@
 <div id="nodeInspector" class="container px-0">
     <!-- ko if: selectedNode() != null -->
 
-        <h5 class="card-header" id="nodeInspectorHeading" data-bind="click: $root.spinCollapseIcon, click: $root.toggleAllNodeMenus">
-            <i class="material-icons interactive closedIcon" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse All'}">keyboard_arrow_down</i>
+        <h5 class="card-header" id="nodeInspectorHeading" data-bind="click: selectedNode().toggleInspector">
+            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse All'}, css:{closedIcon: selectedNode().allInspectorSectionsCollapsed}">keyboard_arrow_down</i>
             <!-- ko if: selectedNode().isLocked() -->
             <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
             <!-- /ko -->
@@ -10,12 +10,13 @@
             <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
             <!-- /ko -->
             <span data-bind="text: selectedNode().getName()"></span>
-        </h5>  
-            <h4 class="nodeInspectorSubTitle" id="firstNodeInspectorSubtitle">Key: <span data-bind="text: selectedNode().getKey()"></span></h4>
-            <h4 class="nodeInspectorSubTitle" >Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
-            <h4 class="nodeInspectorSubTitle">Category Type: <span data-bind="text: selectedNode().getCategoryType()"></span></h4>
-            
-        <div id="nodeInspectorMenus"> 
+        </h5>
+
+        <h4 class="nodeInspectorSubTitle" id="firstNodeInspectorSubtitle">Key: <span data-bind="text: selectedNode().getKey()"></span></h4>
+        <h4 class="nodeInspectorSubTitle" >Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
+        <h4 class="nodeInspectorSubTitle">Category Type: <span data-bind="text: selectedNode().getCategoryType()"></span></h4>
+
+        <div id="nodeInspectorMenus">
         <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
         {% include 'node_inspector_description.html' %}
         <!-- /ko -->
@@ -61,7 +62,8 @@
         <!-- /ko -->
 
         {% include 'node_inspector_hidden_bs_trigger.html' %}
-    </div>
+        </div>
+
         <div class="row mt-1 nodeInspectorButton">
             <div class="col">
                 <button type="button" id="duplicateSelectedNode" class="btn btn-primary btn-block" data-bind="click: duplicateSelectedNode">Duplicate Node</button>

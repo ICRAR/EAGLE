@@ -69,6 +69,9 @@ export class Node {
 
     private readonly : boolean;
 
+    private inspectorSectionCollapsedDescription : ko.Observable<boolean>;
+    private inspectorSectionCollapsedDisplayOptions : ko.Observable<boolean>;
+
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 200;
     public static readonly MINIMUM_WIDTH : number = 200;
@@ -118,6 +121,9 @@ export class Node {
         this.selected = ko.observable(false);
 
         this.readonly = readonly;
+
+        this.inspectorSectionCollapsedDescription = ko.observable(true);
+        this.inspectorSectionCollapsedDisplayOptions = ko.observable(true);
     }
 
     getKey = () : number => {
@@ -1119,6 +1125,67 @@ export class Node {
     setExpanded = (value : boolean) : void => {
         this.expanded(value);
     }
+
+    toggleInspector = (item: any, e:JQueryEventObject): void => {
+        let allCollapsed = this.allInspectorSectionsCollapsed();
+
+        this.inspectorSectionCollapsedDescription(!allCollapsed);
+        this.inspectorSectionCollapsedDisplayOptions(!allCollapsed);
+        // TODO: more
+
+        // actually ask bootstrap to collapse all the sections
+        if (allCollapsed){
+            $(".nodeInspectorCollapseAll").collapse("show");
+        } else {
+            $(".nodeInspectorCollapseAll").collapse("hide");
+        }
+    }
+
+    toggleInspectorSection = (item: any, e: JQueryEventObject): void => {
+        let target: JQuery<Element> = $(e.currentTarget);
+        let sectionName: string = target.data('section-name');
+        console.log("sectionName", sectionName);
+
+        switch(sectionName){
+            case "Description":
+                this.inspectorSectionCollapsedDescription(!this.inspectorSectionCollapsedDescription());
+                break;
+            case "Display Options":
+                this.inspectorSectionCollapsedDisplayOptions(!this.inspectorSectionCollapsedDisplayOptions());
+                break;
+            // TODO: more
+            default:
+            console.warn("Unknown inspector section", sectionName);
+            break;
+        }
+    }
+
+    updateAllInspectorSections = (): void => {
+        $(".nodeInspectorCollapseAll").collapse("hide");
+
+        $(".nodeInspectorCollapseAll").each((index: number, element: HTMLElement): void => {
+            var h5 = $(element).parent().find('h5');
+            var sectionName = h5.data("section-name");
+
+            switch(sectionName){
+                case "Description":
+                    $(element).collapse(this.inspectorSectionCollapsedDescription() ? "hide" : "show");
+                    break;
+                case "Display Options":
+                    $(element).collapse(this.inspectorSectionCollapsedDisplayOptions() ? "hide" : "show");
+                    break;
+                // TODO: more
+                default:
+                    console.warn("Unknown inspector section", sectionName);
+                    break;
+            }
+        });
+    }
+
+    allInspectorSectionsCollapsed : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        // TODO: more
+        return this.inspectorSectionCollapsedDescription() && this.inspectorSectionCollapsedDisplayOptions();
+    }, this);
 
     static canHaveInputApp = (node : Node) : boolean => {
         return Eagle.getCategoryData(node.getCategory()).canHaveInputApplication;
