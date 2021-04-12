@@ -2654,6 +2654,7 @@ export class Eagle {
             toggleState = icon.parent().parent().children(".collapse").hasClass('show');
         }
 
+        // TODO: can't we change this to a knockout "css" data-bind?
         if (toggleState){
             icon.addClass("closedIcon");
         } else {
