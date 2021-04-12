@@ -180,7 +180,14 @@
                 "text": "Image",
                 "name": "image",
                 "value": "",
-                "description": "Name of the docker image to be used for this application",
+                "description": "The hexadecimal hash (long version) of the docker image to be used for this application",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Tag",
+                "name": "tag",
+                "value": "",
+                "description": "The tag of the docker image to be used for this application",
                 "readonly": false,
                 "type": "String"
             }, {
