@@ -411,10 +411,6 @@ export class Eagle {
     }
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
-        //set amount of collapsed node menus to default (0)
-
-        //$(".nodeMenuIndicator").addClass("closedIcon");
-
         //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
         switch (rightWindowMode){
             case Eagle.RightWindowMode.Hierarchy:
@@ -2657,8 +2653,6 @@ export class Eagle {
         } else {
             toggleState = icon.parent().parent().children(".collapse").hasClass('show');
         }
-
-        console.log("isTranslationToggle", isTranslationToggle, "toggleState", toggleState);
 
         if (toggleState){
             icon.addClass("closedIcon");

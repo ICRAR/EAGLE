@@ -72,7 +72,9 @@ export class Node {
     private inspectorSectionCollapsedDescription : ko.Observable<boolean>;
     private inspectorSectionCollapsedDisplayOptions : ko.Observable<boolean>;
     private inspectorSectionCollapsedParameters : ko.Observable<boolean>;
-    // TODO: more
+    // TODO: we'll need more variables here, one for every collapsable section of the node inspector
+    //       I don't really like this aspect of the branch. perhaps we can store all these in one dictionary
+    //       if we could use the section-name strings as the keys to the dictionary, we could also remove lots of switch statements throughout the code
 
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 200;
@@ -127,6 +129,7 @@ export class Node {
         this.inspectorSectionCollapsedDescription = ko.observable(true);
         this.inspectorSectionCollapsedDisplayOptions = ko.observable(true);
         this.inspectorSectionCollapsedParameters = ko.observable(true);
+        // TODO: more
     }
 
     getKey = () : number => {
@@ -1144,8 +1147,10 @@ export class Node {
     toggleInspectorSection = (item: any, e: JQueryEventObject): void => {
         let target: JQuery<Element> = $(e.currentTarget);
         let sectionName: string = target.data('section-name');
-        console.log("sectionName", sectionName);
 
+        // TODO: this switch statement is a little clunky
+        //       if all the booleans were stored in a single dictionary (or similar) and keyed by the sectionName,
+        //       then this could be replaced with one line (and a correctness check)
         switch(sectionName){
             case "Description":
                 this.inspectorSectionCollapsedDescription(!this.inspectorSectionCollapsedDescription());
@@ -1169,6 +1174,7 @@ export class Node {
             var h5 = $(element).parent().find('h5');
             var sectionName = h5.data("section-name");
 
+            // TODO: again a switch that could be simplified!
             switch(sectionName){
                 case "Description":
                     $(element).collapse(this.inspectorSectionCollapsedDescription() ? "hide" : "show");
@@ -1188,7 +1194,9 @@ export class Node {
     }
 
     allInspectorSectionsCollapsed : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        // TODO: more
+        // TODO: here we have to check all the booleans for every section
+        //       it would be nicer to loop through all elements in a dictionary (or similar)
+        //       instead of having to mention each variable explicitly
         return this.inspectorSectionCollapsedDescription() && this.inspectorSectionCollapsedDisplayOptions() && this.inspectorSectionCollapsedParameters();
     }, this);
 
