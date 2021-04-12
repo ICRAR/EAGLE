@@ -179,15 +179,29 @@
             }, {
                 "text": "Image",
                 "name": "image",
+                "value": "icrar/",
+                "description": "The name of the docker image to be used for this application",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Tag",
+                "name": "tag",
+                "value": "1.0",
+                "description": "The tag of the docker image to be used for this application",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Digest",
+                "name": "digest",
                 "value": "",
-                "description": "Name of the docker image to be used for this application",
+                "description": "The hexadecimal hash (long version) of the docker image to be used for this application",
                 "readonly": false,
                 "type": "String"
             }, {
                 "text": "Command",
                 "name": "command",
                 "value": "",
-                "description": "The command line to run within the docker instance",
+                "description": "The command line to run within the docker instance. The specified command will be executed in a bash shell. That means that images will need a bash shell.",
                 "readonly": false,
                 "type": "String"
             }, {
@@ -200,24 +214,24 @@
             }, {
                 "text": "Ensure User And Switch",
                 "name": "ensureUserAndSwitch",
-                "value": 0,
-                "description":"",
+                "value": false,
+                "description":"Make sure the user specified in the User parameter exists and then run the docker container as that user",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }, {
                 "text": "Remove Container",
                 "name": "removeContainer",
-                "value": 1,
-                "description":"",
+                "value": true,
+                "description":"Instruct Docker engine to delete the container after execution is complete",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Boolean"
             }, {
                 "text": "Additional Bindings",
                 "name": "additionalBindings",
                 "value": "",
-                "description":"Any additional bindings that should be passed through to the image",
+                "description":"Directories which will be visible inside the container during run-time. Format is srcdir_on_host:trgtdir_on_container. Multiple entries can be separated by commas.",
                 "readonly": false,
-                "type": ""
+                "type": "String"
             }],
             "key": -11,
             "text": "Docker",
