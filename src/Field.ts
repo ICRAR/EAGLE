@@ -84,10 +84,9 @@ export class Field {
         return new Field(this.text(), this.name(), this.value(), this.description(), this.readonly(), this.type());
     }
 
-    isDaliugeField = () : boolean => {
-        console.log("isDaliugeField", this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume");
+    isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume";
-    }
+    }, this);
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
