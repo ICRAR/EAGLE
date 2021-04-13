@@ -7,7 +7,14 @@
     <div class="collapse show" id="nodeCategoryCollapse9">
         <div class="card-body" >
             <!-- ko foreach: selectedNode().getFields() -->
-                <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+                <!-- ko ifnot: $data.isDaliugeField -->
+                    <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+                <!-- /ko -->
+            <!-- /ko -->
+            <!-- ko foreach: selectedNode().getFields() -->
+                <!-- ko if: $data.isDaliugeField -->
+                    <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+                <!-- /ko -->
             <!-- /ko -->
 
             <!-- ko ifnot: selectedNode().isLocked()-->
