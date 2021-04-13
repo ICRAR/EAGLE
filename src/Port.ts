@@ -43,7 +43,9 @@ export class Port {
         this._id = "";
         this.name = "";
         this.nodeKey = 0;
+        this.local = false;
         this.event = false;
+        this.type = Eagle.DataType.Unknown;
     }
 
     isEvent = () : boolean => {
@@ -61,6 +63,10 @@ export class Port {
 
     getType = (): Eagle.DataType => {
         return this.type;
+    }
+
+    getDescriptionText = () : string => {
+        return this.name + " (" + this.type + ")";
     }
 
     clone = () : Port => {
