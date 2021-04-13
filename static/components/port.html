@@ -14,7 +14,7 @@
     </div>
     <!-- /ko -->
 
-    <input type="text" class="form-control" placeholder="" readonly data-bind="value: name">
+    <input type="text" class="form-control" placeholder="" readonly data-bind="value: name, attr: {title: description}" data-toggle="tooltip" data-html="true" data-placement="left">
     <div class="input-group-append">
         <button class="btn btn-secondary btn-sm" type="button" data-bind="attr: {title: 'Port multiplicity'}" data-toggle="tooltip" data-html="true" data-placement="left">
             <span data-bind="text: multiplicity"></span>
