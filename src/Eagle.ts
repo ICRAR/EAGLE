@@ -2845,6 +2845,7 @@ export class Eagle {
         this.selectedNode(this.selectedNode().getExitApplication());
     }
 
+    // TODO: 2 or 3 arguments here, html seems to be calling with three!
     editField = (fieldIndex: number, input: boolean): void => {
         console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
@@ -2865,6 +2866,36 @@ export class Eagle {
             field.setReadonly(newField.isReadonly());
             field.setType(newField.getType());
         });
+    }
+
+    editPort = (portIndex: number, input: boolean): void => {
+        console.log("editPort() node:", this.selectedNode().getName(), "portIndex:", portIndex, "input", input);
+
+        // get a reference to the port we are editing
+
+        let port: Port;
+        if (input){
+            port = this.selectedNode().getInputPorts()[portIndex];
+        } else {
+            port = this.selectedNode().getOutputPorts()[portIndex];
+        }
+
+        /*
+        Utils.requestUserEditPort(port, (completed : boolean, newPort: Port) => {
+            // abort if the user aborted
+            if (!completed){
+                return;
+            }
+
+            // update port data
+            field.setText(newField.getText());
+            field.setName(newField.getName());
+            field.setValue(newField.getValue());
+            field.setDescription(newField.getDescription());
+            field.setReadonly(newField.isReadonly());
+            field.setType(newField.getType());
+        });
+        */
     }
 
     allowEdgeEditing = (): boolean => {
