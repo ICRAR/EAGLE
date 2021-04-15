@@ -1,6 +1,6 @@
 <div class="card">
-    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: spinCollapseIcon">
-        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: selectedNode().toggleInspectorSection" data-section-name="Display Options">
+        <i class="material-icons interactive nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:selectedNode().inspectorState().displayOptions}">keyboard_arrow_down</i>
         <i class="material-icons">note</i>
         <span class="nodeInspectorSubsectionTitle">Display Options</span>
     </h5>
@@ -71,7 +71,7 @@
                     </button>
                 </div>
             </div>
-            
+
             <div class="input-group mb-1">
                 <input type="text" class="form-control" id="nodeShowPortsValue" placeholder="" aria-label="Show Ports" aria-describedby="node-show-ports" value="Show Ports" readonly>
                 <div class="input-group-append">

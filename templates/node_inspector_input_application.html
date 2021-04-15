@@ -1,6 +1,6 @@
 <div class="card">
-    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse5" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: $root.spinCollapseIcon">
-        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse5" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: selectedNode().toggleInspectorSection" data-section-name="Input Application">
+        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:selectedNode().inspectorState().inputApplication}">keyboard_arrow_down</i>
         <i class="material-icons">apps</i>
         <span class="nodeInspectorSubsectionTitle">Input Application</span>
     </h5>
