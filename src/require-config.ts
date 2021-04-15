@@ -35,6 +35,7 @@ require.config({
         "Port": "./static/built/Port",
         "FileInfo": "./static/built/FileInfo",
         "Setting": "./static/built/Setting",
-        "SideWindow": "./static/built/SideWindow"
+        "SideWindow": "./static/built/SideWindow",
+        "InspectorState": "./static/built/InspectorState"
     }
 });

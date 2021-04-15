@@ -3214,38 +3214,4 @@ export namespace Eagle
     }
 
     export type CategoryData = {isData: boolean, isGroup:boolean, isResizable:boolean, maxInputs: number, maxOutputs: number, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean, icon: string, color: string};
-
-    export class inspectorSectionState {
-        description: ko.Observable<boolean>;
-        displayOptions: ko.Observable<boolean>;
-        exitApplication: ko.Observable<boolean>;
-        graphComment: ko.Observable<boolean>;
-        graphDescription: ko.Observable<boolean>;
-        inputApplication: ko.Observable<boolean>;
-        inputPorts: ko.Observable<boolean>;
-        outputApplication: ko.Observable<boolean>;
-        outputPorts: ko.Observable<boolean>;
-        componentParameters: ko.Observable<boolean>;
-        
-        constructor(){
-            this.description = ko.observable(true);
-            this.displayOptions = ko.observable(true);
-            this.exitApplication = ko.observable(true);
-            this.graphComment = ko.observable(true);
-            this.graphDescription = ko.observable(true);
-            this.inputApplication = ko.observable(true);
-            this.inputPorts = ko.observable(true);
-            this.outputApplication = ko.observable(true);
-            this.outputPorts = ko.observable(true);
-            this.componentParameters = ko.observable(true);
-        }
-
-        setAllInspectorStates(allCollapsed:boolean) {
-
-            this.description(allCollapsed);
-            this.description(allCollapsed);
-
-        }
-    }
-    
 }

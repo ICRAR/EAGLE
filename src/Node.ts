@@ -29,6 +29,7 @@ import {GraphUpdater} from './GraphUpdater';
 import {Eagle} from './Eagle';
 import {Port} from './Port';
 import {Field} from './Field';
+import {InspectorState} from './InspectorState';
 
 export class Node {
     private key : number;
@@ -69,7 +70,7 @@ export class Node {
 
     private readonly : boolean;
 
-    private inspectorSectionCollapsed : ko.Observable<Eagle.inspectorSectionState>;
+    private inspectorState : ko.Observable<InspectorState>;
 
 
     // TODO: we'll need more variables here, one for every collapsable section of the node inspector
@@ -126,7 +127,7 @@ export class Node {
 
         this.readonly = readonly;
 
-        this.inspectorSectionCollapsed =ko.observable( new Eagle.inspectorSectionState() )
+        this.inspectorState =ko.observable( new InspectorState() )
     }
 
     getKey = () : number => {
@@ -1132,8 +1133,7 @@ export class Node {
     toggleInspector = (item: any, e:JQueryEventObject): void => {
         let allCollapsed = this.allInspectorSectionsCollapsed();
 
-        this.inspectorSectionCollapsed().setAllInspectorStates(!allCollapsed);
-        // TODO: more
+        this.inspectorState().setAll(!allCollapsed);
 
         // actually ask bootstrap to collapse all the sections
         $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
@@ -1143,29 +1143,14 @@ export class Node {
         let target: JQuery<Element> = $(e.currentTarget);
         let sectionName: string = target.data('section-name');
 
-        //TODO dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
-        let collapsing = target.parent().parent().children(".collapse").hasClass("collapsing")
-        console.log (target.attr("class"))
+        // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
+        let collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
         if (!collapsing){
-            // TODO: this switch statement is a little clunky
-            //       if all the booleans were stored in a single dictionary (or similar) and keyed by the sectionName,
-            //       then this could be replaced with one line (and a correctness check)
-            switch(sectionName){
-                case "Description":
-                    this.inspectorSectionCollapsedDescription(!this.inspectorSectionCollapsedDescription());
-                    break;
-                case "Display Options":
-                    this.inspectorSectionCollapsedDisplayOptions(!this.inspectorSectionCollapsedDisplayOptions());
-                    break;
-                case "Parameters":
-                    this.inspectorSectionCollapsedParameters(!this.inspectorSectionCollapsedParameters());
-                // TODO: more
-                default:
-                console.warn("Unknown inspector section", sectionName);
-                break;
-            }
-        }else{
-            return;}
+            this.inspectorState().toggle(sectionName);
+        } else {
+            console.log("Abort section toggle, already collapsing");
+            return;
+        }
     }
 
     updateAllInspectorSections = (): void => {
@@ -1175,30 +1160,18 @@ export class Node {
             var h5 = $(element).parent().find('h5');
             var sectionName = h5.data("section-name");
 
-            // TODO: again a switch that could be simplified!
-            switch(sectionName){
-                case "Description":
-                    $(element).collapse(this.inspectorSectionCollapsedDescription() ? "hide" : "show");
-                    break;
-                case "Display Options":
-                    $(element).collapse(this.inspectorSectionCollapsedDisplayOptions() ? "hide" : "show");
-                    break;
-                case "Parameters":
-                    $(element).collapse(this.inspectorSectionCollapsedParameters() ? "hide" : "show");
-                    break;
-                // TODO: more
-                default:
-                    console.warn("Unknown inspector section", sectionName);
-                    break;
+            let sectionState = this.inspectorState().get(sectionName);
+
+            if (sectionState === null){
+                return;
             }
+
+            $(element).collapse(sectionState() ? "hide" : "show");
         });
     }
 
     allInspectorSectionsCollapsed : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        // TODO: here we have to check all the booleans for every section
-        //       it would be nicer to loop through all elements in a dictionary (or similar)
-        //       instead of having to mention each variable explicitly
-        return this.inspectorSectionCollapsedDescription() && this.inspectorSectionCollapsedDisplayOptions() && this.inspectorSectionCollapsedParameters();
+        return this.inspectorState().all();
     }, this);
 
     static canHaveInputApp = (node : Node) : boolean => {
