@@ -84,11 +84,30 @@ export class Field {
         return new Field(this.text(), this.name(), this.value(), this.description(), this.readonly(), this.type());
     }
 
+    isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume";
+    }, this);
+
+    // used to transform the value attribute of a field into a variable with the correct type
+    // the value attribute is always stored as a string internally
+    private static string2Type = (value: string, type: Eagle.DataType) : any => {
+        switch (type){
+            case Eagle.DataType.Boolean:
+                return value === 'true';
+            case Eagle.DataType.Float:
+                return parseFloat(value);
+            case Eagle.DataType.Integer:
+                return parseInt(value, 10);
+            default:
+                return value;
+        }
+    }
+
     static toOJSJson = (field : Field) : object => {
         return {
             text:field.text(),
             name:field.name(),
-            value:field.value(),
+            value:Field.string2Type(field.value(), field.type()),
             description:field.description(),
             readonly:field.readonly(),
             type:field.type()
@@ -99,7 +118,7 @@ export class Field {
         return {
             text:field.text(),
             name:field.name(),
-            value:field.value(),
+            value:Field.string2Type(field.value(), field.type()),
             description:field.description(),
             readonly:field.readonly(),
             type:field.type()
@@ -115,6 +134,6 @@ export class Field {
         if (typeof data.type !== 'undefined')
             type = data.type;
 
-        return new Field(data.text, data.name, data.value, data.description, readonly, type);
+        return new Field(data.text, data.name, data.value.toString(), data.description, readonly, type);
     }
 }

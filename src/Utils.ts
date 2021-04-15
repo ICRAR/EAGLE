@@ -279,8 +279,6 @@ export class Utils {
             return Eagle.FileType.Graph;
         if (fileType === "palette")
             return Eagle.FileType.Palette;
-        if (fileType === "templatePalette")
-            return Eagle.FileType.TemplatePalette;
         if (fileType === "json")
             return Eagle.FileType.JSON;
 
@@ -293,8 +291,6 @@ export class Utils {
             return "graph";
         if (fileType === Eagle.FileType.Palette)
             return "palette";
-        if (fileType === Eagle.FileType.TemplatePalette)
-            return "templatePalette";
         if (fileType === Eagle.FileType.JSON)
             return "json";
 
@@ -495,12 +491,12 @@ export class Utils {
             $('#choiceModalAffirmativeButton').focus();
         });
         $('#choiceModal').on('hidden.bs.modal', function(){
-            var callback : (completed : boolean, userString : string) => void = $('#choiceModal').data('callback');
+            var callback : (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => void = $('#choiceModal').data('callback');
             var completed : boolean = $('#choiceModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
-                callback(false, "");
+                callback(false, -1, "");
                 return;
             }
 
@@ -511,10 +507,10 @@ export class Utils {
             // if the last item in the select was selected, then return the custom value,
             // otherwise return the selected choice
             if (choice === choices.length){
-                callback(true, <string>$('#choiceModalString').val());
+                callback(true, choices.length, <string>$('#choiceModalString').val());
             }
             else {
-                callback(true, choices[choice]);
+                callback(true, choice, choices[choice]);
             }
         });
         $('#choiceModalString').on('keypress', function(e){
@@ -793,7 +789,7 @@ export class Utils {
         $('#inputModal').modal();
     }
 
-    static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userString : string) => void ){
+    static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ){
         console.log("requestUserChoice()", title, message, choices, selectedChoiceIndex, allowCustomChoice, customChoiceText);
 
         $('#choiceModalTitle').text(title);
@@ -1198,8 +1194,8 @@ export class Utils {
     /**
      * Returns a list of unique port names (except event ports)
      */
-    static getPortNameList = (diagram : Palette | LogicalGraph) : string[] => {
-        var allPortNames : string[] = [];
+    static getAllPorts = (diagram : Palette | LogicalGraph) : Port[] => {
+        var allPorts : Port[] = [];
 
         // build a list from all nodes
         for (var i = 0; i < diagram.getNodes().length; i++) {
@@ -1209,7 +1205,7 @@ export class Utils {
             for (var j = 0; j < node.getInputPorts().length; j++) {
                 let port : Port = node.getInputPorts()[j];
                 if (!port.isEvent()){
-                    allPortNames.push(port.getName());
+                    allPorts.push(port);
                 }
             }
 
@@ -1217,7 +1213,7 @@ export class Utils {
             for (var j = 0; j < node.getOutputPorts().length; j++) {
                 let port : Port = node.getOutputPorts()[j];
                 if (!port.isEvent()) {
-                    allPortNames.push(port.getName());
+                    allPorts.push(port);
                 }
             }
 
@@ -1227,7 +1223,7 @@ export class Utils {
                 for (var j = 0; j < node.getInputApplication().getInputPorts().length; j++) {
                     let port : Port = node.getInputApplication().getInputPorts()[j];
                     if (!port.isEvent()) {
-                        allPortNames.push(port.getName());
+                        allPorts.push(port);
                     }
                 }
 
@@ -1235,7 +1231,7 @@ export class Utils {
                 for (var j = 0; j < node.getInputApplication().getOutputPorts().length; j++) {
                     let port : Port = node.getInputApplication().getOutputPorts()[j];
                     if (!port.isEvent()) {
-                        allPortNames.push(port.getName());
+                        allPorts.push(port);
                     }
                 }
             }
@@ -1246,7 +1242,7 @@ export class Utils {
                 for (var j = 0; j < node.getOutputApplication().getInputPorts().length; j++) {
                     let port : Port = node.getOutputApplication().getInputPorts()[j];
                     if (!port.isEvent()) {
-                        allPortNames.push(port.getName());
+                        allPorts.push(port);
                     }
                 }
 
@@ -1254,7 +1250,7 @@ export class Utils {
                 for (var j = 0; j < node.getOutputApplication().getOutputPorts().length; j++) {
                     let port : Port = node.getOutputApplication().getOutputPorts()[j];
                     if (!port.isEvent()) {
-                        allPortNames.push(port.getName());
+                        allPorts.push(port);
                     }
                 }
             }
@@ -1265,7 +1261,7 @@ export class Utils {
                 for (var j = 0; j < node.getExitApplication().getInputPorts().length; j++) {
                     let port : Port = node.getExitApplication().getInputPorts()[j];
                     if (!port.isEvent()) {
-                        allPortNames.push(port.getName());
+                        allPorts.push(port);
                     }
                 }
 
@@ -1273,45 +1269,33 @@ export class Utils {
                 for (var j = 0; j < node.getExitApplication().getOutputPorts().length; j++) {
                     let port : Port = node.getExitApplication().getOutputPorts()[j];
                     if (!port.isEvent()) {
-                        allPortNames.push(port.getName());
+                        allPorts.push(port);
                     }
                 }
             }
         }
 
-        // remove duplicates from the list
-        var uniquePortNames : string[] = allPortNames.filter(function(elem, index, self) {
-            return index === self.indexOf(elem);
-        });
-
-        return uniquePortNames;
+        return allPorts;
     }
 
     /**
-     * Returns a list of unique field names
+     * Returns a list of all fields in the given palette or logical graph
      */
-    static getFieldTextList = (diagram : Palette | LogicalGraph) : string[] => {
-        var allFieldTexts : string[] = [];
+    static getAllFields = (diagram : Palette | LogicalGraph) : Field[] => {
+        var allFields : Field[] = [];
 
         // build a list from all nodes
         for (var i = 0; i < diagram.getNodes().length; i++) {
-            var node : Node = diagram.getNodes()[i];
+            let node : Node = diagram.getNodes()[i];
 
             // add fields into the list
             for (var j = 0; j < node.getFields().length; j++) {
-                var fieldName = node.getFields()[j].getName();
-                allFieldTexts.push(fieldName);
+                let field : Field = node.getFields()[j];
+                allFields.push(field.clone());
             }
         }
 
-        // remove duplicates from the list
-        var uniqueFieldNames : string[] = allFieldTexts.filter(function(elem, index, self) {
-            return index === self.indexOf(elem);
-        });
-
-        console.log("uniqueFieldNames:", uniqueFieldNames);
-
-        return uniqueFieldNames;
+        return allFields;
     }
 
     static isKnownCategory(category : string) : boolean {

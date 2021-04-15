@@ -585,10 +585,10 @@ export class LogicalGraph {
         }
 
         // ask the user to choose from the eligibleTypes
-        Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleTypes, 0, false, "", (completed : boolean, userString : string) => {
+        Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleTypes, 0, false, "", (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
             if (!completed)
                 return;
-            callback(userString);
+            callback(eligibleTypes[userChoiceIndex]);
         });
     }
 
@@ -701,10 +701,22 @@ export class LogicalGraph {
             return;
         }
 
+        // by default, use the positions of the nodes themselves to calculate position of new node
+        let srcNodePosition = srcNode.getPosition();
+        let destNodePosition = destNode.getPosition();
+
+        // if source or destination node is an embedded application, use position of parent construct node
+        if (srcNode.isEmbedded()){
+            srcNodePosition = this.findNodeByKey(srcNode.getEmbedKey()).getPosition();
+        }
+        if (destNode.isEmbedded()){
+            destNodePosition = this.findNodeByKey(destNode.getEmbedKey()).getPosition();
+        }
+
         // calculate a position for a new data component, halfway between the srcPort and destPort
         var dataComponentPosition = {
-            x: (srcNode.getPosition().x + destNode.getPosition().x) / 2.0,
-            y: (srcNode.getPosition().y + destNode.getPosition().y) / 2.0
+            x: (srcNodePosition.x + destNodePosition.x) / 2.0,
+            y: (srcNodePosition.y + destNodePosition.y) / 2.0
         };
 
         // if destination node is a BashShellApp, then the inserted data component may not be a Memory

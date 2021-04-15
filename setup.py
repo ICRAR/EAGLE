@@ -72,11 +72,9 @@ static_files = package_files('static')
 
 install_requires = [
     "flask",
-#    "pycrypto",
     "pygithub",
     "python-gitlab",
     "sphinx==3.2.1",
-    "uwsgi",
     "six"
 ]
 

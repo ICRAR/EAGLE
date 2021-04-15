@@ -8,7 +8,7 @@
         <div class="card-body">
 
             <!-- ko foreach: selectedNode().getInputPorts() -->
-            <port params="id: $data.getId(), name: $data.getName(), multiplicity: $root.selectedNode().getInputMultiplicity(), isEventPort: $data.isEvent(), toggleEvent: $data.toggleEvent, input: true, local: false"></port>
+            <port params="id: $data.getId(), name: $data.getName(), description: $data.getDescriptionText(), multiplicity: $root.selectedNode().getInputMultiplicity(), isEventPort: $data.isEvent(), toggleEvent: $data.toggleEvent, input: true, local: false"></port>
             <!-- /ko -->
 
             <!-- ko ifnot: selectedNode().isLocked() -->

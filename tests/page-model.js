@@ -1,12 +1,17 @@
 import { Selector, t } from 'testcafe';
 
 class Node {
-  constructor (id, n = 0) {
+  constructor (id, isConstruct, n = 0) {
     this.select = Selector(id + ' image');
     this.resize = Selector(id + ' .resize-control-label');
     //this.select = Selector(id + ' rect:not(.header-background)');
-    this.input = Selector(id + ' g.inputPorts circle').nth(n);
-    this.output = Selector(id + ' g.outputPorts circle').nth(n);
+    if (isConstruct){
+        this.input = Selector(id + ' g.inputPorts circle').nth(n);
+        this.output = Selector(id + ' g.inputLocalPorts circle').nth(n);
+    } else {
+        this.input = Selector(id + ' g.inputPorts circle').nth(n);
+        this.output = Selector(id + ' g.outputPorts circle').nth(n);
+    }
   }
 }
 
@@ -43,14 +48,17 @@ class Page {
     this.deleteNodeButton = Selector('#deleteSelectedNode');
     this.confirmButton = Selector('#confirmModalAffirmativeButton');
 
+    this.nodeNameValue = Selector('#nodeNameValue');
     this.parentButton = Selector('#nodeInspectorChangeParent');
     this.selectChoice = Selector('#choiceModalSelect');
+    this.selectCustom = Selector('#choiceModalString');
     this.submitChoice = Selector('#choiceModal .modal-footer button');
 
     this.navbarNew = Selector('#navbarDropdown');
     this.newGraph = Selector('#createNewGraph');
     this.navbarGit = Selector('#navbarDropdownGit');
     this.saveGitAs = Selector('#commitToGitAsGraph');
+    this.navbarHelp = Selector('#navbarDropdownHelp');
 
     this.descriptionField = Selector('textarea.form-control');
 
@@ -59,8 +67,7 @@ class Page {
     this.newRepoBranch = Selector('#gitCustomRepositoryModalRepositoryBranchInput');
     this.newRepoSubmit = Selector('#gitCustomRepositoryModalAffirmativeAnswer');
 
-    //this.setGitToken = Selector('#setGitHubAccessToken');
-    this.openSettings = Selector('#openSettings');
+    this.settings = Selector('#settings');
     this.allowComponentEditing = Selector('#setting7Button');
     this.setGitToken = Selector('#setting13Value');
     this.disableJSONval = Selector('#setting16Button');
@@ -74,8 +81,11 @@ class Page {
     this.componentParameters = Selector('.card-header').withText("Component Parameters");
     this.outputPorts = Selector('span').withText("Output Ports");
     this.changeGreet = Selector('#nodeInspectorFieldValue0');
+
     this.addInputPort = Selector('#nodeInspectorAddInputPort');
     this.addOutputPort = Selector('#nodeInspectorAddOutputPort');
+    this.addInputApplication = Selector('#nodeInspectorAddInputApplication');
+    this.addOutputApplication = Selector('#nodeInspectorAddOutputApplication');
 
     this.commitRepo = Selector('#gitCommitModalRepositoryNameSelect');
     this.commitPath = Selector('#gitCommitModalFilePathInput');
@@ -140,9 +150,9 @@ class Page {
   // The speed is reduced a lot for the videos
   // This is also helpful for automated testing since the warning messages
   // need time to go away. They can sometimes obstruct other elements otherwise.
-  async connectNodes (outID, inID, n1, n2) {
-    var node1 = new Node(outID,n1);
-    var node2 = new Node(inID,n2);
+  async connectNodes (outID, inID, outIsConstruct, inIsConstruct, n1, n2) {
+    var node1 = new Node(outID, outIsConstruct, n1);
+    var node2 = new Node(inID, inIsConstruct, n2);
     await t
       .dragToElement(
         node1.output,
@@ -154,11 +164,43 @@ class Page {
         });
   }
 
+  async createEdge (srcNode, dstNode, srcIsConstruct, dstIsConstruct, srcPort, dstPort) {
+      await t
+        .click(Selector("#navbarDropdown"))
+        .click(Selector("#addEdgeToLogicalGraph"))
+
+        // choose source node
+        .click(Selector("#editEdgeModalSrcNodeKeySelect"))
+        .click(Selector("#editEdgeModalSrcNodeKeySelect").find('option').withText(srcNode))
+
+        // choose source port
+        .click(Selector("#editEdgeModalSrcPortIdSelect"))
+        .click(Selector("#editEdgeModalSrcPortIdSelect").find('option').withText(srcPort))
+
+        // choose destination node
+        .click(Selector("#editEdgeModalDestNodeKeySelect"))
+        .click(Selector("#editEdgeModalDestNodeKeySelect").find('option').withText(dstNode))
+
+        // choose destination port
+        .click(Selector("#editEdgeModalDestPortIdSelect"))
+        .click(Selector("#editEdgeModalDestPortIdSelect").find('option').withText(dstPort))
+
+        .typeText(Selector("#editEdgeModalDataTypeInput"), srcPort, { replace : true })
+
+        .click(Selector("#editEdgeModalAffirmativeButton"));
+  }
+
   async getRect (id, i = 0) {
     const element = Selector(id).nth(i);
     const state = await element();
     //console.log(state.boundingClientRect);
     return state.boundingClientRect;
+  }
+
+  async setNodeName (name){
+      await t
+        .click(this.nodeMode)
+        .typeText(this.nodeNameValue, name, {replace:true})
   }
 
   async setParent (parentText) {
@@ -170,6 +212,35 @@ class Page {
       .click(this.submitChoice);
   }
 
+  async addNodePort (portName, input){
+     if (input){
+         await t
+            .hover(this.addInputPort)
+            .click(this.addInputPort);
+    } else {
+        await t
+           .hover(this.addOutputPort)
+           .click(this.addOutputPort);
+    }
+
+    //await this.selectOption("Custom (enter below)");
+    await t
+        .click(this.selectChoice)
+        .click(Selector(this.selectChoice).find('option').withText("Custom (enter below)"));
+
+    await t.typeText(this.selectCustom, portName, {replace:true});
+
+    await t.click(this.submitChoice);
+  }
+
+  async addNodeInputApplication(applicationName){
+      await t.click(this.addInputApplication);
+      await t
+          .click(this.selectChoice)
+          .click(Selector(this.selectChoice).find('option').withText(applicationName));
+      await t.click(this.submitChoice);
+  }
+
   async createNewGraph (graph_name) {
     await t
       .click(this.navbarNew)
@@ -179,7 +250,7 @@ class Page {
   }
 
   async deleteNode (id) {
-    var node_toDelete = new Node(id);
+    var node_toDelete = new Node(id, false);
     await t
       .click(node_toDelete.select)
       .click(this.nodeMode)
@@ -195,7 +266,7 @@ class Page {
   // }
 
   async moveNode (id,x,y) {
-    var node_toMove = new Node(id);
+    var node_toMove = new Node(id, false);
     await t.click(node_toMove.select);
     await t.dragToElement(node_toMove.select, this.leftHandle, {
             destinationOffsetX: x,
@@ -204,7 +275,7 @@ class Page {
   }
 
   async resizeNode (id,x,y) {
-    var node_toResize = new Node(id);
+    var node_toResize = new Node(id, false);
     await t
       .drag(node_toResize.resize, x, y, {
           offsetX: 10,
@@ -213,7 +284,7 @@ class Page {
   }
 
   async selectNode (id) {
-    var node_toSelect = new Node(id);
+    var node_toSelect = new Node(id, false);
     await t.click(node_toSelect.select);
   }
 

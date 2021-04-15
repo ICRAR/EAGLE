@@ -1,13 +1,15 @@
 {
     "modelData": {
         "fileType": "palette",
-        "repoService": "Unknown",
+        "repoService": "GitHub",
         "repoBranch": "master",
-        "repo": "",
-        "readonly": true,
-        "filePath": "builtinPalette.json",
+        "repo": "ICRAR/EAGLE",
+        "filePath": "static/builtin.palette",
         "sha": "",
         "git_url": "",
+        "eagleVersion": "v3.0.1",
+        "eagleCommitHash": "932a1061decbdc0412cbe07df0570614e792a160",
+        "schemaVersion": "",
         "readonly": true
     },
     "nodeDataArray": [
@@ -18,46 +20,49 @@
             "isGroup": false,
             "canHaveInputs": true,
             "canHaveOutputs": true,
+            "color": "#3498DB",
             "drawOrderHint": 0,
             "key": -1,
             "text": "AverageArrays",
             "description": "A testing APP that takes multiple numpy arrays on input and calculates the mean or the median, depending on the value provided in the method parameter. Users can add as many producers to the input array port as required and the resulting array will also be send to all connected output apps.",
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 200,
             "collapsed": false,
             "showPorts": false,
+            "flipPorts": false,
             "streaming": false,
             "subject": null,
             "selected": false,
             "expanded": false,
-            "inputApplicationName": "",
-            "outputApplicationName": "",
-            "exitApplicationName": "",
-            "inputApplicationType": "None",
-            "outputApplicationType": "None",
-            "exitApplicationType": "None",
+            "readonly": true,
             "inputPorts": [
                 {
                     "Id": "8c9663ed-0617-450b-836a-c142ea6b4a4d",
-                    "IdText": "array"
+                    "IdText": "array",
+                    "event": false,
+                    "type": "Unknown"
                 }
             ],
             "outputPorts": [
                 {
                     "Id": "6dbeb133-808f-4df4-9f40-9b2fe4fa122e",
-                    "IdText": "array"
+                    "IdText": "array",
+                    "event": false,
+                    "type": "Unknown"
                 }
             ],
             "inputLocalPorts": [],
             "outputLocalPorts": [],
-            "inputAppFields": [],
-            "outputAppFields": [],
             "fields": [
                 {
                     "text": "method",
                     "name": "method",
                     "value": "mean",
-                    "description": "the methd used for averaging",
+                    "description": "the method used for averaging",
                     "readonly": false,
-                    "type": "string"
+                    "type": "String"
                 },
                 {
                     "text": "appclass",
@@ -86,13 +91,24 @@
                 {
                     "text": "Group start",
                     "name": "group_start",
-                    "value": 0,
+                    "value": false,
                     "description": "Component is start of a group",
                     "readonly": false,
                     "type": "Boolean"
                 }
             ],
-            "readonly": true
+            "inputAppFields": [],
+            "outputAppFields": [],
+            "exitAppFields": [],
+            "inputApplicationName": "",
+            "inputApplicationType": "None",
+            "inputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputApplicationKey": null,
+            "exitApplicationName": "",
+            "exitApplicationType": "None",
+            "exitApplicationKey": null
         },
         {
             "category": "PythonApp",
@@ -101,28 +117,27 @@
             "isGroup": false,
             "canHaveInputs": true,
             "canHaveOutputs": true,
+            "color": "#3498DB",
             "drawOrderHint": 0,
             "key": -2,
             "text": "CopyApp",
             "description": "A simple APP that copies its inputs into its outputs. All inputs are copied into all outputs in the order they were declared in the graph. If an input is a container (e.g. a directory) it copies the content recursively.",
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 200,
             "collapsed": false,
             "showPorts": false,
+            "flipPorts": false,
             "streaming": false,
             "subject": null,
             "selected": false,
             "expanded": false,
-            "inputApplicationName": "",
-            "outputApplicationName": "",
-            "exitApplicationName": "",
-            "inputApplicationType": "None",
-            "outputApplicationType": "None",
-            "exitApplicationType": "None",
+            "readonly": true,
             "inputPorts": [],
             "outputPorts": [],
             "inputLocalPorts": [],
             "outputLocalPorts": [],
-            "inputAppFields": [],
-            "outputAppFields": [],
             "fields": [
                 {
                     "text": "appclass",
@@ -151,13 +166,24 @@
                 {
                     "text": "Group start",
                     "name": "group_start",
-                    "value": 0,
+                    "value": false,
                     "description": "Component is start of a group",
                     "readonly": false,
                     "type": "Boolean"
                 }
             ],
-            "readonly": true
+            "inputAppFields": [],
+            "outputAppFields": [],
+            "exitAppFields": [],
+            "inputApplicationName": "",
+            "inputApplicationType": "None",
+            "inputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputApplicationKey": null,
+            "exitApplicationName": "",
+            "exitApplicationType": "None",
+            "exitApplicationKey": null
         },
         {
             "category": "PythonApp",
@@ -166,33 +192,34 @@
             "isGroup": false,
             "canHaveInputs": true,
             "canHaveOutputs": true,
+            "color": "#3498DB",
             "drawOrderHint": 0,
             "key": -3,
             "text": "HelloWorldApp",
             "description": "A simple APP that implements the standard Hello World in DALiuGE. It allows to change 'World' with some other string and it also permits to connect the single output port to multiple sinks, which will all receive the same message. App does not require any input.",
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 200,
             "collapsed": false,
             "showPorts": false,
+            "flipPorts": false,
             "streaming": false,
             "subject": null,
             "selected": false,
             "expanded": false,
-            "inputApplicationName": "",
-            "outputApplicationName": "",
-            "exitApplicationName": "",
-            "inputApplicationType": "None",
-            "outputApplicationType": "None",
-            "exitApplicationType": "None",
+            "readonly": true,
             "inputPorts": [],
             "outputPorts": [
                 {
                     "Id": "b6a1cf48-c1f7-47bd-8b10-8c085f25f807",
-                    "IdText": "hello"
+                    "IdText": "hello",
+                    "event": false,
+                    "type": "Unknown"
                 }
             ],
             "inputLocalPorts": [],
             "outputLocalPorts": [],
-            "inputAppFields": [],
-            "outputAppFields": [],
             "fields": [
                 {
                     "text": "greet",
@@ -229,13 +256,24 @@
                 {
                     "text": "Group start",
                     "name": "group_start",
-                    "value": 0,
+                    "value": false,
                     "description": "Component is start of a group",
                     "readonly": false,
                     "type": "Boolean"
                 }
             ],
-            "readonly": true
+            "inputAppFields": [],
+            "outputAppFields": [],
+            "exitAppFields": [],
+            "inputApplicationName": "",
+            "inputApplicationType": "None",
+            "inputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputApplicationKey": null,
+            "exitApplicationName": "",
+            "exitApplicationType": "None",
+            "exitApplicationKey": null
         },
         {
             "category": "PythonApp",
@@ -244,46 +282,47 @@
             "isGroup": false,
             "canHaveInputs": true,
             "canHaveOutputs": true,
+            "color": "#3498DB",
             "drawOrderHint": 0,
             "key": -4,
             "text": "RandomArrayApp",
             "description": "A testing APP that does not take any input and produces a random array of type int64, if integer is set to True, else of type float64. size indicates the number of elements ranging between the values low and high. The resulting array will be send to all connected output apps.",
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 200,
             "collapsed": false,
             "showPorts": false,
+            "flipPorts": false,
             "streaming": false,
             "subject": null,
             "selected": false,
             "expanded": false,
-            "inputApplicationName": "",
-            "outputApplicationName": "",
-            "exitApplicationName": "",
-            "inputApplicationType": "None",
-            "outputApplicationType": "None",
-            "exitApplicationType": "None",
+            "readonly": true,
             "inputPorts": [],
             "outputPorts": [
                 {
                     "Id": "55f8ceac-ba87-4628-9399-6865b8dabe20",
-                    "IdText": "array"
+                    "IdText": "array",
+                    "event": false,
+                    "type": "Unknown"
                 }
             ],
             "inputLocalPorts": [],
             "outputLocalPorts": [],
-            "inputAppFields": [],
-            "outputAppFields": [],
             "fields": [
                 {
                     "text": "size",
                     "name": "size",
-                    "value": "100",
-                    "description": "the siz of the array",
+                    "value": 100,
+                    "description": "the size of the array",
                     "readonly": false,
                     "type": "Integer"
                 },
                 {
                     "text": "integer",
                     "name": "integer",
-                    "value": "True",
+                    "value": false,
                     "description": "Generate integer array?",
                     "readonly": false,
                     "type": "Boolean"
@@ -291,18 +330,18 @@
                 {
                     "text": "low",
                     "name": "low",
-                    "value": "0",
+                    "value": 0,
                     "description": "low value of range in array [inclusive]",
                     "readonly": false,
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "text": "high",
                     "name": "high",
-                    "value": "1",
+                    "value": 1,
                     "description": "high value of range of array [exclusive]",
                     "readonly": false,
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "text": "appclass",
@@ -331,13 +370,24 @@
                 {
                     "text": "Group start",
                     "name": "group_start",
-                    "value": 0,
+                    "value": false,
                     "description": "Component is start of a group",
                     "readonly": false,
                     "type": "Boolean"
                 }
             ],
-            "readonly": true
+            "inputAppFields": [],
+            "outputAppFields": [],
+            "exitAppFields": [],
+            "inputApplicationName": "",
+            "inputApplicationType": "None",
+            "inputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputApplicationKey": null,
+            "exitApplicationName": "",
+            "exitApplicationType": "None",
+            "exitApplicationKey": null
         },
         {
             "category": "PythonApp",
@@ -346,33 +396,32 @@
             "isGroup": false,
             "canHaveInputs": true,
             "canHaveOutputs": true,
+            "color": "#3498DB",
             "drawOrderHint": 0,
             "key": -5,
             "text": "SleepApp",
             "description": "A simple APP that sleeps the specified amount of time (0 by default). This is mainly useful (and used) to test graph translation and structure without executing real algorithms. Very useful for debugging.",
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 200,
             "collapsed": false,
-            "showPorts": false,
+            "showPorts": true,
+            "flipPorts": false,
             "streaming": false,
             "subject": null,
             "selected": false,
             "expanded": false,
-            "inputApplicationName": "",
-            "outputApplicationName": "",
-            "exitApplicationName": "",
-            "inputApplicationType": "None",
-            "outputApplicationType": "None",
-            "exitApplicationType": "None",
+            "readonly": true,
             "inputPorts": [],
             "outputPorts": [],
             "inputLocalPorts": [],
             "outputLocalPorts": [],
-            "inputAppFields": [],
-            "outputAppFields": [],
             "fields": [
                 {
                     "text": "sleepTime",
                     "name": "sleepTime",
-                    "value": "5",
+                    "value": 5,
                     "description": "the number of seconds to sleep",
                     "readonly": false,
                     "type": "Integer"
@@ -404,13 +453,146 @@
                 {
                     "text": "Group start",
                     "name": "group_start",
-                    "value": 0,
+                    "value": false,
                     "description": "Component is start of a group",
                     "readonly": false,
                     "type": "Boolean"
                 }
             ],
-            "readonly": true
+            "inputAppFields": [],
+            "outputAppFields": [],
+            "exitAppFields": [],
+            "inputApplicationName": "",
+            "inputApplicationType": "None",
+            "inputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputApplicationKey": null,
+            "exitApplicationName": "",
+            "exitApplicationType": "None",
+            "exitApplicationKey": null
+        },
+        {
+            "category": "PythonApp",
+            "categoryType": "Application",
+            "isData": false,
+            "isGroup": false,
+            "canHaveInputs": true,
+            "canHaveOutputs": true,
+            "color": "#3498DB",
+            "drawOrderHint": 0,
+            "key": -6,
+            "text": "Ngas Archiving",
+            "description": "An Application that takes its single data input and archives it on a NGAS server. This component does not provide any output.",
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 200,
+            "collapsed": false,
+            "showPorts": true,
+            "flipPorts": false,
+            "streaming": false,
+            "subject": null,
+            "selected": true,
+            "expanded": false,
+            "readonly": false,
+            "inputPorts": [
+                {
+                    "Id": "05edd00f-0c34-43cd-836e-cc638e2de012",
+                    "IdText": "fileObject",
+                    "event": false,
+                    "type": "Unknown"
+                }
+            ],
+            "outputPorts": [],
+            "inputLocalPorts": [],
+            "outputLocalPorts": [],
+            "fields": [
+                {
+                    "text": "Execution time",
+                    "name": "execution_time",
+                    "value": 5,
+                    "description": "Estimate of execution time (in seconds) for this application.",
+                    "readonly": false,
+                    "type": "Float"
+                },
+                {
+                    "text": "Num CPUs",
+                    "name": "num_cpus",
+                    "value": 1,
+                    "description": "",
+                    "readonly": false,
+                    "type": "Integer"
+                },
+                {
+                    "text": "Group start",
+                    "name": "group_start",
+                    "value": false,
+                    "description": "",
+                    "readonly": false,
+                    "type": "Boolean"
+                },
+                {
+                    "text": "Appclass",
+                    "name": "appclass",
+                    "value": "dlg.apps.archiving.NgasArchivingApp",
+                    "description": "The python class that implements this application",
+                    "readonly": false,
+                    "type": "Unknown"
+                },
+                {
+                    "text": "NGAS Server",
+                    "name": "ngasSrv",
+                    "value": "ngas.ddns.net",
+                    "description": "Hostname of the server running NGAS",
+                    "readonly": false,
+                    "type": "String"
+                },
+                {
+                    "text": "NGAS Port",
+                    "name": "ngasPort",
+                    "value": 7777,
+                    "description": "Port the NGAS server is listening on",
+                    "readonly": false,
+                    "type": "Integer"
+                },
+                {
+                    "text": "NGAS timeout",
+                    "name": "ngasTimeout",
+                    "value": 2,
+                    "description": "Timeout for archiving request",
+                    "readonly": false,
+                    "type": "Integer"
+                },
+                {
+                    "text": "NGAS connect timeout",
+                    "name": "ngasConnectTimeout",
+                    "value": 2,
+                    "description": "NGAS connection timeout",
+                    "readonly": false,
+                    "type": "Float"
+                },
+                {
+                    "text": "Mime Type",
+                    "name": "ngasMime",
+                    "value": "application/octet-stream",
+                    "description": "Mime type used for NGAS archiving",
+                    "readonly": false,
+                    "type": "String"
+                }
+            ],
+            "inputAppFields": [],
+            "outputAppFields": [],
+            "exitAppFields": [],
+            "inputApplicationName": "",
+            "inputApplicationType": "None",
+            "inputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputApplicationKey": null,
+            "exitApplicationName": "",
+            "exitApplicationType": "None",
+            "exitApplicationKey": null
         }
     ],
     "linkDataArray": []
