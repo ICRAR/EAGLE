@@ -2645,6 +2645,17 @@ export class Eagle {
         var isTranslationToggle = icon.hasClass("translationToggle");
         var toggleState : boolean;
 
+        // abort if the element is already collapsing
+        if (isTranslationToggle){
+            if (icon.parent().parent().parent().children(":not(.card-header)").hasClass("collapsing")){
+                return;
+            }
+        } else {
+            if (icon.parent().parent().children(":not(.card-header)").hasClass("collapsing")){
+                return;
+            }
+        }
+
         if (isTranslationToggle){
             //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
             //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
