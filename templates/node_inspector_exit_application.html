@@ -1,10 +1,10 @@
 <div class="card">
-    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse2" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: $root.spinCollapseIcon">
-        <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse2" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: selectedNode().toggleInspectorSection" data-section-name="Exit Application">
+        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:selectedNode().inspectorState().exitApplication">keyboard_arrow_down</i>
         <i class="material-icons">apps</i>
-        <span>Exit Application</span>
+        <span class="nodeInspectorSubsectionTitle">Exit Application</span>
     </h5>
-    <div class="collapse show" id="nodeCategoryCollapse2">
+    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse2">
         <div class="card-body exit-application">
             <inspector-component params="node: $root.selectedNode().exitApplication, selectCallback: $root.setNodeExitApplication, inspectCallback: $root.selectExitApplicationNode"></inspector-component>
         </div>

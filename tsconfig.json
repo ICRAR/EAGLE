@@ -37,6 +37,7 @@
         "./src/Edge.ts",
         "./src/Port.ts",
         "./src/FileInfo.ts",
-        "./src/Setting.ts"
+        "./src/Setting.ts",
+        "./src/InspectorState.ts"
     ]
 }

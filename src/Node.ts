@@ -29,6 +29,7 @@ import {GraphUpdater} from './GraphUpdater';
 import {Eagle} from './Eagle';
 import {Port} from './Port';
 import {Field} from './Field';
+import {InspectorState} from './InspectorState';
 
 export class Node {
     private key : number;
@@ -68,6 +69,13 @@ export class Node {
     private selected : ko.Observable<boolean>; // true, if the node has been selected in EAGLE
 
     private readonly : boolean;
+
+    private inspectorState : ko.Observable<InspectorState>;
+
+
+    // TODO: we'll need more variables here, one for every collapsable section of the node inspector
+    //       I don't really like this aspect of the branch. perhaps we can store all these in one dictionary
+    //       if we could use the section-name strings as the keys to the dictionary, we could also remove lots of switch statements throughout the code
 
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 200;
@@ -118,6 +126,8 @@ export class Node {
         this.selected = ko.observable(false);
 
         this.readonly = readonly;
+
+        this.inspectorState =ko.observable( new InspectorState() )
     }
 
     getKey = () : number => {
@@ -1117,6 +1127,50 @@ export class Node {
     setExpanded = (value : boolean) : void => {
         this.expanded(value);
     }
+
+    toggleInspector = (item: any, e:JQueryEventObject): void => {
+        let allCollapsed = this.allInspectorSectionsCollapsed();
+
+        this.inspectorState().setAll(!allCollapsed);
+
+        // actually ask bootstrap to collapse all the sections
+        $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
+    }
+
+    toggleInspectorSection = (item: any, e: JQueryEventObject): void => {
+        let target: JQuery<Element> = $(e.currentTarget);
+        let sectionName: string = target.data('section-name');
+
+        // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
+        let collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
+        if (!collapsing){
+            this.inspectorState().toggle(sectionName);
+        } else {
+            console.log("Abort section toggle, already collapsing");
+            return;
+        }
+    }
+
+    updateAllInspectorSections = (): void => {
+        $(".nodeInspectorCollapseAll").collapse("hide");
+
+        $(".nodeInspectorCollapseAll").each((index: number, element: HTMLElement): void => {
+            var h5 = $(element).parent().find('h5');
+            var sectionName = h5.data("section-name");
+
+            let sectionState = this.inspectorState().get(sectionName);
+
+            if (sectionState === null){
+                return;
+            }
+
+            $(element).collapse(sectionState() ? "hide" : "show");
+        });
+    }
+
+    allInspectorSectionsCollapsed : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return this.inspectorState().all();
+    }, this);
 
     static canHaveInputApp = (node : Node) : boolean => {
         return Eagle.getCategoryData(node.getCategory()).canHaveInputApplication;

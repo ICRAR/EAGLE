@@ -44,7 +44,8 @@ test('Graph creation', async t =>{
         // wait for the page to settle down
         //.resizeWindow(1920, 1080)
         .maximizeWindow()
-        .wait(3000);
+        .wait(3000)
+        .setTestSpeed(TEST_SPEED);
 
     // create graph
 
@@ -56,7 +57,7 @@ test('Graph creation', async t =>{
 
     // add the outer scatter from the palette to the graph
     await page.addPaletteNode(0,14,true);
-    await page.setNodeName("ClusterScatterAverager");
+    await page.setNodeName("ClusterScatterAverager", true);
 
     // move and resize the outer scatter
     await page.moveNode('#node0', 120, 100);
@@ -64,7 +65,8 @@ test('Graph creation', async t =>{
 
     // add the inner scatter
     await page.addPaletteNode(0,14,true);
-    await page.setNodeName("NodeScatterAverager");
+
+    await page.setNodeName("NodeScatterAverager", true);
 
     // move and resize the inner scatter
     await page.moveNode('#node1', 140, 175);
@@ -75,7 +77,7 @@ test('Graph creation', async t =>{
 
     // add the inner Python App
     await page.addPaletteNode(0,6,false);
-    await page.setNodeName("OSKAR2 Simulator");
+    await page.setNodeName("OSKAR2 Simulator", true);
 
     // set parent of inner Python App
     await page.setParent("NodeScatterAverager : -2");
@@ -87,7 +89,7 @@ test('Graph creation', async t =>{
 
     // add the outer Python App
     await page.addPaletteNode(0,6,false);
-    await page.setNodeName("Average 6 Channels");
+    await page.setNodeName("Average 6 Channels", true);
 
     // set parent of outer Python App
     await page.setParent("ClusterScatterAverager : -1");
