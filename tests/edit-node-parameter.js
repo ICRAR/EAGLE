@@ -23,6 +23,9 @@ test('Edit node parameter', async t =>{
         // check that a file node has been created
         .expect(Selector("#nodeNameValue").value).eql("Python App")
 
+        // click the header for the parameters section
+        .click(Selector('h5.card-header[href="#nodeCategoryCollapse9"]'))
+
         // edit first parameter in the node inspector
         .typeText(Selector('#nodeInspectorFieldValue0'), DUMMY_VALUE, {replace: true})
 
