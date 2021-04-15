@@ -1,10 +1,10 @@
 <div class="card">
-    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: spinCollapseIcon">
-        <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse10" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: selectedNode().toggleInspectorSection" data-section-name="Description">
+        <i class="material-icons interactive nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:selectedNode().inspectorSectionCollapsedDescription}">keyboard_arrow_down</i>
         <i class="material-icons">note</i>
-        <span>Description</span>
+        <span class="nodeInspectorSubsectionTitle" >Description</span>
     </h5>
-    <div class="collapse show" id="nodeCategoryCollapse1">
+    <div class="collapse show nodeInspectorCollapseAll" id="nodeCategoryCollapse10">
         <div class="card-body">
             <textarea class="form-control" rows="3" data-bind="nodeDataProperty: 'description', readonly: selectedNode().isLocked(), event: {change: Eagle.updateTooltips}"></textarea>
         </div>

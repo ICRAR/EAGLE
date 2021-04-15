@@ -4,7 +4,7 @@ import {Eagle} from '../Eagle';
 
 ko.bindingHandlers.nodeDataProperty = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
-        $(element).change(function() {
+        $(element).keyup(function() {
             var dataProperty = ko.unwrap(valueAccessor());
             var eagle : Eagle = bindingContext.$root;
 

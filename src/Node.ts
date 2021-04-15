@@ -1064,8 +1064,6 @@ export class Node {
         }
 
         this.fields()[0].setValue(e.value);
-
-        eagle.flagActiveDiagramHasMutated();
     }
 
     findPortIsInputById = (portId: string) : boolean => {
