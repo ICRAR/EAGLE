@@ -69,9 +69,9 @@ export class Node {
 
     private readonly : boolean;
 
-    private inspectorSectionCollapsedDescription : ko.Observable<boolean>;
-    private inspectorSectionCollapsedDisplayOptions : ko.Observable<boolean>;
-    private inspectorSectionCollapsedParameters : ko.Observable<boolean>;
+    private inspectorSectionCollapsed : ko.Observable<Eagle.inspectorSectionState>;
+
+
     // TODO: we'll need more variables here, one for every collapsable section of the node inspector
     //       I don't really like this aspect of the branch. perhaps we can store all these in one dictionary
     //       if we could use the section-name strings as the keys to the dictionary, we could also remove lots of switch statements throughout the code
@@ -126,10 +126,7 @@ export class Node {
 
         this.readonly = readonly;
 
-        this.inspectorSectionCollapsedDescription = ko.observable(true);
-        this.inspectorSectionCollapsedDisplayOptions = ko.observable(true);
-        this.inspectorSectionCollapsedParameters = ko.observable(true);
-        // TODO: more
+        this.inspectorSectionCollapsed =ko.observable( new Eagle.inspectorSectionState() )
     }
 
     getKey = () : number => {
@@ -1135,9 +1132,7 @@ export class Node {
     toggleInspector = (item: any, e:JQueryEventObject): void => {
         let allCollapsed = this.allInspectorSectionsCollapsed();
 
-        this.inspectorSectionCollapsedDescription(!allCollapsed);
-        this.inspectorSectionCollapsedDisplayOptions(!allCollapsed);
-        this.inspectorSectionCollapsedParameters(!allCollapsed);
+        this.inspectorSectionCollapsed().setAllInspectorStates(!allCollapsed);
         // TODO: more
 
         // actually ask bootstrap to collapse all the sections
@@ -1148,23 +1143,29 @@ export class Node {
         let target: JQuery<Element> = $(e.currentTarget);
         let sectionName: string = target.data('section-name');
 
-        // TODO: this switch statement is a little clunky
-        //       if all the booleans were stored in a single dictionary (or similar) and keyed by the sectionName,
-        //       then this could be replaced with one line (and a correctness check)
-        switch(sectionName){
-            case "Description":
-                this.inspectorSectionCollapsedDescription(!this.inspectorSectionCollapsedDescription());
+        //TODO dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
+        let collapsing = target.parent().parent().children(".collapse").hasClass("collapsing")
+        console.log (target.attr("class"))
+        if (!collapsing){
+            // TODO: this switch statement is a little clunky
+            //       if all the booleans were stored in a single dictionary (or similar) and keyed by the sectionName,
+            //       then this could be replaced with one line (and a correctness check)
+            switch(sectionName){
+                case "Description":
+                    this.inspectorSectionCollapsedDescription(!this.inspectorSectionCollapsedDescription());
+                    break;
+                case "Display Options":
+                    this.inspectorSectionCollapsedDisplayOptions(!this.inspectorSectionCollapsedDisplayOptions());
+                    break;
+                case "Parameters":
+                    this.inspectorSectionCollapsedParameters(!this.inspectorSectionCollapsedParameters());
+                // TODO: more
+                default:
+                console.warn("Unknown inspector section", sectionName);
                 break;
-            case "Display Options":
-                this.inspectorSectionCollapsedDisplayOptions(!this.inspectorSectionCollapsedDisplayOptions());
-                break;
-            case "Parameters":
-                this.inspectorSectionCollapsedParameters(!this.inspectorSectionCollapsedParameters());
-            // TODO: more
-            default:
-            console.warn("Unknown inspector section", sectionName);
-            break;
-        }
+            }
+        }else{
+            return;}
     }
 
     updateAllInspectorSections = (): void => {
