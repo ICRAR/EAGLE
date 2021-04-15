@@ -48,6 +48,14 @@ class Page {
     this.deleteNodeButton = Selector('#deleteSelectedNode');
     this.confirmButton = Selector('#confirmModalAffirmativeButton');
 
+    this.description = Selector('h5.card-header[href="#nodeCategoryCollapse10"]');
+    this.displayOptions = Selector('h5.card-header[href="#nodeCategoryCollapse1"]');
+    this.parameters = Selector('h5.card-header[href="#nodeCategoryCollapse9"]');
+    this.inputPorts = Selector('h5.card-header[href="#nodeCategoryCollapse6"]');
+    this.outputPorts = Selector('h5.card-header[href="#nodeCategoryCollapse8"]');
+    this.inputApplication = Selector('h5.card-header[href="#nodeCategoryCollapse5"]');
+    this.outputApplication = Selector('h5.card-header[href="#nodeCategoryCollapse7"]');
+
     this.nodeNameValue = Selector('#nodeNameValue');
     this.parentButton = Selector('#nodeInspectorChangeParent');
     this.selectChoice = Selector('#choiceModalSelect');
@@ -197,10 +205,14 @@ class Page {
     return state.boundingClientRect;
   }
 
-  async setNodeName (name){
-      await t
-        .click(this.nodeMode)
-        .typeText(this.nodeNameValue, name, {replace:true})
+  async setNodeName (name, open){
+      await t.click(this.nodeMode);
+
+      if (open){
+          await t.click(this.displayOptions);
+      }
+
+      await t.typeText(this.nodeNameValue, name, {replace:true});
   }
 
   async setParent (parentText) {
@@ -215,10 +227,12 @@ class Page {
   async addNodePort (portName, input){
      if (input){
          await t
+            .click(this.inputPorts)
             .hover(this.addInputPort)
             .click(this.addInputPort);
     } else {
         await t
+           .click(this.outputPorts)
            .hover(this.addOutputPort)
            .click(this.addOutputPort);
     }
@@ -234,6 +248,7 @@ class Page {
   }
 
   async addNodeInputApplication(applicationName){
+      await t.click(this.inputApplication);
       await t.click(this.addInputApplication);
       await t
           .click(this.selectChoice)

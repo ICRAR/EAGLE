@@ -70,6 +70,7 @@ export class Eagle {
     globalOffsetY : number = 0;
     globalScale : number = 1.0;
 
+    nodeInspectorCollapsed: ko.Observable<boolean>;
 
     static settings : ko.ObservableArray<Setting>;
 
@@ -128,6 +129,8 @@ export class Eagle {
         this.editorPalette.subscribe(this.updateTooltips);
         this.palettes.subscribe(this.updateTooltips);
         this.selectedNode.subscribe(this.updateTooltips);
+
+        this.nodeInspectorCollapsed = ko.observable(false);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -411,12 +414,12 @@ export class Eagle {
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
         //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
-
         switch (rightWindowMode){
             case Eagle.RightWindowMode.Hierarchy:
             case Eagle.RightWindowMode.NodeInspector:
                 // abort if already selected
                 if (this.selectedNode() === selection){
+                    this.rightWindow().mode(rightWindowMode);
                     return;
                 }
 
@@ -441,6 +444,9 @@ export class Eagle {
                 Eagle.selectedNodeKey = (<Node>selection).getKey();
                 this.selectedNode(<Node>selection);
                 this.selectedEdge(null);
+
+                // update the display of all the sections of the node inspector (collapse/expand as appropriate)
+                this.selectedNode().updateAllInspectorSections();
 
                 // expand this node's parents, all the way to the root of the hierarchy
                 var n : Node = <Node>selection;
@@ -2661,30 +2667,43 @@ export class Eagle {
         return true;
     }
 
-    spinCollapseIcon = (item:any, e:JQueryEventObject) => {
-        //this function handels only the visible ui element that indicates the state of the collapsable object.
-        //the collapse functyion itself is handled by bootstrap.
-        //getting event target for collapse action.
-        var collapseTarget = $(e.currentTarget) as JQuery<HTMLElement>;
-        collapseTarget = collapseTarget.find('i').first();
-        //getting current state of collapsable object.
-        var triggerClass = collapseTarget.hasClass("translationToggle");
-        var toggleState : boolean
+    spinCollapseIcon = (item: any, e: JQueryEventObject) => {
+        // this function handles only the visible ui element that indicates the state of the collapsable object.
+        // the collapse function itself is handled by bootstrap.
 
-        if (triggerClass){
-            //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
-            //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
-            $(".translationToggle").addClass("closedIcon")
-            var toggleState = collapseTarget.parent().parent().parent().children(".collapse").hasClass('show');
-        }else{
-            //This is for collapse icon on the node palettes and in the node settings menu.
-            var toggleState = collapseTarget.parent().parent().children(".collapse").hasClass('show');
+        // getting event target for collapse action.
+        var target: JQuery<Element> = $(e.currentTarget);
+        var icon: JQuery<Element> = target.find('i').first();
+
+        // getting current state of collapsable object.
+        var isTranslationToggle = icon.hasClass("translationToggle");
+        var toggleState : boolean;
+
+        // abort if the element is already collapsing
+        if (isTranslationToggle){
+            if (icon.parent().parent().parent().children(":not(.card-header)").hasClass("collapsing")){
+                return;
+            }
+        } else {
+            if (icon.parent().parent().children(":not(.card-header)").hasClass("collapsing")){
+                return;
+            }
         }
 
-        if(toggleState){
-            collapseTarget.addClass("closedIcon");
-        }else{
-            collapseTarget.removeClass("closedIcon");
+        if (isTranslationToggle){
+            //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
+            //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
+            $(".translationToggle").addClass("closedIcon");
+            toggleState = icon.parent().parent().parent().children(".collapse").hasClass('show');
+        } else {
+            toggleState = icon.parent().parent().children(".collapse").hasClass('show');
+        }
+
+        // TODO: can't we change this to a knockout "css" data-bind?
+        if (toggleState){
+            icon.addClass("closedIcon");
+        } else {
+            icon.removeClass("closedIcon");
         }
     }
 

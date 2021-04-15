@@ -1,11 +1,27 @@
 <div id="nodeInspector" class="container px-0">
     <!-- ko if: selectedNode() != null -->
 
-        {% include 'node_inspector_attributes.html' %}
+        <h5 class="card-header" id="nodeInspectorHeading" data-bind="click: selectedNode().toggleInspector">
+            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse All'}, css:{closedIcon: selectedNode().allInspectorSectionsCollapsed}">keyboard_arrow_down</i>
+            <!-- ko if: selectedNode().isLocked() -->
+            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
+            <!-- /ko -->
+            <!-- ko ifnot: selectedNode().isLocked() -->
+            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
+            <!-- /ko -->
+            <span data-bind="text: selectedNode().getName()"></span>
+        </h5>
 
+        <h4 class="nodeInspectorSubTitle" id="firstNodeInspectorSubtitle">Key: <span data-bind="text: selectedNode().getKey()"></span></h4>
+        <h4 class="nodeInspectorSubTitle" >Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
+        <h4 class="nodeInspectorSubTitle">Category Type: <span data-bind="text: selectedNode().getCategoryType()"></span></h4>
+
+        <div id="nodeInspectorMenus">
         <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
         {% include 'node_inspector_description.html' %}
         <!-- /ko -->
+
+        {% include 'node_inspector_display_options.html' %}
 
         <!-- node component parameters list -->
         <!-- ko if: selectedNode().canHaveParameters() -->
@@ -44,18 +60,19 @@
         <!-- ko if: selectedNode().getCategory() === "Comment" -->
         {% include 'node_inspector_graph_comment.html' %}
         <!-- /ko -->
+        </div>
 
-        <div class="row mt-1">
+        <div class="row mt-1 nodeInspectorButton">
             <div class="col">
                 <button type="button" id="duplicateSelectedNode" class="btn btn-primary btn-block" data-bind="click: duplicateSelectedNode">Duplicate Node</button>
             </div>
         </div>
-        <div class="row mt-1">
+        <div class="row mt-1 nodeInspectorButton">
             <div class="col">
                 <button type="button" id="addSelectedNodeToPalette" class="btn btn-primary btn-block" data-bind="click: addSelectedNodeToPalette">Add Node to Palette</button>
             </div>
         </div>
-        <div class="row mt-1">
+        <div class="row mt-1 nodeInspectorButton">
             <div class="col">
                 <button type="button" id="deleteSelectedNode" class="btn btn-danger btn-block" data-bind="click: deleteSelectedNode">Delete Node</button>
             </div>

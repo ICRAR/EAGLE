@@ -1,10 +1,10 @@
 <div class="card">
-    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse5" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: $root.spinCollapseIcon">
-        <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse5" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: selectedNode().toggleInspectorSection" data-section-name="Input Application">
+        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:selectedNode().inspectorState().inputApplication}">keyboard_arrow_down</i>
         <i class="material-icons">apps</i>
-        <span>Input Application</span>
+        <span class="nodeInspectorSubsectionTitle">Input Application</span>
     </h5>
-    <div class="collapse show" id="nodeCategoryCollapse5">
+    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse5">
         <div class="card-body input-application">
             <inspector-component params="node: $root.selectedNode().inputApplication, selectCallback: $root.setNodeInputApplication, inspectCallback: $root.selectInputApplicationNode, selectId:'nodeInspectorAddInputApplication', changeId:'nodeInspectorChangeInputApplication', inspectId:'nodeInspectorInspectInputApplication'"></inspector-component>
         </div>
