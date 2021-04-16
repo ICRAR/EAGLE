@@ -2880,7 +2880,6 @@ export class Eagle {
             port = this.selectedNode().getOutputPorts()[portIndex];
         }
 
-        /*
         Utils.requestUserEditPort(port, (completed : boolean, newPort: Port) => {
             // abort if the user aborted
             if (!completed){
@@ -2888,14 +2887,8 @@ export class Eagle {
             }
 
             // update port data
-            field.setText(newField.getText());
-            field.setName(newField.getName());
-            field.setValue(newField.getValue());
-            field.setDescription(newField.getDescription());
-            field.setReadonly(newField.isReadonly());
-            field.setType(newField.getType());
+            port.copy(newPort);
         });
-        */
     }
 
     allowEdgeEditing = (): boolean => {

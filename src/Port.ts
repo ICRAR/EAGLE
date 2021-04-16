@@ -15,6 +15,7 @@ export class Port {
         this._id = id;
         this.name = name;
         this.nodeKey = 0;
+        this.local = false;
         this.event = event;
         this.type = type;
     }
@@ -73,6 +74,14 @@ export class Port {
         var p = new Port(this._id, this.name, this.event, this.type);
         p.local = this.local;
         return p;
+    }
+
+    copy = (src: Port) => {
+        this.name = src.name;
+        this.nodeKey = src.nodeKey;
+        this.local = src.local;
+        this.event = src.event;
+        this.type = src.type;
     }
 
     static toOJSJson = (port : Port) : object => {
