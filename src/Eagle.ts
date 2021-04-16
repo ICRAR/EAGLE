@@ -2845,7 +2845,6 @@ export class Eagle {
         this.selectedNode(this.selectedNode().getExitApplication());
     }
 
-    // TODO: 2 or 3 arguments here, html seems to be calling with three!
     editField = (fieldIndex: number, input: boolean): void => {
         console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
@@ -2872,7 +2871,6 @@ export class Eagle {
         console.log("editPort() node:", this.selectedNode().getName(), "portIndex:", portIndex, "input", input);
 
         // get a reference to the port we are editing
-
         let port: Port;
         if (input){
             port = this.selectedNode().getInputPorts()[portIndex];
