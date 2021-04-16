@@ -2886,6 +2886,28 @@ export class Eagle {
         });
     }
 
+    editPort = (portIndex: number, input: boolean): void => {
+        console.log("editPort() node:", this.selectedNode().getName(), "portIndex:", portIndex, "input", input);
+
+        // get a reference to the port we are editing
+        let port: Port;
+        if (input){
+            port = this.selectedNode().getInputPorts()[portIndex];
+        } else {
+            port = this.selectedNode().getOutputPorts()[portIndex];
+        }
+
+        Utils.requestUserEditPort(port, (completed : boolean, newPort: Port) => {
+            // abort if the user aborted
+            if (!completed){
+                return;
+            }
+
+            // update port data
+            port.copy(newPort);
+        });
+    }
+
     allowEdgeEditing = (): boolean => {
         return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
     }

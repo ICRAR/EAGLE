@@ -331,6 +331,9 @@ export class Utils {
         if (dataType === "String"){
             return Eagle.DataType.String;
         }
+        if (dataType === "Complex"){
+            return Eagle.DataType.Complex;
+        }
 
         console.warn("Unknown DataType", dataType);
         return Eagle.DataType.Unknown;
@@ -659,6 +662,43 @@ export class Utils {
             callback(true, newField);
         });
 
+        // #editPortModal - requestUserEditPort()
+        $('#editPortModalAffirmativeButton').on('click', function(){
+            $('#editPortModal').data('completed', true);
+        });
+        $('#editPortModalNegativeButton').on('click', function(){
+            $('#editPortModal').data('completed', false);
+        });
+        $('#editPortModal').on('shown.bs.modal', function(){
+            $('#editPortModalAffirmativeButton').focus();
+        });
+        $('#editPortModal').on('hidden.bs.modal', function(){
+            console.log("editPortModal hidden");
+
+            var callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
+            var completed : boolean = $('#editPortModal').data('completed');
+            console.log("completed", completed);
+
+            // check if the modal was completed (user clicked OK), if not, return false
+            if (!completed){
+                callback(false, null);
+                return;
+            }
+
+            // extract field data from HTML elements
+            // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
+            let id = "dummy-id";
+            let name : string = <string>$('#editPortModalNameInput').val();
+            let type: string = <string>$('#editPortModalTypeSelect').val();
+
+            // translate access and type
+            let realType: Eagle.DataType = Utils.translateStringToDataType(type);
+
+            let newPort = new Port(id, name, false, realType);
+
+            callback(true, newPort);
+        });
+
         // #editEdgeModal - requestUserEditEdge()
         $('#editEdgeModalAffirmativeButton').on('click', function(){
             $('#editEdgeModal').data('completed', true);
@@ -943,6 +983,50 @@ export class Utils {
         $('#editFieldModal').data('completed', false);
         $('#editFieldModal').data('callback', callback);
         $('#editFieldModal').modal();
+    }
+
+    static requestUserEditPort(port: Port, callback: (completed: boolean, port: Port) => void){
+        console.log("requestUserEditPort()");
+
+        // populate UI with current port data
+        $('#editPortModalNameInput').val(port.getName());
+
+        $('#editPortModalTypeSelect').empty();
+        // TODO: we should iterate through the values in the Eagle.DataType enum, rather than hard-code each type
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "Integer",
+            text: "Integer",
+            selected: port.getType() === Eagle.DataType.Integer
+        }));
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "Float",
+            text: "Float",
+            selected: port.getType() === Eagle.DataType.Float
+        }));
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "String",
+            text: "String",
+            selected: port.getType() === Eagle.DataType.String
+        }));
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "Boolean",
+            text: "Boolean",
+            selected: port.getType() === Eagle.DataType.Boolean
+        }));
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "Complex",
+            text: "Complex",
+            selected: port.getType() === Eagle.DataType.Complex
+        }));
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "Unknown",
+            text: "Unknown",
+            selected: port.getType() === Eagle.DataType.Unknown
+        }));
+
+        $('#editPortModal').data('completed', false);
+        $('#editPortModal').data('callback', callback);
+        $('#editPortModal').modal();
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void){

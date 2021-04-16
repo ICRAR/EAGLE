@@ -51,9 +51,9 @@ export class Field {
         this.description(description);
     }
 
-    getDescriptionText = () : string => {
+    getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
         return this.description() == "" ? "No description available" + " (" + this.type() + ")" : this.description() + " (" + this.type() + ")";
-    }
+    }, this);
 
     isReadonly = () : boolean => {
         return this.readonly();
