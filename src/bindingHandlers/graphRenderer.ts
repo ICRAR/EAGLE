@@ -2724,22 +2724,37 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (linkValid === Eagle.LinkValid.Warning)
             return LINK_WARNING_COLOR;
 
-        return edge === eagle.selectedEdge() ? "black" : "grey";
+        let normalColor: string = "grey";
+        let selectedColor: string = "black";
+
+        // check if source node is an event, if so, draw in blue
+        let srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+
+        if (srcNode !== null){
+            let srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
+
+            if (srcPort !== null && srcPort.isEvent()){
+                normalColor = "rgb(128,128,255)";
+                selectedColor = "blue";
+            }
+        }
+
+        return edge === eagle.selectedEdge() ? selectedColor : normalColor;
     }
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
-        let srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        let srcNode : Node  = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        let destNode : Node = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
 
         // if we can't find the edge
         if (srcNode === null){
             return "";
         }
+        if (destNode === null){
+            return "";
+        }
 
-        let srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
-
-        if (srcPort === null) return "";
-
-        if (srcPort.isEvent()){
+        if (srcNode.isStreaming() || destNode.isStreaming()){
             return "8";
         } else {
             return "";
