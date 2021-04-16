@@ -18,7 +18,7 @@ var SPEAD2_STREAM = "spead2Stream";
 var SUB_MS = "subMS";
 var CONF = "conf";
 var SUCCESS_MESSAGE = "Success:";
-var TEST_SPEED = 0.7     //A number between 0.01 (slowest) and 1.0 (fastest)
+var TEST_SPEED = 0.5     //A number between 0.01 (slowest) and 1.0 (fastest)
 
 // prepare to save palette as...
 var d = new Date();
