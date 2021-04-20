@@ -546,15 +546,24 @@ export class LogicalGraph {
         } else {
             this.nodes.push(newNode);
 
-            // set new keys for embedded applications within node
+            // set new ids for any ports in this node
+            Utils.giveNodePortsNewIds(newNode);
+
+            // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
             if (newNode.hasInputApplication()){
                 newNode.getInputApplication().setKey(Utils.newKey(this.getNodes()));
+
+                Utils.giveNodePortsNewIds(newNode.getInputApplication());
             }
             if (newNode.hasOutputApplication()){
                 newNode.getOutputApplication().setKey(Utils.newKey(this.getNodes()));
+
+                Utils.giveNodePortsNewIds(newNode.getOutputApplication());
             }
             if (newNode.hasExitApplication()){
                 newNode.getExitApplication().setKey(Utils.newKey(this.getNodes()));
+
+                Utils.giveNodePortsNewIds(newNode.getExitApplication());
             }
 
             // flag that the logical graph has been modified
