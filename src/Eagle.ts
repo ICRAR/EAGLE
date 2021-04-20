@@ -2618,6 +2618,15 @@ export class Eagle {
     getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number}=> {
         let x = e.clientX;
         let y = e.clientY;
+
+        // clientX and clientY is the position relative to the document,
+        // which doesn't take the space occupied by the navbar into account,
+        // so here we get the "offset" of the svg rect.background
+        // and subtract from clientX/clientY
+        let offset = $(e.currentTarget).offset();
+        x = x - offset.left;
+        y = y - offset.top;
+
         return {x:x, y:y};
     };
 
