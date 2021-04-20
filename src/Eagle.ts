@@ -2918,8 +2918,10 @@ export class Eagle {
                 return;
             }
 
-            // update port data
+            // update port data (except nodeKey)
+            let nodeKey = port.getNodeKey();
             port.copy(newPort);
+            port.setNodeKey(nodeKey);
         });
     }
 
