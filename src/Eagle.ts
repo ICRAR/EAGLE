@@ -2251,16 +2251,22 @@ export class Eagle {
                 // check if clone has embedded applications, if so, add them to destination palette and remove
                 if (clone.hasInputApplication()){
                     let inputClone = clone.getInputApplication().clone();
+                    inputClone.setEmbedKey(null);
+
                     clone.setInputApplication(null);
                     Utils.addOrUpdateNodeInPalette(destinationPalette, inputClone);
                 }
                 if (clone.hasOutputApplication()){
                     let outputClone = clone.getOutputApplication().clone();
+                    outputClone.setEmbedKey(null);
+
                     clone.setOutputApplication(null);
                     Utils.addOrUpdateNodeInPalette(destinationPalette, outputClone);
                 }
                 if (clone.hasExitApplication()){
                     let exitClone = clone.getExitApplication().clone();
+                    exitClone.setEmbedKey(null);
+
                     clone.setExitApplication(null);
                     Utils.addOrUpdateNodeInPalette(destinationPalette, exitClone);
                 }
