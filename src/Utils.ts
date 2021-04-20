@@ -1533,6 +1533,16 @@ export class Utils {
         palette.addNode(node);
     }
 
+    static giveNodePortsNewIds(node: Node){
+        // set new ids for any ports in this node
+        for (let i = 0 ; i < node.getInputPorts().length ; i++){
+            node.getInputPorts()[i].setId(Utils.uuidv4());
+        }
+        for (let i = 0 ; i < node.getOutputPorts().length ; i++){
+            node.getOutputPorts()[i].setId(Utils.uuidv4());
+        }
+    }
+
     static determineFileType(data: any): Eagle.FileType {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.fileType !== 'undefined'){
