@@ -1603,6 +1603,29 @@ export class Utils {
             }
         }
 
+        // check that all nodes have correct numbers of inputs and outputs
+        for (let i = 0 ; i < graph.getNodes().length; i++){
+            let node: Node = graph.getNodes()[i];
+            let cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
+            let minInputs  = cData.minInputs;
+            let maxInputs  = cData.maxInputs;
+            let minOutputs = cData.minOutputs;
+            let maxOutputs = cData.maxOutputs;
+
+            if (node.getInputPorts().length < minInputs){
+                results.push("Graph node " + node.getKey() + " (" + node.getName() + ") has too few input ports. Should have " + minInputs);
+            }
+            if (node.getInputPorts().length > maxInputs){
+                results.push("Graph node " + node.getKey() + " (" + node.getName() + ") has too many input ports. SHould have " + maxInputs);
+            }
+            if (node.getOutputPorts().length < minOutputs){
+                results.push("Graph node " + node.getKey() + " (" + node.getName() + ") has too few output ports. Should have " + minOutputs);
+            }
+            if (node.getOutputPorts().length > maxOutputs){
+                results.push("Graph node " + node.getKey() + " (" + node.getName() + ") has too many output ports. SHould have " + maxOutputs);
+            }
+        }
+
         return results;
     }
 
