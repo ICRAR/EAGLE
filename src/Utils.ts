@@ -1580,6 +1580,10 @@ export class Utils {
         return Eagle.DALiuGESchemaVersion.Unknown;
     }
 
+    static checkGraph(graph: LogicalGraph): string[] {
+        return [];
+    }
+
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {
         console.log("validateJSON(): version:", version, "fileType:", Utils.translateFileTypeToString(fileType));
 

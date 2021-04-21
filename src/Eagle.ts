@@ -3109,6 +3109,16 @@ export class Eagle {
         Utils.showNotification("Graph URL", "Copied to clipboard", "success");
     }
 
+    checkGraph = (): void => {
+        let results: string[] = Utils.checkGraph(this.logicalGraph());
+
+        if (results.length > 0){
+            Utils.showUserMessage("Check graph", results.join(''))
+        } else {
+            Utils.showNotification("Check Graph", "Graph OK", "success");
+        }
+    }
+
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         let c = Eagle.cData[category];
 
