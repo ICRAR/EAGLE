@@ -1581,7 +1581,29 @@ export class Utils {
     }
 
     static checkGraph(graph: LogicalGraph): string[] {
-        return [];
+        let results: string[] = [];
+
+        // check that all port dataTypes have been defined
+        for (let i = 0 ; i < graph.getNodes().length; i++){
+            let node: Node = graph.getNodes()[i];
+
+            for (let j = 0 ; j < node.getInputPorts().length ; j++){
+                let port: Port = node.getInputPorts()[j];
+
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Graph node " + node.getKey() + " (" + node.getName() + ") has input port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+            for (let j = 0 ; j < node.getOutputPorts().length ; j++){
+                let port: Port = node.getOutputPorts()[j];
+
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Graph node " + node.getKey() + " (" + node.getName() + ") has output port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+        }
+
+        return results;
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {

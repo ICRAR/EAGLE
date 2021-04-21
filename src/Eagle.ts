@@ -3113,7 +3113,7 @@ export class Eagle {
         let results: string[] = Utils.checkGraph(this.logicalGraph());
 
         if (results.length > 0){
-            Utils.showUserMessage("Check graph", results.join(''))
+            Utils.showUserMessage("Check graph", results.join('<br/>'))
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
