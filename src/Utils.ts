@@ -519,6 +519,7 @@ export class Utils {
                 $('#choiceModal').modal('hide');
             }
         });
+        
         $('#choiceModalSelect').on('change', function(){
             // check selected option in select tag
             var choices : string[] = $('#choiceModal').data('choices');
@@ -629,6 +630,18 @@ export class Utils {
         $('#editFieldModal').on('shown.bs.modal', function(){
             $('#editFieldModalAffirmativeButton').focus();
         });
+        $('#fieldModalSelect').on('change', function(){
+            // check selected option in select tag
+            var choices : string[] = $('#editFieldModal').data('choices');
+            var choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
+
+            // hide the custom text input unless the last option in the select is chosen
+            if(choice === choices.length){
+            $('#customParameterOptionsWrapper').slideDown();
+            }else{
+                $('#customParameterOptionsWrapper').slideUp();
+            }  
+        })
         $('#editFieldModal').on('hidden.bs.modal', function(){
             console.log("editFieldModal hidden");
 
@@ -885,16 +898,34 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(field: Field, callback: (completed: boolean, field: Field) => void){
+    static requestUserEditField(buttonType: string, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void){
         console.log("requestUserEditField()");
 
+        if (buttonType === 'add'){
+            // remove existing options from the select tag
+            $('#fieldModalSelect').empty();
+
+            // add options to the modal select tag
+            for (var i = 0 ; i < choices.length ; i++){
+                $('#fieldModalSelect').append($('<option>', {
+                    value: i,
+                    text: choices[i]
+                }));
+            }
+
+            //addcustom choice
+            $('#fieldModalSelect').append($('<option>', {
+                value: choices.length,
+                text: "Custom (enter below)"
+            }));
+        }
         // populate UI with current field data
         $('#editFieldModalTextInput').val(field.getText());
         $('#editFieldModalNameInput').val(field.getName());
         $('#editFieldModalValueInput').val(field.getValue());
         $('#editFieldModalDescriptionInput').val(field.getDescription());
         $('#editFieldModalAccessSelect').empty();
-
+        
         // add options to the access select tag
         $('#editFieldModalAccessSelect').append($('<option>', {
             value: "readonly",
@@ -942,6 +973,7 @@ export class Utils {
 
         $('#editFieldModal').data('completed', false);
         $('#editFieldModal').data('callback', callback);
+        $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal();
     }
 

@@ -26,7 +26,7 @@
 
     <!-- ko ifnot: $data.ro -->
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Edit'}" data-toggle="tooltip" data-html="true" data-placement="left">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField(null, 'edit', $index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Edit'}" data-toggle="tooltip" data-html="true" data-placement="left">
             <i class="material-icons md-18">edit</i>
         </button>
     </div>

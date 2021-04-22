@@ -70,7 +70,6 @@ export class Eagle {
     globalOffsetY : number = 0;
     globalScale : number = 1.0;
 
-    nodeInspectorCollapsed: ko.Observable<boolean>;
 
     static settings : ko.ObservableArray<Setting>;
 
@@ -129,8 +128,6 @@ export class Eagle {
         this.editorPalette.subscribe(this.updateTooltips);
         this.palettes.subscribe(this.updateTooltips);
         this.selectedNode.subscribe(this.updateTooltips);
-
-        this.nodeInspectorCollapsed = ko.observable(false);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -414,12 +411,12 @@ export class Eagle {
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
         //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
+        
         switch (rightWindowMode){
             case Eagle.RightWindowMode.Hierarchy:
             case Eagle.RightWindowMode.NodeInspector:
                 // abort if already selected
                 if (this.selectedNode() === selection){
-                    this.rightWindow().mode(rightWindowMode);
                     return;
                 }
 
@@ -444,9 +441,6 @@ export class Eagle {
                 Eagle.selectedNodeKey = (<Node>selection).getKey();
                 this.selectedNode(<Node>selection);
                 this.selectedEdge(null);
-
-                // update the display of all the sections of the node inspector (collapse/expand as appropriate)
-                this.selectedNode().updateAllInspectorSections();
 
                 // expand this node's parents, all the way to the root of the hierarchy
                 var n : Node = <Node>selection;
@@ -2354,7 +2348,7 @@ export class Eagle {
      */
     addFieldHTML = () : void => {
         var node = this.getSelection();
-        this.selectFieldName(<Node>node);
+        this.initAddParameterModal(<Node>node);
     }
 
     /**
@@ -2400,7 +2394,7 @@ export class Eagle {
         });
     }
 
-    selectFieldName = (node: Node) => {
+    initAddParameterModal = (node: Node) => {
         var allFields: Field[] = [];
 
         // if in palette editor mode, get field names list from the palette,
@@ -2416,17 +2410,9 @@ export class Eagle {
             allFieldNames.push(allFields[i].getName());
         }
 
-        Utils.requestUserChoice("Add Parameter", "Please select a parameter name, or create a custom name", allFieldNames, 0, true, "Custom Parameter Name", (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
+        this.editField(node, 'add', null, null, (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
             if (!completed){
                 return;
-            }
-
-            // if custom choice
-            if (userChoiceIndex === allFieldNames.length){
-                node.addField(new Field(userCustomChoice, Utils.fieldTextToFieldName(userCustomChoice), "", "", false, Eagle.DataType.Unknown));
-            } else { // if one of the given choices
-                let clone : Field = allFields[userChoiceIndex].clone();
-                node.addField(clone);
             }
 
             // flag active diagram as mutated
@@ -2667,43 +2653,30 @@ export class Eagle {
         return true;
     }
 
-    spinCollapseIcon = (item: any, e: JQueryEventObject) => {
-        // this function handles only the visible ui element that indicates the state of the collapsable object.
-        // the collapse function itself is handled by bootstrap.
+    spinCollapseIcon = (item:any, e:JQueryEventObject) => {
+        //this function handels only the visible ui element that indicates the state of the collapsable object.
+        //the collapse functyion itself is handled by bootstrap.
+        //getting event target for collapse action.
+        var collapseTarget = $(e.currentTarget) as JQuery<HTMLElement>;
+        collapseTarget = collapseTarget.find('i').first();
+        //getting current state of collapsable object.
+        var triggerClass = collapseTarget.hasClass("translationToggle");
+        var toggleState : boolean
 
-        // getting event target for collapse action.
-        var target: JQuery<Element> = $(e.currentTarget);
-        var icon: JQuery<Element> = target.find('i').first();
-
-        // getting current state of collapsable object.
-        var isTranslationToggle = icon.hasClass("translationToggle");
-        var toggleState : boolean;
-
-        // abort if the element is already collapsing
-        if (isTranslationToggle){
-            if (icon.parent().parent().parent().children(":not(.card-header)").hasClass("collapsing")){
-                return;
-            }
-        } else {
-            if (icon.parent().parent().children(":not(.card-header)").hasClass("collapsing")){
-                return;
-            }
-        }
-
-        if (isTranslationToggle){
+        if (triggerClass){
             //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
             //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
-            $(".translationToggle").addClass("closedIcon");
-            toggleState = icon.parent().parent().parent().children(".collapse").hasClass('show');
-        } else {
-            toggleState = icon.parent().parent().children(".collapse").hasClass('show');
+            $(".translationToggle").addClass("closedIcon")
+            var toggleState = collapseTarget.parent().parent().parent().children(".collapse").hasClass('show');
+        }else{
+            //This is for collapse icon on the node palettes and in the node settings menu.
+            var toggleState = collapseTarget.parent().parent().children(".collapse").hasClass('show');
         }
 
-        // TODO: can't we change this to a knockout "css" data-bind?
-        if (toggleState){
-            icon.addClass("closedIcon");
-        } else {
-            icon.removeClass("closedIcon");
+        if(toggleState){
+            collapseTarget.addClass("closedIcon");
+        }else{
+            collapseTarget.removeClass("closedIcon");
         }
     }
 
@@ -2864,27 +2837,76 @@ export class Eagle {
         this.selectedNode(this.selectedNode().getExitApplication());
     }
 
-    editField = (fieldIndex: number, input: boolean): void => {
+    editField = (node:Node, button: string, fieldIndex: number, input: boolean, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void )=>{
         console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
-        // get a reference to the field we are editing
-        let field: Field = this.selectedNode().getFields()[fieldIndex];
+        //if creating a new field component parameter
+        if(button === "add") {
+            $("#editFieldModalTitle").html("Add Parameter")
+            $("#addParameterWrapper").show();
+            $("#customParameterOptionsWrapper").hide();
+            //create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
+            let field: Field = new Field("","","","",false,Eagle.DataType.Integer);
+            var allFields: Field[] = [];
 
-        Utils.requestUserEditField(field, (completed : boolean, newField: Field) => {
-            // abort if the user aborted
-            if (!completed){
-                return;
+            // if in palette editor mode, get field names list from the palette,
+            // if in logical graph editor mode, get field names list from the logical graph
+            if (this.userMode() === Eagle.UserMode.PaletteEditor){
+                allFields = Utils.getAllFields(this.editorPalette());
+            } else {
+                allFields = Utils.getAllFields(this.logicalGraph());
             }
 
-            // update field data
-            field.setText(newField.getText());
-            field.setName(newField.getName());
-            field.setValue(newField.getValue());
-            field.setDescription(newField.getDescription());
-            field.setReadonly(newField.isReadonly());
-            field.setType(newField.getType());
-        });
-    }
+            var allFieldNames: string[] = [];
+            for (var i = 0 ; i < allFields.length ; i++){
+                allFieldNames.push(allFields[i].getName());
+            }
+                
+            Utils.requestUserEditField('add', field, allFieldNames, (completed : boolean, newField: Field) => {
+                // abort if the user aborted
+                if (!completed){
+                    return;
+                }
+                 // check selected option in select tag
+                var choices : string[] = $('#editFieldModal').data('choices');
+                var choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
+
+                // hide the custom text input unless the last option in the select is chosen
+                if(choice === choices.length){
+                    //create field from user input in modal
+                    node.addField(newField);;
+                }else{
+                    let clone : Field = allFields[choice].clone();
+                    node.addField(clone);
+                }  
+            });
+                
+        }else {
+        //if editing an existing field
+            let field: Field = this.selectedNode().getFields()[fieldIndex];
+            $("#editFieldModalTitle").html("Edit Parameter");
+            $("#addParameterWrapper").hide();
+            $("#customParameterOptionsWrapper").show();
+             // get a reference to the field we are editing
+
+            Utils.requestUserEditField('edit', field, allFieldNames, (completed : boolean, newField: Field) => {
+               // abort if the user aborted
+               if (!completed){
+                   return;
+               }
+   
+               // update field data
+               field.setText(newField.getText());
+               field.setName(newField.getName());
+               field.setValue(newField.getValue());
+               field.setDescription(newField.getDescription());
+               field.setReadonly(newField.isReadonly());
+               field.setType(newField.getType());
+           });
+        }
+
+          
+    };
 
     allowEdgeEditing = (): boolean => {
         return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
