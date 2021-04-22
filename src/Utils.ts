@@ -1580,6 +1580,64 @@ export class Utils {
         return Eagle.DALiuGESchemaVersion.Unknown;
     }
 
+    static checkGraph(graph: LogicalGraph): string[] {
+        let results: string[] = [];
+
+        // check that all port dataTypes have been defined
+        for (let i = 0 ; i < graph.getNodes().length; i++){
+            let node: Node = graph.getNodes()[i];
+
+            for (let j = 0 ; j < node.getInputPorts().length ; j++){
+                let port: Port = node.getInputPorts()[j];
+
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+            for (let j = 0 ; j < node.getOutputPorts().length ; j++){
+                let port: Port = node.getOutputPorts()[j];
+
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+        }
+
+        // check that all nodes have correct numbers of inputs and outputs
+        for (let i = 0 ; i < graph.getNodes().length; i++){
+            let node: Node = graph.getNodes()[i];
+            let cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
+            let minInputs  = cData.minInputs;
+            let maxInputs  = cData.maxInputs;
+            let minOutputs = cData.minOutputs;
+            let maxOutputs = cData.maxOutputs;
+
+            if (node.getInputPorts().length < minInputs){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too few input ports. Should have " + minInputs);
+            }
+            if (node.getInputPorts().length > maxInputs){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have " + maxInputs);
+            }
+            if (node.getOutputPorts().length < minOutputs){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too few output ports. Should have " + minOutputs);
+            }
+            if (node.getOutputPorts().length > maxOutputs){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many output ports. Should have " + maxOutputs);
+            }
+        }
+
+        for (let i = 0 ; i < graph.getEdges().length; i++){
+            let edge: Edge = graph.getEdges()[i];
+            var linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, false);
+
+            if (linkValid === Eagle.LinkValid.Invalid){
+                results.push("Edge " + i + " (" + edge.getId() + ") is invalid.");
+            }
+        }
+
+        return results;
+    }
+
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {
         console.log("validateJSON(): version:", version, "fileType:", Utils.translateFileTypeToString(fileType));
 
