@@ -2348,7 +2348,17 @@ export class Eagle {
      */
     addFieldHTML = () : void => {
         var node = this.getSelection();
-        this.initAddParameterModal(<Node>node);
+        
+        this.editField(<Node>node, 'add', null, null, (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
+            if (!completed){
+                return;
+            }
+
+            // flag active diagram as mutated
+            this.flagActiveDiagramHasMutated();
+            this.flagActiveFileModified();
+            this.selectedNode.valueHasMutated();
+        });
     }
 
     /**
@@ -2385,34 +2395,6 @@ export class Eagle {
                 var newPort: Port = allPorts[userChoiceIndex].clone();
                 newPort.setId(Utils.uuidv4());
                 node.addPort(newPort, isInputPort);
-            }
-
-            // flag active diagram as mutated
-            this.flagActiveDiagramHasMutated();
-            this.flagActiveFileModified();
-            this.selectedNode.valueHasMutated();
-        });
-    }
-
-    initAddParameterModal = (node: Node) => {
-        var allFields: Field[] = [];
-
-        // if in palette editor mode, get field names list from the palette,
-        // if in logical graph editor mode, get field names list from the logical graph
-        if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            allFields = Utils.getAllFields(this.editorPalette());
-        } else {
-            allFields = Utils.getAllFields(this.logicalGraph());
-        }
-
-        var allFieldNames: string[] = [];
-        for (var i = 0 ; i < allFields.length ; i++){
-            allFieldNames.push(allFields[i].getName());
-        }
-
-        this.editField(node, 'add', null, null, (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
-            if (!completed){
-                return;
             }
 
             // flag active diagram as mutated
@@ -2838,6 +2820,21 @@ export class Eagle {
     }
 
     editField = (node:Node, button: string, fieldIndex: number, input: boolean, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void )=>{
+        var allFields: Field[] = [];
+
+        // if in palette editor mode, get field names list from the palette,
+        // if in logical graph editor mode, get field names list from the logical graph
+        if (this.userMode() === Eagle.UserMode.PaletteEditor){
+            allFields = Utils.getAllFields(this.editorPalette());
+        } else {
+            allFields = Utils.getAllFields(this.logicalGraph());
+        }
+
+        var allFieldNames: string[] = [];
+        for (var i = 0 ; i < allFields.length ; i++){
+            allFieldNames.push(allFields[i].getName());
+        }
+
         console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
         //if creating a new field component parameter
