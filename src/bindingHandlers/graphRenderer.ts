@@ -139,6 +139,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     .attr("class", "background");
 
     var backgroundDragHandler = d3.drag()
+                                    .on("start", function(){
+                                        console.log("click:", d3.event.x, d3.event.y, "real", DISPLAY_TO_REAL_POSITION_X(d3.event.x), DISPLAY_TO_REAL_POSITION_Y(d3.event.y));
+                                    })
                                     .on("end", function(){
                                         console.log("setSelection(null)");
                                         let previousSelection = eagle.getSelection();
@@ -235,27 +238,33 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     isDraggingNode = false;
                                 }
 
-                                //var x = DISPLAY_TO_REAL_POSITION_X(d3.event.x);
-                                //var y = DISPLAY_TO_REAL_POSITION_Y(d3.event.y);
+                                var x = DISPLAY_TO_REAL_POSITION_X(d3.event.x);
+                                var y = DISPLAY_TO_REAL_POSITION_Y(d3.event.y);
+                                var x2 = DISPLAY_TO_REAL_POSITION_X(d3.event.subject.x);
+                                var y2 = DISPLAY_TO_REAL_POSITION_Y(d3.event.subject.y);
+
+                                //console.log("node drag end, d3.event", d3.event.x, d3.event.y, "real event", x, y, "d3.event.subject", d3.event.subject.x, d3.event.subject.y, "real event.subject", x2, y2);
 
                                 // disable this code that attempts to guess the parent based on the drop location, it fails too often
-                                /*
-                                var parent : Node = checkForNodeAt(x, y);
-                                console.log("node drag end at display", d3.event.x, d3.event.y, "real", x, y, "found", parent);
+                                var parent : Node = checkForNodeAt(d3.event.subject.x, d3.event.subject.y);
+                                //console.log("node drag end", d3.event.subject.x, d3.event.subject.y, "found", parent === null ? null : parent.getName());
+
 
                                 if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
-                                    //console.log("set parent", parent.getKey());
+                                    console.log("set parent", parent.getKey());
                                     node.setParentKey(parent.getKey());
+                                    eagle.selectedNode.valueHasMutated();
                                     reOrderNodes(parent.getKey(), node.getKey());
                                     eagle.flagActiveDiagramHasMutated();
                                 }
 
                                 if (parent === null && node.getParentKey() !== null){
-                                    //console.log("set parent", null);
+                                    console.log("set parent", null);
                                     node.setParentKey(null);
+                                    eagle.selectedNode.valueHasMutated();
+
                                     eagle.flagActiveDiagramHasMutated();
                                 }
-                                */
 
                                 tick();
                             });
@@ -3146,11 +3155,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 continue;
             }
 
-            //console.log("node", node.getName(), "real topleft", node.getPosition().x, node.getPosition().y, "bottomright", node.getPosition().x + getWidth(node), node.getPosition().y + getHeight(node));
+            let left: number = node.getPosition().x;
+            let right: number = node.getPosition().x + getWidth(node);
+            let top: number = node.getPosition().y;
+            let bottom: number = node.getPosition().y + getHeight(node);
+
+            //console.log("node", node.getName(), "real topleft", left, top, "bottomright", right, bottom, "x", x, "y", y, x >= left && right >= x && y >= top && bottom >= y);
             //console.log("node", node.getName(), "disp topleft", REAL_TO_DISPLAY_POSITION_X(node.getPosition().x), REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y), "bottomright", REAL_TO_DISPLAY_POSITION_X(node.getPosition().x + getWidth(node)), REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y + getHeight(node)));
 
-            if (x >= node.getPosition().x && (node.getPosition().x + getWidth(node)) >= x &&
-                y >= node.getPosition().y && (node.getPosition().y + getHeight(node)) >= y){
+            if (x >= left && right >= x && y >= top && bottom >= y){
                 return node;
             }
         }
