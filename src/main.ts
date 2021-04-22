@@ -131,6 +131,10 @@ $(function(){
         }
     }
 
+    // HACK: without this global wheel event handler, d3 does not receive zoom events
+    //       not sure why, this wasn't always the case
+    document.onwheel = (ev: WheelEvent) => {}
+
     var auto_load_service    = (<any>window).auto_load_service;
     var auto_load_repository = (<any>window).auto_load_repository;
     var auto_load_branch     = (<any>window).auto_load_branch;
