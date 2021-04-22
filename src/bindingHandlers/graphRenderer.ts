@@ -156,7 +156,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     });
 
     var backgroundZoomHandler = d3.zoom()
-                                    .scaleExtent([1, Infinity])
+                                    .scaleExtent([0.5, 3.0])
                                     .translateExtent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
                                     .extent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
                                     .on("zoom", function(){
@@ -169,7 +169,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                                         var tform = "translate(" + tx + "," + ty + ")scale(" + scale + ")";
                                         svgContainer.style("transform", tform);
-                                        eagle.globalScale -= d3.event.sourceEvent.deltaY * (d3.event.sourceEvent.deltaMode ? 120 : 1) / 1500;
+                                        eagle.globalScale = scale;
 
                                         tick();
                                     });
@@ -3227,7 +3227,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         text.each(function() {
             var text = d3.select(this),
                 words = text.text().split(/\s+/).reverse(),
-                wordWrapWidth = parseInt(text.attr("eagle-wrap-width"), 10),
+                wordWrapWidth = parseInt(text.attr("eagle-wrap-width"), 10) * eagle.globalScale,
                 word,
                 line : string[] = [],
                 lineNumber = 0,
