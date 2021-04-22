@@ -567,6 +567,7 @@ export class LogicalGraph {
             }
 
             // make sure that the new nodes have at least the minimum number of input and output ports
+            /*
             let minInputs  = Eagle.getCategoryData(newNode.getCategory()).minInputs;
             let minOutputs = Eagle.getCategoryData(newNode.getCategory()).minOutputs;
             while (newNode.getInputPorts().length < minInputs){
@@ -575,6 +576,7 @@ export class LogicalGraph {
             while (newNode.getOutputPorts().length < minOutputs){
                 newNode.addPort(new Port(Utils.uuidv4(), "output", false, Eagle.DataType.Unknown), false);
             }
+            */
 
             // flag that the logical graph has been modified
             this.fileInfo().modified = true;
