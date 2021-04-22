@@ -139,9 +139,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     .attr("class", "background");
 
     var backgroundDragHandler = d3.drag()
-                                    .on("start", function(){
-                                        console.log("click:", d3.event.x, d3.event.y, "real", DISPLAY_TO_REAL_POSITION_X(d3.event.x), DISPLAY_TO_REAL_POSITION_Y(d3.event.y));
-                                    })
                                     .on("end", function(){
                                         console.log("setSelection(null)");
                                         let previousSelection = eagle.getSelection();
@@ -238,31 +235,23 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     isDraggingNode = false;
                                 }
 
-                                var x = DISPLAY_TO_REAL_POSITION_X(d3.event.x);
-                                var y = DISPLAY_TO_REAL_POSITION_Y(d3.event.y);
-                                var x2 = DISPLAY_TO_REAL_POSITION_X(d3.event.subject.x);
-                                var y2 = DISPLAY_TO_REAL_POSITION_Y(d3.event.subject.y);
-
-                                //console.log("node drag end, d3.event", d3.event.x, d3.event.y, "real event", x, y, "d3.event.subject", d3.event.subject.x, d3.event.subject.y, "real event.subject", x2, y2);
-
-                                // disable this code that attempts to guess the parent based on the drop location, it fails too often
+                                // check for nodes underneath the top left corner of the node we dropped
                                 var parent : Node = checkForNodeAt(d3.event.subject.x, d3.event.subject.y);
-                                //console.log("node drag end", d3.event.subject.x, d3.event.subject.y, "found", parent === null ? null : parent.getName());
 
-
+                                // if a parent was found, update
                                 if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
-                                    console.log("set parent", parent.getKey());
+                                    //console.log("set parent", parent.getKey());
                                     node.setParentKey(parent.getKey());
                                     eagle.selectedNode.valueHasMutated();
                                     reOrderNodes(parent.getKey(), node.getKey());
                                     eagle.flagActiveDiagramHasMutated();
                                 }
 
+                                // if no parent found, update
                                 if (parent === null && node.getParentKey() !== null){
-                                    console.log("set parent", null);
+                                    //console.log("set parent", null);
                                     node.setParentKey(null);
                                     eagle.selectedNode.valueHasMutated();
-
                                     eagle.flagActiveDiagramHasMutated();
                                 }
 
