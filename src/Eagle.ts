@@ -414,6 +414,7 @@ export class Eagle {
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
         //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
+
         switch (rightWindowMode){
             case Eagle.RightWindowMode.Hierarchy:
             case Eagle.RightWindowMode.NodeInspector:
@@ -2360,7 +2361,17 @@ export class Eagle {
      */
     addFieldHTML = () : void => {
         var node = this.getSelection();
-        this.selectFieldName(<Node>node);
+
+        this.editField(<Node>node, 'add', null, null, (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
+            if (!completed){
+                return;
+            }
+
+            // flag active diagram as mutated
+            this.flagActiveDiagramHasMutated();
+            this.flagActiveFileModified();
+            this.selectedNode.valueHasMutated();
+        });
     }
 
     /**
@@ -2397,42 +2408,6 @@ export class Eagle {
                 var newPort: Port = allPorts[userChoiceIndex].clone();
                 newPort.setId(Utils.uuidv4());
                 node.addPort(newPort, isInputPort);
-            }
-
-            // flag active diagram as mutated
-            this.flagActiveDiagramHasMutated();
-            this.flagActiveFileModified();
-            this.selectedNode.valueHasMutated();
-        });
-    }
-
-    selectFieldName = (node: Node) => {
-        var allFields: Field[] = [];
-
-        // if in palette editor mode, get field names list from the palette,
-        // if in logical graph editor mode, get field names list from the logical graph
-        if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            allFields = Utils.getAllFields(this.editorPalette());
-        } else {
-            allFields = Utils.getAllFields(this.logicalGraph());
-        }
-
-        var allFieldNames: string[] = [];
-        for (var i = 0 ; i < allFields.length ; i++){
-            allFieldNames.push(allFields[i].getName());
-        }
-
-        Utils.requestUserChoice("Add Parameter", "Please select a parameter name, or create a custom name", allFieldNames, 0, true, "Custom Parameter Name", (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
-            if (!completed){
-                return;
-            }
-
-            // if custom choice
-            if (userChoiceIndex === allFieldNames.length){
-                node.addField(new Field(userCustomChoice, Utils.fieldTextToFieldName(userCustomChoice), "", "", false, Eagle.DataType.Unknown));
-            } else { // if one of the given choices
-                let clone : Field = allFields[userChoiceIndex].clone();
-                node.addField(clone);
             }
 
             // flag active diagram as mutated
@@ -2884,27 +2859,91 @@ export class Eagle {
         this.selectedNode(this.selectedNode().getExitApplication());
     }
 
-    editField = (fieldIndex: number, input: boolean): void => {
+    editField = (node:Node, button: string, fieldIndex: number, input: boolean, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void )=>{
+        var allFields: Field[] = [];
+
+        // if in palette editor mode, get field names list from the palette,
+        // if in logical graph editor mode, get field names list from the logical graph
+        if (this.userMode() === Eagle.UserMode.PaletteEditor){
+            allFields = Utils.getAllFields(this.editorPalette());
+        } else {
+            allFields = Utils.getAllFields(this.logicalGraph());
+        }
+
+        var allFieldNames: string[] = [];
+        for (var i = 0 ; i < allFields.length ; i++){
+            allFieldNames.push(allFields[i].getName());
+        }
+
         console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
 
-        // get a reference to the field we are editing
-        let field: Field = this.selectedNode().getFields()[fieldIndex];
+        //if creating a new field component parameter
+        if(button === "add") {
+            $("#editFieldModalTitle").html("Add Parameter")
+            $("#addParameterWrapper").show();
+            $("#customParameterOptionsWrapper").hide();
+            //create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
+            let field: Field = new Field("","","","",false,Eagle.DataType.Integer);
+            var allFields: Field[] = [];
 
-        Utils.requestUserEditField(field, (completed : boolean, newField: Field) => {
-            // abort if the user aborted
-            if (!completed){
-                return;
+            // if in palette editor mode, get field names list from the palette,
+            // if in logical graph editor mode, get field names list from the logical graph
+            if (this.userMode() === Eagle.UserMode.PaletteEditor){
+                allFields = Utils.getAllFields(this.editorPalette());
+            } else {
+                allFields = Utils.getAllFields(this.logicalGraph());
             }
 
-            // update field data
-            field.setText(newField.getText());
-            field.setName(newField.getName());
-            field.setValue(newField.getValue());
-            field.setDescription(newField.getDescription());
-            field.setReadonly(newField.isReadonly());
-            field.setType(newField.getType());
-        });
-    }
+            var allFieldNames: string[] = [];
+            for (var i = 0 ; i < allFields.length ; i++){
+                allFieldNames.push(allFields[i].getName());
+            }
+
+            Utils.requestUserEditField('add', field, allFieldNames, (completed : boolean, newField: Field) => {
+                // abort if the user aborted
+                if (!completed){
+                    return;
+                }
+                 // check selected option in select tag
+                var choices : string[] = $('#editFieldModal').data('choices');
+                var choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
+
+                // hide the custom text input unless the last option in the select is chosen
+                if(choice === choices.length){
+                    //create field from user input in modal
+                    node.addField(newField);;
+                }else{
+                    let clone : Field = allFields[choice].clone();
+                    node.addField(clone);
+                }
+            });
+
+        }else {
+        //if editing an existing field
+            let field: Field = this.selectedNode().getFields()[fieldIndex];
+            $("#editFieldModalTitle").html("Edit Parameter");
+            $("#addParameterWrapper").hide();
+            $("#customParameterOptionsWrapper").show();
+             // get a reference to the field we are editing
+
+            Utils.requestUserEditField('edit', field, allFieldNames, (completed : boolean, newField: Field) => {
+               // abort if the user aborted
+               if (!completed){
+                   return;
+               }
+
+               // update field data
+               field.setText(newField.getText());
+               field.setName(newField.getName());
+               field.setValue(newField.getValue());
+               field.setDescription(newField.getDescription());
+               field.setReadonly(newField.isReadonly());
+               field.setType(newField.getType());
+           });
+        }
+
+
+    };
 
     editPort = (portIndex: number, input: boolean): void => {
         console.log("editPort() node:", this.selectedNode().getName(), "portIndex:", portIndex, "input", input);
