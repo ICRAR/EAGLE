@@ -2642,7 +2642,7 @@ export class Eagle {
         return true;
     }
 
-    spinCollapseIcon = (item:any, e:JQueryEventObject) => {
+    spinCollapseIcon = (item: any, e: JQueryEventObject) => {
         // this function handles only the visible ui element that indicates the state of the collapsable object.
         // the collapse function itself is handled by bootstrap.
 
@@ -2669,9 +2669,9 @@ export class Eagle {
             //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
             //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
             $(".translationToggle").addClass("closedIcon");
-           toggleState = icon.parent().parent().parent().children(".collapse").hasClass('show');
+            toggleState = icon.parent().parent().parent().children(".collapse").hasClass('show');
         } else {
-           toggleState = icon.parent().parent().children(".collapse").hasClass('show');
+            toggleState = icon.parent().parent().children(".collapse").hasClass('show');
         }
 
         // TODO: can't we change this to a knockout "css" data-bind?
