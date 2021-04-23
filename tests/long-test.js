@@ -18,7 +18,7 @@ var SPEAD2_STREAM = "spead2Stream";
 var SUB_MS = "subMS";
 var CONF = "conf";
 var SUCCESS_MESSAGE = "Success:";
-var TEST_SPEED = 0.7     //A number between 0.01 (slowest) and 1.0 (fastest)
+var TEST_SPEED = 0.5;     //A number between 0.01 (slowest) and 1.0 (fastest)
 
 // prepare to save palette as...
 var d = new Date();
@@ -72,37 +72,28 @@ test('Graph creation', async t =>{
     await page.moveNode('#node1', 140, 175);
     await page.resizeNode('#node1', 120, 110);
 
-    // set parent of inner scatter
-    await page.setParent("ClusterScatterAverager : -1");
-
     // add the inner Python App
     await page.addPaletteNode(0,6,false);
-    await page.setNodeName("OSKAR2 Simulator", true);
 
-    // set parent of inner Python App
-    await page.setParent("NodeScatterAverager : -2");
+    await page.setNodeName("OSKAR2 Simulator", true);
 
     await page.addNodePort("spead2", false);
 
     // move the inner Python App
-    await page.moveNode('#node2', 160, 250);
+    await page.moveNode('#node1', 160, 250);
 
     // add the outer Python App
     await page.addPaletteNode(0,6,false);
     await page.setNodeName("Average 6 Channels", true);
 
-    // set parent of outer Python App
-    await page.setParent("ClusterScatterAverager : -1");
-
     await page.addNodePort("spead2", true);
     await page.addNodePort("spead2", false);
 
-    // move the outer Python App (NOTE: this is now node 2!)
-    await page.moveNode('#node2', 470, 250);
+    // move the outer Python App (NOTE: this is node 1!)
+    await page.moveNode('#node1', 470, 250);
 
     // draw edge from inner Python App to outer Python App
-    // The number refers to which numbered port is being connected
-    await page.connectNodes('#node3','#node2',false,false,0,0);
+    await page.createEdge("OSKAR2 Simulator", "Average 6 Channels", false, false, "spead2", "spead2");
 
     // The option chosen for the spead2 data component is Memory
     await page.selectOption("Memory");
@@ -143,12 +134,9 @@ test('Graph creation', async t =>{
     // move the end node (NOTE: this is now node 2!)
     await page.moveNode('#node2', 740, 450);
 
-    // An extra pause is needed because of warning messages blocking the next connection
-    await t.wait(1000);
-
     // draw edge from gather to end node
     // The number refers to which numbered port is being connected
-    await page.connectNodes('#node1','#node2',true,false,0,0);
+    await page.createEdge("Python App", "End", true, false, "event", "event");
 
     // click on the outer scatter to finish up
     await page.selectNode('#node0');

@@ -107,14 +107,14 @@ $(function(){
     // $(document).keydown(function(e : JQueryKeyEventObject) {
         if($("input,textarea").is(":focus")){
             //Textbox or Input field is focused
-            return; 
+            return;
         }else{
             //delete edge, if edge selected
             if (eagle.selectedEdge() != null){
                 //if the backspace key was pressed
                 if (e.which === 8){
                     eagle.deleteSelectedEdge(false);
-                } 
+                }
             }
 
             //if a node is selected
@@ -128,32 +128,12 @@ $(function(){
                     eagle.duplicateSelectedNode();
                 }
             }
-        }  
+        }
     }
 
-    // HACK: automatically load a graph (useful when iterating quickly during development)
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LEAP-Work-Flow.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LeapMVP.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "SummitIngest_Demo.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "james-strauss-uwa/eagle-test", "master", false), "summit", "summit.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "", "everything2.palette"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "SDP Pipelines", "cont_img_mvp.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "loop", "loop_exit_app_ports.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "loop", "test.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "leap_cli_dir.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LeapAccelerateCLI.palette"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "LEAP", "leap.palette"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "trash", "test_branch_new.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "trash", "test_appref.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "trash", "basic_mkn.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "", "HelloWorldMulti.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "summit", "summit.palette"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "trash", "collapsed_mkn_test.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "lofar_std.json"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "test_grpby_gather.json"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "eagle_gather.json"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/daliuge", "master", false), "daliuge-translator/test/dropmake/logical_graphs", "cont_img.json"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitLab, "ska-telescope/jacal", "master", false), "jacal/test/daliuge", "test_major_cycle.json"));
+    // HACK: without this global wheel event handler, d3 does not receive zoom events
+    //       not sure why, this wasn't always the case
+    document.onwheel = (ev: WheelEvent) => {}
 
     var auto_load_service    = (<any>window).auto_load_service;
     var auto_load_repository = (<any>window).auto_load_repository;

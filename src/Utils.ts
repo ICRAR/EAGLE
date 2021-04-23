@@ -331,6 +331,9 @@ export class Utils {
         if (dataType === "String"){
             return Eagle.DataType.String;
         }
+        if (dataType === "Complex"){
+            return Eagle.DataType.Complex;
+        }
 
         console.warn("Unknown DataType", dataType);
         return Eagle.DataType.Unknown;
@@ -672,6 +675,43 @@ export class Utils {
             callback(true, newField);
         });
 
+        // #editPortModal - requestUserEditPort()
+        $('#editPortModalAffirmativeButton').on('click', function(){
+            $('#editPortModal').data('completed', true);
+        });
+        $('#editPortModalNegativeButton').on('click', function(){
+            $('#editPortModal').data('completed', false);
+        });
+        $('#editPortModal').on('shown.bs.modal', function(){
+            $('#editPortModalAffirmativeButton').focus();
+        });
+        $('#editPortModal').on('hidden.bs.modal', function(){
+            console.log("editPortModal hidden");
+
+            var callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
+            var completed : boolean = $('#editPortModal').data('completed');
+            console.log("completed", completed);
+
+            // check if the modal was completed (user clicked OK), if not, return false
+            if (!completed){
+                callback(false, null);
+                return;
+            }
+
+            // extract field data from HTML elements
+            // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
+            let id = "dummy-id";
+            let name : string = <string>$('#editPortModalNameInput').val();
+            let type: string = <string>$('#editPortModalTypeSelect').val();
+
+            // translate access and type
+            let realType: Eagle.DataType = Utils.translateStringToDataType(type);
+
+            let newPort = new Port(id, name, false, realType);
+
+            callback(true, newPort);
+        });
+
         // #editEdgeModal - requestUserEditEdge()
         $('#editEdgeModalAffirmativeButton').on('click', function(){
             $('#editEdgeModal').data('completed', true);
@@ -975,6 +1015,50 @@ export class Utils {
         $('#editFieldModal').data('callback', callback);
         $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal();
+    }
+
+    static requestUserEditPort(port: Port, callback: (completed: boolean, port: Port) => void){
+        console.log("requestUserEditPort()");
+
+        // populate UI with current port data
+        $('#editPortModalNameInput').val(port.getName());
+
+        $('#editPortModalTypeSelect').empty();
+        // TODO: we should iterate through the values in the Eagle.DataType enum, rather than hard-code each type
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "Integer",
+            text: "Integer",
+            selected: port.getType() === Eagle.DataType.Integer
+        }));
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "Float",
+            text: "Float",
+            selected: port.getType() === Eagle.DataType.Float
+        }));
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "String",
+            text: "String",
+            selected: port.getType() === Eagle.DataType.String
+        }));
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "Boolean",
+            text: "Boolean",
+            selected: port.getType() === Eagle.DataType.Boolean
+        }));
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "Complex",
+            text: "Complex",
+            selected: port.getType() === Eagle.DataType.Complex
+        }));
+        $('#editPortModalTypeSelect').append($('<option>', {
+            value: "Unknown",
+            text: "Unknown",
+            selected: port.getType() === Eagle.DataType.Unknown
+        }));
+
+        $('#editPortModal').data('completed', false);
+        $('#editPortModal').data('callback', callback);
+        $('#editPortModal').modal();
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void){
@@ -1481,6 +1565,16 @@ export class Utils {
         palette.addNode(node);
     }
 
+    static giveNodePortsNewIds(node: Node){
+        // set new ids for any ports in this node
+        for (let i = 0 ; i < node.getInputPorts().length ; i++){
+            node.getInputPorts()[i].setId(Utils.uuidv4());
+        }
+        for (let i = 0 ; i < node.getOutputPorts().length ; i++){
+            node.getOutputPorts()[i].setId(Utils.uuidv4());
+        }
+    }
+
     static determineFileType(data: any): Eagle.FileType {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.fileType !== 'undefined'){
@@ -1516,6 +1610,64 @@ export class Utils {
         }
 
         return Eagle.DALiuGESchemaVersion.Unknown;
+    }
+
+    static checkGraph(graph: LogicalGraph): string[] {
+        let results: string[] = [];
+
+        // check that all port dataTypes have been defined
+        for (let i = 0 ; i < graph.getNodes().length; i++){
+            let node: Node = graph.getNodes()[i];
+
+            for (let j = 0 ; j < node.getInputPorts().length ; j++){
+                let port: Port = node.getInputPorts()[j];
+
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+            for (let j = 0 ; j < node.getOutputPorts().length ; j++){
+                let port: Port = node.getOutputPorts()[j];
+
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+        }
+
+        // check that all nodes have correct numbers of inputs and outputs
+        for (let i = 0 ; i < graph.getNodes().length; i++){
+            let node: Node = graph.getNodes()[i];
+            let cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
+            let minInputs  = cData.minInputs;
+            let maxInputs  = cData.maxInputs;
+            let minOutputs = cData.minOutputs;
+            let maxOutputs = cData.maxOutputs;
+
+            if (node.getInputPorts().length < minInputs){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too few input ports. Should have " + minInputs);
+            }
+            if (node.getInputPorts().length > maxInputs){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have " + maxInputs);
+            }
+            if (node.getOutputPorts().length < minOutputs){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too few output ports. Should have " + minOutputs);
+            }
+            if (node.getOutputPorts().length > maxOutputs){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many output ports. Should have " + maxOutputs);
+            }
+        }
+
+        for (let i = 0 ; i < graph.getEdges().length; i++){
+            let edge: Edge = graph.getEdges()[i];
+            var linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, false);
+
+            if (linkValid === Eagle.LinkValid.Invalid){
+                results.push("Edge " + i + " (" + edge.getId() + ") is invalid.");
+            }
+        }
+
+        return results;
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {

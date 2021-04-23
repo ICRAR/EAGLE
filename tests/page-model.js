@@ -209,6 +209,7 @@ class Page {
       await t.click(this.nodeMode);
 
       if (open){
+          await t.wait(1000);
           await t.click(this.displayOptions);
       }
 

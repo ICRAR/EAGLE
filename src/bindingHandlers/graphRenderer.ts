@@ -156,7 +156,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     });
 
     var backgroundZoomHandler = d3.zoom()
-                                    .scaleExtent([1, Infinity])
+                                    .scaleExtent([0.5, 3.0])
                                     .translateExtent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
                                     .extent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
                                     .on("zoom", function(){
@@ -169,7 +169,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                                         var tform = "translate(" + tx + "," + ty + ")scale(" + scale + ")";
                                         svgContainer.style("transform", tform);
-                                        eagle.globalScale -= d3.event.sourceEvent.deltaY * (d3.event.sourceEvent.deltaMode ? 120 : 1) / 1500;
+                                        eagle.globalScale = scale;
 
                                         tick();
                                     });
@@ -235,27 +235,24 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     isDraggingNode = false;
                                 }
 
-                                //var x = DISPLAY_TO_REAL_POSITION_X(d3.event.x);
-                                //var y = DISPLAY_TO_REAL_POSITION_Y(d3.event.y);
+                                // check for nodes underneath the top left corner of the node we dropped
+                                var parent : Node = checkForNodeAt(node, d3.event.subject.x, d3.event.subject.y);
 
-                                // disable this code that attempts to guess the parent based on the drop location, it fails too often
-                                /*
-                                var parent : Node = checkForNodeAt(x, y);
-                                console.log("node drag end at display", d3.event.x, d3.event.y, "real", x, y, "found", parent);
-
+                                // if a parent was found, update
                                 if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
                                     //console.log("set parent", parent.getKey());
                                     node.setParentKey(parent.getKey());
-                                    reOrderNodes(parent.getKey(), node.getKey());
+                                    eagle.selectedNode.valueHasMutated();
                                     eagle.flagActiveDiagramHasMutated();
                                 }
 
+                                // if no parent found, update
                                 if (parent === null && node.getParentKey() !== null){
                                     //console.log("set parent", null);
                                     node.setParentKey(null);
+                                    eagle.selectedNode.valueHasMutated();
                                     eagle.flagActiveDiagramHasMutated();
                                 }
-                                */
 
                                 tick();
                             });
@@ -2724,22 +2721,37 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (linkValid === Eagle.LinkValid.Warning)
             return LINK_WARNING_COLOR;
 
-        return edge === eagle.selectedEdge() ? "black" : "grey";
+        let normalColor: string = "grey";
+        let selectedColor: string = "black";
+
+        // check if source node is an event, if so, draw in blue
+        let srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+
+        if (srcNode !== null){
+            let srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
+
+            if (srcPort !== null && srcPort.isEvent()){
+                normalColor = "rgb(128,128,255)";
+                selectedColor = "blue";
+            }
+        }
+
+        return edge === eagle.selectedEdge() ? selectedColor : normalColor;
     }
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
-        let srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        let srcNode : Node  = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        let destNode : Node = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
 
         // if we can't find the edge
         if (srcNode === null){
             return "";
         }
+        if (destNode === null){
+            return "";
+        }
 
-        let srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
-
-        if (srcPort === null) return "";
-
-        if (srcPort.isEvent()){
+        if (srcNode.isStreaming() || destNode.isStreaming()){
             return "8";
         } else {
             return "";
@@ -2905,28 +2917,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         node.setCollapsed(false);
         eagle.flagActiveDiagramHasMutated();
-    }
-
-    // sort nodes depth first
-    function reOrderNodes(parentKey : number, childKey : number) : void {
-        //find indices of parent and child
-        var parentIndex : number = findNodeIndexWithKey(parentKey);
-        var childIndex : number = findNodeIndexWithKey(childKey);
-        console.log("before: parent", parentIndex, "child", childIndex);
-
-        // abort if child already occurs after parent (this is good)
-        if (childIndex > parentIndex){
-            return;
-        }
-
-        // move the child to the position after the parent
-        var child : Node = nodeData.splice(childIndex, 1)[0];
-        nodeData.splice(parentIndex, 0, child);
-
-        // debug
-        var postParentIndex : number = findNodeIndexWithKey(parentKey);
-        var postChildIndex : number = findNodeIndexWithKey(childKey);
-        console.log("after: parent", postParentIndex, "child", postChildIndex);
     }
 
     function moveChildNodes(nodeIndex : number, deltax : number, deltay : number) : void {
@@ -3122,20 +3112,28 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function checkForNodeAt(x: number, y: number) : Node {
+    function checkForNodeAt(child: Node, x: number, y: number) : Node {
         for (var i = nodeData.length - 1; i >= 0 ; i--){
             var node : Node = nodeData[i];
+
+            // abort if checking for self!
+            if (node.getKey() === child.getKey()){
+                continue;
+            }
 
             // abort if node is not a group
             if (!node.isGroup()){
                 continue;
             }
 
-            //console.log("node", node.getName(), "real topleft", node.getPosition().x, node.getPosition().y, "bottomright", node.getPosition().x + getWidth(node), node.getPosition().y + getHeight(node));
-            //console.log("node", node.getName(), "disp topleft", REAL_TO_DISPLAY_POSITION_X(node.getPosition().x), REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y), "bottomright", REAL_TO_DISPLAY_POSITION_X(node.getPosition().x + getWidth(node)), REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y + getHeight(node)));
+            // find bounds of possible parent
+            let left: number = node.getPosition().x;
+            let right: number = node.getPosition().x + getWidth(node);
+            let top: number = node.getPosition().y;
+            let bottom: number = node.getPosition().y + getHeight(node);
 
-            if (x >= node.getPosition().x && (node.getPosition().x + getWidth(node)) >= x &&
-                y >= node.getPosition().y && (node.getPosition().y + getHeight(node)) >= y){
+            // check if node is within bounds of possible parent
+            if (x >= left && right >= x && y >= top && bottom >= y){
                 return node;
             }
         }
@@ -3212,7 +3210,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         text.each(function() {
             var text = d3.select(this),
                 words = text.text().split(/\s+/).reverse(),
-                wordWrapWidth = parseInt(text.attr("eagle-wrap-width"), 10),
+                wordWrapWidth = parseInt(text.attr("eagle-wrap-width"), 10) * eagle.globalScale,
                 word,
                 line : string[] = [],
                 lineNumber = 0,
