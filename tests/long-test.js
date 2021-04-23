@@ -93,8 +93,7 @@ test('Graph creation', async t =>{
     await page.moveNode('#node1', 470, 250);
 
     // draw edge from inner Python App to outer Python App
-    // The number refers to which numbered port is being connected
-    await page.connectNodes('#node3','#node2',false,false,0,0);
+    await page.createEdge("OSKAR2 Simulator", "Average 6 Channels", false, false, "spead2", "spead2");
 
     // The option chosen for the spead2 data component is Memory
     await page.selectOption("Memory");
