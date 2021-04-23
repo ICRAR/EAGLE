@@ -134,12 +134,9 @@ test('Graph creation', async t =>{
     // move the end node (NOTE: this is now node 2!)
     await page.moveNode('#node2', 740, 450);
 
-    // An extra pause is needed because of warning messages blocking the next connection
-    await t.wait(1000);
-
     // draw edge from gather to end node
     // The number refers to which numbered port is being connected
-    await page.connectNodes('#node1','#node2',true,false,0,0);
+    await page.createEdge("Python App", "End", true, false, "event", "event");
 
     // click on the outer scatter to finish up
     await page.selectNode('#node0');
