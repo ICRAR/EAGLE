@@ -18,7 +18,7 @@ var SPEAD2_STREAM = "spead2Stream";
 var SUB_MS = "subMS";
 var CONF = "conf";
 var SUCCESS_MESSAGE = "Success:";
-var TEST_SPEED = 0.5     //A number between 0.01 (slowest) and 1.0 (fastest)
+var TEST_SPEED = 0.5;     //A number between 0.01 (slowest) and 1.0 (fastest)
 
 // prepare to save palette as...
 var d = new Date();
@@ -72,33 +72,25 @@ test('Graph creation', async t =>{
     await page.moveNode('#node1', 140, 175);
     await page.resizeNode('#node1', 120, 110);
 
-    // set parent of inner scatter
-    await page.setParent("ClusterScatterAverager : -1");
-
     // add the inner Python App
     await page.addPaletteNode(0,6,false);
-    await page.setNodeName("OSKAR2 Simulator", true);
 
-    // set parent of inner Python App
-    await page.setParent("NodeScatterAverager : -2");
+    await page.setNodeName("OSKAR2 Simulator", true);
 
     await page.addNodePort("spead2", false);
 
     // move the inner Python App
-    await page.moveNode('#node2', 160, 250);
+    await page.moveNode('#node1', 160, 250);
 
     // add the outer Python App
     await page.addPaletteNode(0,6,false);
     await page.setNodeName("Average 6 Channels", true);
 
-    // set parent of outer Python App
-    await page.setParent("ClusterScatterAverager : -1");
-
     await page.addNodePort("spead2", true);
     await page.addNodePort("spead2", false);
 
-    // move the outer Python App (NOTE: this is now node 2!)
-    await page.moveNode('#node2', 470, 250);
+    // move the outer Python App (NOTE: this is node 1!)
+    await page.moveNode('#node1', 470, 250);
 
     // draw edge from inner Python App to outer Python App
     // The number refers to which numbered port is being connected

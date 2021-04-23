@@ -236,14 +236,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 }
 
                                 // check for nodes underneath the top left corner of the node we dropped
-                                var parent : Node = checkForNodeAt(d3.event.subject.x, d3.event.subject.y);
+                                var parent : Node = checkForNodeAt(node, d3.event.subject.x, d3.event.subject.y);
 
                                 // if a parent was found, update
                                 if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
                                     //console.log("set parent", parent.getKey());
                                     node.setParentKey(parent.getKey());
                                     eagle.selectedNode.valueHasMutated();
-                                    reOrderNodes(parent.getKey(), node.getKey());
                                     eagle.flagActiveDiagramHasMutated();
                                 }
 
@@ -2920,28 +2919,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         eagle.flagActiveDiagramHasMutated();
     }
 
-    // sort nodes depth first
-    function reOrderNodes(parentKey : number, childKey : number) : void {
-        //find indices of parent and child
-        var parentIndex : number = findNodeIndexWithKey(parentKey);
-        var childIndex : number = findNodeIndexWithKey(childKey);
-        console.log("before: parent", parentIndex, "child", childIndex);
-
-        // abort if child already occurs after parent (this is good)
-        if (childIndex > parentIndex){
-            return;
-        }
-
-        // move the child to the position after the parent
-        var child : Node = nodeData.splice(childIndex, 1)[0];
-        nodeData.splice(parentIndex, 0, child);
-
-        // debug
-        var postParentIndex : number = findNodeIndexWithKey(parentKey);
-        var postChildIndex : number = findNodeIndexWithKey(childKey);
-        console.log("after: parent", postParentIndex, "child", postChildIndex);
-    }
-
     function moveChildNodes(nodeIndex : number, deltax : number, deltay : number) : void {
         // get id of parent nodeIndex
         var parentKey : number = nodeData[nodeIndex].getKey();
@@ -3135,23 +3112,27 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function checkForNodeAt(x: number, y: number) : Node {
+    function checkForNodeAt(child: Node, x: number, y: number) : Node {
         for (var i = nodeData.length - 1; i >= 0 ; i--){
             var node : Node = nodeData[i];
+
+            // abort if checking for self!
+            if (node.getKey() === child.getKey()){
+                continue;
+            }
 
             // abort if node is not a group
             if (!node.isGroup()){
                 continue;
             }
 
+            // find bounds of possible parent
             let left: number = node.getPosition().x;
             let right: number = node.getPosition().x + getWidth(node);
             let top: number = node.getPosition().y;
             let bottom: number = node.getPosition().y + getHeight(node);
 
-            //console.log("node", node.getName(), "real topleft", left, top, "bottomright", right, bottom, "x", x, "y", y, x >= left && right >= x && y >= top && bottom >= y);
-            //console.log("node", node.getName(), "disp topleft", REAL_TO_DISPLAY_POSITION_X(node.getPosition().x), REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y), "bottomright", REAL_TO_DISPLAY_POSITION_X(node.getPosition().x + getWidth(node)), REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y + getHeight(node)));
-
+            // check if node is within bounds of possible parent
             if (x >= left && right >= x && y >= top && bottom >= y){
                 return node;
             }
