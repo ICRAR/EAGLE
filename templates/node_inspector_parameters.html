@@ -22,6 +22,9 @@
                     <i class="material-icons md-18">add</i>
                 </button>
             <!-- /ko -->
+            <!-- ko if: selectedNode().category === Eagle.Category.Docker -->
+                <button class="btn btn-secondary btn-block mt-1" id="nodeInspectorFetchDocker" type="button" data-bind="click: $root.fetchDockerHTML, attr:{title:'Fetch docker image data from Docker Hub'}" data-toggle="tooltip" data-html="true" data-placement="left">Fetch from Docker Hub</button>
+            <!-- /ko -->
         </div>
     </div>
 </div>

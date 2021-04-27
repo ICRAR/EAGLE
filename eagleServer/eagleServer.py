@@ -27,6 +27,9 @@ import sys
 import tempfile
 import six
 
+import urllib.request
+import ssl
+
 import github
 import gitlab
 import pkg_resources
@@ -299,6 +302,52 @@ def get_git_lab_files_all():
 
     # return correct result
     return jsonify(d)
+
+
+@app.route("/getDockerImages", methods=["POST"])
+def get_docker_images():
+    content = request.get_json(silent=True)
+
+    try:
+        user_name = content["username"]
+    except KeyError as ke:
+        print("KeyError: {0}".format(str(ke)))
+        return jsonify({"error":"Username not specified in request"})
+
+    docker_url = "https://hub.docker.com/v2/repositories/" + user_name + "/"
+
+    # avoid ssl errors when fetching a URL using urllib.request
+    # https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+    with urllib.request.urlopen(docker_url) as url:
+        data = json.loads(url.read().decode())
+        #print(data)
+
+    return jsonify(data)
+
+
+@app.route("/getDockerImageTags", methods=["POST"])
+def get_docker_image_tags():
+    content = request.get_json(silent=True)
+
+    try:
+        image_name = content["imagename"]
+    except KeyError as ke:
+        print("KeyError: {0}".format(str(ke)))
+        return jsonify({"error":"Imagename not specified in request"})
+
+    docker_url = "https://registry.hub.docker.com/v2/repositories/" + image_name + "/tags"
+
+    # avoid ssl errors when fetching a URL using urllib.request
+    # https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+    with urllib.request.urlopen(docker_url) as url:
+        data = json.loads(url.read().decode())
+        #print(data)
+
+    return jsonify(data)
 
 
 @app.route("/saveFileToRemoteGithub", methods=["POST"])

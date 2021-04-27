@@ -122,6 +122,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true));
         Eagle.settings.push(new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false));
         Eagle.settings.push(new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, false));
+        Eagle.settings.push(new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, "icrar"));
 
         // HACK - subscribe to the be notified of changes to the templatePalette
         // when the templatePalette changes, we need to enable the tooltips
@@ -2320,6 +2321,78 @@ export class Eagle {
         }
 
         return p;
+    }
+
+    fetchDockerHTML = () : void => {
+        Utils.showNotification("EAGLE", "Fetching data from Docker Hub", "info");
+
+        let that = this;
+        let username = Eagle.findSettingValue(Utils.DOCKER_HUB_USERNAME);
+
+        // request eagle server to fetch a list of docker hub images
+        Utils.httpPostJSON("/getDockerImages", {username:username}, function(error : string, data: any){
+            if (error != null){
+                console.error(error);
+                return;
+            }
+
+            // build list of image strings
+            let images: string[] = [];
+            for (let i = 0 ; i < data.results.length ; i++){
+                images.push(data.results[i].user + "/" + data.results[i].name);
+            }
+
+            // present list of image names to user
+            Utils.requestUserChoice("Docker Hub", "Choose an image", images, -1, false, "", function(completed: boolean, userChoiceIndex: number, userCustomString: string){
+                if (!completed){
+                    return;
+                }
+
+                let imageName: string = images[userChoiceIndex];
+                let imageData = data.results[userChoiceIndex];
+
+                Utils.showNotification("EAGLE", "Fetching data for " + imageName + " from Docker Hub", "info");
+
+                // request eagle server to fetch a list of tags for the given docker image
+                Utils.httpPostJSON("/getDockerImageTags", {imagename:imageName}, function(error: string, data: any){
+                    if (error != null){
+                        console.error(error);
+                        return;
+                    }
+
+                    let tags: string[] = [];
+                    for (let i = 0 ; i < data.results.length; i++){
+                        tags.push(data.results[i].name);
+                    }
+
+                    // present list of tags to user
+                    Utils.requestUserChoice("Docker Hub", "Choose a tag for image " + imageName, tags, -1, false, "", function(completed: boolean, userChoiceIndex: number, userCustomString: string){
+                        if (!completed){
+                            return;
+                        }
+
+                        let tag = data.results[userChoiceIndex].name;
+                        let digest = data.results[userChoiceIndex].images[0].digest;
+
+                        // get references to image, tag and digest fields in this component
+                        let imageField: Field = that.selectedNode().getFieldByName("image");
+                        let tagField: Field = that.selectedNode().getFieldByName("tag");
+                        let digestField: Field = that.selectedNode().getFieldByName("digest");
+
+                        // set values for the fields
+                        if (imageField !== null){
+                            imageField.setValue(imageName);
+                        }
+                        if (tagField !== null){
+                            tagField.setValue(tag);
+                        }
+                        if (digestField !== null){
+                            digestField.setValue(digest);
+                        }
+                    });
+                });
+            });
+        });
     }
 
     /**
