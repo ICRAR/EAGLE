@@ -318,7 +318,7 @@
                 <button class="btn btn-danger btn-block" id="resetSettingsDefaults" type="button" data-bind="click: $root.resetSettingsDefaults">Reset Defaults</button>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="editFieldModalNegativeButton" data-dismiss="modal"><span id="editFieldModalNegativeAnswer">Cancel</span></button>
+                <button type="button" class="btn btn-secondary" id="settingsModalNegativeButton" data-dismiss="modal"><span id="settingsModalNegativeAnswer">Cancel</span></button>
                 <button type="button" class="btn btn-primary" id="settingsModalAffirmativeButton" data-dismiss="modal"><span id="settingsModalAffirmativeAnswer">OK</span></button>
             </div>
         </div>
@@ -377,6 +377,7 @@
                         <div class="col">
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control" id="editFieldModalValueInput">
+                                <div id="editFieldModalValueFeedback" class="invalid-feedback"></div>
                             </div>
                         </div>
                     </div>

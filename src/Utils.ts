@@ -524,7 +524,7 @@ export class Utils {
                 $('#choiceModal').modal('hide');
             }
         });
-        
+
         $('#choiceModalSelect').on('change', function(){
             // check selected option in select tag
             var choices : string[] = $('#choiceModal').data('choices');
@@ -645,7 +645,7 @@ export class Utils {
             $('#customParameterOptionsWrapper').slideDown();
             }else{
                 $('#customParameterOptionsWrapper').slideUp();
-            }  
+            }
         })
         $('#editFieldModal').on('hidden.bs.modal', function(){
             console.log("editFieldModal hidden");
@@ -676,6 +676,10 @@ export class Utils {
 
             callback(true, newField);
         });
+
+        $('#editFieldModal').on('show.bs.modal', Utils.validateFieldValue);
+        $('#editFieldModalValueInput').on('keyup', Utils.validateFieldValue);
+        $('#editFieldModalTypeSelect').on('change', Utils.validateFieldValue);
 
         // #editPortModal - requestUserEditPort()
         $('#editPortModalAffirmativeButton').on('click', function(){
@@ -967,7 +971,7 @@ export class Utils {
         $('#editFieldModalValueInput').val(field.getValue());
         $('#editFieldModalDescriptionInput').val(field.getDescription());
         $('#editFieldModalAccessSelect').empty();
-        
+
         // add options to the access select tag
         $('#editFieldModalAccessSelect').append($('<option>', {
             value: "readonly",
@@ -1725,5 +1729,37 @@ export class Utils {
         }
 
         return valid;
+    }
+
+    static validateFieldValue(){
+        let value : string = <string>$('#editFieldModalValueInput').val();
+        let type: string = <string>$('#editFieldModalTypeSelect').val();
+        let realType: Eagle.DataType = Utils.translateStringToDataType(type);
+
+        let isValid: boolean = true;
+
+        switch (realType){
+            case Eagle.DataType.Boolean:
+                isValid = value.toLowerCase() === "true" || value.toLowerCase() === "false";
+                break;
+            case Eagle.DataType.Float:
+                isValid = value.match(/^-?\d*(\.\d+)?$/) && !isNaN(parseFloat(value));
+                break;
+            case Eagle.DataType.Integer:
+                isValid = value.match(/^-?\d*$/) && true;
+                break;
+            default:
+                isValid = true;
+        }
+
+        if (isValid){
+            $('#editFieldModalValueInput').addClass('is-valid');
+            $('#editFieldModalValueInput').removeClass('is-invalid');
+            $('#editFieldModalValueFeedback').text('');
+        } else {
+            $('#editFieldModalValueInput').removeClass('is-valid');
+            $('#editFieldModalValueInput').addClass('is-invalid');
+            $('#editFieldModalValueFeedback').text('Invalid value for ' + type + ' type.');
+        }
     }
 }
