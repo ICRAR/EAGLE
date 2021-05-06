@@ -3190,7 +3190,7 @@ export class Eagle {
         console.log("autoLoadUrl()", service, repository, branch, path, filename);
 
         // skip empty string urls
-        if (service === Eagle.RepositoryService.Unknown || repository === "" || branch === "" || path === "" || filename === ""){
+        if (service === Eagle.RepositoryService.Unknown || repository === "" || branch === "" || filename === ""){
             console.log("No auto load");
             return;
         }
