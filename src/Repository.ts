@@ -34,7 +34,7 @@ export class Repository {
     }
 
     htmlId : ko.PureComputed<string> = ko.pureComputed(()=>{
-        return this.name.replace('/', '_');
+        return this.name.replace('/', '_') + '_' + this.branch;
     }, this);
 
     clear = () : void => {
