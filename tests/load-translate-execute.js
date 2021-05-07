@@ -24,9 +24,22 @@ test('Set token', async t =>{
         // wait for the page to settle down
         .wait(3000)
 
+        // set a handler for the beforeunload event that occurs when the user navigates away from the page
+        .setNativeDialogHandler((type, text, url) => {
+            switch (type) {
+                case 'beforeunload':
+                    return true;
+                default:
+                    throw 'An dialog was invoked!';
+            }
+        })
+
         // click the settings button
         .click('#navbarDropdownHelp')
         .click("#settings")
+
+        // disable the 'cofirm discard changes' setting
+        .click('#setting0Button')
 
         // enter the github access token
         .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN, { replace : true })
