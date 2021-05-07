@@ -10,9 +10,10 @@ import page from './page-model';
 var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 
 
-const REPOSITORY_NAME = "ICRAR/EAGLE_test_repo";
-const REPOSITORY_BRANCH = "master";
-const GRAPH_NAME = "SummitIngest_Demo.graph"; // TODO: at the moment, this onlt works for graphs in the root directory of the repo
+// TODO: at the moment, this onlt works for graphs in the root directory of the repo
+const GRAPHS = [
+    {repository:"ICRAR/EAGLE_test_repo", branch:"master", path:"", filename:"SummitIngest_Demo.graph"}
+];
 
 const DALIUGE_TRANSLATOR_URL = "http://localhost:8084/gen_pgt";
 const DALIUGE_MANAGER_HOST = "localhost";
@@ -23,81 +24,87 @@ fixture `DALiuGE Regression Test`
 
 test('Load-Translate-Execute', async t =>{
 
-    // !!!!!!!!!!!!! SETUP
-    await t
-        // wait for the page to settle down
-        .wait(3000)
+    for (let i = 0 ; i < GRAPHS.length ; i++){
+        let graph = GRAPHS[i];
 
-        // set a handler for the beforeunload event that occurs when the user navigates away from the page
-        .setNativeDialogHandler((type, text, url) => {
-            switch (type) {
-                case 'beforeunload':
-                    return true;
-                default:
-                    throw 'An dialog was invoked!';
-            }
-        })
+        // !!!!!!!!!!!!! SETUP
+        await t
+            // wait for the page to settle down
+            .wait(3000)
 
-        // click the settings button
-        .click('#navbarDropdownHelp')
-        .click("#settings")
+            // set a handler for the beforeunload event that occurs when the user navigates away from the page
+            .setNativeDialogHandler((type, text, url) => {
+                switch (type) {
+                    case 'beforeunload':
+                        return true;
+                    default:
+                        throw 'An dialog was invoked!';
+                }
+            })
 
-        // disable the 'cofirm discard changes' setting
-        .click('#setting0Button')
+            // click the settings button
+            .click('#navbarDropdownHelp')
+            .click("#settings")
 
-        // enter the github access token
-        .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN, { replace : true })
+            // disable the 'cofirm discard changes' setting
+            .click('#setting0Button')
 
-        // enter the translator url
-        .typeText(Selector('#setting11Value'), DALIUGE_TRANSLATOR_URL, { replace : true })
+            // enter the github access token
+            .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN, { replace : true })
 
-        // close settings modal
-        .click('#settingsModal .modal-footer button')
+            // enter the translator url
+            .typeText(Selector('#setting11Value'), DALIUGE_TRANSLATOR_URL, { replace : true })
 
-        // end
-        //.wait(3000);
+            // close settings modal
+            .click('#settingsModal .modal-footer button')
 
-    // !!!!!!!!!!!!! LOAD GRAPH
-    await t
-        // open the repositories tab in the right window
-        .click('#rightWindowModeRepositories')
+            // end
+            //.wait(3000);
 
-        // click the required repository name
-        .click('#' + REPOSITORY_NAME.replace('/', '_') + '_' + REPOSITORY_BRANCH)
+        // !!!!!!!!!!!!! LOAD GRAPH
+        await t
+            // open the repositories tab in the right window
+            .click('#rightWindowModeRepositories')
 
-        // wait for the contents to load
-        //.wait(12000)
+            // click the required repository name
+            .click('#' + graph.repository.replace('/', '_') + '_' + graph.branch)
 
-        // click the graph name
-        .click('#id_' + GRAPH_NAME.replace('.', '_'))
+            // TODO: click through the directories in the path
 
-        // wait for the graph to load
-        //.wait(8000);
+            // wait for the contents to load
+            //.wait(12000)
 
-    // !!!!!!!!!!!!! TRANSLATE GRAPH
-    await t
+            // click the graph name
+            .click('#id_' + graph.filename.replace('.', '_'))
 
-        // open the translation tab in the right window
-        .click('#rightWindowModeTranslation')
+            // wait for the graph to load
+            //.wait(8000);
 
-        // open algorithm 1
-        .click('#headingTwo')
+        // !!!!!!!!!!!!! TRANSLATE GRAPH
+        await t
 
-        // click the 'Generate PGT' button
-        .click('#alg1PGT');
+            // open the translation tab in the right window
+            .click('#rightWindowModeTranslation')
 
-        // choose the 'OJS' output format
-    await page.selectOption('OJS');
+            // open algorithm 1
+            .click('#headingTwo')
 
-        // wait for the graph to translate
-    //await t.wait(8000);
+            // click the 'Generate PGT' button
+            .click('#alg1PGT');
 
-    // !!!!!!!!!!!!! TRANSLATE
-    await t
-        // write manager host and port
-        .typeText(Selector('input[name="dlg_mgr_host"]'), DALIUGE_MANAGER_HOST, { replace : true })
-        .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_MANAGER_PORT, { replace : true })
+            // choose the 'OJS' output format
+        await page.selectOption('OJS');
 
-        // click 'generate and deploy physical graph' button
-        .click('#gen_pg_button');
+            // wait for the graph to translate
+        //await t.wait(8000);
+
+        // !!!!!!!!!!!!! TRANSLATE
+        await t
+            // write manager host and port
+            .typeText(Selector('input[name="dlg_mgr_host"]'), DALIUGE_MANAGER_HOST, { replace : true })
+            .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_MANAGER_PORT, { replace : true })
+
+            // click 'generate and deploy physical graph' button
+            .click('#gen_pg_button');
+    }
 });
