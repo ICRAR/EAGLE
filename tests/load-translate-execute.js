@@ -12,6 +12,7 @@ var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 
 // TODO: at the moment, this onlt works for graphs in the root directory of the repo
 const GRAPHS = [
+    {repository:"ICRAR/EAGLE_test_repo", branch:"master", path:"simple_tests/nested_graph", filename:"nested.graph"},
     {repository:"ICRAR/EAGLE_test_repo", branch:"master", path:"", filename:"SummitIngest_Demo.graph"}
 ];
 
@@ -22,10 +23,11 @@ const DALIUGE_MANAGER_PORT = "8001";
 fixture `DALiuGE Regression Test`
     .page `http://localhost:8888/`
 
-test('Load-Translate-Execute', async t =>{
+for (let i = 0 ; i < GRAPHS.length ; i++){
+    let graph = GRAPHS[i];
+    let graphName = graph.repository + ' (' + graph.branch + ') ' + graph.path + '/' + graph.filename;
 
-    for (let i = 0 ; i < GRAPHS.length ; i++){
-        let graph = GRAPHS[i];
+    test('Load-Translate-Execute: ' + graphName, async t =>{
 
         // !!!!!!!!!!!!! SETUP
         await t
@@ -67,10 +69,18 @@ test('Load-Translate-Execute', async t =>{
             .click('#rightWindowModeRepositories')
 
             // click the required repository name
-            .click('#' + graph.repository.replace('/', '_') + '_' + graph.branch)
+            .click('#' + graph.repository.replace('/', '_') + '_' + graph.branch);
 
-            // TODO: click through the directories in the path
+        // click through the directories in the path
+        if (graph.path !== ""){
+            for (let i = 0 ; i < graph.path.split('/').length ; i++){
+                let dirname = graph.path.split('/')[i];
 
+                await t.click('#folder_' + dirname);
+            }
+        }
+
+        await t
             // wait for the contents to load
             //.wait(12000)
 
@@ -106,5 +116,5 @@ test('Load-Translate-Execute', async t =>{
 
             // click 'generate and deploy physical graph' button
             .click('#gen_pg_button');
-    }
-});
+    });
+}
