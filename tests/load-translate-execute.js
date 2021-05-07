@@ -9,18 +9,22 @@ import page from './page-model';
 
 var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 
-const TRANSLATOR_URL = "http://localhost:8084/gen_pgt";
+
 const REPOSITORY_NAME = "ICRAR/EAGLE_test_repo";
 const REPOSITORY_BRANCH = "master";
 const GRAPH_NAME = "SummitIngest_Demo.graph"; // TODO: at the moment, this onlt works for graphs in the root directory of the repo
 
-fixture `EAGLE Set GitHub Access Token`
+const DALIUGE_TRANSLATOR_URL = "http://localhost:8084/gen_pgt";
+const DALIUGE_MANAGER_HOST = "localhost";
+const DALIUGE_MANAGER_PORT = "8001";
+
+fixture `DALiuGE Regression Test`
     .page `http://localhost:8888/`
 
-test('Set token', async t =>{
-    await t
-        // !!!!!!!!!!!!! SETUP
+test('Load-Translate-Execute', async t =>{
 
+    // !!!!!!!!!!!!! SETUP
+    await t
         // wait for the page to settle down
         .wait(3000)
 
@@ -45,16 +49,16 @@ test('Set token', async t =>{
         .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN, { replace : true })
 
         // enter the translator url
-        .typeText(Selector('#setting11Value'), TRANSLATOR_URL, { replace : true })
+        .typeText(Selector('#setting11Value'), DALIUGE_TRANSLATOR_URL, { replace : true })
 
         // close settings modal
         .click('#settingsModal .modal-footer button')
 
         // end
-        .wait(3000)
+        //.wait(3000);
 
-        // !!!!!!!!!!!!! LOAD GRAPH
-
+    // !!!!!!!!!!!!! LOAD GRAPH
+    await t
         // open the repositories tab in the right window
         .click('#rightWindowModeRepositories')
 
@@ -62,15 +66,16 @@ test('Set token', async t =>{
         .click('#' + REPOSITORY_NAME.replace('/', '_') + '_' + REPOSITORY_BRANCH)
 
         // wait for the contents to load
-        .wait(12000)
+        //.wait(12000)
 
         // click the graph name
         .click('#id_' + GRAPH_NAME.replace('.', '_'))
 
         // wait for the graph to load
-        .wait(8000)
+        //.wait(8000);
 
-        // !!!!!!!!!!!!! TRANSLATE GRAPH
+    // !!!!!!!!!!!!! TRANSLATE GRAPH
+    await t
 
         // open the translation tab in the right window
         .click('#rightWindowModeTranslation')
@@ -85,5 +90,14 @@ test('Set token', async t =>{
     await page.selectOption('OJS');
 
         // wait for the graph to translate
-    await t.wait(8000);
+    //await t.wait(8000);
+
+    // !!!!!!!!!!!!! TRANSLATE
+    await t
+        // write manager host and port
+        .typeText(Selector('input[name="dlg_mgr_host"]'), DALIUGE_MANAGER_HOST, { replace : true })
+        .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_MANAGER_PORT, { replace : true })
+
+        // click 'generate and deploy physical graph' button
+        .click('#gen_pg_button');
 });
