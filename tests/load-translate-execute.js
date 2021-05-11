@@ -1,4 +1,5 @@
 import { Selector } from 'testcafe';
+import { networkInterfaces } from 'os';
 import page from './page-model';
 
 /*
@@ -14,11 +15,14 @@ const GRAPHS = [
     {repository:"ICRAR/EAGLE_test_repo", branch:"master", path:"", filename:"SummitIngest_Demo.graph"}
 ];
 
-const DALIUGE_TRANSLATOR_URL = "http://localhost:8084/gen_pgt";
-const DALIUGE_MANAGER_HOST = "10.21.52.161";
+const DALIUGE_TRANSLATOR_PORT = "8084";
 const DALIUGE_MANAGER_PORT = "8001";
+const DALIUGE_TRANSLATOR_URL = "/gen_pgt";
 
 const SUCCESS_MESSAGE = "Finished";
+
+// determine IP of running machine
+const ip = [].concat(...Object.values(networkInterfaces())).find((details) => details.family === 'IPv4' && !details.internal).address;
 
 fixture `DALiuGE Regression Test`
     .page `http://localhost:8888/`
@@ -27,7 +31,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
     let graph = GRAPHS[i];
     let graphName = graph.repository + ' (' + graph.branch + ') ' + graph.path + '/' + graph.filename;
 
-    test('Load-Translate-Execute: ' + graphName, async t =>{
+    test('Load-Translate-Execute: ' + ip + " : " + graphName, async t =>{
 
         // !!!!!!!!!!!!! SETUP
         await t
@@ -55,7 +59,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN, { replace : true })
 
             // enter the translator url
-            .typeText(Selector('#setting11Value'), DALIUGE_TRANSLATOR_URL, { replace : true })
+            .typeText(Selector('#setting11Value'), "http://" + ip + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
 
             // close settings modal
             .click('#settingsModal .modal-footer button')
@@ -111,7 +115,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         // !!!!!!!!!!!!! DEPLOY AND EXECUTE
         await t
             // write manager host and port
-            .typeText(Selector('input[name="dlg_mgr_host"]'), DALIUGE_MANAGER_HOST, { replace : true })
+            .typeText(Selector('input[name="dlg_mgr_host"]'), ip, { replace : true })
             .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_MANAGER_PORT, { replace : true })
 
             // click 'generate and deploy physical graph' button
