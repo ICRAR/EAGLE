@@ -73,7 +73,9 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .click('#rightWindowModeRepositories')
 
             // click the required repository name
-            .click('#' + graph.repository.replace('/', '_') + '_' + graph.branch);
+            .click('#' + graph.repository.replace('/', '_') + '_' + graph.branch)
+
+            .wait(30000);
 
         // click through the directories in the path
         if (graph.path !== ""){
