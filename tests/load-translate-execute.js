@@ -18,7 +18,7 @@ const DALIUGE_TRANSLATOR_URL = "http://localhost:8084/gen_pgt";
 const DALIUGE_MANAGER_HOST = "10.21.52.161";
 const DALIUGE_MANAGER_PORT = "8001";
 
-const FAILURE_MESSAGE = "Fail to deploy physical graph: Remote end closed connection without response";
+const SUCCESS_MESSAGE = "Finished";
 
 fixture `DALiuGE Regression Test`
     .page `http://localhost:8888/`
@@ -123,6 +123,6 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .wait(1000)
 
             // check that the result is OK
-            .expect(Selector("body").innerText).notContains(FAILURE_MESSAGE, "Failed to deploy physical graph");
+            .expect(Selector("#session-status").innerText).contains(SUCCESS_MESSAGE, {timeout:60000});
     });
 }
