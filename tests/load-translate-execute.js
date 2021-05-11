@@ -9,16 +9,16 @@ import page from './page-model';
 
 var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 
-
-// TODO: at the moment, this onlt works for graphs in the root directory of the repo
 const GRAPHS = [
     {repository:"ICRAR/EAGLE_test_repo", branch:"master", path:"simple_tests/nested_graph", filename:"nested.graph"},
     {repository:"ICRAR/EAGLE_test_repo", branch:"master", path:"", filename:"SummitIngest_Demo.graph"}
 ];
 
 const DALIUGE_TRANSLATOR_URL = "http://localhost:8084/gen_pgt";
-const DALIUGE_MANAGER_HOST = "localhost";
+const DALIUGE_MANAGER_HOST = "10.21.52.161";
 const DALIUGE_MANAGER_PORT = "8001";
+
+const FAILURE_MESSAGE = "Fail to deploy physical graph: Remote end closed connection without response";
 
 fixture `DALiuGE Regression Test`
     .page `http://localhost:8888/`
@@ -40,7 +40,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
                     case 'beforeunload':
                         return true;
                     default:
-                        throw 'An dialog was invoked!';
+                        throw 'A dialog was invoked!';
                 }
             })
 
@@ -108,7 +108,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // wait for the graph to translate
         //await t.wait(8000);
 
-        // !!!!!!!!!!!!! TRANSLATE
+        // !!!!!!!!!!!!! DEPLOY AND EXECUTE
         await t
             // write manager host and port
             .typeText(Selector('input[name="dlg_mgr_host"]'), DALIUGE_MANAGER_HOST, { replace : true })
@@ -116,5 +116,13 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
 
             // click 'generate and deploy physical graph' button
             .click('#gen_pg_button');
+
+
+        // !!!!!!!!!!!!! AWAIT RESULTS
+        await t
+            .wait(1000)
+
+            // check that the result is OK
+            .expect(Selector("body").innerText).notContains(FAILURE_MESSAGE, "Failed to deploy physical graph");
     });
 }
