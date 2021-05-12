@@ -9,7 +9,7 @@ jobs:
       translator:
         image: icrar/daliuge-translator:ray
         ports:
-          - 8084:8084
+          - 8084:6379
     steps:
       - name: Check out the repository
         uses: actions/checkout@v1
