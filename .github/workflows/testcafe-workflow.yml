@@ -5,6 +5,11 @@ jobs:
   test:
     name: Run Simple Test
     runs-on: ubuntu-latest
+    services:
+      translator:
+        image: icrar/daliuge-translator:ray
+        ports:
+          - 8084:8084
     steps:
       - name: Check out the repository
         uses: actions/checkout@v1
