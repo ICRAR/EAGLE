@@ -93,7 +93,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .click('#setting0Button')
 
             // enter the translator url
-            .typeText(Selector('#setting11Value'), "http://" + ip + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
+            .typeText(Selector('#setting11Value'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
 
             // close settings modal
             .click('#settingsModal .modal-footer button')
