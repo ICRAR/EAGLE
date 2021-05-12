@@ -17,7 +17,7 @@ const GRAPHS = [
 ];
 
 // NOTE: these ports are non-standard for DaLiuGE
-//       we use them because within the GitHub CI environment, ports such as 8084 are already in use 
+//       we use them because within the GitHub CI environment, ports such as 8084 are already in use
 
 const DALIUGE_TRANSLATOR_PORT = "6379";
 const DALIUGE_MANAGER_PORT = "8001";
@@ -53,6 +53,13 @@ const fetchGraph = (url) => {
         req.end();
     });
 };
+
+fixture `Test Translator`
+    .page `http://localhost:${DALIUGE_TRANSLATOR_PORT}/`
+
+    test('is running', async t => {
+        await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
+    });
 
 fixture `DALiuGE Regression Test`
     .page `http://localhost:8888/`
@@ -141,6 +148,6 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .wait(1000)
 
             // check that the result is OK
-            .expect(Selector("#session-status").innerText).contains(SUCCESS_MESSAGE, {timeout:60000});
+            .expect(Selector("#session-status").innerText).contains(SUCCESS_MESSAGE, {timeout:15000});
     });
 }
