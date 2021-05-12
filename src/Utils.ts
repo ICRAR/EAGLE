@@ -488,6 +488,24 @@ export class Utils {
             }
         });
 
+        // #inputTextModal - requestUserText()
+        $('#inputTextModal .modal-footer button').on('click', function(){
+            $('#inputTextModal').data('completed', true);
+        });
+        $('#inputTextModal').on('hidden.bs.modal', function(){
+            var callback : (completed : boolean, userString : string) => void = $('#inputTextModal').data('callback');
+            callback($('#inputTextModal').data('completed'), <string>$('#inputTextModalInput').val());
+        });
+        $('#inputTextModal').on('shown.bs.modal', function(){
+            $('#inputTextModalInput').focus();
+        });
+        $('#inputTextModalInput').on('keypress', function(e){
+            if (e.which === 13){
+                $('#inputTextModal').data('completed', true);
+                $('#inputTextModal').modal('hide');
+            }
+        });
+
         // #choiceModal - requestUserChoice()
         $('#choiceModal .modal-footer button').on('click', function(){
             $('#choiceModal').data('completed', true);
@@ -830,6 +848,22 @@ export class Utils {
         $('#inputModal').data('returnType', "string");
 
         $('#inputModal').modal();
+    }
+
+    static requestUserText(title : string, message : string, defaultText: string, callback : (completed : boolean, userText : string) => void) {
+        console.log("requestUserText()", title, message);
+
+        $('#inputTextModalTitle').text(title);
+        $('#inputTextModalMessage').html(message);
+
+        $('#inputTextModalInput').val(defaultText);
+
+        // store the callback, result on the modal HTML element
+        // so that the info is available to event handlers
+        $('#inputTextModal').data('completed', false);
+        $('#inputTextModal').data('callback', callback);
+
+        $('#inputTextModal').modal();
     }
 
     static requestUserNumber(title : string, message : string, defaultNumber: number, callback : (completed : boolean, userNumber : number) => void ) {
