@@ -637,7 +637,9 @@ export class Eagle {
         }
 
         // update the activeFileInfo with details of the repository the file was loaded from
-        this.updateActiveFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+        if (fileFullPath !== ""){
+            this.updateActiveFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+        }
     }
 
     /**
