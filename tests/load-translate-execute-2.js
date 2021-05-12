@@ -28,7 +28,7 @@ let graphJSON = "";
 const ip = [].concat(...Object.values(networkInterfaces())).find((details) => details.family === 'IPv4' && !details.internal).address;
 
 const fetchGraph = (url) => {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         const req = https.request(url, res => {
             let rawData = "";
 
@@ -44,6 +44,7 @@ const fetchGraph = (url) => {
 
         req.on('error', e => {
             console.error(e);
+            reject(new Error(e));
         });
 
         req.end();
