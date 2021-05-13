@@ -75,6 +75,13 @@ fixture `Test Translator`
     .page `http://localhost:${DALIUGE_TRANSLATOR_PORT}/`
 
     test('is running', async t => {
+
+        await t
+            .setNativeDialogHandler((type, text, url) => {
+                console.log("dismissed native dialog");
+                return true;
+            });
+
         await printPageLocation();
         await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
     });
