@@ -1,4 +1,4 @@
-import { Selector } from 'testcafe';
+import { Selector, ClientFunction } from 'testcafe';
 import { networkInterfaces } from 'os';
 import page from './page-model';
 import https from 'https';
@@ -19,7 +19,8 @@ const GRAPHS = [
 // NOTE: these ports are non-standard for DaLiuGE
 //       we use them because within the GitHub CI environment, ports such as 8084 are already in use
 
-const DALIUGE_TRANSLATOR_PORT = "6379";
+//const DALIUGE_TRANSLATOR_PORT = "6379";
+const DALIUGE_TRANSLATOR_PORT = "8084";
 const DALIUGE_MANAGER_PORT = "8001";
 const DALIUGE_TRANSLATOR_URL = "/gen_pgt";
 
@@ -53,6 +54,14 @@ const fetchGraph = (url) => {
         req.end();
     });
 };
+
+const getPageHTML = ClientFunction(() => {
+   return document.documentElement.outerHTML;
+});
+
+const printPageHTML = async () => {
+    console.log(await getPageHTML());
+}
 
 fixture `Test Translator`
     .page `http://localhost:${DALIUGE_TRANSLATOR_PORT}/`
@@ -131,7 +140,10 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         await page.selectOption('OJS');
 
             // wait for the graph to translate
-        //await t.wait(8000);
+        await t.wait(8000);
+
+        // debug
+        await printPageHTML();
 
         // !!!!!!!!!!!!! DEPLOY AND EXECUTE
         await t
