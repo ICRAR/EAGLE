@@ -71,6 +71,12 @@ const printPageLocation = async () => {
     console.log(await getPageLocation());
 };
 
+// this is probably only required in the short term, until the new UI hits master?
+const setFormTargetSelf = ClientFunction(() => {
+    document.getElementById('pg_form').target = "_self";
+});
+
+
 fixture `Test Translator`
     .page `http://localhost:${DALIUGE_TRANSLATOR_PORT}/`
 
@@ -183,9 +189,13 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         await t
             // write manager host and port
             .typeText(Selector('input[name="dlg_mgr_host"]'), ip, { replace : true })
-            .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_MANAGER_PORT, { replace : true })
+            .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_MANAGER_PORT, { replace : true });
+
+            // modify the pg_form to make it open in the same tab when the button is clicked
+        await setFormTargetSelf();
 
             // click 'generate and deploy physical graph' button
+        await t
             .click('#gen_pg_button');
 
 
