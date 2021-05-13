@@ -59,14 +59,23 @@ const getPageHTML = ClientFunction(() => {
    return document.documentElement.outerHTML;
 });
 
+const getPageLocation = ClientFunction(() => {
+    return document.location.href;
+});
+
 const printPageHTML = async () => {
     console.log(await getPageHTML());
 }
+
+const printPageLocation = async () => {
+    console.log(await getPageLocation());
+});
 
 fixture `Test Translator`
     .page `http://localhost:${DALIUGE_TRANSLATOR_PORT}/`
 
     test('is running', async t => {
+        await printPageLocation();
         await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
     });
 
@@ -143,7 +152,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         await t.wait(8000);
 
         // debug
-        await printPageHTML();
+        await printPageLocation();
 
         // !!!!!!!!!!!!! DEPLOY AND EXECUTE
         await t
