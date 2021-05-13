@@ -73,6 +73,7 @@ export class Utils {
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
 
     static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
+    static readonly SPAWN_TRANSLATION_TAB: string = "SpawnTranslationTab";
 
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};
