@@ -86,6 +86,21 @@ fixture `Test Translator`
         await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
     });
 
+fixture `Test Engine`
+    .page `http://localhost:${DALIUGE_MANAGER_PORT}/`
+
+    test('is running', async t => {
+
+        await t
+            .setNativeDialogHandler((type, text, url) => {
+                console.log("Handled native dialog:" + type + ":" + text + ":" + url);
+                return true;
+            });
+
+        await printPageLocation();
+        await t.expect(Selector(".container .breadcrumb li a").innerText).contains("DataIslandManager", {timeout:15000});
+    });
+
 fixture `DALiuGE Regression Test`
     .page `http://localhost:8888/`
 

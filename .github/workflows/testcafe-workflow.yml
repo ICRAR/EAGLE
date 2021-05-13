@@ -10,6 +10,15 @@ jobs:
         image: icrar/daliuge-translator:ray
         ports:
           - 6379:8084
+      engine:
+        image: icrar/daliuge-engine:2021-01-18
+        ports:
+          - 5555:5555
+          - 6666:6666
+          - 8000:8000
+          - 8001:8001
+          - 8002:8002
+          - 9000:9000
     steps:
       - name: Check out the repository
         uses: actions/checkout@v1
@@ -32,4 +41,4 @@ jobs:
         env:
             EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
         with:
-            args: "chrome tests/simple.js tests/drag-and-drop.js tests/edit-node-parameter.js tests/long-test.js tests/load-translate-execute-2.js"
+            args: "chrome tests/load-translate-execute-2.js"
