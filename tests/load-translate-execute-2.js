@@ -19,8 +19,8 @@ const GRAPHS = [
 // NOTE: these ports are non-standard for DaLiuGE
 //       we use them because within the GitHub CI environment, ports such as 8084 are already in use
 
-//const DALIUGE_TRANSLATOR_PORT = "6379";
-const DALIUGE_TRANSLATOR_PORT = "8084";
+const DALIUGE_TRANSLATOR_PORT = "6379";
+//const DALIUGE_TRANSLATOR_PORT = "8084";
 const DALIUGE_MANAGER_PORT = "8001";
 const DALIUGE_TRANSLATOR_URL = "/gen_pgt";
 
