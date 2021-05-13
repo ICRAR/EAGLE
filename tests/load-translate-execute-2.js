@@ -69,7 +69,7 @@ const printPageHTML = async () => {
 
 const printPageLocation = async () => {
     console.log(await getPageLocation());
-});
+};
 
 fixture `Test Translator`
     .page `http://localhost:${DALIUGE_TRANSLATOR_PORT}/`
