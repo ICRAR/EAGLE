@@ -78,7 +78,7 @@ fixture `Test Translator`
 
         await t
             .setNativeDialogHandler((type, text, url) => {
-                console.log("dismissed native dialog");
+                console.log("Handled native dialog:" + type + ":" + text + ":" + url);
                 return true;
             });
 
@@ -114,8 +114,11 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .click('#navbarDropdownHelp')
             .click("#settings")
 
-            // disable the 'cofirm discard changes' setting
+            // disable the 'confirm discard changes' setting
             .click('#setting0Button')
+
+            // disable the 'spawn translation tab' setting
+            .click('#setting19Button')
 
             // enter the translator url
             .typeText(Selector('#setting11Value'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
