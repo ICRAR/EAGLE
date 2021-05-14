@@ -36,7 +36,9 @@ jobs:
           pip install .
       - name: Compile Typescript
         run: tsc
-      - name: Start server
+      - name: DALiuGE: Start Local Managers
+        run: curl -sd '\''{"nodes": ["localhost"]}'\'' -H "Content-Type: application/json" -X POST http://localhost:9000/managers/dataisland'
+      - name: EAGLE: Start server
         run: python eagleServer/eagleServer.py -t /tmp &
       - name: Run tests
         uses: DevExpress/testcafe-action@latest
