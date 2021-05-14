@@ -22,7 +22,8 @@ const GRAPHS = [
 
 const DALIUGE_TRANSLATOR_PORT = "6379";
 //const DALIUGE_TRANSLATOR_PORT = "8084";
-const DALIUGE_MANAGER_PORT = "8001";
+const DALIUGE_DIM_PORT = "8001";
+const DALIUGE_NM_PORT = "8000";
 const DALIUGE_TRANSLATOR_URL = "/gen_pgt";
 
 const SUCCESS_MESSAGE = "Finished";
@@ -141,8 +142,8 @@ fixture `Test Translator`
         await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
     });
 
-fixture `Test Engine`
-    .page `http://localhost:${DALIUGE_MANAGER_PORT}/`
+fixture `Test Data Island Manager`
+    .page `http://localhost:${DALIUGE_DIM_PORT}/`
 
     test('is running', async t => {
 
@@ -152,8 +153,23 @@ fixture `Test Engine`
                 return true;
             });
 
-        await printPageLocation("Test Engine");
+        await printPageLocation("Test DIM");
         await t.expect(Selector(".container .breadcrumb li a").innerText).contains("DataIslandManager", {timeout:15000});
+    });
+
+fixture `Test Node Manager`
+    .page `http://localhost:${DALIUGE_NM_PORT}/`
+
+    test('is running', async t => {
+
+        await t
+            .setNativeDialogHandler((type, text, url) => {
+                console.log("Handled native dialog:" + type + ":" + text + ":" + url);
+                return true;
+            });
+
+        await printPageLocation("Test NM");
+        await t.expect(Selector(".container h1").innerText).contains("NodeManager", {timeout:15000});
     });
 
 fixture `DALiuGE Regression Test`
@@ -238,7 +254,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         await t
             // write manager host and port
             .typeText(Selector('input[name="dlg_mgr_host"]'), ip, { replace : true })
-            .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_MANAGER_PORT, { replace : true });
+            .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_DIM_PORT, { replace : true });
 
             // modify the pg_form to make it open in the same tab when the button is clicked
         await setFormTargetSelf();
