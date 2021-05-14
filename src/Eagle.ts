@@ -599,7 +599,6 @@ export class Eagle {
         }
 
         var fileType : Eagle.FileType = Utils.determineFileType(dataObject);
-        console.log("fileType", fileType);
 
         // Only load graph files.
         if (fileType == Eagle.FileType.Graph) {
@@ -731,7 +730,6 @@ export class Eagle {
      * Creates a new logical graph for editing.
      */
     newLogicalGraph = () => {
-        console.log("newLogicalGraph()");
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
@@ -747,15 +745,12 @@ export class Eagle {
      * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a logical graph for editing.
      */
     newLogicalGraphFromJson = () => {
-        console.log("newLogicalGraphFromJson()");
-
         Utils.requestUserText("New Logical Graph from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
             if (!completed)
             {   // Cancelling action.
                 return;
             }
 
-            console.log("userText", userText);
             var showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             this._loadGraphJSON(userText, showErrors, "");
