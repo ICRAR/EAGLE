@@ -119,12 +119,14 @@ const setFormTargetSelf = ClientFunction(() => {
     document.getElementById('pg_form').target = "_self";
 });
 
+/*
 fixture `DALiuGE Start Local Managers`
     .page `http://localhost:9000`
 
     test('start', async t => {
         await startLocalManagers();
     });
+*/
 
 fixture `Test Translator`
     .page `http://localhost:${DALIUGE_TRANSLATOR_PORT}/`
