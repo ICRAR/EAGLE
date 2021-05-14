@@ -7,7 +7,7 @@ import https from 'https';
 /*
     run with:
 
-    export EAGLE_GITHUB_ACCESS_TOKEN="<token>";testcafe chrome tests/load-translate-execute.js
+    export EAGLE_GITHUB_ACCESS_TOKEN="<token>";testcafe chrome tests/load-translate-execute-2.js
 */
 
 var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
@@ -17,11 +17,12 @@ const GRAPHS = [
     "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/SummitIngest_Demo.graph"
 ];
 
-// NOTE: these ports are non-standard for DaLiuGE
-//       we use them because within the GitHub CI environment, ports such as 8084 are already in use
+// NOTE: the translator port is non-standard for DaLiuGE
+//       we use it because within the GitHub CI environment
+//       port 8084 are already in use
 
 const DALIUGE_TRANSLATOR_PORT = "6379";
-//const DALIUGE_TRANSLATOR_PORT = "8084";
+
 const DALIUGE_DIM_PORT = "8001";
 const DALIUGE_NM_PORT = "8000";
 const DALIUGE_TRANSLATOR_URL = "/gen_pgt";
@@ -270,7 +271,6 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
 
         // debug
         await printPageLocation("Engine");
-        await printPageHTML();
 
         await t
             // check that the result is OK
