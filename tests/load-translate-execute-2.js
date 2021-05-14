@@ -39,7 +39,7 @@ const startLocalManagers = () => {
     return new Promise((resolve, reject) => {
 
         const data = JSON.stringify({
-            nodes: [ip]
+            nodes: ['localhost']
         });
 
         const options = {
