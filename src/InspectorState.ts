@@ -96,6 +96,20 @@ export class InspectorState {
         $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
     }
 
+    toggleSection = (item: any, e: JQueryEventObject): void => {
+        let target: JQuery<Element> = $(e.currentTarget);
+        let sectionName: string = target.data('section-name');
+
+        // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
+        let collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
+        if (!collapsing){
+            this.toggle(sectionName);
+        } else {
+            console.log("Abort section toggle, already collapsing");
+            return;
+        }
+    }
+
     toggle(sectionName: string): void {
         let state = this.get(sectionName);
 
