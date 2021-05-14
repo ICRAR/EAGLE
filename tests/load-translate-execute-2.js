@@ -27,6 +27,8 @@ const DALIUGE_TRANSLATOR_URL = "/gen_pgt";
 
 const SUCCESS_MESSAGE = "Finished";
 
+const PAGE_TRANSITION_WAIT_DURATION = 3000;
+
 let graphJSON = "";
 
 // determine IP of running machine
@@ -108,8 +110,8 @@ const printPageHTML = async () => {
     console.log(await getPageHTML());
 }
 
-const printPageLocation = async () => {
-    console.log(await getPageLocation());
+const printPageLocation = async (prefix) => {
+    console.log(prefix + ":" + (await getPageLocation()));
 };
 
 // this is probably only required in the short term, until the new UI hits master?
@@ -135,7 +137,7 @@ fixture `Test Translator`
                 return true;
             });
 
-        await printPageLocation();
+        await printPageLocation("Test Translator");
         await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
     });
 
@@ -150,7 +152,7 @@ fixture `Test Engine`
                 return true;
             });
 
-        await printPageLocation();
+        await printPageLocation("Test Engine");
         await t.expect(Selector(".container .breadcrumb li a").innerText).contains("DataIslandManager", {timeout:15000});
     });
 
@@ -166,7 +168,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         // !!!!!!!!!!!!! SETUP
         await t
             // wait for the page to settle down
-            .wait(3000)
+            .wait(PAGE_TRANSITION_WAIT_DURATION)
 
             // set a handler for the beforeunload event that occurs when the user navigates away from the page
             .setNativeDialogHandler((type, text, url) => {
@@ -206,7 +208,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
 
             .click('#inputTextModal .modal-footer button')
 
-            .wait(3000);
+            .wait(PAGE_TRANSITION_WAIT_DURATION);
 
 
 
@@ -227,10 +229,10 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         await page.selectOption('OJS');
 
             // wait for the graph to translate
-        await t.wait(3000);
+        await t.wait(PAGE_TRANSITION_WAIT_DURATION);
 
         // debug
-        await printPageLocation();
+        await printPageLocation("Translator");
 
         // !!!!!!!!!!!!! DEPLOY AND EXECUTE
         await t
@@ -248,8 +250,12 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
 
         // !!!!!!!!!!!!! AWAIT RESULTS
         await t
-            .wait(1000)
+            .wait(PAGE_TRANSITION_WAIT_DURATION);
 
+        // debug
+        await printPageLocation("Engine");
+
+        await t
             // check that the result is OK
             .expect(Selector("#session-status").innerText).contains(SUCCESS_MESSAGE, {timeout:15000});
     });
