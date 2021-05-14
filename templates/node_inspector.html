@@ -2,7 +2,7 @@
     <!-- ko if: selectedNode() != null -->
 
         <h5 class="card-header" id="nodeInspectorHeading" data-bind="click: toggleInspector">
-            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse All'}, css:{closedIcon: selectedNode().allInspectorSectionsCollapsed}">keyboard_arrow_down</i>
+            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse All'}, css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
             <!-- ko if: selectedNode().isLocked() -->
             <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
             <!-- /ko -->

@@ -83,9 +83,9 @@ export class InspectorState {
             }
     }
 
-    all(): boolean {
+    all : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return this.description() && this.displayOptions() && this.graphComment() && this.graphDescription() && this.inputApplication() && this.inputPorts() && this.outputApplication() && this.outputPorts() && this.exitApplication() && this.parameters();
-    }
+    }, this);
 
     toggle(sectionName: string): void {
         let state = this.get(sectionName);

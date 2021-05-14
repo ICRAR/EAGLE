@@ -299,12 +299,8 @@ export class Eagle {
         this._setUserMode(userMode);
     }
 
-    allInspectorSectionsCollapsed : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return this.inspectorState().all();
-    }, this);
-
     toggleInspector = (item: any, e:JQueryEventObject): void => {
-        let allCollapsed = this.allInspectorSectionsCollapsed();
+        let allCollapsed = this.inspectorState().all();
 
         this.inspectorState().setAll(!allCollapsed);
 
