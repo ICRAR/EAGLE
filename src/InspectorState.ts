@@ -87,6 +87,15 @@ export class InspectorState {
         return this.description() && this.displayOptions() && this.graphComment() && this.graphDescription() && this.inputApplication() && this.inputPorts() && this.outputApplication() && this.outputPorts() && this.exitApplication() && this.parameters();
     }, this);
 
+    toggleAll = (item: any, e:JQueryEventObject): void => {
+        let allCollapsed = this.all();
+
+        this.setAll(!allCollapsed);
+
+        // actually ask bootstrap to collapse all the sections
+        $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
+    }
+
     toggle(sectionName: string): void {
         let state = this.get(sectionName);
 

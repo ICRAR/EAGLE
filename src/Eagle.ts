@@ -299,15 +299,6 @@ export class Eagle {
         this._setUserMode(userMode);
     }
 
-    toggleInspector = (item: any, e:JQueryEventObject): void => {
-        let allCollapsed = this.inspectorState().all();
-
-        this.inspectorState().setAll(!allCollapsed);
-
-        // actually ask bootstrap to collapse all the sections
-        $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
-    }
-
     toggleInspectorSection = (item: any, e: JQueryEventObject): void => {
         let target: JQuery<Element> = $(e.currentTarget);
         let sectionName: string = target.data('section-name');
