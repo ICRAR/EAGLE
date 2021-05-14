@@ -11,7 +11,7 @@ jobs:
         ports:
           - 6379:8084
       engine:
-        image: icrar/daliuge-engine:2021-01-18
+        image: icrar/daliuge-engine:ray
         ports:
           - 5555:5555
           - 6666:6666
