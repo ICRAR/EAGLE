@@ -37,9 +37,7 @@ jobs:
       - name: Compile Typescript
         run: tsc
       - name: DALiuGE Start Local Managers
-        uses: wei/curl@v1
-        with:
-          args: -sd '{"nodes": ["localhost"]}' -H "Content-Type: application/json" -X POST http://localhost:9000/managers/dataisland
+        run: curl -X POST http://localhost:9000/managers/dataisland
       - name: EAGLE Start server
         run: python eagleServer/eagleServer.py -t /tmp &
       - name: Run tests
