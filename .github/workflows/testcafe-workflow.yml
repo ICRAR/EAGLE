@@ -19,8 +19,6 @@ jobs:
           - 8001:8001
           - 8002:8002
           - 9000:9000
-        env:
-          AUTO_START_LOCAL_MANAGERS: true
     steps:
       - name: Check out the repository
         uses: actions/checkout@v1
