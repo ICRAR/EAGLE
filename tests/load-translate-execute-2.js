@@ -180,7 +180,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         await page.selectOption('OJS');
 
             // wait for the graph to translate
-        await t.wait(8000);
+        await t.wait(3000);
 
         // debug
         await printPageLocation();
