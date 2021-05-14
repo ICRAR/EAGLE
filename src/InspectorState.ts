@@ -83,8 +83,31 @@ export class InspectorState {
             }
     }
 
-    all(): boolean {
+    all : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return this.description() && this.displayOptions() && this.graphComment() && this.graphDescription() && this.inputApplication() && this.inputPorts() && this.outputApplication() && this.outputPorts() && this.exitApplication() && this.parameters();
+    }, this);
+
+    toggleAll = (item: any, e:JQueryEventObject): void => {
+        let allCollapsed = this.all();
+
+        this.setAll(!allCollapsed);
+
+        // actually ask bootstrap to collapse all the sections
+        $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
+    }
+
+    toggleSection = (item: any, e: JQueryEventObject): void => {
+        let target: JQuery<Element> = $(e.currentTarget);
+        let sectionName: string = target.data('section-name');
+
+        // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
+        let collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
+        if (!collapsing){
+            this.toggle(sectionName);
+        } else {
+            console.log("Abort section toggle, already collapsing");
+            return;
+        }
     }
 
     toggle(sectionName: string): void {
@@ -95,5 +118,20 @@ export class InspectorState {
         }
 
         state(!state());
+    }
+
+    updateAllInspectorSections = (): void => {
+        $(".nodeInspectorCollapseAll").each((index: number, element: HTMLElement): void => {
+            var h5 = $(element).parent().find('h5');
+            var sectionName = h5.data("section-name");
+
+            let sectionState = this.get(sectionName);
+
+            if (sectionState === null){
+                return;
+            }
+
+            $(element).collapse(sectionState() ? "hide" : "show");
+        });
     }
 }

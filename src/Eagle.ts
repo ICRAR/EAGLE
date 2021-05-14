@@ -45,6 +45,7 @@ import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {Setting} from './Setting';
 import {SideWindow} from './SideWindow';
+import {InspectorState} from './InspectorState';
 
 export class Eagle {
     // palette editor mode
@@ -71,6 +72,8 @@ export class Eagle {
     globalScale : number = 1.0;
 
     nodeInspectorCollapsed: ko.Observable<boolean>;
+
+    inspectorState : ko.Observable<InspectorState>;
 
     static settings : ko.ObservableArray<Setting>;
 
@@ -132,6 +135,8 @@ export class Eagle {
         this.selectedNode.subscribe(this.updateTooltips);
 
         this.nodeInspectorCollapsed = ko.observable(false);
+
+        this.inspectorState =ko.observable( new InspectorState() )
     }
 
     areAnyFilesModified = () : boolean => {
@@ -448,7 +453,7 @@ export class Eagle {
                 this.selectedEdge(null);
 
                 // update the display of all the sections of the node inspector (collapse/expand as appropriate)
-                this.selectedNode().updateAllInspectorSections();
+                this.inspectorState().updateAllInspectorSections();
 
                 // expand this node's parents, all the way to the root of the hierarchy
                 var n : Node = <Node>selection;
@@ -2915,21 +2920,15 @@ export class Eagle {
     }
 
     selectInputApplicationNode = (nodeViewModel : any) : void => {
-        console.log("selectInputApplicationNode()", nodeViewModel);
-
-        this.selectedNode(this.selectedNode().getInputApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getInputApplication());
     }
 
     selectOutputApplicationNode = (nodeViewModel : any) : void => {
-        console.log("selectOutputApplicationNode()", nodeViewModel);
-
-        this.selectedNode(this.selectedNode().getOutputApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getOutputApplication());
     }
 
     selectExitApplicationNode = (nodeViewModel : any) : void => {
-        console.log("selectExitApplicationNode()", nodeViewModel);
-
-        this.selectedNode(this.selectedNode().getExitApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication());
     }
 
     editField = (node:Node, button: string, fieldIndex: number, input: boolean, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void )=>{
