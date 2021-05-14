@@ -66,7 +66,7 @@ test('Graph creation', async t =>{
     // add the inner scatter
     await page.addPaletteNode(0,14,true);
 
-    await page.setNodeName("NodeScatterAverager", true);
+    await page.setNodeName("NodeScatterAverager", false);
 
     // move and resize the inner scatter
     await page.moveNode('#node1', 140, 175);
@@ -75,7 +75,10 @@ test('Graph creation', async t =>{
     // add the inner Python App
     await page.addPaletteNode(0,6,false);
 
-    await page.setNodeName("OSKAR2 Simulator", true);
+    await page.setNodeName("OSKAR2 Simulator", false);
+
+    // open output ports section of inspector
+    await t.click("h5.card-header[data-section-name='Outputs']");
 
     await page.addNodePort("spead2", false);
 
@@ -84,7 +87,10 @@ test('Graph creation', async t =>{
 
     // add the outer Python App
     await page.addPaletteNode(0,6,false);
-    await page.setNodeName("Average 6 Channels", true);
+    await page.setNodeName("Average 6 Channels", false);
+
+    // open input ports section of inspector
+    await t.click("h5.card-header[data-section-name='Inputs']");
 
     await page.addNodePort("spead2", true);
     await page.addNodePort("spead2", false);

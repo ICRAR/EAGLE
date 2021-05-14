@@ -2920,21 +2920,15 @@ export class Eagle {
     }
 
     selectInputApplicationNode = (nodeViewModel : any) : void => {
-        console.log("selectInputApplicationNode()", nodeViewModel);
-
-        this.selectedNode(this.selectedNode().getInputApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getInputApplication());
     }
 
     selectOutputApplicationNode = (nodeViewModel : any) : void => {
-        console.log("selectOutputApplicationNode()", nodeViewModel);
-
-        this.selectedNode(this.selectedNode().getOutputApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getOutputApplication());
     }
 
     selectExitApplicationNode = (nodeViewModel : any) : void => {
-        console.log("selectExitApplicationNode()", nodeViewModel);
-
-        this.selectedNode(this.selectedNode().getExitApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication());
     }
 
     editField = (node:Node, button: string, fieldIndex: number, input: boolean, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void )=>{

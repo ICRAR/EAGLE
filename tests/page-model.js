@@ -228,12 +228,10 @@ class Page {
   async addNodePort (portName, input){
      if (input){
          await t
-            .click(this.inputPorts)
             .hover(this.addInputPort)
             .click(this.addInputPort);
     } else {
         await t
-           .click(this.outputPorts)
            .hover(this.addOutputPort)
            .click(this.addOutputPort);
     }
