@@ -119,4 +119,19 @@ export class InspectorState {
 
         state(!state());
     }
+
+    updateAllInspectorSections = (): void => {
+        $(".nodeInspectorCollapseAll").each((index: number, element: HTMLElement): void => {
+            var h5 = $(element).parent().find('h5');
+            var sectionName = h5.data("section-name");
+
+            let sectionState = this.get(sectionName);
+
+            if (sectionState === null){
+                return;
+            }
+
+            $(element).collapse(sectionState() ? "hide" : "show");
+        });
+    }
 }

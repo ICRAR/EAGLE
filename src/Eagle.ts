@@ -299,21 +299,6 @@ export class Eagle {
         this._setUserMode(userMode);
     }
 
-    updateAllInspectorSections = (): void => {
-        $(".nodeInspectorCollapseAll").each((index: number, element: HTMLElement): void => {
-            var h5 = $(element).parent().find('h5');
-            var sectionName = h5.data("section-name");
-
-            let sectionState = this.inspectorState().get(sectionName);
-
-            if (sectionState === null){
-                return;
-            }
-
-            $(element).collapse(sectionState() ? "hide" : "show");
-        });
-    }
-
     private _setUserMode = (userMode : Eagle.UserMode) : void => {
         this.selectedEdge(null);
         this.selectedNode(null);
@@ -468,7 +453,7 @@ export class Eagle {
                 this.selectedEdge(null);
 
                 // update the display of all the sections of the node inspector (collapse/expand as appropriate)
-                this.updateAllInspectorSections();
+                this.inspectorState().updateAllInspectorSections();
 
                 // expand this node's parents, all the way to the root of the hierarchy
                 var n : Node = <Node>selection;
