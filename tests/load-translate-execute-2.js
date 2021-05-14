@@ -254,6 +254,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
 
         // debug
         await printPageLocation("Engine");
+        await printPageHTML();
 
         await t
             // check that the result is OK
