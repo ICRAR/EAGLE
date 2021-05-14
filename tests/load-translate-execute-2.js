@@ -1,6 +1,7 @@
 import { Selector, ClientFunction } from 'testcafe';
 import { networkInterfaces } from 'os';
 import page from './page-model';
+import http from 'http';
 import https from 'https';
 
 /*
@@ -30,6 +31,46 @@ let graphJSON = "";
 
 // determine IP of running machine
 const ip = [].concat(...Object.values(networkInterfaces())).find((details) => details.family === 'IPv4' && !details.internal).address;
+
+const startLocalManagers = () => {
+    return new Promise((resolve, reject) => {
+
+        const data = JSON.stringify({
+            nodes: ['localhost']
+        });
+
+        const options = {
+            hostname: 'localhost',
+            port: 9000,
+            path: '/managers/dataisland',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': data.length
+            }
+        };
+
+        const req = http.request(options, res => {
+            console.log(`statusCode: ${res.statusCode}`);
+
+            res.on('data', d => {
+                //process.stdout.write(d);
+            });
+
+            res.on('end', () => {
+                resolve();
+            });
+        });
+
+        req.on('error', error => {
+            console.error(error);
+            reject(new Error(error));
+        });
+
+        req.write(data);
+        req.end();
+    });
+}
 
 const fetchGraph = (url) => {
     return new Promise((resolve, reject) => {
@@ -76,6 +117,12 @@ const setFormTargetSelf = ClientFunction(() => {
     document.getElementById('pg_form').target = "_self";
 });
 
+fixture `DALiuGE Start Local Managers`
+    .page `http://localhost:9000`
+
+    test('start', async t => {
+        await startLocalManagers();
+    });
 
 fixture `Test Translator`
     .page `http://localhost:${DALIUGE_TRANSLATOR_PORT}/`
