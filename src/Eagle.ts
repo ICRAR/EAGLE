@@ -45,6 +45,7 @@ import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {Setting} from './Setting';
 import {SideWindow} from './SideWindow';
+import {InspectorState} from './InspectorState';
 
 export class Eagle {
     // palette editor mode
@@ -71,6 +72,8 @@ export class Eagle {
     globalScale : number = 1.0;
 
     nodeInspectorCollapsed: ko.Observable<boolean>;
+
+    inspectorState : ko.Observable<InspectorState>;
 
     static settings : ko.ObservableArray<Setting>;
 
@@ -132,6 +135,8 @@ export class Eagle {
         this.selectedNode.subscribe(this.updateTooltips);
 
         this.nodeInspectorCollapsed = ko.observable(false);
+
+        this.inspectorState =ko.observable( new InspectorState() )
     }
 
     areAnyFilesModified = () : boolean => {
@@ -294,6 +299,48 @@ export class Eagle {
         this._setUserMode(userMode);
     }
 
+    allInspectorSectionsCollapsed : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return this.inspectorState().all();
+    }, this);
+
+    toggleInspector = (item: any, e:JQueryEventObject): void => {
+        let allCollapsed = this.allInspectorSectionsCollapsed();
+
+        this.inspectorState().setAll(!allCollapsed);
+
+        // actually ask bootstrap to collapse all the sections
+        $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
+    }
+
+    toggleInspectorSection = (item: any, e: JQueryEventObject): void => {
+        let target: JQuery<Element> = $(e.currentTarget);
+        let sectionName: string = target.data('section-name');
+
+        // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
+        let collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
+        if (!collapsing){
+            this.inspectorState().toggle(sectionName);
+        } else {
+            console.log("Abort section toggle, already collapsing");
+            return;
+        }
+    }
+
+    updateAllInspectorSections = (): void => {
+        $(".nodeInspectorCollapseAll").each((index: number, element: HTMLElement): void => {
+            var h5 = $(element).parent().find('h5');
+            var sectionName = h5.data("section-name");
+
+            let sectionState = this.inspectorState().get(sectionName);
+
+            if (sectionState === null){
+                return;
+            }
+
+            $(element).collapse(sectionState() ? "hide" : "show");
+        });
+    }
+
     private _setUserMode = (userMode : Eagle.UserMode) : void => {
         this.selectedEdge(null);
         this.selectedNode(null);
@@ -448,7 +495,7 @@ export class Eagle {
                 this.selectedEdge(null);
 
                 // update the display of all the sections of the node inspector (collapse/expand as appropriate)
-                this.selectedNode().updateAllInspectorSections();
+                this.updateAllInspectorSections();
 
                 // expand this node's parents, all the way to the root of the hierarchy
                 var n : Node = <Node>selection;
