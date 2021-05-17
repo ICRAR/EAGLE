@@ -14,7 +14,6 @@ var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 
 const GRAPHS = [
     "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/SummitIngest_Demo.graph",
-    "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/nagsIo.graph",
     "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/testLoop.graph",
     "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/chiles_simple.json",
     "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/lofar_std.json",
