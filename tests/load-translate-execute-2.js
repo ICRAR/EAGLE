@@ -13,8 +13,12 @@ import https from 'https';
 var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 
 const GRAPHS = [
-    "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/simple_tests/nested_graph/nested.graph",
-    "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/SummitIngest_Demo.graph"
+    "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/SummitIngest_Demo.graph",
+    "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/nagsIo.graph",
+    "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/testLoop.graph",
+    "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/chiles_simple.json",
+    "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/lofar_std.json",
+    "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/test_grpby_gather.json"
 ];
 
 // NOTE: the translator port is non-standard for DaLiuGE
@@ -273,7 +277,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         await printPageLocation("Engine");
 
         await t
-            // check that the result is OK
-            .expect(Selector("#session-status").innerText).contains(SUCCESS_MESSAGE, {timeout:15000});
+            // check that the result is OK (within 5 mins)
+            .expect(Selector("#session-status").innerText).contains(SUCCESS_MESSAGE, {timeout:300000});
     });
 }
