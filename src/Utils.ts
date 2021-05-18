@@ -661,11 +661,11 @@ export class Utils {
 
             // hide the custom text input unless the last option in the select is chosen
             if(choice === choices.length){
-            $('#customParameterOptionsWrapper').slideDown();
+                $('#customParameterOptionsWrapper').slideDown();
             }else{
                 $('#customParameterOptionsWrapper').slideUp();
             }
-        })
+        });
         $('#editFieldModal').on('hidden.bs.modal', function(){
             console.log("editFieldModal hidden");
 
@@ -709,6 +709,18 @@ export class Utils {
         });
         $('#editPortModal').on('shown.bs.modal', function(){
             $('#editPortModalAffirmativeButton').focus();
+        });
+        $('#portModalSelect').on('change', function(){
+            // check selected option in select tag
+            var choices : string[] = $('#editPortModal').data('choices');
+            var choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
+
+            // hide the custom text input unless the last option in the select is chosen
+            if(choice === choices.length){
+                $('#customPortOptionsWrapper').slideDown();
+            }else{
+                $('#customPortOptionsWrapper').slideUp();
+            }
         });
         $('#editPortModal').on('hidden.bs.modal', function(){
             console.log("editPortModal hidden");
@@ -979,10 +991,10 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(buttonType: string, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void){
+    static requestUserEditField(modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void){
         console.log("requestUserEditField()");
 
-        if (buttonType === 'add'){
+        if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#fieldModalSelect').empty();
 
@@ -994,7 +1006,7 @@ export class Utils {
                 }));
             }
 
-            //addcustom choice
+            //add custom choice
             $('#fieldModalSelect').append($('<option>', {
                 value: choices.length,
                 text: "Custom (enter below)"
@@ -1058,8 +1070,27 @@ export class Utils {
         $('#editFieldModal').modal();
     }
 
-    static requestUserEditPort(port: Port, callback: (completed: boolean, port: Port) => void){
-        console.log("requestUserEditPort()");
+    static requestUserEditPort(modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void){
+        console.log("requestUserEditPort()", modalType);
+
+        if (modalType === Eagle.ModalType.Add){
+            // remove existing options from the select tag
+            $('#portModalSelect').empty();
+
+            // add options to the modal select tag
+            for (var i = 0 ; i < choices.length ; i++){
+                $('#portModalSelect').append($('<option>', {
+                    value: i,
+                    text: choices[i]
+                }));
+            }
+
+            //add custom choice
+            $('#portModalSelect').append($('<option>', {
+                value: choices.length,
+                text: "Custom (enter below)"
+            }));
+        }
 
         // populate UI with current port data
         $('#editPortModalNameInput').val(port.getName());
@@ -1099,6 +1130,7 @@ export class Utils {
 
         $('#editPortModal').data('completed', false);
         $('#editPortModal').data('callback', callback);
+        $('#editPortModal').data('choices', choices);
         $('#editPortModal').modal();
     }
 

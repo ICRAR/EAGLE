@@ -467,7 +467,20 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="container">
+                <div class="container" id="addPortWrapper">
+                    <div class="row">
+                        <p id="ComponentModalMessage">Please select a port name or create a custom port.</p>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="portModalSelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container" id="customPortOptionsWrapper">
                     <div class="row">
                         <div class="col-3">
                             <p>Name:</p>
