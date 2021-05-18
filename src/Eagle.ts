@@ -3097,10 +3097,10 @@ export class Eagle {
                     return;
                 }
 
-                // update port data (except nodeKey)
+                // update port data (except nodeKey and id, those don't change)
                 let nodeKey = port.getNodeKey();
-                port.copy(newPort);
-                port.setNodeKey(nodeKey);
+                let portId = port.getId();
+                port.copyWithKeyAndId(newPort, nodeKey, portId);
             });
         }
     }

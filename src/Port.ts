@@ -90,6 +90,15 @@ export class Port {
         this.type(src.type());
     }
 
+    copyWithKeyAndId = (src: Port, nodeKey: number, id: string) => {
+        this._id(id);
+        this.name(src.name());
+        this.nodeKey(nodeKey);
+        this.local(src.local());
+        this.event(src.event());
+        this.type(src.type());
+    }
+
     static toOJSJson = (port : Port) : object => {
         return {
             Id:port._id(),
