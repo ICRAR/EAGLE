@@ -715,6 +715,8 @@ export class Utils {
             var choices : string[] = $('#editPortModal').data('choices');
             var choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
 
+            console.log(choices.length, choice);
+
             // hide the custom text input unless the last option in the select is chosen
             if(choice === choices.length){
                 $('#customPortOptionsWrapper').slideDown();
@@ -998,6 +1000,12 @@ export class Utils {
             // remove existing options from the select tag
             $('#fieldModalSelect').empty();
 
+            // add empty choice
+            $('#fieldModalSelect').append($('<option>', {
+                value: -1,
+                text: ""
+            }));
+
             // add options to the modal select tag
             for (var i = 0 ; i < choices.length ; i++){
                 $('#fieldModalSelect').append($('<option>', {
@@ -1006,7 +1014,7 @@ export class Utils {
                 }));
             }
 
-            //add custom choice
+            // add custom choice
             $('#fieldModalSelect').append($('<option>', {
                 value: choices.length,
                 text: "Custom (enter below)"
@@ -1077,6 +1085,12 @@ export class Utils {
             // remove existing options from the select tag
             $('#portModalSelect').empty();
 
+            // add empty choice
+            $('#portModalSelect').append($('<option>', {
+                value: -1,
+                text: ""
+            }));
+
             // add options to the modal select tag
             for (var i = 0 ; i < choices.length ; i++){
                 $('#portModalSelect').append($('<option>', {
@@ -1085,7 +1099,7 @@ export class Utils {
                 }));
             }
 
-            //add custom choice
+            // add custom choice
             $('#portModalSelect').append($('<option>', {
                 value: choices.length,
                 text: "Custom (enter below)"

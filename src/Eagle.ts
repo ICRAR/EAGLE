@@ -2967,7 +2967,7 @@ export class Eagle {
         }
 
         //if creating a new field component parameter
-        if(modalType === Eagle.ModalType.Add) {
+        if (modalType === Eagle.ModalType.Add) {
             $("#editFieldModalTitle").html("Add Parameter")
             $("#addParameterWrapper").show();
             $("#customParameterOptionsWrapper").hide();
@@ -2980,18 +2980,24 @@ export class Eagle {
                 if (!completed){
                     return;
                 }
-                // check selected option in select tag
-               var choices : string[] = $('#editFieldModal').data('choices');
-               var choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
 
-               // hide the custom text input unless the last option in the select is chosen
-               if (choice === choices.length){
+                // check selected option in select tag
+                var choices : string[] = $('#editFieldModal').data('choices');
+                var choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
+
+                // abort if -1 selected
+                if (choice === -1){
+                    return;
+                }
+
+                // hide the custom text input unless the last option in the select is chosen
+                if (choice === choices.length){
                    //create field from user input in modal
                    node.addField(newField);
-               } else {
+                } else {
                    let clone : Field = allFields[choice].clone();
                    node.addField(clone);
-               }
+                }
             });
 
         } else {
@@ -3002,19 +3008,19 @@ export class Eagle {
             $("#customParameterOptionsWrapper").show();
 
             Utils.requestUserEditField(Eagle.ModalType.Edit, field, allFieldNames, (completed : boolean, newField: Field) => {
-               // abort if the user aborted
-               if (!completed){
-                   return;
-               }
+                // abort if the user aborted
+                if (!completed){
+                    return;
+                }
 
-               // update field data
-               field.setText(newField.getText());
-               field.setName(newField.getName());
-               field.setValue(newField.getValue());
-               field.setDescription(newField.getDescription());
-               field.setReadonly(newField.isReadonly());
-               field.setType(newField.getType());
-           });
+                // update field data
+                field.setText(newField.getText());
+                field.setName(newField.getName());
+                field.setValue(newField.getValue());
+                field.setDescription(newField.getDescription());
+                field.setReadonly(newField.isReadonly());
+                field.setType(newField.getType());
+            });
         }
 
 
@@ -3057,12 +3063,18 @@ export class Eagle {
                var choices : string[] = $('#editPortModal').data('choices');
                var choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
 
+               // abort if -1 selected
+               if (choice === -1){
+                   return;
+               }
+
                // hide the custom text input unless the last option in the select is chosen
                if (choice === choices.length){
-                   //create field from user input in modal
+                   newPort.setId(Utils.uuidv4());
                    node.addPort(newPort, input);
                } else {
                    let clone : Port = allPorts[choice].clone();
+                   clone.setId(Utils.uuidv4());
                    node.addPort(clone, input);
                }
             });

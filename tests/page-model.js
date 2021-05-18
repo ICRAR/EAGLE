@@ -95,6 +95,10 @@ class Page {
     this.addInputApplication = Selector('#nodeInspectorAddInputApplication');
     this.addOutputApplication = Selector('#nodeInspectorAddOutputApplication');
 
+    this.portModalSelect = Selector('#portModalSelect');
+    this.portModalNameInput = Selector('#editPortModalNameInput');
+    this.portModalAffirmativeButton = Selector('#editPortModalAffirmativeButton');
+
     this.commitRepo = Selector('#gitCommitModalRepositoryNameSelect');
     this.commitPath = Selector('#gitCommitModalFilePathInput');
     this.commitFile = Selector('#gitCommitModalFileNameInput');
@@ -238,12 +242,12 @@ class Page {
 
     //await this.selectOption("Custom (enter below)");
     await t
-        .click(this.selectChoice)
-        .click(Selector(this.selectChoice).find('option').withText("Custom (enter below)"));
+        .click(this.portModalSelect)
+        .click(Selector(this.portModalSelect).find('option').withText("Custom (enter below)"));
 
-    await t.typeText(this.selectCustom, portName, {replace:true});
+    await t.typeText(this.portModalNameInput, portName, {replace:true});
 
-    await t.click(this.submitChoice);
+    await t.click(this.portModalAffirmativeButton);
   }
 
   async addNodeInputApplication(applicationName){
