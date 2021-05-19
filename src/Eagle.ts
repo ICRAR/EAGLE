@@ -2484,36 +2484,6 @@ export class Eagle {
         });
     }
 
-    /**
-     * Shows a list of input/output port names for selection.
-     */
-    /*
-    selectPortName = (node : Node, isInputPort : boolean) => {
-        var titlePrefix : string = isInputPort ? "Input" : "Output";
-        Utils.requestUserChoice(titlePrefix + " Port Name", "Please select a port name", allPortNames, 0, true, "Custom Port Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
-            // abort if the user aborted
-            if (!completed){
-                return;
-            }
-
-            if (userChoiceIndex === allPortNames.length){
-                // add port with the chosen name
-                node.addPort(new Port(Utils.uuidv4(), userCustomChoice, false, Eagle.DataType.Unknown), isInputPort);
-            } else {
-                // clone an existing port
-                var newPort: Port = allPorts[userChoiceIndex].clone();
-                newPort.setId(Utils.uuidv4());
-                node.addPort(newPort, isInputPort);
-            }
-
-            // flag active diagram as mutated
-            this.flagActiveDiagramHasMutated();
-            this.flagActiveFileModified();
-            this.selectedNode.valueHasMutated();
-        });
-    }
-    */
-
     changeNodeParent = () => {
         // build list of node name + ids (exclude self)
         var nodeList : string[] = [];
