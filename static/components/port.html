@@ -48,7 +48,7 @@
         <!-- /ko -->
     </div>
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editPort($index(), input);}, attr: {id: 'nodeInspectorEditPort' + $index(), title: 'Edit'}" data-toggle="tooltip" data-html="true" data-placement="left">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editPort(null, 'Edit', $index(), input);}, attr: {id: 'nodeInspectorEditPort' + $index(), title: 'Edit'}" data-toggle="tooltip" data-html="true" data-placement="left">
             <i class="material-icons md-18">edit</i>
         </button>
     </div>

@@ -2436,7 +2436,12 @@ export class Eagle {
             return;
         }
 
-        this.selectPortName(<Node>node, true);
+        this.editPort(<Node>node, Eagle.ModalType.Add, null, true, (completed: boolean, userChoiceIndex: number, userCustomChoice: string) => {
+            // flag active diagram as mutated
+            this.flagActiveDiagramHasMutated();
+            this.flagActiveFileModified();
+            this.selectedNode.valueHasMutated();
+        });
     }
 
     /**
@@ -2453,20 +2458,7 @@ export class Eagle {
             return;
         }
 
-        this.selectPortName(<Node>node, false);
-    }
-
-    /**
-     * Adds an field to the selected node via HTML.
-     */
-    addFieldHTML = () : void => {
-        var node = this.getSelection();
-
-        this.editField(<Node>node, 'add', null, null, (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
-            if (!completed){
-                return;
-            }
-
+        this.editPort(<Node>node, Eagle.ModalType.Add, null, false, (completed: boolean, userChoiceIndex: number, userCustomChoice: string) => {
             // flag active diagram as mutated
             this.flagActiveDiagramHasMutated();
             this.flagActiveFileModified();
@@ -2475,39 +2467,14 @@ export class Eagle {
     }
 
     /**
-     * Shows a list of input/output port names for selection.
+     * Adds an field to the selected node via HTML.
      */
-    selectPortName = (node : Node, isInputPort : boolean) => {
-        var allPorts: Port[] = [];
+    addFieldHTML = () : void => {
+        var node = this.getSelection();
 
-        // if in palette editor mode, get port names list from the palette,
-        // if in logical graph editor mode, get port names list from the logical graph
-        if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            allPorts = Utils.getAllPorts(this.editorPalette());
-        } else {
-            allPorts = Utils.getAllPorts(this.logicalGraph());
-        }
-
-        var allPortNames: string[] = [];
-        for (var i = 0 ; i < allPorts.length ; i++){
-            allPortNames.push(allPorts[i].getName());
-        }
-
-        var titlePrefix : string = isInputPort ? "Input " : "Output ";
-        Utils.requestUserChoice(titlePrefix + "Port Name", "Please select a port name", allPortNames, 0, true, "Custom Port Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
-            // abort if the user aborted
+        this.editField(<Node>node, Eagle.ModalType.Add, null, (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
             if (!completed){
                 return;
-            }
-
-            if (userChoiceIndex === allPortNames.length){
-                // add port with the chosen name
-                node.addPort(new Port(Utils.uuidv4(), userCustomChoice, false, Eagle.DataType.Unknown), isInputPort);
-            } else {
-                // clone an existing port
-                var newPort: Port = allPorts[userChoiceIndex].clone();
-                newPort.setId(Utils.uuidv4());
-                node.addPort(newPort, isInputPort);
             }
 
             // flag active diagram as mutated
@@ -2953,7 +2920,7 @@ export class Eagle {
         this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication());
     }
 
-    editField = (node:Node, button: string, fieldIndex: number, input: boolean, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void )=>{
+    editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void )=>{
         var allFields: Field[] = [];
 
         // if in palette editor mode, get field names list from the palette,
@@ -2969,98 +2936,141 @@ export class Eagle {
             allFieldNames.push(allFields[i].getName());
         }
 
-        console.log("editField() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
-
         //if creating a new field component parameter
-        if(button === "add") {
+        if (modalType === Eagle.ModalType.Add) {
             $("#editFieldModalTitle").html("Add Parameter")
             $("#addParameterWrapper").show();
             $("#customParameterOptionsWrapper").hide();
-            //create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            let field: Field = new Field("","","","",false,Eagle.DataType.Integer);
-            var allFields: Field[] = [];
 
-            // if in palette editor mode, get field names list from the palette,
-            // if in logical graph editor mode, get field names list from the logical graph
-            if (this.userMode() === Eagle.UserMode.PaletteEditor){
-                allFields = Utils.getAllFields(this.editorPalette());
-            } else {
-                allFields = Utils.getAllFields(this.logicalGraph());
-            }
+            // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
+            let field: Field = new Field("", "", "", "", false, Eagle.DataType.Integer);
 
-            var allFieldNames: string[] = [];
-            for (var i = 0 ; i < allFields.length ; i++){
-                allFieldNames.push(allFields[i].getName());
-            }
-
-            Utils.requestUserEditField('add', field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(Eagle.ModalType.Add, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
                 }
-                 // check selected option in select tag
+
+                // check selected option in select tag
                 var choices : string[] = $('#editFieldModal').data('choices');
                 var choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
 
+                // abort if -1 selected
+                if (choice === -1){
+                    return;
+                }
+
                 // hide the custom text input unless the last option in the select is chosen
-                if(choice === choices.length){
-                    //create field from user input in modal
-                    node.addField(newField);;
-                }else{
-                    let clone : Field = allFields[choice].clone();
-                    node.addField(clone);
+                if (choice === choices.length){
+                   //create field from user input in modal
+                   node.addField(newField);
+                } else {
+                   let clone : Field = allFields[choice].clone();
+                   node.addField(clone);
                 }
             });
 
-        }else {
-        //if editing an existing field
+        } else {
+            //if editing an existing field
             let field: Field = this.selectedNode().getFields()[fieldIndex];
             $("#editFieldModalTitle").html("Edit Parameter");
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
-             // get a reference to the field we are editing
 
-            Utils.requestUserEditField('edit', field, allFieldNames, (completed : boolean, newField: Field) => {
-               // abort if the user aborted
-               if (!completed){
-                   return;
-               }
+            Utils.requestUserEditField(Eagle.ModalType.Edit, field, allFieldNames, (completed : boolean, newField: Field) => {
+                // abort if the user aborted
+                if (!completed){
+                    return;
+                }
 
-               // update field data
-               field.setText(newField.getText());
-               field.setName(newField.getName());
-               field.setValue(newField.getValue());
-               field.setDescription(newField.getDescription());
-               field.setReadonly(newField.isReadonly());
-               field.setType(newField.getType());
-           });
+                // update field data
+                field.setText(newField.getText());
+                field.setName(newField.getName());
+                field.setValue(newField.getValue());
+                field.setDescription(newField.getDescription());
+                field.setReadonly(newField.isReadonly());
+                field.setType(newField.getType());
+            });
         }
 
 
     };
 
-    editPort = (portIndex: number, input: boolean): void => {
-        console.log("editPort() node:", this.selectedNode().getName(), "portIndex:", portIndex, "input", input);
+    editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void )=>{
+        var allPorts: Port[] = [];
+        var allPortNames: string[] = [];
 
-        // get a reference to the port we are editing
-        let port: Port;
-        if (input){
-            port = this.selectedNode().getInputPorts()[portIndex];
+        // if in palette editor mode, get port names list from the palette,
+        // if in logical graph editor mode, get port names list from the logical graph
+        if (this.userMode() === Eagle.UserMode.PaletteEditor){
+            allPorts = Utils.getAllPorts(this.editorPalette());
         } else {
-            port = this.selectedNode().getOutputPorts()[portIndex];
+            allPorts = Utils.getAllPorts(this.logicalGraph());
         }
 
-        Utils.requestUserEditPort(port, (completed : boolean, newPort: Port) => {
-            // abort if the user aborted
-            if (!completed){
-                return;
+        // get list of port names from list of ports
+        for (var i = 0 ; i < allPorts.length ; i++){
+            allPortNames.push(allPorts[i].getName());
+        }
+
+        if (modalType === Eagle.ModalType.Add){
+            $("#editPortModalTitle").html("Add Port")
+            $("#addPortWrapper").show();
+            $("#customPortOptionsWrapper").hide();
+
+            // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
+            let port: Port = new Port("", "", false, Eagle.DataType.String);
+
+            Utils.requestUserEditPort(Eagle.ModalType.Add, port, allPortNames, (completed : boolean, newPort: Port) => {
+                // abort if the user aborted
+                if (!completed){
+                    return;
+                }
+
+                // check selected option in select tag
+               var choices : string[] = $('#editPortModal').data('choices');
+               var choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
+
+               // abort if -1 selected
+               if (choice === -1){
+                   return;
+               }
+
+               // hide the custom text input unless the last option in the select is chosen
+               if (choice === choices.length){
+                   newPort.setId(Utils.uuidv4());
+                   node.addPort(newPort, input);
+               } else {
+                   let clone : Port = allPorts[choice].clone();
+                   clone.setId(Utils.uuidv4());
+                   node.addPort(clone, input);
+               }
+            });
+        } else {
+            $("#editPortModalTitle").html("Edit Port");
+            $("#addPortWrapper").hide();
+            $("#customPortOptionsWrapper").show();
+
+            // get a reference to the port we are editing
+            let port: Port;
+            if (input){
+                port = this.selectedNode().getInputPorts()[portIndex];
+            } else {
+                port = this.selectedNode().getOutputPorts()[portIndex];
             }
 
-            // update port data (except nodeKey)
-            let nodeKey = port.getNodeKey();
-            port.copy(newPort);
-            port.setNodeKey(nodeKey);
-        });
+            Utils.requestUserEditPort(Eagle.ModalType.Edit, port, allPortNames, (completed : boolean, newPort: Port) => {
+                // abort if the user aborted
+                if (!completed){
+                    return;
+                }
+
+                // update port data (except nodeKey and id, those don't change)
+                let nodeKey = port.getNodeKey();
+                let portId = port.getId();
+                port.copyWithKeyAndId(newPort, nodeKey, portId);
+            });
+        }
     }
 
     allowEdgeEditing = (): boolean => {
@@ -3374,6 +3384,11 @@ export namespace Eagle
         Float = "Float",
         Complex = "Complex",
         Boolean = "Boolean"
+    }
+
+    export enum ModalType {
+        Add = "Add",
+        Edit = "Edit"
     }
 
     export enum RepositoryService {
