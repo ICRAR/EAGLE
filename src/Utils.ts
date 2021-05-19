@@ -619,11 +619,8 @@ export class Utils {
             $('#gitCustomRepositoryModalAffirmativeButton').focus();
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
-            console.log("addCustomRepo hidden");
-
             var callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
             var completed : boolean = $('#gitCustomRepositoryModal').data('completed');
-            console.log("completed", completed);
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
@@ -667,8 +664,6 @@ export class Utils {
             }
         });
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            console.log("editFieldModal hidden");
-
             var callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
             var completed : boolean = $('#editFieldModal').data('completed');
             console.log("completed", completed);
@@ -715,8 +710,6 @@ export class Utils {
             var choices : string[] = $('#editPortModal').data('choices');
             var choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
 
-            console.log(choices.length, choice);
-
             // hide the custom text input unless the last option in the select is chosen
             if(choice === choices.length){
                 $('#customPortOptionsWrapper').slideDown();
@@ -725,11 +718,8 @@ export class Utils {
             }
         });
         $('#editPortModal').on('hidden.bs.modal', function(){
-            console.log("editPortModal hidden");
-
             var callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
             var completed : boolean = $('#editPortModal').data('completed');
-            console.log("completed", completed);
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
@@ -1079,8 +1069,6 @@ export class Utils {
     }
 
     static requestUserEditPort(modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void){
-        console.log("requestUserEditPort()", modalType);
-
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#portModalSelect').empty();

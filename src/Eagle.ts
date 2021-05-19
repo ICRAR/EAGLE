@@ -2997,8 +2997,6 @@ export class Eagle {
     };
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void )=>{
-        console.log("editPort()", modalType);
-
         var allPorts: Port[] = [];
         var allPortNames: string[] = [];
 
