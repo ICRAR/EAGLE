@@ -3109,9 +3109,9 @@ export class Eagle {
 
     hackNodeUpdate = () : void => {
         // HACK to make sure that new value is shown in the UI
-        var x = this.selectedNode();
+        const x = this.selectedNode();
         this.selectedNode(null);
-        var that = this;
+        const that = this;
         setTimeout(function(){
             that.selectedNode(x);
         }, 1);

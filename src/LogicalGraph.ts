@@ -47,7 +47,7 @@ export class LogicalGraph {
     }
 
     static toOJSJson = (graph : LogicalGraph) : object => {
-        var result : any = {};
+        const result : any = {};
 
         //result.class = "go.GraphLinksModel";
 
@@ -56,24 +56,24 @@ export class LogicalGraph {
 
         // add nodes
         result.nodeDataArray = [];
-        for (var i = 0 ; i < graph.getNodes().length ; i++){
-            var node : Node = graph.getNodes()[i];
-            var nodeData : any = Node.toOJSJson(node);
+        for (let i = 0 ; i < graph.getNodes().length ; i++){
+            const node : Node = graph.getNodes()[i];
+            const nodeData : any = Node.toOJSJson(node);
 
             result.nodeDataArray.push(nodeData);
         }
 
         // add links
         result.linkDataArray = [];
-        for (var i = 0 ; i < graph.getEdges().length ; i++){
-            var edge : Edge = graph.getEdges()[i];
-            var linkData : any = Edge.toOJSJson(edge);
+        for (let i = 0 ; i < graph.getEdges().length ; i++){
+            const edge : Edge = graph.getEdges()[i];
+            const linkData : any = Edge.toOJSJson(edge);
 
-            var srcKey = edge.getSrcNodeKey();
-            var destKey = edge.getDestNodeKey();
+            let srcKey = edge.getSrcNodeKey();
+            let destKey = edge.getDestNodeKey();
 
-            var srcNode = graph.findNodeByKey(srcKey);
-            var destNode = graph.findNodeByKey(destKey);
+            const srcNode = graph.findNodeByKey(srcKey);
+            const destNode = graph.findNodeByKey(destKey);
 
             // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
             if (srcNode.isEmbedded()){
@@ -94,24 +94,24 @@ export class LogicalGraph {
 
     static fromOJSJson = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
         // create new logical graph object
-        var result : LogicalGraph = new LogicalGraph();
+        const result : LogicalGraph = new LogicalGraph();
 
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
-        for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
-            var nodeData = dataObject.nodeDataArray[i];
-            let extraUsedKeys: number[] = [];
+        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            const nodeData = dataObject.nodeDataArray[i];
+            const extraUsedKeys: number[] = [];
 
-            let newNode = Node.fromOJSJson(nodeData, errors, (): number => {
-                let resultKeys: number[] = Utils.getUsedKeys(result.nodes);
-                let nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
-                let combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+            const newNode = Node.fromOJSJson(nodeData, errors, (): number => {
+                const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
+                const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
+                const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
                 //console.log("resultKeys", resultKeys, "nodeDataKeys", nodeDataKeys, "extraUsedKeys", extraUsedKeys);
                 //console.log("combinedKeys", combinedKeys);
 
-                let newKey = Utils.findNewKey(combinedKeys);
+                const newKey = Utils.findNewKey(combinedKeys);
                 //console.log("generated new key", newKey);
                 extraUsedKeys.push(newKey);
                 return newKey;
@@ -128,7 +128,7 @@ export class LogicalGraph {
         Utils.setEmbeddedApplicationNodeKeys(result);
 
         // make sure to set parentId for all nodes
-        for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             var nodeData = dataObject.nodeDataArray[i];
             var parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.group);
 
