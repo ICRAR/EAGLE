@@ -271,7 +271,7 @@ export class GraphUpdater {
 
     // NOTE: for use in translation of OJS object to internal graph representation
     static findIndexOfNodeDataArrayWithKey(nodeDataArray : any[], key: number) : number {
-        for (var i = 0 ; i < nodeDataArray.length ; i++){
+        for (let i = 0 ; i < nodeDataArray.length ; i++){
             if (nodeDataArray[i].key === key){
                 return i;
             }
@@ -283,9 +283,9 @@ export class GraphUpdater {
     // extra functionality to check if any x,y coords of nodes are negative, if so, move them all into the +x/+y quadrant
     static correctOJSNegativePositions(graph : LogicalGraph) : boolean {
         // check if any nodes are negative
-        var anyNegative : boolean = false;
-        for (var i = 0 ; i < graph.getNodes().length ; i++){
-            var node : Node = graph.getNodes()[i];
+        let anyNegative : boolean = false;
+        for (let i = 0 ; i < graph.getNodes().length ; i++){
+            const node : Node = graph.getNodes()[i];
             if (node.getPosition().x < 0 || node.getPosition().y < 0){
                 anyNegative = true;
                 break;
@@ -298,10 +298,10 @@ export class GraphUpdater {
         }
 
         // find the most negative position
-        var maxX = 0;
-        var maxY = 0;
-        for (var i = 0 ; i < graph.getNodes().length ; i++){
-            var node : Node = graph.getNodes()[i];
+        let maxX = 0;
+        let maxY = 0;
+        for (let i = 0 ; i < graph.getNodes().length ; i++){
+            const node : Node = graph.getNodes()[i];
             if (node.getPosition().x < maxX){
                 maxX = node.getPosition().x;
             }
@@ -311,10 +311,10 @@ export class GraphUpdater {
         }
 
         // move all nodes by -maxX, -maxY
-        for (var i = 0 ; i < graph.getNodes().length ; i++){
-            var node : Node = graph.getNodes()[i];
-            var newX : number = node.getPosition().x - maxX;
-            var newY : number = node.getPosition().y - maxY;
+        for (let i = 0 ; i < graph.getNodes().length ; i++){
+            const node : Node = graph.getNodes()[i];
+            const newX : number = node.getPosition().x - maxX;
+            const newY : number = node.getPosition().y - maxY;
             //console.log("move node", i, "from", node.getPosition().x, ",", node.getPosition().y, "to", newX, ",", newY);
 
             node.setPosition(newX, newY);
