@@ -89,7 +89,7 @@ export class Utils {
 
     static uuidv4() : string {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
     }
@@ -105,18 +105,18 @@ export class Utils {
     }
 
     static generateDateTimeString(): string {
-        let now = new Date();
+        const now = new Date();
 
         // NOTE: JavaScript months are 0-based
         return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
     }
 
     static findNewKey(usedKeys : number[]): number {
-        for (var i = -1 ; ; i--){
+        for (let i = -1 ; ; i--){
             //console.log("newKey, searching for ", i, "amongst", usedKeys.length, "keys");
             let found = false;
 
-            for (var j = 0 ; j < usedKeys.length ; j++){
+            for (let j = 0 ; j < usedKeys.length ; j++){
                 // debug
                 //console.log("findNewKey, checking key", j, "key is", usedKeys[j]);
 
@@ -134,9 +134,9 @@ export class Utils {
 
     static getUsedKeys(nodes : Node[]) : number[] {
         // build a list of used keys
-        let usedKeys: number[] = [];
+        const usedKeys: number[] = [];
 
-        for (var i = 0 ; i < nodes.length ; i++){
+        for (let i = 0 ; i < nodes.length ; i++){
             usedKeys.push(nodes[i].getKey())
 
             // if this node has inputApp, add the inputApp key
@@ -160,10 +160,10 @@ export class Utils {
 
     static getUsedKeysFromNodeData(nodeData : any[]) : number[] {
         // build a list of used keys
-        let usedKeys: number[] = [];
+        const usedKeys: number[] = [];
 
         //console.log("nodeData.length", nodeData.length);
-        for (var i = 0 ; i < nodeData.length ; i++){
+        for (let i = 0 ; i < nodeData.length ; i++){
             //console.log(i, nodeData[i].key);
             usedKeys.push(nodeData[i].key);
         }
@@ -172,22 +172,22 @@ export class Utils {
     }
 
     static newKey(nodes: Node[]): number {
-        let usedKeys = Utils.getUsedKeys(nodes);
+        const usedKeys = Utils.getUsedKeys(nodes);
         return Utils.findNewKey(usedKeys);
     }
 
     static setEmbeddedApplicationNodeKeys(lg: LogicalGraph): void {
-        let nodes: Node[] = lg.getNodes();
-        let usedKeys: number[] = Utils.getUsedKeys(nodes);
+        const nodes: Node[] = lg.getNodes();
+        const usedKeys: number[] = Utils.getUsedKeys(nodes);
 
         // loop through nodes, look for embedded nodes with null key, create new key, add to usedKeys
-        for (var i = 0 ; i < nodes.length ; i++){
+        for (let i = 0 ; i < nodes.length ; i++){
             usedKeys.push(nodes[i].getKey())
 
             // if this node has inputApp, add the inputApp key
             if (nodes[i].hasInputApplication()){
                 if (nodes[i].getInputApplication().getKey() === null){
-                    let newKey = Utils.findNewKey(usedKeys);
+                    const newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getInputApplication().setKey(newKey);
                     usedKeys.push(newKey);
                     console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "input app key", newKey);
@@ -197,7 +197,7 @@ export class Utils {
             // if this node has outputApp, add the outputApp key
             if (nodes[i].hasOutputApplication()){
                 if (nodes[i].getOutputApplication().getKey() === null){
-                    let newKey = Utils.findNewKey(usedKeys);
+                    const newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getOutputApplication().setKey(newKey);
                     usedKeys.push(newKey);
                     console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "output app key", newKey);
@@ -207,7 +207,7 @@ export class Utils {
             // if this node has exitApp, add the exitApp key
             if (nodes[i].hasExitApplication()){
                 if (nodes[i].getExitApplication().getKey() === null){
-                    let newKey = Utils.findNewKey(usedKeys);
+                    const newKey = Utils.findNewKey(usedKeys);
                     nodes[i].getExitApplication().setKey(newKey);
                     usedKeys.push(newKey);
                     console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "exit app key", newKey);
@@ -219,7 +219,7 @@ export class Utils {
     // extracts a file name from the full path.
     static getFileNameFromFullPath(fullPath : string) : string {
         if (typeof fullPath === 'undefined'){return "";}
-        var fileName = fullPath.replace(/^.*[\\\/]/, '');
+        const fileName = fullPath.replace(/^.*[\\\/]/, '');
         return fileName;
     }
 
@@ -238,7 +238,7 @@ export class Utils {
      * @param path File name.
      */
     static getFileExtension(path : string) : string {
-        var basename = path.split(/[\\/]/).pop(),  // extract file name from full path ...
+        const basename = path.split(/[\\/]/).pop(),  // extract file name from full path ...
                                                    // (supports `\\` and `/` separators)
         pos = basename.lastIndexOf(".");           // get last position of `.`
 
@@ -253,7 +253,7 @@ export class Utils {
      * @param filename File name.
      */
     static verifyFileExtension(filename : string) : boolean {
-        var fileExtension = Utils.getFileExtension(filename);
+        const fileExtension = Utils.getFileExtension(filename);
 
         // Check if the extenstion is in the list of allowed extensions.
         if ($.inArray(fileExtension, Utils.FILE_EXTENSIONS) != -1) {
@@ -342,7 +342,7 @@ export class Utils {
         return Eagle.DataType.Unknown;
     }
 
-    static httpGet(url : string, callback : (error : string, data : string) => void){
+    static httpGet(url : string, callback : (error : string, data : string) => void) : void {
         $.ajax({
             url: url,
             success: function (data : string) {
@@ -354,7 +354,7 @@ export class Utils {
         });
     }
 
-    static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void){
+    static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
         console.log("httpGetJSON() : ", url);
         $.ajax({
             url : url,
@@ -370,7 +370,7 @@ export class Utils {
         });
     }
 
-    static httpPost(url : string, data : string, callback : (error : string | null, data : string) => void){
+    static httpPost(url : string, data : string, callback : (error : string | null, data : string) => void) : void {
         $.ajax({
             url : url,
             type : 'POST',
@@ -386,7 +386,7 @@ export class Utils {
         });
     }
 
-    static httpPostJSON(url : string, json : object, callback : (error : string, data : string) => void){
+    static httpPostJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
         console.log("httpPostJSON() : ", url);
         $.ajax({
             url : url,
@@ -406,7 +406,7 @@ export class Utils {
         });
     }
 
-    static httpPostForm(url : string, formData : FormData, callback : (error : string, data : string) => void){
+    static httpPostForm(url : string, formData : FormData, callback : (error : string, data : string) => void) : void {
         console.log("httpPostForm() : ", url);
 
         $.ajax({
@@ -430,7 +430,7 @@ export class Utils {
      */
     static isParameterArgument(parameterName : string) : boolean {
         // Regular expression for Arg01...Arg10 parameters.
-        var re : RegExp = /Arg\d\d$/;
+        const re : RegExp = /Arg\d\d$/;
         return re.test(parameterName);
     }
 
@@ -449,7 +449,7 @@ export class Utils {
 
     // build full file path from path and filename
     static joinPath (path : string, fileName : string) : string {
-        var fullFileName : string = fileName;
+        let fullFileName : string = fileName;
 
         if (path !== ""){
             fullFileName = path + '/' + fileName;
@@ -464,15 +464,15 @@ export class Utils {
             $('#inputModal').data('completed', true);
         });
         $('#inputModal').on('hidden.bs.modal', function(){
-            var returnType = $('#inputModal').data('returnType');
+            const returnType = $('#inputModal').data('returnType');
 
             switch (returnType){
                 case "string":
-                    var stringCallback : (completed : boolean, userString : string) => void = $('#inputModal').data('callback');
+                    const stringCallback : (completed : boolean, userString : string) => void = $('#inputModal').data('callback');
                     stringCallback($('#inputModal').data('completed'), <string>$('#inputModalInput').val());
                     break;
                 case "number":
-                    var numberCallback : (completed : boolean, userNumber : number) => void = $('#inputModal').data('callback');
+                    const numberCallback : (completed : boolean, userNumber : number) => void = $('#inputModal').data('callback');
                     numberCallback($('#inputModal').data('completed'), parseInt(<string>$('#inputModalInput').val(), 10));
                     break;
                 default:
@@ -494,7 +494,7 @@ export class Utils {
             $('#inputTextModal').data('completed', true);
         });
         $('#inputTextModal').on('hidden.bs.modal', function(){
-            var callback : (completed : boolean, userString : string) => void = $('#inputTextModal').data('callback');
+            const callback : (completed : boolean, userString : string) => void = $('#inputTextModal').data('callback');
             callback($('#inputTextModal').data('completed'), <string>$('#inputTextModalInput').val());
         });
         $('#inputTextModal').on('shown.bs.modal', function(){
@@ -515,8 +515,8 @@ export class Utils {
             $('#choiceModalAffirmativeButton').focus();
         });
         $('#choiceModal').on('hidden.bs.modal', function(){
-            var callback : (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => void = $('#choiceModal').data('callback');
-            var completed : boolean = $('#choiceModal').data('completed');
+            const callback : (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => void = $('#choiceModal').data('callback');
+            const completed : boolean = $('#choiceModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
@@ -525,8 +525,8 @@ export class Utils {
             }
 
             // check selected option in select tag
-            var choices : string[] = $('#choiceModal').data('choices');
-            var choice : number = parseInt(<string>$('#choiceModalSelect').val(), 10);
+            const choices : string[] = $('#choiceModal').data('choices');
+            const choice : number = parseInt(<string>$('#choiceModalSelect').val(), 10);
 
             // if the last item in the select was selected, then return the custom value,
             // otherwise return the selected choice
@@ -546,8 +546,8 @@ export class Utils {
 
         $('#choiceModalSelect').on('change', function(){
             // check selected option in select tag
-            var choices : string[] = $('#choiceModal').data('choices');
-            var choice : number = parseInt(<string>$('#choiceModalSelect').val(), 10);
+            const choices : string[] = $('#choiceModal').data('choices');
+            const choice : number = parseInt(<string>$('#choiceModalSelect').val(), 10);
 
             // hide the custom text input unless the last option in the select is chosen
             $('#choiceModalStringRow').toggle(choice === choices.length);
@@ -555,11 +555,11 @@ export class Utils {
 
         // #confirmModal - requestUserConfirm()
         $('#confirmModalAffirmativeButton').on('click', function(){
-            var callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
+            const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
             callback(true);
         });
         $('#confirmModalNegativeButton').on('click', function(){
-            var callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
+            const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
             callback(false);
         });
         $('#confirmModal').on('shown.bs.modal', function(){
@@ -577,8 +577,8 @@ export class Utils {
             $('#gitCommitModalAffirmativeButton').focus();
         });
         $('#gitCommitModal').on('hidden.bs.modal', function(){
-            var callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
-            var completed : boolean = $('#gitCommitModal').data('completed');
+            const callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
+            const completed : boolean = $('#gitCommitModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
@@ -587,23 +587,23 @@ export class Utils {
             }
 
             // check selected option in select tag
-            var repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
-            var repositories : Repository[] = $('#gitCommitModal').data('repositories');
-            var repositoryNameChoice : number = parseInt(<string>$('#gitCommitModalRepositoryNameSelect').val(), 10);
+            const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
+            const repositories : Repository[] = $('#gitCommitModal').data('repositories');
+            const repositoryNameChoice : number = parseInt(<string>$('#gitCommitModalRepositoryNameSelect').val(), 10);
 
             // split repository text (with form: "name (branch)") into name and branch strings
-            var repositoryName : string = repositories[repositoryNameChoice].name;
-            var repositoryBranch : string = repositories[repositoryNameChoice].branch;
+            const repositoryName : string = repositories[repositoryNameChoice].name;
+            const repositoryBranch : string = repositories[repositoryNameChoice].branch;
 
-            var filePath : string = <string>$('#gitCommitModalFilePathInput').val();
-            var fileName : string = <string>$('#gitCommitModalFileNameInput').val();
-            var commitMessage : string = <string>$('#gitCommitModalCommitMessageInput').val();
+            const filePath : string = <string>$('#gitCommitModalFilePathInput').val();
+            const fileName : string = <string>$('#gitCommitModalFileNameInput').val();
+            const commitMessage : string = <string>$('#gitCommitModalCommitMessageInput').val();
 
             callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
-            var repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
-            var repositories: Repository[] = eagle.getRepositoryList(repositoryService);
+            const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
+            const repositories: Repository[] = eagle.getRepositoryList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
             Utils.updateGitCommitRepositoriesList(repositories, null);
         });
@@ -619,8 +619,8 @@ export class Utils {
             $('#gitCustomRepositoryModalAffirmativeButton').focus();
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
-            var callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
-            var completed : boolean = $('#gitCustomRepositoryModal').data('completed');
+            const callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
+            const completed : boolean = $('#gitCustomRepositoryModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
@@ -629,9 +629,9 @@ export class Utils {
             }
 
             // check selected option in select tag
-            var repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
-            var repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
-            var repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
+            const repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
+            const repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
+            const repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
 
             callback(true, repositoryService, repositoryName, repositoryBranch);
         });
@@ -653,20 +653,19 @@ export class Utils {
         });
         $('#fieldModalSelect').on('change', function(){
             // check selected option in select tag
-            var choices : string[] = $('#editFieldModal').data('choices');
-            var choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
+            const choices : string[] = $('#editFieldModal').data('choices');
+            const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
 
             // hide the custom text input unless the last option in the select is chosen
-            if(choice === choices.length){
+            if (choice === choices.length){
                 $('#customParameterOptionsWrapper').slideDown();
-            }else{
+            } else {
                 $('#customParameterOptionsWrapper').slideUp();
             }
         });
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            var callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
-            var completed : boolean = $('#editFieldModal').data('completed');
-            console.log("completed", completed);
+            const callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
+            const completed : boolean = $('#editFieldModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
@@ -675,18 +674,18 @@ export class Utils {
             }
 
             // extract field data from HTML elements
-            let text : string = <string>$('#editFieldModalTextInput').val();
-            let name : string = <string>$('#editFieldModalNameInput').val();
-            let value : string = <string>$('#editFieldModalValueInput').val();
-            let description: string = <string>$('#editFieldModalDescriptionInput').val();
-            let access: string = <string>$('#editFieldModalAccessSelect').val();
-            let type: string = <string>$('#editFieldModalTypeSelect').val();
+            const text : string = <string>$('#editFieldModalTextInput').val();
+            const name : string = <string>$('#editFieldModalNameInput').val();
+            const value : string = <string>$('#editFieldModalValueInput').val();
+            const description: string = <string>$('#editFieldModalDescriptionInput').val();
+            const access: string = <string>$('#editFieldModalAccessSelect').val();
+            const type: string = <string>$('#editFieldModalTypeSelect').val();
 
             // translate access and type
-            let readonly: boolean = access === 'readonly';
-            let realType: Eagle.DataType = Utils.translateStringToDataType(type);
+            const readonly: boolean = access === 'readonly';
+            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
 
-            let newField = new Field(text, name, value, description, readonly, realType);
+            const newField = new Field(text, name, value, description, readonly, realType);
 
             callback(true, newField);
         });
@@ -707,19 +706,19 @@ export class Utils {
         });
         $('#portModalSelect').on('change', function(){
             // check selected option in select tag
-            var choices : string[] = $('#editPortModal').data('choices');
-            var choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
+            const choices : string[] = $('#editPortModal').data('choices');
+            const choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
 
             // hide the custom text input unless the last option in the select is chosen
-            if(choice === choices.length){
+            if (choice === choices.length){
                 $('#customPortOptionsWrapper').slideDown();
-            }else{
+            } else {
                 $('#customPortOptionsWrapper').slideUp();
             }
         });
         $('#editPortModal').on('hidden.bs.modal', function(){
-            var callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
-            var completed : boolean = $('#editPortModal').data('completed');
+            const callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
+            const completed : boolean = $('#editPortModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
@@ -729,14 +728,14 @@ export class Utils {
 
             // extract field data from HTML elements
             // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
-            let id = "dummy-id";
-            let name : string = <string>$('#editPortModalNameInput').val();
-            let type: string = <string>$('#editPortModalTypeSelect').val();
+            const id = "dummy-id";
+            const name : string = <string>$('#editPortModalNameInput').val();
+            const type: string = <string>$('#editPortModalTypeSelect').val();
 
             // translate access and type
-            let realType: Eagle.DataType = Utils.translateStringToDataType(type);
+            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
 
-            let newPort = new Port(id, name, false, realType);
+            const newPort = new Port(id, name, false, realType);
 
             callback(true, newPort);
         });
@@ -752,11 +751,8 @@ export class Utils {
             $('#editEdgeModalAffirmativeButton').focus();
         });
         $('#editEdgeModal').on('hidden.bs.modal', function(){
-            //console.log("editEdgeModal hidden");
-
-            var callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
-            var completed : boolean = $('#editEdgeModal').data('completed');
-            //console.log("completed", completed);
+            const callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
+            const completed : boolean = $('#editEdgeModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
@@ -765,31 +761,31 @@ export class Utils {
             }
 
             // extract field data from HTML elements
-            let srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
-            let srcPortId : string = <string>$('#editEdgeModalSrcPortIdSelect').val();
-            let destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
-            let destPortId: string = <string>$('#editEdgeModalDestPortIdSelect').val();
-            let dataType: string = <string>$('#editEdgeModalDataTypeInput').val();
+            const srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+            const srcPortId : string = <string>$('#editEdgeModalSrcPortIdSelect').val();
+            const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+            const destPortId: string = <string>$('#editEdgeModalDestPortIdSelect').val();
+            const dataType: string = <string>$('#editEdgeModalDataTypeInput').val();
             //console.log("srcNodeKey", srcNodeKey, "srcPortId", srcPortId, "destNodeKey", destNodeKey, "destPortId", destPortId, "dataType", dataType);
 
-            let newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType);
+            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType);
 
             callback(true, newEdge);
         });
         $('#editEdgeModalSrcNodeKeySelect').on('change', function(){
-            let edge: Edge = $('#editEdgeModal').data('edge');
-            let logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
+            const edge: Edge = $('#editEdgeModal').data('edge');
+            const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
-            let srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+            const srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
             edge.setSrcNodeKey(srcNodeKey);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
         });
         $('#editEdgeModalDestNodeKeySelect').on('change', function(){
-            let edge: Edge = $('#editEdgeModal').data('edge');
-            let logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
+            const edge: Edge = $('#editEdgeModal').data('edge');
+            const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
-            let destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+            const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
             edge.setDestNodeKey(destNodeKey);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
@@ -801,13 +797,12 @@ export class Utils {
         });
     }
 
-    static showUserMessage (title : string, message : string) {
+    static showUserMessage (title : string, message : string) : void {
         console.log("showUserMessage()", title, message);
 
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
         $('#messageModal').modal();
-
 
         // debug
         if (title === "Error"){
@@ -815,7 +810,7 @@ export class Utils {
         }
     }
 
-    static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger"){
+    static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
         $.notify({
             title:title + ":",
             message:message
@@ -833,11 +828,11 @@ export class Utils {
         });
     }
 
-    static addToHTMLElementLog(message: string){
+    static addToHTMLElementLog(message: string) : void {
         $('#htmlElementLog').text($('#htmlElementLog').text() + message + "\n");
     }
 
-    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) {
+    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) : void {
         console.log("requestUserString()", title, message);
 
         $('#inputModalTitle').text(title);
@@ -855,7 +850,7 @@ export class Utils {
         $('#inputModal').modal();
     }
 
-    static requestUserText(title : string, message : string, defaultText: string, callback : (completed : boolean, userText : string) => void) {
+    static requestUserText(title : string, message : string, defaultText: string, callback : (completed : boolean, userText : string) => void) : void {
         console.log("requestUserText()", title, message);
 
         $('#inputTextModalTitle').text(title);
@@ -871,7 +866,7 @@ export class Utils {
         $('#inputTextModal').modal();
     }
 
-    static requestUserNumber(title : string, message : string, defaultNumber: number, callback : (completed : boolean, userNumber : number) => void ) {
+    static requestUserNumber(title : string, message : string, defaultNumber: number, callback : (completed : boolean, userNumber : number) => void ) : void {
         console.log("requestUserNumber()", title, message);
 
         $('#inputModalTitle').text(title);
@@ -887,7 +882,7 @@ export class Utils {
         $('#inputModal').modal();
     }
 
-    static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ){
+    static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void {
         console.log("requestUserChoice()", title, message, choices, selectedChoiceIndex, allowCustomChoice, customChoiceText);
 
         $('#choiceModalTitle').text(title);
@@ -899,7 +894,7 @@ export class Utils {
         $('#choiceModalSelect').empty();
 
         // add options to the modal select tag
-        for (var i = 0 ; i < choices.length ; i++){
+        for (let i = 0 ; i < choices.length ; i++){
             $('#choiceModalSelect').append($('<option>', {
                 value: i,
                 text: choices[i]
@@ -932,7 +927,7 @@ export class Utils {
         $('#choiceModal').modal();
     }
 
-    static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, callback : (confirmed : boolean) => void ){
+    static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, callback : (confirmed : boolean) => void ) : void {
         console.log("requestUserConfirm()", title, message, affirmativeAnswer, negativeAnswer);
 
         $('#confirmModalTitle').text(title);
@@ -945,7 +940,7 @@ export class Utils {
         $('#confirmModal').modal();
     }
 
-    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ){
+    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
         console.log("requestUserGitCommit()");
 
         $('#gitCommitModal').data('completed', false);
@@ -983,7 +978,7 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void){
+    static requestUserEditField(modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         console.log("requestUserEditField()");
 
         if (modalType === Eagle.ModalType.Add){
@@ -997,7 +992,7 @@ export class Utils {
             }));
 
             // add options to the modal select tag
-            for (var i = 0 ; i < choices.length ; i++){
+            for (let i = 0 ; i < choices.length ; i++){
                 $('#fieldModalSelect').append($('<option>', {
                     value: i,
                     text: choices[i]
@@ -1080,7 +1075,7 @@ export class Utils {
             }));
 
             // add options to the modal select tag
-            for (var i = 0 ; i < choices.length ; i++){
+            for (let i = 0 ; i < choices.length ; i++){
                 $('#portModalSelect').append($('<option>', {
                     value: i,
                     text: choices[i]
@@ -1136,7 +1131,7 @@ export class Utils {
         $('#editPortModal').modal();
     }
 
-    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void){
+    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
         console.log("requestUserAddCustomRepository()");
 
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
@@ -1147,12 +1142,12 @@ export class Utils {
         $('#gitCustomRepositoryModal').modal();
     }
 
-    static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository){
+    static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository) : void {
         // remove existing options from the repository name select tag
         $('#gitCommitModalRepositoryNameSelect').empty();
 
         // add options to the repository name select tag
-        for (var i = 0 ; i < repositories.length ; i++){
+        for (let i = 0 ; i < repositories.length ; i++){
             // check if this repository matches the given default repository
             let isDefault: boolean = false;
             if (defaultRepository !== null){
@@ -1167,11 +1162,11 @@ export class Utils {
         }
     }
 
-    static showSettingsModal(){
+    static showSettingsModal() : void {
         $('#settingsModal').modal();
     }
 
-    static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void){
+    static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {
         //console.log("requestUserEditEdge()");
 
         Utils.updateEditEdgeModal(edge, logicalGraph);
@@ -1261,7 +1256,7 @@ export class Utils {
         }
 
         // make sure srcNode reflects what is actually selected in the UI
-        let srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+        const srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
         //console.log("srcNodeKey", srcNodeKey);
         if (isNaN(srcNodeKey)){
             srcNode = null;
@@ -1276,7 +1271,7 @@ export class Utils {
         } else {
             // add src port ids
             for (let i = 0 ; i < srcNode.getOutputPorts().length; i++){
-                let port: Port = srcNode.getOutputPorts()[i];
+                const port: Port = srcNode.getOutputPorts()[i];
                 //console.log("add source (" + srcNode.getName() + ") output port", port.getName(), "selected", edge.getSrcPortId() === port.getId());
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
@@ -1354,8 +1349,8 @@ export class Utils {
         }
 
         // make sure srcNode reflects what is actually selected in the UI
-        let destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
-        //console.log("destNodeKey", destNodeKey);
+        const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+
         if (isNaN(destNodeKey)){
             destNode = null;
         } else {
@@ -1369,7 +1364,7 @@ export class Utils {
         } else {
             // add dest port ids
             for (let i = 0 ; i < destNode.getInputPorts().length; i++){
-                let port: Port = destNode.getInputPorts()[i];
+                const port: Port = destNode.getInputPorts()[i];
                 //console.log("add dest (" + destNode.getName() + ") input port", port.getName(), "selected", edge.getDestPortId() === port.getId());
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
@@ -1386,23 +1381,23 @@ export class Utils {
      * Returns a list of unique port names (except event ports)
      */
     static getAllPorts = (diagram : Palette | LogicalGraph) : Port[] => {
-        var allPorts : Port[] = [];
+        const allPorts : Port[] = [];
 
         // build a list from all nodes
-        for (var i = 0; i < diagram.getNodes().length; i++) {
-            var node : Node = diagram.getNodes()[i];
+        for (let i = 0; i < diagram.getNodes().length; i++) {
+            const node : Node = diagram.getNodes()[i];
 
             // add input port names into the list
-            for (var j = 0; j < node.getInputPorts().length; j++) {
-                let port : Port = node.getInputPorts()[j];
+            for (let j = 0; j < node.getInputPorts().length; j++) {
+                const port : Port = node.getInputPorts()[j];
                 if (!port.isEvent()){
                     allPorts.push(port);
                 }
             }
 
             // add output port names into the list
-            for (var j = 0; j < node.getOutputPorts().length; j++) {
-                let port : Port = node.getOutputPorts()[j];
+            for (let j = 0; j < node.getOutputPorts().length; j++) {
+                const port : Port = node.getOutputPorts()[j];
                 if (!port.isEvent()) {
                     allPorts.push(port);
                 }
@@ -1411,16 +1406,16 @@ export class Utils {
             // add input application input and output ports
             if (node.hasInputApplication()){
                 // input ports
-                for (var j = 0; j < node.getInputApplication().getInputPorts().length; j++) {
-                    let port : Port = node.getInputApplication().getInputPorts()[j];
+                for (let j = 0; j < node.getInputApplication().getInputPorts().length; j++) {
+                    const port : Port = node.getInputApplication().getInputPorts()[j];
                     if (!port.isEvent()) {
                         allPorts.push(port);
                     }
                 }
 
                 // output ports
-                for (var j = 0; j < node.getInputApplication().getOutputPorts().length; j++) {
-                    let port : Port = node.getInputApplication().getOutputPorts()[j];
+                for (let j = 0; j < node.getInputApplication().getOutputPorts().length; j++) {
+                    const port : Port = node.getInputApplication().getOutputPorts()[j];
                     if (!port.isEvent()) {
                         allPorts.push(port);
                     }
@@ -1430,16 +1425,16 @@ export class Utils {
             // add output application input and output ports
             if (node.hasOutputApplication()){
                 // input ports
-                for (var j = 0; j < node.getOutputApplication().getInputPorts().length; j++) {
-                    let port : Port = node.getOutputApplication().getInputPorts()[j];
+                for (let j = 0; j < node.getOutputApplication().getInputPorts().length; j++) {
+                    const port : Port = node.getOutputApplication().getInputPorts()[j];
                     if (!port.isEvent()) {
                         allPorts.push(port);
                     }
                 }
 
                 // output ports
-                for (var j = 0; j < node.getOutputApplication().getOutputPorts().length; j++) {
-                    let port : Port = node.getOutputApplication().getOutputPorts()[j];
+                for (let j = 0; j < node.getOutputApplication().getOutputPorts().length; j++) {
+                    const port : Port = node.getOutputApplication().getOutputPorts()[j];
                     if (!port.isEvent()) {
                         allPorts.push(port);
                     }
@@ -1449,16 +1444,16 @@ export class Utils {
             // add exit application input and output ports
             if (node.hasExitApplication()){
                 // input ports
-                for (var j = 0; j < node.getExitApplication().getInputPorts().length; j++) {
-                    let port : Port = node.getExitApplication().getInputPorts()[j];
+                for (let j = 0; j < node.getExitApplication().getInputPorts().length; j++) {
+                    const port : Port = node.getExitApplication().getInputPorts()[j];
                     if (!port.isEvent()) {
                         allPorts.push(port);
                     }
                 }
 
                 // output ports
-                for (var j = 0; j < node.getExitApplication().getOutputPorts().length; j++) {
-                    let port : Port = node.getExitApplication().getOutputPorts()[j];
+                for (let j = 0; j < node.getExitApplication().getOutputPorts().length; j++) {
+                    const port : Port = node.getExitApplication().getOutputPorts()[j];
                     if (!port.isEvent()) {
                         allPorts.push(port);
                     }
@@ -1473,15 +1468,15 @@ export class Utils {
      * Returns a list of all fields in the given palette or logical graph
      */
     static getAllFields = (diagram : Palette | LogicalGraph) : Field[] => {
-        var allFields : Field[] = [];
+        const allFields : Field[] = [];
 
         // build a list from all nodes
-        for (var i = 0; i < diagram.getNodes().length; i++) {
-            let node : Node = diagram.getNodes()[i];
+        for (let i = 0; i < diagram.getNodes().length; i++) {
+            const node : Node = diagram.getNodes()[i];
 
             // add fields into the list
-            for (var j = 0; j < node.getFields().length; j++) {
-                let field : Field = node.getFields()[j];
+            for (let j = 0; j < node.getFields().length; j++) {
+                const field : Field = node.getFields()[j];
                 allFields.push(field.clone());
             }
         }
@@ -1502,31 +1497,31 @@ export class Utils {
         $.get("/static/svg.css")
         .done(function(response){
 
-            var svgElement : Element = document.querySelector(selector);
-            var svgString : string = new XMLSerializer().serializeToString(svgElement);
+            const svgElement : Element = document.querySelector(selector);
+            let svgString : string = new XMLSerializer().serializeToString(svgElement);
 
             // create svgString with injected CSS stylesheet
-            var CSS_ELEMENT = '<style type="text/css" ><![CDATA[' + response + ']]></style>';
+            const CSS_ELEMENT = '<style type="text/css" ><![CDATA[' + response + ']]></style>';
             //console.log("CSS_ELEMENT", CSS_ELEMENT);
             svgString = svgString.substring(0, svgString.indexOf(">") + 1) + CSS_ELEMENT + svgString.substring(svgString.indexOf(">") + 1);
             //console.log("svgString", svgString);
 
-            var canvas : HTMLCanvasElement = <HTMLCanvasElement> document.createElement("canvas");
+            const canvas : HTMLCanvasElement = <HTMLCanvasElement> document.createElement("canvas");
             //console.log("svgElement", svgElement.clientWidth.toString(), svgElement.clientHeight.toString());
             canvas.setAttribute("width", svgElement.clientWidth.toString());
             canvas.setAttribute("height", svgElement.clientHeight.toString());
-            var ctx = canvas.getContext("2d");
+            const ctx = canvas.getContext("2d");
 
-            var img = new Image();
-            var svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
-            var url = window.URL.createObjectURL(svg);
+            const img = new Image();
+            const svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+            const url = window.URL.createObjectURL(svg);
             img.onload = function() {
                 ctx.drawImage(img, 0, 0);
-                var png = canvas.toDataURL("image/png");
+                const png = canvas.toDataURL("image/png");
                 //document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';
 
                 // Element that will be used for downloading.
-                var a : HTMLAnchorElement = document.createElement("a");
+                const a : HTMLAnchorElement = document.createElement("a");
                 a.style.display = "none";
                 a.href = png;
                 a.download = filename + ".png";
@@ -1543,7 +1538,7 @@ export class Utils {
 
     static getRightWindowWidth() : number {
         // try localStorage first
-        var local : string = localStorage.getItem(this.RIGHT_WINDOW_WIDTH_KEY);
+        const local : string = localStorage.getItem(this.RIGHT_WINDOW_WIDTH_KEY);
 
         // if found, return
         if (local !== null){
@@ -1559,7 +1554,7 @@ export class Utils {
 
     static getLeftWindowWidth() : number {
         // try localStorage first
-        var local : string = localStorage.getItem(this.LEFT_WINDOW_WIDTH_KEY);
+        const local : string = localStorage.getItem(this.LEFT_WINDOW_WIDTH_KEY);
 
         // if found, return
         if (local !== null){
@@ -1589,11 +1584,11 @@ export class Utils {
     }
 
     static buildNodeList(palette : Palette, categoryType : Eagle.CategoryType) : Node[] {
-        var result : Node[] = [];
+        const result : Node[] = [];
 
         // Searching for the node.
-        for (var i = 0; i < palette.getNodes().length; i++) {
-            var node : Node = palette.getNodes()[i];
+        for (let i = 0; i < palette.getNodes().length; i++) {
+            const node : Node = palette.getNodes()[i];
             if (node.getCategoryType() === categoryType) {
                 result.push(node);
             }
@@ -1603,11 +1598,11 @@ export class Utils {
     }
 
     static buildCategoryList (palette : Palette, categoryType : Eagle.CategoryType) : Eagle.Category[] {
-        var result : Eagle.Category[] = [];
+        const result : Eagle.Category[] = [];
 
         // Searching for the node.
-        for (var i = 0; i < palette.getNodes().length; i++) {
-            var node : Node = palette.getNodes()[i];
+        for (let i = 0; i < palette.getNodes().length; i++) {
+            const node : Node = palette.getNodes()[i];
             if (node.getCategoryType() === categoryType) {
                 result.push(node.getCategory());
             }
@@ -1623,11 +1618,11 @@ export class Utils {
 
     // check if a node already exists in a palette, if so replace the node with the new one
     // otherwise, add the node to the end of the palette
-    static addOrUpdateNodeInPalette(palette: Palette, node: Node): void {
+    static addOrUpdateNodeInPalette(palette: Palette, node: Node) : void {
         // try to find a matching node that already exists in the palette
         // TODO: at the moment, we only match by name and category, but we should match by ID (once the ID is unique)
         for (let i = 0 ; i < palette.getNodes().length; i++){
-            let paletteNode = palette.getNodes()[i];
+            const paletteNode = palette.getNodes()[i];
 
             if (paletteNode.getName() === node.getName() && paletteNode.getCategory() === node.getCategory()){
                 palette.getNodes()[i] = node;
@@ -1640,7 +1635,7 @@ export class Utils {
         palette.addNode(node);
     }
 
-    static giveNodePortsNewIds(node: Node){
+    static giveNodePortsNewIds(node: Node) : void {
         // set new ids for any ports in this node
         for (let i = 0 ; i < node.getInputPorts().length ; i++){
             node.getInputPorts()[i].setId(Utils.uuidv4());
@@ -1688,21 +1683,21 @@ export class Utils {
     }
 
     static checkGraph(graph: LogicalGraph): string[] {
-        let results: string[] = [];
+        const results: string[] = [];
 
         // check that all port dataTypes have been defined
         for (let i = 0 ; i < graph.getNodes().length; i++){
-            let node: Node = graph.getNodes()[i];
+            const node: Node = graph.getNodes()[i];
 
             for (let j = 0 ; j < node.getInputPorts().length ; j++){
-                let port: Port = node.getInputPorts()[j];
+                const port: Port = node.getInputPorts()[j];
 
                 if (port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has input port " + port.getName() + " with dataType: " + port.getType());
                 }
             }
             for (let j = 0 ; j < node.getOutputPorts().length ; j++){
-                let port: Port = node.getOutputPorts()[j];
+                const port: Port = node.getOutputPorts()[j];
 
                 if (port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port " + port.getName() + " with dataType: " + port.getType());
@@ -1712,12 +1707,12 @@ export class Utils {
 
         // check that all nodes have correct numbers of inputs and outputs
         for (let i = 0 ; i < graph.getNodes().length; i++){
-            let node: Node = graph.getNodes()[i];
-            let cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
-            let minInputs  = cData.minInputs;
-            let maxInputs  = cData.maxInputs;
-            let minOutputs = cData.minOutputs;
-            let maxOutputs = cData.maxOutputs;
+            const node: Node = graph.getNodes()[i];
+            const cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
+            const minInputs  = cData.minInputs;
+            const maxInputs  = cData.maxInputs;
+            const minOutputs = cData.minOutputs;
+            const maxOutputs = cData.maxOutputs;
 
             if (node.getInputPorts().length < minInputs){
                 results.push("Node " + node.getKey() + " (" + node.getName() + ") has too few input ports. Should have " + minInputs);
@@ -1734,8 +1729,8 @@ export class Utils {
         }
 
         for (let i = 0 ; i < graph.getEdges().length; i++){
-            let edge: Edge = graph.getEdges()[i];
-            var linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, false);
+            const edge: Edge = graph.getEdges()[i];
+            const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, false);
 
             if (linkValid === Eagle.LinkValid.Invalid){
                 results.push("Edge " + i + " (" + edge.getId() + ") is invalid.");
@@ -1748,7 +1743,7 @@ export class Utils {
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {
         console.log("validateJSON(): version:", version, "fileType:", Utils.translateFileTypeToString(fileType));
 
-        var ajv = new Ajv();
+        const ajv = new Ajv();
         let valid : boolean;
 
         switch(version){
@@ -1800,10 +1795,10 @@ export class Utils {
         return valid;
     }
 
-    static validateFieldValue(){
-        let value : string = <string>$('#editFieldModalValueInput').val();
-        let type: string = <string>$('#editFieldModalTypeSelect').val();
-        let realType: Eagle.DataType = Utils.translateStringToDataType(type);
+    static validateFieldValue() : void {
+        const value : string = <string>$('#editFieldModalValueInput').val();
+        const type: string = <string>$('#editFieldModalTypeSelect').val();
+        const realType: Eagle.DataType = Utils.translateStringToDataType(type);
 
         let isValid: boolean = true;
 
