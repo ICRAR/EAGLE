@@ -156,7 +156,7 @@ export class FileInfo {
     }
 
     clone = () : FileInfo => {
-        var result : FileInfo = new FileInfo();
+        const result : FileInfo = new FileInfo();
 
         result.name = this._name();
         result.path = this._path();
@@ -255,7 +255,7 @@ export class FileInfo {
 
     // TODO: use errors array if attributes cannot be found
     static fromOJSJson = (modelData : any, errors: string[]) : FileInfo => {
-        var result : FileInfo = new FileInfo();
+        const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
         result.name = Utils.getFileNameFromFullPath(modelData.filePath);

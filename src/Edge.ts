@@ -65,7 +65,7 @@ export class Edge {
         return this.srcPortId;
     }
 
-    setSrcPortId = (id: string) => {
+    setSrcPortId = (id: string) : void => {
         this.srcPortId = id;
     }
 
@@ -81,7 +81,7 @@ export class Edge {
         return this.destPortId;
     }
 
-    setDestPortId = (id: string) => {
+    setDestPortId = (id: string) : void => {
         this.destPortId = id;
     }
 
@@ -93,7 +93,7 @@ export class Edge {
         return this.loopAware;
     }
 
-    setLoopAware = (value : boolean) => {
+    setLoopAware = (value : boolean) : void => {
         this.loopAware = value;
     }
 
@@ -112,7 +112,7 @@ export class Edge {
     }
 
     clone = () : Edge => {
-        var result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType);
+        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType);
 
         result._id = this._id;
         result.loopAware = this.loopAware;
@@ -141,7 +141,7 @@ export class Edge {
     }
 
     static fromV3Json = (edgeData: any, errors: string[]): Edge => {
-        let edge = new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown);
+        const edge = new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown);
         edge.loopAware = edgeData.loop_aware === "1";
         return edge;
     }
@@ -159,7 +159,7 @@ export class Edge {
 
     static fromAppRefJson = (edgeData: any, errors: string[]): Edge => {
         //console.log("Edge.fromAppRefJson()", edgeData);
-        let edge = new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType);
+        const edge = new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType);
         edge.loopAware = edgeData.loopAware;
         return edge;
     }
@@ -194,8 +194,8 @@ export class Edge {
         }
 
         // get references to actual source and destination nodes (from the keys)
-        var sourceNode : Node = graph.findNodeByKey(sourceNodeKey);
-        var destinationNode : Node = graph.findNodeByKey(destinationNodeKey);
+        const sourceNode : Node = graph.findNodeByKey(sourceNodeKey);
+        const destinationNode : Node = graph.findNodeByKey(destinationNodeKey);
 
         if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
             //Utils.showNotification("Unknown Error", "sourceNode or destinationNode cannot be found", "danger");
@@ -222,8 +222,8 @@ export class Edge {
             return Eagle.LinkValid.Invalid;
         }
 
-        var sourcePort : Port = sourceNode.findPortById(sourcePortId);
-        var destinationPort : Port = destinationNode.findPortById(destinationPortId);
+        const sourcePort : Port = sourceNode.findPortById(sourcePortId);
+        const destinationPort : Port = destinationNode.findPortById(destinationPortId);
 
         if (sourcePort === null || destinationPort === null){
             //Utils.showNotification("Unknown Error", "sourcePort or destinationPort cannot be found", "danger");
@@ -250,10 +250,10 @@ export class Edge {
         }
 
         // check relationship between destination and source node
-        var isParent : boolean = sourceNode.getParentKey() === destinationNodeKey;
-        var isChild : boolean = destinationNode.getParentKey() === sourceNodeKey;
-        var isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey();
-        var parentIsEFN : boolean = false;
+        const isParent : boolean = sourceNode.getParentKey() === destinationNodeKey;
+        const isChild : boolean = destinationNode.getParentKey() === sourceNodeKey;
+        const isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey();
+        let parentIsEFN : boolean = false;
 
         // determine if the new edge is crossing a ExclusiveForceNode boundary
         if (destinationNode.getParentKey() !== null){
