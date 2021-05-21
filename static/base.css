@@ -264,9 +264,32 @@
     color:white;
 }
 
-.bg-light{
-    background: #004085 !important;
+.navbar{
+    background: rgb(0,64,133);
+    background: linear-gradient(90deg, rgba(0,64,133,1) 0%, rgba(0,52,107,1) 20%, rgba(0,35,73,1) 100%);
 }
+
+.navbar a{
+    color: white;
+}
+
+.dropdown-menu{
+    border:solid 1px #000c1a;
+    border-radius: 6px;
+     position: absolute;
+     z-index: 1;
+     background-color: #0059a5;
+}
+
+.dropdown-item{
+    color: white;
+}
+
+.dropdown-item:hover{
+    background-color: #001d3b;
+    color: white;
+}
+
 
 .navbar-light .navbar-nav .nav-link {
     color: rgba(255, 255, 255, 0.55);
