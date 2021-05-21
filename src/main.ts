@@ -34,10 +34,7 @@ import {GitLab} from './GitLab';
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
 
-import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
-
-var eagle : Eagle;
+let eagle : Eagle;
 
 $(function(){
     // Global variables.
@@ -74,7 +71,7 @@ $(function(){
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:"./static/" + Config.templatePaletteFileName, readonly:false},
             {name:Palette.BUILTIN_PALETTE_NAME, filename:"./static/" + Config.builtinPaletteFileName, readonly:true}
         ], (data: Palette[]):void => {
-            for (var i = 0; i < data.length; i++){
+            for (let i = 0; i < data.length; i++){
                 if (data[i] !== null){
                     eagle.palettes.push(data[i]);
                 }
@@ -108,7 +105,7 @@ $(function(){
         if($("input,textarea").is(":focus")){
             //Textbox or Input field is focused
             return;
-        }else{
+        } else {
             //delete edge, if edge selected
             if (eagle.selectedEdge() != null){
                 //if the backspace key was pressed
@@ -133,17 +130,17 @@ $(function(){
 
     // HACK: without this global wheel event handler, d3 does not receive zoom events
     //       not sure why, this wasn't always the case
-    document.onwheel = (ev: WheelEvent) => {}
+    document.onwheel = (ev: WheelEvent) => {};
 
-    var auto_load_service    = (<any>window).auto_load_service;
-    var auto_load_repository = (<any>window).auto_load_repository;
-    var auto_load_branch     = (<any>window).auto_load_branch;
-    var auto_load_path       = (<any>window).auto_load_path;
-    var auto_load_filename   = (<any>window).auto_load_filename;
+    const auto_load_service    = (<any>window).auto_load_service;
+    const auto_load_repository = (<any>window).auto_load_repository;
+    const auto_load_branch     = (<any>window).auto_load_branch;
+    const auto_load_path       = (<any>window).auto_load_path;
+    const auto_load_filename   = (<any>window).auto_load_filename;
     //console.log("auto_load_service", auto_load_service, "auto_load_repository", auto_load_repository, "auto_load_branch", auto_load_branch, "auto_load_path", auto_load_path, "auto_load_filename", auto_load_filename);=
 
     // cast the service string to an enum
-    var service: Eagle.RepositoryService = Eagle.RepositoryService[auto_load_service as keyof typeof Eagle.RepositoryService];
+    const service: Eagle.RepositoryService = Eagle.RepositoryService[auto_load_service as keyof typeof Eagle.RepositoryService];
 
     // auto load the file
     eagle.autoLoad(service, auto_load_repository, auto_load_branch, auto_load_path, auto_load_filename);

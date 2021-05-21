@@ -77,12 +77,12 @@ export class Port {
     }, this);
 
     clone = () : Port => {
-        var p = new Port(this._id(), this.name(), this.event(), this.type());
-        p.local(this.local());
-        return p;
+        const port = new Port(this._id(), this.name(), this.event(), this.type());
+        port.local(this.local());
+        return port;
     }
 
-    copy = (src: Port) => {
+    copy = (src: Port) : void => {
         this.name(src.name());
         this.nodeKey(src.nodeKey());
         this.local(src.local());
@@ -90,7 +90,7 @@ export class Port {
         this.type(src.type());
     }
 
-    copyWithKeyAndId = (src: Port, nodeKey: number, id: string) => {
+    copyWithKeyAndId = (src: Port, nodeKey: number, id: string) : void => {
         this._id(id);
         this.name(src.name());
         this.nodeKey(nodeKey);

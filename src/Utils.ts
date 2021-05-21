@@ -1063,7 +1063,7 @@ export class Utils {
         $('#editFieldModal').modal();
     }
 
-    static requestUserEditPort(modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void){
+    static requestUserEditPort(modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#portModalSelect').empty();

@@ -27,7 +27,6 @@ import * as ko from "knockout";
 import {Utils} from './Utils';
 import {Eagle} from './Eagle';
 import {Node} from './Node';
-import {Port} from './Port';
 import {FileInfo} from './FileInfo';
 import {RepositoryFile} from './RepositoryFile';
 
@@ -46,26 +45,26 @@ export class Palette {
 
     static fromOJSJson = (data : string, file : RepositoryFile, errors : string[]) : Palette => {
         // parse the JSON first
-        var dataObject : any = JSON.parse(data);
+        const dataObject : any = JSON.parse(data);
 
         // TODO: use correct name from dataObject above
-        var result : Palette = new Palette();
+        const result : Palette = new Palette();
 
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
-        for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
-            var nodeData = dataObject.nodeDataArray[i];
+        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            const nodeData = dataObject.nodeDataArray[i];
 
             // read node
-            var newNode : Node = Node.fromOJSJson(nodeData, errors, (): number => {
+            const newNode : Node = Node.fromOJSJson(nodeData, errors, (): number => {
                 return Utils.newKey(result.nodes());
             });
 
             // check that node has no group
             if (newNode.getParentKey() !== null){
-                var error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
+                const error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
                 console.warn(error);
                 errors.push(error);
 
@@ -74,7 +73,7 @@ export class Palette {
 
             // check that x, y, position is the default
             if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
-                var error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
+                const error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
                 console.warn(error);
                 errors.push(error);
 
@@ -87,7 +86,7 @@ export class Palette {
 
         // check for missing name
         if (result.fileInfo().name === ""){
-            var error : string = "FileInfo.name is empty. Setting name to " + file.name;
+            const error : string = "FileInfo.name is empty. Setting name to " + file.name;
             console.warn(error);
             errors.push(error);
 
@@ -100,7 +99,7 @@ export class Palette {
     }
 
     static toOJSJson = (palette: Palette) : object => {
-        var result : any = {};
+        const result : any = {};
 
         //result.class = "go.GraphLinksModel";
 
@@ -108,8 +107,8 @@ export class Palette {
 
         // add nodes
         result.nodeDataArray = [];
-        for (var i = 0 ; i < palette.nodes().length ; i++){
-            var node : Node = palette.nodes()[i];
+        for (let i = 0 ; i < palette.nodes().length ; i++){
+            const node : Node = palette.nodes()[i];
             result.nodeDataArray.push(Node.toOJSJson(node));
         }
 
@@ -134,12 +133,12 @@ export class Palette {
     }
 
     clone = () : Palette => {
-        var result : Palette = new Palette();
+        const result : Palette = new Palette();
 
         result.fileInfo(this.fileInfo().clone());
 
-        for (var i = 0 ; i < this.nodes().length ; i++){
-            var n_clone = this.nodes()[i].clone();
+        for (let i = 0 ; i < this.nodes().length ; i++){
+            const n_clone = this.nodes()[i].clone();
             result.nodes.push(n_clone);
         }
 
@@ -151,7 +150,7 @@ export class Palette {
     }
 
     findNodeByKey = (key : number) : Node => {
-        for (var i = this.nodes().length - 1; i >= 0 ; i--){
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
             if (this.nodes()[i].getKey() === key){
                 return this.nodes()[i];
             }
@@ -160,7 +159,7 @@ export class Palette {
     }
 
     removeNodeByKey = (key : number) : void => {
-        for (var i = this.nodes().length - 1; i >= 0 ; i--){
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
             if (this.nodes()[i].getKey() === key){
                 this.nodes.splice(i, 1);
             }

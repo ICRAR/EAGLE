@@ -1,4 +1,4 @@
-declare var require: any;
+declare const require: any;
 require.config({
     /* waitSeconds: 30, */
     paths: {

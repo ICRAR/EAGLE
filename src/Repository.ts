@@ -76,8 +76,8 @@ export class Repository {
     }
 
     public static fileSortFunc = (a: string, b: string) : number => {
-        var aType : Eagle.FileType = Utils.getFileTypeFromFileName(a);
-        var bType : Eagle.FileType = Utils.getFileTypeFromFileName(b);
+        const aType : Eagle.FileType = Utils.getFileTypeFromFileName(a);
+        const bType : Eagle.FileType = Utils.getFileTypeFromFileName(b);
 
         if (aType !== bType){
             return aType - bType;
