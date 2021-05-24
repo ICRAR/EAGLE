@@ -606,7 +606,7 @@ export class LogicalGraph {
         }
 
         // ask the user to choose from the eligibleTypes
-        Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleTypes, 0, false, "", (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
+        Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleTypes, 0, false, "", (completed : boolean, userChoiceIndex : number) => {
             if (!completed)
                 return;
             callback(eligibleTypes[userChoiceIndex]);

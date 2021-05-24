@@ -496,7 +496,7 @@ export class Eagle {
         const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS, Eagle.DALiuGESchemaVersion.AppRef];
 
         // ask user to specify graph format to be sent to translator
-        Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number, useCustomChoice: string) => {
+        Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
             if (!completed){
                 console.log("User aborted translation.");
                 return;
@@ -1982,7 +1982,7 @@ export class Eagle {
             }
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-            this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), (edge: Edge) => {
+            this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), () => {
                 // trigger the diagram to re-draw with the modified edge
                 this.flagActiveDiagramHasMutated();
             });
@@ -2013,7 +2013,7 @@ export class Eagle {
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.deleteSelectedEdge(true);
-            this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), (edge: Edge) => {
+            this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), () => {
                 // trigger the diagram to re-draw with the modified edge
                 this.flagActiveDiagramHasMutated();
             });
@@ -2352,7 +2352,7 @@ export class Eagle {
             }
 
             // present list of image names to user
-            Utils.requestUserChoice("Docker Hub", "Choose an image", images, -1, false, "", function(completed: boolean, userChoiceIndex: number, userCustomString: string){
+            Utils.requestUserChoice("Docker Hub", "Choose an image", images, -1, false, "", function(completed: boolean, userChoiceIndex: number){
                 if (!completed){
                     return;
                 }
@@ -2374,7 +2374,7 @@ export class Eagle {
                     }
 
                     // present list of tags to user
-                    Utils.requestUserChoice("Docker Hub", "Choose a tag for image " + imageName, tags, -1, false, "", function(completed: boolean, userChoiceIndex: number, userCustomString: string){
+                    Utils.requestUserChoice("Docker Hub", "Choose a tag for image " + imageName, tags, -1, false, "", function(completed: boolean, userChoiceIndex: number){
                         if (!completed){
                             return;
                         }
@@ -2476,7 +2476,7 @@ export class Eagle {
         nodeList.push("None : 0");
 
         // ask user to choose a parent
-        Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
+        Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number) => {
             if (!completed)
                 return;
 
@@ -2521,7 +2521,7 @@ export class Eagle {
         }
 
         // ask user for parent
-        Utils.requestUserChoice("Node Subject Id", "Select a subject node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
+        Utils.requestUserChoice("Node Subject Id", "Select a subject node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number) => {
             if (!completed)
                 return;
 
@@ -2601,18 +2601,18 @@ export class Eagle {
         return true;
     }
 
-    nodeDragEnd = (e : JQueryEventObject) => {
+    nodeDragEnd = () : boolean => {
         $(".leftWindow").removeClass("noDropTarget");
         $(".rightWindow").removeClass("noDropTarget");
         $(".navbar").removeClass("noDropTarget");
         return true;
     }
 
-    nodeDragOver = (e : JQueryEventObject) => {
+    nodeDragOver = () : boolean => {
         return false;
     }
 
-    nodeDrop = (eagle : Eagle,e : JQueryEventObject) => {
+    nodeDrop = (eagle : Eagle, e : JQueryEventObject) : void => {
         Eagle.nodeDropLocation = this.getNodeDropLocation(e);
         const nodeButton = Eagle.nodeDropped.getElementsByTagName('button')[0] as HTMLElement;
         nodeButton.click();
@@ -2645,7 +2645,7 @@ export class Eagle {
     }
 
     //workaround to aviod left or right window adjusting on any and all drag events
-    rightWindowAdjustEnd = (eagle : Eagle, e : JQueryEventObject) : boolean => {
+    rightWindowAdjustEnd = () : boolean => {
         this.leftWindow().adjusting(false);
         this.rightWindow().adjusting(false);
 
@@ -2685,7 +2685,7 @@ export class Eagle {
         return true;
     }
 
-    spinCollapseIcon = (item: any, e: JQueryEventObject) => {
+    spinCollapseIcon = (item: any, e: JQueryEventObject) : void => {
         // this function handles only the visible ui element that indicates the state of the collapsable object.
         // the collapse function itself is handled by bootstrap.
 
@@ -2737,7 +2737,7 @@ export class Eagle {
     }
 
     //workaround to aviod left or right window adjusting on any and all drag events
-    leftWindowAdjustEnd = (eagle : Eagle, e : JQueryEventObject) : boolean => {
+    leftWindowAdjustEnd = () : boolean => {
         this.leftWindow().adjusting(false);
         this.rightWindow().adjusting(false);
 
@@ -2869,15 +2869,15 @@ export class Eagle {
         this.flagActiveDiagramHasMutated();
     }
 
-    selectInputApplicationNode = (nodeViewModel : any) : void => {
+    selectInputApplicationNode = () : void => {
         this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getInputApplication());
     }
 
-    selectOutputApplicationNode = (nodeViewModel : any) : void => {
+    selectOutputApplicationNode = () : void => {
         this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getOutputApplication());
     }
 
-    selectExitApplicationNode = (nodeViewModel : any) : void => {
+    selectExitApplicationNode = () : void => {
         this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication());
     }
 
@@ -3063,7 +3063,7 @@ export class Eagle {
         }
 
         // ask the user to choose a node
-        Utils.requestUserChoice("Select node", "Choose the input or output node to connect to this parameter", nodes, 0, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
+        Utils.requestUserChoice("Select node", "Choose the input or output node to connect to this parameter", nodes, 0, false, "", (completed : boolean, userChoiceIndex: number) => {
             // abort if the user aborted
             if (!completed){
                 return;
@@ -3109,7 +3109,7 @@ export class Eagle {
         // add "None" to the application list
         applicationNames.push(Node.NO_APP_STRING);
 
-        Utils.requestUserChoice(title, message, applicationNames, 0, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
+        Utils.requestUserChoice(title, message, applicationNames, 0, false, "", (completed : boolean, userChoiceIndex: number) => {
             if (!completed){
                 return;
             }
