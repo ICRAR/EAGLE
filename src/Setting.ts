@@ -21,7 +21,7 @@ export class Setting {
 
         this.load();
 
-        let that = this;
+        const that = this;
         this.value.subscribe(function(){
             that.save();
         });
@@ -48,7 +48,7 @@ export class Setting {
     }
 
     load = () : void => {
-        var v = localStorage.getItem(this.key);
+        const v = localStorage.getItem(this.key);
 
         if (v === null)
             this.value(this.defaultValue);
@@ -97,6 +97,7 @@ export class Setting {
         }
     }
 }
+
 export namespace Setting {
     export enum Type {
         String,

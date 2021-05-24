@@ -1,8 +1,5 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 
 export class RepositoryFolder {

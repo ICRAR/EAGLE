@@ -5,8 +5,8 @@ import {Eagle} from '../Eagle';
 ko.bindingHandlers.nodeDataProperty = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
         $(element).keyup(function() {
-            var dataProperty = ko.unwrap(valueAccessor());
-            var eagle : Eagle = bindingContext.$root;
+            const dataProperty = ko.unwrap(valueAccessor());
+            const eagle : Eagle = bindingContext.$root;
 
             (<any>eagle.selectedNode())[dataProperty] = $(element).val();
             eagle.flagActiveFileModified();
@@ -14,8 +14,8 @@ ko.bindingHandlers.nodeDataProperty = {
         });
     },
     update: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
-        var dataProperty = ko.unwrap(valueAccessor());
-        var eagle : Eagle = bindingContext.$root;
+        const dataProperty = ko.unwrap(valueAccessor());
+        const eagle : Eagle = bindingContext.$root;
 
         if (eagle.logicalGraph() === null){
             console.warn("nodeDataProperty: logicalGraph is null");

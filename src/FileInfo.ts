@@ -2,7 +2,6 @@ import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
-import {GraphUpdater} from './GraphUpdater';
 
 export class FileInfo {
     private _name : ko.Observable<string>;
@@ -156,7 +155,7 @@ export class FileInfo {
     }
 
     clone = () : FileInfo => {
-        var result : FileInfo = new FileInfo();
+        const result : FileInfo = new FileInfo();
 
         result.name = this._name();
         result.path = this._path();
@@ -254,8 +253,9 @@ export class FileInfo {
     }
 
     // TODO: use errors array if attributes cannot be found
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     static fromOJSJson = (modelData : any, errors: string[]) : FileInfo => {
-        var result : FileInfo = new FileInfo();
+        const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
         result.name = Utils.getFileNameFromFullPath(modelData.filePath);

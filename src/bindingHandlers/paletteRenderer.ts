@@ -13,7 +13,7 @@ ko.bindingHandlers.paletteRenderer = {
     update: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
         //console.log("bindingHandlers.paletteRenderer.update()");
 
-        var palette : Palette = ko.unwrap(valueAccessor());
+        const palette : Palette = ko.unwrap(valueAccessor());
 
         if (palette === null){
             //console.warn("paletteRenderer update(): palette is null");
@@ -28,18 +28,18 @@ ko.bindingHandlers.paletteRenderer = {
 
 
 function render(palette : Palette, elementId : string, eagle : Eagle){
-    var nodeData = palette.getNodes();
-    
-    var selectedNodeIndex : number = -1;
+    const nodeData = palette.getNodes();
 
-    var svgContainer = d3.select("#" + elementId)
+    let selectedNodeIndex : number = -1;
+
+    const svgContainer = d3.select("#" + elementId)
                         .append("svg");
 
-    var background = svgContainer.append("rect")
+    const background = svgContainer.append("rect")
                                     .attr("class", "background");
 
     // TODO: ideally we would not use the 'any' type here
-    var nodes : any = svgContainer.selectAll("g")
+    let nodes : any = svgContainer.selectAll("g")
                               .data(nodeData)
                               .enter()
                               .append("g")
@@ -47,14 +47,14 @@ function render(palette : Palette, elementId : string, eagle : Eagle){
                               .attr("class", "node")
                               .attr("id", function(node : Node, index : number){return "paletteNode" + index;});
 
-    var rects = nodes.append("rect")
+    const rects = nodes.append("rect")
                               .attr("width", getWidth)
                               .attr("height", getHeight)
                               .attr("class", "paletteNode")
                               .on("click", nodeOnClick);
 
     // add a heading background to each node
-    var headingBackgrounds = nodes.append("rect")
+    const headingBackgrounds = nodes.append("rect")
                                     .attr("class", "header-background")
                                     .attr("width", getWidth)
                                     .attr("height", 28)
@@ -62,7 +62,7 @@ function render(palette : Palette, elementId : string, eagle : Eagle){
                                     .on("click", nodeOnClick);
 
     // add a text heading to each node
-    var text = nodes.append("text")
+    const text = nodes.append("text")
                      .attr("class", "header")
                      .attr("x", function(node : Node, index : number){return getWidth(node) /2;})
                      .attr("y", 20)
@@ -121,7 +121,7 @@ function render(palette : Palette, elementId : string, eagle : Eagle){
         selectedNodeIndex = index;
 
         if (index !== -1){
-            var node : Node = nodeData[index];
+            const node : Node = nodeData[index];
             eagle.setSelection(Eagle.RightWindowMode.NodeInspector, node);
         }
     }

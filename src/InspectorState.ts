@@ -42,7 +42,7 @@ export class InspectorState {
     }
 
     set(sectionName: string, value: boolean): void {
-        let state = this.get(sectionName);
+        const state = this.get(sectionName);
 
         if (state === null){
             return;
@@ -88,7 +88,7 @@ export class InspectorState {
     }, this);
 
     toggleAll = (item: any, e:JQueryEventObject): void => {
-        let allCollapsed = this.all();
+        const allCollapsed = this.all();
 
         this.setAll(!allCollapsed);
 
@@ -97,11 +97,11 @@ export class InspectorState {
     }
 
     toggleSection = (item: any, e: JQueryEventObject): void => {
-        let target: JQuery<Element> = $(e.currentTarget);
-        let sectionName: string = target.data('section-name');
+        const target: JQuery<Element> = $(e.currentTarget);
+        const sectionName: string = target.data('section-name');
 
         // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
-        let collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
+        const collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
         if (!collapsing){
             this.toggle(sectionName);
         } else {
@@ -111,7 +111,7 @@ export class InspectorState {
     }
 
     toggle(sectionName: string): void {
-        let state = this.get(sectionName);
+        const state = this.get(sectionName);
 
         if (state === null){
             return;
@@ -122,10 +122,10 @@ export class InspectorState {
 
     updateAllInspectorSections = (): void => {
         $(".nodeInspectorCollapseAll").each((index: number, element: HTMLElement): void => {
-            var h5 = $(element).parent().find('h5');
-            var sectionName = h5.data("section-name");
+            const h5 = $(element).parent().find('h5');
+            const sectionName = h5.data("section-name");
 
-            let sectionState = this.get(sectionName);
+            const sectionState = this.get(sectionName);
 
             if (sectionState === null){
                 return;

@@ -40,21 +40,21 @@ export class GitLab {
             }
 
             // remove all GitLab repos from the list of repositories
-            for (var i = eagle.repositories().length - 1 ; i >= 0 ; i--){
+            for (let i = eagle.repositories().length - 1 ; i >= 0 ; i--){
                 if (eagle.repositories()[i].service === Eagle.RepositoryService.GitLab)
                     eagle.repositories.splice(i, 1);
             }
 
             // add the repositories from the POST response
-            for (var i = 0 ; i < data.length ; i++){
+            for (let i = 0 ; i < data.length ; i++){
                 eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, data[i].repository, data[i].branch, true));
             }
 
             // search for custom repositories, and add them into the list.
-            for (var i = 0; i < localStorage.length; i++) {
-                var key : string = localStorage.key(i);
-                var value : string = localStorage.getItem(key);
-                var keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
+            for (let i = 0; i < localStorage.length; i++) {
+                const key : string = localStorage.key(i);
+                const value : string = localStorage.getItem(key);
+                const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
 
                 // handle legacy repositories where the branch is not specified (assume master)
                 if (keyExtension === "gitlab_repository"){
@@ -63,8 +63,8 @@ export class GitLab {
 
                 // handle the current method of storing repositories where both the service and branch are specified
                 if (keyExtension === "gitlab_repository_and_branch") {
-                    var repositoryName = value.split("|")[0];
-                    var repositoryBranch = value.split("|")[1];
+                    const repositoryName = value.split("|")[0];
+                    const repositoryBranch = value.split("|")[1];
                     eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, repositoryName, repositoryBranch, false));
                 }
             }
@@ -78,7 +78,7 @@ export class GitLab {
      * Shows the remote files
      */
     static loadRepoContent(repository : Repository) : void {
-        var token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+        const token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
 
         if (token === null) {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
@@ -89,7 +89,7 @@ export class GitLab {
         repository.isFetching(true);
 
         // Add parameters in json data.
-        var jsonData = {
+        const jsonData = {
             repository: repository.name,
             branch: repository.branch,
             token: token,
@@ -122,14 +122,14 @@ export class GitLab {
 
             console.log("/getGitLabFiles reply", data, typeof data);
 
-            var fileNames : string[] = data[""];
+            const fileNames : string[] = data[""];
 
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
 
             // add files to repo
-            for (var i = 0 ; i < fileNames.length ; i++){
-                var fileName : string = fileNames[i];
+            for (let i = 0 ; i < fileNames.length ; i++){
+                const fileName : string = fileNames[i];
 
                 // Show only the files with allowed extenstion.
                 if (!Utils.verifyFileExtension(fileName)) {
@@ -141,7 +141,7 @@ export class GitLab {
 
 
             // add folders to repo
-            for (var path in data){
+            for (const path in data){
                 // skip the root directory
                 if (path === "")
                     continue;
@@ -152,17 +152,17 @@ export class GitLab {
     }
 
     private static parseFolder = (repository : Repository, path : string, data : any) : RepositoryFolder => {
-        var folderName : string = path.substring(path.lastIndexOf('/') + 1);
-        var folder = new RepositoryFolder(folderName);
+        const folderName : string = path.substring(path.lastIndexOf('/') + 1);
+        const folder = new RepositoryFolder(folderName);
 
-        var fileNames : string[] = data[""];
+        const fileNames : string[] = data[""];
 
         // sort the fileNames
         fileNames.sort(Repository.fileSortFunc);
 
         // add files to repo
-        for (var i = 0 ; i < fileNames.length ; i++){
-            var fileName : string = fileNames[i];
+        for (let i = 0 ; i < fileNames.length ; i++){
+            const fileName : string = fileNames[i];
 
             // Show only the files with allowed extenstion.
             if (!Utils.verifyFileExtension(fileName)) {
@@ -173,7 +173,7 @@ export class GitLab {
         }
 
         // add folders to repo
-        for (var subdir in data){
+        for (const subdir in data){
             // skip the root directory
             if (subdir === "")
                 continue;
@@ -189,17 +189,17 @@ export class GitLab {
      * @param filePath File path.
      */
     static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        var token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+        const token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
 
         if (token === null) {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");
             return;
         }
 
-        var fullFileName : string = Utils.joinPath(filePath, fileName);
+        const fullFileName : string = Utils.joinPath(filePath, fileName);
 
         // Add parameters in json data.
-        var jsonData = {
+        const jsonData = {
             repositoryName: repositoryName,
             repositoryBranch: repositoryBranch,
             repositoryService: repositoryService,

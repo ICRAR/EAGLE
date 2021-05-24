@@ -7,10 +7,8 @@ import https from 'https';
 /*
     run with:
 
-    export EAGLE_GITHUB_ACCESS_TOKEN="<token>";testcafe chrome tests/load-translate-execute-2.js
+    testcafe chrome tests/load-translate-execute-2.js
 */
-
-var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 
 const GRAPHS = [
     "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/SummitIngest_Demo.graph",
