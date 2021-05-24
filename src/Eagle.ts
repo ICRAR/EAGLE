@@ -2417,12 +2417,7 @@ export class Eagle {
             return;
         }
 
-        this.editPort(<Node>node, Eagle.ModalType.Add, null, true, (completed: boolean, userChoiceIndex: number, userCustomChoice: string) => {
-            // flag active diagram as mutated
-            this.flagActiveDiagramHasMutated();
-            this.flagActiveFileModified();
-            this.selectedNode.valueHasMutated();
-        });
+        this.editPort(<Node>node, Eagle.ModalType.Add, null, true);
     }
 
     /**
@@ -2439,12 +2434,7 @@ export class Eagle {
             return;
         }
 
-        this.editPort(<Node>node, Eagle.ModalType.Add, null, false, (completed: boolean, userChoiceIndex: number, userCustomChoice: string) => {
-            // flag active diagram as mutated
-            this.flagActiveDiagramHasMutated();
-            this.flagActiveFileModified();
-            this.selectedNode.valueHasMutated();
-        });
+        this.editPort(<Node>node, Eagle.ModalType.Add, null, false);
     }
 
     /**
@@ -2452,17 +2442,7 @@ export class Eagle {
      */
     addFieldHTML = () : void => {
         const node = this.getSelection();
-
-        this.editField(<Node>node, Eagle.ModalType.Add, null, (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => {
-            if (!completed){
-                return;
-            }
-
-            // flag active diagram as mutated
-            this.flagActiveDiagramHasMutated();
-            this.flagActiveFileModified();
-            this.selectedNode.valueHasMutated();
-        });
+        this.editField(<Node>node, Eagle.ModalType.Add, null);
     }
 
     changeNodeParent = () : void => {
@@ -2901,7 +2881,7 @@ export class Eagle {
         this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication());
     }
 
-    editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void => {
+    editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number) : void => {
         let allFields: Field[] = [];
 
         // if in palette editor mode, get field names list from the palette,
@@ -2975,7 +2955,7 @@ export class Eagle {
         }
     };
 
-    editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void => {
+    editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
         let allPorts: Port[] = [];
         const allPortNames: string[] = [];
 
