@@ -1,3 +1,5 @@
+/* eslint-enable @typescript-eslint/no-unused-vars */
+
 import * as ko from "knockout";
 import * as d3 from "d3";
 import * as $ from "jquery";
@@ -8,8 +10,6 @@ import {Node} from '../Node';
 import {Edge} from '../Edge';
 import {Port} from '../Port';
 import {Utils} from '../Utils';
-import {Config} from '../Config';
-import { transform } from "typescript";
 
 ko.bindingHandlers.graphRenderer = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -94,489 +94,550 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     //console.log("pre-sort", printDrawOrder(graph.getNodes()));
     //console.log("render()", printDrawOrder(nodeData));
 
-    const svgContainer = d3.select("#" + elementId)
-                           .append("svg");
+    const svgContainer = d3
+        .select("#" + elementId)
+        .append("svg");
 
     // add def for markers
     const defs = svgContainer.append("defs");
 
     const black_arrowhead = defs
-                            .append("marker")
-                            .attr("id", "black-arrowhead")
-                            .attr("viewBox", "0 0 10 10")
-                            .attr("refX", "7")
-                            .attr("refY", "5")
-                            .attr("markerUnits", "strokeWidth")
-                            .attr("markerWidth","8")
-                            .attr("markerHeight", "6")
-                            .attr("orient", "auto");
+        .append("marker")
+        .attr("id", "black-arrowhead")
+        .attr("viewBox", "0 0 10 10")
+        .attr("refX", "7")
+        .attr("refY", "5")
+        .attr("markerUnits", "strokeWidth")
+        .attr("markerWidth","8")
+        .attr("markerHeight", "6")
+        .attr("orient", "auto");
 
-    black_arrowhead.append("path")
-            .attr("d", "M 0 0 L 10 5 L 0 10 z")
-            .attr("stroke", "none")
-            .attr("fill","black");
+    black_arrowhead
+        .append("path")
+        .attr("d", "M 0 0 L 10 5 L 0 10 z")
+        .attr("stroke", "none")
+        .attr("fill","black");
 
     // add def for markers
     const grey_arrowhead = defs
-                            .append("marker")
-                            .attr("id", "grey-arrowhead")
-                            .attr("viewBox", "0 0 10 10")
-                            .attr("refX", "7")
-                            .attr("refY", "5")
-                            .attr("markerUnits", "strokeWidth")
-                            .attr("markerWidth","8")
-                            .attr("markerHeight", "6")
-                            .attr("orient", "auto");
+        .append("marker")
+        .attr("id", "grey-arrowhead")
+        .attr("viewBox", "0 0 10 10")
+        .attr("refX", "7")
+        .attr("refY", "5")
+        .attr("markerUnits", "strokeWidth")
+        .attr("markerWidth","8")
+        .attr("markerHeight", "6")
+        .attr("orient", "auto");
 
-    grey_arrowhead.append("path")
-            .attr("d", "M 0 0 L 10 5 L 0 10 z")
-            .attr("stroke", "none")
-            .attr("fill","grey");
+    grey_arrowhead
+        .append("path")
+        .attr("d", "M 0 0 L 10 5 L 0 10 z")
+        .attr("stroke", "none")
+        .attr("fill","grey");
 
-    const background = svgContainer.append("rect")
-                                    .attr("class", "background");
+    // background
+    svgContainer
+        .append("rect")
+        .attr("class", "background");
 
-    const backgroundDragHandler = d3.drag()
-                                    .on("end", function(){
-                                        console.log("setSelection(null)");
-                                        const previousSelection = eagle.getSelection();
+    const backgroundDragHandler = d3
+        .drag()
+        .on("end", function(){
+            console.log("setSelection(null)");
+            const previousSelection = eagle.getSelection();
 
-                                        eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null);
+            eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null);
 
-                                        if (previousSelection !== null){
-                                            eagle.rightWindow().mode(Eagle.RightWindowMode.Hierarchy);
-                                        }
-                                    })
-                                    .on("drag", function(){
-                                        eagle.globalOffsetX += d3.event.dx;
-                                        eagle.globalOffsetY += d3.event.dy;
-                                        tick();
-                                    });
+            if (previousSelection !== null){
+                eagle.rightWindow().mode(Eagle.RightWindowMode.Hierarchy);
+            }
+        })
+        .on("drag", function(){
+            eagle.globalOffsetX += d3.event.dx;
+            eagle.globalOffsetY += d3.event.dy;
+            tick();
+        });
 
-    const backgroundZoomHandler = d3.zoom()
-                                    .scaleExtent([0.5, 3.0])
-                                    .translateExtent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
-                                    .extent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
-                                    .on("zoom", function(){
-                                        // TODO: Try to centre the zoom on mouse position rather than upper left corner.
-                                        // Somehow only the eagle.globalScale does something...
-                                        const scale = d3.event.transform.k;
-                                        const tx = d3.mouse(svgContainer.node())[0];
-                                        const ty = d3.mouse(svgContainer.node())[1];
+    const backgroundZoomHandler = d3
+        .zoom()
+        .scaleExtent([0.5, 3.0])
+        .translateExtent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
+        .extent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
+        .on("zoom", function(){
+            // TODO: Try to centre the zoom on mouse position rather than upper left corner.
+            // Somehow only the eagle.globalScale does something...
+            const scale = d3.event.transform.k;
+            const tx = d3.mouse(svgContainer.node())[0];
+            const ty = d3.mouse(svgContainer.node())[1];
 
-                                        const tform = "translate(" + tx + "," + ty + ")scale(" + scale + ")";
-                                        svgContainer.style("transform", tform);
-                                        eagle.globalScale = scale;
+            const tform = "translate(" + tx + "," + ty + ")scale(" + scale + ")";
+            svgContainer.style("transform", tform);
+            eagle.globalScale = scale;
 
-                                        tick();
-                                    });
+            tick();
+        });
 
     backgroundDragHandler(svgContainer.selectAll("rect.background"));
     backgroundZoomHandler(svgContainer.selectAll("rect.background"));
 
-    let nodes : any = svgContainer.selectAll("g")
-                              .data(nodeData)
-                              .enter()
-                              .append("g")
-                              .attr("transform", nodeGetTranslation)
-                              .attr("class", "node")
-                              .attr("id", function(node : Node, index : number){return "node" + index;})
-                              .style("display", getNodeDisplay);
+    let nodes : any = svgContainer
+        .selectAll("g")
+        .data(nodeData)
+        .enter()
+        .append("g")
+        .attr("transform", nodeGetTranslation)
+        .attr("class", "node")
+        .attr("id", function(node : Node, index : number){return "node" + index;})
+        .style("display", getNodeDisplay);
 
-    const rects = nodes.append("rect")
-                              .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
-                              .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeight(node));})
-                              .style("display", getNodeRectDisplay)
-                              .style("fill", nodeGetFill)
-                              .style("stroke", nodeGetStroke)
-                              .style("stroke-width", NODE_STROKE_WIDTH)
-                              .attr("stroke-dasharray", nodeGetStrokeDashArray)
-                              .on("click", nodeOnClick);
+    // rects
+    nodes
+        .append("rect")
+        .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
+        .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeight(node));})
+        .style("display", getNodeRectDisplay)
+        .style("fill", nodeGetFill)
+        .style("stroke", nodeGetStroke)
+        .style("stroke-width", NODE_STROKE_WIDTH)
+        .attr("stroke-dasharray", nodeGetStrokeDashArray)
+        .on("click", nodeOnClick);
 
-    const customShapes = nodes.append("polygon")
-                              .attr("points", getNodeCustomShapePoints)
-                              .style("display", getNodeCustomShapeDisplay)
-                              .style("fill", nodeGetColor)
-                              .style("stroke", nodeGetStroke)
-                              .style("stroke-width", NODE_STROKE_WIDTH)
-                              .attr("stroke-dasharray", nodeGetStrokeDashArray)
-                              .on("click", nodeOnClick);
+    // custom-shaped nodes
+    nodes
+        .append("polygon")
+        .attr("points", getNodeCustomShapePoints)
+        .style("display", getNodeCustomShapeDisplay)
+        .style("fill", nodeGetColor)
+        .style("stroke", nodeGetStroke)
+        .style("stroke-width", NODE_STROKE_WIDTH)
+        .attr("stroke-dasharray", nodeGetStrokeDashArray)
+        .on("click", nodeOnClick);
 
-    const nodeDragHandler = d3.drag()
-                            .on("start", function (node : Node, index : number) {
-                                isDraggingNode = false;
-                                selectNode(node);
-                                tick();
-                            })
-                            .on("drag", function (node : Node, index : number) {
-                                isDraggingNode = true;
+    const nodeDragHandler = d3
+        .drag()
+        .on("start", function (node : Node) {
+            isDraggingNode = false;
+            selectNode(node);
+            tick();
+        })
+        .on("drag", function (node : Node, index : number) {
+            isDraggingNode = true;
 
-                                const dx = DISPLAY_TO_REAL_SCALE(d3.event.dx);
-                                const dy = DISPLAY_TO_REAL_SCALE(d3.event.dy);
-                                node.changePosition(dx, dy);
+            const dx = DISPLAY_TO_REAL_SCALE(d3.event.dx);
+            const dy = DISPLAY_TO_REAL_SCALE(d3.event.dy);
+            node.changePosition(dx, dy);
 
-                                // update children locations
-                                moveChildNodes(index, dx, dy);
-                                eagle.flagActiveFileModified();
-                                tick();
-                            })
-                            .on("end", function(node : Node){
-                                // update location (in real node data, not sortedData)
-                                // guarding this behind 'isDraggingNode' is a hack to get around the fact that d3.event.x and d3.event.y behave strangely
-                                if (isDraggingNode){
-                                    isDraggingNode = false;
-                                }
+            // update children locations
+            moveChildNodes(index, dx, dy);
+            eagle.flagActiveFileModified();
+            tick();
+        })
+        .on("end", function(node : Node){
+            // update location (in real node data, not sortedData)
+            // guarding this behind 'isDraggingNode' is a hack to get around the fact that d3.event.x and d3.event.y behave strangely
+            if (isDraggingNode){
+                isDraggingNode = false;
+            }
 
-                                // check for nodes underneath the top left corner of the node we dropped
-                                const parent : Node = checkForNodeAt(node, d3.event.subject.x, d3.event.subject.y);
+            // check for nodes underneath the top left corner of the node we dropped
+            const parent : Node = checkForNodeAt(node, d3.event.subject.x, d3.event.subject.y);
 
-                                // if a parent was found, update
-                                if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
-                                    //console.log("set parent", parent.getKey());
-                                    node.setParentKey(parent.getKey());
-                                    eagle.selectedNode.valueHasMutated();
-                                    eagle.flagActiveDiagramHasMutated();
-                                }
+            // if a parent was found, update
+            if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
+                //console.log("set parent", parent.getKey());
+                node.setParentKey(parent.getKey());
+                eagle.selectedNode.valueHasMutated();
+                eagle.flagActiveDiagramHasMutated();
+            }
 
-                                // if no parent found, update
-                                if (parent === null && node.getParentKey() !== null){
-                                    //console.log("set parent", null);
-                                    node.setParentKey(null);
-                                    eagle.selectedNode.valueHasMutated();
-                                    eagle.flagActiveDiagramHasMutated();
-                                }
+            // if no parent found, update
+            if (parent === null && node.getParentKey() !== null){
+                //console.log("set parent", null);
+                node.setParentKey(null);
+                eagle.selectedNode.valueHasMutated();
+                eagle.flagActiveDiagramHasMutated();
+            }
 
-                                tick();
-                            });
+            tick();
+        });
 
     nodeDragHandler(svgContainer.selectAll("g.node"));
 
     // add a header background to each node
-    const headerBackgrounds = nodes.append("rect")
-                                    .attr("class", "header-background")
-                                    .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
-                                    .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
-                                    .attr("x", HEADER_INSET)
-                                    .attr("y", HEADER_INSET)
-                                    .style("fill", nodeGetColor)
-                                    .style("stroke", "grey")
-                                    .style("display", getHeaderBackgroundDisplay);
+    nodes
+        .append("rect")
+        .attr("class", "header-background")
+        .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
+        .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
+        .attr("x", HEADER_INSET)
+        .attr("y", HEADER_INSET)
+        .style("fill", nodeGetColor)
+        .style("stroke", "grey")
+        .style("display", getHeaderBackgroundDisplay);
 
     // add a text header to each node
-    const text = nodes.append("text")
-                     .attr("class", "header")
-                     .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionX(node));})
-                     .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionY(node));})
-                     .attr("eagle-wrap-width", getWrapWidth)
-                     .style("fill", getHeaderFill)
-                     .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
-                     .style("display", getHeaderDisplay)
-                     .text(getHeaderText)
-                     .call(wrap, false);
+    nodes
+        .append("text")
+        .attr("class", "header")
+        .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionX(node));})
+        .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionY(node));})
+        .attr("eagle-wrap-width", getWrapWidth)
+        .style("fill", getHeaderFill)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+        .style("display", getHeaderDisplay)
+        .text(getHeaderText)
+        .call(wrap, false);
 
-    const subHeader = nodes.append("text")
-                    .attr("class", "subheader")
-                    .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getSubHeaderPositionX(node));})
-                    .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getSubHeaderPositionY(node));})
-                    .style("fill", getSubHeaderFill)
-                    .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
-                    .style("display", getSubHeaderDisplay)
-                    .text(getSubHeaderText);
+    // add subheader text
+    nodes
+        .append("text")
+        .attr("class", "subheader")
+        .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getSubHeaderPositionX(node));})
+        .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getSubHeaderPositionY(node));})
+        .style("fill", getSubHeaderFill)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+        .style("display", getSubHeaderDisplay)
+        .text(getSubHeaderText);
 
     // add a app names background to each node
-    const appsBackgrounds = nodes.append("rect")
-                                    .attr("class", "apps-background")
-                                    .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundWidth(node));})
-                                    .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundHeight(node));})
-                                    .attr("x", HEADER_INSET)
-                                    .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(HEADER_INSET + getHeaderBackgroundHeight(node));})
-                                    .style("fill", nodeGetColor)
-                                    .style("stroke", "grey")
-                                    .style("display", getAppsBackgroundDisplay);
+    nodes
+        .append("rect")
+        .attr("class", "apps-background")
+        .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundWidth(node));})
+        .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundHeight(node));})
+        .attr("x", HEADER_INSET)
+        .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(HEADER_INSET + getHeaderBackgroundHeight(node));})
+        .style("fill", nodeGetColor)
+        .style("stroke", "grey")
+        .style("display", getAppsBackgroundDisplay);
 
-    const inputAppName = nodes.append("text")
-                     .attr("class", "inputAppName")
-                     .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionX(node));})
-                     .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionY(node));})
-                     .style("fill", getHeaderFill)
-                     .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
-                     .style("display", getAppsBackgroundDisplay)
-                     .text(getInputAppText);
+    // add the input name text
+    nodes
+        .append("text")
+        .attr("class", "inputAppName")
+        .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionX(node));})
+        .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionY(node));})
+        .style("fill", getHeaderFill)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+        .style("display", getAppsBackgroundDisplay)
+        .text(getInputAppText);
 
-    const outputAppName = nodes.append("text")
-                     .attr("class", "outputAppName")
-                     .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionX(node));})
-                     .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionY(node));})
-                     .style("fill", getHeaderFill)
-                     .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
-                     .style("display", getAppsBackgroundDisplay)
-                     .text(getOutputAppText);
+    // add the output name text
+    nodes
+        .append("text")
+        .attr("class", "outputAppName")
+        .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionX(node));})
+        .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionY(node));})
+        .style("fill", getHeaderFill)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+        .style("display", getAppsBackgroundDisplay)
+        .text(getOutputAppText);
 
-    const exitAppName = nodes.append("text")
-                      .attr("class", "exitAppName")
-                      .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionX(node));})
-                      .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionY(node));})
-                      .style("fill", getHeaderFill)
-                      .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
-                      .style("display", getAppsBackgroundDisplay)
-                      .text(getExitAppText);
+    // add the exit name text
+    nodes
+        .append("text")
+        .attr("class", "exitAppName")
+        .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionX(node));})
+        .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionY(node));})
+        .style("fill", getHeaderFill)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+        .style("display", getAppsBackgroundDisplay)
+        .text(getExitAppText);
 
-    const content = nodes.append("text")
-                     .attr("class", "content")
-                     .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionX(node));})
-                     .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionY(node));})
-                     .attr("eagle-wrap-width", getWrapWidth)
-                     .style("fill", getContentFill)
-                     .style("font-size", REAL_TO_DISPLAY_SCALE(CONTENT_TEXT_FONT_SIZE) + "px")
-                     .style("display", getContentDisplay)
-                     .text(getContentText)
-                     .call(wrap, true);
+    // add the content text
+    nodes
+        .append("text")
+        .attr("class", "content")
+        .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionX(node));})
+        .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionY(node));})
+        .attr("eagle-wrap-width", getWrapWidth)
+        .style("fill", getContentFill)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(CONTENT_TEXT_FONT_SIZE) + "px")
+        .style("display", getContentDisplay)
+        .text(getContentText)
+        .call(wrap, true);
 
-    const icons = nodes.append("svg:image")
-                    .attr("href", getDataIcon)
-                    .attr("width", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_WIDTH))
-                    .attr("height", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_HEIGHT))
-                    .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getIconLocationX(node));})
-                    .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getIconLocationY(node));})
+    // add the svg icon
+    nodes
+        .append("svg:image")
+        .attr("href", getDataIcon)
+        .attr("width", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_WIDTH))
+        .attr("height", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_HEIGHT))
+        .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getIconLocationX(node));})
+        .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getIconLocationY(node));})
 
-    const resizeControls = nodes.append("rect")
-                                .attr("class", "resize-control")
-                                .attr("width", RESIZE_CONTROL_SIZE)
-                                .attr("height", RESIZE_CONTROL_SIZE)
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - RESIZE_CONTROL_SIZE);})
-                                .attr("y", function(node : Node){return REAL_TO_DISPLAY_SCALE(getHeight(node) - RESIZE_CONTROL_SIZE);})
-                                .style("display", getResizeControlDisplay);
+    // add the resize controls
+    nodes
+        .append("rect")
+        .attr("class", "resize-control")
+        .attr("width", RESIZE_CONTROL_SIZE)
+        .attr("height", RESIZE_CONTROL_SIZE)
+        .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - RESIZE_CONTROL_SIZE);})
+        .attr("y", function(node : Node){return REAL_TO_DISPLAY_SCALE(getHeight(node) - RESIZE_CONTROL_SIZE);})
+        .style("display", getResizeControlDisplay);
 
-    const resizeLabels = nodes.append("text")
-                                .attr("class", "resize-control-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - RESIZE_CONTROL_SIZE);})
-                                .attr('y', function(node : Node){return REAL_TO_DISPLAY_SCALE(getHeight(node) - 2);})
-                                .style('font-size', REAL_TO_DISPLAY_SCALE(RESIZE_BUTTON_LABEL_FONT_SIZE) + 'px')
-                                .style('display', getResizeControlDisplay)
-                                .style('user-select', 'none')
-                                .style('cursor', 'nwse-resize')
-                                .text(RESIZE_BUTTON_LABEL);
+    // add the resize labels
+    nodes
+        .append("text")
+        .attr("class", "resize-control-label")
+        .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - RESIZE_CONTROL_SIZE);})
+        .attr('y', function(node : Node){return REAL_TO_DISPLAY_SCALE(getHeight(node) - 2);})
+        .style('font-size', REAL_TO_DISPLAY_SCALE(RESIZE_BUTTON_LABEL_FONT_SIZE) + 'px')
+        .style('display', getResizeControlDisplay)
+        .style('user-select', 'none')
+        .style('cursor', 'nwse-resize')
+        .text(RESIZE_BUTTON_LABEL);
 
-    const resizeDragHandler = d3.drag()
-                                .on("start", function (node : Node) {
-                                    selectNode(node);
-                                    tick();
-                                })
-                                .on("drag", function (node : Node) {
-                                    let newWidth = node.getWidth() + DISPLAY_TO_REAL_SCALE(d3.event.dx);
-                                    let newHeight = node.getHeight() + DISPLAY_TO_REAL_SCALE(d3.event.dy);
+    const resizeDragHandler = d3
+        .drag()
+        .on("start", function (node : Node) {
+            selectNode(node);
+            tick();
+        })
+        .on("drag", function (node : Node) {
+            let newWidth = node.getWidth() + DISPLAY_TO_REAL_SCALE(d3.event.dx);
+            let newHeight = node.getHeight() + DISPLAY_TO_REAL_SCALE(d3.event.dy);
 
-                                    // ensure node are of at least a minimum size
-                                    newWidth = Math.max(newWidth, Node.MINIMUM_WIDTH);
-                                    newHeight = Math.max(newHeight, Node.MINIMUM_HEIGHT);
+            // ensure node are of at least a minimum size
+            newWidth = Math.max(newWidth, Node.MINIMUM_WIDTH);
+            newHeight = Math.max(newHeight, Node.MINIMUM_HEIGHT);
 
-                                    node.setWidth(newWidth);
-                                    node.setHeight(newHeight);
-                                    tick();
-                                });
+            node.setWidth(newWidth);
+            node.setHeight(newHeight);
+            tick();
+        });
 
     resizeDragHandler(svgContainer.selectAll("g.node rect.resize-control"));
     resizeDragHandler(svgContainer.selectAll("g.node text.resize-control-label"));
 
-    const shrinkButtons = nodes.append("rect")
-                                .attr("class", "shrink-button")
-                                .attr("width", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
-                                .attr("height", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 4);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
-                                .style("display", getShrinkControlDisplay)
-                                .on("click", shrinkOnClick);
+    // add shrink buttons
+    nodes
+        .append("rect")
+        .attr("class", "shrink-button")
+        .attr("width", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
+        .attr("height", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
+        .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 4);})
+        .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
+        .style("display", getShrinkControlDisplay)
+        .on("click", shrinkOnClick);
 
-    const shrinkLabels = nodes.append("text")
-                                .attr("class", "shrink-button-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 2);})
-                                .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8 + (COLLAPSE_BUTTON_SIZE/2)))
-                                .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
-                                .style('fill', 'black')
-                                .style('display', getShrinkControlDisplay)
-                                .style('user-select', 'none')
-                                .text(SHRINK_BUTTON_LABEL)
-                                .on("click", shrinkOnClick);
+    // add shrink button labels
+    nodes
+        .append("text")
+        .attr("class", "shrink-button-label")
+        .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 2);})
+        .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8 + (COLLAPSE_BUTTON_SIZE/2)))
+        .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
+        .style('fill', 'black')
+        .style('display', getShrinkControlDisplay)
+        .style('user-select', 'none')
+        .text(SHRINK_BUTTON_LABEL)
+        .on("click", shrinkOnClick);
 
-    const collapseButtons = nodes.append("rect")
-                                .attr("class", "collapse-button")
-                                .attr("width", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
-                                .attr("height", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 8 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
-                                .style("display", getCollapseButtonDisplay)
-                                .on("click", collapseOnClick);
+    // add collapse buttons
+    nodes
+        .append("rect")
+        .attr("class", "collapse-button")
+        .attr("width", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
+        .attr("height", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
+        .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 8 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
+        .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
+        .style("display", getCollapseButtonDisplay)
+        .on("click", collapseOnClick);
 
-    const collapseLabels = nodes.append("text")
-                                .attr("class", "collapse-button-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 5.5 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
-                                .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2)))
-                                .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
-                                .style('fill', 'black')
-                                .style('display', getCollapseButtonDisplay)
-                                .style('user-select', 'none')
-                                .text(COLLAPSE_BUTTON_LABEL)
-                                .on("click", collapseOnClick);
+    // add collapse button labels
+    nodes
+        .append("text")
+        .attr("class", "collapse-button-label")
+        .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 5.5 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
+        .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2)))
+        .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
+        .style('fill', 'black')
+        .style('display', getCollapseButtonDisplay)
+        .style('user-select', 'none')
+        .text(COLLAPSE_BUTTON_LABEL)
+        .on("click", collapseOnClick);
 
-    const expandButtons = nodes.append("rect")
-                                .attr("class", "expand-button")
-                                .attr("width", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
-                                .attr("height", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - EXPAND_BUTTON_SIZE - HEADER_INSET - 4);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
-                                .style("display", getExpandButtonDisplay)
-                                .on("click", expandOnClick);
+    // add expand buttons
+    nodes
+        .append("rect")
+        .attr("class", "expand-button")
+        .attr("width", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
+        .attr("height", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
+        .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - EXPAND_BUTTON_SIZE - HEADER_INSET - 4);})
+        .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
+        .style("display", getExpandButtonDisplay)
+        .on("click", expandOnClick);
 
-    const expandLabels = nodes.append("text")
-                                .attr("class", "expand-button-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - (SHRINK_BUTTON_SIZE/2) - HEADER_INSET - 9.5);})
-                                .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2)))
-                                .attr('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
-                                .style('fill', 'black')
-                                .style('display', getExpandButtonDisplay)
-                                .style('user-select', 'none')
-                                .text(EXPAND_BUTTON_LABEL)
-                                .on("click", expandOnClick);
+    // add expand button labels
+    nodes
+        .append("text")
+        .attr("class", "expand-button-label")
+        .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - (SHRINK_BUTTON_SIZE/2) - HEADER_INSET - 9.5);})
+        .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2)))
+        .attr('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
+        .style('fill', 'black')
+        .style('display', getExpandButtonDisplay)
+        .style('user-select', 'none')
+        .text(EXPAND_BUTTON_LABEL)
+        .on("click", expandOnClick);
 
     // add the left-side ports (by default, the input ports)
-    const inputPortGroups = nodes.append("g")
-                                .attr("class", getInputPortGroupClass)
-                                .attr("transform", getInputPortGroupTransform)
-                                .style("display", getPortsDisplay);
+    const inputPortGroups = nodes
+        .append("g")
+        .attr("class", getInputPortGroupClass)
+        .attr("transform", getInputPortGroupTransform)
+        .style("display", getPortsDisplay);
 
-    const inputPorts = inputPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-                            .enter()
-                            .append("text")
-                            .attr("class", getInputPortClass)
-                            .attr("x", getInputPortPositionX)
-                            .attr("y", getInputPortPositionY)
-                            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                            .text(function (port : Port) {return port.getName();});
+    // add input ports
+    inputPortGroups
+        .selectAll("g")
+        .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
+        .enter()
+        .append("text")
+        .attr("class", getInputPortClass)
+        .attr("x", getInputPortPositionX)
+        .attr("y", getInputPortPositionY)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+        .text(function (port : Port) {return port.getName();});
 
-    const inputCircles = inputPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-                            .enter()
-                            .append("circle")
-                            .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", getInputPortCirclePositionX)
-                            .attr("cy", getInputPortCirclePositionY)
-                            .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                            .on("mouseenter", mouseEnterPort)
-                            .on("mouseleave", mouseLeavePort);
+    const inputCircles = inputPortGroups
+        .selectAll("g")
+        .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
+        .enter()
+        .append("circle")
+        .attr("data-id", function(port : Port){return port.getId();})
+        .attr("cx", getInputPortCirclePositionX)
+        .attr("cy", getInputPortCirclePositionY)
+        .attr("r", REAL_TO_DISPLAY_SCALE(6))
+        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+        .on("mouseenter", mouseEnterPort)
+        .on("mouseleave", mouseLeavePort);
 
     // add the input local ports
-    const inputLocalPortGroups = nodes.append("g")
-                                .attr("class", getInputLocalPortGroupClass)
-                                .attr("transform", getInputLocalPortGroupTransform)
-                                .style("display", getPortsDisplay);
+    const inputLocalPortGroups = nodes
+        .append("g")
+        .attr("class", getInputLocalPortGroupClass)
+        .attr("transform", getInputLocalPortGroupTransform)
+        .style("display", getPortsDisplay);
 
-    const inputLocalPorts = inputLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getInputApplicationOutputPorts();})
-                            .enter()
-                            .append("text")
-                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                            .attr("x", getInputLocalPortPositionX)
-                            .attr("y", getInputLocalPortPositionY)
-                            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                            .text(function (port : Port) {return port.getName();});
+    inputLocalPortGroups
+        .selectAll("g")
+        .data(function(node : Node){return node.getInputApplicationOutputPorts();})
+        .enter()
+        .append("text")
+        .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+        .attr("x", getInputLocalPortPositionX)
+        .attr("y", getInputLocalPortPositionY)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+        .text(function (port : Port) {return port.getName();});
 
-    const inputLocalCircles = inputLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getInputApplicationOutputPorts();})
-                            .enter()
-                            .append("circle")
-                            .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", getInputLocalPortCirclePositionX)
-                            .attr("cy", getInputLocalPortCirclePositionY)
-                            .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                            .on("mouseenter", mouseEnterPort)
-                            .on("mouseleave", mouseLeavePort);
+    const inputLocalCircles = inputLocalPortGroups
+        .selectAll("g")
+        .data(function(node : Node){return node.getInputApplicationOutputPorts();})
+        .enter()
+        .append("circle")
+        .attr("data-id", function(port : Port){return port.getId();})
+        .attr("cx", getInputLocalPortCirclePositionX)
+        .attr("cy", getInputLocalPortCirclePositionY)
+        .attr("r", REAL_TO_DISPLAY_SCALE(6))
+        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+        .on("mouseenter", mouseEnterPort)
+        .on("mouseleave", mouseLeavePort);
 
     // add the output ports
-    const outputPortGroups = nodes.append("g")
-                                .attr("class", getOutputPortGroupClass)
-                                .attr("transform", getOutputPortGroupTransform)
-                                .style("display", getPortsDisplay);
+    const outputPortGroups = nodes
+        .append("g")
+        .attr("class", getOutputPortGroupClass)
+        .attr("transform", getOutputPortGroupTransform)
+        .style("display", getPortsDisplay);
 
-    const outputPorts = outputPortGroups.selectAll("g")
-                            .data(function(node : Node, index : number){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
-                            .enter()
-                            .append("text")
-                            .attr("class", getOutputPortClass)
-                            .attr("x", getOutputPortPositionX)
-                            .attr("y", getOutputPortPositionY)
-                            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                            .text(function (port : Port) {return port.getName();});
+    outputPortGroups
+        .selectAll("g")
+        .data(function(node : Node, index : number){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
+        .enter()
+        .append("text")
+        .attr("class", getOutputPortClass)
+        .attr("x", getOutputPortPositionX)
+        .attr("y", getOutputPortPositionY)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+        .text(function (port : Port) {return port.getName();});
 
-    const outputCircles = outputPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
-                            .enter()
-                            .append("circle")
-                            .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", getOutputPortCirclePositionX)
-                            .attr("cy", getOutputPortCirclePositionY)
-                            .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                            .on("mouseenter", mouseEnterPort)
-                            .on("mouseleave", mouseLeavePort);
+    const outputCircles = outputPortGroups
+        .selectAll("g")
+        .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
+        .enter()
+        .append("circle")
+        .attr("data-id", function(port : Port){return port.getId();})
+        .attr("cx", getOutputPortCirclePositionX)
+        .attr("cy", getOutputPortCirclePositionY)
+        .attr("r", REAL_TO_DISPLAY_SCALE(6))
+        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+        .on("mouseenter", mouseEnterPort)
+        .on("mouseleave", mouseLeavePort);
 
     // add the output local ports
-    const outputLocalPortGroups = nodes.append("g")
-                                .attr("class", getOutputLocalPortGroupClass)
-                                .attr("transform", getOutputLocalPortGroupTransform)
-                                .style("display", getPortsDisplay);
+    const outputLocalPortGroups = nodes
+        .append("g")
+        .attr("class", getOutputLocalPortGroupClass)
+        .attr("transform", getOutputLocalPortGroupTransform)
+        .style("display", getPortsDisplay);
 
-    const outputLocalPorts = outputLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getOutputApplicationInputPorts();})
-                            .enter()
-                            .append("text")
-                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                            .attr("x", getOutputLocalPortPositionX)
-                            .attr("y", getOutputLocalPortPositionY)
-                            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                            .text(function (port : Port) {return port.getName();});
+    outputLocalPortGroups
+        .selectAll("g")
+        .data(function(node : Node){return node.getOutputApplicationInputPorts();})
+        .enter()
+        .append("text")
+        .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+        .attr("x", getOutputLocalPortPositionX)
+        .attr("y", getOutputLocalPortPositionY)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+        .text(function (port : Port) {return port.getName();});
 
-    const outputLocalCircles = outputLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getOutputApplicationInputPorts();})
-                            .enter()
-                            .append("circle")
-                            .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", getOutputLocalPortCirclePositionX)
-                            .attr("cy", getOutputLocalPortCirclePositionY)
-                            .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                            .on("mouseenter", mouseEnterPort)
-                            .on("mouseleave", mouseLeavePort);
+    const outputLocalCircles = outputLocalPortGroups
+        .selectAll("g")
+        .data(function(node : Node){return node.getOutputApplicationInputPorts();})
+        .enter()
+        .append("circle")
+        .attr("data-id", function(port : Port){return port.getId();})
+        .attr("cx", getOutputLocalPortCirclePositionX)
+        .attr("cy", getOutputLocalPortCirclePositionY)
+        .attr("r", REAL_TO_DISPLAY_SCALE(6))
+        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+        .on("mouseenter", mouseEnterPort)
+        .on("mouseleave", mouseLeavePort);
 
     // add the exit ports
-    const exitPortGroups = nodes.append("g")
-                                .attr("class", getExitPortGroupClass)
-                                .attr("transform", getExitPortGroupTransform)
-                                .style("display", getPortsDisplay);
+    const exitPortGroups = nodes
+        .append("g")
+        .attr("class", getExitPortGroupClass)
+        .attr("transform", getExitPortGroupTransform)
+        .style("display", getPortsDisplay);
 
-    const exitPorts = exitPortGroups.selectAll("g")
-                            .data(function(node : Node, index : number){return node.getExitApplicationOutputPorts();})
-                            .enter()
-                            .append("text")
-                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                            .attr("x", getExitPortPositionX)
-                            .attr("y", getExitPortPositionY)
-                            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                            .text(function (port : Port) {return port.getName();});
+    exitPortGroups
+        .selectAll("g")
+        .data(function(node : Node, index : number){return node.getExitApplicationOutputPorts();})
+        .enter()
+        .append("text")
+        .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+        .attr("x", getExitPortPositionX)
+        .attr("y", getExitPortPositionY)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+        .text(function (port : Port) {return port.getName();});
 
-    const exitCircles = exitPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-                            .enter()
-                            .append("circle")
-                            .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", getExitPortCirclePositionX)
-                            .attr("cy", getExitPortCirclePositionY)
-                            .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                            .on("mouseenter", mouseEnterPort)
-                            .on("mouseleave", mouseLeavePort);
+    exitPortGroups
+        .selectAll("g")
+        .data(function(node : Node){return node.getExitApplicationOutputPorts();})
+        .enter()
+        .append("circle")
+        .attr("data-id", function(port : Port){return port.getId();})
+        .attr("cx", getExitPortCirclePositionX)
+        .attr("cy", getExitPortCirclePositionY)
+        .attr("r", REAL_TO_DISPLAY_SCALE(6))
+        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+        .on("mouseenter", mouseEnterPort)
+        .on("mouseleave", mouseLeavePort);
 
     // add the exit local ports
     const exitLocalPortGroups = nodes.append("g")
@@ -584,27 +645,29 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 .attr("transform", getExitLocalPortGroupTransform)
                                 .style("display", getPortsDisplay);
 
-    const exitLocalPorts = exitLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getExitApplicationInputPorts();})
-                            .enter()
-                            .append("text")
-                            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                            .attr("x", getExitLocalPortPositionX)
-                            .attr("y", getExitLocalPortPositionY)
-                            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                            .text(function (port : Port) {return port.getName();});
+    exitLocalPortGroups
+        .selectAll("g")
+        .data(function(node : Node){return node.getExitApplicationInputPorts();})
+        .enter()
+        .append("text")
+        .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+        .attr("x", getExitLocalPortPositionX)
+        .attr("y", getExitLocalPortPositionY)
+        .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+        .text(function (port : Port) {return port.getName();});
 
-    const exitLocalCircles = exitLocalPortGroups.selectAll("g")
-                            .data(function(node : Node){return node.getExitApplicationInputPorts();})
-                            .enter()
-                            .append("circle")
-                            .attr("data-id", function(port : Port){return port.getId();})
-                            .attr("cx", getExitLocalPortCirclePositionX)
-                            .attr("cy", getExitLocalPortCirclePositionY)
-                            .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                            .on("mouseenter", mouseEnterPort)
-                            .on("mouseleave", mouseLeavePort);
+    exitLocalPortGroups
+        .selectAll("g")
+        .data(function(node : Node){return node.getExitApplicationInputPorts();})
+        .enter()
+        .append("circle")
+        .attr("data-id", function(port : Port){return port.getId();})
+        .attr("cx", getExitLocalPortCirclePositionX)
+        .attr("cy", getExitLocalPortCirclePositionY)
+        .attr("r", REAL_TO_DISPLAY_SCALE(6))
+        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+        .on("mouseenter", mouseEnterPort)
+        .on("mouseleave", mouseLeavePort);
 
 
     const portDragHandler = d3.drag()
@@ -653,47 +716,53 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // draw link extras (these a invisble wider links that assist users in selecting the edges)
     // TODO: ideally we would not use the 'any' type here
-    const linkExtras : any = svgContainer.selectAll("path.linkExtra")
-                            .data(linkData)
-                            .enter()
-                            .append("path");
+    const linkExtras : any = svgContainer
+        .selectAll("path.linkExtra")
+        .data(linkData)
+        .enter()
+        .append("path");
 
-    const linkExtrasAttributes = linkExtras.attr("class", "linkExtra")
-                            .attr("d", createLink)
-                            .attr("stroke", edgeExtraGetStrokeColor)
-                            .attr("stroke-dasharray", edgeGetStrokeDashArray)
-                            .attr("fill", "transparent")
-                            .style("display", getEdgeDisplay)
-                            .on("click", edgeOnClick);
+    linkExtras
+        .attr("class", "linkExtra")
+        .attr("d", createLink)
+        .attr("stroke", edgeExtraGetStrokeColor)
+        .attr("stroke-dasharray", edgeGetStrokeDashArray)
+        .attr("fill", "transparent")
+        .style("display", getEdgeDisplay)
+        .on("click", edgeOnClick);
 
     // draw links
     // TODO: ideally we would not use the 'any' type here
-    let links : any = svgContainer.selectAll("path.link")
-                            .data(linkData)
-                            .enter()
-                            .append("path");
+    let links : any = svgContainer
+        .selectAll("path.link")
+        .data(linkData)
+        .enter()
+        .append("path");
 
-    const linkAttributes = links.attr("class", "link")
-                            .attr("d", createLink)
-                            .attr("stroke", edgeGetStrokeColor)
-                            .attr("stroke-dasharray", edgeGetStrokeDashArray)
-                            .attr("fill", "transparent")
-                            .attr("marker-end", "url(#grey-arrowhead)")
-                            .style("display", getEdgeDisplay)
-                            .on("click", edgeOnClick);
+    links
+        .attr("class", "link")
+        .attr("d", createLink)
+        .attr("stroke", edgeGetStrokeColor)
+        .attr("stroke-dasharray", edgeGetStrokeDashArray)
+        .attr("fill", "transparent")
+        .attr("marker-end", "url(#grey-arrowhead)")
+        .style("display", getEdgeDisplay)
+        .on("click", edgeOnClick);
 
     // draw comment links
-    let commentLinks : any = svgContainer.selectAll("path.commentLink")
-                            .data(nodeData)
-                            .enter()
-                            .append("path");
+    let commentLinks : any = svgContainer
+        .selectAll("path.commentLink")
+        .data(nodeData)
+        .enter()
+        .append("path");
 
-    const commentLinkAttributes = commentLinks.attr("class", "commentLink")
-                            .attr("d", createCommentLink)
-                            .attr("stroke", "black")
-                            .attr("fill", "transparent")
-                            .attr("marker-end", "url(#black-arrowhead)")
-                            .style("display", getCommentLinkDisplay);
+    commentLinks
+        .attr("class", "commentLink")
+        .attr("d", createCommentLink)
+        .attr("stroke", "black")
+        .attr("fill", "transparent")
+        .attr("marker-end", "url(#black-arrowhead)")
+        .style("display", getCommentLinkDisplay);
 
     function determineDirection(source: boolean, node: Node, portIndex: number, portType: string): Eagle.Direction {
         if (source){
@@ -780,510 +849,581 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         //console.log("tick()");
 
         // enter any new nodes
-        svgContainer.selectAll("g.node")
-                                .data(nodeData)
-                                .enter()
-                                .insert("g")
-                                .attr("class", "node")
-                                .attr("id", function(node : Node, index : number){return "node" + index;});
+        svgContainer
+            .selectAll("g.node")
+            .data(nodeData)
+            .enter()
+            .insert("g")
+            .attr("class", "node")
+            .attr("id", function(node : Node, index : number){return "node" + index;});
 
         // exit any old nodes
-        svgContainer.selectAll("g.node")
-                            .data(nodeData)
-                            .exit()
-                            .remove();
+        svgContainer
+            .selectAll("g.node")
+            .data(nodeData)
+            .exit()
+            .remove();
 
         // enter any new links
-        svgContainer.selectAll("path.link")
-                                .data(linkData)
-                                .enter()
-                                .insert("path")
-                                .attr("class", "link")
-                                .style("display", getEdgeDisplay)
-                                .on("click", edgeOnClick);
+        svgContainer
+            .selectAll("path.link")
+            .data(linkData)
+            .enter()
+            .insert("path")
+            .attr("class", "link")
+            .style("display", getEdgeDisplay)
+            .on("click", edgeOnClick);
 
         // exit any old links.
-        svgContainer.selectAll("path.link")
-                                .data(linkData)
-                                .exit()
-                                .remove();
+        svgContainer
+            .selectAll("path.link")
+            .data(linkData)
+            .exit()
+            .remove();
 
         // enter any new comment links
-        svgContainer.selectAll("path.commentLink")
-                                .data(nodeData)
-                                .enter()
-                                .insert("path")
-                                .attr("class", "commentLink")
-                                .style("display", getCommentLinkDisplay);
+        svgContainer
+            .selectAll("path.commentLink")
+            .data(nodeData)
+            .enter()
+            .insert("path")
+            .attr("class", "commentLink")
+            .style("display", getCommentLinkDisplay);
 
         // exit any old comment links
-        svgContainer.selectAll("path.commentLink")
-                                .data(nodeData)
-                                .exit()
-                                .remove();
+        svgContainer
+            .selectAll("path.commentLink")
+            .data(nodeData)
+            .exit()
+            .remove();
 
         // make sure we have references to all the objects of each type
-        nodes = svgContainer.selectAll("g.node")
-                                .data(nodeData)
-                                .style("display", getNodeDisplay);
-        links = svgContainer.selectAll("path.link")
-                                .data(linkData);
-        commentLinks = svgContainer.selectAll("path.commentLink")
-                                .data(nodeData);
+        nodes = svgContainer
+            .selectAll("g.node")
+            .data(nodeData)
+            .style("display", getNodeDisplay);
+        links = svgContainer
+            .selectAll("path.link")
+            .data(linkData);
+        commentLinks = svgContainer
+            .selectAll("path.commentLink")
+            .data(nodeData);
 
         // TODO: update attributes of all nodes
         nodes.attr("transform", nodeGetTranslation);
 
-        svgContainer.selectAll("g.node rect:not(.header-background):not(.apps-background):not(.resize-control):not(.shrink-button):not(.collapse-button):not(.expand-button)")
-                                .data(nodeData)
-                                .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
-                                .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeight(node));})
-                                .style("display", getNodeRectDisplay)
-                                .style("fill", nodeGetFill)
-                                .style("stroke", nodeGetStroke)
-                                .style("stroke-width", NODE_STROKE_WIDTH)
-                                .attr("stroke-dasharray", nodeGetStrokeDashArray)
-                                .on("click", nodeOnClick);
+        svgContainer
+            .selectAll("g.node rect:not(.header-background):not(.apps-background):not(.resize-control):not(.shrink-button):not(.collapse-button):not(.expand-button)")
+            .data(nodeData)
+            .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getWidth(node));})
+            .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeight(node));})
+            .style("display", getNodeRectDisplay)
+            .style("fill", nodeGetFill)
+            .style("stroke", nodeGetStroke)
+            .style("stroke-width", NODE_STROKE_WIDTH)
+            .attr("stroke-dasharray", nodeGetStrokeDashArray)
+            .on("click", nodeOnClick);
 
-        svgContainer.selectAll("g.node polygon")
-                                .data(nodeData)
-                                .attr("points", getNodeCustomShapePoints)
-                                .style("display", getNodeCustomShapeDisplay)
-                                .style("fill", nodeGetColor)
-                                .style("stroke", nodeGetStroke)
-                                .style("stroke-width", NODE_STROKE_WIDTH)
-                                .attr("stroke-dasharray", nodeGetStrokeDashArray)
-                                .on("click", nodeOnClick);
+        svgContainer
+            .selectAll("g.node polygon")
+            .data(nodeData)
+            .attr("points", getNodeCustomShapePoints)
+            .style("display", getNodeCustomShapeDisplay)
+            .style("fill", nodeGetColor)
+            .style("stroke", nodeGetStroke)
+            .style("stroke-width", NODE_STROKE_WIDTH)
+            .attr("stroke-dasharray", nodeGetStrokeDashArray)
+            .on("click", nodeOnClick);
 
-        svgContainer.selectAll("g.node rect.header-background")
-                                .data(nodeData)
-                                .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
-                                .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
-                                .attr("x", HEADER_INSET)
-                                .attr("y", HEADER_INSET)
-                                .style("fill", nodeGetColor)
-                                .style("stroke", "grey")
-                                .style("display", getHeaderBackgroundDisplay);
+        svgContainer
+            .selectAll("g.node rect.header-background")
+            .data(nodeData)
+            .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundWidth(node));})
+            .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderBackgroundHeight(node));})
+            .attr("x", HEADER_INSET)
+            .attr("y", HEADER_INSET)
+            .style("fill", nodeGetColor)
+            .style("stroke", "grey")
+            .style("display", getHeaderBackgroundDisplay);
 
-        svgContainer.selectAll("g.node text.header")
-                                .data(nodeData)
-                                .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionX(node));})
-                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionY(node));})
-                                .attr("eagle-wrap-width", getWrapWidth)
-                                .style("fill", getHeaderFill)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
-                                .style("display", getHeaderDisplay)
-                                .text(getHeaderText)
-                                .call(wrap, false);
+        svgContainer
+            .selectAll("g.node text.header")
+            .data(nodeData)
+            .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionX(node));})
+            .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getHeaderPositionY(node));})
+            .attr("eagle-wrap-width", getWrapWidth)
+            .style("fill", getHeaderFill)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+            .style("display", getHeaderDisplay)
+            .text(getHeaderText)
+            .call(wrap, false);
 
-        svgContainer.selectAll("g.node text.subheader")
-                                .data(nodeData)
-                                .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getSubHeaderPositionX(node));})
-                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getSubHeaderPositionY(node));})
-                                .style("fill", getSubHeaderFill)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
-                                .style("display", getSubHeaderDisplay)
-                                .text(getSubHeaderText);
+        svgContainer
+            .selectAll("g.node text.subheader")
+            .data(nodeData)
+            .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getSubHeaderPositionX(node));})
+            .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getSubHeaderPositionY(node));})
+            .style("fill", getSubHeaderFill)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+            .style("display", getSubHeaderDisplay)
+            .text(getSubHeaderText);
 
-        svgContainer.selectAll("g.node rect.apps-background")
-                                .data(nodeData)
-                                .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundWidth(node));})
-                                .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundHeight(node));})
-                                .attr("x", HEADER_INSET)
-                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(HEADER_INSET + getHeaderBackgroundHeight(node));})
-                                .style("fill", nodeGetColor)
-                                .style("stroke", "grey")
-                                .style("display", getAppsBackgroundDisplay);
+        svgContainer
+            .selectAll("g.node rect.apps-background")
+            .data(nodeData)
+            .attr("width", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundWidth(node));})
+            .attr("height", function(node:Node){return REAL_TO_DISPLAY_SCALE(getAppsBackgroundHeight(node));})
+            .attr("x", HEADER_INSET)
+            .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(HEADER_INSET + getHeaderBackgroundHeight(node));})
+            .style("fill", nodeGetColor)
+            .style("stroke", "grey")
+            .style("display", getAppsBackgroundDisplay);
 
-        svgContainer.selectAll("g.node text.inputAppName")
-                                .data(nodeData)
-                                .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionX(node));})
-                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionY(node));})
-                                .style("fill", getHeaderFill)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
-                                .style("display", getAppsBackgroundDisplay)
-                                .text(getInputAppText);
+        svgContainer
+            .selectAll("g.node text.inputAppName")
+            .data(nodeData)
+            .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionX(node));})
+            .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getInputAppPositionY(node));})
+            .style("fill", getHeaderFill)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+            .style("display", getAppsBackgroundDisplay)
+            .text(getInputAppText);
 
-        svgContainer.selectAll("g.node text.outputAppName")
-                                .data(nodeData)
-                                .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionX(node));})
-                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionY(node));})
-                                .style("fill", getHeaderFill)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
-                                .style("display", getAppsBackgroundDisplay)
-                                .text(getOutputAppText);
+        svgContainer
+            .selectAll("g.node text.outputAppName")
+            .data(nodeData)
+            .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionX(node));})
+            .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getOutputAppPositionY(node));})
+            .style("fill", getHeaderFill)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+            .style("display", getAppsBackgroundDisplay)
+            .text(getOutputAppText);
 
-        svgContainer.selectAll("g.node text.exitAppName")
-                                .data(nodeData)
-                                .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionX(node));})
-                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionY(node));})
-                                .style("fill", getHeaderFill)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
-                                .style("display", getAppsBackgroundDisplay)
-                                .text(getExitAppText);
+        svgContainer
+            .selectAll("g.node text.exitAppName")
+            .data(nodeData)
+            .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionX(node));})
+            .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getExitAppPositionY(node));})
+            .style("fill", getHeaderFill)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(HEADER_TEXT_FONT_SIZE) + "px")
+            .style("display", getAppsBackgroundDisplay)
+            .text(getExitAppText);
 
-        svgContainer.selectAll("g.node text.content")
-                                .data(nodeData)
-                                .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionX(node));})
-                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionY(node));})
-                                .attr("eagle-wrap-width", getWrapWidth)
-                                .style("fill", getContentFill)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(CONTENT_TEXT_FONT_SIZE) + "px")
-                                .style("display", getContentDisplay)
-                                .text(getContentText)
-                                .call(wrap, true);
+        svgContainer
+            .selectAll("g.node text.content")
+            .data(nodeData)
+            .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionX(node));})
+            .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getContentPositionY(node));})
+            .attr("eagle-wrap-width", getWrapWidth)
+            .style("fill", getContentFill)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(CONTENT_TEXT_FONT_SIZE) + "px")
+            .style("display", getContentDisplay)
+            .text(getContentText)
+            .call(wrap, true);
 
-        svgContainer.selectAll("image")
-                                .data(nodeData)
-                                .attr("href", getDataIcon)
-                                .attr("width", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_HEIGHT))
-                                .attr("height", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_HEIGHT))
-                                .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getIconLocationX(node));})
-                                .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getIconLocationY(node));});
+        svgContainer
+            .selectAll("image")
+            .data(nodeData)
+            .attr("href", getDataIcon)
+            .attr("width", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_HEIGHT))
+            .attr("height", REAL_TO_DISPLAY_SCALE(Node.DATA_COMPONENT_HEIGHT))
+            .attr("x", function(node:Node){return REAL_TO_DISPLAY_SCALE(getIconLocationX(node));})
+            .attr("y", function(node:Node){return REAL_TO_DISPLAY_SCALE(getIconLocationY(node));});
 
-        svgContainer.selectAll("g.node rect.resize-control")
-                                .attr("width", REAL_TO_DISPLAY_SCALE(RESIZE_CONTROL_SIZE))
-                                .attr("height", REAL_TO_DISPLAY_SCALE(RESIZE_CONTROL_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - RESIZE_CONTROL_SIZE);})
-                                .attr("y", function(node : Node){return REAL_TO_DISPLAY_SCALE(getHeight(node) - RESIZE_CONTROL_SIZE);})
-                                .style("display", getResizeControlDisplay);
+        svgContainer
+            .selectAll("g.node rect.resize-control")
+            .attr("width", REAL_TO_DISPLAY_SCALE(RESIZE_CONTROL_SIZE))
+            .attr("height", REAL_TO_DISPLAY_SCALE(RESIZE_CONTROL_SIZE))
+            .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - RESIZE_CONTROL_SIZE);})
+            .attr("y", function(node : Node){return REAL_TO_DISPLAY_SCALE(getHeight(node) - RESIZE_CONTROL_SIZE);})
+            .style("display", getResizeControlDisplay);
 
-        svgContainer.selectAll("g.node text.resize-control-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - RESIZE_CONTROL_SIZE);})
-                                .attr('y', function(node : Node){return REAL_TO_DISPLAY_SCALE(getHeight(node) - 2);})
-                                .style('font-size', REAL_TO_DISPLAY_SCALE(RESIZE_BUTTON_LABEL_FONT_SIZE) + 'px')
-                                .style('display', getResizeControlDisplay);
+        svgContainer
+            .selectAll("g.node text.resize-control-label")
+            .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - RESIZE_CONTROL_SIZE);})
+            .attr('y', function(node : Node){return REAL_TO_DISPLAY_SCALE(getHeight(node) - 2);})
+            .style('font-size', REAL_TO_DISPLAY_SCALE(RESIZE_BUTTON_LABEL_FONT_SIZE) + 'px')
+            .style('display', getResizeControlDisplay);
 
-        svgContainer.selectAll("g.node rect.shrink-button")
-                                .attr("width", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
-                                .attr("height", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 4);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
-                                .style("display", getShrinkControlDisplay);
+        svgContainer
+            .selectAll("g.node rect.shrink-button")
+            .attr("width", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
+            .attr("height", REAL_TO_DISPLAY_SCALE(SHRINK_BUTTON_SIZE))
+            .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 4);})
+            .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
+            .style("display", getShrinkControlDisplay);
 
-        svgContainer.selectAll("text.shrink-button-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 2);})
-                                .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8 + (COLLAPSE_BUTTON_SIZE/2)))
-                                .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
-                                .style('display', getShrinkControlDisplay);
+        svgContainer
+            .selectAll("text.shrink-button-label")
+            .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 2);})
+            .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8 + (COLLAPSE_BUTTON_SIZE/2)))
+            .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
+            .style('display', getShrinkControlDisplay);
 
-        svgContainer.selectAll("g.node rect.collapse-button")
-                                .attr("width", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
-                                .attr("height", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 8 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
-                                .style("display", getCollapseButtonDisplay);
+        svgContainer
+            .selectAll("g.node rect.collapse-button")
+            .attr("width", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
+            .attr("height", REAL_TO_DISPLAY_SCALE(COLLAPSE_BUTTON_SIZE))
+            .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 8 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
+            .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
+            .style("display", getCollapseButtonDisplay);
 
-        svgContainer.selectAll("text.collapse-button-label")
-                                .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 5.5 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
-                                .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2)))
-                                .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
-                                .style('display', getCollapseButtonDisplay);
+        svgContainer
+            .selectAll("text.collapse-button-label")
+            .attr('x', function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - SHRINK_BUTTON_SIZE - 5.5 - COLLAPSE_BUTTON_SIZE - HEADER_INSET);})
+            .attr('y', REAL_TO_DISPLAY_SCALE(HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2)))
+            .style('font-size', REAL_TO_DISPLAY_SCALE(HEADER_BUTTON_LABEL_FONT_SIZE) + 'px')
+            .style('display', getCollapseButtonDisplay);
 
-        svgContainer.selectAll("g.node rect.expand-button")
-                                .attr("width", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
-                                .attr("height", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
-                                .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - EXPAND_BUTTON_SIZE - HEADER_INSET - 4);})
-                                .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
-                                .style("display", getExpandButtonDisplay);
+        svgContainer
+            .selectAll("g.node rect.expand-button")
+            .attr("width", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
+            .attr("height", REAL_TO_DISPLAY_SCALE(EXPAND_BUTTON_SIZE))
+            .attr("x", function(node : Node){return REAL_TO_DISPLAY_SCALE(getWidth(node) - EXPAND_BUTTON_SIZE - HEADER_INSET - 4);})
+            .attr("y", REAL_TO_DISPLAY_SCALE(HEADER_INSET + 4))
+            .style("display", getExpandButtonDisplay);
 
         // inputPorts
-        nodes.selectAll("g.inputPorts")
-                                .attr("transform", getInputPortGroupTransform)
-                                .style("display", getPortsDisplay);
+        nodes
+            .selectAll("g.inputPorts")
+            .attr("transform", getInputPortGroupTransform)
+            .style("display", getPortsDisplay);
 
-        nodes.selectAll("g.inputPorts text")
-                                .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-                                .enter()
-                                .select("g.inputPorts")
-                                .insert("text");
+        nodes
+            .selectAll("g.inputPorts text")
+            .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
+            .enter()
+            .select("g.inputPorts")
+            .insert("text");
 
-        nodes.selectAll("g.inputPorts text")
-                                .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.inputPorts text")
+            .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.inputPorts text")
-                                .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-                                .attr("class", getInputPortClass)
-                                .attr("x", getInputPortPositionX)
-                                .attr("y", getInputPortPositionY)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                                .text(function (port : Port) {return port.getName();});
+        nodes
+            .selectAll("g.inputPorts text")
+            .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
+            .attr("class", getInputPortClass)
+            .attr("x", getInputPortPositionX)
+            .attr("y", getInputPortPositionY)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+            .text(function (port : Port) {return port.getName();});
 
-        nodes.selectAll("g.inputPorts circle")
-                                .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-                                .enter()
-                                .select("g.inputPorts")
-                                .insert("circle");
+        nodes
+            .selectAll("g.inputPorts circle")
+            .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
+            .enter()
+            .select("g.inputPorts")
+            .insert("circle");
 
-        nodes.selectAll("g.inputPorts circle")
-                                .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.inputPorts circle")
+            .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.inputPorts circle")
-                                .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-                                .attr("data-key", function(port : Port){return port.getId();})
-                                .attr("cx", getInputPortCirclePositionX)
-                                .attr("cy", getInputPortCirclePositionY)
-                                .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                                .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                                .on("mouseenter", mouseEnterPort)
-                                .on("mouseleave", mouseLeavePort);
+        nodes
+            .selectAll("g.inputPorts circle")
+            .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
+            .attr("data-key", function(port : Port){return port.getId();})
+            .attr("cx", getInputPortCirclePositionX)
+            .attr("cy", getInputPortCirclePositionY)
+            .attr("r", REAL_TO_DISPLAY_SCALE(6))
+            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+            .on("mouseenter", mouseEnterPort)
+            .on("mouseleave", mouseLeavePort);
 
         // inputLocalPorts
-        nodes.selectAll("g.inputLocalPorts")
-                                .attr("transform", getInputLocalPortGroupTransform)
-                                .style("display", getPortsDisplay);
+        nodes
+            .selectAll("g.inputLocalPorts")
+            .attr("transform", getInputLocalPortGroupTransform)
+            .style("display", getPortsDisplay);
 
-        nodes.selectAll("g.inputLocalPorts text")
-                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
-                                .enter()
-                                .select("g.inputLocalPorts")
-                                .insert("text");
+        nodes
+            .selectAll("g.inputLocalPorts text")
+            .data(function(node : Node){return node.getInputApplicationOutputPorts();})
+            .enter()
+            .select("g.inputLocalPorts")
+            .insert("text");
 
-        nodes.selectAll("g.inputLocalPorts text")
-                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.inputLocalPorts text")
+            .data(function(node : Node){return node.getInputApplicationOutputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.inputLocalPorts text")
-                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
-                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                                .attr("x", getInputLocalPortPositionX)
-                                .attr("y", getInputLocalPortPositionY)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                                .text(function (port : Port) {return port.getName();});
+        nodes
+            .selectAll("g.inputLocalPorts text")
+            .data(function(node : Node){return node.getInputApplicationOutputPorts();})
+            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+            .attr("x", getInputLocalPortPositionX)
+            .attr("y", getInputLocalPortPositionY)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+            .text(function (port : Port) {return port.getName();});
 
-        nodes.selectAll("g.inputLocalPorts circle")
-                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
-                                .enter()
-                                .select("g.inputLocalPorts")
-                                .insert("circle");
+        nodes
+            .selectAll("g.inputLocalPorts circle")
+            .data(function(node : Node){return node.getInputApplicationOutputPorts();})
+            .enter()
+            .select("g.inputLocalPorts")
+            .insert("circle");
 
-        nodes.selectAll("g.inputLocalPorts circle")
-                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.inputLocalPorts circle")
+            .data(function(node : Node){return node.getInputApplicationOutputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.inputLocalPorts circle")
-                                .data(function(node : Node){return node.getInputApplicationOutputPorts();})
-                                .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", getInputLocalPortCirclePositionX)
-                                .attr("cy", getInputLocalPortCirclePositionY)
-                                .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                                .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                                .on("mouseenter", mouseEnterPort)
-                                .on("mouseleave", mouseLeavePort);
+        nodes
+            .selectAll("g.inputLocalPorts circle")
+            .data(function(node : Node){return node.getInputApplicationOutputPorts();})
+            .attr("data-id", function(port : Port){return port.getId();})
+            .attr("cx", getInputLocalPortCirclePositionX)
+            .attr("cy", getInputLocalPortCirclePositionY)
+            .attr("r", REAL_TO_DISPLAY_SCALE(6))
+            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+            .on("mouseenter", mouseEnterPort)
+            .on("mouseleave", mouseLeavePort);
 
         // outputPorts
-        nodes.selectAll("g.outputPorts")
-                                .attr("transform", getOutputPortGroupTransform)
-                                .style("display", getPortsDisplay);
+        nodes
+            .selectAll("g.outputPorts")
+            .attr("transform", getOutputPortGroupTransform)
+            .style("display", getPortsDisplay);
 
-        nodes.selectAll("g.outputPorts text")
-                                .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
-                                .enter()
-                                .select("g.outputPorts")
-                                .insert("text");
+        nodes
+            .selectAll("g.outputPorts text")
+            .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
+            .enter()
+            .select("g.outputPorts")
+            .insert("text");
 
-        nodes.selectAll("g.outputPorts text")
-                                .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.outputPorts text")
+            .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.outputPorts text")
-                                .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
-                                .attr("class", getOutputPortClass)
-                                .attr("x", getOutputPortPositionX)
-                                .attr("y", getOutputPortPositionY)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                                .text(function (port : Port) {return port.getName()});
+        nodes
+            .selectAll("g.outputPorts text")
+            .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
+            .attr("class", getOutputPortClass)
+            .attr("x", getOutputPortPositionX)
+            .attr("y", getOutputPortPositionY)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+            .text(function (port : Port) {return port.getName()});
 
-        nodes.selectAll("g.outputPorts circle")
-                                .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
-                                .enter()
-                                .select("g.outputPorts")
-                                .insert("circle");
+        nodes
+            .selectAll("g.outputPorts circle")
+            .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
+            .enter()
+            .select("g.outputPorts")
+            .insert("circle");
 
-        nodes.selectAll("g.outputPorts circle")
-                                .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.outputPorts circle")
+            .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.outputPorts circle")
-                                .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
-                                .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", getOutputPortCirclePositionX)
-                                .attr("cy", getOutputPortCirclePositionY)
-                                .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                                .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                                .on("mouseenter", mouseEnterPort)
-                                .on("mouseleave", mouseLeavePort);
-
+        nodes
+            .selectAll("g.outputPorts circle")
+            .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
+            .attr("data-id", function(port : Port){return port.getId();})
+            .attr("cx", getOutputPortCirclePositionX)
+            .attr("cy", getOutputPortCirclePositionY)
+            .attr("r", REAL_TO_DISPLAY_SCALE(6))
+            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+            .on("mouseenter", mouseEnterPort)
+            .on("mouseleave", mouseLeavePort);
 
         // outputLocalPorts
-        nodes.selectAll("g.outputLocalPorts")
-                                .attr("transform", getOutputLocalPortGroupTransform)
-                                .style("display", getPortsDisplay);
+        nodes
+            .selectAll("g.outputLocalPorts")
+            .attr("transform", getOutputLocalPortGroupTransform)
+            .style("display", getPortsDisplay);
 
-        nodes.selectAll("g.outputLocalPorts text")
-                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
-                                .enter()
-                                .select("g.outputLocalPorts")
-                                .insert("text");
+        nodes
+            .selectAll("g.outputLocalPorts text")
+            .data(function(node : Node){return node.getOutputApplicationInputPorts();})
+            .enter()
+            .select("g.outputLocalPorts")
+            .insert("text");
 
-        nodes.selectAll("g.outputLocalPorts text")
-                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.outputLocalPorts text")
+            .data(function(node : Node){return node.getOutputApplicationInputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.outputLocalPorts text")
-                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
-                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                                .attr("x", getOutputLocalPortPositionX)
-                                .attr("y", getOutputLocalPortPositionY)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                                .text(function (port : Port) {return port.getName();});
+        nodes
+            .selectAll("g.outputLocalPorts text")
+            .data(function(node : Node){return node.getOutputApplicationInputPorts();})
+            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+            .attr("x", getOutputLocalPortPositionX)
+            .attr("y", getOutputLocalPortPositionY)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+            .text(function (port : Port) {return port.getName();});
 
-        nodes.selectAll("g.outputLocalPorts circle")
-                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
-                                .enter()
-                                .select("g.outputLocalPorts")
-                                .insert("circle");
+        nodes
+            .selectAll("g.outputLocalPorts circle")
+            .data(function(node : Node){return node.getOutputApplicationInputPorts();})
+            .enter()
+            .select("g.outputLocalPorts")
+            .insert("circle");
 
-        nodes.selectAll("g.outputLocalPorts circle")
-                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.outputLocalPorts circle")
+            .data(function(node : Node){return node.getOutputApplicationInputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.outputLocalPorts circle")
-                                .data(function(node : Node){return node.getOutputApplicationInputPorts();})
-                                .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", getOutputLocalPortCirclePositionX)
-                                .attr("cy", getOutputLocalPortCirclePositionY)
-                                .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                                .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                                .on("mouseenter", mouseEnterPort)
-                                .on("mouseleave", mouseLeavePort);
+        nodes
+            .selectAll("g.outputLocalPorts circle")
+            .data(function(node : Node){return node.getOutputApplicationInputPorts();})
+            .attr("data-id", function(port : Port){return port.getId();})
+            .attr("cx", getOutputLocalPortCirclePositionX)
+            .attr("cy", getOutputLocalPortCirclePositionY)
+            .attr("r", REAL_TO_DISPLAY_SCALE(6))
+            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+            .on("mouseenter", mouseEnterPort)
+            .on("mouseleave", mouseLeavePort);
 
         // exitPorts
-        nodes.selectAll("g.exitPorts")
-                                .attr("transform", getExitPortGroupTransform)
-                                .style("display", getPortsDisplay);
+        nodes
+            .selectAll("g.exitPorts")
+            .attr("transform", getExitPortGroupTransform)
+            .style("display", getPortsDisplay);
 
-        nodes.selectAll("g.exitPorts text")
-                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-                                .enter()
-                                .select("g.exitPorts")
-                                .insert("text");
+        nodes
+            .selectAll("g.exitPorts text")
+            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
+            .enter()
+            .select("g.exitPorts")
+            .insert("text");
 
-        nodes.selectAll("g.exitPorts text")
-                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.exitPorts text")
+            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.exitPorts text")
-                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                                .attr("x", getExitPortPositionX)
-                                .attr("y", getExitPortPositionY)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                                .text(function (port : Port) {return port.getName()});
+        nodes
+            .selectAll("g.exitPorts text")
+            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
+            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+            .attr("x", getExitPortPositionX)
+            .attr("y", getExitPortPositionY)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+            .text(function (port : Port) {return port.getName()});
 
-        nodes.selectAll("g.exitPorts circle")
-                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-                                .enter()
-                                .select("g.exitPorts")
-                                .insert("circle");
+        nodes
+            .selectAll("g.exitPorts circle")
+            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
+            .enter()
+            .select("g.exitPorts")
+            .insert("circle");
 
-        nodes.selectAll("g.exitPorts circle")
-                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.exitPorts circle")
+            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.exitPorts circle")
-                                .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-                                .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", getExitPortCirclePositionX)
-                                .attr("cy", getExitPortCirclePositionY)
-                                .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                                .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                                .on("mouseenter", mouseEnterPort)
-                                .on("mouseleave", mouseLeavePort);
+        nodes
+            .selectAll("g.exitPorts circle")
+            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
+            .attr("data-id", function(port : Port){return port.getId();})
+            .attr("cx", getExitPortCirclePositionX)
+            .attr("cy", getExitPortCirclePositionY)
+            .attr("r", REAL_TO_DISPLAY_SCALE(6))
+            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+            .on("mouseenter", mouseEnterPort)
+            .on("mouseleave", mouseLeavePort);
 
 
         // exitLocalPorts
-        nodes.selectAll("g.exitLocalPorts")
-                                .attr("transform", getExitLocalPortGroupTransform)
-                                .style("display", getPortsDisplay);
+        nodes
+            .selectAll("g.exitLocalPorts")
+            .attr("transform", getExitLocalPortGroupTransform)
+            .style("display", getPortsDisplay);
 
-        nodes.selectAll("g.exitLocalPorts text")
-                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
-                                .enter()
-                                .select("g.exitLocalPorts")
-                                .insert("text");
+        nodes
+            .selectAll("g.exitLocalPorts text")
+            .data(function(node : Node){return node.getExitApplicationInputPorts();})
+            .enter()
+            .select("g.exitLocalPorts")
+            .insert("text");
 
-        nodes.selectAll("g.exitLocalPorts text")
-                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.exitLocalPorts text")
+            .data(function(node : Node){return node.getExitApplicationInputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.exitLocalPorts text")
-                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
-                                .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-                                .attr("x", getExitLocalPortPositionX)
-                                .attr("y", getExitLocalPortPositionY)
-                                .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
-                                .text(function (port : Port) {return port.getName();});
+        nodes
+            .selectAll("g.exitLocalPorts text")
+            .data(function(node : Node){return node.getExitApplicationInputPorts();})
+            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
+            .attr("x", getExitLocalPortPositionX)
+            .attr("y", getExitLocalPortPositionY)
+            .style("font-size", REAL_TO_DISPLAY_SCALE(PORT_LABEL_FONT_SIZE) + "px")
+            .text(function (port : Port) {return port.getName();});
 
-        nodes.selectAll("g.exitLocalPorts circle")
-                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
-                                .enter()
-                                .select("g.exitLocalPorts")
-                                .insert("circle");
+        nodes
+            .selectAll("g.exitLocalPorts circle")
+            .data(function(node : Node){return node.getExitApplicationInputPorts();})
+            .enter()
+            .select("g.exitLocalPorts")
+            .insert("circle");
 
-        nodes.selectAll("g.exitLocalPorts circle")
-                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
-                                .exit()
-                                .remove();
+        nodes
+            .selectAll("g.exitLocalPorts circle")
+            .data(function(node : Node){return node.getExitApplicationInputPorts();})
+            .exit()
+            .remove();
 
-        nodes.selectAll("g.exitLocalPorts circle")
-                                .data(function(node : Node){return node.getExitApplicationInputPorts();})
-                                .attr("data-id", function(port : Port){return port.getId();})
-                                .attr("cx", getExitLocalPortCirclePositionX)
-                                .attr("cy", getExitLocalPortCirclePositionY)
-                                .attr("r", REAL_TO_DISPLAY_SCALE(6))
-                                .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-                                .on("mouseenter", mouseEnterPort)
-                                .on("mouseleave", mouseLeavePort);
+        nodes
+            .selectAll("g.exitLocalPorts circle")
+            .data(function(node : Node){return node.getExitApplicationInputPorts();})
+            .attr("data-id", function(port : Port){return port.getId();})
+            .attr("cx", getExitLocalPortCirclePositionX)
+            .attr("cy", getExitLocalPortCirclePositionY)
+            .attr("r", REAL_TO_DISPLAY_SCALE(6))
+            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+            .on("mouseenter", mouseEnterPort)
+            .on("mouseleave", mouseLeavePort);
 
 
         // update attributes of all links
-        linkExtras.attr("class", "linkExtra")
-                                .attr("d", createLink)
-                                .attr("fill", "transparent")
-                                .attr("stroke", edgeExtraGetStrokeColor)
-                                .attr("stroke-dasharray", edgeGetStrokeDashArray)
-                                .style("display", getEdgeDisplay);
+        linkExtras
+            .attr("class", "linkExtra")
+            .attr("d", createLink)
+            .attr("fill", "transparent")
+            .attr("stroke", edgeExtraGetStrokeColor)
+            .attr("stroke-dasharray", edgeGetStrokeDashArray)
+            .style("display", getEdgeDisplay);
 
         // update attributes of all links
-        links.attr("class", "link")
-                                .attr("d", createLink)
-                                .attr("stroke", edgeGetStrokeColor)
-                                .attr("stroke-dasharray", edgeGetStrokeDashArray)
-                                .attr("fill", "transparent")
-                                .attr("marker-end", "url(#grey-arrowhead)")
-                                .style("display", getEdgeDisplay);
+        links
+            .attr("class", "link")
+            .attr("d", createLink)
+            .attr("stroke", edgeGetStrokeColor)
+            .attr("stroke-dasharray", edgeGetStrokeDashArray)
+            .attr("fill", "transparent")
+            .attr("marker-end", "url(#grey-arrowhead)")
+            .style("display", getEdgeDisplay);
 
         // update attributes of all comment links
-        commentLinks.attr("class", "commentLink")
-                                .attr("d", createCommentLink)
-                                .attr("stroke", "black")
-                                .attr("fill", "transparent")
-                                .attr("marker-end", "url(#black-arrowhead)")
-                                .style("display", getCommentLinkDisplay);
+        commentLinks
+            .attr("class", "commentLink")
+            .attr("d", createCommentLink)
+            .attr("stroke", "black")
+            .attr("fill", "transparent")
+            .attr("marker-end", "url(#black-arrowhead)")
+            .style("display", getCommentLinkDisplay);
 
         // dragging link
         if (isDraggingPort){
@@ -1589,11 +1729,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getInputAppPositionY(node : Node) : number {
-        // TODO: do something different if the node is collapsed
-        //if (node.isGroup() && node.isCollapsed()){
-        //    return Node.COLLAPSED_HEIGHT / 2;
-        //}
-
         return getHeaderBackgroundHeight(node) + 20;
     }
 
@@ -1616,11 +1751,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getOutputAppPositionY(node : Node) : number {
-        // TODO: do something different if the node is collapsed
-        //if (node.isGroup() && node.isCollapsed()){
-        //    return Node.COLLAPSED_HEIGHT / 2;
-        //}
-
         return getHeaderBackgroundHeight(node) + 20;
     }
 
@@ -1643,11 +1773,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getExitAppPositionY(node : Node) : number {
-        // TODO: do something different if the node is collapsed
-        //if (node.isGroup() && node.isCollapsed()){
-        //    return Node.COLLAPSED_HEIGHT / 2;
-        //}
-
         return getHeaderBackgroundHeight(node) + 20;
     }
 
@@ -2174,7 +2299,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return 16;
     }
 
-    function getContentFill(node : Node) : string {
+    function getContentFill() : string {
         return "black";
     }
 
