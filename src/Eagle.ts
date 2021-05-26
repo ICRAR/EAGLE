@@ -2197,16 +2197,16 @@ export class Eagle {
         }
 
         this.logicalGraph().addNode(node, pos.x, pos.y, (newNode: Node) => {
-            this.logicalGraph.valueHasMutated();
-
             // make sure the new node is selected
             this.setSelection(Eagle.RightWindowMode.NodeInspector, newNode);
             Eagle.nodeDropLocation = {x:0, y:0};
+
+            this.logicalGraph.valueHasMutated();
         });
     }
 
     addNodeToEditorPalette = (node : Node) : void => {
-        console.log("addNodeToEditorPalette()", node);
+        //console.log("addNodeToEditorPalette()", node);
 
         // copy node
         const newNode : Node = node.clone();
@@ -2221,7 +2221,7 @@ export class Eagle {
     }
 
     addGraphNodesToPalette = () : void => {
-        console.log("addGraphNodesToPalette()");
+        //console.log("addGraphNodesToPalette()");
 
         // build a list of palette names
         const paletteNames: string[] = this.buildPaletteNamesList();
