@@ -9,7 +9,9 @@ ko.bindingHandlers.nodeDataProperty = {
             const eagle : Eagle = bindingContext.$root;
 
             (<any>eagle.selectedNode())[dataProperty] = $(element).val();
-            eagle.logicalGraph().fileInfo().modified = true;
+
+            // TODO: do we need both 'valueHasMutated' calls here? It seems like one should be sufficient.
+            eagle.logicalGraph().flagFileModified();
             eagle.logicalGraph.valueHasMutated();
         });
     },

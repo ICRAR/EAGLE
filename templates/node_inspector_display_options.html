@@ -36,12 +36,12 @@
                 </div>
                 <input type="text" class="form-control" id="nodeDrawOrderHintValue" placeholder="" aria-label="Name" aria-describedby="node-draw-order-hint" data-bind="nodeDataProperty: 'drawOrderHint'" readonly>
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" id="nodeInspectorDecrementDrawOrderHint" type="button" data-bind="click: function(){$root.selectedNode().decrementDrawOrderHint(); $root.flagActiveDiagramHasMutated();}">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorDecrementDrawOrderHint" type="button" data-bind="click: function(){$root.selectedNode().decrementDrawOrderHint(); $root.logicalGraph.valueHasMutated();}">
                         <i class="material-icons md-18">remove</i>
                     </button>
                 </div>
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" id="nodeInspectorIncrementDrawOrderHint" type="button" data-bind="click: function(){$root.selectedNode().incrementDrawOrderHint(); $root.flagActiveDiagramHasMutated();}">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorIncrementDrawOrderHint" type="button" data-bind="click: function(){$root.selectedNode().incrementDrawOrderHint(); $root.logicalGraph.valueHasMutated();}">
                         <i class="material-icons md-18">add</i>
                     </button>
                 </div>
@@ -65,7 +65,7 @@
            <div class="input-group mb-1">
                 <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly>
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleStreaming" type="button" data-bind="click: function(){selectedNode().toggleStreaming();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleStreaming" type="button" data-bind="click: function(){selectedNode().toggleStreaming();selectedNode.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
                         <i class="material-icons md-18" data-bind="visible: selectedNode().isStreaming()">radio_button_checked</i>
                         <i class="material-icons md-18" data-bind="hidden: selectedNode().isStreaming()">radio_button_unchecked</i>
                     </button>
@@ -75,7 +75,7 @@
             <div class="input-group mb-1">
                 <input type="text" class="form-control" id="nodeShowPortsValue" placeholder="" aria-label="Show Ports" aria-describedby="node-show-ports" value="Show Ports" readonly>
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleShowPorts" type="button" data-bind="click: function(){selectedNode().toggleShowPorts();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleShowPorts" type="button" data-bind="click: function(){selectedNode().toggleShowPorts();selectedNode.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
                         <i class="material-icons md-18" data-bind="visible: selectedNode().isShowPorts()">radio_button_checked</i>
                         <i class="material-icons md-18" data-bind="hidden: selectedNode().isShowPorts()">radio_button_unchecked</i>
                     </button>
@@ -87,7 +87,7 @@
             <div class="input-group mb-1">
                 <input type="text" class="form-control" id="nodeFlipPortsValue" placeholder="" aria-label="Flip Ports" aria-describedby="node-flip-ports" value="Flip Ports" readonly>
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleFlipPorts" type="button" data-bind="click: function(){selectedNode().toggleFlipPorts();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleFlipPorts" type="button" data-bind="click: function(){selectedNode().toggleFlipPorts();selectedNode.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
                         <i class="material-icons md-18" data-bind="visible: selectedNode().isFlipPorts()">radio_button_checked</i>
                         <i class="material-icons md-18" data-bind="hidden: selectedNode().isFlipPorts()">radio_button_unchecked</i>
                     </button>

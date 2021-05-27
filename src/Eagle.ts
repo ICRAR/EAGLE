@@ -531,7 +531,7 @@ export class Eagle {
             Utils.showUserMessage("Error", "This is not a graph file!");
         }
 
-        // update the activeFileInfo with details of the repository the file was loaded from
+        // update the graph FileInfo with details of the repository the file was loaded from
         if (fileFullPath !== ""){
             this.updateFileInfo(Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
         }
@@ -1373,7 +1373,7 @@ export class Eagle {
                 Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
             }
 
-            // if new file is a graph, update the activeFileInfo with details of the repository the file was loaded from
+            // update the graph FileInfo with details of the repository the file was loaded from
             if (fileTypeLoaded === Eagle.FileType.Graph){
                 this.updateFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
             }
@@ -1421,7 +1421,7 @@ export class Eagle {
         // get a reference to the fileInfo object
         const fileInfo: ko.Observable<FileInfo> = this.logicalGraph().fileInfo;
 
-        // update the activeFileInfo with details of the repository the file was loaded from
+        // update the graph FileInfo with details of the repository the file was loaded from
         fileInfo().repositoryName = repositoryName;
         fileInfo().repositoryBranch = repositoryBranch;
         fileInfo().repositoryService = repositoryService;

@@ -230,7 +230,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             // update children locations
             moveChildNodes(index, dx, dy);
-            eagle.logicalGraph().fileInfo().modified = true;
+            eagle.logicalGraph().flagFileModified();
             tick();
         })
         .on("end", function(node : Node){
