@@ -230,7 +230,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             // update children locations
             moveChildNodes(index, dx, dy);
-            eagle.flagActiveFileModified();
+            eagle.logicalGraph().fileInfo().modified = true;
             tick();
         })
         .on("end", function(node : Node){
@@ -247,16 +247,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
                 //console.log("set parent", parent.getKey());
                 node.setParentKey(parent.getKey());
+
+                // TODO: both here?
                 eagle.selectedNode.valueHasMutated();
-                eagle.flagActiveDiagramHasMutated();
+                eagle.logicalGraph.valueHasMutated();
             }
 
             // if no parent found, update
             if (parent === null && node.getParentKey() !== null){
                 //console.log("set parent", null);
                 node.setParentKey(null);
+
+                // TODO: both here?
                 eagle.selectedNode.valueHasMutated();
-                eagle.flagActiveDiagramHasMutated();
+                eagle.logicalGraph.valueHasMutated();
             }
 
             tick();
@@ -2885,7 +2889,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         graph.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, (edge : Edge) : void =>{
-            eagle.flagActiveDiagramHasMutated();
+            eagle.logicalGraph.valueHasMutated();
             //eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge);
 
             clearEdgeVars();
@@ -2993,7 +2997,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         console.log("shrink node", index);
 
         eagle.logicalGraph().shrinkNode(node);
-        eagle.flagActiveDiagramHasMutated();
+        eagle.logicalGraph.valueHasMutated();
     }
 
     function collapseOnClick(node : Node, index : number){
@@ -3005,7 +3009,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         node.setCollapsed(true);
-        eagle.flagActiveDiagramHasMutated();
+        eagle.logicalGraph.valueHasMutated();
     }
 
     function expandOnClick(node : Node, index : number){
@@ -3017,7 +3021,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         node.setCollapsed(false);
-        eagle.flagActiveDiagramHasMutated();
+        eagle.logicalGraph.valueHasMutated();
     }
 
     function moveChildNodes(nodeIndex : number, deltax : number, deltay : number) : void {

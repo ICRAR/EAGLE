@@ -278,7 +278,7 @@ export class Eagle {
         this.globalOffsetY = displayCenterY - centroidY;
 
         // trigger render
-        this.flagActiveDiagramHasMutated();
+        this.logicalGraph.valueHasMutated();
     }
 
     /**
@@ -326,7 +326,7 @@ export class Eagle {
                     Eagle.selectedNodeKey = undefined;
                     this.selectedNode(null);
                     this.selectedEdge(null);
-                    this.flagActiveDiagramHasMutated();
+                    this.logicalGraph.valueHasMutated();
                     return;
                 }
 
@@ -529,7 +529,7 @@ export class Eagle {
 
         // update the activeFileInfo with details of the repository the file was loaded from
         if (fileFullPath !== ""){
-            this.updateActiveFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+            this.updateFileInfo(Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
         }
     }
 
@@ -812,7 +812,7 @@ export class Eagle {
             // flag fileInfo object as modified
             fileInfo.valueHasMutated();
 
-            this.saveDiagramToGit(repository, fileType, filePath, fileName, commitMessage);
+            this.saveDiagramToGit(repository, filePath, fileName, commitMessage);
         });
     };
 
@@ -1371,34 +1371,25 @@ export class Eagle {
 
             // if new file is a graph, update the activeFileInfo with details of the repository the file was loaded from
             if (fileTypeLoaded === Eagle.FileType.Graph){
-                this.updateActiveFileInfo(fileTypeLoaded, file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+                this.updateFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
             }
         });
     };
 
+    // load the remote palette into EAGLE's palettes object
     private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
-        // if EAGLE is in palette editor mode, load the remote palette into EAGLE's editorPalette object.
-        // if EAGLE is in graph editor mode, load the remote palette into EAGLE's palettes object.
+        // check palette is not already loaded
+        const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
 
-        if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            const errors: string[] = [];
-            this.editorPalette(Palette.fromOJSJson(data, file, errors));
-            this.leftWindow().shown(true);
-            Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+        // if dictated by settings, reload the palette immediately
+        if (alreadyLoadedPalette !== null && Eagle.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
+            Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
+                if (confirmed){
+                    this._reloadPalette(file, data, alreadyLoadedPalette);
+                }
+            });
         } else {
-            // check palette is not already loaded
-            const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
-
-            // if dictated by settings, reload the palette immediately
-            if (alreadyLoadedPalette !== null && Eagle.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
-                Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
-                    if (confirmed){
-                        this._reloadPalette(file, data, alreadyLoadedPalette);
-                    }
-                });
-            } else {
-                this._reloadPalette(file, data, alreadyLoadedPalette);
-            }
+            this._reloadPalette(file, data, alreadyLoadedPalette);
         }
     }
 
@@ -1420,22 +1411,21 @@ export class Eagle {
         }
     }
 
-    private updateActiveFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
-        console.log("updateActiveFileInfo(): fileType:", Utils.translateFileTypeToString(fileType), "repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
+    private updateFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
+        console.log("updateFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
+
+        // get a reference to the fileInfo object
+        const fileInfo: ko.Observable<FileInfo> = this.logicalGraph().fileInfo;
 
         // update the activeFileInfo with details of the repository the file was loaded from
-        this.activeFileInfo().repositoryName = repositoryName;
-        this.activeFileInfo().repositoryBranch = repositoryBranch;
-        this.activeFileInfo().repositoryService = repositoryService;
-        this.activeFileInfo().path = path;
-        this.activeFileInfo().name = name;
+        fileInfo().repositoryName = repositoryName;
+        fileInfo().repositoryBranch = repositoryBranch;
+        fileInfo().repositoryService = repositoryService;
+        fileInfo().path = path;
+        fileInfo().name = name;
 
-        // communicate tp knockout that the value of the fileInfo has been modified (so it can update UI)
-        if (fileType === Eagle.FileType.Graph){
-            this.logicalGraph().fileInfo.valueHasMutated();
-        } else if (fileType === Eagle.FileType.Palette){
-            this.editorPalette().fileInfo.valueHasMutated();
-        }
+        // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
+        fileInfo.valueHasMutated();
     }
 
     findPaletteByFile = (file : RepositoryFile) : Palette => {
@@ -1597,11 +1587,7 @@ export class Eagle {
     };
 
     saveAsPNG = () : void => {
-        if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            Utils.saveAsPNG('#paletteD3Div svg', this.editorPalette().fileInfo().name);
-        } else {
-            Utils.saveAsPNG('#logicalGraphD3Div svg', this.logicalGraph().fileInfo().name);
-        }
+        Utils.saveAsPNG('#logicalGraphD3Div svg', this.logicalGraph().fileInfo().name);
     };
 
     toggleCollapseAllGroups = () : void => {
@@ -1632,7 +1618,7 @@ export class Eagle {
             }
         }
 
-        this.flagActiveDiagramHasMutated();
+        this.logicalGraph.valueHasMutated();
     }
 
     toggleCollapseAllNodes = () : void => {
@@ -1663,7 +1649,7 @@ export class Eagle {
             }
         }
 
-        this.flagActiveDiagramHasMutated();
+        this.logicalGraph.valueHasMutated();
     }
 
     showAbout = () : void => {
@@ -1752,23 +1738,8 @@ export class Eagle {
     }
 
     fileIsVisible = (file : RepositoryFile) : boolean => {
-        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
-            return file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.JSON;
-        }
-        if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            return file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.JSON;
-        }
-        return false;
+        return file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.JSON;
     };
-
-    flagActiveDiagramHasMutated = () : void => {
-        // flag diagram as mutated
-        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
-            this.logicalGraph.valueHasMutated();
-        } else {
-            this.editorPalette.valueHasMutated();
-        }
-    }
 
     addEdgeToLogicalGraph = () : void => {
         // check that there is at least one node in the graph, otherwise it is difficult to create an edge
@@ -1797,7 +1768,7 @@ export class Eagle {
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), () => {
                 // trigger the diagram to re-draw with the modified edge
-                this.flagActiveDiagramHasMutated();
+                this.logicalGraph.valueHasMutated();
             });
         });
     }
@@ -1828,7 +1799,7 @@ export class Eagle {
             this.deleteSelectedEdge(true);
             this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), () => {
                 // trigger the diagram to re-draw with the modified edge
-                this.flagActiveDiagramHasMutated();
+                this.logicalGraph.valueHasMutated();
             });
         });
     }
@@ -1870,7 +1841,7 @@ export class Eagle {
         this.rightWindow().mode(Eagle.RightWindowMode.Repository);
 
         // flag the diagram as mutated so that the graph renderer will update
-        this.flagActiveDiagramHasMutated();
+        this.logicalGraph.valueHasMutated();
     }
 
     duplicateSelectedNode = () : void => {
@@ -1879,12 +1850,8 @@ export class Eagle {
             return;
         }
 
-        // duplicate the node
-        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
-            this.addNodeToLogicalGraph(this.selectedNode());
-        } else {
-            this.addNodeToEditorPalette(this.selectedNode());
-        }
+        // add selected node to graph (again)
+        this.addNodeToLogicalGraph(this.selectedNode());
     }
 
     addSelectedNodeToPalette = () : void => {
@@ -1978,20 +1945,15 @@ export class Eagle {
 
     private _deleteSelectedNode = () : void => {
         // delete the node
-        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
-            this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
-            this.logicalGraph().fileInfo().modified = true;
-        } else {
-            this.editorPalette().removeNodeByKey(this.selectedNode().getKey());
-            this.editorPalette().fileInfo().modified = true;
-        }
+        this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
+        this.logicalGraph().fileInfo().modified = true;
 
         // no node left to be selected
         this.selectedNode(null);
         this.rightWindow().mode(Eagle.RightWindowMode.Repository);
 
         // flag the diagram as mutated so that the graph renderer will update
-        this.flagActiveDiagramHasMutated();
+        this.logicalGraph.valueHasMutated();
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
@@ -2016,21 +1978,6 @@ export class Eagle {
 
             this.logicalGraph.valueHasMutated();
         });
-    }
-
-    addNodeToEditorPalette = (node : Node) : void => {
-        //console.log("addNodeToEditorPalette()", node);
-
-        // copy node
-        const newNode : Node = node.clone();
-
-        // assign the new node an appropriate key (one not already in use)
-        newNode.setKey(Utils.newKey(this.editorPalette().getNodes()));
-
-        //console.log("newNode", newNode);
-
-        this.editorPalette().addNode(newNode);
-        this.editorPalette.valueHasMutated();
     }
 
     addGraphNodesToPalette = () : void => {
@@ -2306,8 +2253,9 @@ export class Eagle {
             }
 
             // refresh the display
+            // TODO: do we need both of these calls here, will the selectedNode mutation trigger the LG?
             this.selectedNode.valueHasMutated();
-            this.flagActiveDiagramHasMutated();
+            this.logicalGraph.valueHasMutated();
         });
     }
 
@@ -2343,8 +2291,11 @@ export class Eagle {
             // change the subject
             const newSubjectKey : number = parseInt(choice.substring(choice.lastIndexOf(" ") + 1), 10);
             this.selectedNode().setSubjectKey(newSubjectKey);
+
+            // refresh the display
+            // TODO: do we need both of these calls here, will the selectedNode mutation trigger the LG?
             this.selectedNode.valueHasMutated();
-            this.flagActiveDiagramHasMutated();
+            this.logicalGraph.valueHasMutated();
         });
     }
 
@@ -2388,19 +2339,17 @@ export class Eagle {
         }
 
         // remove any edges connected to that port
-        if (this.userMode() === Eagle.UserMode.LogicalGraphEditor){
-            const edges : Edge[] = this.logicalGraph().getEdges();
+        const edges : Edge[] = this.logicalGraph().getEdges();
 
-            for (let i = edges.length - 1; i >= 0; i--){
-                if (edges[i].getSrcPortId() === portId || edges[i].getDestPortId() === portId){
-                    console.log("Remove incident edge", edges[i].getSrcPortId(), "->", edges[i].getDestPortId());
-                    edges.splice(i, 1);
-                }
+        for (let i = edges.length - 1; i >= 0; i--){
+            if (edges[i].getSrcPortId() === portId || edges[i].getDestPortId() === portId){
+                console.log("Remove incident edge", edges[i].getSrcPortId(), "->", edges[i].getDestPortId());
+                edges.splice(i, 1);
             }
         }
     }
 
-    //dragdrop
+    // dragdrop
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
         //specifies where the node can be dropped
         Eagle.nodeDropped = e.target;
@@ -2647,19 +2596,6 @@ export class Eagle {
         console.table(tableData);
     }
 
-    printEditorPaletteTable = () : void => {
-        const tableData : any[] = [];
-
-        // add logical graph nodes to table
-        for (let i = 0; i < this.editorPalette().getNodes().length; i++){
-            const node : Node = this.editorPalette().getNodes()[i];
-
-            tableData.push({"name":node.getName(), "key":node.getKey(), "categoryType":node.getCategoryType(), "category":node.getCategory()});
-        }
-
-        console.table(tableData);
-    }
-
     // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
     selectNodeInHierarchy = (nodeViewModel : any) : void => {
         const node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key);
@@ -2674,7 +2610,7 @@ export class Eagle {
 
         this.setSelection(Eagle.RightWindowMode.Hierarchy, node);
 
-        this.flagActiveDiagramHasMutated();
+        this.logicalGraph.valueHasMutated();
     }
 
     selectInputApplicationNode = () : void => {
@@ -2690,22 +2626,16 @@ export class Eagle {
     }
 
     editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number) : void => {
-        let allFields: Field[] = [];
+        // get field list from the logical graph
+        const allFields: Field[] = Utils.getAllFields(this.logicalGraph());
 
-        // if in palette editor mode, get field names list from the palette,
-        // if in logical graph editor mode, get field names list from the logical graph
-        if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            allFields = Utils.getAllFields(this.editorPalette());
-        } else {
-            allFields = Utils.getAllFields(this.logicalGraph());
-        }
-
+        // build all field names list
         const allFieldNames: string[] = [];
         for (let i = 0 ; i < allFields.length ; i++){
             allFieldNames.push(allFields[i].getName());
         }
 
-        //if creating a new field component parameter
+        // if creating a new field component parameter
         if (modalType === Eagle.ModalType.Add) {
             $("#editFieldModalTitle").html("Add Parameter")
             $("#addParameterWrapper").show();
@@ -2764,18 +2694,11 @@ export class Eagle {
     };
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
-        let allPorts: Port[] = [];
-        const allPortNames: string[] = [];
-
-        // if in palette editor mode, get port names list from the palette,
-        // if in logical graph editor mode, get port names list from the logical graph
-        if (this.userMode() === Eagle.UserMode.PaletteEditor){
-            allPorts = Utils.getAllPorts(this.editorPalette());
-        } else {
-            allPorts = Utils.getAllPorts(this.logicalGraph());
-        }
+        // get port names list from the logical graph
+        const allPorts: Port[] = Utils.getAllPorts(this.logicalGraph());
 
         // get list of port names from list of ports
+        const allPortNames: string[] = [];
         for (let i = 0 ; i < allPorts.length ; i++){
             allPortNames.push(allPorts[i].getName());
         }

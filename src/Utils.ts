@@ -62,8 +62,6 @@ export class Utils {
     static readonly ALLOW_READONLY_PARAMETER_EDITING : string = "AllowReadonlyParameterEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
 
-    static readonly ENABLE_PALETTE_EDITOR_MODE : string = "EnablePaletteEditorMode";
-
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator

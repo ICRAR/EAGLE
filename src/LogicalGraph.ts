@@ -502,6 +502,11 @@ export class LogicalGraph {
         return result;
     }
 
+    flagFileModified = () : void => {
+        this.fileInfo().modified = true;
+        this.fileInfo.valueHasMutated();
+    }
+
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         //console.log("addNode()", node.getName());
 
