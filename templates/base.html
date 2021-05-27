@@ -64,22 +64,13 @@
                 <div class="leftWindowDisplay palettes" data-bind="visible: leftWindow().mode() === Eagle.LeftWindowMode.Palettes">
                     {% include 'palettes.html' %}
                 </div>
-                <div class="leftWindowDisplay templatePalette" data-bind="visible: leftWindow().mode() === Eagle.LeftWindowMode.TemplatePalette">
-                    {% include 'templatePalette.html' %}
-                </div>
 
                 <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart , dragend: leftWindowAdjustEnd }">
                 </div>
             </div>
 
             <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDrop }">
-                <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
-                    <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
-                    </div>
-                </div>
-                <div data-bind="visible: userMode() === Eagle.UserMode.PaletteEditor">
-                    <div id="paletteD3Div" data-bind="paletteRenderer: $root.editorPalette">
-                    </div>
+                <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
                 </div>
             </div>
 

@@ -116,8 +116,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, "icrar"));
         Eagle.settings.push(new Setting("Spawn Translation Tab", "When translating a graph, display the output of the translator in a new tab", Setting.Type.Boolean, Utils.SPAWN_TRANSLATION_TAB, true));
 
-        // HACK - subscribe to the be notified of changes to the templatePalette
-        // when the templatePalette changes, we need to enable the tooltips
+        // subscribe to the be notified of changes to palettes
         this.palettes.subscribe(this.updateTooltips);
         this.selectedNode.subscribe(this.updateTooltips);
 
@@ -145,14 +144,11 @@ export class Eagle {
     }
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
-        // Adding a star symbol in front of the title if file is modified.
-        let mod = '';
+        if (this.logicalGraph() === null){
+            return "EAGLE";
+        }
 
         const fileInfo : FileInfo = this.logicalGraph().fileInfo();
-
-        if (fileInfo && fileInfo.modified){
-            mod = '*';
-        }
 
         // Display file name in tab title if non-empty
         const fileName = this.repositoryFileName();
@@ -160,7 +156,11 @@ export class Eagle {
         if (fileName === ""){
             return "EAGLE";
         } else {
-            return mod + "EAGLE: " + this.repositoryFileName();
+            if (fileInfo && fileInfo.modified){
+                return "*EAGLE: " + this.repositoryFileName();
+            } else {
+                return "EAGLE: " + this.repositoryFileName();
+            }
         }
     }, this);
 
@@ -184,6 +184,10 @@ export class Eagle {
     }
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
+        if (this.logicalGraph() === null){
+            return "";
+        }
+
         const fileInfo : FileInfo = this.logicalGraph().fileInfo();
 
         // if no FileInfo is available, return empty string
@@ -3020,8 +3024,7 @@ export namespace Eagle
 {
     export enum LeftWindowMode {
         None,
-        Palettes,
-        TemplatePalette
+        Palettes
     }
 
     export enum RightWindowMode {
