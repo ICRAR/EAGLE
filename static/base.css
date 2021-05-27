@@ -13,7 +13,7 @@
 }
 
 .navbar-light .navbar-brand {
-    color: rgba(230, 230, 230, 0.9);
+    color: rgba(230, 230, 230, 1);
 }
 
 .navbar-light .navbar-brand:hover {
@@ -71,7 +71,33 @@
     border-top-left-radius: 0.5rem;
     cursor: pointer;
     color:white;
-    border-right: 2px solid rgba(0, 36, 74, 0.95);
+}
+
+.dropDropDown{
+    visibility: hidden;
+    background-color: #0059a5;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border:solid 1px #000c1a;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    width: auto;
+    height:auto;
+    font-size: 12px;
+    top: 0px;
+    transform: translateX(calc(-100% - 23px)) translateY(-1px);
+}
+
+.dropDropDownParent:hover .dropDropDown {
+    visibility: visible;
+}
+
+.dropDropDown .dropdown-item{
+    font-weight: 400;
+    font-size: 1rem;
+    text-align: left;
 }
 
 .rightWindow .rightWindowHandle span i {
@@ -303,7 +329,7 @@
 }
 
 .navbar a{
-    color: white;
+    color: white !important;
 }
 
 .inactiveLink {
