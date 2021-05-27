@@ -261,6 +261,11 @@
     top: 3px;
 }
 
+.navbar-center .navbar-btn:hover{
+    color: #002349;
+    background: white;
+}
+
 #repositoryList ul.repositories {
     list-style-type: none;
     padding: 0px;
