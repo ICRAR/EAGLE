@@ -27,7 +27,7 @@
 }
 
 .rightWindow {
-    background-color: rgba(247, 247, 247, 0.95);
+    background-color: rgba(214, 219, 239, 0.95);
     z-index: 2;
     position:absolute;
     top: 0px;
@@ -69,6 +69,7 @@
     border-top-left-radius: 0.5rem;
     cursor: pointer;
     color:white;
+    border-right: 2px solid rgba(0, 36, 74, 0.95);
 }
 
 .rightWindow .rightWindowHandle span i {
@@ -133,9 +134,14 @@
     overflow-y: auto;
 }
 
-#paletteList .card{
+.leftWindow .card{
     margin-top:4px;
     margin-right: 4px;
+    background-color: rgba(214, 219, 239, 0.95);
+}
+
+.leftWindow .card-header h5{
+    font-weight: 400;
 }
 
 .template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
@@ -313,7 +319,7 @@
 
 #rightWindowTabs button{
     border-radius: 0px;
-    border:none;
+    border:0px;
 }
 
 #rightWindowTabs .btn-secondary{
@@ -326,14 +332,19 @@
 }
 
 #rightWindowTabs .btn-secondary.active{
-    background-color: rgba(247, 247, 247, 0.95);
+    border: 0px;
+    background-color: rgba(214, 219, 239, 0.8);
     color: #00244a;
     z-index: 0;
 }
 
+.translationMenu .card{
+    border-radius: 5px !important;
+    border: solid 1px #c1c0c0 !important;
+    margin-bottom: 4px;
+}
 
 #rightWindowTabs .btn-secondary:focus{
-    border: none;
     box-shadow: none;
 }
 
@@ -425,9 +436,9 @@ nav.navbar .introjs-helperLayer {
     color: #6c757d;
 }
 
-#firstNodeInspectorSubtitle{
+.breakLine{
     border-top: solid 1px grey;
-    padding-top: .5rem;
+    margin-bottom: 5px;
 }
 
 #nodeInspectorHeading{
@@ -436,7 +447,7 @@ nav.navbar .introjs-helperLayer {
 }
 
 #nodeInspectorMenus{
-    padding: 0px 5px 5px 1.25rem;
+    padding: 0px 5px 5px 5px;
     border-bottom: solid 1px grey;
     margin-bottom: 10px;
 }
