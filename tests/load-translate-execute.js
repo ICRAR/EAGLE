@@ -56,10 +56,10 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .click('#setting0Button')
 
             // enter the github access token
-            .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN, { replace : true })
+            .typeText(Selector('#setting12Value'), EAGLE_GITHUB_ACCESS_TOKEN, { replace : true })
 
             // enter the translator url
-            .typeText(Selector('#setting11Value'), "http://" + ip + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
+            .typeText(Selector('#setting10Value'), "http://" + ip + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
 
             // close settings modal
             .click('#settingsModal .modal-footer button')

@@ -21,7 +21,6 @@ const GRAPHS = [
 // NOTE: the translator port is non-standard for DaLiuGE
 //       we use it because within the GitHub CI environment
 //       port 8084 are already in use
-
 const DALIUGE_TRANSLATOR_PORT = "6379";
 
 const DALIUGE_DIM_PORT = "8001";
@@ -206,10 +205,10 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .click('#setting0Button')
 
             // disable the 'spawn translation tab' setting
-            .click('#setting19Button')
+            .click('#setting18Button')
 
             // enter the translator url
-            .typeText(Selector('#setting11Value'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
+            .typeText(Selector('#setting10Value'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
 
             // close settings modal
             .click('#settingsModal .modal-footer button')
