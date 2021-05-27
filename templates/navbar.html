@@ -1,12 +1,11 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
 
-    <a class="navbar-brand" href="" data-intro='Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the "Exit" button or ESC key.'>
-        <object data="/static/assets/svg/liu.svg" type="image/svg+xml" width="30" height="30" class="d-inline-block align-top" alt="LiuIcon"></object>
-        <img src="static/assets/img/favicon.png" width="30" height="30" class="d-inline-block align-top" alt="">
-        EAGLE
-    </a>
-
-    <div class="version-number">
+    <object data="/static/assets/svg/liu.svg" type="image/svg+xml" width="30" height="30" class="d-inline-block align-top" alt="LiuIcon"></object>
+    <img src="static/assets/img/favicon.png" width="30" height="30" id="brandEagleIcon" class="d-inline-block align-top" alt="">
+    <div id="eagleAndVersion">
+        <a class="navbar-brand inactiveLink" href="" disabled data-intro='Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the "Exit" button or ESC key.'>
+            EAGLE
+        </a>
         <span>{{version}}</span>
     </div>
 
@@ -15,7 +14,48 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
+
+        <ul class="nav navbar-nav navbar-center">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <!--
+                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom In" data-bind="click: zoomIn">
+                    <i class="material-icons md-18">zoom_in</i>
+                </button>
+                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom Out" data-bind="click: zoomOut">
+                    <i class="material-icons md-18">zoom_out</i>
+                </button>
+                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom To Fit" data-bind="click: zoomToFit">
+                    <i class="material-icons md-18">zoom_out_map</i>
+                </button>
+                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Toggle Grid" data-bind="click: toggleGrid">
+                    <i class="material-icons md-18">grid_on</i>
+                </button>
+                -->
+                <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Save as PNG" data-bind="click: saveAsPNG" data-intro="Save a PNG of the current graph.">
+                    <i class="material-icons md-18">image</i>
+                </button>
+                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Center Graph" data-bind="click: centerGraph" data-intro="Center the current graph within the graph rendering area.">
+                    <i class="material-icons md-18">filter_center_focus</i>
+                </button>
+                <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Add Graph Nodes to Palette" data-bind="click: addGraphNodesToPalette" data-intro="Add all nodes in the current graph to the a new or existing palette.">
+                    <i class="material-icons md-18">palette</i>
+                </button>
+                <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Groups" data-bind="click: toggleCollapseAllGroups" data-intro="Toggle all groups between collapsed and expanded states.">
+                    <i class="material-icons md-18">tab_unselected</i>
+                </button>
+                <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Nodes" data-bind="click: toggleCollapseAllNodes" data-intro="Toggle all nodes between collapsed and expanded states.">
+                    <i class="material-icons md-18">vertical_align_center</i>
+                </button>
+                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Copy Graph Url" data-bind="click: copyGraphUrl" data-intro="Create a url that points to the current graph and copy the url to the clipboard.">
+                    <i class="material-icons md-18">content_copy</i>
+                </button>
+                <button id="checkGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Check Graph for Errors" data-bind="click: checkGraph" data-intro="Check the graph for common issues and missing information.">
+                    <i class="material-icons md-18">done_all</i>
+                </button>
+            </div>
+        </ul>
+
+        <ul class="nav navbar-nav ml-auto">
             <!-- ko if: isPaletteEditorModeEnabled() -->
             <div data-intro='Use Palette Editor mode to edit descriptions of processing components.'>
                 <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
@@ -107,7 +147,7 @@
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Help
                 </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownHelp">
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownHelp">
                     <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
                     <a class="dropdown-item" id="settings" href="#" data-bind="click: openSettings">Settings</a>
                     <a class="dropdown-item" id="navbarIntroduction" href="#" data-bind="click: function(){runTutorial('nav.navbar');}">Navbar Introduction</a>
@@ -118,47 +158,6 @@
             </li>
         </ul>
 
-        <ul class="navbar-nav ml-auto">
-            <form class="form-inline">
-                <div class="btn-group" role="group" aria-label="Basic example">
-                    <!--
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom In" data-bind="click: zoomIn">
-                        <i class="material-icons md-18">zoom_in</i>
-                    </button>
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom Out" data-bind="click: zoomOut">
-                        <i class="material-icons md-18">zoom_out</i>
-                    </button>
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom To Fit" data-bind="click: zoomToFit">
-                        <i class="material-icons md-18">zoom_out_map</i>
-                    </button>
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Toggle Grid" data-bind="click: toggleGrid">
-                        <i class="material-icons md-18">grid_on</i>
-                    </button>
-                    -->
-                    <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Save as PNG" data-bind="click: saveAsPNG" data-intro="Save a PNG of the current graph.">
-                        <i class="material-icons md-18">image</i>
-                    </button>
-                    <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Center Graph" data-bind="click: centerGraph" data-intro="Center the current graph within the graph rendering area.">
-                        <i class="material-icons md-18">filter_center_focus</i>
-                    </button>
-                    <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Add Graph Nodes to Palette" data-bind="click: addGraphNodesToPalette" data-intro="Add all nodes in the current graph to the a new or existing palette.">
-                        <i class="material-icons md-18">palette</i>
-                    </button>
-                    <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Groups" data-bind="click: toggleCollapseAllGroups" data-intro="Toggle all groups between collapsed and expanded states.">
-                        <i class="material-icons md-18">tab_unselected</i>
-                    </button>
-                    <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Nodes" data-bind="click: toggleCollapseAllNodes" data-intro="Toggle all nodes between collapsed and expanded states.">
-                        <i class="material-icons md-18">vertical_align_center</i>
-                    </button>
-                    <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Copy Graph Url" data-bind="click: copyGraphUrl" data-intro="Create a url that points to the current graph and copy the url to the clipboard.">
-                        <i class="material-icons md-18">content_copy</i>
-                    </button>
-                    <button id="checkGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Check Graph for Errors" data-bind="click: checkGraph" data-intro="Check the graph for common issues and missing information.">
-                        <i class="material-icons md-18">done_all</i>
-                    </button>
-                </div>
-            </form>
-        </ul>
     </div>
 </nav>
 <div id="graphNameWrapper">
