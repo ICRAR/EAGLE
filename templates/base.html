@@ -88,6 +88,29 @@
             </div>
 
             <div class="rightWindow" data-bind="style: { width: rightWindow().width(), right: rightWindow().shown() ? 0 : -rightWindow().width()}">
+               <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}" data-intro='Load palettes and graphs from remote git repositories.'>
+                            Repositories
+                        </button>
+                        <!-- ko if: selectedNode() !== null -->
+                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.NodeInspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.NodeInspector}">
+                                Node
+                            </button>
+                        <!-- /ko -->
+                        <!-- ko if: selectedEdge() !== null -->
+                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeEdge" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.EdgeInspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.EdgeInspector}">
+                                Edge
+                            </button>
+                        <!-- /ko -->
+                        <!-- ko if: userMode() === Eagle.UserMode.LogicalGraphEditor -->
+                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}" data-intro='Submit a logical graph for translation into a physical graph.'>
+                                Translation
+                            </button>
+                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}" data-intro='Explore the hierarchy of nodes in the current logical graph.'>
+                                Hierarchy
+                            </button>
+                        <!-- /ko -->
+                    </div>
                 <div class="rightWindowHandle" data-bind="click: rightWindow().toggleShown">
                     <span data-bind="visible: rightWindow().shown()">
                         <i class="material-icons">arrow_forward</i>
@@ -96,21 +119,22 @@
                         <i class="material-icons">arrow_back</i>
                     </span>
                 </div>
-
-                <div class="rightWindowDisplay repository" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Repository">
-                    {% include 'repositories.html' %}
-                </div>
-                <div class="rightWindowDisplay nodeInspector" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.NodeInspector">
-                    {% include 'node_inspector.html' %}
-                </div>
-                <div class="rightWindowDisplay edgeInspector" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.EdgeInspector">
-                    {% include 'edge_inspector.html' %}
-                </div>
-                <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
-                    {% include 'translation_menu.html' %}
-                </div>
-                <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy">
-                    {% include 'hierarchy.html' %}
+                <div id="rightWindowContainer">
+                    <div class="rightWindowDisplay repository" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Repository">
+                        {% include 'repositories.html' %}
+                    </div>
+                    <div class="rightWindowDisplay nodeInspector" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.NodeInspector">
+                        {% include 'node_inspector.html' %}
+                    </div>
+                    <div class="rightWindowDisplay edgeInspector" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.EdgeInspector">
+                        {% include 'edge_inspector.html' %}
+                    </div>
+                    <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
+                        {% include 'translation_menu.html' %}
+                    </div>
+                    <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy">
+                        {% include 'hierarchy.html' %}
+                    </div>
                 </div>
 
                 <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart, dragend: rightWindowAdjustEnd }">
