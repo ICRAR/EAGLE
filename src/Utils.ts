@@ -1740,7 +1740,7 @@ export class Utils {
         return results;
     }
 
-    static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : boolean {
+    static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
         console.log("validateJSON(): version:", version, "fileType:", Utils.translateFileTypeToString(fileType));
 
         const ajv = new Ajv();
@@ -1792,7 +1792,7 @@ export class Utils {
                 break;
         }
 
-        return valid;
+        return {valid: valid, errors: ajv.errorsText(ajv.errors)};
     }
 
     static validateFieldValue() : void {

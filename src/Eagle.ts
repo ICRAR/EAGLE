@@ -520,10 +520,10 @@ export class Eagle {
 
             // validate json
             if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-                const isValid : boolean = Utils.validateJSON(json, schemas[userChoiceIndex], Eagle.FileType.Graph);
-                if (!isValid){
-                    console.error("JSON Invalid, saving anyway");
-                    Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+                const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, schemas[userChoiceIndex], Eagle.FileType.Graph);
+                if (!validatorResult.valid){
+                    console.error("JSON Invalid, saving anyway<br/>" + validatorResult.errors);
+                    Utils.showUserMessage("Error", "JSON Invalid, saving anyway<br/>" + validatorResult.errors);
                     //return;
                 }
             }
@@ -829,10 +829,10 @@ export class Eagle {
 
         // validate json
         if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            const isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
-            if (!isValid){
-                console.error("JSON Invalid, saving anyway");
-                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            if (!validatorResult.valid){
+                console.error("JSON Invalid, saving anyway<br/>" + validatorResult.errors);
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway<br/>" + validatorResult.errors);
                 //return;
             }
         }
@@ -1081,10 +1081,10 @@ export class Eagle {
 
         // validate json
         if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            const isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
-            if (!isValid){
-                console.error("JSON Invalid, saving anyway");
-                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            if (!validatorResult.valid){
+                console.error("JSON Invalid, saving anyway<br/>" + validatorResult.errors);
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway<br/>" + validatorResult.errors);
                 //return;
             }
         }
@@ -1117,10 +1117,10 @@ export class Eagle {
 
         // validate json
         if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            const isValid : boolean = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.V3, Eagle.FileType.Graph);
-            if (!isValid){
-                console.error("JSON Invalid, saving anyway");
-                Utils.showUserMessage("Error", "JSON Invalid, saving anyway");
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.V3, Eagle.FileType.Graph);
+            if (!validatorResult.valid){
+                console.error("JSON Invalid, saving anyway<br/>" + validatorResult.errors);
+                Utils.showUserMessage("Error", "JSON Invalid, saving anyway<br/>" + validatorResult.errors);
                 //return;
             }
         }
