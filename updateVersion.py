@@ -5,7 +5,7 @@ import os, sys
 branch = ":"
 tag_stream = os.popen("git rev-parse --abbrev-ref HEAD")
 branch += tag_stream.read().rstrip("\n")
-if branch == ":master":
+if branch in [":master", ":HEAD"]:
     branch = ""
 tag_stream = os.popen("git describe --tags --abbrev=0")
 tag_output = tag_stream.read().rstrip("\n") + branch
