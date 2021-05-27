@@ -43,7 +43,9 @@
 }
 
 .rightWindowDisplay {
-    height: 100%;
+    height: calc(100% - 48px);
+    overflow-y:auto;
+    overflow-x: hidden;
 }
 
 .mw-140 {
@@ -89,6 +91,7 @@
 
 #rightWindowContainer{
     padding: 4px;
+    height: 100%;
 }
 
 .leftWindow {
@@ -106,24 +109,33 @@
 /* width */
 ::-webkit-scrollbar {
     width: 5px;
-  }
-  
-  /* Track */
-  ::-webkit-scrollbar-track {
+}
+
+/* Track */
+::-webkit-scrollbar-track {
     background: transparent;
-  }
-  
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
     margin-top:4px;
     background: rgb(212, 212, 212);
     border-radius: 5px;
-  }
-  
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
     background: white;
-  }
+}
+
+.rightWindow ::-webkit-scrollbar-thumb{
+    background: #002349;
+    border-radius: 5px;
+}
+
+.rightWindow ::-webkit-scrollbar-track{
+    background: rgb(212, 212, 212);
+}
 
 .leftWindow.show {
     left: 0px;
@@ -450,6 +462,11 @@ nav.navbar .introjs-helperLayer {
     padding: 0px 5px 5px 5px;
     border-bottom: solid 1px grey;
     margin-bottom: 10px;
+}
+
+#nodeInspectorMenus .card{
+    margin-top:4px;
+    margin-right: 4px;
 }
 
 .nodeInspectorSubsectionTitle{
