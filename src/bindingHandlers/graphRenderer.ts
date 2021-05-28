@@ -32,6 +32,8 @@ ko.bindingHandlers.graphRenderer = {
 };
 
 function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
+    const startTime: number = performance.now();
+
     // sort the nodes array so that groups appear first, this ensures that child nodes are drawn on top of the group their parents
     const nodeData : Node[] = depthFirstTraversalOfNodes(graph.getNodes());
     const linkData : Edge[] = graph.getEdges();
@@ -847,6 +849,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function tick(){
         //console.log("tick()");
+        const startTime = performance.now();
 
         // enter any new nodes
         svgContainer
@@ -1455,6 +1458,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                         .attr("y2", 0)
                         .attr("stroke", "none");
         }
+
+        eagle.rendererFrameTime("tick " + (performance.now() - startTime).toFixed(2));
+        console.log("tick " + (performance.now() - startTime).toFixed(2));
     }
 
     function selectEdge(edge : Edge){
@@ -3330,7 +3336,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             while (word = words.pop()) {
                 line.push(word);
                 tspan.text(line.join(" "));
-                if (tspan.node().getComputedTextLength() > wordWrapWidth) {
+                console.log(tspan.text().length);
+                //if (tspan.node().getComputedTextLength() > wordWrapWidth) {
+                if (tspan.text().length > 30) {
                     line.pop();
                     tspan.text(line.join(" "));
                     line = [word];
@@ -3339,4 +3347,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         });
     }
+
+    // performance
+    eagle.rendererFrameTime("render " + (performance.now() - startTime).toFixed(2));
 }

@@ -75,6 +75,8 @@ export class Eagle {
 
     inspectorState : ko.Observable<InspectorState>;
 
+    rendererFrameTime : ko.Observable<string>;
+
     static settings : ko.ObservableArray<Setting>;
 
     static dataNodes : Node[] = [];
@@ -142,6 +144,8 @@ export class Eagle {
         this.nodeInspectorCollapsed = ko.observable(false);
 
         this.inspectorState =ko.observable( new InspectorState() )
+
+        this.rendererFrameTime = ko.observable("");
     }
 
     areAnyFilesModified = () : boolean => {

@@ -26,6 +26,12 @@
     display: inline-block;
 }
 
+#graphArea #filenameArea #performance {
+    position: absolute;
+    right: 0px;
+    margin-right: 64px;
+}
+
 .navbar-light .navbar-brand {
     color: rgba(230, 230, 230, 0.9);
 }
