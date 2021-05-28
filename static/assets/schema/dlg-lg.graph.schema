@@ -259,7 +259,7 @@
                                     "type": "string"
                                 },
                                 "value": {
-                                    "type": "string"
+                                    "type": ["string","boolean","number"]
                                 },
                                 "description": {
                                     "type": "string"
