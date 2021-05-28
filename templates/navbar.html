@@ -37,9 +37,11 @@
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Center Graph" data-bind="click: centerGraph" data-intro="Center the current graph within the graph rendering area.">
                     <i class="material-icons md-18">filter_center_focus</i>
                 </button>
+                <!-- ko if: isPaletteEditorModeEnabled() -->
                 <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Add Graph Nodes to Palette" data-bind="click: addGraphNodesToPalette" data-intro="Add all nodes in the current graph to the a new or existing palette.">
                     <i class="material-icons md-18">palette</i>
                 </button>
+                <!-- /ko -->
                 <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Groups" data-bind="click: toggleCollapseAllGroups" data-intro="Toggle all groups between collapsed and expanded states.">
                     <i class="material-icons md-18">tab_unselected</i>
                 </button>
