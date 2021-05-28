@@ -203,13 +203,13 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .click("#settings")
 
             // disable the 'confirm discard changes' setting
-            .click('#setting0Button')
+            .click('#settingConfirmDiscardChangesButton')
 
             // disable the 'spawn translation tab' setting
-            .click('#setting19Button')
+            .click('#settingSpawnTranslationTabButton')
 
             // enter the translator url
-            .typeText(Selector('#setting11Value'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
+            .typeText(Selector('#settingTranslatorURLValue'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
 
             // close settings modal
             .click('#settingsModal .modal-footer button')
