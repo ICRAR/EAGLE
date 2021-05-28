@@ -1459,8 +1459,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                         .attr("stroke", "none");
         }
 
-        eagle.rendererFrameTime("tick " + (performance.now() - startTime).toFixed(2));
-        console.log("tick " + (performance.now() - startTime).toFixed(2));
+        eagle.rendererFrameTime("tick " + (performance.now() - startTime).toFixed(2) + "ms");
     }
 
     function selectEdge(edge : Edge){
@@ -3337,8 +3336,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 line.push(word);
                 tspan.text(line.join(" "));
                 console.log(tspan.text().length);
-                //if (tspan.node().getComputedTextLength() > wordWrapWidth) {
-                if (tspan.text().length > 30) {
+                if (tspan.node().getComputedTextLength() > wordWrapWidth) {
                     line.pop();
                     tspan.text(line.join(" "));
                     line = [word];
@@ -3349,5 +3347,5 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     // performance
-    eagle.rendererFrameTime("render " + (performance.now() - startTime).toFixed(2));
+    eagle.rendererFrameTime("render " + (performance.now() - startTime).toFixed(2) + "ms");
 }
