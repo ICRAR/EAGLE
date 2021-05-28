@@ -68,7 +68,7 @@ $(function(){
     // load the default palette
     if (Eagle.findSettingValue(Utils.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
-            {name:Palette.DYNAMIC_PALETTE_NAME, filename:"./static/" + Config.templatePaletteFileName, readonly:false},
+            {name:Palette.DYNAMIC_PALETTE_NAME, filename:"./static/" + Config.templatePaletteFileName, readonly:true},
             {name:Palette.BUILTIN_PALETTE_NAME, filename:"./static/" + Config.builtinPaletteFileName, readonly:true}
         ], (data: Palette[]):void => {
             for (let i = 0; i < data.length; i++){
