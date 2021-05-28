@@ -90,41 +90,25 @@
                     </li>
                 </div>
             </div>
-            <li class="nav-item dropdown" data-intro='Create new palettes and logical graphs.'>
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    New
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                    <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
-                    <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: newLogicalGraph">Create New Graph</a>
-                    <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
-                    <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph</a>
-                    <!-- /ko -->
-                    <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
-                    <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette</a>
-                    <!-- /ko -->
-                </div>
-            </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSave" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Save
+                    Graph
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownSave">
-                    <span id="exportJsonBtn" class="dropdown-item dropDropDownParent" href="#">Local Storage<img id="exportJsonIcon" src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                    <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
-                            <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Palette</a>
-                            <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
-                            <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save Palette</a>
-                            <!-- /ko -->
                             <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
-                            <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load Graph</a>
-                            <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save Graph</a>
+                            <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: newLogicalGraph">Create New Graph</a>
+                            <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
+                            <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph</a>
                             <!-- /ko -->
-                            <a class="dropdown-item" id="exportV3Json" href="#" data-bind="click: exportV3Json">Export V3 JSON</a>
-                            <a class="dropdown-item" id="exportAppRefJson" href="#" data-bind="click: exportAppRefJson">Export AppRef JSON</a>
+                            <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
+                            <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette</a>
+                            <!-- /ko -->
                         </div>
                     </span>
-                    <span id="exportJsonBtn" class="dropdown-item dropDropDownParent" href="#">Git Storage<img id="exportJsonIcon" src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                    <div class="dropdown-divider"></div>
+                    <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
                             <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
                             <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Graph)}">Save Graph</a>
@@ -142,6 +126,29 @@
                             -->
                         </div>
                     </span>
+                    <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                        <div class="dropDropDown">
+                            <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Palette</a>
+                            <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
+                            <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save Palette</a>
+                            <!-- /ko -->
+                            <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
+                            <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load Graph</a>
+                            <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save Graph</a>
+                            <!-- /ko -->
+                            <a class="dropdown-item" id="exportV3Json" href="#" data-bind="click: exportV3Json">Export V3 JSON</a>
+                            <a class="dropdown-item" id="exportAppRefJson" href="#" data-bind="click: exportAppRefJson">Export AppRef JSON</a>
+                        </div>
+                    </span>
+                </div>
+            </li>
+            <li class="nav-item dropdown" data-intro='Create new palettes and logical graphs.'>
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Palette
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: addGraphNodesToPalette">Save Node As Palette</a>
+                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Palette</a>
                 </div>
             </li>
             <li class="nav-item dropdown" data-intro='Additional usage information and introductions to EAGLE features.'>

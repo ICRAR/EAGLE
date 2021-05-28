@@ -44,6 +44,6 @@ export class Config {
         "simple"
     ];
 
-    static readonly defaultRightWindowWidth : number = 300;
-    static readonly defaultLeftWindowWidth : number = 300;
+    static readonly defaultRightWindowWidth : number = 380;
+    static readonly defaultLeftWindowWidth : number = 310;
 }
