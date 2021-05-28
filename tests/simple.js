@@ -21,7 +21,7 @@ test('Set token', async t =>{
         .click("#settings")
 
         // enter the github access token
-        .typeText(Selector('#setting13Value'), EAGLE_GITHUB_ACCESS_TOKEN)
+        .typeText(Selector('#settingGitHubAccessTokenValue'), EAGLE_GITHUB_ACCESS_TOKEN)
         .click('#settingsModal .modal-footer button')
 
         // end
