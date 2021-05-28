@@ -54,12 +54,7 @@ $(function(){
 
     // init empty data structures
     eagle.logicalGraph(new LogicalGraph());
-    eagle.editorPalette(new Palette());
     eagle.palettes([]);
-    eagle.templatePalette(new Palette());
-
-    // Adjust interface to the graph editor mode.
-    eagle.setGraphEditorMode();
 
     // Show repository list.
     GitHub.loadRepoList(eagle);
