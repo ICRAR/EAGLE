@@ -2672,12 +2672,22 @@ export class Eagle {
 
         if (this.leftWindow().adjusting()){
             newWidth = this.leftWindow().width() + dragDiff;
-            this.leftWindow().width(newWidth);
-            Utils.setLeftWindowWidth(newWidth);
+            if(newWidth <= Config.defaultLeftWindowWidth){
+                this.leftWindow().width(Config.defaultLeftWindowWidth);
+                Utils.setLeftWindowWidth(Config.defaultLeftWindowWidth);
+            }else{
+                this.leftWindow().width(newWidth);
+                Utils.setLeftWindowWidth(newWidth);
+            }
         } else if(this.rightWindow().adjusting()) {
             newWidth = this.rightWindow().width() - dragDiff;
-            this.rightWindow().width(newWidth);
-            Utils.setRightWindowWidth(newWidth);
+            if(newWidth <= Config.defaultRightWindowWidth){
+                this.rightWindow().width(Config.defaultRightWindowWidth);
+                Utils.setRightWindowWidth(Config.defaultRightWindowWidth);
+            }else{
+                this.rightWindow().width(newWidth);
+                Utils.setRightWindowWidth(newWidth);
+            }
         }
 
         Eagle.dragStartX = e.clientX;
@@ -3409,3 +3419,13 @@ export namespace Eagle
 
     export type CategoryData = {isData: boolean, isGroup:boolean, isResizable:boolean, minInputs: number, maxInputs: number, minOutputs: number, maxOutputs: number, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean, icon: string, color: string};
 }
+
+
+$( document ).ready(function() {
+    // jquery starts here
+  
+    //hides the dropdown navbar elements when stopping hovering over the element
+    $(".dropdown-menu").mouseleave(function(){
+      $(".dropdown-menu").dropdown('hide')
+    })
+});

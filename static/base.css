@@ -4,30 +4,16 @@
 
 #graphArea {
     /*background-color: rgb(222,222,222);*/
-    height: calc(100% - 56px);
+    height: calc(100% - 82px);
     position: absolute;
     bottom: 0px;
-
     overflow: hidden;
     padding-left: 0px;
     padding-right: 0px;
 }
 
-#graphArea #filenameArea {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    text-align: center;
-    pointer-events: none;
-}
-
-#graphArea #filenameArea #filename {
-    display: inline-block;
-}
-
 .navbar-light .navbar-brand {
-    color: rgba(230, 230, 230, 0.9);
+    color: rgba(230, 230, 230, 1);
 }
 
 .navbar-light .navbar-brand:hover {
@@ -41,18 +27,14 @@
 }
 
 .rightWindow {
-    background-color: rgba(202, 202, 202, 0.75);
+    background-color: rgba(214, 219, 239, 0.95);
     z-index: 2;
     position:absolute;
     top: 0px;
     right: -300px;
     height: 100%;
     transition: right 0.25s linear;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    padding-left: 4px;
-    padding-right: 4px;
-    width: 300px;
+    border-left: 2px solid rgba(0, 36, 74, 0.95);
 }
 
 .rightWindow.show {
@@ -60,12 +42,18 @@
 }
 
 .rightWindowDisplay {
-    height: 100%;
-    overflow-y: auto;
+    height: calc(100% - 48px);
+    overflow-y:auto;
+    overflow-x: hidden;
 }
 
 .mw-140 {
     min-width: 140px;
+}
+
+.rightWindow .btn-primary{
+    background-color: #0059a5;
+    border-color: #0059a5;
 }
 
 .rightWindow .rightWindowHandle {
@@ -74,13 +62,52 @@
     height: 48px;
     top: 0px;
     left: -48px;
-    background-color: rgba(202, 202, 202, 0.75);
+    background-color: #002e5f;
     z-index: 2;
     text-align: center;
     line-height: 48px;
     border-bottom-left-radius: 0.5rem;
     border-top-left-radius: 0.5rem;
     cursor: pointer;
+    color:white;
+}
+
+.dropDropDownParent{
+    position: relative;
+}
+
+.dropDropDown  a::after {
+    transform: rotate(-90deg);
+    position: absolute;
+    right: 6px;
+    top: .8em;
+  }
+
+.dropDropDown{
+    visibility: hidden;
+    background-color: #0059a5;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border:solid 1px #000c1a;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    width: auto;
+    height:auto;
+    font-size: 12px;
+    top: 0;
+    right: 100%;
+}
+
+.dropDropDownParent:hover .dropDropDown {
+    visibility: visible;
+}
+
+.dropDropDown .dropdown-item{
+    font-weight: 400;
+    font-size: 1rem;
+    text-align: left;
 }
 
 .rightWindow .rightWindowHandle span i {
@@ -98,19 +125,51 @@
     cursor: col-resize;
 }
 
+#rightWindowContainer{
+    padding: 4px;
+    height: 100%;
+}
+
 .leftWindow {
-    background-color: rgba(202, 202, 202, 0.75);
+    background-color: #002e5f;
     z-index: 100;
     position: absolute;
     top: 0px;
     left: -250px;
-    width: 250px;
     height: 100%;
     transition: left 0.25s linear;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    padding-left: 4px;
-    padding-right: 4px;
+    padding:0px 2px 0px 6px;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    margin-top:4px;
+    background: rgb(212, 212, 212);
+    border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: white;
+}
+
+.rightWindow ::-webkit-scrollbar-thumb{
+    background: #002349;
+    border-radius: 5px;
+}
+
+.rightWindow ::-webkit-scrollbar-track{
+    background: rgb(212, 212, 212);
 }
 
 .leftWindow.show {
@@ -120,6 +179,16 @@
 .leftWindowDisplay {
     height: 100%;
     overflow-y: auto;
+}
+
+.leftWindow .card{
+    margin-top:4px;
+    margin-right: 4px;
+    background-color: rgb(214, 219, 239);
+}
+
+.leftWindow .card-header h5{
+    font-weight: 400;
 }
 
 .template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
@@ -138,7 +207,8 @@
     height: 48px;
     top: 0px;
     right: -48px;
-    background-color: rgba(202, 202, 202, 0.75);
+    background-color: #002e5f;
+    color:white;
     z-index: 2;
     text-align: center;
     line-height: 48px;
@@ -161,8 +231,6 @@
     background-color: rgba(0,0,0,0);
     cursor: col-resize;
 }
-
-
 
 #graphArea #logicalGraphParent {
     position: absolute;
@@ -200,6 +268,15 @@
 .navbar-btn i.material-icons.md-18 {
     position: relative;
     top: 3px;
+}
+
+.navbar-center .navbar-btn:hover{
+    color: #002349;
+    background: white;
+}
+.nodeSettingsBtn{
+    text-align: right;
+    color: #0059a5;
 }
 
 #repositoryList ul.repositories {
@@ -264,8 +341,126 @@
     color:white;
 }
 
-.bg-light{
-    background: #004085 !important;
+.navbar{
+    background: rgb(0,64,133);
+    background: linear-gradient(90deg, rgba(0,64,133,1) 0%, rgba(0,52,107,1) 20%, rgba(0,35,73,1) 100%);
+}
+
+.navbar a{
+    color: white !important;
+}
+
+.inactiveLink {
+    pointer-events: none;
+    cursor: default;
+ }
+
+ #eagleAndVersion{
+     margin-left:5px;
+     position: absolute;
+     left:5.2em
+ }
+
+ #eagleAndVersion a{
+     display: block;
+     padding: 0px;
+     position: absolute;
+     margin-top: -23px;
+ }
+
+ #eagleAndVersion span{
+     display: block;
+     padding: 0px;
+     position: absolute;
+     color: rgb(170, 170, 170);
+     white-space: pre;
+ }
+
+ #brandEagleIcon{
+     margin-left:4px;
+ }
+
+.dropdown-menu{
+    border:solid 1px #000c1a;
+    border-radius: 6px;
+     position: absolute;
+     z-index: 100;
+     background-color: #0059a5;
+}
+
+.dropdown-menu-right{
+    right: 0;
+    left: auto;
+}
+
+.dropdown-item{
+    color: white;
+}
+
+.dropdown-item:hover{
+    background-color: #001d3b;
+    color: white;
+}
+
+#rightWindowTabs{
+    width:100%;
+    border: none;
+    height:48px;
+}
+
+#rightWindowTabs button{
+    border-radius: 0px;
+    border:0px;
+}
+
+#rightWindowTabs .btn-secondary{
+    background-color: #002e5f;
+}
+
+#rightWindowTabs .btn-secondary:hover{
+    background-color: rgb(0,64,133);
+    z-index: 0;
+}
+
+#rightWindowTabs .btn-secondary.active{
+    border: 0px;
+    background-color: rgba(214, 219, 239, 0.8);
+    color: #00244a;
+    z-index: 0;
+}
+
+.translationMenu .card{
+    border-radius: 5px !important;
+    border: solid 1px #c1c0c0 !important;
+    margin-bottom: 4px;
+}
+
+.translationMenu .card-header{
+    padding:8px 20px;
+}
+
+#translationMenu h5{
+    font-size: 1rem;
+}
+
+#rightWindowTabs .btn-secondary:focus{
+    box-shadow: none;
+}
+
+#graphNameWrapper{
+    position: absolute;
+    top: 56px;
+    display: block;
+    width: 100%;
+    height:26px;
+    background-color: #002349;
+    padding: 0px 16px;
+    position: fixed;
+    z-index: 0;
+}
+
+#graphNameWrapper span{
+    color: rgb(219, 219, 219);
 }
 
 .navbar-light .navbar-nav .nav-link {
@@ -281,6 +476,12 @@
 
 nav.navbar .introjs-helperLayer {
     background-color: rgba(255, 255, 255, 0.5);
+}
+
+.navbar-nav.navbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translatex(-50%);
 }
 
 .template-title {
@@ -340,9 +541,9 @@ nav.navbar .introjs-helperLayer {
     color: #6c757d;
 }
 
-#firstNodeInspectorSubtitle{
+.breakLine{
     border-top: solid 1px grey;
-    padding-top: .5rem;
+    margin-bottom: 5px;
 }
 
 #nodeInspectorHeading{
@@ -351,9 +552,14 @@ nav.navbar .introjs-helperLayer {
 }
 
 #nodeInspectorMenus{
-    padding: 0px 5px 5px 40px;
+    padding: 0px 5px 5px 5px;
     border-bottom: solid 1px grey;
     margin-bottom: 10px;
+}
+
+#nodeInspectorMenus .card{
+    margin-top:4px;
+    margin-right: 4px;
 }
 
 .nodeInspectorSubsectionTitle{
