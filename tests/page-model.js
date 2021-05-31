@@ -68,6 +68,7 @@ class Page {
 
     this.navbarGraphNew = Selector('#navbarDropdownGraphNew');
     this.navbarGraphNewCreate = Selector('#createNewGraph');
+    this.navbarGraphNewCreateFromJson = Selector('#createNewGraphFromJson');
     this.navbarGraphNewAddEdge = Selector('#addEdgeToLogicalGraph');
 
     this.saveGitAs = Selector('#commitToGitAsGraph');

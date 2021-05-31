@@ -219,8 +219,10 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
 
         // !!!!!!!!!!!!! LOAD GRAPH
         await t
-            .click('#navbarDropdown')
-            .click('#createNewGraphFromJson')
+            .click(this.navbarGraph)
+            .hover(this.navbarGraphNew)
+            .hover(this.navbarGraphNewCreate)  // we have to make sure to move horizontally first, so that the menu doesn't dissappear
+            .click(this.createNewGraphFromJson)
 
             .typeText(Selector('#inputTextModalInput'), graphJSON, { replace : true, paste : true })
 
