@@ -37,7 +37,7 @@
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Center Graph" data-bind="click: centerGraph" data-intro="Center the current graph within the graph rendering area.">
                     <i class="material-icons md-18">filter_center_focus</i>
                 </button>
-                <!-- ko if: isPaletteEditorModeEnabled() -->
+                <!-- ko if: allowPaletteEditing() -->
                 <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Add Graph Nodes to Palette" data-bind="click: addGraphNodesToPalette" data-intro="Add all nodes in the current graph to the a new or existing palette.">
                     <i class="material-icons md-18">palette</i>
                 </button>
@@ -58,46 +58,12 @@
         </ul>
 
         <ul class="nav navbar-nav ml-auto">
-            <!-- ko if: isPaletteEditorModeEnabled() -->
-            <div data-intro='Use Palette Editor mode to edit descriptions of processing components.'>
-                <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
-                    <li class="nav-item">
-                        <a class="nav-link" id="enterPaletteEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.PaletteEditor);}">
-                            <img src="static/assets/img/palette.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                        </a>
-                    </li>
-                </div>
-                <div style="display: none" data-bind="visible: userMode() === Eagle.UserMode.PaletteEditor">
-                    <li class="nav-item">
-                        <a class="nav-link" href="" data-bind="click: function(){};">
-                            <img src="static/assets/img/palette_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                        </a>
-                    </li>
-                </div>
-            </div>
-            <!-- /ko -->
-            <div data-intro='Use Logical Graph Editor mode to edit logical graphs built from processing components.'>
-                <div style="display: none" data-bind="visible: userMode() !== Eagle.UserMode.LogicalGraphEditor">
-                    <li class="nav-item">
-                        <a class="nav-link" id="enterLogicalGraphEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.LogicalGraphEditor);}">
-                            <img src="static/assets/img/editor.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                        </a>
-                    </li>
-                </div>
-                <div data-bind="visible: userMode() === Eagle.UserMode.LogicalGraphEditor">
-                    <li class="nav-item">
-                        <a class="nav-link" href="" data-bind="click: function(){};">
-                            <img src="static/assets/img/editor_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                        </a>
-                    </li>
-                </div>
-            </div>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSave" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownGraph" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Graph
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownSave">
-                    <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownGraph">
+                    <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownGraphNew">
                         <div class="dropDropDown">
                             <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: newLogicalGraph">Create New Graph</a>
                             <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
@@ -121,12 +87,12 @@
                     </span>
                 </div>
             </li>
-            <!-- ko if: isPaletteEditorModeEnabled() -->
+            <!-- ko if: allowPaletteEditing() -->
             <li class="nav-item dropdown" data-intro='Create new palettes and logical graphs.'>
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPalette" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Palette
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPalette">
                     <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
                             <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette</a>

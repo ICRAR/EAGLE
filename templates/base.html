@@ -64,22 +64,13 @@
                 <div class="leftWindowDisplay palettes" data-bind="visible: leftWindow().mode() === Eagle.LeftWindowMode.Palettes">
                     {% include 'palettes.html' %}
                 </div>
-                <div class="leftWindowDisplay templatePalette" data-bind="visible: leftWindow().mode() === Eagle.LeftWindowMode.TemplatePalette">
-                    {% include 'templatePalette.html' %}
-                </div>
 
                 <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart , dragend: leftWindowAdjustEnd }">
                 </div>
             </div>
 
             <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDrop }">
-                <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
-                    <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
-                    </div>
-                </div>
-                <div data-bind="visible: userMode() === Eagle.UserMode.PaletteEditor">
-                    <div id="paletteD3Div" data-bind="paletteRenderer: $root.editorPalette">
-                    </div>
+                <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
                 </div>
             </div>
 
@@ -102,14 +93,12 @@
                                 Edge
                             </button>
                         <!-- /ko -->
-                        <!-- ko if: userMode() === Eagle.UserMode.LogicalGraphEditor -->
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}" data-intro='Submit a logical graph for translation into a physical graph.'>
-                                Translation
-                            </button>
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}" data-intro='Explore the hierarchy of nodes in the current logical graph.'>
-                                Hierarchy
-                            </button>
-                        <!-- /ko -->
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}" data-intro='Submit a logical graph for translation into a physical graph.'>
+                            Translation
+                        </button>
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}" data-intro='Explore the hierarchy of nodes in the current logical graph.'>
+                            Hierarchy
+                        </button>
                     </div>
                 <div class="rightWindowHandle" data-bind="click: rightWindow().toggleShown">
                     <span data-bind="visible: rightWindow().shown()">

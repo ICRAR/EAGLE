@@ -62,7 +62,7 @@ export class Utils {
     static readonly ALLOW_READONLY_PARAMETER_EDITING : string = "AllowReadonlyParameterEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
 
-    static readonly ENABLE_PALETTE_EDITOR_MODE : string = "EnablePaletteEditorMode";
+    static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
