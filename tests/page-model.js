@@ -66,7 +66,10 @@ class Page {
     this.navbarPalette = Selector('#navbarDropdownPalette');
     this.navbarHelp = Selector('#navbarDropdownHelp');
 
-    this.newGraph = Selector('#NewGraph');
+    this.navbarGraphNew = Selector('#navbarDropdownGraphNew');
+    this.navbarGraphNewCreate = Selector('#createNewGraph');
+    this.navbarGraphNewAddEdge = Selector('#addEdgeToLogicalGraph');
+
     this.saveGitAs = Selector('#commitToGitAsGraph');
 
     this.descriptionField = Selector('textarea.form-control');
@@ -179,8 +182,10 @@ class Page {
 
   async createEdge (srcNode, dstNode, srcIsConstruct, dstIsConstruct, srcPort, dstPort) {
       await t
-        .click(Selector("#navbarDropdown"))
-        .click(Selector("#addEdgeToLogicalGraph"))
+        .click(this.navbarGraph)
+        .hover(this.navbarGraphNew)
+        .hover(this.navbarGraphNewCreate)  // we have to make sure to move horizontally first, so that the menu doesn't dissappear
+        .click(this.navbarGraphNewAddEdge)
 
         // choose source node
         .click(Selector("#editEdgeModalSrcNodeKeySelect"))
@@ -261,11 +266,12 @@ class Page {
   }
 
   async createNewGraph (graph_name) {
-    await t
-      .click(this.navbarNew)
-      .click(this.newGraph)
-      .typeText(this.nameInput, graph_name)
-      .click(this.submitButton);
+      await t
+        .click(this.navbarGraph)
+        .hover(this.navbarGraphNew)
+        .click(this.navbarGraphNewCreate)
+        .typeText(this.nameInput, graph_name)
+        .click(this.submitButton);
   }
 
   async deleteNode (id) {
@@ -378,8 +384,6 @@ class Page {
       .click(this.disableJSONval)
       .click(this.settingsSubmit);
   }
-
 }
-
 
 export default new Page();
