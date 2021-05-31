@@ -62,11 +62,12 @@ class Page {
     this.selectCustom = Selector('#choiceModalString');
     this.submitChoice = Selector('#choiceModal .modal-footer button');
 
-    this.navbarNew = Selector('#navbarDropdown');
-    this.newGraph = Selector('#createNewGraph');
-    this.navbarGit = Selector('#navbarDropdownGit');
-    this.saveGitAs = Selector('#commitToGitAsGraph');
+    this.navbarGraph = Selector('#navbarDropdownGraph');
+    this.navbarPalette = Selector('#navbarDropdownPalette');
     this.navbarHelp = Selector('#navbarDropdownHelp');
+
+    this.newGraph = Selector('#NewGraph');
+    this.saveGitAs = Selector('#commitToGitAsGraph');
 
     this.descriptionField = Selector('textarea.form-control');
 
