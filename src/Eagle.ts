@@ -119,8 +119,8 @@ export class Eagle {
 
         // HACK - subscribe to the be notified of changes to the palettes
         // when the palettes change, we need to enable the tooltips
-        this.palettes.subscribe(this.updateTooltips);
-        this.selectedNode.subscribe(this.updateTooltips);
+        //this.palettes.subscribe(this.updateTooltips);
+        //this.selectedNode.subscribe(this.updateTooltips);
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -2059,7 +2059,7 @@ export class Eagle {
             destinationPalette.fileInfo().modified = true;
 
             // update tooltips
-            this.updateTooltips();
+            //this.updateTooltips();
         });
     }
 
@@ -2192,7 +2192,7 @@ export class Eagle {
             destinationPalette.fileInfo().modified = true;
 
             // update tooltips
-            this.updateTooltips();
+            //this.updateTooltips();
         });
     }
 
@@ -2657,23 +2657,21 @@ export class Eagle {
 
     // NOTE: enabling the tooltips must be delayed slightly to make sure the html has been generated (hence the setTimeout)
     // NOTE: now needs a timeout longer that 1ms! UGLY HACK TODO
+
     updateTooltips = () : void => {
+        console.log("updateTooltips()");
+
         const eagle : Eagle = this;
 
         setTimeout(function(){
+            console.log("start");
+
             // destroy orphaned tooltips
             $('.tooltip[role="tooltip"]').remove();
 
             $('[data-toggle="tooltip"]').tooltip({
                 boundary: 'window',
                 trigger : 'hover'
-            });
-
-            // update title on all left window palette buttons
-            $('.leftWindowDisplay .palette').each(function(i: number, iElement: HTMLElement){
-                $(iElement).find('.input-group').each(function(j: number, jElement: HTMLElement){
-                    $(jElement).attr('data-original-title', eagle.palettes()[i].getNodes()[j].getHelpHTML());
-                });
             });
 
             // update title on all right window component buttons
@@ -2685,6 +2683,41 @@ export class Eagle {
                 $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getExitApplication().getHelpHTML());
         }, 150);
     }
+
+
+/*
+    updateTooltips = () : void => {
+        console.log("updateTooltips()");
+
+        const eagle : Eagle = this;
+
+        // destroy orphaned tooltips
+        $('.tooltip[role="tooltip"]').remove();
+
+        $('[data-toggle="tooltip"]').tooltip({
+            boundary: 'window',
+            trigger : 'hover'
+        });
+
+        // update title on all left window palette buttons
+        console.log("update");
+        $('.leftWindowDisplay .palette').each(function(i: number, iElement: HTMLElement){
+            console.log("palette", i, eagle.palettes()[i].fileInfo().name);
+            $(iElement).find('.input-group').each(function(j: number, jElement: HTMLElement){
+                console.log("node", eagle.palettes()[i].fileInfo().name, eagle.palettes()[i].getNodes()[j].getName());
+                $(jElement).attr('data-original-title', eagle.palettes()[i].getNodes()[j].getHelpHTML());
+            });
+        });
+
+        // update title on all right window component buttons
+        if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
+            $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
+        if (eagle.selectedNode() !== null && eagle.selectedNode().getOutputApplication() !== null)
+            $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getOutputApplication().getHelpHTML());
+        if (eagle.selectedNode() !== null && eagle.selectedNode().getExitApplication() !== null)
+            $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getExitApplication().getHelpHTML());
+    }
+*/
 
     selectedEdgeValid = () : Eagle.LinkValid => {
         console.log("selectedEdgeValid()");
@@ -3011,7 +3044,7 @@ export class Eagle {
             if (userChoiceIndex === applicationNames.length - 1){
                 console.log("User selected no application");
                 callback(null);
-                this.updateTooltips();
+                //this.updateTooltips();
                 return;
             }
 
@@ -3024,7 +3057,8 @@ export class Eagle {
             clone.setKey(newKey);
 
             callback(clone);
-            this.updateTooltips();
+
+            //this.updateTooltips();
         });
     }
 
