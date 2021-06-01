@@ -2657,6 +2657,7 @@ export class Eagle {
 
     // NOTE: enabling the tooltips must be delayed slightly to make sure the html has been generated (hence the setTimeout)
     // NOTE: now needs a timeout longer that 1ms! UGLY HACK TODO
+    /*
     updateTooltips = () : void => {
         console.log("updateTooltips()", this.palettes().length);
 
@@ -2684,6 +2685,16 @@ export class Eagle {
         $('.tooltip[role="tooltip"]').remove();
 
         $('[data-toggle="tooltip"]').tooltip({
+            boundary: 'window',
+            trigger : 'hover'
+        });
+    }
+    */
+
+    updateTooltip = (nodes) : void => {
+        const node = $(nodes[1]);
+
+        node.tooltip({
             boundary: 'window',
             trigger : 'hover'
         });

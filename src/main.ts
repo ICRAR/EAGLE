@@ -74,7 +74,7 @@ $(function(){
             eagle.leftWindow().shown(true);
 
             // enable bootstrap tooltips
-            eagle.updateTooltips();
+            //eagle.updateTooltips();
         });
     }
 
