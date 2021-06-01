@@ -2691,7 +2691,7 @@ export class Eagle {
     }
     */
 
-    updateTooltip = (nodes) : void => {
+    updateTooltip = (nodes: any) : void => {
         const node = $(nodes[1]);
 
         node.tooltip({
