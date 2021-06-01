@@ -38,7 +38,7 @@ ko.components.register('repository', {
 // custom component for a field
 ko.components.register('field', {
     viewModel: function(params : {data : any, ro: boolean}){
-        var vm = params.data;
+        const vm = params.data;
         vm.ro = params.ro;
         return vm;
     },
@@ -96,7 +96,7 @@ ko.components.register('inspector-component', {
 // custom component for a component that appears in the palette
 ko.components.register('palette-component', {
     viewModel: function(params : {data : any, paletteIndex : any, index : any}){
-        let vm = params.data;
+        const vm = params.data;
         vm.paletteIndex = params.paletteIndex;
         vm.index = params.index;
         return vm;

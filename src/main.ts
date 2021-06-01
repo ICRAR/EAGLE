@@ -72,10 +72,10 @@ $(function(){
                 }
             }
             eagle.leftWindow().shown(true);
-        });
 
-        // enable bootstrap tooltips
-        //eagle.updateTooltips();
+            // enable bootstrap tooltips
+            eagle.updateTooltips();
+        });
     }
 
     // load template palette (only used for Eagle.PaletteEditor)
