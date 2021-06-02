@@ -2645,7 +2645,7 @@ export class Eagle {
     }
 
     updatePaletteComponentTooltip = (nodes: any) : void => {
-        console.log("updateTooltip", nodes);
+        console.log("updatePaletteComponentTooltip", nodes);
 
         const node = $(nodes[1]);
 
@@ -2658,14 +2658,12 @@ export class Eagle {
     updateInspectorComponentTooltip = (nodes: any) : void => {
         console.log("updateInspectorComponentTooltip", nodes);
 
-        /*
-        const node = $(nodes[1]);
+        const node = $(nodes[3]);
 
         node.tooltip({
             boundary: 'window',
             trigger : 'hover'
         });
-        */
     }
 
     selectedEdgeValid = () : Eagle.LinkValid => {
