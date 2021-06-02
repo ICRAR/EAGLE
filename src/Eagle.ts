@@ -2644,13 +2644,28 @@ export class Eagle {
         return true;
     }
 
-    updateTooltip = (nodes: any) : void => {
+    updatePaletteComponentTooltip = (nodes: any) : void => {
+        console.log("updateTooltip", nodes);
+
         const node = $(nodes[1]);
 
         node.tooltip({
             boundary: 'window',
             trigger : 'hover'
         });
+    }
+
+    updateInspectorComponentTooltip = (nodes: any) : void => {
+        console.log("updateInspectorComponentTooltip", nodes);
+
+        /*
+        const node = $(nodes[1]);
+
+        node.tooltip({
+            boundary: 'window',
+            trigger : 'hover'
+        });
+        */
     }
 
     selectedEdgeValid = () : Eagle.LinkValid => {
