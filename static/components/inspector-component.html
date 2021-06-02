@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col">
-        <div class="input-group mb-1">
+        <div class="input-group mb-1 x" data-bind="childrenComplete: $root.updateTooltip">
             <!-- ko if: $data.node() === null -->
                 <button class="btn btn-secondary btn-block" type="button" data-bind="click: $data.selectCallback, attr:{title:'Select application', id:$data.selectId}" data-toggle="tooltip" data-html="true" data-placement="left" >
                     <i class="material-icons md-18">add</i>
