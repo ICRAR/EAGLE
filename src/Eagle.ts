@@ -117,11 +117,6 @@ export class Eagle {
         Eagle.settings.push(new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, "icrar"));
         Eagle.settings.push(new Setting("Spawn Translation Tab", "When translating a graph, display the output of the translator in a new tab", Setting.Type.Boolean, Utils.SPAWN_TRANSLATION_TAB, true));
 
-        // HACK - subscribe to the be notified of changes to the palettes
-        // when the palettes change, we need to enable the tooltips
-        //this.palettes.subscribe(this.updateTooltips);
-        //this.selectedNode.subscribe(this.updateTooltips);
-
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
@@ -2057,9 +2052,6 @@ export class Eagle {
 
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
-
-            // update tooltips
-            //this.updateTooltips();
         });
     }
 
@@ -2190,9 +2182,6 @@ export class Eagle {
 
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
-
-            // update tooltips
-            //this.updateTooltips();
         });
     }
 
@@ -2655,42 +2644,6 @@ export class Eagle {
         return true;
     }
 
-    // NOTE: enabling the tooltips must be delayed slightly to make sure the html has been generated (hence the setTimeout)
-    // NOTE: now needs a timeout longer that 1ms! UGLY HACK TODO
-    /*
-    updateTooltips = () : void => {
-        console.log("updateTooltips()", this.palettes().length);
-
-        const eagle : Eagle = this;
-
-        // update title on all left window palette buttons
-        $('.leftWindowDisplay .palette').each(function(i: number, iElement: HTMLElement){
-            console.log("palette", i);
-            console.log("name", eagle.palettes()[i].fileInfo().name);
-            $(iElement).find('.input-group').each(function(j: number, jElement: HTMLElement){
-                console.log("node", eagle.palettes()[i].fileInfo().name, eagle.palettes()[i].getNodes()[j].getName());
-                $(jElement).attr('data-original-title', eagle.palettes()[i].getNodes()[j].getHelpHTML());
-            });
-        });
-
-        // update title on all right window component buttons
-        if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
-            $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
-        if (eagle.selectedNode() !== null && eagle.selectedNode().getOutputApplication() !== null)
-            $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getOutputApplication().getHelpHTML());
-        if (eagle.selectedNode() !== null && eagle.selectedNode().getExitApplication() !== null)
-            $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getExitApplication().getHelpHTML());
-
-        // destroy orphaned tooltips
-        $('.tooltip[role="tooltip"]').remove();
-
-        $('[data-toggle="tooltip"]').tooltip({
-            boundary: 'window',
-            trigger : 'hover'
-        });
-    }
-    */
-
     updateTooltip = (nodes: any) : void => {
         const node = $(nodes[1]);
 
@@ -2699,40 +2652,6 @@ export class Eagle {
             trigger : 'hover'
         });
     }
-
-    /*
-    updateTooltips = () : void => {
-        console.log("updateTooltips()");
-
-        const eagle : Eagle = this;
-
-        // destroy orphaned tooltips
-        $('.tooltip[role="tooltip"]').remove();
-
-        $('[data-toggle="tooltip"]').tooltip({
-            boundary: 'window',
-            trigger : 'hover'
-        });
-
-        // update title on all left window palette buttons
-        console.log("update");
-        $('.leftWindowDisplay .palette').each(function(i: number, iElement: HTMLElement){
-            console.log("palette", i, eagle.palettes()[i].fileInfo().name);
-            $(iElement).find('.input-group').each(function(j: number, jElement: HTMLElement){
-                console.log("node", eagle.palettes()[i].fileInfo().name, eagle.palettes()[i].getNodes()[j].getName());
-                $(jElement).attr('data-original-title', eagle.palettes()[i].getNodes()[j].getHelpHTML());
-            });
-        });
-
-        // update title on all right window component buttons
-        if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
-            $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
-        if (eagle.selectedNode() !== null && eagle.selectedNode().getOutputApplication() !== null)
-            $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getOutputApplication().getHelpHTML());
-        if (eagle.selectedNode() !== null && eagle.selectedNode().getExitApplication() !== null)
-            $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getExitApplication().getHelpHTML());
-    }
-    */
 
     selectedEdgeValid = () : Eagle.LinkValid => {
         console.log("selectedEdgeValid()");
@@ -3059,7 +2978,6 @@ export class Eagle {
             if (userChoiceIndex === applicationNames.length - 1){
                 console.log("User selected no application");
                 callback(null);
-                //this.updateTooltips();
                 return;
             }
 
@@ -3072,8 +2990,6 @@ export class Eagle {
             clone.setKey(newKey);
 
             callback(clone);
-
-            //this.updateTooltips();
         });
     }
 
