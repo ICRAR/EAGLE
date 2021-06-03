@@ -587,40 +587,59 @@ export class Eagle {
                 return;
             }
 
-            // determine file type
-            const fileType : Eagle.FileType = Utils.getFileTypeFromFileName(fileFullPath);
-
-            // abort if not palette
-            if (fileType !== Eagle.FileType.Palette){
-                Utils.showUserMessage("Error", "This is not a palette file! Looks like a " + Utils.translateFileTypeToString(fileType));
-                return;
-            }
-
-            // attempt to parse the JSON
-            try {
-                JSON.parse(data);
-            }
-            catch(err){
-                Utils.showUserMessage("Error parsing file JSON", err.message);
-                return;
-            }
-
-            const errors: string[] = [];
-            const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errors);
-
-            // show errors (if found)
-            if (errors.length > 0 && showErrors){
-                Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
-            }
-
-            // add new palette to the palettes array
-            this.palettes.push(p);
-
-            // show the left window
-            this.leftWindow().shown(true);
-
-            Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+            this._loadPaletteJSON(data, showErrors, fileFullPath);
         });
+    }
+
+    private _loadPaletteJSON = (data: string, showErrors: boolean, fileFullPath: string) => {
+        let dataObject;
+
+        // attempt to parse the JSON
+        try {
+            dataObject = JSON.parse(data);
+        }
+        catch(err){
+            Utils.showUserMessage("Error parsing file JSON", err.message);
+            return;
+        }
+
+        // determine file type
+        const fileType : Eagle.FileType = Utils.determineFileType(dataObject);
+
+        // debug
+        console.log("fullFilePath", fileFullPath);
+        console.log("fileType", fileType);
+
+        // abort if not palette
+        if (fileType !== Eagle.FileType.Palette){
+            Utils.showUserMessage("Error", "This is not a palette file! Looks like a " + Utils.translateFileTypeToString(fileType));
+            return;
+        }
+
+        // attempt to parse the JSON
+        try {
+            JSON.parse(data);
+        }
+        catch(err){
+            Utils.showUserMessage("Error parsing file JSON", err.message);
+            return;
+        }
+
+        const errors: string[] = [];
+        const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errors);
+
+        // show errors (if found)
+        if (errors.length > 0 && showErrors){
+            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+        }
+
+        // add new palette to the palettes array
+        this.palettes.push(p);
+
+        // show the left window
+        this.leftWindow().shown(true);
+
+        Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
     }
 
     /**
@@ -696,6 +715,22 @@ export class Eagle {
         */
 
         Utils.showUserMessage("Not implemented", "Not implemented");
+    }
+
+    /**
+     * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a palette.
+     */
+    newPaletteFromJson = () : void => {
+        Utils.requestUserText("New Palette from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+
+            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+
+            this._loadPaletteJSON(userText, showErrors, "");
+        });
     }
 
     /**
