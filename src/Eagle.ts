@@ -2669,8 +2669,6 @@ export class Eagle {
     }
 
     updatePaletteComponentTooltip = (nodes: any) : void => {
-        console.log("updatePaletteComponentTooltip", nodes);
-
         const node = $(nodes[1]);
 
         node.tooltip({
