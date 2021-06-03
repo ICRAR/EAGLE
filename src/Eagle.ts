@@ -67,6 +67,8 @@ export class Eagle {
 
     inspectorState : ko.Observable<InspectorState>;
 
+    rendererFrameTime : ko.Observable<string>;
+
     static settings : ko.ObservableArray<Setting>;
 
     static dataNodes : Node[] = [];
@@ -116,6 +118,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, false));
         Eagle.settings.push(new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, "icrar"));
         Eagle.settings.push(new Setting("Spawn Translation Tab", "When translating a graph, display the output of the translator in a new tab", Setting.Type.Boolean, Utils.SPAWN_TRANSLATION_TAB, true));
+        Eagle.settings.push(new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false));
 
         // HACK - subscribe to the be notified of changes to the palettes
         // when the palettes change, we need to enable the tooltips
@@ -127,6 +130,8 @@ export class Eagle {
         this.globalScale = 1.0;
 
         this.inspectorState =ko.observable( new InspectorState() )
+
+        this.rendererFrameTime = ko.observable("");
     }
 
     areAnyFilesModified = () : boolean => {
@@ -3118,6 +3123,10 @@ export class Eagle {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
     }
+
+    showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
+    }, this);
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         const c = Eagle.cData[category];
