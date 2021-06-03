@@ -2644,21 +2644,34 @@ export class Eagle {
         return true;
     }
 
+    // NOTE: enabling the tooltips must be delayed slightly to make sure the html has been generated (hence the setTimeout)
+    // NOTE: now needs a timeout longer that 1ms! UGLY HACK TODO
+    updateInspectorTooltips = () : void => {
+        const eagle : Eagle = this;
+
+        setTimeout(function(){
+            // destroy orphaned tooltips
+            $('.tooltip[role="tooltip"]').remove();
+
+            $('[data-toggle="tooltip"]').tooltip({
+                boundary: 'window',
+                trigger : 'hover'
+            });
+
+            // update title on all right window component buttons
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
+                $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getOutputApplication() !== null)
+                $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getOutputApplication().getHelpHTML());
+            if (eagle.selectedNode() !== null && eagle.selectedNode().getExitApplication() !== null)
+                $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getExitApplication().getHelpHTML());
+        }, 150);
+    }
+
     updatePaletteComponentTooltip = (nodes: any) : void => {
         console.log("updatePaletteComponentTooltip", nodes);
 
         const node = $(nodes[1]);
-
-        node.tooltip({
-            boundary: 'window',
-            trigger : 'hover'
-        });
-    }
-
-    updateInspectorComponentTooltip = (nodes: any) : void => {
-        console.log("updateInspectorComponentTooltip", nodes);
-
-        const node = $(nodes[3]);
 
         node.tooltip({
             boundary: 'window',
@@ -2991,6 +3004,7 @@ export class Eagle {
             if (userChoiceIndex === applicationNames.length - 1){
                 console.log("User selected no application");
                 callback(null);
+                this.updateInspectorTooltips();
                 return;
             }
 
@@ -3003,6 +3017,7 @@ export class Eagle {
             clone.setKey(newKey);
 
             callback(clone);
+            this.updateInspectorTooltips();
         });
     }
 
