@@ -14,14 +14,12 @@
 
     <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: $data.ro, attr: {id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedNode.valueHasMutated();}}">
 
-    <!-- ko if: $root.userMode() === Eagle.UserMode.LogicalGraphEditor -->
-        <!-- ko ifnot: $data.ro -->
-        <div class="input-group-append">
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Open Field Value Wizard'}" data-toggle="tooltip" data-html="true" data-placement="left">
-                <i class="material-icons md-18">link</i>
-            </button>
-        </div>
-        <!-- /ko -->
+    <!-- ko ifnot: $data.ro -->
+    <div class="input-group-append">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Open Field Value Wizard'}" data-toggle="tooltip" data-html="true" data-placement="left">
+            <i class="material-icons md-18">link</i>
+        </button>
+    </div>
     <!-- /ko -->
 
     <!-- ko ifnot: $data.ro -->

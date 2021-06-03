@@ -10,7 +10,7 @@
         "eagleVersion": "v3.0.0",
         "eagleCommitHash": "",
         "schemaVersion": "",
-        "readonly": false
+        "readonly": true
     },
     "nodeDataArray": [
         {

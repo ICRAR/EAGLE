@@ -1,11 +1,11 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
 
-    <a class="navbar-brand" href="" data-intro='Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the "Exit" button or ESC key.'>
-        <img src="static/assets/img/favicon.png" width="30" height="30" class="d-inline-block align-top" alt="">
-        EAGLE
-    </a>
-
-    <div class="version-number">
+    <object data="/static/assets/svg/liu.svg" type="image/svg+xml" width="30" height="30" class="d-inline-block align-top" alt="LiuIcon"></object>
+    <img src="static/assets/img/favicon.png" width="30" height="30" id="brandEagleIcon" class="d-inline-block align-top" alt="">
+    <div id="eagleAndVersion">
+        <a class="navbar-brand inactiveLink" href="" disabled data-intro='Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the "Exit" button or ESC key.'>
+            EAGLE
+        </a>
         <span>{{version}}</span>
     </div>
 
@@ -14,177 +14,127 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <!-- ko if: isPaletteEditorModeEnabled() -->
-            <div data-intro='Use Palette Editor mode to edit descriptions of processing components.'>
-                <div data-bind="visible: userMode() !== Eagle.UserMode.PaletteEditor">
-                    <li class="nav-item">
-                        <a class="nav-link" id="enterPaletteEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.PaletteEditor);}">
-                            <img src="static/assets/img/palette.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                        </a>
-                    </li>
-                </div>
-                <div style="display: none" data-bind="visible: userMode() === Eagle.UserMode.PaletteEditor">
-                    <li class="nav-item">
-                        <a class="nav-link" href="" data-bind="click: function(){};">
-                            <img src="static/assets/img/palette_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                        </a>
-                    </li>
-                </div>
+
+        <ul class="nav navbar-nav navbar-center">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <!--
+                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom In" data-bind="click: zoomIn">
+                    <i class="material-icons md-18">zoom_in</i>
+                </button>
+                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom Out" data-bind="click: zoomOut">
+                    <i class="material-icons md-18">zoom_out</i>
+                </button>
+                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom To Fit" data-bind="click: zoomToFit">
+                    <i class="material-icons md-18">zoom_out_map</i>
+                </button>
+                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Toggle Grid" data-bind="click: toggleGrid">
+                    <i class="material-icons md-18">grid_on</i>
+                </button>
+                -->
+                <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Save as PNG" data-bind="click: saveAsPNG" data-intro="Save a PNG of the current graph.">
+                    <i class="material-icons md-18">image</i>
+                </button>
+                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Center Graph" data-bind="click: centerGraph" data-intro="Center the current graph within the graph rendering area.">
+                    <i class="material-icons md-18">filter_center_focus</i>
+                </button>
+                <!-- ko if: allowPaletteEditing() -->
+                <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Add Graph Nodes to Palette" data-bind="click: addGraphNodesToPalette" data-intro="Add all nodes in the current graph to the a new or existing palette.">
+                    <i class="material-icons md-18">palette</i>
+                </button>
+                <!-- /ko -->
+                <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Groups" data-bind="click: toggleCollapseAllGroups" data-intro="Toggle all groups between collapsed and expanded states.">
+                    <i class="material-icons md-18">tab_unselected</i>
+                </button>
+                <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Nodes" data-bind="click: toggleCollapseAllNodes" data-intro="Toggle all nodes between collapsed and expanded states.">
+                    <i class="material-icons md-18">vertical_align_center</i>
+                </button>
+                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Copy Graph Url" data-bind="click: copyGraphUrl" data-intro="Create a url that points to the current graph and copy the url to the clipboard.">
+                    <i class="material-icons md-18">content_copy</i>
+                </button>
+                <button id="checkGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Check Graph for Errors" data-bind="click: checkGraph" data-intro="Check the graph for common issues and missing information.">
+                    <i class="material-icons md-18">done_all</i>
+                </button>
             </div>
-            <!-- /ko -->
-            <div data-intro='Use Logical Graph Editor mode to edit logical graphs built from processing components.'>
-                <div style="display: none" data-bind="visible: userMode() !== Eagle.UserMode.LogicalGraphEditor">
-                    <li class="nav-item">
-                        <a class="nav-link" id="enterLogicalGraphEditorMode" href="#" data-bind="click: function(){setUserMode(Eagle.UserMode.LogicalGraphEditor);}">
-                            <img src="static/assets/img/editor.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                        </a>
-                    </li>
+        </ul>
+
+        <ul class="nav navbar-nav ml-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownGraph" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Graph
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownGraph">
+                    <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownGraphNew">
+                        <div class="dropDropDown">
+                            <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: newLogicalGraph">Create New Graph</a>
+                            <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
+                            <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph</a>
+                        </div>
+                    </span>
+                    <div class="dropdown-divider"></div>
+                    <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                        <div class="dropDropDown">
+                            <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Graph)}">Save Graph</a>
+                            <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Graph)}">Save Graph As</a>
+                        </div>
+                    </span>
+                    <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                        <div class="dropDropDown">
+                            <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load Graph</a>
+                            <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save Graph</a>
+                            <a class="dropdown-item" id="exportV3Json" href="#" data-bind="click: exportV3Json">Export V3 JSON</a>
+                            <a class="dropdown-item" id="exportAppRefJson" href="#" data-bind="click: exportAppRefJson">Export AppRef JSON</a>
+                        </div>
+                    </span>
                 </div>
-                <div data-bind="visible: userMode() === Eagle.UserMode.LogicalGraphEditor">
-                    <li class="nav-item">
-                        <a class="nav-link" href="" data-bind="click: function(){};">
-                            <img src="static/assets/img/editor_green.png" width="24" height="24" class="d-inline-block align-top" alt="">
-                        </a>
-                    </li>
-                </div>
-            </div>
+            </li>
+            <!-- ko if: allowPaletteEditing() -->
             <li class="nav-item dropdown" data-intro='Create new palettes and logical graphs.'>
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    New
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPalette" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Palette
                 </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
-                    <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: newLogicalGraph">Create New Graph</a>
-                    <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
-                    <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph</a>
-                    <!-- /ko -->
-                    <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
-                    <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette</a>
-                    <!-- /ko -->
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPalette">
+                    <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                        <div class="dropDropDown">
+                            <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette</a>
+                            <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette From Json</a>
+
+                        </div>
+                    </span>
+                    <div class="dropdown-divider"></div>
+                    <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                        <div class="dropDropDown">
+                            <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Palette)}">Save Palette</a>
+                            <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Palette)}">Save Palette As</a>
+                        </div>
+                    </span>
+                    <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                        <div class="dropDropDown">
+                            <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save Palette</a>
+                            <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Palette</a>
+                        </div>
+                    </span>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: addGraphNodesToPalette">Save Node To Palette</a>
                 </div>
             </li>
-            <li class="nav-item dropdown" data-intro='Save palettes and graphs to git repositories.'>
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownGit" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Git Storage
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownGit">
-                    <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
-                    <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Graph)}">Save Graph</a>
-                    <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Graph)}">Save Graph As</a>
-                    <!-- /ko -->
-                    <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
-                    <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Palette)}">Save Palette</a>
-                    <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Palette)}">Save Palette As</a>
-                    <!-- /ko -->
-                    <!--
-                    <a class="dropdown-item" id="addCustomRepository" href="#" data-bind="click: addCustomRepository">Add Custom Repo</a>
-                    <a class="dropdown-item" id="setGitHubAccessToken" href="#" data-bind="click: setGitHubAccessToken">Set GitHub Access Token</a>
-                    <a class="dropdown-item" id="setGitLabAccessToken" href="#" data-bind="click: setGitLabAccessToken">Set GitLab Access Token</a>
-                    <a class="dropdown-item" id="setTranslatorUrl" href="#" data-bind="click: setTranslatorUrl">Set Translator Url</a>
-                    -->
-                </div>
-            </li>
-            <li class="nav-item dropdown" data-intro='Load and save palettes and graphs from local disks.'>
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownDisk" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Local Disk Storage
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownDisk">
-                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Palette</a>
-                    <!-- ko if: userMode() === Eagle.UserMode.PaletteEditor -->
-                    <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save Palette</a>
-                    <!-- /ko -->
-                    <!-- ko if: userMode() !== Eagle.UserMode.PaletteEditor -->
-                    <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load Graph</a>
-                    <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save Graph</a>
-                    <!-- /ko -->
-                    <a class="dropdown-item" id="exportV3Json" href="#" data-bind="click: exportV3Json">Export V3 JSON</a>
-                    <a class="dropdown-item" id="exportAppRefJson" href="#" data-bind="click: exportAppRefJson">Export AppRef JSON</a>
-                    </div>
-            </li>
+             <!-- /ko -->
             <li class="nav-item dropdown" data-intro='Additional usage information and introductions to EAGLE features.'>
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Help
                 </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownHelp">
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownHelp">
                     <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
-                    <a class="dropdown-item" id="settings" href="#" data-bind="click: openSettings">Settings</a>
                     <a class="dropdown-item" id="navbarIntroduction" href="#" data-bind="click: function(){runTutorial('nav.navbar');}">Navbar Introduction</a>
                     <a class="dropdown-item" id="onlineHelp" href="#" data-bind="click: onlineHelp">Online Help</a>
                     <a class="dropdown-item" id="readme" href="#" data-bind="click: readme">GitHub README</a>
                     <a class="dropdown-item" id="submitIssue" href="#" data-bind="click: submitIssue">Submit Issue</a>
                 </div>
             </li>
+            <a class="nav-link" id="settings" href="#" data-bind="click: openSettings"><img src="/static/assets/img/settings_white_24dp.svg" alt=""></a>
         </ul>
 
-        <ul class="navbar-nav ml-auto">
-            <form class="form-inline">
-                <div class="btn-group" role="group" aria-label="Basic example">
-                    <!--
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom In" data-bind="click: zoomIn">
-                        <i class="material-icons md-18">zoom_in</i>
-                    </button>
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom Out" data-bind="click: zoomOut">
-                        <i class="material-icons md-18">zoom_out</i>
-                    </button>
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom To Fit" data-bind="click: zoomToFit">
-                        <i class="material-icons md-18">zoom_out_map</i>
-                    </button>
-                    <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Toggle Grid" data-bind="click: toggleGrid">
-                        <i class="material-icons md-18">grid_on</i>
-                    </button>
-                    -->
-                    <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Save as PNG" data-bind="click: saveAsPNG" data-intro="Save a PNG of the current graph.">
-                        <i class="material-icons md-18">image</i>
-                    </button>
-                    <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Center Graph" data-bind="click: centerGraph" data-intro="Center the current graph within the graph rendering area.">
-                        <i class="material-icons md-18">filter_center_focus</i>
-                    </button>
-                    <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Add Graph Nodes to Palette" data-bind="click: addGraphNodesToPalette" data-intro="Add all nodes in the current graph to the a new or existing palette.">
-                        <i class="material-icons md-18">palette</i>
-                    </button>
-                    <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Groups" data-bind="click: toggleCollapseAllGroups" data-intro="Toggle all groups between collapsed and expanded states.">
-                        <i class="material-icons md-18">tab_unselected</i>
-                    </button>
-                    <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Nodes" data-bind="click: toggleCollapseAllNodes" data-intro="Toggle all nodes between collapsed and expanded states.">
-                        <i class="material-icons md-18">vertical_align_center</i>
-                    </button>
-                    <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Copy Graph Url" data-bind="click: copyGraphUrl" data-intro="Create a url that points to the current graph and copy the url to the clipboard.">
-                        <i class="material-icons md-18">content_copy</i>
-                    </button>
-                    <button id="checkGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Check Graph for Errors" data-bind="click: checkGraph" data-intro="Check the graph for common issues and missing information.">
-                        <i class="material-icons md-18">done_all</i>
-                    </button>
-                </div>
-            </form>
-        </ul>
-
-        <ul class="navbar-nav ml-auto">
-            <form class="form-inline">
-                <div class="btn-group" role="group" aria-label="RightWindowModeSelect">
-                    <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}" data-intro='Load palettes and graphs from remote git repositories.'>
-                        Repositories
-                    </button>
-                    <!-- ko if: selectedNode() !== null -->
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.NodeInspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.NodeInspector}">
-                            Node
-                        </button>
-                    <!-- /ko -->
-                    <!-- ko if: selectedEdge() !== null -->
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeEdge" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.EdgeInspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.EdgeInspector}">
-                            Edge
-                        </button>
-                    <!-- /ko -->
-                    <!-- ko if: userMode() === Eagle.UserMode.LogicalGraphEditor -->
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}" data-intro='Submit a logical graph for translation into a physical graph.'>
-                            Translation
-                        </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}" data-intro='Explore the hierarchy of nodes in the current logical graph.'>
-                            Hierarchy
-                        </button>
-                    <!-- /ko -->
-                </div>
-            </form>
-        </ul>
     </div>
 </nav>
+<div id="graphNameWrapper">
+        <span id="filename" data-bind="text: repositoryFileName"></span>
+</div>
