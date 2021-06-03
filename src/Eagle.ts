@@ -688,33 +688,33 @@ export class Eagle {
      * Creates a new palette for editing.
      */
     newPalette = () : void => {
-        console.log("newPalette()");
-        /*
         this.newDiagram(Eagle.FileType.Palette, (name : string) => {
-            this.editorPalette(new Palette());
-            this.editorPalette().fileInfo().name = name;
+            const p: Palette = new Palette();
+            p.fileInfo().name = name;
 
-            const startNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control, false);
+            // mark the palette as modified and readwrite
+            p.fileInfo().modified = true;
+            p.fileInfo().readonly = false;
+
+            const startNode : Node = new Node(Utils.newKey(p.getNodes()), "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control, false);
             startNode.setColor(Utils.getColorForNode(Eagle.Category.Start));
-            this.editorPalette().addNode(startNode);
+            p.addNode(startNode);
 
-            const endNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "End", "", Eagle.Category.End, Eagle.CategoryType.Control, false);
+            const endNode : Node = new Node(Utils.newKey(p.getNodes()), "End", "", Eagle.Category.End, Eagle.CategoryType.Control, false);
             endNode.setColor(Utils.getColorForNode(Eagle.Category.End));
-            this.editorPalette().addNode(endNode);
+            p.addNode(endNode);
 
-            const commentNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other, false);
+            const commentNode : Node = new Node(Utils.newKey(p.getNodes()), "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other, false);
             commentNode.setColor(Utils.getColorForNode(Eagle.Category.Comment));
-            this.editorPalette().addNode(commentNode);
+            p.addNode(commentNode);
 
-            const descriptionNode : Node = new Node(Utils.newKey(this.editorPalette().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
+            const descriptionNode : Node = new Node(Utils.newKey(p.getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
             descriptionNode.setColor(Utils.getColorForNode(Eagle.Category.Description));
-            this.editorPalette().addNode(descriptionNode);
+            p.addNode(descriptionNode);
 
-            this.editorPalette.valueHasMutated();
+            // add to palettes
+            this.palettes.push(p);
         });
-        */
-
-        Utils.showUserMessage("Not implemented", "Not implemented");
     }
 
     /**
