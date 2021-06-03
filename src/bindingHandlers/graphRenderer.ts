@@ -38,6 +38,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const nodeData : Node[] = depthFirstTraversalOfNodes(graph.getNodes());
     const linkData : Edge[] = graph.getEdges();
 
+    let hasDraggedBackground : boolean = false;
     let isDraggingNode : boolean = false;
     let sourcePortId : string | null = null;
     let sourceNodeKey : number | null = null;
@@ -145,19 +146,25 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const backgroundDragHandler = d3
         .drag()
+        .on("start", function (node : Node) {
+            hasDraggedBackground = false;
+        })
         .on("end", function(){
-            console.log("setSelection(null)");
             const previousSelection = eagle.getSelection();
 
-            eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null);
+            if (!hasDraggedBackground){
+                eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null);
+                hasDraggedBackground = false;
 
-            if (previousSelection !== null){
-                eagle.rightWindow().mode(Eagle.RightWindowMode.Hierarchy);
+                if (previousSelection !== null){
+                    eagle.rightWindow().mode(Eagle.RightWindowMode.Hierarchy);
+                }
             }
         })
         .on("drag", function(){
             eagle.globalOffsetX += d3.event.dx;
             eagle.globalOffsetY += d3.event.dy;
+            hasDraggedBackground = true;
             tick();
         });
 
@@ -3335,7 +3342,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             while (word = words.pop()) {
                 line.push(word);
                 tspan.text(line.join(" "));
-                console.log(tspan.text().length);
                 if (tspan.node().getComputedTextLength() > wordWrapWidth) {
                     line.pop();
                     tspan.text(line.join(" "));
