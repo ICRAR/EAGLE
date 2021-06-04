@@ -633,8 +633,8 @@ export class Eagle {
             Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
         }
 
-        // add new palette to the palettes array
-        this.palettes.push(p);
+        // add new palette to the START of the palettes array
+        this.palettes.unshift(p);
 
         // show the left window
         this.leftWindow().shown(true);
@@ -713,7 +713,7 @@ export class Eagle {
             p.addNode(descriptionNode);
 
             // add to palettes
-            this.palettes.push(p);
+            this.palettes.unshift(p);
         });
     }
 
@@ -1576,7 +1576,7 @@ export class Eagle {
 
         // load the new palette
         const errors: string[] = [];
-        this.palettes.push(Palette.fromOJSJson(data, file, errors));
+        this.palettes.unshift(Palette.fromOJSJson(data, file, errors));
 
         if (errors.length > 0){
             // TODO: do stuff with the errors
@@ -2269,7 +2269,7 @@ export class Eagle {
         if (p === null){
             p = new Palette();
             p.fileInfo().name = name;
-            this.palettes.push(p);
+            this.palettes.unshift(p);
         }
 
         return p;
