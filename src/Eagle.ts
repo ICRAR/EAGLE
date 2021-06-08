@@ -449,8 +449,9 @@ export class Eagle {
             if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
                 const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, schemas[userChoiceIndex], Eagle.FileType.Graph);
                 if (!validatorResult.valid){
-                    console.error("JSON Invalid, saving anyway<br/>" + validatorResult.errors);
-                    Utils.showUserMessage("Error", "JSON Invalid, saving anyway<br/>" + validatorResult.errors);
+                    const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+                    console.error(message, validatorResult.errors);
+                    Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
                     //return;
                 }
             }
@@ -798,8 +799,9 @@ export class Eagle {
         if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
             if (!validatorResult.valid){
-                console.error("JSON Invalid, saving anyway<br/>" + validatorResult.errors);
-                Utils.showUserMessage("Error", "JSON Invalid, saving anyway<br/>" + validatorResult.errors);
+                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+                console.error(message, validatorResult.errors);
+                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
                 //return;
             }
         }
@@ -1071,8 +1073,9 @@ export class Eagle {
         if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
             if (!validatorResult.valid){
-                console.error("JSON Invalid, saving anyway<br/>" + validatorResult.errors);
-                Utils.showUserMessage("Error", "JSON Invalid, saving anyway<br/>" + validatorResult.errors);
+                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+                console.error(message, validatorResult.errors);
+                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
                 //return;
             }
         }
@@ -1107,8 +1110,9 @@ export class Eagle {
         if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.V3, Eagle.FileType.Graph);
             if (!validatorResult.valid){
-                console.error("JSON Invalid, saving anyway<br/>" + validatorResult.errors);
-                Utils.showUserMessage("Error", "JSON Invalid, saving anyway<br/>" + validatorResult.errors);
+                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+                console.error(message, validatorResult.errors);
+                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
                 //return;
             }
         }
