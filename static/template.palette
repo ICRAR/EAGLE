@@ -799,6 +799,75 @@
             }],
             "categoryType": "Control",
             "readonly": false
+        },
+        {
+            "category": "Subgraph",
+            "text": "Subgraph",
+            "description": "A subgraph that can be executed as part of a larger Logical Graph",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -23,
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean"
+            }, {
+                "text": "Repository Service",
+                "name": "repository_service",
+                "value": "GitHub",
+                "description": "The repository service containing the description of the subgraph, usually GitHub or GitLab",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Repository Name",
+                "name": "repository_name",
+                "value": "ICRAR/EAGLE-graph-repo",
+                "description": "The name of the repository containing the description of the subgraph.",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Repository Branch",
+                "name": "repository_branch",
+                "value": "master",
+                "description": "The repository branch containing the description of the subgraph, usually master",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Repository Path",
+                "name": "repository_path",
+                "value": "path/to/graph",
+                "description": "The repository path containing the description of the subgraph",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Repository Filename",
+                "name": "repository_filename",
+                "value": "file.graph",
+                "description": "The filename of containing the description of the subgraph",
+                "readonly": false,
+                "type": "String"
+            }],
+            "categoryType": "Control",
+            "readonly": false
         }
     ],
     "linkDataArray": []

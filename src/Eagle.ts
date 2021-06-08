@@ -3222,6 +3222,8 @@ export class Eagle {
         Variables          : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
         Branch             : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
 
+        Subgraph           : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "stars", color: "#00750E"},
+
         Unknown            : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "device_unknown", color: "#FF66CC"},
         None               : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block", color: "#FF66CC"}
     };
@@ -3308,6 +3310,7 @@ export namespace Eagle
         DynlibApp = "DynlibApp",
         MPI = "Mpi",
         Docker = "Docker",
+        Singularity = "Singularity",
 
         NGAS = "NGAS",
         S3 = "S3",
@@ -3320,6 +3323,8 @@ export namespace Eagle
 
         Variables = "Variables",
         Branch = "Branch",
+
+        Subgraph = "Subgraph",
 
         Unknown = "Unknown",
         None = "None",
