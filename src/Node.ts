@@ -1135,6 +1135,13 @@ export class Node {
     }
 
     static fromOJSJson = (nodeData : any, errors: string[], generateKeyFunc: () => number) : Node => {
+        let name = "";
+        if (typeof nodeData.text !== 'undefined'){
+            name = nodeData.text;
+        } else {
+            console.warn("Node", nodeData.key, "has undefined text", nodeData, "!");
+        }
+
         let x = 0;
         let y = 0;
         if (typeof nodeData.loc !== 'undefined'){
@@ -1164,7 +1171,7 @@ export class Node {
             categoryType = Eagle.CategoryType.Unknown;
         }
 
-        const node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, readonly);
+        const node : Node = new Node(nodeData.key, name, "", category, categoryType, readonly);
 
         // set position
         node.setPosition(x, y);
@@ -1908,7 +1915,7 @@ export class Node {
     }
 
     static createEmbeddedApplicationNode = (key: number, name : string, category: Eagle.Category, embedKey: number, readonly: boolean) : Node => {
-        //console.log("createEmbeddedApplicationNode(", key, name, category, ")");
+        //console.log("createEmbeddedApplicationNode(", key, name, category, embedKey, readonly, ")");
         const node = new Node(key, name, "", category, Eagle.CategoryType.Application, readonly);
         node.setEmbedKey(embedKey);
         return node;
