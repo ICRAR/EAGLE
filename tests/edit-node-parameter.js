@@ -18,7 +18,7 @@ test('Edit node parameter', async t =>{
         .wait(3000)
 
         // add a python node to the graph
-        .click("#addPaletteNode6")
+        .click("#addPaletteNode7")
 
         // check that a file node has been created
         .expect(Selector("#nodeNameValue").value).eql("Python App")
