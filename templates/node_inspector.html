@@ -62,6 +62,14 @@
         <!-- /ko -->
         </div>
 
+        <!-- ko if: selectedNode().getCategory() === "Subgraph" -->
+        <div class="row mt-1 nodeInspectorButton">
+            <div class="col">
+                <button type="button" id="openSubgraphNode" class="btn btn-primary btn-block" data-bind="click: openSubgraphNode">Open Subgraph</button>
+            </div>
+        </div>
+        <!-- /ko -->
+
         <div class="row mt-1 nodeInspectorButton">
             <div class="col">
                 <button type="button" id="duplicateSelectedNode" class="btn btn-primary btn-block" data-bind="click: duplicateSelectedNode">Duplicate Node</button>

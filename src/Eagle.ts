@@ -1494,6 +1494,8 @@ export class Eagle {
                         break;
                 }
 
+                this.selectedNode(null);
+                this.selectedEdge(null);
 
                 if (errors.length > 0){
                     if (showErrors){
@@ -3166,6 +3168,19 @@ export class Eagle {
     showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
     }, this);
+
+    openSubgraphNode = (): void => {
+        console.log("openSubgraphNode");
+
+        const service: Eagle.RepositoryService = <Eagle.RepositoryService>this.selectedNode().getFieldByName("repository_service").getValue();
+        const repository: string = this.selectedNode().getFieldByName("repository_name").getValue();
+        const branch: string = this.selectedNode().getFieldByName("repository_branch").getValue();
+        const path: string = this.selectedNode().getFieldByName("repository_path").getValue();
+        const filename: string = this.selectedNode().getFieldByName("repository_filename").getValue();
+
+        this.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+    }
+
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         const c = Eagle.cData[category];
