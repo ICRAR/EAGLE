@@ -17,7 +17,7 @@ test('Drag and drop node', async t =>{
         .wait(3000)
 
         // drag a File node from the palette into the graph
-        .drag(Selector('#addPaletteNode8'), 250, 0, {
+        .drag(Selector('#addPaletteNode9'), 250, 0, {
             offsetX: 40,
             offsetY: 40
         })
