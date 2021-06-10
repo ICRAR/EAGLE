@@ -1,16 +1,24 @@
 <div id="nodeInspector" class="container px-0">
     <!-- ko if: selectedNode() != null -->
-
-        <h5 class="card-header" id="nodeInspectorHeading" data-bind="click: inspectorState().toggleAll">
-            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse All'}, css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
-            <!-- ko if: selectedNode().isLocked() -->
-            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
-            <!-- /ko -->
-            <!-- ko ifnot: selectedNode().isLocked() -->
-            <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
-            <!-- /ko -->
-            <span data-bind="text: selectedNode().getName()"></span>
-        </h5>
+        <div class="row">
+            <div class="col-9">
+                <h5 class="card-header" id="nodeInspectorHeading" data-bind="click: inspectorState().toggleAll">
+                    <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse All'}, css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
+                    <!-- ko if: selectedNode().isLocked() -->
+                    <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
+                    <!-- /ko -->
+                    <!-- ko ifnot: selectedNode().isLocked() -->
+                    <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
+                    <!-- /ko -->
+                    <span data-bind="text: selectedNode().getName()"></span>
+                </h5>
+            </div>
+            <div class="col-3" id="headerBtns">
+                <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelectedNode" data-toggle="tooltip" data-placement="left" data-original-title="Duplicate Selected Node"><i  class="material-icons md-24">content_copy</i></button>
+                <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodeToPalette" data-toggle="tooltip" data-placement="left" data-original-title="Add Selected Node To Palette"><i  class="material-icons md-24">library_add</i></button>
+                <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: deleteSelectedNode" data-toggle="tooltip" data-placement="left" data-original-title="Delete Selected Node"><i class="material-icons md-24">delete</i></button>
+            </div>
+        </div>
         <div class="breakLine"></div>
         <h4 class="nodeInspectorSubTitle">Key: <span data-bind="text: selectedNode().getKey()"></span></h4>
         <h4 class="nodeInspectorSubTitle" >Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
@@ -60,22 +68,6 @@
         <!-- ko if: selectedNode().getCategory() === "Comment" -->
         {% include 'node_inspector_graph_comment.html' %}
         <!-- /ko -->
-        </div>
-
-        <div class="row mt-1 nodeInspectorButton">
-            <div class="col">
-                <button type="button" id="duplicateSelectedNode" class="btn btn-primary btn-block" data-bind="click: duplicateSelectedNode">Duplicate Node</button>
-            </div>
-        </div>
-        <div class="row mt-1 nodeInspectorButton">
-            <div class="col">
-                <button type="button" id="addSelectedNodeToPalette" class="btn btn-primary btn-block" data-bind="click: addSelectedNodeToPalette">Add Node to Palette</button>
-            </div>
-        </div>
-        <div class="row mt-1 nodeInspectorButton">
-            <div class="col">
-                <button type="button" id="deleteSelectedNode" class="btn btn-danger btn-block" data-bind="click: deleteSelectedNode">Delete Node</button>
-            </div>
         </div>
     <!-- /ko -->
 </div>
