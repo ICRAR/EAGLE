@@ -13,7 +13,6 @@ require.config({
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
         "bindingHandlers/graphRenderer":"./static/built/bindingHandlers/graphRenderer",
-        "bindingHandlers/paletteRenderer":"./static/built/bindingHandlers/paletteRenderer",
         "bindingHandlers/nodeDataProperty":"./static/built/bindingHandlers/nodeDataProperty",
         "components":"./static/built/components",
         "main":"./static/built/main",
