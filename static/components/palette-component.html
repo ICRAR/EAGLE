@@ -2,7 +2,7 @@
     <div class="col"  draggable="true" data-bind="event: {dragstart: $root.nodeDragStart,dragend: $root.nodeDragEnd} ">
         <div class="input-group mb-1"  data-bind="attr: {title: $data.getHelpHTML()}" data-toggle="tooltip" data-html="true" data-placement="right">
             <div class="input-group-prepend">
-                <button class="nodeBtn" type="button" data-bind="click: function(){$root.addNodeToLogicalGraph($data)}, attr: {id: 'addPaletteNode' + $data.index()}">
+                <button class="nodeBtn" type="button" data-bind="click: function(){$root.addNodeToLogicalGraph($data)}, attr: {id: 'addPaletteNode' + $data.getNoWhiteSpaceName()}">
                     <span class="input-group-text" data-bind="style: {'background-color': $data.getColor()}">
                         <i class="material-icons" data-bind="text: $data.getIcon()"></i>
                     </span>

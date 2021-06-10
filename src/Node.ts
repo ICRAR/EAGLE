@@ -160,6 +160,10 @@ export class Node {
         }
     }
 
+    getNoWhiteSpaceName = () : string => {
+        return this.getDisplayName().replace(' ', '');
+    }
+
     getDescription = () : string => {
         return this.description;
     }
