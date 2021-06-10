@@ -426,6 +426,26 @@
     color: white;
 }
 
+#nodeInspector .input-group-prepend{
+    width:40%;
+}
+#nodeInspector .input-group-text{
+    width:100%;
+    font-size: .9rem;
+    text-align: left;
+    white-space: normal;
+    min-width:unset;
+}
+
+#nodeInspector input{
+    height: auto;
+    font-size: .9rem;
+}
+
+#nodeInspector .input-group-append button{
+    padding:4px;
+}
+
 #rightWindowTabs{
     width:100%;
     border: none;
