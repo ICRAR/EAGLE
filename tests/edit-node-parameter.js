@@ -3,10 +3,9 @@ import { Selector } from 'testcafe';
 /*
     run with:
 
-    export EAGLE_GITHUB_ACCESS_TOKEN="<token>";testcafe chrome tests/edit-node-parameter.js
+    testcafe chrome tests/edit-node-parameter.js
 */
 
-var EAGLE_GITHUB_ACCESS_TOKEN = process.env.EAGLE_GITHUB_ACCESS_TOKEN;
 var DUMMY_VALUE = "0sdvh5gb8v7r4";
 
 fixture `EAGLE Edit Node Parameter`
@@ -18,7 +17,7 @@ test('Edit node parameter', async t =>{
         .wait(3000)
 
         // add a python node to the graph
-        .click("#addPaletteNode7")
+        .click("#addPaletteNodePythonApp")
 
         // check that a file node has been created
         .expect(Selector("#nodeNameValue").value).eql("Python App")
