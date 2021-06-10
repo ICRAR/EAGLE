@@ -2867,12 +2867,6 @@ export class Eagle {
         console.table(tableData);
     }
 
-    fetchThisHtml = () : string => {
-        alert("hi")
-        var text = "hi"
-        return text;
-    }
-
     printLogicalGraphEdgesTable = () : void => {
         var tableData : any[] = [];
 
