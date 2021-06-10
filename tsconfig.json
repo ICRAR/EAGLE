@@ -16,7 +16,6 @@
         "./src/bindingHandlers/readonly.ts",
         "./src/bindingHandlers/disabled.ts",
         "./src/bindingHandlers/graphRenderer.ts",
-        "./src/bindingHandlers/paletteRenderer.ts",
         "./src/bindingHandlers/nodeDataProperty.ts",
         "./src/components.ts",
         "./src/main.ts",
