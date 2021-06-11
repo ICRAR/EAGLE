@@ -367,7 +367,17 @@ def save_git_hub_file():
         filename = folder_name + "/" + filename
 
     g = github.Github(repo_token)
-    repo = g.get_repo(repo_name)
+
+    # get repo
+    try:
+        repo = g.get_repo(repo_name)
+    except github.GithubException as e:
+        print(
+            "Error in get_repo({0})! Repo: {1} Status: {2} Data: {3}".format(
+                "heads/" + repo_branch, str(repo_name), e.status, e.data
+            )
+        )
+        return jsonify({"error": e.data["message"]}), 400
 
     # Set branch
     try:
@@ -398,14 +408,23 @@ def save_git_hub_file():
     # Commit to GitHub repo.
     latest_commit = repo.get_git_commit(branch_sha)
     base_tree = latest_commit.tree
-    new_tree = repo.create_git_tree(
-        [
-            github.InputGitTreeElement(
-                path=filename, mode="100644", type="blob", content=json_data
+    try:
+        new_tree = repo.create_git_tree(
+            [
+                github.InputGitTreeElement(
+                    path=filename, mode="100644", type="blob", content=json_data
+                )
+            ],
+            base_tree,
+        )
+    except github.GithubException as e:
+        # repository might not have permission
+        print(
+            "Error in create_git_tree({0})! Repo: {1} Status: {2} Data: {3}".format(
+                "heads/" + repo_branch, str(repo_name), e.status, e.data
             )
-        ],
-        base_tree,
-    )
+        )
+        return jsonify({"error": e.data["message"]}), 400
 
     new_commit = repo.create_git_commit(
         message=commit_message, parents=[latest_commit], tree=new_tree

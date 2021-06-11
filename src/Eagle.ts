@@ -868,7 +868,7 @@ export class Eagle {
 
         Utils.httpPostJSON(url, json, (error : string, data: string) : void => {
             if (error !== null){
-                Utils.showUserMessage("Error", data);
+                Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
                 console.error("Error: " + JSON.stringify(error, null, 2) + " Data: " + data);
                 return;
             }
