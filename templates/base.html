@@ -73,10 +73,6 @@
                 </div>
             </div>
 
-            <div id="filenameArea">
-                <span id="filename" data-bind="text: repositoryFileName"></span>
-            </div>
-
             <div class="rightWindow" data-bind="style: { width: rightWindow().width(), right: rightWindow().shown() ? 0 : -rightWindow().width()}">
                <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}" data-intro='Load palettes and graphs from remote git repositories.'>

@@ -12,19 +12,6 @@
     padding-right: 0px;
 }
 
-#graphArea #filenameArea {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    text-align: center;
-    pointer-events: none;
-}
-
-#graphArea #filenameArea #filename {
-    display: inline-block;
-}
-
 #performance {
     position: absolute;
     right: 0px;
