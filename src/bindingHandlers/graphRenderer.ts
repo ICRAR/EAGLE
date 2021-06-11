@@ -179,10 +179,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const scale = d3.event.transform.k;
             const tx = d3.mouse(svgContainer.node())[0];
             const ty = d3.mouse(svgContainer.node())[1];
+            console.log("tx", tx, "ty", ty, "globalOffsetX", eagle.globalOffsetX, "globalOffsetY", eagle.globalOffsetY);
 
-            const tform = "translate(" + tx + "," + ty + ")scale(" + scale + ")";
+            //const tform = "translate(" + tx + "," + ty + ")scale(" + scale + ")";
+            const tform = "translate(" + 0 + "," + 0 + ")scale(" + scale + ")";
             svgContainer.style("transform", tform);
             eagle.globalScale = scale;
+
+            eagle.globalOffsetX -= tx * scale * 0.1;
+            eagle.globalOffsetY -= ty * scale * 0.1;
 
             tick();
         });
