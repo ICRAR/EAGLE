@@ -84,6 +84,14 @@ export class Field {
         return new Field(this.text(), this.name(), this.value(), this.description(), this.readonly(), this.type());
     }
 
+    getFieldValue = () : string => {
+        var tooltipText = "Val: " + this.value();
+        if  (tooltipText === "Val: "){
+            return "";
+        }
+        return tooltipText;
+    }
+
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume";
     }, this);
