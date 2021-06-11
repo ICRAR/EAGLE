@@ -177,10 +177,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // TODO: Try to centre the zoom on mouse position rather than upper left corner.
             // Somehow only the eagle.globalScale does something...
             const scale = d3.event.transform.k;
-            const tx = d3.mouse(svgContainer.node())[0];
-            const ty = d3.mouse(svgContainer.node())[1];
+            //const tx = d3.mouse(svgContainer.node())[0];
+            //const ty = d3.mouse(svgContainer.node())[1];
+            //const wheelDelta = d3.event.sourceEvent.deltaY;
 
-            const tform = "translate(" + tx + "," + ty + ")scale(" + scale + ")";
+            const tform = "translate(" + 0 + "," + 0 + ")scale(" + scale + ")";
             svgContainer.style("transform", tform);
             eagle.globalScale = scale;
 
