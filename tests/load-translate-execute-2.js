@@ -245,9 +245,6 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // click the 'Generate PGT' button
             .click('#alg1PGT');
 
-            // choose the 'OJS' output format
-        await page.selectOption('OJS');
-
             // wait for the graph to translate
         await t.wait(PAGE_TRANSITION_WAIT_DURATION);
 
