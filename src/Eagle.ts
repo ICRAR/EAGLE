@@ -44,6 +44,7 @@ import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {Setting} from './Setting';
+import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 
@@ -70,6 +71,7 @@ export class Eagle {
     rendererFrameTime : ko.Observable<string>;
 
     static settings : ko.ObservableArray<Setting>;
+    static shortcuts : ko.ObservableArray<KeyboardShortcut>;
 
     static dataNodes : Node[] = [];
     static dataCategories : Eagle.Category[] = [];
@@ -120,6 +122,22 @@ export class Eagle {
         Eagle.settings.push(new Setting("Spawn Translation Tab", "When translating a graph, display the output of the translator in a new tab", Setting.Type.Boolean, Utils.SPAWN_TRANSLATION_TAB, true));
         Eagle.settings.push(new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false));
 
+        Eagle.shortcuts = ko.observableArray();
+        Eagle.shortcuts.push(new KeyboardShortcut("Add Edge", "e", KeyboardShortcut.true, (eagle): void => {eagle.addEdgeToLogicalGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Modify Selected Edge", "m", KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.editSelectedEdge();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Delete Selected Edge", "Backspace", KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.deleteSelectedEdge(false);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Delete Selected Node", "Backspace", KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.deleteSelectedNode();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Duplicate Selected Node", "d", KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.duplicateSelectedNode();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Parent", "h", KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Subject", "s", KeyboardShortcut.commentNodeIsSelected, (eagle): void => {eagle.changeNodeSubject();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Toggle left window", "1", KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Toggle right window", "2", KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Center graph", "c", KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Open palette from local disk", "p", KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", "g", KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
+
+
+
         // HACK - subscribe to the be notified of changes to the palettes
         // when the palettes change, we need to enable the tooltips
         this.palettes.subscribe(this.updateTooltips);
@@ -129,7 +147,7 @@ export class Eagle {
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
 
-        this.inspectorState =ko.observable( new InspectorState() )
+        this.inspectorState = ko.observable(new InspectorState());
 
         this.rendererFrameTime = ko.observable("");
     }
@@ -1881,6 +1899,10 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
+    openShortcuts = () : void => {
+        Utils.showShortcutsModal();
+    }
+
     private static findSetting = (key : string) : Setting => {
         // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
         if (typeof Eagle.settings === 'undefined'){
@@ -1910,6 +1932,10 @@ export class Eagle {
 
     getSettings = () : Setting[] => {
         return Eagle.settings();
+    }
+
+    getShortcuts = () : KeyboardShortcut[] => {
+        return Eagle.shortcuts();
     }
 
     resetSettingsDefaults = () : void => {

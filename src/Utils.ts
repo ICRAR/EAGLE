@@ -1167,6 +1167,10 @@ export class Utils {
         $('#settingsModal').modal();
     }
 
+    static showShortcutsModal() : void {
+        $('#shortcutsModal').modal();
+    }
+
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {
         //console.log("requestUserEditEdge()");
 

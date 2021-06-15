@@ -34,6 +34,8 @@ import {GitLab} from './GitLab';
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
 
+import {KeyboardShortcut} from './KeyboardShortcut';
+
 let eagle : Eagle;
 
 $(function(){
@@ -93,35 +95,8 @@ $(function(){
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
     window.onbeforeunload = () => (eagle.areAnyFilesModified() && Eagle.findSettingValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
 
-    //keyboard shortcut event listener
-    //currently only used for deleting nodes and edges
-    document.onkeydown = (e:KeyboardEvent) => {
-    // $(document).keydown(function(e : JQueryKeyEventObject) {
-        if($("input,textarea").is(":focus")){
-            //Textbox or Input field is focused
-            return;
-        } else {
-            //delete edge, if edge selected
-            if (eagle.selectedEdge() != null){
-                //if the backspace key was pressed
-                if (e.which === 8){
-                    eagle.deleteSelectedEdge(false);
-                }
-            }
-
-            //if a node is selected
-            else if (eagle.selectedNode() != null){
-                //if the backspace key was pressed, delete node
-                if (e.which === 8) {
-                eagle.deleteSelectedNode();
-                }
-                //if "d" key was pressed, duplicate node
-                else if (e.which === 68){
-                    eagle.duplicateSelectedNode();
-                }
-            }
-        }
-    }
+    // keyboard shortcut event listener
+    document.onkeydown = KeyboardShortcut.processKey;
 
     // HACK: without this global wheel event handler, d3 does not receive zoom events
     //       not sure why, this wasn't always the case
