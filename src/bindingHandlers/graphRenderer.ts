@@ -2943,7 +2943,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             y1 = REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y);
         }
 
-        if (node.isFlipPorts()){
+        if (subjectNode.isFlipPorts()){
             x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + subjectNode.getWidth());
             y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
         } else {
@@ -2951,9 +2951,28 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
         }
 
+        if (subjectNode.getCategoryType() === Eagle.CategoryType.Data && !subjectNode.isShowPorts()){
+            if (node.isFlipPorts()){
+                x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + getIconLocationX(subjectNode) + Node.DATA_COMPONENT_WIDTH);
+                y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y + getIconLocationY(subjectNode) + Node.DATA_COMPONENT_HEIGHT/2);
+            } else {
+                x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + getIconLocationX(subjectNode));
+                y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y + getIconLocationY(subjectNode) + Node.DATA_COMPONENT_HEIGHT/2);
+            }
+        }
+
+        if (subjectNode.isBranch()){
+            x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + subjectNode.getWidth()/2);
+            y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
+        }
+
         // determine incident directions for start and end of edge
-        const startDirection = node.isFlipPorts() ? Eagle.Direction.Right : Eagle.Direction.Left;
-        const endDirection = node.isFlipPorts() ? Eagle.Direction.Left : Eagle.Direction.Right;
+        const startDirection = node.isFlipPorts() ? Eagle.Direction.Left : Eagle.Direction.Right;
+        let endDirection = subjectNode.isFlipPorts() ? Eagle.Direction.Left : Eagle.Direction.Right;
+
+        if (subjectNode.isBranch()){
+            endDirection = Eagle.Direction.Down;
+        }
 
         return createBezier(x1, y1, x2, y2, startDirection, endDirection);
     }
