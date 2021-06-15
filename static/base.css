@@ -586,3 +586,7 @@ nav.navbar .introjs-helperLayer {
 #hiddenBSTrigger{
     visibility: hidden;
 }
+
+palette-component input.form-control.selected {
+    background-color: lightgrey;
+}
