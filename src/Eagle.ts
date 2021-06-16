@@ -3129,17 +3129,32 @@ export class Eagle {
     setNodeInputApplication = () : void => {
         console.log("setNodeInputApplication()");
 
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
+            return;
+        }
+
         this.setNodeApplication("Input Application", "Choose an input application", this.selectedNode().setInputApplication);
     }
 
     setNodeOutputApplication = () : void => {
         console.log("setNodeOutputApplication()");
 
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
+            return;
+        }
+
         this.setNodeApplication("Output Application", "Choose an output application", this.selectedNode().setOutputApplication);
     }
 
     setNodeExitApplication = () : void => {
         console.log("setNodeExitApplication()");
+
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
+            return;
+        }
 
         this.setNodeApplication("Exit Application", "Choose an exit application", this.selectedNode().setExitApplication);
     }
