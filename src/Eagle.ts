@@ -2153,16 +2153,49 @@ export class Eagle {
     }
 
     private _deleteSelectedNode = () : void => {
-        // delete the node
-        this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
-        this.logicalGraph().fileInfo().modified = true;
+        let found: boolean = false;
+        let error: string = "Unknown error";
 
-        // no node left to be selected
-        this.selectedNode(null);
-        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+        if (this.selectedLocation() === Eagle.FileType.Graph){
+            // delete the node from the logical graph
+            this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
+            this.logicalGraph().fileInfo().modified = true;
+            found = true;
+        }
 
-        // flag the diagram as mutated so that the graph renderer will update
-        this.flagActiveDiagramHasMutated();
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            // delete the node from a palette
+            for (let i = 0 ; i < this.palettes().length; i++){
+                const palette = this.palettes()[i];
+
+                for (let j = 0 ; j < palette.getNodes().length; j++){
+                    const node = palette.getNodes()[j];
+
+                    if (node === this.selectedNode()){
+                        // check if palette is readonly
+                        if (palette.fileInfo().readonly || node.isReadonly()){
+                            error = "Palette or node is readonly";
+                        } else {
+                            found = true;
+                            // TODO: this could be faster if we write a removeNodeAtIndex() or similar
+                            palette.removeNodeByKey(node.getKey());
+                            palette.fileInfo().modified = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (found){
+            // no node left to be selected
+            this.selectedNode(null);
+            this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+
+            // flag the diagram as mutated so that the graph renderer will update
+            this.flagActiveDiagramHasMutated();
+        } else {
+            Utils.showUserMessage("Error", error);
+        }
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
