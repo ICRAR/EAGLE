@@ -59,6 +59,7 @@ export class Eagle {
 
     selectedNode : ko.Observable<Node>;
     selectedEdge : ko.Observable<Edge>;
+    selectedLocation : ko.Observable<Eagle.FileType>;
 
     translator : ko.Observable<Translator>;
 
@@ -96,6 +97,7 @@ export class Eagle {
 
         this.selectedNode = ko.observable(null);
         this.selectedEdge = ko.observable(null);
+        this.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.translator = ko.observable(new Translator());
 
@@ -133,6 +135,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("Toggle left window", "1", KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Toggle right window", "2", KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Center graph", "c", KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("New palette", "n", KeyboardShortcut.true, (eagle): void => {eagle.newPalette();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Open palette from local disk", "p", KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", "g", KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
 
@@ -328,6 +331,7 @@ export class Eagle {
     resetEditor = () : void => {
         this.selectedNode(null);
         this.selectedEdge(null);
+        this.selectedLocation(Eagle.FileType.Unknown);
 
         // Show the last open repository.
         this.rightWindow().mode(Eagle.RightWindowMode.Repository);
@@ -343,7 +347,7 @@ export class Eagle {
         return null;
     }
 
-    setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
+    setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectionLocation: Eagle.FileType) : void => {
         //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
 
         switch (rightWindowMode){
@@ -355,10 +359,20 @@ export class Eagle {
                     return;
                 }
 
-                // de-select all the nodes and then select this node
+                // de-select all the nodes in the logical graph
                 for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
                     this.logicalGraph().getNodes()[i].setSelected(false);
                     this.logicalGraph().getNodes()[i].setShowPorts(false);
+                }
+
+                // de-select all the nodes in the palettes
+                for (let i = 0 ; i < this.palettes.length; i++){
+                    const palette = this.palettes()[i];
+
+                    for (let j = 0 ; j < palette.getNodes().length; j++){
+                        palette.getNodes()[j].setSelected(false);
+                        palette.getNodes()[j].setShowPorts(false);
+                    }
                 }
 
                 // abort if new selection is null
@@ -366,6 +380,7 @@ export class Eagle {
                     Eagle.selectedNodeKey = undefined;
                     this.selectedNode(null);
                     this.selectedEdge(null);
+                    this.selectedLocation(Eagle.FileType.Unknown);
                     this.flagActiveDiagramHasMutated();
                     return;
                 }
@@ -376,6 +391,7 @@ export class Eagle {
                 Eagle.selectedNodeKey = (<Node>selection).getKey();
                 this.selectedNode(<Node>selection);
                 this.selectedEdge(null);
+                this.selectedLocation(selectionLocation);
 
                 // update the display of all the sections of the node inspector (collapse/expand as appropriate)
                 this.inspectorState().updateAllInspectorSections();
@@ -405,6 +421,7 @@ export class Eagle {
                 Eagle.selectedNodeKey = null;
                 this.selectedNode(null);
                 this.selectedEdge(<Edge>selection);
+                this.selectedLocation(selectionLocation);
                 break;
             default:
                 console.warn("RightWindowMode " + rightWindowMode + " not handled in setSelection()");
@@ -2040,7 +2057,13 @@ export class Eagle {
         }
 
         // duplicate the node
-        this.addNodeToLogicalGraph(this.selectedNode());
+        if (this.selectedLocation() === Eagle.FileType.Graph){
+            this.addNodeToLogicalGraph(this.selectedNode());
+        }
+
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            this.addSelectedNodeToPalette();
+        }
     }
 
     addSelectedNodeToPalette = () : void => {
@@ -2159,7 +2182,7 @@ export class Eagle {
 
         this.logicalGraph().addNode(node, pos.x, pos.y, (newNode: Node) => {
             // make sure the new node is selected
-            this.setSelection(Eagle.RightWindowMode.NodeInspector, newNode);
+            this.setSelection(Eagle.RightWindowMode.NodeInspector, newNode, Eagle.FileType.Graph);
             Eagle.nodeDropLocation = {x:0, y:0};
 
             this.logicalGraph.valueHasMutated();
@@ -2486,7 +2509,7 @@ export class Eagle {
                 edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
                 this.selectedEdge(edge);
                 this.selectedNode(null);
-                this.setSelection(Eagle.RightWindowMode.EdgeInspector, edge);
+                this.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
                 return;
             }
         }
@@ -2814,21 +2837,21 @@ export class Eagle {
         }
         node.setSelected(true);
 
-        this.setSelection(Eagle.RightWindowMode.Hierarchy, node);
+        this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
 
         this.flagActiveDiagramHasMutated();
     }
 
     selectInputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getInputApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getInputApplication(), Eagle.FileType.Graph);
     }
 
     selectOutputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getOutputApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
     selectExitApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication(), Eagle.FileType.Graph);
     }
 
     editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number) : void => {
