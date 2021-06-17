@@ -62,7 +62,7 @@
     min-width: 140px;
 }
 
-.rightWindow .btn-primary{
+.rightWindow .btn-primary, .leftWindow .btn-primary {
     background-color: #0059a5;
     border-color: #0059a5;
 }
