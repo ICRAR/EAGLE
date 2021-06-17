@@ -153,7 +153,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const previousSelection = eagle.getSelection();
 
             if (!hasDraggedBackground){
-                eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null);
+                eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null, Eagle.FileType.Unknown);
                 hasDraggedBackground = false;
 
                 if (previousSelection !== null){
@@ -1472,14 +1472,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function selectEdge(edge : Edge){
         if (edge !== null){
-            eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge);
+            eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
         }
     }
 
     function selectNode(node : Node){
         if (node !== null){
             //console.log("setSelection()", node.getName());
-            eagle.setSelection(Eagle.RightWindowMode.NodeInspector, node);
+            eagle.setSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Graph);
         }
     }
 
@@ -2899,7 +2899,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         graph.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, (edge : Edge) : void =>{
             eagle.flagActiveDiagramHasMutated();
-            //eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge);
+            //eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
 
             clearEdgeVars();
         });

@@ -59,6 +59,7 @@ export class Eagle {
 
     selectedNode : ko.Observable<Node>;
     selectedEdge : ko.Observable<Edge>;
+    selectedLocation : ko.Observable<Eagle.FileType>;
 
     translator : ko.Observable<Translator>;
 
@@ -96,6 +97,7 @@ export class Eagle {
 
         this.selectedNode = ko.observable(null);
         this.selectedEdge = ko.observable(null);
+        this.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.translator = ko.observable(new Translator());
 
@@ -133,6 +135,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("Toggle left window", "1", KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Toggle right window", "2", KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Center graph", "c", KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("New palette", "n", KeyboardShortcut.true, (eagle): void => {eagle.newPalette();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Open palette from local disk", "p", KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", "g", KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
 
@@ -328,6 +331,7 @@ export class Eagle {
     resetEditor = () : void => {
         this.selectedNode(null);
         this.selectedEdge(null);
+        this.selectedLocation(Eagle.FileType.Unknown);
 
         // Show the last open repository.
         this.rightWindow().mode(Eagle.RightWindowMode.Repository);
@@ -343,7 +347,7 @@ export class Eagle {
         return null;
     }
 
-    setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge) : void => {
+    setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectionLocation: Eagle.FileType) : void => {
         //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
 
         switch (rightWindowMode){
@@ -355,10 +359,20 @@ export class Eagle {
                     return;
                 }
 
-                // de-select all the nodes and then select this node
+                // de-select all the nodes in the logical graph
                 for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
                     this.logicalGraph().getNodes()[i].setSelected(false);
                     this.logicalGraph().getNodes()[i].setShowPorts(false);
+                }
+
+                // de-select all the nodes in the palettes
+                for (let i = 0 ; i < this.palettes.length; i++){
+                    const palette = this.palettes()[i];
+
+                    for (let j = 0 ; j < palette.getNodes().length; j++){
+                        palette.getNodes()[j].setSelected(false);
+                        palette.getNodes()[j].setShowPorts(false);
+                    }
                 }
 
                 // abort if new selection is null
@@ -366,6 +380,7 @@ export class Eagle {
                     Eagle.selectedNodeKey = undefined;
                     this.selectedNode(null);
                     this.selectedEdge(null);
+                    this.selectedLocation(Eagle.FileType.Unknown);
                     this.flagActiveDiagramHasMutated();
                     return;
                 }
@@ -376,6 +391,7 @@ export class Eagle {
                 Eagle.selectedNodeKey = (<Node>selection).getKey();
                 this.selectedNode(<Node>selection);
                 this.selectedEdge(null);
+                this.selectedLocation(selectionLocation);
 
                 // update the display of all the sections of the node inspector (collapse/expand as appropriate)
                 this.inspectorState().updateAllInspectorSections();
@@ -405,6 +421,7 @@ export class Eagle {
                 Eagle.selectedNodeKey = null;
                 this.selectedNode(null);
                 this.selectedEdge(<Edge>selection);
+                this.selectedLocation(selectionLocation);
                 break;
             default:
                 console.warn("RightWindowMode " + rightWindowMode + " not handled in setSelection()");
@@ -2040,7 +2057,13 @@ export class Eagle {
         }
 
         // duplicate the node
-        this.addNodeToLogicalGraph(this.selectedNode());
+        if (this.selectedLocation() === Eagle.FileType.Graph){
+            this.addNodeToLogicalGraph(this.selectedNode());
+        }
+
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            this.addSelectedNodeToPalette();
+        }
     }
 
     addSelectedNodeToPalette = () : void => {
@@ -2085,21 +2108,21 @@ export class Eagle {
             if (clone.hasInputApplication()){
                 const inputClone = clone.getInputApplication().clone();
                 clone.setInputApplication(null);
-                Utils.addOrUpdateNodeInPalette(destinationPalette, inputClone);
+                Utils.addNodeToPalette(destinationPalette, inputClone);
             }
             if (clone.hasOutputApplication()){
                 const outputClone = clone.getOutputApplication().clone();
                 clone.setOutputApplication(null);
-                Utils.addOrUpdateNodeInPalette(destinationPalette, outputClone);
+                Utils.addNodeToPalette(destinationPalette, outputClone);
             }
             if (clone.hasExitApplication()){
                 const exitClone = clone.getExitApplication().clone();
                 clone.setExitApplication(null);
-                Utils.addOrUpdateNodeInPalette(destinationPalette, exitClone);
+                Utils.addNodeToPalette(destinationPalette, exitClone);
             }
 
             // add clone to palette
-            Utils.addOrUpdateNodeInPalette(destinationPalette, clone);
+            Utils.addNodeToPalette(destinationPalette, clone);
 
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
@@ -2130,16 +2153,49 @@ export class Eagle {
     }
 
     private _deleteSelectedNode = () : void => {
-        // delete the node
-        this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
-        this.logicalGraph().fileInfo().modified = true;
+        let found: boolean = false;
+        let error: string = "Unknown error";
 
-        // no node left to be selected
-        this.selectedNode(null);
-        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+        if (this.selectedLocation() === Eagle.FileType.Graph){
+            // delete the node from the logical graph
+            this.logicalGraph().removeNodeByKey(this.selectedNode().getKey());
+            this.logicalGraph().fileInfo().modified = true;
+            found = true;
+        }
 
-        // flag the diagram as mutated so that the graph renderer will update
-        this.flagActiveDiagramHasMutated();
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            // delete the node from a palette
+            for (let i = 0 ; i < this.palettes().length; i++){
+                const palette = this.palettes()[i];
+
+                for (let j = 0 ; j < palette.getNodes().length; j++){
+                    const node = palette.getNodes()[j];
+
+                    if (node === this.selectedNode()){
+                        // check if palette is readonly
+                        if (palette.fileInfo().readonly || node.isReadonly()){
+                            error = "Palette or node is readonly";
+                        } else {
+                            found = true;
+                            // TODO: this could be faster if we write a removeNodeAtIndex() or similar
+                            palette.removeNodeByKey(node.getKey());
+                            palette.fileInfo().modified = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (found){
+            // no node left to be selected
+            this.selectedNode(null);
+            this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+
+            // flag the diagram as mutated so that the graph renderer will update
+            this.flagActiveDiagramHasMutated();
+        } else {
+            Utils.showUserMessage("Error", error);
+        }
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
@@ -2159,7 +2215,7 @@ export class Eagle {
 
         this.logicalGraph().addNode(node, pos.x, pos.y, (newNode: Node) => {
             // make sure the new node is selected
-            this.setSelection(Eagle.RightWindowMode.NodeInspector, newNode);
+            this.setSelection(Eagle.RightWindowMode.NodeInspector, newNode, Eagle.FileType.Graph);
             Eagle.nodeDropLocation = {x:0, y:0};
 
             this.logicalGraph.valueHasMutated();
@@ -2211,24 +2267,24 @@ export class Eagle {
                     inputClone.setEmbedKey(null);
 
                     clone.setInputApplication(null);
-                    Utils.addOrUpdateNodeInPalette(destinationPalette, inputClone);
+                    Utils.addNodeToPalette(destinationPalette, inputClone);
                 }
                 if (clone.hasOutputApplication()){
                     const outputClone = clone.getOutputApplication().clone();
                     outputClone.setEmbedKey(null);
 
                     clone.setOutputApplication(null);
-                    Utils.addOrUpdateNodeInPalette(destinationPalette, outputClone);
+                    Utils.addNodeToPalette(destinationPalette, outputClone);
                 }
                 if (clone.hasExitApplication()){
                     const exitClone = clone.getExitApplication().clone();
                     exitClone.setEmbedKey(null);
 
                     clone.setExitApplication(null);
-                    Utils.addOrUpdateNodeInPalette(destinationPalette, exitClone);
+                    Utils.addNodeToPalette(destinationPalette, exitClone);
                 }
 
-                Utils.addOrUpdateNodeInPalette(destinationPalette, clone);
+                Utils.addNodeToPalette(destinationPalette, clone);
             }
 
             // mark the palette as modified
@@ -2486,7 +2542,7 @@ export class Eagle {
                 edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
                 this.selectedEdge(edge);
                 this.selectedNode(null);
-                this.setSelection(Eagle.RightWindowMode.EdgeInspector, edge);
+                this.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
                 return;
             }
         }
@@ -2814,21 +2870,21 @@ export class Eagle {
         }
         node.setSelected(true);
 
-        this.setSelection(Eagle.RightWindowMode.Hierarchy, node);
+        this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
 
         this.flagActiveDiagramHasMutated();
     }
 
     selectInputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getInputApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getInputApplication(), Eagle.FileType.Graph);
     }
 
     selectOutputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getOutputApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
     selectExitApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication());
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication(), Eagle.FileType.Graph);
     }
 
     editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number) : void => {
@@ -3073,17 +3129,32 @@ export class Eagle {
     setNodeInputApplication = () : void => {
         console.log("setNodeInputApplication()");
 
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
+            return;
+        }
+
         this.setNodeApplication("Input Application", "Choose an input application", this.selectedNode().setInputApplication);
     }
 
     setNodeOutputApplication = () : void => {
         console.log("setNodeOutputApplication()");
 
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
+            return;
+        }
+
         this.setNodeApplication("Output Application", "Choose an output application", this.selectedNode().setOutputApplication);
     }
 
     setNodeExitApplication = () : void => {
         console.log("setNodeExitApplication()");
+
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
+            return;
+        }
 
         this.setNodeApplication("Exit Application", "Choose an exit application", this.selectedNode().setExitApplication);
     }

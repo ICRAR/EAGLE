@@ -1621,11 +1621,14 @@ export class Utils {
         return result;
     }
 
-    // check if a node already exists in a palette, if so replace the node with the new one
-    // otherwise, add the node to the end of the palette
-    static addOrUpdateNodeInPalette(palette: Palette, node: Node) : void {
+    // add the node to the end of the palette
+    static addNodeToPalette(palette: Palette, node: Node) : void {
+        //console.log("Copy node", node.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
+        palette.addNode(node);
+
         // try to find a matching node that already exists in the palette
         // TODO: at the moment, we only match by name and category, but we should match by ID (once the ID is unique)
+        /*
         for (let i = 0 ; i < palette.getNodes().length; i++){
             const paletteNode = palette.getNodes()[i];
 
@@ -1635,9 +1638,7 @@ export class Utils {
                 return;
             }
         }
-
-        //console.log("Copy node", node.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
-        palette.addNode(node);
+        */
     }
 
     static giveNodePortsNewIds(node: Node) : void {
