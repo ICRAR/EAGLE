@@ -350,6 +350,35 @@ def get_docker_image_tags():
     return jsonify(data)
 
 
+@app.route("/getExplorePalettes", methods=["POST"])
+def get_explore_palettes():
+    content = request.get_json(silent=True)
+
+    try:
+        repo_name = content["repository"]
+        repo_branch = content["branch"]
+        repo_token = content["token"]
+    except KeyError as ke:
+        print("KeyError {1}: {0}".format(str(ke), repo_name))
+        return jsonify({"error":"Repository, Branch or Token not specified in request"})
+
+    # Extracting the true repo name and repo folder.
+    folder_name, repo_name = extract_folder_and_repo_names(repo_name)
+    g = github.Github(repo_token)
+
+    try:
+        repo = g.get_repo(repo_name)
+    except github.UnknownObjectException as uoe:
+        print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
+        return jsonify({"error":uoe.message})
+
+    # get results
+    d = find_github_palettes(repo, "", repo_branch)
+
+    # return correct result
+    return jsonify(d)
+
+
 @app.route("/saveFileToRemoteGithub", methods=["POST"])
 def save_git_hub_file():
     # Extract parameters and file content from json.
@@ -622,6 +651,30 @@ def parse_gitlab_folder(items, path):
                 partialPath = "/".join(folders[:i])
                 x = x[partialPath]
             x[""].append(item[u'name'])
+
+    return result
+
+
+def find_github_palettes(repo, path, branch):
+    result = []
+
+    # Getting repository file list
+    try:
+        contents = repo.get_contents(path, ref=branch)
+    except github.GithubException as ghe:
+        print("GitHubException {1} ({2}): {0}".format(str(ghe), repo.full_name, branch))
+        return ghe.data["message"]
+
+    while contents:
+        file_content = contents.pop(0)
+
+        if file_content.type == "dir":
+            palettes = find_github_palettes(repo, file_content.path, branch)
+            for palette in palettes:
+                result.append(palette)
+        else:
+            if file_content.name.endswith(".palette"):
+                result.append(file_content.name)
 
     return result
 

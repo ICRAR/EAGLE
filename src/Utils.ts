@@ -796,6 +796,13 @@ export class Utils {
         $('#messageModal').on('shown.bs.modal', function(){
             $('#messageModal .modal-footer button').focus();
         });
+
+        $('#explorePalettesModal').on('shown.bs.modal', function(){
+            $('#explorePalettesModal .modal-footer button').focus();
+        });
+        $('#explorePalettesModalAffirmativeButton').on('click', function(){
+            $('#explorePalettesModal').data('completed', true);
+        });
     }
 
     static showUserMessage (title : string, message : string) : void {
@@ -1169,6 +1176,30 @@ export class Utils {
 
     static showShortcutsModal() : void {
         $('#shortcutsModal').modal();
+    }
+
+    static showPalettesModal(eagle: Eagle) : void {
+        const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+
+        if (token === null) {
+            Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
+            return;
+        }
+
+        // Add parameters in json data.
+        // TODO: make repository and branch settings, or at least config options
+        const jsonData = {
+            repository: "ICRAR/EAGLE_test_repo",
+            branch: "master",
+            token: token,
+        };
+
+        $('#explorePalettesModal').modal();
+
+        Utils.httpPostJSON('/getExplorePalettes', jsonData, function(error:string, data:any){
+            console.log("error", error, "data", data);
+            eagle.explorePalettes(data);
+        });
     }
 
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {

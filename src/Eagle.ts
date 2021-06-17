@@ -71,6 +71,8 @@ export class Eagle {
 
     rendererFrameTime : ko.Observable<string>;
 
+    explorePalettes : ko.ObservableArray<string>;
+
     static settings : ko.ObservableArray<Setting>;
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
 
@@ -150,6 +152,8 @@ export class Eagle {
         this.inspectorState = ko.observable(new InspectorState());
 
         this.rendererFrameTime = ko.observable("");
+
+        this.explorePalettes = ko.observableArray([]);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -2400,6 +2404,10 @@ export class Eagle {
                 });
             });
         });
+    }
+
+    showExplorePalettes = () : void => {
+        Utils.showPalettesModal(this);
     }
 
     /**
