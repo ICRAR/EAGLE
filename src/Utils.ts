@@ -34,6 +34,8 @@ import {Edge} from './Edge';
 import {Port} from './Port';
 import {Field} from './Field';
 import {Repository} from './Repository';
+import {RepositoryFile} from './RepositoryFile';
+import {PaletteInfo} from './PaletteInfo';
 
 export class Utils {
     // Allowed file extenstions.
@@ -803,6 +805,24 @@ export class Utils {
         $('#explorePalettesModalAffirmativeButton').on('click', function(){
             $('#explorePalettesModal').data('completed', true);
         });
+        $('#explorePalettesModal').on('hidden.bs.modal', function(){
+            const completed : boolean = $('#explorePalettesModal').data('completed');
+
+            // check if the modal was completed (user clicked OK), if not, return false
+            if (!completed){
+                return;
+            }
+
+            // loop through the explorePalettes, find any selected and load them
+            for (let i = 0 ; i < eagle.explorePalettes().length ; i++){
+                const ep = eagle.explorePalettes()[i];
+
+                if (ep.isSelected()){
+                    eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
+                }
+            }
+
+        });
     }
 
     static showUserMessage (title : string, message : string) : void {
@@ -1194,11 +1214,20 @@ export class Utils {
             token: token,
         };
 
+        // empty the list of palettes prior to (re)fetch
+        eagle.explorePalettes([]);
+
         $('#explorePalettesModal').modal();
 
         Utils.httpPostJSON('/getExplorePalettes', jsonData, function(error:string, data:any){
             console.log("error", error, "data", data);
-            eagle.explorePalettes(data);
+
+            const explorePalettes: PaletteInfo[] = [];
+            for (let i = 0 ; i < data.length ; i++){
+                explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, data[i].name, data[i].path));
+            }
+
+            eagle.explorePalettes(explorePalettes);
         });
     }
 

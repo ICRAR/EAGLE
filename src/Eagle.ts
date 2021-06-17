@@ -47,6 +47,7 @@ import {Setting} from './Setting';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
+import {PaletteInfo} from './PaletteInfo';
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -71,7 +72,7 @@ export class Eagle {
 
     rendererFrameTime : ko.Observable<string>;
 
-    explorePalettes : ko.ObservableArray<string>;
+    explorePalettes : ko.ObservableArray<PaletteInfo>;
 
     static settings : ko.ObservableArray<Setting>;
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;

@@ -674,7 +674,11 @@ def find_github_palettes(repo, path, branch):
                 result.append(palette)
         else:
             if file_content.name.endswith(".palette"):
-                result.append(file_content.name)
+                if '/' in file_content.path:
+                    path_without_filename = file_content.path[:file_content.path.rindex('/')]
+                else:
+                    path_without_filename = ""
+                result.append({"name":file_content.name, "path":path_without_filename})
 
     return result
 
