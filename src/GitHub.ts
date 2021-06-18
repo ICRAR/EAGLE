@@ -157,8 +157,7 @@ export class GitHub {
 
                 repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
             }
-            // destroy orphaned tooltips and initializing tooltip on document ready.
-            eagle.reloadTooltips();
+            Eagle.reloadTooltips();
         });
     }
 

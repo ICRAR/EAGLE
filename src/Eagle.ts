@@ -1276,7 +1276,7 @@ export class Eagle {
         GitLab.loadRepoList(this);
     };
 
-    reloadTooltips = () : void => {
+    static reloadTooltips = () : void => {
         // destroy orphaned tooltips and initializing tooltip on document ready.
         $('.tooltip[role="tooltip"]').remove();
 
@@ -2770,7 +2770,7 @@ export class Eagle {
 
         setTimeout(function(){
             // destroy orphaned tooltips
-            eagle.reloadTooltips();
+            Eagle.reloadTooltips();
 
             // update title on all right window component buttons
             if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)

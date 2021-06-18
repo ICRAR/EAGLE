@@ -68,10 +68,7 @@ export class GitLab {
                     eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, repositoryName, repositoryBranch, false));
                 }
             }
-
-            // sort the repository list
             eagle.sortRepositories();
-            
         });
     }
 
@@ -149,8 +146,7 @@ export class GitLab {
 
                 repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
             }
-            // destroy orphaned tooltips and initializing tooltip on document ready.
-            eagle.reloadTooltips();
+            Eagle.reloadTooltips();
         });
     }
 
