@@ -32,16 +32,16 @@ import {Field} from './Field';
 
 export class Node {
     private key : number;
-    private name : string;
-    private description : string;
+    private name : ko.Observable<string>;
+    private description : ko.Observable<string>;
     private x : number;
     private y : number;
     private width : number;
     private height : number;
     private color : string;
-    private drawOrderHint : number; // a secondary sorting hint when ordering the nodes for drawing
-                                    // (primary method is using parent-child relationships)
-                                    // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
+    private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
+                                                   // (primary method is using parent-child relationships)
+                                                   // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
     private parentKey : number | null;
     private embedKey : number | null;
@@ -59,7 +59,7 @@ export class Node {
 
     private fields : ko.ObservableArray<Field>;
 
-    private category : Eagle.Category;
+    private category : ko.Observable<Eagle.Category>;
     private categoryType : Eagle.CategoryType;
 
     private subject : number | null; // the key of another node that is the subject of this node. used by comment nodes only.
@@ -88,14 +88,14 @@ export class Node {
 
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, readonly: boolean){
         this.key = key;
-        this.name = name;
-        this.description = description;
+        this.name = ko.observable(name);
+        this.description = ko.observable(description);
         this.x = 0;
         this.y = 0;
         this.width = Node.DEFAULT_WIDTH;
         this.height = Node.DEFAULT_HEIGHT;
         this.color = Utils.getColorForNode(category);
-        this.drawOrderHint = 0;
+        this.drawOrderHint = ko.observable(0);
 
         this.parentKey = null;
         this.embedKey = null;
@@ -113,7 +113,7 @@ export class Node {
 
         this.fields = ko.observableArray([]);
 
-        this.category = category;
+        this.category = ko.observable(category);
         this.categoryType = categoryType;
 
         this.subject = null;
@@ -141,35 +141,36 @@ export class Node {
     }
 
     getName = () : string => {
-        return this.name;
+        return this.name();
     }
 
     setName = (name : string) : void => {
-        this.name = name;
+        this.name(name);
     }
 
     getNameNumLines = (width: number) : number => {
         return Math.ceil(this.name.length / (width / 8));
     }
 
-    getDisplayName = () : string => {
-        if (this.name === 'Enter label' || this.name == ''){
-            return this.category;
+    getDisplayName : ko.PureComputed<string> = ko.pureComputed(() => {
+        console.log("getDisplayName()");
+        if (this.name() === 'Enter label' || this.name() == ''){
+            return this.category();
         } else {
-            return this.name;
+            return this.name();
         }
-    }
+    }, this);
 
     getNoWhiteSpaceName = () : string => {
         return this.getDisplayName().replace(' ', '');
     }
 
     getDescription = () : string => {
-        return this.description;
+        return this.description();
     }
 
     setDescription = (description : string) : void => {
-        this.description = description;
+        this.description(description);
     }
 
     getPosition = () : {x:number, y:number} => {
@@ -211,21 +212,21 @@ export class Node {
     }
 
     getDrawOrderHint = () : number => {
-        return this.drawOrderHint;
+        return this.drawOrderHint();
     }
 
     // move node towards the front
     incrementDrawOrderHint = () : void => {
-        this.drawOrderHint += 1;
+        this.drawOrderHint(this.drawOrderHint() + 1);
     }
 
     // move node towards the back
     decrementDrawOrderHint = () : void => {
-        this.drawOrderHint -= 1;
+        this.drawOrderHint(this.drawOrderHint() - 1);
     }
 
     setDrawOrderHint = (drawOrderHint : number) : void => {
-        this.drawOrderHint = drawOrderHint;
+        this.drawOrderHint(drawOrderHint);
     }
 
     getParentKey = () : number => {
@@ -411,7 +412,7 @@ export class Node {
     }
 
     getCategory = () : Eagle.Category => {
-        return this.category;
+        return this.category();
     }
 
     getCategoryType = () : Eagle.CategoryType => {
@@ -419,59 +420,59 @@ export class Node {
     }
 
     isData = () : boolean => {
-        return Eagle.getCategoryData(this.category).isData;
+        return Eagle.getCategoryData(this.category()).isData;
     }
 
     isGroup = () : boolean => {
-        return Eagle.getCategoryData(this.category).isGroup;
+        return Eagle.getCategoryData(this.category()).isGroup;
     }
 
     isScatter = () : boolean => {
-        return this.category === Eagle.Category.Scatter;
+        return this.category() === Eagle.Category.Scatter;
     }
 
     isGather = () : boolean => {
-        return this.category === Eagle.Category.Gather;
+        return this.category() === Eagle.Category.Gather;
     }
 
     isMKN = () : boolean => {
-        return this.category === Eagle.Category.MKN;
+        return this.category() === Eagle.Category.MKN;
     }
 
     isLoop = () : boolean => {
-        return this.category === Eagle.Category.Loop;
+        return this.category() === Eagle.Category.Loop;
     }
 
     isBranch = () : boolean => {
-        return this.category === Eagle.Category.Branch;
+        return this.category() === Eagle.Category.Branch;
     }
 
     isResizable = () : boolean => {
-        return Eagle.getCategoryData(this.category).isResizable;
+        return Eagle.getCategoryData(this.category()).isResizable;
     }
 
     canHaveInputs = () : boolean => {
-        return Eagle.getCategoryData(this.category).maxInputs > 0;
+        return Eagle.getCategoryData(this.category()).maxInputs > 0;
     }
 
     canHaveOutputs = () : boolean => {
-        return Eagle.getCategoryData(this.category).maxOutputs > 0;
+        return Eagle.getCategoryData(this.category()).maxOutputs > 0;
     }
 
     canHaveInputApplication = () : boolean => {
-        return Eagle.getCategoryData(this.category).canHaveInputApplication;
+        return Eagle.getCategoryData(this.category()).canHaveInputApplication;
     }
 
     canHaveOutputApplication = () : boolean => {
-        return Eagle.getCategoryData(this.category).canHaveOutputApplication;
+        return Eagle.getCategoryData(this.category()).canHaveOutputApplication;
     }
 
     canHaveExitApplication = () : boolean => {
-        return Eagle.getCategoryData(this.category).canHaveExitApplication;
+        return Eagle.getCategoryData(this.category()).canHaveExitApplication;
     }
 
     canHaveParameters = () : boolean => {
-        return Eagle.getCategoryData(this.category).canHaveParameters;
+        return Eagle.getCategoryData(this.category()).canHaveParameters;
     }
 
     getFieldReadonly = (index: number) : boolean => {
@@ -576,14 +577,14 @@ export class Node {
 
     clear = () : void => {
         this.key = 0;
-        this.name = "";
-        this.description = "";
+        this.name("");
+        this.description("");
         this.x = 0;
         this.y = 0;
         this.width = Node.DEFAULT_WIDTH;
         this.height = Node.DEFAULT_HEIGHT;
         this.color = Node.DEFAULT_COLOR;
-        this.drawOrderHint = 0;
+        this.drawOrderHint(0);
 
         this.parentKey = null;
         this.embedKey = null;
@@ -599,7 +600,7 @@ export class Node {
 
         this.fields([]);
 
-        this.category = Eagle.Category.Unknown;
+        this.category(Eagle.Category.Unknown);
         this.categoryType = Eagle.CategoryType.Unknown;
 
         this.subject = null;
@@ -910,14 +911,14 @@ export class Node {
     }
 
     clone = () : Node => {
-        const result : Node = new Node(this.key, this.name, this.description, this.category, this.categoryType, this.readonly);
+        const result : Node = new Node(this.key, this.name(), this.description(), this.category(), this.categoryType, this.readonly);
 
         result.x = this.x;
         result.y = this.y;
         result.width = this.width;
         result.height = this.height;
         result.color = this.color;
-        result.drawOrderHint = this.drawOrderHint;
+        result.drawOrderHint(this.drawOrderHint());
 
         result.parentKey = this.parentKey;
         result.embedKey = this.embedKey;
@@ -967,7 +968,7 @@ export class Node {
 
     // find the right icon for this node
     getIcon = () : string => {
-        return Eagle.getCategoryData(this.category).icon;
+        return Eagle.getCategoryData(this.category()).icon;
     }
 
     getInputMultiplicity = () : number => {
@@ -1182,7 +1183,7 @@ export class Node {
 
         // get description (if exists)
         if (typeof nodeData.description !== 'undefined'){
-            node.description = nodeData.description;
+            node.description(nodeData.description);
         }
 
         // get size (if exists)
@@ -1555,7 +1556,7 @@ export class Node {
         const result : any = {};
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category) : node.category;
+        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
         result.categoryType = node.categoryType;
         result.isData = node.isData();
         result.isGroup = node.isGroup();
@@ -1566,7 +1567,7 @@ export class Node {
 
         result.key = node.key;
         result.text = node.name;
-        result.description = node.description;
+        result.description = node.description();
         result.x = node.x;
         result.y = node.y;
         result.width = node.width;
@@ -1718,7 +1719,7 @@ export class Node {
         const result : any = {};
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category) : node.category;
+        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
         result.categoryType = node.categoryType;
         result.isData = node.isData();
         result.isGroup = node.isGroup();
@@ -1729,7 +1730,7 @@ export class Node {
 
         result.key = node.key;
         result.text = node.name;
-        result.description = node.description;
+        result.description = node.description();
         result.x = node.x;
         result.y = node.y;
         result.width = node.width;
@@ -1862,13 +1863,13 @@ export class Node {
         const result : any = {};
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category) : node.category;
+        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
         result.categoryType = node.categoryType;
         result.isData = node.isData();
         result.isGroup = node.isGroup();
 
         result.name = node.name;
-        result.description = node.description;
+        result.description = node.description();
 
         result.streaming = node.streaming;
         result.subject = node.subject; // TODO: not sure if this should be here or in Node JSON
@@ -1909,7 +1910,7 @@ export class Node {
         node.category = nodeData.category;
         node.categoryType = nodeData.categoryType;
         node.name = nodeData.name;
-        node.description = nodeData.description;
+        node.description(nodeData.description);
 
         node.streaming = nodeData.streaming;
         node.subject = nodeData.subject;
