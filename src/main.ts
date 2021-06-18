@@ -74,6 +74,8 @@ $(function(){
                 }
             }
             eagle.leftWindow().shown(true);
+            // destroy orphaned tooltips and initializing tooltip on document ready.
+            eagle.reloadTooltips();
         });
     }
 
@@ -111,4 +113,6 @@ $(function(){
 
     // auto load the file
     eagle.autoLoad(service, auto_load_repository, auto_load_branch, auto_load_path, auto_load_filename);
+    
+    
 });

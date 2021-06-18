@@ -1206,6 +1206,7 @@ export class Eagle {
             Eagle.applicationNodes = Utils.buildNodeList(templatePalette, Eagle.CategoryType.Application);
             Eagle.applicationCategories = Utils.buildCategoryList(templatePalette, Eagle.CategoryType.Application);
         });
+    
     }
 
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
@@ -1274,6 +1275,17 @@ export class Eagle {
         GitHub.loadRepoList(this);
         GitLab.loadRepoList(this);
     };
+
+    reloadTooltips = () : void => {
+        // destroy orphaned tooltips and initializing tooltip on document ready.
+        $('.tooltip[role="tooltip"]').remove();
+
+        $('[data-toggle="tooltip"]').tooltip({
+            boundary: 'window',
+            trigger : 'hover',
+            delay: { "show": 800, "hide": 100 }
+        });
+    }
 
     selectRepository = (repository : Repository) : void => {
         console.log("selectRepository(" + repository.name + ")");
@@ -2758,12 +2770,7 @@ export class Eagle {
 
         setTimeout(function(){
             // destroy orphaned tooltips
-            $('.tooltip[role="tooltip"]').remove();
-
-            $('[data-toggle="tooltip"]').tooltip({
-                boundary: 'window',
-                trigger : 'hover'
-            });
+            eagle.reloadTooltips();
 
             // update title on all right window component buttons
             if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
@@ -2780,7 +2787,8 @@ export class Eagle {
 
         node.tooltip({
             boundary: 'window',
-            trigger : 'hover'
+            trigger : 'hover',
+            delay: { "show": 800, "hide": 100 }
         });
     }
 

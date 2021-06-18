@@ -637,3 +637,22 @@ nav.navbar .introjs-helperLayer {
 palette-component input.form-control.selected {
     background-color: lightgrey;
 }
+
+.tooltip-inner h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.tooltip-inner p {
+    font-size: .85rem;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.tooltip-inner{
+    visibility: hidden;
+    transition: 0s visibility;
+    visibility: visible;
+
+}
