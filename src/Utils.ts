@@ -1622,23 +1622,27 @@ export class Utils {
     }
 
     // add the node to the end of the palette
-    static addNodeToPalette(palette: Palette, node: Node) : void {
-        //console.log("Copy node", node.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
-        palette.addNode(node);
+    static addNodeToPalette(palette: Palette, node: Node, force: boolean) : void {
+        if (force){
+            //console.log("Copy node", node.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
+            palette.addNode(node);
+            return;
+        }
 
         // try to find a matching node that already exists in the palette
         // TODO: at the moment, we only match by name and category, but we should match by ID (once the ID is unique)
-        /*
         for (let i = 0 ; i < palette.getNodes().length; i++){
             const paletteNode = palette.getNodes()[i];
 
             if (paletteNode.getName() === node.getName() && paletteNode.getCategory() === node.getCategory()){
-                palette.getNodes()[i] = node;
+                palette.replaceNode(i, node);
                 //console.log("Replace node", node.getName(), "in destination palette", palette.fileInfo().name);
                 return;
             }
         }
-        */
+
+        // if we didn't find a matching node to replace, add it as a new node
+        palette.addNode(node);
     }
 
     static giveNodePortsNewIds(node: Node) : void {

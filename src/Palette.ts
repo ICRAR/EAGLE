@@ -165,4 +165,8 @@ export class Palette {
             }
         }
     }
+
+    replaceNode = (index : number, newNode : Node) : void => {
+        this.nodes.splice(index, 1, newNode);
+    }
 }

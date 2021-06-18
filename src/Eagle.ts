@@ -2108,21 +2108,21 @@ export class Eagle {
             if (clone.hasInputApplication()){
                 const inputClone = clone.getInputApplication().clone();
                 clone.setInputApplication(null);
-                Utils.addNodeToPalette(destinationPalette, inputClone);
+                Utils.addNodeToPalette(destinationPalette, inputClone, true);
             }
             if (clone.hasOutputApplication()){
                 const outputClone = clone.getOutputApplication().clone();
                 clone.setOutputApplication(null);
-                Utils.addNodeToPalette(destinationPalette, outputClone);
+                Utils.addNodeToPalette(destinationPalette, outputClone, true);
             }
             if (clone.hasExitApplication()){
                 const exitClone = clone.getExitApplication().clone();
                 clone.setExitApplication(null);
-                Utils.addNodeToPalette(destinationPalette, exitClone);
+                Utils.addNodeToPalette(destinationPalette, exitClone, true);
             }
 
             // add clone to palette
-            Utils.addNodeToPalette(destinationPalette, clone);
+            Utils.addNodeToPalette(destinationPalette, clone, true);
 
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
@@ -2267,24 +2267,24 @@ export class Eagle {
                     inputClone.setEmbedKey(null);
 
                     clone.setInputApplication(null);
-                    Utils.addNodeToPalette(destinationPalette, inputClone);
+                    Utils.addNodeToPalette(destinationPalette, inputClone, false);
                 }
                 if (clone.hasOutputApplication()){
                     const outputClone = clone.getOutputApplication().clone();
                     outputClone.setEmbedKey(null);
 
                     clone.setOutputApplication(null);
-                    Utils.addNodeToPalette(destinationPalette, outputClone);
+                    Utils.addNodeToPalette(destinationPalette, outputClone, false);
                 }
                 if (clone.hasExitApplication()){
                     const exitClone = clone.getExitApplication().clone();
                     exitClone.setEmbedKey(null);
 
                     clone.setExitApplication(null);
-                    Utils.addNodeToPalette(destinationPalette, exitClone);
+                    Utils.addNodeToPalette(destinationPalette, exitClone, false);
                 }
 
-                Utils.addNodeToPalette(destinationPalette, clone);
+                Utils.addNodeToPalette(destinationPalette, clone, false);
             }
 
             // mark the palette as modified
