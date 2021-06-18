@@ -489,10 +489,9 @@ export class Node {
         return result;
     }
 
-    getHelpHTML = () : string => {
-
+    getHelpHTML : ko.PureComputed<string> = ko.pureComputed(() => {
         // handle error if name is undefined
-        if (typeof this.name === 'undefined'){
+        if (typeof this.name() === 'undefined'){
             return "<p><h5>Undefined</h5></p>";
         }
 
@@ -503,7 +502,7 @@ export class Node {
         } else {
             return "<p><h5>" + this.getCategory() + " : " + this.getName() + "</h5></p><p>" + this.getDescription() +  "</p>";
         }
-    }
+    }, this);
 
     getSubjectKey = () : number => {
         return this.subject;
