@@ -1565,7 +1565,7 @@ export class Node {
         result.drawOrderHint = node.drawOrderHint();
 
         result.key = node.key;
-        result.text = node.name;
+        result.text = node.name();
         result.description = node.description();
         result.x = node.x;
         result.y = node.y;
@@ -1684,8 +1684,8 @@ export class Node {
 
         // write application names and types
         if (node.hasInputApplication()){
-            result.inputApplicationName = node.inputApplication().name;
-            result.inputApplicationType = node.inputApplication().category;
+            result.inputApplicationName = node.inputApplication().name();
+            result.inputApplicationType = node.inputApplication().category();
             result.inputApplicationKey  = node.inputApplication().key;
         } else {
             result.inputApplicationName = "";
@@ -1693,8 +1693,8 @@ export class Node {
             result.inputApplicationKey  = null;
         }
         if (node.hasOutputApplication()){
-            result.outputApplicationName = node.outputApplication().name;
-            result.outputApplicationType = node.outputApplication().category;
+            result.outputApplicationName = node.outputApplication().name();
+            result.outputApplicationType = node.outputApplication().category();
             result.outputApplicationKey  = node.outputApplication().key;
         } else {
             result.outputApplicationName = "";
@@ -1702,8 +1702,8 @@ export class Node {
             result.outputApplicationKey  = null;
         }
         if (node.hasExitApplication()){
-            result.exitApplicationName = node.exitApplication().name;
-            result.exitApplicationType = node.exitApplication().category;
+            result.exitApplicationName = node.exitApplication().name();
+            result.exitApplicationType = node.exitApplication().category();
             result.exitApplicationKey  = node.exitApplication().key;
         } else {
             result.exitApplicationName = "";
@@ -1728,7 +1728,7 @@ export class Node {
         result.drawOrderHint = node.drawOrderHint();
 
         result.key = node.key;
-        result.text = node.name;
+        result.text = node.name();
         result.description = node.description();
         result.x = node.x;
         result.y = node.y;
@@ -1867,7 +1867,7 @@ export class Node {
         result.isData = node.isData();
         result.isGroup = node.isGroup();
 
-        result.name = node.name;
+        result.name = node.name();
         result.description = node.description();
 
         result.streaming = node.streaming;
@@ -1906,9 +1906,9 @@ export class Node {
     }
 
     static fromV3ComponentJson = (nodeData: any, node: Node, errors: string[]): void => {
-        node.category = nodeData.category;
+        node.category(nodeData.category);
         node.categoryType = nodeData.categoryType;
-        node.name = nodeData.name;
+        node.name(nodeData.name);
         node.description(nodeData.description);
 
         node.streaming = nodeData.streaming;
