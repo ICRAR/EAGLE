@@ -74,6 +74,9 @@ $(function(){
                 }
             }
             eagle.leftWindow().shown(true);
+            
+            // destroy orphaned tooltips and initializing tooltip on document ready.
+            Eagle.reloadTooltips();
         });
     }
 

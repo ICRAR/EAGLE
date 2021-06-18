@@ -1275,6 +1275,17 @@ export class Eagle {
         GitLab.loadRepoList(this);
     };
 
+    static reloadTooltips = () : void => {
+        // destroy orphaned tooltips and initializing tooltip on document ready.
+        $('.tooltip[role="tooltip"]').remove();
+
+        $('[data-toggle="tooltip"]').tooltip({
+            boundary: 'window',
+            trigger : 'hover',
+            delay: { "show": 800, "hide": 100 }
+        });
+    }
+
     selectRepository = (repository : Repository) : void => {
         console.log("selectRepository(" + repository.name + ")");
 
@@ -2758,12 +2769,7 @@ export class Eagle {
 
         setTimeout(function(){
             // destroy orphaned tooltips
-            $('.tooltip[role="tooltip"]').remove();
-
-            $('[data-toggle="tooltip"]').tooltip({
-                boundary: 'window',
-                trigger : 'hover'
-            });
+            Eagle.reloadTooltips();
 
             // update title on all right window component buttons
             if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
@@ -2780,7 +2786,8 @@ export class Eagle {
 
         node.tooltip({
             boundary: 'window',
-            trigger : 'hover'
+            trigger : 'hover',
+            delay: { "show": 800, "hide": 100 }
         });
     }
 

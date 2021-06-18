@@ -5,14 +5,9 @@
 </div>
 <!-- /ko -->
 <!-- ko ifnot: isFetching -->
-<!-- ko if: fetched -->
-<!-- ko if: folders().length == 0 && files().length == 0 -->
-<i class="material-icons md-18 interactive" data-bind="click: refresh">cloud_off</i>
-<!-- /ko -->
-<!-- ko if: folders().length != 0 || files().length != 0 -->
-<i class="material-icons md-18 interactive" data-toggle="tooltip" data-placement="bottom" title="Refresh" data-bind="click: refresh">cloud_done</i>
-<!-- /ko -->
-<!-- /ko -->
+<i class="material-icons md-18 interactive" data-bind="click: refresh,visible: folders().length == 0 && files().length==0 && fetched">cloud_off</i>
+<i class="material-icons md-18 interactive" data-toggle="tooltip" data-placement="bottom" title="Refresh" data-bind="click: refresh, visible: (folders().length != 0 || files().length != 0)&& fetched">cloud_done</i>
+
 <!-- ko ifnot: fetched -->
 <!-- ko if: service === Eagle.RepositoryService.GitHub -->
 <img src="static/assets/img/GitHub-Mark-32px.png" data-bind="click: select" width="18px" />
