@@ -149,7 +149,7 @@ export class Node {
     }
 
     getNameNumLines = (width: number) : number => {
-        return Math.ceil(this.name.length / (width / 8));
+        return Math.ceil(this.name().length / (width / 8));
     }
 
     getDisplayName : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -1228,7 +1228,7 @@ export class Node {
 
         // drawOrderHint
         if (typeof nodeData.drawOrderHint !== 'undefined'){
-            node.drawOrderHint = nodeData.drawOrderHint;
+            node.drawOrderHint(nodeData.drawOrderHint);
         }
 
         // keys for embedded applications
@@ -1563,7 +1563,7 @@ export class Node {
         result.canHaveInputs = node.canHaveInputs();
         result.canHaveOutputs = node.canHaveOutputs();
         result.color = node.color;
-        result.drawOrderHint = node.drawOrderHint;
+        result.drawOrderHint = node.drawOrderHint();
 
         result.key = node.key;
         result.text = node.name;
@@ -1726,7 +1726,7 @@ export class Node {
         result.canHaveInputs = node.canHaveInputs();
         result.canHaveOutputs = node.canHaveOutputs();
         result.color = node.color;
-        result.drawOrderHint = node.drawOrderHint;
+        result.drawOrderHint = node.drawOrderHint();
 
         result.key = node.key;
         result.text = node.name;
@@ -1780,7 +1780,7 @@ export class Node {
         const node = new Node(nodeData.key, nodeData.text, nodeData.description, nodeData.category, nodeData.categoryType, nodeData.readonly);
 
         node.color = nodeData.color;
-        node.drawOrderHint = nodeData.drawOrderHint;
+        node.drawOrderHint(nodeData.drawOrderHint);
         node.x = nodeData.x;
         node.y = nodeData.y;
         node.width = nodeData.width;
@@ -1820,7 +1820,7 @@ export class Node {
         result.componentKey = index.toString();
 
         result.color = node.color;
-        result.drawOrderHint = node.drawOrderHint;
+        result.drawOrderHint = node.drawOrderHint();
 
         result.x = node.x;
         result.y = node.y;
@@ -1841,7 +1841,7 @@ export class Node {
         const result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown, Eagle.CategoryType.Unknown, nodeData.readonly);
 
         result.color = nodeData.color;
-        result.drawOrderHint = nodeData.drawOrderHint;
+        result.drawOrderHint(nodeData.drawOrderHint);
 
         result.x = nodeData.x;
         result.y = nodeData.y;
