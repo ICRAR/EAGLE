@@ -20,4 +20,12 @@ export class PaletteInfo {
         this.isFetching = ko.observable(false);
         this.isSelected = ko.observable(false);
     }
+
+    fullPath = () : string => {
+        if (this.path === ""){
+            return this.name;
+        } else {
+            return this.path + '/' + this.name;
+        }
+    }
 }
