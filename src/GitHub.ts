@@ -76,7 +76,6 @@ export class GitHub {
 
             // sort the repository list
             eagle.sortRepositories();
-            
         });
     }
 

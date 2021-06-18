@@ -1206,7 +1206,6 @@ export class Eagle {
             Eagle.applicationNodes = Utils.buildNodeList(templatePalette, Eagle.CategoryType.Application);
             Eagle.applicationCategories = Utils.buildCategoryList(templatePalette, Eagle.CategoryType.Application);
         });
-    
     }
 
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {

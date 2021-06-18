@@ -68,6 +68,8 @@ export class GitLab {
                     eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, repositoryName, repositoryBranch, false));
                 }
             }
+
+            // sort the repository list
             eagle.sortRepositories();
         });
     }
