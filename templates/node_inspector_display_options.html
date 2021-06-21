@@ -13,7 +13,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text mw-140" id="node-name">Name</span>
                         </div>
-                        <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="nodeDataProperty: 'name'">
+                        <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().name">
                     </div>
                 <!-- /ko -->
             <!-- /ko -->
@@ -34,7 +34,7 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text mw-140" id="node-draw-order-hint">Draw Order Hint</span>
                 </div>
-                <input type="text" class="form-control" id="nodeDrawOrderHintValue" placeholder="" aria-label="Name" aria-describedby="node-draw-order-hint" data-bind="nodeDataProperty: 'drawOrderHint'" readonly>
+                <input type="text" class="form-control" id="nodeDrawOrderHintValue" placeholder="" aria-label="Name" aria-describedby="node-draw-order-hint" data-bind="value: selectedNode().drawOrderHint" readonly>
                 <div class="input-group-append">
                     <button class="btn btn-secondary btn-sm" id="nodeInspectorDecrementDrawOrderHint" type="button" data-bind="click: function(){$root.selectedNode().decrementDrawOrderHint(); $root.flagActiveDiagramHasMutated();}">
                         <i class="material-icons md-18">remove</i>
