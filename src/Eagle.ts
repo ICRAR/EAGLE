@@ -1324,8 +1324,8 @@ export class Eagle {
                 isModified = this.logicalGraph().fileInfo().modified;
                 break;
             case Eagle.FileType.Palette:
-                const palette: Palette = this.findPalette(file.name);
-                isModified = palette.fileInfo().modified;
+                const palette: Palette = this.findPalette(file.name, false);
+                isModified = palette !== null && palette.fileInfo().modified;
                 break;
             case Eagle.FileType.JSON:
                 isModified = this.activeFileInfo().modified;
@@ -2104,7 +2104,7 @@ export class Eagle {
             }
 
             // get reference to palette (based on userString)
-            const destinationPalette = this.findPalette(userString);
+            const destinationPalette = this.findPalette(userString, true);
 
             // check that a palette was found
             if (destinationPalette === null){
@@ -2260,7 +2260,7 @@ export class Eagle {
             }
 
             // get reference to palette (based on userString)
-            const destinationPalette = this.findPalette(userString);
+            const destinationPalette = this.findPalette(userString, true);
 
             // check that a palette was found
             if (destinationPalette === null){
@@ -2321,7 +2321,7 @@ export class Eagle {
         return paletteNames;
     }
 
-    private findPalette = (name: string) : Palette => {
+    private findPalette = (name: string, createIfNotFound: boolean) : Palette => {
         let p: Palette = null;
 
         // look for palette in open palettes
@@ -2333,7 +2333,7 @@ export class Eagle {
         }
 
         // if user asked for a new palette, create one
-        if (p === null){
+        if (createIfNotFound && p === null){
             p = new Palette();
             p.fileInfo().name = name;
             this.palettes.unshift(p);
