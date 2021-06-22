@@ -348,13 +348,13 @@ export class Eagle {
     }
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectionLocation: Eagle.FileType) : void => {
-        //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection);
+        //console.log("eagle.setSelection()", Utils.translateRightWindowModeToString(rightWindowMode), selection, selectionLocation);
 
         switch (rightWindowMode){
             case Eagle.RightWindowMode.Hierarchy:
             case Eagle.RightWindowMode.NodeInspector:
                 // abort if already selected
-                if (this.selectedNode() === selection){
+                if (this.selectedNode() === selection && this.selectedLocation() === selectionLocation){
                     this.rightWindow().mode(rightWindowMode);
                     return;
                 }
