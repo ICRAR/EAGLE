@@ -3142,6 +3142,7 @@ export class Eagle {
             // clone the input application to make a local copy
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
             const clone : Node = application.clone();
+            clone.setReadonly(false);
             const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
             clone.setKey(newKey);
 
