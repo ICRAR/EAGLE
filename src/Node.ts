@@ -486,7 +486,7 @@ export class Node {
 
         // modify using settings and node readonly
         const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
-        const result = field.isReadonly() && this.readonly() && !allowParam;
+        const result = (field.isReadonly() || this.readonly()) && !allowParam;
 
         //console.log("getFieldReadonly()", index, "field.readonly", field.isReadonly(), "node.readonly", this.readonly(), "allowParam", allowParam, "result", result);
 
