@@ -22,7 +22,7 @@
             "description": "The starting point for workflow execution",
             "categoryType": "Control",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "End",
@@ -33,7 +33,7 @@
             "description": "The end of workflow execution",
             "categoryType": "Control",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "BashShellApp",
@@ -72,7 +72,7 @@
             "description": "An application component run within the Bash Shell",
             "categoryType": "Application",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "DynlibApp",
@@ -111,7 +111,7 @@
             "description": "An application component run from a dynamic library",
             "categoryType": "Application",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Mpi",
@@ -150,7 +150,7 @@
             "description":"An application component using the Message Passing Interface (MPI)",
             "categoryType": "Application",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Docker",
@@ -238,7 +238,7 @@
             "description":"An application component run from a Docker image",
             "categoryType": "Application",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Singularity",
@@ -326,7 +326,7 @@
             "description":"An application component run from a Singularity image (not currently supported by DALiuGE)",
             "categoryType": "Application",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "PythonApp",
@@ -365,7 +365,7 @@
             }],
             "categoryType": "Application",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Memory",
@@ -390,7 +390,7 @@
             "text": "Memory",
             "categoryType": "Data",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "File",
@@ -436,7 +436,7 @@
             "text": "File",
             "categoryType": "Data",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "S3",
@@ -482,7 +482,7 @@
             "text": "S3",
             "categoryType": "Data",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "NGAS",
@@ -521,7 +521,7 @@
             "text": "NGAS",
             "categoryType": "Data",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Plasma",
@@ -546,7 +546,7 @@
             "text": "Plasma",
             "categoryType": "Data",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "GroupBy",
@@ -573,7 +573,7 @@
                 "type": "String"
             }],
             "categoryType": "Group",
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Gather",
@@ -600,7 +600,7 @@
                 "type": "String"
             }],
             "categoryType": "Group",
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Scatter",
@@ -627,7 +627,7 @@
                 "type": "String"
             }],
             "categoryType": "Group",
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "MKN",
@@ -661,7 +661,7 @@
                 "type": "Integer"
             }],
             "categoryType": "Group",
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Loop",
@@ -681,7 +681,7 @@
                 "type": "Integer"
             }],
             "categoryType": "Group",
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Service",
@@ -694,7 +694,7 @@
             "key": -19,
             "fields": [],
             "categoryType": "Other",
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Comment",
@@ -713,7 +713,7 @@
             "description": "A node that places a comment in the graph. The comment can be used to communicate important information or intention",
             "categoryType": "Other",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Description",
@@ -731,7 +731,7 @@
             "description": "A node that places a description in the graph. The description should be used to communicate the purpose of the graph",
             "categoryType": "Other",
             "inputPorts": [],
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "ExclusiveForceNode",
@@ -744,7 +744,7 @@
             "key": -19,
             "fields": [],
             "categoryType": "Control",
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Variables",
@@ -757,7 +757,7 @@
             "key": -22,
             "fields": [],
             "categoryType": "Other",
-            "readonly": false
+            "readonly": true
         },
         {
             "category": "Branch",
@@ -798,7 +798,7 @@
                 "type": "String"
             }],
             "categoryType": "Control",
-            "readonly": false
+            "readonly": true
         }
     ],
     "linkDataArray": []

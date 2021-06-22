@@ -67,7 +67,7 @@ export class Node {
     private expanded : ko.Observable<boolean>; // true, if the node has been expanded in the hierarchy tab in EAGLE
     private selected : ko.Observable<boolean>; // true, if the node has been selected in EAGLE
 
-    private readonly : boolean;
+    private readonly : ko.Observable<boolean>;
 
     // TODO: we'll need more variables here, one for every collapsable section of the node inspector
     //       I don't really like this aspect of the branch. perhaps we can store all these in one dictionary
@@ -121,7 +121,7 @@ export class Node {
         this.expanded = ko.observable(false);
         this.selected = ko.observable(false);
 
-        this.readonly = readonly;
+        this.readonly = ko.observable(readonly);
     }
 
     getKey = () : number => {
@@ -300,12 +300,16 @@ export class Node {
     }
 
     isReadonly = (): boolean => {
-        return this.readonly;
+        return this.readonly();
     }
 
-    isLocked = (): boolean => {
+    isLocked : ko.PureComputed<boolean> = ko.pureComputed(() => {
         const allowComponentEditing : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
-        return this.readonly && !allowComponentEditing;
+        return this.readonly() && !allowComponentEditing;
+    }, this);
+
+    setReadonly = (readonly: boolean) : void => {
+        this.readonly(readonly);
     }
 
     getInputPorts = () : Port[] => {
@@ -482,9 +486,9 @@ export class Node {
 
         // modify using settings and node readonly
         const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
-        const result = field.isReadonly() && this.readonly && !allowParam;
+        const result = (field.isReadonly() || this.readonly()) && !allowParam;
 
-        //console.log("getFieldReadonly()", index, "field.readonly", field.isReadonly(), "node.readonly", this.readonly, "allowParam", allowParam, "result", result);
+        //console.log("getFieldReadonly()", index, "field.readonly", field.isReadonly(), "node.readonly", this.readonly(), "allowParam", allowParam, "result", result);
 
         return result;
     }
@@ -606,7 +610,7 @@ export class Node {
 
         this.expanded(false);
         this.selected(false);
-        this.readonly = true;
+        this.readonly(true);
     }
 
     getDisplayWidth = () : number => {
@@ -910,7 +914,7 @@ export class Node {
     }
 
     clone = () : Node => {
-        const result : Node = new Node(this.key, this.name(), this.description(), this.category(), this.categoryType, this.readonly);
+        const result : Node = new Node(this.key, this.name(), this.description(), this.category(), this.categoryType, this.readonly());
 
         result.x = this.x;
         result.y = this.y;
@@ -1578,7 +1582,7 @@ export class Node {
         result.subject = node.subject;
         result.selected = node.selected();
         result.expanded = node.expanded();
-        result.readonly = node.readonly;
+        result.readonly = node.readonly();
 
         if (node.parentKey !== null){
             result.group = node.parentKey;
@@ -1741,7 +1745,7 @@ export class Node {
         result.subject = node.subject;
         result.selected = node.selected();
         result.expanded = node.expanded();
-        result.readonly = node.readonly;
+        result.readonly = node.readonly();
 
         result.parentKey = node.parentKey;
         result.embedKey = node.embedKey;
@@ -1831,7 +1835,7 @@ export class Node {
 
         result.selected = node.selected();
         result.expanded = node.expanded();
-        result.readonly = node.readonly;
+        result.readonly = node.readonly();
 
         return result;
     }

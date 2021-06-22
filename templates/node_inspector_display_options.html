@@ -8,14 +8,12 @@
         <div class="card-body">
 
             <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
-                <!-- ko ifnot: selectedNode().isLocked() -->
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
                             <span class="input-group-text mw-140" id="node-name">Name</span>
                         </div>
-                        <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().name">
+                        <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().name, readonly: selectedNode().isLocked()">
                     </div>
-                <!-- /ko -->
             <!-- /ko -->
 
             <div class="input-group mb-1">

@@ -2081,7 +2081,7 @@ export class Eagle {
         console.log("addSelectedNodeToPalette()");
 
         // build a list of palette names
-        const paletteNames: string[] = this.buildPaletteNamesList();
+        const paletteNames: string[] = this.buildWritablePaletteNamesList();
 
         // ask user to select the destination node
         Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node", paletteNames, 0, true, "New Palette Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
@@ -2114,20 +2114,24 @@ export class Eagle {
 
             // clone node
             const clone : Node = this.selectedNode().clone();
+            clone.setReadonly(false);
 
             // check if clone has embedded applications, if so, add them to destination palette and remove
             if (clone.hasInputApplication()){
                 const inputClone = clone.getInputApplication().clone();
+                inputClone.setReadonly(false);
                 clone.setInputApplication(null);
                 Utils.addNodeToPalette(destinationPalette, inputClone, true);
             }
             if (clone.hasOutputApplication()){
                 const outputClone = clone.getOutputApplication().clone();
+                outputClone.setReadonly(false);
                 clone.setOutputApplication(null);
                 Utils.addNodeToPalette(destinationPalette, outputClone, true);
             }
             if (clone.hasExitApplication()){
                 const exitClone = clone.getExitApplication().clone();
+                exitClone.setReadonly(false);
                 clone.setExitApplication(null);
                 Utils.addNodeToPalette(destinationPalette, exitClone, true);
             }
@@ -2184,13 +2188,17 @@ export class Eagle {
 
                     if (node === this.selectedNode()){
                         // check if palette is readonly
-                        if (palette.fileInfo().readonly || node.isReadonly()){
-                            error = "Palette or node is readonly";
+                        if (palette.fileInfo().readonly){
+                            error = "Palette is readonly";
                         } else {
-                            found = true;
-                            // TODO: this could be faster if we write a removeNodeAtIndex() or similar
-                            palette.removeNodeByKey(node.getKey());
-                            palette.fileInfo().modified = true;
+                            if (node.isReadonly()){
+                                error = "Node is readonly";
+                            } else {
+                                found = true;
+                                // TODO: this could be faster if we write a removeNodeAtIndex() or similar
+                                palette.removeNodeByKey(node.getKey());
+                                palette.fileInfo().modified = true;
+                            }
                         }
                     }
                 }
@@ -2237,7 +2245,7 @@ export class Eagle {
         //console.log("addGraphNodesToPalette()");
 
         // build a list of palette names
-        const paletteNames: string[] = this.buildPaletteNamesList();
+        const paletteNames: string[] = this.buildWritablePaletteNamesList();
 
         // ask user to select the destination node
         Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
@@ -2271,11 +2279,13 @@ export class Eagle {
             // copy nodes to palette
             for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
                 const clone : Node = this.logicalGraph().getNodes()[i].clone();
+                clone.setReadonly(false);
 
                 // check if clone has embedded applications, if so, add them to destination palette and remove
                 if (clone.hasInputApplication()){
                     const inputClone = clone.getInputApplication().clone();
                     inputClone.setEmbedKey(null);
+                    inputClone.setReadonly(false);
 
                     clone.setInputApplication(null);
                     Utils.addNodeToPalette(destinationPalette, inputClone, false);
@@ -2283,6 +2293,7 @@ export class Eagle {
                 if (clone.hasOutputApplication()){
                     const outputClone = clone.getOutputApplication().clone();
                     outputClone.setEmbedKey(null);
+                    outputClone.setReadonly(false);
 
                     clone.setOutputApplication(null);
                     Utils.addNodeToPalette(destinationPalette, outputClone, false);
@@ -2290,6 +2301,7 @@ export class Eagle {
                 if (clone.hasExitApplication()){
                     const exitClone = clone.getExitApplication().clone();
                     exitClone.setEmbedKey(null);
+                    exitClone.setReadonly(false);
 
                     clone.setExitApplication(null);
                     Utils.addNodeToPalette(destinationPalette, exitClone, false);
@@ -2303,7 +2315,7 @@ export class Eagle {
         });
     }
 
-    private buildPaletteNamesList = () : string[] => {
+    private buildWritablePaletteNamesList = () : string[] => {
         const paletteNames : string[] = [];
         for (let i = 0 ; i < this.palettes().length; i++){
             // skip the dynamically generated palette that contains all nodes
@@ -2312,6 +2324,10 @@ export class Eagle {
             }
             // skip the built-in palette
             if (this.palettes()[i].fileInfo().name === Palette.BUILTIN_PALETTE_NAME){
+                continue;
+            }
+            // skip read-only palettes as well
+            if (this.palettes()[i].fileInfo().readonly){
                 continue;
             }
 
@@ -2336,6 +2352,7 @@ export class Eagle {
         if (createIfNotFound && p === null){
             p = new Palette();
             p.fileInfo().name = name;
+            p.fileInfo().readonly = false;
             this.palettes.unshift(p);
         }
 

@@ -6,7 +6,7 @@
     </h5>
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse3">
         <div class="card-body">
-            <textarea class="form-control" rows="3" data-bind="value: selectedNode().getCustomData(), event: {keyup: eagle.selectedNode().customDataChanged}"></textarea>
+            <textarea class="form-control" rows="3" data-bind="value: selectedNode().getCustomData(), readonly: selectedNode().isLocked(), event: {keyup: eagle.selectedNode().customDataChanged}"></textarea>
         </div>
     </div>
 </div>
