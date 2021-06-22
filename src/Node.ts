@@ -308,6 +308,10 @@ export class Node {
         return this.readonly() && !allowComponentEditing;
     }, this);
 
+    setReadonly = (readonly: boolean) : void => {
+        this.readonly(readonly);
+    }
+
     getInputPorts = () : Port[] => {
         return this.inputPorts();
     }
