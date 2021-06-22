@@ -511,6 +511,7 @@ export class LogicalGraph {
         // set appropriate key for node (one that is not already in use)
         newNode.setKey(Utils.newKey(this.getNodes()));
         newNode.setPosition(x, y);
+        newNode.setReadonly(false);
 
         // convert start of end nodes to data components
         if (node.getCategory() === Eagle.Category.Start || node.getCategory() === Eagle.Category.End) {
