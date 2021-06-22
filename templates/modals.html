@@ -278,7 +278,7 @@
 
 <!-- About Modal -->
 <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="aboutModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <img src="/static/assets/img/favicon.png" class="rounded float-left" alt="EAGLE logo">
@@ -290,10 +290,11 @@
             </div>
             <div class="modal-body">
                 <h5>Editor for the Advanced Graph Language Environment</h5>
-                <p></p>
                 <span>Version:&nbsp;{{version}}&nbsp;({{commit_hash}})</span>
-                <p></p>
+                <hr />
                 <pre>{% include 'license.html' %}</pre>
+                <hr />
+                <pre>{% include 'versions.html' %}</pre>
             </div>
         </div>
     </div>
