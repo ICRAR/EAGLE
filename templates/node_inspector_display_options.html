@@ -60,12 +60,22 @@
             <!-- /ko -->
 
             <!-- ko if: selectedNode().getCategoryType() === Eagle.CategoryType.Data -->
-           <div class="input-group mb-1">
+            <div class="input-group mb-1">
                 <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly>
                 <div class="input-group-append">
                     <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleStreaming" type="button" data-bind="click: function(){selectedNode().toggleStreaming();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
                         <i class="material-icons md-18" data-bind="visible: selectedNode().isStreaming()">radio_button_checked</i>
                         <i class="material-icons md-18" data-bind="hidden: selectedNode().isStreaming()">radio_button_unchecked</i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="input-group mb-1">
+                <input type="text" class="form-control" id="nodePreciousValue" placeholder="" aria-label="Precious" aria-describedby="node-precious" value="Precious" readonly>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorTogglePrecious" type="button" data-bind="click: function(){selectedNode().togglePrecious();selectedNode.valueHasMutated();eagle.flagActiveDiagramHasMutated();}">
+                        <i class="material-icons md-18" data-bind="visible: selectedNode().isPrecious()">radio_button_checked</i>
+                        <i class="material-icons md-18" data-bind="hidden: selectedNode().isPrecious()">radio_button_unchecked</i>
                     </button>
                 </div>
             </div>

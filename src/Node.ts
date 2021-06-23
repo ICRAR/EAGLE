@@ -47,6 +47,7 @@ export class Node {
     private embedKey : number | null;
     private collapsed : boolean;
     private streaming : boolean;
+    private precious : boolean;
     private showPorts : boolean;
     private flipPorts : boolean;
 
@@ -101,6 +102,7 @@ export class Node {
         this.embedKey = null;
         this.collapsed = false;
         this.streaming = false;
+        this.precious = false;
         this.showPorts = false;
         this.flipPorts = false;
 
@@ -273,6 +275,18 @@ export class Node {
 
     toggleStreaming = () : void => {
         this.streaming = !this.streaming;
+    }
+
+    isPrecious = () : boolean => {
+        return this.precious;
+    }
+
+    setPrecious = (value : boolean) : void => {
+        this.precious = value;
+    }
+
+    togglePrecious = () : void => {
+        this.precious = !this.precious;
     }
 
     isShowPorts = () : boolean => {
@@ -593,6 +607,7 @@ export class Node {
         this.embedKey = null;
         this.collapsed = false;
         this.streaming = false;
+        this.precious = false;
 
         this.inputApplication = null;
         this.outputApplication = null;
@@ -928,6 +943,7 @@ export class Node {
 
         result.collapsed = this.collapsed;
         result.streaming = this.streaming;
+        result.precious = this.precious;
         result.showPorts = this.showPorts;
         result.flipPorts = this.flipPorts;
 
@@ -1366,6 +1382,13 @@ export class Node {
             node.streaming = false;
         }
 
+        // precious
+        if (typeof nodeData.precious !== 'undefined'){
+            node.precious = nodeData.precious;
+        } else {
+            node.precious = false;
+        }
+
         // subject (for comment nodes)
         if (typeof nodeData.subject !== 'undefined'){
             node.subject = nodeData.subject;
@@ -1579,6 +1602,7 @@ export class Node {
         result.showPorts = node.showPorts;
         result.flipPorts = node.flipPorts;
         result.streaming = node.streaming;
+        result.precious = node.precious;
         result.subject = node.subject;
         result.selected = node.selected();
         result.expanded = node.expanded();
@@ -1742,6 +1766,7 @@ export class Node {
         result.showPorts = node.showPorts;
         result.flipPorts = node.flipPorts;
         result.streaming = node.streaming;
+        result.precious = node.precious;
         result.subject = node.subject;
         result.selected = node.selected();
         result.expanded = node.expanded();
@@ -1792,6 +1817,7 @@ export class Node {
         node.showPorts = nodeData.showPorts;
         node.flipPorts = nodeData.flipPorts;
         node.streaming = nodeData.streaming;
+        node.precious = nodeData.precious;
         node.subject = nodeData.subject;
         node.selected(nodeData.selected);
         node.expanded(nodeData.expanded);
@@ -1875,6 +1901,7 @@ export class Node {
         result.description = node.description();
 
         result.streaming = node.streaming;
+        result.precious = node.precious;
         result.subject = node.subject; // TODO: not sure if this should be here or in Node JSON
 
 
@@ -1916,6 +1943,7 @@ export class Node {
         node.description(nodeData.description);
 
         node.streaming = nodeData.streaming;
+        node.precious = nodeData.precious;
         node.subject = nodeData.subject;
 
         node.parentKey = nodeData.parentKey;
