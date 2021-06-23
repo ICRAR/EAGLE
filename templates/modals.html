@@ -622,3 +622,40 @@
         </div>
     </div>
 </div>
+
+<!-- Explore Palettes Modal -->
+<div class="modal fade" id="explorePalettesModal" tabindex="-1" role="dialog" aria-labelledby="explorePalettesModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="explorePalettesModalTitle">Explore Palettes</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="min-height: 640px; max-height: 640px; overflow: scroll;">
+                <!-- ko if: explorePalettes().length === 0 -->
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <!-- /ko -->
+                <!-- ko if: explorePalettes().length !== 0 -->
+                <ul class="list-group" data-bind="foreach: explorePalettes">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span data-bind="text: $data.fullPath()"></span>
+                        <!--<span class="badge badge-primary badge-pill">?</span>-->
+                        <div class="form-check">
+                            <input class="form-check-input position-static" type="checkbox" aria-label="select" data-bind="checked: $data.isSelected">
+                        </div>
+                    </li>
+                </ul>
+                <!-- /ko -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="explorePalettesModalAffirmativeButton" data-dismiss="modal"><span id="explorePalettesModalAffirmativeAnswer">OK</span></button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -47,6 +47,7 @@ import {Setting} from './Setting';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
+import {PaletteInfo} from './PaletteInfo';
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -70,6 +71,8 @@ export class Eagle {
     inspectorState : ko.Observable<InspectorState>;
 
     rendererFrameTime : ko.Observable<string>;
+
+    explorePalettes : ko.ObservableArray<PaletteInfo>;
 
     static settings : ko.ObservableArray<Setting>;
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
@@ -150,6 +153,8 @@ export class Eagle {
         this.inspectorState = ko.observable(new InspectorState());
 
         this.rendererFrameTime = ko.observable("");
+
+        this.explorePalettes = ko.observableArray([]);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -2428,6 +2433,10 @@ export class Eagle {
                 });
             });
         });
+    }
+
+    showExplorePalettes = () : void => {
+        Utils.showPalettesModal(this);
     }
 
     /**

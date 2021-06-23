@@ -36,6 +36,7 @@ require.config({
         "Setting": "./static/built/Setting",
         "SideWindow": "./static/built/SideWindow",
         "InspectorState": "./static/built/InspectorState",
-        "KeyboardShortcut": "./static/built/KeyboardShortcut"
+        "KeyboardShortcut": "./static/built/KeyboardShortcut",
+        "PaletteInfo": "./static/built/PaletteInfo"
     }
 });

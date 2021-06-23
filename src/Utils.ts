@@ -34,6 +34,8 @@ import {Edge} from './Edge';
 import {Port} from './Port';
 import {Field} from './Field';
 import {Repository} from './Repository';
+import {RepositoryFile} from './RepositoryFile';
+import {PaletteInfo} from './PaletteInfo';
 
 export class Utils {
     // Allowed file extenstions.
@@ -796,6 +798,31 @@ export class Utils {
         $('#messageModal').on('shown.bs.modal', function(){
             $('#messageModal .modal-footer button').focus();
         });
+
+        $('#explorePalettesModal').on('shown.bs.modal', function(){
+            $('#explorePalettesModal .modal-footer button').focus();
+        });
+        $('#explorePalettesModalAffirmativeButton').on('click', function(){
+            $('#explorePalettesModal').data('completed', true);
+        });
+        $('#explorePalettesModal').on('hidden.bs.modal', function(){
+            const completed : boolean = $('#explorePalettesModal').data('completed');
+
+            // check if the modal was completed (user clicked OK), if not, return false
+            if (!completed){
+                return;
+            }
+
+            // loop through the explorePalettes, find any selected and load them
+            for (let i = 0 ; i < eagle.explorePalettes().length ; i++){
+                const ep = eagle.explorePalettes()[i];
+
+                if (ep.isSelected()){
+                    eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
+                }
+            }
+
+        });
     }
 
     static showUserMessage (title : string, message : string) : void {
@@ -1169,6 +1196,39 @@ export class Utils {
 
     static showShortcutsModal() : void {
         $('#shortcutsModal').modal();
+    }
+
+    static showPalettesModal(eagle: Eagle) : void {
+        const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+
+        if (token === null) {
+            Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
+            return;
+        }
+
+        // Add parameters in json data.
+        // TODO: make repository and branch settings, or at least config options
+        const jsonData = {
+            repository: "ICRAR/EAGLE_test_repo",
+            branch: "master",
+            token: token,
+        };
+
+        // empty the list of palettes prior to (re)fetch
+        eagle.explorePalettes([]);
+
+        $('#explorePalettesModal').modal();
+
+        Utils.httpPostJSON('/getExplorePalettes', jsonData, function(error:string, data:any){
+            console.log("error", error, "data", data);
+
+            const explorePalettes: PaletteInfo[] = [];
+            for (let i = 0 ; i < data.length ; i++){
+                explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, data[i].name, data[i].path));
+            }
+
+            eagle.explorePalettes(explorePalettes);
+        });
     }
 
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {

@@ -1,4 +1,9 @@
 <div id="paletteList">
+    <div class="card">
+        <div class="card-body">
+            <button class="btn btn-primary btn-block" data-bind="click: showExplorePalettes">Explore Palettes</button>
+        </div>
+    </div>
     <div data-bind="foreach: palettes">
         <div class="card">
             <div class="card-header" data-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}, click: $root.spinCollapseIcon">
