@@ -46,6 +46,7 @@ $(function(){
     (<any>window).eagle = eagle;
     (<any>window).Eagle = Eagle;
     (<any>window).Utils = Utils;
+    (<any>window).Config = Config;
 
     ko.applyBindings(eagle);
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
@@ -74,7 +75,7 @@ $(function(){
                 }
             }
             eagle.leftWindow().shown(true);
-            
+
             // destroy orphaned tooltips and initializing tooltip on document ready.
             Eagle.reloadTooltips();
         });

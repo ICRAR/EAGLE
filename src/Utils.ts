@@ -1209,7 +1209,7 @@ export class Utils {
         // Add parameters in json data.
         // TODO: make repository and branch settings, or at least config options
         const jsonData = {
-            repository: "ICRAR/EAGLE_test_repo",
+            repository: Config.DEFAULT_PALETTE_REPOSITORY,
             branch: "master",
             token: token,
         };
