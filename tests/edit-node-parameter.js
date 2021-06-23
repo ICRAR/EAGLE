@@ -17,6 +17,15 @@ test('Edit node parameter', async t =>{
         // wait for the page to settle down
         .wait(3000)
 
+        // open settings modal
+        .click('#settings')
+
+        // enable 'allow palette editing'
+        .click('#settingAllowPaletteEditingButton')
+
+        // close settings modal
+        .click('#settingsModal .modal-footer button')
+
         // select python app node in palette
         .click("#selectPaletteNodePythonApp")
 
