@@ -122,7 +122,7 @@ def create_palette_node_from_params(params):
             pass
         elif key.startswith("port/") or key.startswith("local-port/"):
             # parse the port into data
-            (port, name) = key.split("/")
+            (port, name, type) = key.split("/")
             # add a port
             if port == "port":
                 if direction == "in":
