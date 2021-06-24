@@ -111,7 +111,10 @@ def create_palette_node_from_params(params):
             description = value
         elif key.startswith("param/"):
             # parse the param key into name, type etc
-            (param, name, default_value, type, access) = key.split("/")
+            if key.count("/") == 4:
+                (param, name, default_value, type, access) = key.split("/")
+            elif key.count("/") == 5:
+                (param, name, visible_name, default_value, type, access) = key.split("/")
 
             # check that access is a known value
             if access != "readonly" and access != "readwrite":
@@ -122,7 +125,11 @@ def create_palette_node_from_params(params):
             pass
         elif key.startswith("port/") or key.startswith("local-port/"):
             # parse the port into data
-            (port, name, type) = key.split("/")
+            if key.count("/") == 1:
+                (port, name) = key.split("/")
+            if key.count("/") == 2:
+                (port, name, type) = key.split("/")
+            
             # add a port
             if port == "port":
                 if direction == "in":
@@ -210,9 +217,17 @@ def process_compounddef(compounddef):
         if len(briefdescription) > 0:
             if briefdescription[0].text is None:
                 print("No brief description text")
-                result.append({"key":"text", "direction":None, "value":""})
+                result.append({
+                    "key":"text",
+                    "direction":None,
+                    "value":""
+                })
             else:
-                result.append({"key":"text", "direction":None, "value":briefdescription[0].text.strip()})
+                result.append({
+                    "key":"text",
+                    "direction":None,
+                    "value":briefdescription[0].text.strip(" .")
+                })
 
     # get child of compounddef called "detaileddescription"
     detaileddescription = None
