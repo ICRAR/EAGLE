@@ -277,7 +277,7 @@ def process_compounddef(compounddef):
                         print("No gitrepo text")
                         value = ""
                     else:
-                        value = pichild[0][0].text.strip()
+                        value = pichild[0].text.strip()
                 else:
                     if pichild[0].text is None:
                         print("No key text (key: " + key + ")")
