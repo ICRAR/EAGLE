@@ -113,8 +113,12 @@ def create_palette_node_from_params(params):
             # parse the param key into name, type etc
             if key.count("/") == 4:
                 (param, name, default_value, type, access) = key.split("/")
+                display_name = name
+                print("WARNING: using 'name' as 'display_name' :", key)
             elif key.count("/") == 5:
-                (param, name, visible_name, default_value, type, access) = key.split("/")
+                (param, name, display_name, default_value, type, access) = key.split("/")
+            else:
+                print("ERROR: param expects format 'param[Direction] param/Internal Name/User-facing Name/Default Value/Data Type/Access': got ", key)
 
             # check that access is a known value
             if access != "readonly" and access != "readwrite":
@@ -127,8 +131,10 @@ def create_palette_node_from_params(params):
             # parse the port into data
             if key.count("/") == 1:
                 (port, name) = key.split("/")
-            if key.count("/") == 2:
+            elif key.count("/") == 2:
                 (port, name, type) = key.split("/")
+            else:
+                print("ERROR: port expects format `param[Direction] port/Name/Data Type`: got", key)
             
             # add a port
             if port == "port":
