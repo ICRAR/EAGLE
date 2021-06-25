@@ -145,9 +145,42 @@ export class Palette {
         return result;
     }
 
-    addNode = (node: Node) : void => {
-        this.nodes.push(node);
+    // add the node to the end of the palette
+    // NOTE: clones the node internally
+    addNode = (node: Node, force: boolean) : void => {
+        // copy node
+        const newNode : Node = node.clone();
+
+        // set appropriate key for node (one that is not already in use)
+        newNode.setKey(Utils.newKey(this.getNodes()));
+        newNode.setReadonly(false);
+        newNode.setEmbedKey(null);
+        newNode.setInputApplication(null);
+        newNode.setOutputApplication(null);
+        newNode.setExitApplication(null);
+
+        if (force){
+            //console.log("Copy node", newNode.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
+            this.nodes.push(newNode);
+            return;
+        }
+
+        // try to find a matching node that already exists in the palette
+        // TODO: at the moment, we only match by name and category, but we should match by ID (once the ID is unique)
+        for (let i = 0 ; i < this.getNodes().length; i++){
+            const paletteNode = this.getNodes()[i];
+
+            if (paletteNode.getName() === newNode.getName() && paletteNode.getCategory() === newNode.getCategory()){
+                this.replaceNode(i, newNode);
+                //console.log("Replace node", newNode.getName(), "in destination palette", palette.fileInfo().name);
+                return;
+            }
+        }
+
+        // if we didn't find a matching node to replace, add it as a new node
+        this.nodes.push(newNode);
     }
+
 
     findNodeByKey = (key : number) : Node => {
         for (let i = this.nodes().length - 1; i >= 0 ; i--){

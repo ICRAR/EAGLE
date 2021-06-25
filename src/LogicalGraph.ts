@@ -502,6 +502,7 @@ export class LogicalGraph {
         return result;
     }
 
+    // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         //console.log("addNode()", node.getName());
 
@@ -512,9 +513,10 @@ export class LogicalGraph {
         newNode.setKey(Utils.newKey(this.getNodes()));
         newNode.setPosition(x, y);
         newNode.setReadonly(false);
+        newNode.setEmbedKey(null);
 
         // convert start of end nodes to data components
-        if (node.getCategory() === Eagle.Category.Start || node.getCategory() === Eagle.Category.End) {
+        if (newNode.getCategory() === Eagle.Category.Start || newNode.getCategory() === Eagle.Category.End) {
             // Store the node's location.
             const nodePosition = newNode.getPosition();
 
@@ -528,7 +530,7 @@ export class LogicalGraph {
                     newNode.setName(node.getName());
 
                     // Remove the redundant input/output port.
-                    switch(node.getCategory()){
+                    switch(newNode.getCategory()){
                         case Eagle.Category.Start:
                             newNode.removePortByIndex(0, true);
                             break;

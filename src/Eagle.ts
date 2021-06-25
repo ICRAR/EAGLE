@@ -713,21 +713,22 @@ export class Eagle {
             p.fileInfo().modified = true;
             p.fileInfo().readonly = false;
 
-            const startNode : Node = new Node(Utils.newKey(p.getNodes()), "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control, false);
+            // NOTE: we can construct all these new nodes with key=0, since they will be assigned correct keys when added to the palette
+            const startNode : Node = new Node(0, "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control, false);
             startNode.setColor(Utils.getColorForNode(Eagle.Category.Start));
-            p.addNode(startNode);
+            p.addNode(startNode, true);
 
-            const endNode : Node = new Node(Utils.newKey(p.getNodes()), "End", "", Eagle.Category.End, Eagle.CategoryType.Control, false);
+            const endNode : Node = new Node(0, "End", "", Eagle.Category.End, Eagle.CategoryType.Control, false);
             endNode.setColor(Utils.getColorForNode(Eagle.Category.End));
-            p.addNode(endNode);
+            p.addNode(endNode, true);
 
-            const commentNode : Node = new Node(Utils.newKey(p.getNodes()), "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other, false);
+            const commentNode : Node = new Node(0, "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other, false);
             commentNode.setColor(Utils.getColorForNode(Eagle.Category.Comment));
-            p.addNode(commentNode);
+            p.addNode(commentNode, true);
 
-            const descriptionNode : Node = new Node(Utils.newKey(p.getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
+            const descriptionNode : Node = new Node(0, "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
             descriptionNode.setColor(Utils.getColorForNode(Eagle.Category.Description));
-            p.addNode(descriptionNode);
+            p.addNode(descriptionNode, true);
 
             // add to palettes
             this.palettes.unshift(p);
@@ -2117,32 +2118,19 @@ export class Eagle {
                 return;
             }
 
-            // clone node
-            const clone : Node = this.selectedNode().clone();
-            clone.setReadonly(false);
-
             // check if clone has embedded applications, if so, add them to destination palette and remove
-            if (clone.hasInputApplication()){
-                const inputClone = clone.getInputApplication().clone();
-                inputClone.setReadonly(false);
-                clone.setInputApplication(null);
-                Utils.addNodeToPalette(destinationPalette, inputClone, true);
+            if (this.selectedNode().hasInputApplication()){
+                destinationPalette.addNode(this.selectedNode().getInputApplication(), true);
             }
-            if (clone.hasOutputApplication()){
-                const outputClone = clone.getOutputApplication().clone();
-                outputClone.setReadonly(false);
-                clone.setOutputApplication(null);
-                Utils.addNodeToPalette(destinationPalette, outputClone, true);
+            if (this.selectedNode().hasOutputApplication()){
+                destinationPalette.addNode(this.selectedNode().getOutputApplication(), true);
             }
-            if (clone.hasExitApplication()){
-                const exitClone = clone.getExitApplication().clone();
-                exitClone.setReadonly(false);
-                clone.setExitApplication(null);
-                Utils.addNodeToPalette(destinationPalette, exitClone, true);
+            if (this.selectedNode().hasExitApplication()){
+                destinationPalette.addNode(this.selectedNode().getExitApplication(), true);
             }
 
             // add clone to palette
-            Utils.addNodeToPalette(destinationPalette, clone, true);
+            destinationPalette.addNode(this.selectedNode(), true);
 
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
@@ -2283,36 +2271,20 @@ export class Eagle {
 
             // copy nodes to palette
             for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
-                const clone : Node = this.logicalGraph().getNodes()[i].clone();
-                clone.setReadonly(false);
+                const node : Node = this.logicalGraph().getNodes()[i];
 
                 // check if clone has embedded applications, if so, add them to destination palette and remove
-                if (clone.hasInputApplication()){
-                    const inputClone = clone.getInputApplication().clone();
-                    inputClone.setEmbedKey(null);
-                    inputClone.setReadonly(false);
-
-                    clone.setInputApplication(null);
-                    Utils.addNodeToPalette(destinationPalette, inputClone, false);
+                if (node.hasInputApplication()){
+                    destinationPalette.addNode(node.getInputApplication(), false);
                 }
-                if (clone.hasOutputApplication()){
-                    const outputClone = clone.getOutputApplication().clone();
-                    outputClone.setEmbedKey(null);
-                    outputClone.setReadonly(false);
-
-                    clone.setOutputApplication(null);
-                    Utils.addNodeToPalette(destinationPalette, outputClone, false);
+                if (node.hasOutputApplication()){
+                    destinationPalette.addNode(node.getOutputApplication(), false);
                 }
-                if (clone.hasExitApplication()){
-                    const exitClone = clone.getExitApplication().clone();
-                    exitClone.setEmbedKey(null);
-                    exitClone.setReadonly(false);
-
-                    clone.setExitApplication(null);
-                    Utils.addNodeToPalette(destinationPalette, exitClone, false);
+                if (node.hasExitApplication()){
+                    destinationPalette.addNode(node.getExitApplication(), false);
                 }
 
-                Utils.addNodeToPalette(destinationPalette, clone, false);
+                destinationPalette.addNode(node, false);
             }
 
             // mark the palette as modified
