@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = u'EAGLE'
+project = u'EAGLE - Documentation'
 copyright = u'2020, James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec'
 author = u'James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec'
 
@@ -76,9 +76,8 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'yummy_sphinx_theme'
+html_theme = 'karma_sphinx_theme'
 html_theme_options = {
-    'fixed_sidebar':'true'
 }
 
 # Adding this so we can increase the width of the central column of text.
