@@ -158,7 +158,13 @@ def create_palette_node_from_params(params):
             pass
         elif key.startswith("port/") or key.startswith("local-port/"):
             # parse the port into data
-            (port, name) = key.split("/")
+            if key.count("/") == 1:
+                (port, name) = key.split("/")
+            elif key.count("/") == 2:
+                (port, name, type) = key.split("/")
+            else:
+                print("ERROR: port expects format `param[Direction] port/Name/Data Type`: got", key)
+            
             # add a port
             if port == "port":
                 if direction == "in":
@@ -247,9 +253,17 @@ def process_compounddef(compounddef):
         if len(briefdescription) > 0:
             if briefdescription[0].text is None:
                 print("No brief description text")
-                result.append({"key":"text", "direction":None, "value":""})
+                result.append({
+                    "key":"text",
+                    "direction":None,
+                    "value":""
+                })
             else:
-                result.append({"key":"text", "direction":None, "value":briefdescription[0].text.strip()})
+                result.append({
+                    "key":"text",
+                    "direction":None,
+                    "value":briefdescription[0].text.strip(" .")
+                })
 
     # get child of compounddef called "detaileddescription"
     detaileddescription = None
@@ -310,11 +324,11 @@ def process_compounddef(compounddef):
                 direction = pichild[0].attrib.get("direction", "").strip()
             elif pichild.tag == "parameterdescription":
                 if key == "gitrepo":
-                    if pichild[0][0].text is None:
+                    if pichild[0].text is None:
                         print("No gitrepo text")
                         value = ""
                     else:
-                        value = pichild[0][0].text.strip()
+                        value = pichild[0].text.strip()
                 else:
                     if pichild[0].text is None:
                         print("No key text (key: " + key + ")")
