@@ -2,13 +2,13 @@ import {Eagle} from './Eagle';
 
 export class KeyboardShortcut {
     name: string;
-    key: string;
+    keys: string[];
     canRun: (eagle: Eagle) => boolean;
     run: (eagle: Eagle) => void;
 
-    constructor(name: string, key : string, canRun: (eagle: Eagle) => boolean, run: (eagle: Eagle) => void){
+    constructor(name: string, keys : string[], canRun: (eagle: Eagle) => boolean, run: (eagle: Eagle) => void){
         this.name = name;
-        this.key = key;
+        this.keys = keys;
         this.canRun = canRun;
         this.run = run;
     }
@@ -47,9 +47,11 @@ export class KeyboardShortcut {
         for (let i = 0 ; i < Eagle.shortcuts().length ; i++){
             const shortcut: KeyboardShortcut = Eagle.shortcuts()[i];
 
-            if (shortcut.key === e.key){
-                if (shortcut.canRun(eagle)){
-                    shortcut.run(eagle);
+            for (let j = 0 ; j < shortcut.keys.length ; j++){
+                if (shortcut.keys[j] === e.key){
+                    if (shortcut.canRun(eagle)){
+                        shortcut.run(eagle);
+                    }
                 }
             }
         }

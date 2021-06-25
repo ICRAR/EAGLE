@@ -128,19 +128,19 @@ export class Eagle {
         Eagle.settings.push(new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false));
 
         Eagle.shortcuts = ko.observableArray();
-        Eagle.shortcuts.push(new KeyboardShortcut("Add Edge", "e", KeyboardShortcut.true, (eagle): void => {eagle.addEdgeToLogicalGraph();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Modify Selected Edge", "m", KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.editSelectedEdge();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Delete Selected Edge", "Backspace", KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.deleteSelectedEdge(false);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Delete Selected Node", "Backspace", KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.deleteSelectedNode();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Duplicate Selected Node", "d", KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.duplicateSelectedNode();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Parent", "h", KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Subject", "s", KeyboardShortcut.commentNodeIsSelected, (eagle): void => {eagle.changeNodeSubject();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Toggle left window", "1", KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Toggle right window", "2", KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Center graph", "c", KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("New palette", "n", KeyboardShortcut.true, (eagle): void => {eagle.newPalette();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Open palette from local disk", "p", KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", "g", KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Add Edge", ["e"], KeyboardShortcut.true, (eagle): void => {eagle.addEdgeToLogicalGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Modify Selected Edge", ["m"], KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.editSelectedEdge();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Delete Selected Edge", ["Backspace", "Delete"], KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.deleteSelectedEdge(false);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Delete Selected Node", ["Backspace", "Delete"], KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.deleteSelectedNode();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Duplicate Selected Node", ["d"], KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.duplicateSelectedNode();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Parent", ["h"], KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Subject", ["s"], KeyboardShortcut.commentNodeIsSelected, (eagle): void => {eagle.changeNodeSubject();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Toggle left window", ["1"], KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Toggle right window", ["2"], KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Center graph", ["c"], KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("New palette", ["n"], KeyboardShortcut.true, (eagle): void => {eagle.newPalette();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Open palette from local disk", ["p"], KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", ["g"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
 
 
 
