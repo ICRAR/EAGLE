@@ -2894,7 +2894,7 @@ export class Eagle {
 
     editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number) : void => {
         // get field names list from the logical graph
-        const allFields: Field[] = Utils.getAllFields(this.logicalGraph());
+        const allFields: Field[] = Utils.getUniqueFieldsList(this.logicalGraph());
 
         const allFieldNames: string[] = [];
         for (let i = 0 ; i < allFields.length ; i++){
@@ -2960,7 +2960,7 @@ export class Eagle {
     };
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
-        const allPorts: Port[] = Utils.getAllPorts(this.logicalGraph());
+        const allPorts: Port[] = Utils.getUniquePortsList(this.logicalGraph());
 
         const allPortNames: string[] = [];
         // get list of port names from list of ports
