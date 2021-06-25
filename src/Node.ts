@@ -31,25 +31,25 @@ import {Port} from './Port';
 import {Field} from './Field';
 
 export class Node {
-    private key : number;
+    private key : ko.Observable<number>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
-    private x : number;
-    private y : number;
-    private width : number;
-    private height : number;
-    private color : string;
+    private x : ko.Observable<number>;
+    private y : ko.Observable<number>;
+    private width : ko.Observable<number>;
+    private height : ko.Observable<number>;
+    private color : ko.Observable<string>;
     private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
                                                    // (primary method is using parent-child relationships)
                                                    // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
-    private parentKey : number | null;
-    private embedKey : number | null;
-    private collapsed : boolean;
-    private streaming : boolean;
-    private precious : boolean;
-    private showPorts : boolean;
-    private flipPorts : boolean;
+    private parentKey : ko.Observable<number>;
+    private embedKey : ko.Observable<number>;
+    private collapsed : ko.Observable<boolean>;
+    private streaming : ko.Observable<boolean>;
+    private precious : ko.Observable<boolean>;
+    private showPorts : ko.Observable<boolean>;
+    private flipPorts : ko.Observable<boolean>;
 
     private inputApplication : ko.Observable<Node>;
     private outputApplication : ko.Observable<Node>;
@@ -61,9 +61,9 @@ export class Node {
     private fields : ko.ObservableArray<Field>;
 
     private category : ko.Observable<Eagle.Category>;
-    private categoryType : Eagle.CategoryType;
+    private categoryType : ko.Observable<Eagle.CategoryType>;
 
-    private subject : number | null; // the key of another node that is the subject of this node. used by comment nodes only.
+    private subject : ko.Observable<number>; // the key of another node that is the subject of this node. used by comment nodes only.
 
     private expanded : ko.Observable<boolean>; // true, if the node has been expanded in the hierarchy tab in EAGLE
     private selected : ko.Observable<boolean>; // true, if the node has been selected in EAGLE
@@ -88,23 +88,23 @@ export class Node {
     public static readonly NO_APP_STRING : string = "<no app>";
 
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, readonly: boolean){
-        this.key = key;
+        this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
-        this.x = 0;
-        this.y = 0;
-        this.width = Node.DEFAULT_WIDTH;
-        this.height = Node.DEFAULT_HEIGHT;
-        this.color = Utils.getColorForNode(category);
+        this.x = ko.observable(0);
+        this.y = ko.observable(0);
+        this.width = ko.observable(Node.DEFAULT_WIDTH);
+        this.height = ko.observable(Node.DEFAULT_HEIGHT);
+        this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
 
-        this.parentKey = null;
-        this.embedKey = null;
-        this.collapsed = false;
-        this.streaming = false;
-        this.precious = false;
-        this.showPorts = false;
-        this.flipPorts = false;
+        this.parentKey = ko.observable(null);
+        this.embedKey = ko.observable(null);
+        this.collapsed = ko.observable(false);
+        this.streaming = ko.observable(false);
+        this.precious = ko.observable(false);
+        this.showPorts = ko.observable(false);
+        this.flipPorts = ko.observable(false);
 
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
@@ -116,9 +116,9 @@ export class Node {
         this.fields = ko.observableArray([]);
 
         this.category = ko.observable(category);
-        this.categoryType = categoryType;
+        this.categoryType = ko.observable(categoryType);
 
-        this.subject = null;
+        this.subject = ko.observable(null);
 
         this.expanded = ko.observable(false);
         this.selected = ko.observable(false);
@@ -127,11 +127,11 @@ export class Node {
     }
 
     getKey = () : number => {
-        return this.key;
+        return this.key();
     }
 
     setKey = (key : number) : void => {
-        this.key = key;
+        this.key(key);
 
         // go through all ports on this node, and make sure their nodeKeys are all updated
         for (let i = 0; i < this.inputPorts().length ; i++){
@@ -176,41 +176,41 @@ export class Node {
     }
 
     getPosition = () : {x:number, y:number} => {
-        return {x: this.x, y: this.y};
+        return {x: this.x(), y: this.y()};
     }
 
     setPosition = (x: number, y: number) : void => {
-        this.x = x;
-        this.y = y;
+        this.x(x);
+        this.y(y);
     }
 
     changePosition = (dx : number, dy : number) : void => {
-        this.x += dx;
-        this.y += dy;
+        this.x(this.x() + dx);
+        this.y(this.y() + dy);
     }
 
     getWidth = () : number => {
-        return this.width;
+        return this.width();
     }
 
     setWidth = (width : number) : void => {
-        this.width = width;
+        this.width(width);
     }
 
     getHeight = () : number => {
-        return this.height;
+        return this.height();
     }
 
     setHeight = (height : number) : void => {
-        this.height = height;
+        this.height(height);
     }
 
     getColor = () : string => {
-        return this.color;
+        return this.color();
     }
 
     setColor = (color: string) : void => {
-        this.color = color;
+        this.color(color);
     }
 
     getDrawOrderHint = () : number => {
@@ -232,85 +232,85 @@ export class Node {
     }
 
     getParentKey = () : number => {
-        return this.parentKey;
+        return this.parentKey();
     }
 
     setParentKey = (key : number) : void => {
         // check that we are not making this node its own parent
-        if (key === this.key){
+        if (key === this.key()){
             console.warn("Setting node as its own parent!");
             return;
         }
 
-        this.parentKey = key;
+        this.parentKey(key);
     }
 
     getEmbedKey = () : number => {
-        return this.embedKey;
+        return this.embedKey();
     }
 
     setEmbedKey = (key : number) : void => {
-        this.embedKey = key;
+        this.embedKey(key);
     }
 
     isEmbedded = () : boolean => {
-        return this.embedKey !== null;
+        return this.embedKey() !== null;
     }
 
     isCollapsed = () : boolean => {
-        return this.collapsed;
+        return this.collapsed();
     }
 
     setCollapsed = (value : boolean) : void => {
-        this.collapsed = value;
+        this.collapsed(value);
     }
 
     isStreaming = () : boolean => {
-        return this.streaming;
+        return this.streaming();
     }
 
     setStreaming = (value : boolean) : void => {
-        this.streaming = value;
+        this.streaming(value);
     }
 
     toggleStreaming = () : void => {
-        this.streaming = !this.streaming;
+        this.streaming(!this.streaming());
     }
 
     isPrecious = () : boolean => {
-        return this.precious;
+        return this.precious();
     }
 
     setPrecious = (value : boolean) : void => {
-        this.precious = value;
+        this.precious(value);
     }
 
     togglePrecious = () : void => {
-        this.precious = !this.precious;
+        this.precious(!this.precious());
     }
 
     isShowPorts = () : boolean => {
-        return this.showPorts;
+        return this.showPorts();
     }
 
     setShowPorts = (value : boolean) : void => {
-        this.showPorts = value;
+        this.showPorts(value);
     }
 
     toggleShowPorts = () : void => {
-        this.showPorts = !this.showPorts;
+        this.showPorts(!this.showPorts());
     }
 
     isFlipPorts = () : boolean => {
-        return this.flipPorts;
+        return this.flipPorts();
     }
 
     setFlipPorts = (value : boolean) : void => {
-        this.flipPorts = value;
+        this.flipPorts(value);
     }
 
     toggleFlipPorts = () : void => {
-        this.flipPorts = !this.flipPorts;
+        this.flipPorts(!this.flipPorts());
     }
 
     isReadonly = (): boolean => {
@@ -434,7 +434,7 @@ export class Node {
     }
 
     getCategoryType = () : Eagle.CategoryType => {
-        return this.categoryType;
+        return this.categoryType();
     }
 
     isData = () : boolean => {
@@ -523,11 +523,11 @@ export class Node {
     }, this);
 
     getSubjectKey = () : number => {
-        return this.subject;
+        return this.subject();
     }
 
     setSubjectKey = (key : number) : void => {
-        this.subject = key;
+        this.subject(key);
     }
 
     setSelected = (selected : boolean) : void => {
@@ -593,25 +593,25 @@ export class Node {
     }
 
     clear = () : void => {
-        this.key = 0;
+        this.key(0);
         this.name("");
         this.description("");
-        this.x = 0;
-        this.y = 0;
-        this.width = Node.DEFAULT_WIDTH;
-        this.height = Node.DEFAULT_HEIGHT;
-        this.color = Node.DEFAULT_COLOR;
+        this.x(0);
+        this.y(0);
+        this.width(Node.DEFAULT_WIDTH);
+        this.height(Node.DEFAULT_HEIGHT);
+        this.color(Node.DEFAULT_COLOR);
         this.drawOrderHint(0);
 
-        this.parentKey = null;
-        this.embedKey = null;
-        this.collapsed = false;
-        this.streaming = false;
-        this.precious = false;
+        this.parentKey(null);
+        this.embedKey(null);
+        this.collapsed(false);
+        this.streaming(false);
+        this.precious(false);
 
-        this.inputApplication = null;
-        this.outputApplication = null;
-        this.exitApplication = null;
+        this.inputApplication(null);
+        this.outputApplication(null);
+        this.exitApplication(null);
 
         this.inputPorts([]);
         this.outputPorts([]);
@@ -619,9 +619,9 @@ export class Node {
         this.fields([]);
 
         this.category(Eagle.Category.Unknown);
-        this.categoryType = Eagle.CategoryType.Unknown;
+        this.categoryType(Eagle.CategoryType.Unknown);
 
-        this.subject = null;
+        this.subject(null);
 
         this.expanded(false);
         this.selected(false);
@@ -634,14 +634,14 @@ export class Node {
         }
 
         if (!this.isGroup() && this.isCollapsed()){
-            return this.width;
+            return this.width();
         }
 
         if (this.getCategoryType() === Eagle.CategoryType.Data && !this.isShowPorts()){
             return Node.DATA_COMPONENT_WIDTH;
         }
 
-        return this.width;
+        return this.width();
     }
 
     getDisplayHeight = () : number => {
@@ -649,7 +649,7 @@ export class Node {
             if (this.isCollapsed()){
                 return Node.COLLAPSED_HEIGHT;
             } else {
-                return this.height;
+                return this.height();
             }
         }
 
@@ -678,7 +678,7 @@ export class Node {
     }
 
     addPort = (port : Port, input : boolean) : void => {
-        port.setNodeKey(this.key);
+        port.setNodeKey(this.key());
 
         if (input){
             this.inputPorts.push(port);
@@ -929,23 +929,23 @@ export class Node {
     }
 
     clone = () : Node => {
-        const result : Node = new Node(this.key, this.name(), this.description(), this.category(), this.categoryType, this.readonly());
+        const result : Node = new Node(this.key(), this.name(), this.description(), this.category(), this.categoryType(), this.readonly());
 
-        result.x = this.x;
-        result.y = this.y;
-        result.width = this.width;
-        result.height = this.height;
-        result.color = this.color;
+        result.x(this.x());
+        result.y(this.y());
+        result.width(this.width());
+        result.height(this.height());
+        result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
 
-        result.parentKey = this.parentKey;
-        result.embedKey = this.embedKey;
+        result.parentKey(this.parentKey());
+        result.embedKey(this.embedKey());
 
-        result.collapsed = this.collapsed;
-        result.streaming = this.streaming;
-        result.precious = this.precious;
-        result.showPorts = this.showPorts;
-        result.flipPorts = this.flipPorts;
+        result.collapsed(this.collapsed());
+        result.streaming(this.streaming());
+        result.precious(this.precious());
+        result.showPorts(this.showPorts());
+        result.flipPorts(this.flipPorts());
 
         // copy input,output and exit applications
         if (this.inputApplication() === null){
@@ -1218,17 +1218,17 @@ export class Node {
         if (typeof nodeData.height !== 'undefined'){
             height = nodeData.height;
         }
-        node.width = width;
-        node.height = height;
+        node.width(width);
+        node.height(height);
 
         // showPorts
         if (typeof nodeData.showPorts !== 'undefined'){
-            node.showPorts = nodeData.showPorts;
+            node.showPorts(nodeData.showPorts);
         }
 
         // flipPorts
         if (typeof nodeData.flipPorts !== 'undefined'){
-            node.flipPorts = nodeData.flipPorts;
+            node.flipPorts(nodeData.flipPorts);
         }
 
         // NOTE: skip the 'selected' boolean on the input data, don't remember the user's selection
@@ -1240,9 +1240,9 @@ export class Node {
 
         // color
         if (typeof nodeData.color !== 'undefined'){
-            node.color = nodeData.color;
+            node.color(nodeData.color);
         } else {
-            node.color = Utils.getColorForNode(category);
+            node.color(Utils.getColorForNode(category));
         }
 
         // drawOrderHint
@@ -1323,12 +1323,12 @@ export class Node {
 
         // set parentKey if a group is defined
         if (typeof nodeData.group !== 'undefined'){
-            node.parentKey = nodeData.group;
+            node.parentKey(nodeData.group);
         }
 
         // set embedKey if defined
         if (typeof nodeData.embedKey !== 'undefined'){
-            node.embedKey = nodeData.embedKey;
+            node.embedKey(nodeData.embedKey);
         }
 
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
@@ -1370,30 +1370,30 @@ export class Node {
 
         // collapsed
         if (typeof nodeData.collapsed !== 'undefined'){
-            node.collapsed = nodeData.collapsed;
+            node.collapsed(nodeData.collapsed);
         } else {
-            node.collapsed = false;
+            node.collapsed(false);
         }
 
         // streaming
         if (typeof nodeData.streaming !== 'undefined'){
-            node.streaming = nodeData.streaming;
+            node.streaming(nodeData.streaming);
         } else {
-            node.streaming = false;
+            node.streaming(false);
         }
 
         // precious
         if (typeof nodeData.precious !== 'undefined'){
-            node.precious = nodeData.precious;
+            node.precious(nodeData.precious);
         } else {
-            node.precious = false;
+            node.precious(false);
         }
 
         // subject (for comment nodes)
         if (typeof nodeData.subject !== 'undefined'){
-            node.subject = nodeData.subject;
+            node.subject(nodeData.subject);
         } else {
-            node.subject = null;
+            node.subject(null);
         }
 
         // add input ports
