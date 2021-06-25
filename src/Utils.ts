@@ -1445,8 +1445,8 @@ export class Utils {
     /**
      * Returns a list of unique port names (except event ports)
      */
-    static getAllPorts = (diagram : Palette | LogicalGraph) : Port[] => {
-        const allPorts : Port[] = [];
+    static getUniquePortsList = (diagram : Palette | LogicalGraph) : Port[] => {
+        const uniquePorts : Port[] = [];
 
         // build a list from all nodes
         for (let i = 0; i < diagram.getNodes().length; i++) {
@@ -1456,7 +1456,7 @@ export class Utils {
             for (let j = 0; j < node.getInputPorts().length; j++) {
                 const port : Port = node.getInputPorts()[j];
                 if (!port.isEvent()){
-                    allPorts.push(port);
+                    Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
             }
 
@@ -1464,7 +1464,7 @@ export class Utils {
             for (let j = 0; j < node.getOutputPorts().length; j++) {
                 const port : Port = node.getOutputPorts()[j];
                 if (!port.isEvent()) {
-                    allPorts.push(port);
+                    Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
             }
 
@@ -1474,7 +1474,7 @@ export class Utils {
                 for (let j = 0; j < node.getInputApplication().getInputPorts().length; j++) {
                     const port : Port = node.getInputApplication().getInputPorts()[j];
                     if (!port.isEvent()) {
-                        allPorts.push(port);
+                        Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
@@ -1482,7 +1482,7 @@ export class Utils {
                 for (let j = 0; j < node.getInputApplication().getOutputPorts().length; j++) {
                     const port : Port = node.getInputApplication().getOutputPorts()[j];
                     if (!port.isEvent()) {
-                        allPorts.push(port);
+                        Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1493,7 +1493,7 @@ export class Utils {
                 for (let j = 0; j < node.getOutputApplication().getInputPorts().length; j++) {
                     const port : Port = node.getOutputApplication().getInputPorts()[j];
                     if (!port.isEvent()) {
-                        allPorts.push(port);
+                        Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
@@ -1501,7 +1501,7 @@ export class Utils {
                 for (let j = 0; j < node.getOutputApplication().getOutputPorts().length; j++) {
                     const port : Port = node.getOutputApplication().getOutputPorts()[j];
                     if (!port.isEvent()) {
-                        allPorts.push(port);
+                        Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1512,7 +1512,7 @@ export class Utils {
                 for (let j = 0; j < node.getExitApplication().getInputPorts().length; j++) {
                     const port : Port = node.getExitApplication().getInputPorts()[j];
                     if (!port.isEvent()) {
-                        allPorts.push(port);
+                        Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
@@ -1520,20 +1520,33 @@ export class Utils {
                 for (let j = 0; j < node.getExitApplication().getOutputPorts().length; j++) {
                     const port : Port = node.getExitApplication().getOutputPorts()[j];
                     if (!port.isEvent()) {
-                        allPorts.push(port);
+                        Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
         }
 
-        return allPorts;
+        return uniquePorts;
+    }
+
+    private static _addPortIfUnique = (ports : Port[], port: Port) : void => {
+
+        // check if the new port matches an existing port (by name and type), if so, abort
+        for (let i = 0 ; i < ports.length ; i++){
+            if (ports[i].getName() === port.getName() && ports[i].getType() === port.getType()){
+                return;
+            }
+        }
+
+        // otherwise add the port
+        ports.push(port);
     }
 
     /**
      * Returns a list of all fields in the given palette or logical graph
      */
-    static getAllFields = (diagram : Palette | LogicalGraph) : Field[] => {
-        const allFields : Field[] = [];
+    static getUniqueFieldsList = (diagram : Palette | LogicalGraph) : Field[] => {
+        const uniqueFields : Field[] = [];
 
         // build a list from all nodes
         for (let i = 0; i < diagram.getNodes().length; i++) {
@@ -1542,11 +1555,24 @@ export class Utils {
             // add fields into the list
             for (let j = 0; j < node.getFields().length; j++) {
                 const field : Field = node.getFields()[j];
-                allFields.push(field.clone());
+                Utils._addFieldIfUnique(uniqueFields, field.clone());
             }
         }
 
-        return allFields;
+        return uniqueFields;
+    }
+
+    private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
+
+        // check if the new field matches an existing field (by name and type), if so, abort
+        for (let i = 0 ; i < fields.length ; i++){
+            if (fields[i].getName() === field.getName() && fields[i].getType() === field.getType()){
+                return;
+            }
+        }
+
+        // otherwise add the field
+        fields.push(field);
     }
 
     static isKnownCategory(category : string) : boolean {
