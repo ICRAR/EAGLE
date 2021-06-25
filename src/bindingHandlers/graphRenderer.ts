@@ -3296,27 +3296,27 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function REAL_TO_DISPLAY_POSITION_X(x: number) : number {
-        return eagle.globalOffsetX + (x * eagle.globalScale);
+        return eagle.globalOffsetX() + (x * eagle.globalScale());
     }
     function REAL_TO_DISPLAY_POSITION_Y(y: number) : number {
-        return eagle.globalOffsetY + (y * eagle.globalScale);
+        return eagle.globalOffsetY() + (y * eagle.globalScale());
     }
     function REAL_TO_DISPLAY_SCALE(n: number, name: string = null) : number {
 
         if (name != null){
-            console.log(name, n, eagle.globalScale, n * eagle.globalScale);
+            console.log(name, n, eagle.globalScale(), n * eagle.globalScale());
         }
 
-        return n * eagle.globalScale;
+        return n * eagle.globalScale();
     }
     function DISPLAY_TO_REAL_POSITION_X(x: number) : number {
-        return (x - eagle.globalOffsetX)/eagle.globalScale;
+        return (x - eagle.globalOffsetX())/eagle.globalScale();
     }
     function DISPLAY_TO_REAL_POSITION_Y(y: number) : number {
-        return (y - eagle.globalOffsetY)/eagle.globalScale;
+        return (y - eagle.globalOffsetY())/eagle.globalScale();
     }
     function DISPLAY_TO_REAL_SCALE(n: number) : number {
-        return n / eagle.globalScale;
+        return n / eagle.globalScale();
     }
 
     function printDrawOrder(ns : Node[]) : string {
@@ -3350,7 +3350,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 dy = 0.0;
 
             let word;
-            let wordWrapWidth = parseInt(text.attr("eagle-wrap-width"), 10) * eagle.globalScale;
+            let wordWrapWidth = parseInt(text.attr("eagle-wrap-width"), 10) * eagle.globalScale();
             let line : string[] = [];
             let tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
             let lineNumber = 0;

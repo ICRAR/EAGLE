@@ -1956,4 +1956,44 @@ export class Node {
         node.setEmbedKey(embedKey);
         return node;
     }
+
+    getInputAppText = () : string => {
+        if (!Node.canHaveInputApp(this)){
+            return "";
+        }
+
+        const inputApplication : Node = this.getInputApplication();
+
+        if (typeof inputApplication === "undefined" || inputApplication === null){
+            return Node.NO_APP_STRING;
+        }
+
+        return inputApplication.getName();
+    }
+
+    getOutputAppText = () : string => {
+        if (!Node.canHaveOutputApp(this)){
+            return "";
+        }
+
+        const outputApplication : Node = this.getOutputApplication();
+
+        if (typeof outputApplication === "undefined" || outputApplication === null){
+            return Node.NO_APP_STRING;
+        }
+
+        return outputApplication.getName();
+    }
+
+    startDrag = () : void => {
+        console.log("startDrag:", this.name());
+    }
+
+    endDrag = () : void => {
+        console.log("endDrag:", this.name());
+    }
+
+    mouseMove = () : void => {
+        console.log("mouseMove:", this.name());
+    }
 }

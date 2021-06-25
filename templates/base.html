@@ -11,6 +11,7 @@
         <link rel="stylesheet" href="static/bootstrap.min.css">
         <link rel="stylesheet" href="static/base.css">
         <link rel="stylesheet" href="static/svg.css">
+        <link rel="stylesheet" href="static/graph.css">
         <link rel="stylesheet" href="static/fonts.css">
         <link rel="stylesheet" href="static/introjs.min.css">
 
@@ -69,7 +70,12 @@
             </div>
 
             <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDrop }">
-                <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
+                <div id="logicalGraphD3Div">
+                    <!-- ko if: $root.logicalGraph() !== null -->
+                        <!-- ko foreach: $root.logicalGraph().getNodes() -->
+                            {% include 'node.html' %}
+                        <!-- /ko -->
+                    <!-- /ko -->
                 </div>
             </div>
 

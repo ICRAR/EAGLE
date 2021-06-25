@@ -64,9 +64,9 @@ export class Eagle {
 
     translator : ko.Observable<Translator>;
 
-    globalOffsetX : number;
-    globalOffsetY : number;
-    globalScale : number;
+    globalOffsetX : ko.Observable<number>;
+    globalOffsetY : ko.Observable<number>;
+    globalScale : ko.Observable<number>;
 
     inspectorState : ko.Observable<InspectorState>;
 
@@ -146,9 +146,9 @@ export class Eagle {
 
         this.selectedNode.subscribe(this.updateInspectorTooltips);
 
-        this.globalOffsetX = 0;
-        this.globalOffsetY = 0;
-        this.globalScale = 1.0;
+        this.globalOffsetX = ko.observable(0);
+        this.globalOffsetY = ko.observable(0);
+        this.globalScale = ko.observable(1.0);
 
         this.inspectorState = ko.observable(new InspectorState());
 
@@ -315,15 +315,15 @@ export class Eagle {
         const centroidY = minY + ((maxY - minY) / 2);
 
         // reset scale
-        this.globalScale = 1.0;
+        this.globalScale(1.0);
 
         //determine center of the display area
-        const displayCenterX : number = $('#logicalGraphParent').width() / this.globalScale / 2;
-        const displayCenterY : number = $('#logicalGraphParent').height() / this.globalScale / 2;
+        const displayCenterX : number = $('#logicalGraphParent').width() / this.globalScale() / 2;
+        const displayCenterY : number = $('#logicalGraphParent').height() / this.globalScale() / 2;
 
         // translate display to center the graph centroid
-        this.globalOffsetX = displayCenterX - centroidX;
-        this.globalOffsetY = displayCenterY - centroidY;
+        this.globalOffsetX(displayCenterX - centroidX);
+        this.globalOffsetY(displayCenterY - centroidY);
 
         // trigger render
         this.flagActiveDiagramHasMutated();
@@ -3178,11 +3178,11 @@ export class Eagle {
         y += Math.floor(Math.random() * (201)) - 100;
 
         // modify random positions using current translation of viewport
-        x -= this.globalOffsetX;
-        y -= this.globalOffsetY;
+        x = x - this.globalOffsetX();
+        y = y - this.globalOffsetY();
 
-        x /= this.globalScale;
-        y /= this.globalScale;
+        x = x / this.globalScale();
+        y = y / this.globalScale();
 
         //console.log("setNewNodePosition() x:", x, "y:", y);
         return {x:x, y:y};
