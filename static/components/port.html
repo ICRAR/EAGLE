@@ -1,48 +1,35 @@
 <div class="input-group mb-1">
-    <!-- ko ifnot: $root.selectionReadOnly -->
+    <!-- ko ifnot: $root.selectedNode().isLocked() -->
     <div class="input-group-prepend">
         <!-- ko if: input -->
-        <!-- ko ifnot: local -->
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode().getKey(), $index(), true, false);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveInputPort' + $index()}">
-            <i class="material-icons md-18">remove</i>
-        </button>
-        <!-- /ko -->
-        <!-- ko if: local -->
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode().getKey(), $index(), true, true);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveInputLocalPort' + $index()}">
-            <i class="material-icons md-18">remove</i>
-        </button>
-        <!-- /ko -->
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), true);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveInputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
+                <i class="material-icons md-18">remove</i>
+            </button>
         <!-- /ko -->
         <!-- ko if: !input -->
-        <!-- ko ifnot: local -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode().getKey(), $index(), false, false);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveOutputPort' + $index()}">
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), false);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveOutputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
                 <i class="material-icons md-18">remove</i>
             </button>
-        <!-- /ko -->
-        <!-- ko if: local -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode().getKey(), $index(), false, true);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveOutputLocalPort' + $index()}">
-                <i class="material-icons md-18">remove</i>
-            </button>
-        <!-- /ko -->
         <!-- /ko -->
     </div>
     <!-- /ko -->
 
-    <input type="text" class="form-control" placeholder="" readonly data-bind="value: name">
+    <input type="text" class="form-control" placeholder="" readonly data-bind="value: name, attr: {'data-original-title': description}" data-toggle="tooltip" data-html="true" data-placement="left">
+
     <div class="input-group-append">
-        <button class="btn btn-dark btn-sm" type="button" disabled>
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="attr: {title: 'Port multiplicity'}" data-toggle="tooltip" data-html="true" data-placement="left">
             <span data-bind="text: multiplicity"></span>
         </button>
     </div>
 
     <div class="input-group-append">
         <!-- ko if: $root.logicalGraph().portIsLinked($root.selectedNode().getKey(), id) -->
-            <button class="btn btn-dark btn-sm" type="button" data-bind="click: function(){$root.selectEdge($root.selectedNode().getKey(), id);}, attr: {id: 'nodeInspectorSelectEdge' + id}">
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectEdge($root.selectedNode().getKey(), id);}, attr: {id: 'nodeInspectorSelectEdge' + id, title: 'Port is connected<br/>Click to inspect edge'}" data-toggle="tooltip" data-html="true" data-placement="left">
                 <i class="material-icons md-18">link</i>
             </button>
         <!-- /ko -->
         <!-- ko ifnot: $root.logicalGraph().portIsLinked($root.selectedNode().getKey(), id) -->
-            <button class="btn btn-dark btn-sm" type="button" disabled>
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="attr: {title: 'Port is not connected'}" data-toggle="tooltip" data-html="true" data-placement="left">
                 <i class="material-icons md-18">link_off</i>
             </button>
         <!-- /ko -->
@@ -50,14 +37,19 @@
 
     <div class="input-group-append">
         <!-- ko if: isEventPort -->
-            <button class="btn btn-dark btn-sm" type="button">
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){toggleEvent();$root.hackNodeUpdate();}, attr: {title: 'Port is event port<br/>Click to toggle'}" data-toggle="tooltip" data-html="true" data-placement="left">
                 <i class="material-icons md-18">alarm_on</i>
             </button>
         <!-- /ko -->
         <!-- ko ifnot: isEventPort -->
-            <button class="btn btn-dark btn-sm" type="button" disabled>
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){toggleEvent();$root.hackNodeUpdate();}, attr: {title: 'Port is not event port<br/>Click to toggle'}" data-toggle="tooltip" data-html="true" data-placement="left">
                 <i class="material-icons md-18">alarm_off</i>
             </button>
         <!-- /ko -->
+    </div>
+    <div class="input-group-append">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editPort(null, 'Edit', $index(), input);}, attr: {id: 'nodeInspectorEditPort' + $index(), title: 'Edit'}" data-toggle="tooltip" data-html="true" data-placement="left">
+            <i class="material-icons md-18">edit</i>
+        </button>
     </div>
 </div>

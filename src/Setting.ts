@@ -1,5 +1,7 @@
 import * as ko from "knockout";
 
+import {Utils} from './Utils';
+
 export class Setting {
 
     value : ko.Observable<any>;
@@ -18,7 +20,11 @@ export class Setting {
         this.defaultValue = defaultValue;
 
         this.load();
-        this.save();
+
+        const that = this;
+        this.value.subscribe(function(){
+            that.save();
+        });
     }
 
     getName = () : string => {
@@ -37,17 +43,12 @@ export class Setting {
         return this.key;
     }
 
-    setValue = (value : any) : void => {
-        this.value(value);
-        this.save();
-    }
-
     save = () : void => {
         localStorage.setItem(this.key, this.valueToString(this.value()));
     }
 
     load = () : void => {
-        var v = localStorage.getItem(this.key);
+        const v = localStorage.getItem(this.key);
 
         if (v === null)
             this.value(this.defaultValue);
@@ -63,14 +64,18 @@ export class Setting {
 
         // update the value
         this.value(!this.value());
+    }
 
-        // save to localStorage
-        this.save();
+    copy = () : void => {
+        navigator.clipboard.writeText(this.value().toString()).then(function() {
+            Utils.showNotification("Success", "Copying to clipboard was successful!", "success");
+        }, function(err) {
+            Utils.showNotification("Error", "Could not copy setting. " + err, "danger");
+        });
     }
 
     resetDefault = () : void => {
         this.value(this.defaultValue);
-        this.save();
     }
 
     private valueToString = (value : any) : string => {
@@ -80,18 +85,24 @@ export class Setting {
     private stringToValue = (s : string) : any => {
         switch (this.type){
             case Setting.Type.String:
+            case Setting.Type.Password:
                 return s;
             case Setting.Type.Number:
                 return Number(s);
             case Setting.Type.Boolean:
                 return s === "true";
+            default:
+                console.warn("Unknown setting type", this.type);
+                return s;
         }
     }
 }
+
 export namespace Setting {
     export enum Type {
         String,
         Number,
-        Boolean
+        Boolean,
+        Password
     }
 }

@@ -24,6 +24,7 @@
 
 import * as ko from "knockout";
 
+import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 
 export class Translator {
@@ -56,20 +57,22 @@ export class Translator {
     }
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
-
-        // debug
-        console.log("in submit() : formElements", formElements);
+        // consult EAGLE settings to determine whether to open the transator in a new tab
+        const spawnTranslationTab: boolean = Eagle.findSettingValue(Utils.SPAWN_TRANSLATION_TAB);
 
         // create form element
-        var form = document.createElement("form");
+        const form = document.createElement("form");
         form.method = "POST";
-        //form.action = "/gen_pgt";
-        //form.action = "http://localhost:8084/gen_pgt";
         form.action = translatorURL;
-        form.target = "_blank";
+
+        if (spawnTranslationTab){
+            form.target = "_blank";
+        } else {
+            form.target = "_self";
+        }
 
         // add formElements to form
-        for (var key in formElements) {
+        for (const key in formElements) {
             this.addInput(key, formElements[key], form);
         }
 
@@ -91,7 +94,7 @@ export class Translator {
     }
 
     private addInput(name: string, value: string, form: HTMLFormElement){
-        var element = document.createElement("input");
+        const element = document.createElement("input");
         element.name = name;
         element.value = value;
         form.appendChild(element);

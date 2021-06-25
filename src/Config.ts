@@ -24,7 +24,11 @@
 
 export class Config {
     // File name of the palette template.
-    static readonly templatePaletteFileName : string = "templatePalette.json";
+    static readonly templatePaletteFileName : string = "template.palette";
+    static readonly builtinPaletteFileName : string = "builtin.palette";
+
+    // schemas
+    static readonly graphSchemaFileName : string = "assets/schema/dlg-lg.graph.schema";
 
     // Dimensions.
     static readonly paletteNodeHeight : number = 22;
@@ -40,6 +44,8 @@ export class Config {
         "simple"
     ];
 
-    static readonly defaultRightWindowWidth : number = 300;
-    static readonly defaultLeftWindowWidth : number = 300;
+    static readonly defaultRightWindowWidth : number = 380;
+    static readonly defaultLeftWindowWidth : number = 310;
+
+    static readonly DEFAULT_PALETTE_REPOSITORY : string = "ICRAR/EAGLE_test_repo";
 }

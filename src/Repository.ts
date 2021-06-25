@@ -17,7 +17,8 @@ export class Repository {
     files : ko.ObservableArray<RepositoryFile>
     folders : ko.ObservableArray<RepositoryFolder>
 
-    static DUMMY = new Repository("Unknown", "", "", false);
+    // NOTE: I think we should be able to use the Eagle.RepositoryService.Unknown enum here, but it causes a javascript error. Not sure why.
+    static DUMMY = new Repository(<Eagle.RepositoryService>"Unknown", "", "", false);
 
     constructor(service : Eagle.RepositoryService, name : string, branch : string, isBuiltIn : boolean){
         this._id = Math.floor(Math.random() * 1000000000000);
@@ -33,12 +34,16 @@ export class Repository {
     }
 
     htmlId : ko.PureComputed<string> = ko.pureComputed(()=>{
-        return this.name.replace('/', '_');
+        return this.name.replace('/', '_') + '_' + this.branch;
     }, this);
 
     clear = () : void => {
         this.files.removeAll();
         this.folders.removeAll();
+    }
+
+    getNameAndBranch = () : string => {
+        return this.name + " (" + this.branch + ")";
     }
 
     // sorting order
@@ -71,8 +76,8 @@ export class Repository {
     }
 
     public static fileSortFunc = (a: string, b: string) : number => {
-        var aType : Eagle.FileType = Utils.getFileTypeFromFileName(a);
-        var bType : Eagle.FileType = Utils.getFileTypeFromFileName(b);
+        const aType : Eagle.FileType = Utils.getFileTypeFromFileName(a);
+        const bType : Eagle.FileType = Utils.getFileTypeFromFileName(b);
 
         if (aType !== bType){
             return aType - bType;

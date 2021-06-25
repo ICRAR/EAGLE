@@ -72,11 +72,11 @@ static_files = package_files('static')
 
 install_requires = [
     "flask",
-#    "pycrypto",
     "pygithub",
     "python-gitlab",
-    "sphinx",
-    "uwsgi"
+    "sphinx==3.2.1",
+    "yummy-sphinx-theme",
+    "six"
 ]
 
 setup(
@@ -91,7 +91,7 @@ setup(
     url="",
     license="",
     packages=find_packages(),
-    include_package_data=True,
+#    include_package_data=True,
     package_data={
         "EAGLE": ["README", "*.txt"],
         "templates": ["*.html"],

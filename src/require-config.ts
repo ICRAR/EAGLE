@@ -1,4 +1,4 @@
-declare var require: any;
+declare const require: any;
 require.config({
     /* waitSeconds: 30, */
     paths: {
@@ -9,10 +9,10 @@ require.config({
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
         "introjs": "./static/externals/intro.min",
         "d3": "./static/externals/d3.v5.min",
+        "ajv": "./static/externals/ajv.min",
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
         "bindingHandlers/graphRenderer":"./static/built/bindingHandlers/graphRenderer",
-        "bindingHandlers/paletteRenderer":"./static/built/bindingHandlers/paletteRenderer",
         "bindingHandlers/nodeDataProperty":"./static/built/bindingHandlers/nodeDataProperty",
         "components":"./static/built/components",
         "main":"./static/built/main",
@@ -33,6 +33,10 @@ require.config({
         "Edge": "./static/built/Edge",
         "Port": "./static/built/Port",
         "FileInfo": "./static/built/FileInfo",
-        "Setting": "./static/built/Setting"
+        "Setting": "./static/built/Setting",
+        "SideWindow": "./static/built/SideWindow",
+        "InspectorState": "./static/built/InspectorState",
+        "KeyboardShortcut": "./static/built/KeyboardShortcut",
+        "PaletteInfo": "./static/built/PaletteInfo"
     }
 });

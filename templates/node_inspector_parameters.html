@@ -1,17 +1,30 @@
 <div class="card">
-    <h5 class="card-header">
+    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse9" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Parameters">
+        <i class="material-icons interactive nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:inspectorState().parameters}">keyboard_arrow_down</i>
         <i class="material-icons">archive</i>
-        <span>Component Parameters</span>
+        <span class="nodeInspectorSubsectionTitle">Component Parameters</span>
     </h5>
-    <div class="card-body">
-        <!-- ko foreach: selectedNode().getFields() -->
-        <field params="data: $data, type: Eagle.FieldType.Field"></field>
-        <!-- /ko -->
+    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse9">
+        <div class="card-body" >
+            <!-- ko foreach: selectedNode().getFields() -->
+                <!-- ko ifnot: $data.isDaliugeField -->
+                    <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+                <!-- /ko -->
+            <!-- /ko -->
+            <!-- ko foreach: selectedNode().getFields() -->
+                <!-- ko if: $data.isDaliugeField -->
+                    <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+                <!-- /ko -->
+            <!-- /ko -->
 
-        <!-- ko ifnot: $root.selectionReadOnly -->
-        <button class="btn btn-secondary btn-block" id="nodeInspectorAddField" type="button" data-bind="click: $root.addFieldHTML">
-            <i class="material-icons md-18">add</i>
-        </button>
-        <!-- /ko -->
+            <!-- ko ifnot: selectedNode().isLocked()-->
+                <button class="btn btn-secondary btn-block" id="nodeInspectorAddField" type="button" data-bind="click: $root.addFieldHTML, attr:{title:'Add parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
+                    <i class="material-icons md-18">add</i>
+                </button>
+                <!-- ko if: selectedNode().category() === Eagle.Category.Docker -->
+                    <button class="btn btn-secondary btn-block mt-1" id="nodeInspectorFetchDocker" type="button" data-bind="click: $root.fetchDockerHTML, attr:{title:'Fetch docker image data from Docker Hub'}" data-toggle="tooltip" data-html="true" data-placement="left">Fetch from Docker Hub</button>
+                <!-- /ko -->
+            <!-- /ko -->
+        </div>
     </div>
 </div>

@@ -16,7 +16,6 @@
         "./src/bindingHandlers/readonly.ts",
         "./src/bindingHandlers/disabled.ts",
         "./src/bindingHandlers/graphRenderer.ts",
-        "./src/bindingHandlers/paletteRenderer.ts",
         "./src/bindingHandlers/nodeDataProperty.ts",
         "./src/components.ts",
         "./src/main.ts",
@@ -37,6 +36,9 @@
         "./src/Edge.ts",
         "./src/Port.ts",
         "./src/FileInfo.ts",
-        "./src/Setting.ts"
+        "./src/Setting.ts",
+        "./src/InspectorState.ts",
+        "./src/KeyboardShortcut.ts",
+        "./src/PaletteInfo.ts"
     ]
 }

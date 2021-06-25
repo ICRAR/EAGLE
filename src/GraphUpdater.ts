@@ -146,7 +146,7 @@ export class GraphUpdater {
         }
     ];
 
-    static translateOldCategory(category : string) : string {
+    static translateOldCategory(category : string) : Eagle.Category {
         if (typeof category === "undefined"){
             return Eagle.Category.Unknown;
         }
@@ -191,7 +191,7 @@ export class GraphUpdater {
             return Eagle.Category.File;
         }
 
-        return category;
+        return <Eagle.Category>category;
     }
 
     static translateNewCategory(category : string) : string {
@@ -200,10 +200,16 @@ export class GraphUpdater {
             return "Component";
         }
 
+        // NOTE: temporary fix until the translator supports Plasma nodes
+        if (category === Eagle.Category.Plasma){
+            console.warn("Translated category from", category, "to", Eagle.Category.File);
+            return Eagle.Category.File;
+        }
+
         return category;
     }
 
-    static translateOldCategoryType(categoryType : string, category : Eagle.Category) : string {
+    static translateOldCategoryType(categoryType : string, category : Eagle.Category) : Eagle.CategoryType {
         if (typeof categoryType === "undefined"){
             // try to determine categoryType based on category
             switch(category){
@@ -260,12 +266,12 @@ export class GraphUpdater {
             return Eagle.CategoryType.Data;
         }
 
-        return categoryType;
+        return <Eagle.CategoryType>categoryType;
     }
 
     // NOTE: for use in translation of OJS object to internal graph representation
     static findIndexOfNodeDataArrayWithKey(nodeDataArray : any[], key: number) : number {
-        for (var i = 0 ; i < nodeDataArray.length ; i++){
+        for (let i = 0 ; i < nodeDataArray.length ; i++){
             if (nodeDataArray[i].key === key){
                 return i;
             }
@@ -277,9 +283,9 @@ export class GraphUpdater {
     // extra functionality to check if any x,y coords of nodes are negative, if so, move them all into the +x/+y quadrant
     static correctOJSNegativePositions(graph : LogicalGraph) : boolean {
         // check if any nodes are negative
-        var anyNegative : boolean = false;
-        for (var i = 0 ; i < graph.getNodes().length ; i++){
-            var node : Node = graph.getNodes()[i];
+        let anyNegative : boolean = false;
+        for (let i = 0 ; i < graph.getNodes().length ; i++){
+            const node : Node = graph.getNodes()[i];
             if (node.getPosition().x < 0 || node.getPosition().y < 0){
                 anyNegative = true;
                 break;
@@ -292,10 +298,10 @@ export class GraphUpdater {
         }
 
         // find the most negative position
-        var maxX = 0;
-        var maxY = 0;
-        for (var i = 0 ; i < graph.getNodes().length ; i++){
-            var node : Node = graph.getNodes()[i];
+        let maxX = 0;
+        let maxY = 0;
+        for (let i = 0 ; i < graph.getNodes().length ; i++){
+            const node : Node = graph.getNodes()[i];
             if (node.getPosition().x < maxX){
                 maxX = node.getPosition().x;
             }
@@ -304,16 +310,11 @@ export class GraphUpdater {
             }
         }
 
-        // increase offset for all nodes to move them a "nice" distance away from the origin
-        maxX -= Node.DEFAULT_POSITION_X;
-        maxY -= Node.DEFAULT_POSITION_Y;
-        //console.log("maxX", maxX, "maxY", maxY);
-
         // move all nodes by -maxX, -maxY
-        for (var i = 0 ; i < graph.getNodes().length ; i++){
-            var node : Node = graph.getNodes()[i];
-            var newX : number = node.getPosition().x - maxX;
-            var newY : number = node.getPosition().y - maxY;
+        for (let i = 0 ; i < graph.getNodes().length ; i++){
+            const node : Node = graph.getNodes()[i];
+            const newX : number = node.getPosition().x - maxX;
+            const newY : number = node.getPosition().y - maxY;
             //console.log("move node", i, "from", node.getPosition().x, ",", node.getPosition().y, "to", newX, ",", newY);
 
             node.setPosition(newX, newY);

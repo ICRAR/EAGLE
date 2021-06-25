@@ -25,6 +25,7 @@
 import * as ko from "knockout";
 import * as $ from "jquery";
 
+import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {GitHub} from './GitHub';
@@ -33,10 +34,9 @@ import {GitLab} from './GitLab';
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
 
-import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
+import {KeyboardShortcut} from './KeyboardShortcut';
 
-var eagle : Eagle;
+let eagle : Eagle;
 
 $(function(){
     // Global variables.
@@ -46,6 +46,7 @@ $(function(){
     (<any>window).eagle = eagle;
     (<any>window).Eagle = Eagle;
     (<any>window).Utils = Utils;
+    (<any>window).Config = Config;
 
     ko.applyBindings(eagle);
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
@@ -56,22 +57,35 @@ $(function(){
 
     // init empty data structures
     eagle.logicalGraph(new LogicalGraph());
-    eagle.editorPalette(new Palette());
     eagle.palettes([]);
-    eagle.templatePalette(new Palette());
-
-    // Adjust interface to the graph editor mode.
-    eagle.setGraphEditorMode();
 
     // Show repository list.
     GitHub.loadRepoList(eagle);
     GitLab.loadRepoList(eagle);
 
     // load the default palette
+    if (Eagle.findSettingValue(Utils.OPEN_DEFAULT_PALETTE)){
+        eagle.loadPalettes([
+            {name:Palette.BUILTIN_PALETTE_NAME, filename:"./static/" + Config.builtinPaletteFileName, readonly:true},
+            {name:Palette.DYNAMIC_PALETTE_NAME, filename:"./static/" + Config.templatePaletteFileName, readonly:true}
+        ], (data: Palette[]):void => {
+            for (let i = 0; i < data.length; i++){
+                if (data[i] !== null){
+                    eagle.palettes.push(data[i]);
+                }
+            }
+            eagle.leftWindow().shown(true);
+
+            // destroy orphaned tooltips and initializing tooltip on document ready.
+            Eagle.reloadTooltips();
+        });
+    }
+
+    // load template palette (only used for Eagle.PaletteEditor)
     eagle.loadTemplatePalette();
 
-    // enable bootstrap tooltips
-    eagle.updateTooltips();
+    // load schemas
+    eagle.loadSchemas();
 
     // enable bootstrap accordion collapse
     $('.collapse').collapse();
@@ -80,13 +94,25 @@ $(function(){
     Utils.initModals(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
-    window.onbeforeunload = () => (eagle.activeFileInfo().modified && Eagle.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()) ? "Check graph" : null;
+    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Eagle.findSettingValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
 
-    // HACK: automatically load a graph (useful when iterating quickly during development)
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "LEAP-Work-Flow.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LeapMVP.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "", "SummitIngest_Demo.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "james-strauss-uwa/eagle-test", "master", false), "summit", "summit.graph"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE-graph-repo", "master", false), "leap", "LeapAccelerateCLI.palette"));
-    //eagle.selectFile(new RepositoryFile(new Repository(Eagle.RepositoryService.GitHub, "ICRAR/EAGLE_test_repo", "master", false), "", "everything2.palette"));
+    // keyboard shortcut event listener
+    document.onkeydown = KeyboardShortcut.processKey;
+
+    // HACK: without this global wheel event handler, d3 does not receive zoom events
+    //       not sure why, this wasn't always the case
+    document.onwheel = (ev: WheelEvent) => {};
+
+    const auto_load_service    = (<any>window).auto_load_service;
+    const auto_load_repository = (<any>window).auto_load_repository;
+    const auto_load_branch     = (<any>window).auto_load_branch;
+    const auto_load_path       = (<any>window).auto_load_path;
+    const auto_load_filename   = (<any>window).auto_load_filename;
+    //console.log("auto_load_service", auto_load_service, "auto_load_repository", auto_load_repository, "auto_load_branch", auto_load_branch, "auto_load_path", auto_load_path, "auto_load_filename", auto_load_filename);=
+
+    // cast the service string to an enum
+    const service: Eagle.RepositoryService = Eagle.RepositoryService[auto_load_service as keyof typeof Eagle.RepositoryService];
+
+    // auto load the file
+    eagle.autoLoad(service, auto_load_repository, auto_load_branch, auto_load_path, auto_load_filename);
 });

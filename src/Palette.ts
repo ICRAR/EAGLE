@@ -27,41 +27,44 @@ import * as ko from "knockout";
 import {Utils} from './Utils';
 import {Eagle} from './Eagle';
 import {Node} from './Node';
-import {Port} from './Port';
 import {FileInfo} from './FileInfo';
 import {RepositoryFile} from './RepositoryFile';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
-    private nodes : Node[];
+    private nodes : ko.ObservableArray<Node>;
+
+    public static readonly DYNAMIC_PALETTE_NAME: string = "All Nodes";
+    public static readonly BUILTIN_PALETTE_NAME: string = "Built-in Palette";
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Palette;
-        this.nodes = [];
+        this.nodes = ko.observableArray([]);
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, showErrors : boolean) : Palette => {
+    static fromOJSJson = (data : string, file : RepositoryFile, errors : string[]) : Palette => {
         // parse the JSON first
-        var dataObject : any = JSON.parse(data);
-        var errors : string[] = [];
+        const dataObject : any = JSON.parse(data);
 
         // TODO: use correct name from dataObject above
-        var result : Palette = new Palette();
+        const result : Palette = new Palette();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
-        for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
-            var nodeData = dataObject.nodeDataArray[i];
+        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            const nodeData = dataObject.nodeDataArray[i];
 
             // read node
-            var newNode : Node = Node.fromOJSJson(nodeData);
+            const newNode : Node = Node.fromOJSJson(nodeData, errors, (): number => {
+                return Utils.newKey(result.nodes());
+            });
 
             // check that node has no group
             if (newNode.getParentKey() !== null){
-                var error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
+                const error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
                 console.warn(error);
                 errors.push(error);
 
@@ -69,12 +72,12 @@ export class Palette {
             }
 
             // check that x, y, position is the default
-            if (newNode.getPosition().x !== Node.DEFAULT_POSITION_X || newNode.getPosition().y !== Node.DEFAULT_POSITION_Y){
-                var error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
+            if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
+                const error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
                 console.warn(error);
                 errors.push(error);
 
-                newNode.setPosition(Node.DEFAULT_POSITION_X, Node.DEFAULT_POSITION_Y);
+                newNode.setPosition(0, 0);
             }
 
             // add node to palette
@@ -83,25 +86,20 @@ export class Palette {
 
         // check for missing name
         if (result.fileInfo().name === ""){
-            var error : string = "FileInfo.name is empty. Setting name to " + file.name;
+            const error : string = "FileInfo.name is empty. Setting name to " + file.name;
             console.warn(error);
             errors.push(error);
 
             result.fileInfo().name = file.name;
         }
 
-        // check for duplicate keys
-
-        // show errors (if found)
-        if (errors.length > 0 && showErrors){
-            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
-        }
+        // TODO: check for duplicate keys
 
         return result;
     }
 
     static toOJSJson = (palette: Palette) : object => {
-        var result : any = {};
+        const result : any = {};
 
         //result.class = "go.GraphLinksModel";
 
@@ -109,8 +107,8 @@ export class Palette {
 
         // add nodes
         result.nodeDataArray = [];
-        for (var i = 0 ; i < palette.getNodes().length ; i++){
-            var node : Node = palette.getNodes()[i];
+        for (let i = 0 ; i < palette.nodes().length ; i++){
+            const node : Node = palette.nodes()[i];
             result.nodeDataArray.push(Node.toOJSJson(node));
         }
 
@@ -121,94 +119,87 @@ export class Palette {
     }
 
     getNodes = () : Node[] => {
-        return this.nodes;
+        return this.nodes();
     }
 
-    getNthNonDataNode = (n : number) : Node => {
-        var index : number = -1;
-
-        for (var i = 0 ; i < this.nodes.length ; i++){
-            if (this.nodes[i].getCategoryType() === Eagle.CategoryType.Data){
-                continue;
-            }
-            index += 1;
-
-            if (index === n){
-                return this.nodes[i];
-            }
-        }
-
-        return null;
+    getCollapseIcon = () : string => {
+         return "keyboard_arrow_down"
     }
 
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Palette;
-        this.nodes = [];
+        this.nodes([]);
     }
 
     clone = () : Palette => {
-        var result : Palette = new Palette();
+        const result : Palette = new Palette();
 
         result.fileInfo(this.fileInfo().clone());
 
-        for (var i = 0 ; i < this.nodes.length ; i++){
-            var n_clone = this.nodes[i].clone();
+        for (let i = 0 ; i < this.nodes().length ; i++){
+            const n_clone = this.nodes()[i].clone();
             result.nodes.push(n_clone);
         }
 
         return result;
     }
 
-    addNode = (node: Node) : void => {
-        this.nodes.push(node);
+    // add the node to the end of the palette
+    // NOTE: clones the node internally
+    addNode = (node: Node, force: boolean) : void => {
+        // copy node
+        const newNode : Node = node.clone();
+
+        // set appropriate key for node (one that is not already in use)
+        newNode.setKey(Utils.newKey(this.getNodes()));
+        newNode.setReadonly(false);
+        newNode.setEmbedKey(null);
+        newNode.setInputApplication(null);
+        newNode.setOutputApplication(null);
+        newNode.setExitApplication(null);
+
+        if (force){
+            //console.log("Copy node", newNode.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
+            this.nodes.push(newNode);
+            return;
+        }
+
+        // try to find a matching node that already exists in the palette
+        // TODO: at the moment, we only match by name and category, but we should match by ID (once the ID is unique)
+        for (let i = 0 ; i < this.getNodes().length; i++){
+            const paletteNode = this.getNodes()[i];
+
+            if (paletteNode.getName() === newNode.getName() && paletteNode.getCategory() === newNode.getCategory()){
+                this.replaceNode(i, newNode);
+                //console.log("Replace node", newNode.getName(), "in destination palette", palette.fileInfo().name);
+                return;
+            }
+        }
+
+        // if we didn't find a matching node to replace, add it as a new node
+        this.nodes.push(newNode);
     }
 
+
     findNodeByKey = (key : number) : Node => {
-        for (var i = this.nodes.length - 1; i >= 0 ; i--){
-            if (this.nodes[i].getKey() === key){
-                return this.nodes[i];
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getKey() === key){
+                return this.nodes()[i];
             }
         }
         return null;
     }
 
     removeNodeByKey = (key : number) : void => {
-        for (var i = this.nodes.length - 1; i >= 0 ; i--){
-            if (this.nodes[i].getKey() === key){
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getKey() === key){
                 this.nodes.splice(i, 1);
             }
         }
     }
 
-    /**
-     * Add event type I/O ports.
-     *
-     * NOTE: don't add anything to groups, since ports should be added to inputApplication and outputApplication, and they don't exist yet
-     */
-    addEventPorts = () : void => {
-        for (var i = 0 ; i < this.nodes.length ; i++){
-            let n = this.nodes[i];
-
-            // add event ports
-            if (n.getCategoryType() === Eagle.CategoryType.Application ||
-                n.getCategoryType() === Eagle.CategoryType.Data) {
-                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
-                n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false); // external output
-            }
-            else if (n.getCategoryType() === Eagle.CategoryType.Control) {
-                if (n.getCategory() === Eagle.Category.Start) {
-                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), false); // external output
-                }
-                else if (n.getCategory() === Eagle.Category.End) {
-                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
-                }
-            }
-            else if (n.getCategoryType() === Eagle.CategoryType.Other){
-                if (n.getCategory() === Eagle.Category.Service){
-                    n.addPort(new Port(Utils.uuidv4(), Port.DEFAULT_EVENT_PORT_NAME, true), true); // external input
-                }
-            }
-        }
+    replaceNode = (index : number, newNode : Node) : void => {
+        this.nodes.splice(index, 1, newNode);
     }
 }

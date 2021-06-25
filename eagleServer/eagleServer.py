@@ -27,10 +27,13 @@ import sys
 import tempfile
 import six
 
+import urllib.request
+import ssl
+
 import github
 import gitlab
 import pkg_resources
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, send_from_directory
 
 import config.config
 from config.config import GITHUB_DEFAULT_REPO_LIST
@@ -55,6 +58,7 @@ TEMP_FILE_FOLDER = config.config.TEMP_FILE_FOLDER
 
 templdir = pkg_resources.resource_filename(__name__, "../templates")
 staticdir = pkg_resources.resource_filename(__name__, "../static")
+srcdir = pkg_resources.resource_filename(__name__, "../src")
 
 app = Flask(__name__, template_folder=templdir, static_folder=staticdir)
 app.config.from_object("config")
@@ -62,7 +66,7 @@ app.config.from_object("config")
 version = "Unknown"
 commit_hash = "Unknown"
 try:
-    with open("VERSION") as vfile:
+    with open(staticdir+"/VERSION") as vfile:
         for line in vfile.readlines():
             if "SW_VER" in line:
                 version = line.split("SW_VER ")[1].strip()[1:-1]
@@ -82,7 +86,24 @@ def hack():
 
 @app.route("/")
 def index():
-    return render_template("base.html", version=version, commit_hash=commit_hash)
+    service    = request.args.get("service")
+    repository = request.args.get("repository")
+    branch     = request.args.get("branch")
+    path       = request.args.get("path")
+    filename   = request.args.get("filename")
+
+    # if the url does not specify a graph to load, just send render the default template with no additional information
+    if service is None or repository is None or branch is None or path is None or filename is None:
+        return render_template("base.html", version=version, commit_hash=commit_hash)
+
+    return render_template("base.html", version=version, commit_hash=commit_hash, auto_load_service=service, auto_load_repository=repository, auto_load_branch=branch, auto_load_path=path, auto_load_filename=filename)
+
+
+@app.route('/src/<path:filename>')
+# This enables debugging in a docker based environment, else the TS files
+# are not accessible.
+def send_src(filename):
+    return send_from_directory(srcdir, filename)
 
 
 @app.route("/uploadFile", methods=["POST"])
@@ -273,14 +294,90 @@ def get_git_lab_files_all():
     try:
         project = gl.projects.get(repo_name)
         items = project.repository_tree(recursive='true', all=True, ref=repo_branch)
-    except gitlab.GitlabGetError as gge:
+    except gitlab.exceptions.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
-        return jsonify({"error": gge.message})
+        return jsonify({"error": "Unable to get repository. Please check the repository and branch names are correct."})
 
     d = parse_gitlab_folder(items, "")
 
     # return correct result
     return jsonify(d)
+
+
+@app.route("/getDockerImages", methods=["POST"])
+def get_docker_images():
+    content = request.get_json(silent=True)
+
+    try:
+        user_name = content["username"]
+    except KeyError as ke:
+        print("KeyError: {0}".format(str(ke)))
+        return jsonify({"error":"Username not specified in request"})
+
+    docker_url = "https://hub.docker.com/v2/repositories/" + user_name + "/"
+
+    # avoid ssl errors when fetching a URL using urllib.request
+    # https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+    with urllib.request.urlopen(docker_url) as url:
+        data = json.loads(url.read().decode())
+        #print(data)
+
+    return jsonify(data)
+
+
+@app.route("/getDockerImageTags", methods=["POST"])
+def get_docker_image_tags():
+    content = request.get_json(silent=True)
+
+    try:
+        image_name = content["imagename"]
+    except KeyError as ke:
+        print("KeyError: {0}".format(str(ke)))
+        return jsonify({"error":"Imagename not specified in request"})
+
+    docker_url = "https://registry.hub.docker.com/v2/repositories/" + image_name + "/tags"
+
+    # avoid ssl errors when fetching a URL using urllib.request
+    # https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+    with urllib.request.urlopen(docker_url) as url:
+        data = json.loads(url.read().decode())
+        #print(data)
+
+    return jsonify(data)
+
+
+@app.route("/getExplorePalettes", methods=["POST"])
+def get_explore_palettes():
+    content = request.get_json(silent=True)
+
+    try:
+        repo_name = content["repository"]
+        repo_branch = content["branch"]
+        repo_token = content["token"]
+    except KeyError as ke:
+        print("KeyError {1}: {0}".format(str(ke), repo_name))
+        return jsonify({"error":"Repository, Branch or Token not specified in request"})
+
+    # Extracting the true repo name and repo folder.
+    folder_name, repo_name = extract_folder_and_repo_names(repo_name)
+    g = github.Github(repo_token)
+
+    try:
+        repo = g.get_repo(repo_name)
+    except github.UnknownObjectException as uoe:
+        print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
+        return jsonify({"error":uoe.message})
+
+    # get results
+    d = find_github_palettes(repo, "", repo_branch)
+
+    # return correct result
+    return jsonify(d)
+
 
 @app.route("/saveFileToRemoteGithub", methods=["POST"])
 def save_git_hub_file():
@@ -299,7 +396,17 @@ def save_git_hub_file():
         filename = folder_name + "/" + filename
 
     g = github.Github(repo_token)
-    repo = g.get_repo(repo_name)
+
+    # get repo
+    try:
+        repo = g.get_repo(repo_name)
+    except github.GithubException as e:
+        print(
+            "Error in get_repo({0})! Repo: {1} Status: {2} Data: {3}".format(
+                "heads/" + repo_branch, str(repo_name), e.status, e.data
+            )
+        )
+        return jsonify({"error": e.data["message"]}), 400
 
     # Set branch
     try:
@@ -330,14 +437,23 @@ def save_git_hub_file():
     # Commit to GitHub repo.
     latest_commit = repo.get_git_commit(branch_sha)
     base_tree = latest_commit.tree
-    new_tree = repo.create_git_tree(
-        [
-            github.InputGitTreeElement(
-                path=filename, mode="100644", type="blob", content=json_data
+    try:
+        new_tree = repo.create_git_tree(
+            [
+                github.InputGitTreeElement(
+                    path=filename, mode="100644", type="blob", content=json_data
+                )
+            ],
+            base_tree,
+        )
+    except github.GithubException as e:
+        # repository might not have permission
+        print(
+            "Error in create_git_tree({0})! Repo: {1} Status: {2} Data: {3}".format(
+                "heads/" + repo_branch, str(repo_name), e.status, e.data
             )
-        ],
-        base_tree,
-    )
+        )
+        return jsonify({"error": e.data["message"]}), 400
 
     new_commit = repo.create_git_commit(
         message=commit_message, parents=[latest_commit], tree=new_tree
@@ -450,15 +566,22 @@ def open_git_lab_file():
     if folder_name != "":
         filename = folder_name + "/" + filename
 
+    #print("folder_name", folder_name, "repo_name", repo_name, "filename", filename)
+
     # get the data from gitlab
     gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
     gl.auth()
 
     project = gl.projects.get(repo_name)
-    f = project.files.get(file_path=filename, ref=repo_branch)
+
+    try:
+        f = project.files.get(file_path=filename, ref=repo_branch)
+    except gitlab.exceptions.GitlabGetError as gle:
+        print("GitLabGetError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
+        return app.response_class(response=str(gle), status=404, mimetype="application/json")
 
     # get the decoded content
-    raw_data = f.decode()
+    raw_data = f.decode().decode("utf-8")
 
     # Add the GitHub file reference.
     #graph = json.loads(raw_data)
@@ -505,12 +628,17 @@ def parse_gitlab_folder(items, path):
             folders = path.split('/')
             #print("tree", name, path, folders)
 
+            # find folder in hierarchy
             x = result
-            for folder in folders:
-                #print("Add", folder, "to", x)
-                if folder not in x:
-                    x[folder] = {"" : []};
-                x = x[folder]
+            for i in range(0, len(folders[:-1])):
+                partialPath = "/".join(folders[:i+1])
+                #print("partialPath", partialPath)
+                x = x[partialPath]
+
+            #print("Add", path, "to", x)
+            if path not in x:
+                x[path] = {"" : []};
+            #print("result", result);
 
         if item[u'type'] == u'blob':
             name = item[u'name']
@@ -519,9 +647,38 @@ def parse_gitlab_folder(items, path):
             #print("blob", name, path, folders)
 
             x = result
-            for folder in folders[:-1]:
-                x = x[folder]
+            for i in range(1, len(folders)):
+                partialPath = "/".join(folders[:i])
+                x = x[partialPath]
             x[""].append(item[u'name'])
+
+    return result
+
+
+def find_github_palettes(repo, path, branch):
+    result = []
+
+    # Getting repository file list
+    try:
+        contents = repo.get_contents(path, ref=branch)
+    except github.GithubException as ghe:
+        print("GitHubException {1} ({2}): {0}".format(str(ghe), repo.full_name, branch))
+        return ghe.data["message"]
+
+    while contents:
+        file_content = contents.pop(0)
+
+        if file_content.type == "dir":
+            palettes = find_github_palettes(repo, file_content.path, branch)
+            for palette in palettes:
+                result.append(palette)
+        else:
+            if file_content.name.endswith(".palette"):
+                if '/' in file_content.path:
+                    path_without_filename = file_content.path[:file_content.path.rindex('/')]
+                else:
+                    path_without_filename = ""
+                result.append({"name":file_content.name, "path":path_without_filename})
 
     return result
 

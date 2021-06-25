@@ -1,6 +1,3 @@
-import {Utils} from './Utils';
-import {Eagle} from './Eagle';
-
 import * as ko from "knockout";
 
 ko.components.register('repository-file', {
@@ -38,24 +35,25 @@ ko.components.register('repository', {
     template: { require: "text!static/components/repository.html" }
 });
 
-// custom component for a field (or appField)
+// custom component for a field
 ko.components.register('field', {
-    viewModel: function(params : {data : any, type : any, input : boolean}){
-        var vm = params.data;
-        vm.type = params.type;
-        vm.input = params.input;
+    viewModel: function(params : {data : any, ro: boolean}){
+        const vm = params.data;
+        vm.ro = params.ro;
         return vm;
     },
     template: { require: "text!static/components/field.html" }
 });
 
 ko.components.register('port', {
-    viewModel: function(params : {id : string, name : string, multiplicity : number, isEventPort : boolean, input : boolean, local: boolean}){
+    viewModel: function(params : {id : string, name : string, description: string, multiplicity : number, isEventPort : boolean, toggleEvent : boolean, input : boolean, local: boolean}){
         return {
             id: params.id,
             name: params.name,
+            description: params.description,
             multiplicity: params.multiplicity,
             isEventPort: params.isEventPort,
+            toggleEvent: params.toggleEvent,
             input: params.input,
             local: params.local
         };
@@ -73,7 +71,7 @@ ko.components.register('hierarchy', {
 
 ko.components.register('hierarchy-node', {
     viewModel: function(params : {data : any, parentKey : number | null, select : Function}){
-        this.name = params.data.name.trim() === "" ? params.data.category : params.data.name;
+        this.name = params.data.name().trim() === "" ? params.data.category : params.data.name;
         this.key = params.data.key;
         this.parentKey = params.data.parentKey;
         this.expanded = params.data.expanded;
@@ -98,7 +96,7 @@ ko.components.register('inspector-component', {
 // custom component for a component that appears in the palette
 ko.components.register('palette-component', {
     viewModel: function(params : {data : any, paletteIndex : any, index : any}){
-        let vm = params.data;
+        const vm = params.data;
         vm.paletteIndex = params.paletteIndex;
         vm.index = params.index;
         return vm;

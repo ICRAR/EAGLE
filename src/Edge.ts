@@ -57,16 +57,32 @@ export class Edge {
         return this.srcNodeKey;
     }
 
+    setSrcNodeKey = (key: number): void => {
+        this.srcNodeKey = key;
+    }
+
     getSrcPortId = () : string => {
         return this.srcPortId;
+    }
+
+    setSrcPortId = (id: string) : void => {
+        this.srcPortId = id;
     }
 
     getDestNodeKey = () : number => {
         return this.destNodeKey;
     }
 
+    setDestNodeKey = (key: number): void => {
+        this.destNodeKey = key;
+    }
+
     getDestPortId = () : string => {
         return this.destPortId;
+    }
+
+    setDestPortId = (id: string) : void => {
+        this.destPortId = id;
     }
 
     getDataType = () : string => {
@@ -77,7 +93,7 @@ export class Edge {
         return this.loopAware;
     }
 
-    setLoopAware = (value : boolean) => {
+    setLoopAware = (value : boolean) : void => {
         this.loopAware = value;
     }
 
@@ -96,7 +112,7 @@ export class Edge {
     }
 
     clone = () : Edge => {
-        var result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType);
+        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType);
 
         result._id = this._id;
         result.loopAware = this.loopAware;
@@ -124,11 +140,62 @@ export class Edge {
         }
     }
 
+    static fromV3Json = (edgeData: any, errors: string[]): Edge => {
+        const edge = new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown);
+        edge.loopAware = edgeData.loop_aware === "1";
+        return edge;
+    }
+
+    static toAppRefJson = (edge : Edge) : object => {
+        return {
+            from: edge.srcNodeKey,
+            fromPort: edge.srcPortId,
+            to: edge.destNodeKey,
+            toPort: edge.destPortId,
+            loopAware: edge.loopAware,
+            dataType: edge.dataType
+        };
+    }
+
+    static fromAppRefJson = (edgeData: any, errors: string[]): Edge => {
+        //console.log("Edge.fromAppRefJson()", edgeData);
+        const edge = new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType);
+        edge.loopAware = edgeData.loopAware;
+        return edge;
+    }
+
+
     static isValid = (graph : LogicalGraph, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, showNotification : boolean, showConsole : boolean) : Eagle.LinkValid => {
         //console.log("IsValid()", "sourceNodeKey", sourceNodeKey, "sourcePortId", sourcePortId, "destinationNodeKey", destinationNodeKey, "destinationPortId", destinationPortId);
 
-        var sourceNode : Node = graph.findNodeByKey(sourceNodeKey);
-        var destinationNode : Node = graph.findNodeByKey(destinationNodeKey);
+        // check for problems
+        if (isNaN(sourceNodeKey)){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        if (isNaN(destinationNodeKey)){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        if (sourcePortId === ""){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        if (destinationPortId === ""){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        if (sourcePortId === null){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        if (destinationPortId === null){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        // get references to actual source and destination nodes (from the keys)
+        const sourceNode : Node = graph.findNodeByKey(sourceNodeKey);
+        const destinationNode : Node = graph.findNodeByKey(destinationNodeKey);
 
         if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
             //Utils.showNotification("Unknown Error", "sourceNode or destinationNode cannot be found", "danger");
@@ -150,13 +217,13 @@ export class Edge {
         // if source node is a memory, and destination is a Group with inputApplicationType BashShellApp
         // this is not supported. How would a BashShellApp read data from another process?
         if ((sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.getCategory() === Eagle.Category.BashShellApp) ||
-            (sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.getInputApplication() !== null && destinationNode.getInputApplication().getCategory() === Eagle.Category.BashShellApp)){
+            (sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.hasInputApplication() && destinationNode.getInputApplication().getCategory() === Eagle.Category.BashShellApp)){
             Edge.isValidLog("Invalid Edge", "Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", "danger", showNotification, showConsole);
             return Eagle.LinkValid.Invalid;
         }
 
-        var sourcePort : Port = sourceNode.findPortById(sourcePortId);
-        var destinationPort : Port = destinationNode.findPortById(destinationPortId);
+        const sourcePort : Port = sourceNode.findPortById(sourcePortId);
+        const destinationPort : Port = destinationNode.findPortById(destinationPortId);
 
         if (sourcePort === null || destinationPort === null){
             //Utils.showNotification("Unknown Error", "sourcePort or destinationPort cannot be found", "danger");
@@ -183,17 +250,21 @@ export class Edge {
         }
 
         // check relationship between destination and source node
-        var isParent : boolean = sourceNode.getParentKey() === destinationNodeKey;
-        var isChild : boolean = destinationNode.getParentKey() === sourceNodeKey;
-        var isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey();
-        var parentIsEFN : boolean = false;
+        const isParent : boolean = sourceNode.getParentKey() === destinationNodeKey;
+        const isChild : boolean = destinationNode.getParentKey() === sourceNodeKey;
+        const isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey();
+        let parentIsEFN : boolean = false;
 
         // determine if the new edge is crossing a ExclusiveForceNode boundary
-        if (graph.findNodeByKey(destinationNode.getParentKey()) !== null){
-            parentIsEFN = graph.findNodeByKey(destinationNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
+        if (destinationNode.getParentKey() !== null){
+            if (graph.findNodeByKey(destinationNode.getParentKey()) !== null){
+                parentIsEFN = graph.findNodeByKey(destinationNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
+            }
         }
-        if (graph.findNodeByKey(sourceNode.getParentKey()) !== null){
-            parentIsEFN = graph.findNodeByKey(sourceNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
+        if (sourceNode.getParentKey() !== null){
+            if (graph.findNodeByKey(sourceNode.getParentKey()) !== null){
+                parentIsEFN = graph.findNodeByKey(sourceNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
+            }
         }
 
         // if a node is connecting to its parent, it must connect to the local port

@@ -1,0 +1,38 @@
+WEBVTT - Some title
+
+00:00.000 --> 00:02.742
+This video will walk you through saving a graph to a Git repository
+
+00:02.743 --> 00:05.970
+If the repositories aren't open, access them by clicking the "Repositories" button.
+
+00:05.971 --> 00:09.628
+To add a new repository to the list, you need to have write access to it.
+
+00:09.629 --> 00:18.557
+Enter the details about your repository, including which service you are using, its name and its branch. On GitHub, the branch may be "master" or it may be "main", depending on whether it was created before or after October 2020.
+
+00:18.558 --> 00:23.151
+You will also need to enter a GitHub access token for the account that has write access for this repository. It will need at minimum the permissions "read:public_key", "read:user", and "repo".
+
+00:23.152 --> 00:30.283
+To create a GitHub access token, navigate to GitHub and log in.
+
+00:30.284 --> 00:46.999
+You will need to go to your account settings, then to "Developer settings", and click on "Personal access tokens". This will take you to the page where you can generate a new token.
+
+00:47.000 --> 01:00.589
+Each personal access token needs a unique description, which you enter in the text box. The video will show you where to locate the required permissions.
+
+01:00.590 --> 01:04.380
+If you click the clipboard icon, it will copy the token to your clipboard. After you navigate away from this page, you will not be shown this token again. You can re-generate it later, or create a new one, but otherwise you will need to save this string somewhere safe.
+
+01:04.381 --> 01:11.257
+Back in Eagle, you may now enter the access token you have copied.
+
+01:11.258 --> 01:35.258
+Click on the Git Storage menu and select "Save Graph As" to save the graph to GitHub. The information for the repository you added earlier will need to be filled in.
+
+01:35.259 --> 01:37.000
+The graph is committed successfully.
+

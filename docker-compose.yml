@@ -1,7 +1,0 @@
-version: '2'
-services:
-    alpine:
-        restart: "no"
-        build: .
-        ports:
-            - 8888:80/tcp

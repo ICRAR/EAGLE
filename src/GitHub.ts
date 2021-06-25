@@ -40,21 +40,21 @@ export class GitHub {
             }
 
             // remove all GitHub repos from the list of repositories
-            for (var i = eagle.repositories().length - 1 ; i >= 0 ; i--){
+            for (let i = eagle.repositories().length - 1 ; i >= 0 ; i--){
                 if (eagle.repositories()[i].service === Eagle.RepositoryService.GitHub)
                     eagle.repositories.splice(i, 1);
             }
 
             // add the repositories from the POST response
-            for (var i = 0 ; i < data.length ; i++){
+            for (let i = 0 ; i < data.length ; i++){
                 eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, data[i].repository, data[i].branch, true));
             }
 
             // search for custom repositories in localStorage, and add them into the list
-            for (var i = 0; i < localStorage.length; i++) {
-                var key : string = localStorage.key(i);
-                var value : string = localStorage.getItem(key);
-                var keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
+            for (let i = 0; i < localStorage.length; i++) {
+                const key : string = localStorage.key(i);
+                const value : string = localStorage.getItem(key);
+                const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
 
                 // handle legacy repositories where the service and branch are not specified (assume github and master)
                 if (keyExtension === "repository"){
@@ -68,8 +68,8 @@ export class GitHub {
 
                 // handle the current method of storing repositories where both the service and branch are specified
                 if (keyExtension === "github_repository_and_branch"){
-                    var repositoryName = value.split("|")[0];
-                    var repositoryBranch = value.split("|")[1];
+                    const repositoryName = value.split("|")[0];
+                    const repositoryBranch = value.split("|")[1];
                     eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, repositoryName, repositoryBranch, false));
                 }
             }
@@ -80,18 +80,12 @@ export class GitHub {
     }
 
     /**
-     * Returns the GitHub access token.
-     */
-    static getAccessToken() : string {
-        return localStorage[Utils.GITHUB_ACCESS_TOKEN_KEY];
-    }
-
-    /**
      * Shows the remote files on the GitHub.
      */
     static loadRepoContent(repository : Repository) : void {
-        var token = GitHub.getAccessToken();
-        if (token == undefined) {
+        const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+
+        if (token === null) {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
             return;
         }
@@ -100,7 +94,7 @@ export class GitHub {
         repository.isFetching(true);
 
         // Add parameters in json data.
-        var jsonData = {
+        const jsonData = {
             repository: repository.name,
             branch: repository.branch,
             token: token,
@@ -133,14 +127,17 @@ export class GitHub {
 
             console.log("/getGitHubFiles reply", data, typeof data);
 
-            var fileNames : string[] = data[""];
+            const fileNames : string[] = data[""];
+
+            // debug
+            Utils.addToHTMLElementLog("fileNames:" + fileNames);
 
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
 
             // add files to repo
-            for (var i = 0 ; i < fileNames.length ; i++){
-                var fileName : string = fileNames[i];
+            for (let i = 0 ; i < fileNames.length ; i++){
+                const fileName : string = fileNames[i];
 
                 // Show only the files with allowed extenstion.
                 if (!Utils.verifyFileExtension(fileName)) {
@@ -152,28 +149,29 @@ export class GitHub {
 
 
             // add folders to repo
-            for (var path in data){
+            for (const path in data){
                 // skip the root directory
                 if (path === "")
                     continue;
 
                 repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
             }
+            Eagle.reloadTooltips();
         });
     }
 
     private static parseFolder = (repository : Repository, path : string, data : any) : RepositoryFolder => {
-        var folderName : string = path.substring(path.lastIndexOf('/') + 1);
-        var folder = new RepositoryFolder(folderName);
+        const folderName : string = path.substring(path.lastIndexOf('/') + 1);
+        const folder = new RepositoryFolder(folderName);
 
-        var fileNames : string[] = data[""];
+        const fileNames : string[] = data[""];
 
         // sort the fileNames
         fileNames.sort(Repository.fileSortFunc);
 
         // add files to repo
-        for (var i = 0 ; i < fileNames.length ; i++){
-            var fileName : string = fileNames[i];
+        for (let i = 0 ; i < fileNames.length ; i++){
+            const fileName : string = fileNames[i];
 
             // Show only the files with allowed extenstion.
             if (!Utils.verifyFileExtension(fileName)) {
@@ -184,7 +182,7 @@ export class GitHub {
         }
 
         // add folders to repo
-        for (var subdir in data){
+        for (const subdir in data){
             // skip the root directory
             if (subdir === "")
                 continue;
@@ -200,17 +198,17 @@ export class GitHub {
      * @param filePath File path.
      */
     static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        var token = GitHub.getAccessToken();
+        const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
 
-        if (token == undefined) {
+        if (token === null) {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
             return;
         }
 
-        var fullFileName : string = Utils.joinPath(filePath, fileName);
+        const fullFileName : string = Utils.joinPath(filePath, fileName);
 
         // Add parameters in json data.
-        var jsonData = {
+        const jsonData = {
             repositoryName: repositoryName,
             repositoryBranch: repositoryBranch,
             repositoryService: repositoryService,
