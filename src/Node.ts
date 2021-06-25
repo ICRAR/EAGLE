@@ -1747,33 +1747,33 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
-        result.categoryType = node.categoryType;
+        result.categoryType = node.categoryType();
         result.isData = node.isData();
         result.isGroup = node.isGroup();
         result.canHaveInputs = node.canHaveInputs();
         result.canHaveOutputs = node.canHaveOutputs();
-        result.color = node.color;
+        result.color = node.color();
         result.drawOrderHint = node.drawOrderHint();
 
-        result.key = node.key;
+        result.key = node.key();
         result.text = node.name();
         result.description = node.description();
-        result.x = node.x;
-        result.y = node.y;
-        result.width = node.width;
-        result.height = node.height;
-        result.collapsed = node.collapsed;
-        result.showPorts = node.showPorts;
-        result.flipPorts = node.flipPorts;
-        result.streaming = node.streaming;
-        result.precious = node.precious;
-        result.subject = node.subject;
+        result.x = node.x();
+        result.y = node.y();
+        result.width = node.width();
+        result.height = node.height();
+        result.collapsed = node.collapsed();
+        result.showPorts = node.showPorts();
+        result.flipPorts = node.flipPorts();
+        result.streaming = node.streaming();
+        result.precious = node.precious();
+        result.subject = node.subject();
         result.selected = node.selected();
         result.expanded = node.expanded();
         result.readonly = node.readonly();
 
-        result.parentKey = node.parentKey;
-        result.embedKey = node.embedKey;
+        result.parentKey = node.parentKey();
+        result.embedKey = node.embedKey();
 
         // add input ports
         result.inputPorts = [];
@@ -1807,22 +1807,22 @@ export class Node {
     static fromAppRefJson = (nodeData : any, errors: string[]) : Node => {
         const node = new Node(nodeData.key, nodeData.text, nodeData.description, nodeData.category, nodeData.categoryType, nodeData.readonly);
 
-        node.color = nodeData.color;
+        node.color(nodeData.color);
         node.drawOrderHint(nodeData.drawOrderHint);
-        node.x = nodeData.x;
-        node.y = nodeData.y;
-        node.width = nodeData.width;
-        node.height = nodeData.height;
-        node.collapsed = nodeData.collapsed;
-        node.showPorts = nodeData.showPorts;
-        node.flipPorts = nodeData.flipPorts;
-        node.streaming = nodeData.streaming;
-        node.precious = nodeData.precious;
-        node.subject = nodeData.subject;
+        node.x(nodeData.x);
+        node.y(nodeData.y);
+        node.width(nodeData.width);
+        node.height(nodeData.height);
+        node.collapsed(nodeData.collapsed);
+        node.showPorts(nodeData.showPorts);
+        node.flipPorts(nodeData.flipPorts);
+        node.streaming(nodeData.streaming);
+        node.precious(nodeData.precious);
+        node.subject(nodeData.subject);
         node.selected(nodeData.selected);
         node.expanded(nodeData.expanded);
-        node.parentKey = nodeData.parentKey;
-        node.embedKey = nodeData.embedKey;
+        node.parentKey(nodeData.parentKey);
+        node.embedKey(nodeData.embedKey);
 
         node.inputPorts([]);
         for (let i = 0 ; i < nodeData.inputPorts.length ; i++){
@@ -1848,16 +1848,16 @@ export class Node {
 
         result.componentKey = index.toString();
 
-        result.color = node.color;
+        result.color = node.color();
         result.drawOrderHint = node.drawOrderHint();
 
-        result.x = node.x;
-        result.y = node.y;
-        result.width = node.width;
-        result.height = node.height;
-        result.collapsed = node.collapsed;
-        result.showPorts = node.showPorts;
-        result.flipPorts = node.flipPorts;
+        result.x = node.x();
+        result.y = node.y();
+        result.width = node.width();
+        result.height = node.height();
+        result.collapsed = node.collapsed();
+        result.showPorts = node.showPorts();
+        result.flipPorts = node.flipPorts();
 
         result.selected = node.selected();
         result.expanded = node.expanded();
@@ -1869,16 +1869,16 @@ export class Node {
     static fromV3NodeJson = (nodeData : any, key: string, errors: string[]) : Node => {
         const result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown, Eagle.CategoryType.Unknown, nodeData.readonly);
 
-        result.color = nodeData.color;
+        result.color(nodeData.color);
         result.drawOrderHint(nodeData.drawOrderHint);
 
-        result.x = nodeData.x;
-        result.y = nodeData.y;
-        result.width = nodeData.width;
-        result.height = nodeData.height;
-        result.collapsed = nodeData.collapsed;
-        result.showPorts = nodeData.showPorts;
-        result.flipPorts = nodeData.flipPorts;
+        result.x(nodeData.x);
+        result.y(nodeData.y);
+        result.width(nodeData.width);
+        result.height(nodeData.height);
+        result.collapsed(nodeData.collapsed);
+        result.showPorts(nodeData.showPorts);
+        result.flipPorts(nodeData.flipPorts);
 
         result.selected(nodeData.selected);
         result.expanded(nodeData.expanded);
@@ -1893,20 +1893,20 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
-        result.categoryType = node.categoryType;
+        result.categoryType = node.categoryType();
         result.isData = node.isData();
         result.isGroup = node.isGroup();
 
         result.name = node.name();
         result.description = node.description();
 
-        result.streaming = node.streaming;
-        result.precious = node.precious;
-        result.subject = node.subject; // TODO: not sure if this should be here or in Node JSON
+        result.streaming = node.streaming();
+        result.precious = node.precious();
+        result.subject = node.subject(); // TODO: not sure if this should be here or in Node JSON
 
 
-        result.parentKey = node.parentKey;
-        result.embedKey = node.embedKey;
+        result.parentKey = node.parentKey();
+        result.embedKey = node.embedKey();
 
         result.inputApplicationKey = -1;
         result.outputApplicationKey = -1;
@@ -1938,16 +1938,16 @@ export class Node {
 
     static fromV3ComponentJson = (nodeData: any, node: Node, errors: string[]): void => {
         node.category(nodeData.category);
-        node.categoryType = nodeData.categoryType;
+        node.categoryType(nodeData.categoryType);
         node.name(nodeData.name);
         node.description(nodeData.description);
 
-        node.streaming = nodeData.streaming;
-        node.precious = nodeData.precious;
-        node.subject = nodeData.subject;
+        node.streaming(nodeData.streaming);
+        node.precious(nodeData.precious);
+        node.subject(nodeData.subject);
 
-        node.parentKey = nodeData.parentKey;
-        node.embedKey = nodeData.embedKey;
+        node.parentKey(nodeData.parentKey);
+        node.embedKey(nodeData.embedKey);
     }
 
     static createEmbeddedApplicationNode = (key: number, name : string, category: Eagle.Category, embedKey: number, readonly: boolean) : Node => {
