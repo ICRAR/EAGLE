@@ -3267,6 +3267,8 @@ export class Eagle {
         //console.log("startDrag", node ? node.getName() : node)
         this.isDragging(true);
         this.draggingNode(node);
+
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Graph);
     }
 
     endDrag = (node: Node) : void => {

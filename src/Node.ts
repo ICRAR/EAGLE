@@ -85,7 +85,8 @@ export class Node {
     public static readonly DATA_COMPONENT_WIDTH : number = 48;
     public static readonly DATA_COMPONENT_HEIGHT : number = 48;
 
-    public static readonly NO_APP_STRING : string = "<no app>";
+    public static readonly NO_APP_STRING : string = "-no app-";
+    public static readonly NO_APP_NAME_STRING : string = "-no name-";
 
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, readonly: boolean){
         this.key = ko.observable(key);
@@ -1968,7 +1969,7 @@ export class Node {
             return Node.NO_APP_STRING;
         }
 
-        return inputApplication.getName();
+        return inputApplication.getName() === "" ? Node.NO_APP_NAME_STRING : inputApplication.getName();
     }
 
     getOutputAppText = () : string => {
@@ -1982,6 +1983,48 @@ export class Node {
             return Node.NO_APP_STRING;
         }
 
-        return outputApplication.getName();
+        return outputApplication.getName() === "" ? Node.NO_APP_NAME_STRING : outputApplication.getName()
+    }
+
+    getExitAppText = () : string => {
+        if (!Node.canHaveExitApp(this)){
+            return "";
+        }
+
+        const exitApplication : Node = this.getExitApplication();
+
+        if (typeof exitApplication === "undefined" || exitApplication === null){
+            return Node.NO_APP_STRING;
+        }
+
+        return exitApplication.getName() === "" ? Node.NO_APP_NAME_STRING : exitApplication.getName()
+    }
+
+    getInputAppColor = () : string => {
+        if (!Node.canHaveInputApp(this)){
+            return "white";
+        }
+
+        const inputApplication : Node = this.getInputApplication();
+
+        if (typeof inputApplication === "undefined" || inputApplication === null){
+            return "white";
+        }
+
+        return inputApplication.getColor();
+    }
+
+    getOutputAppColor = () : string => {
+        if (!Node.canHaveOutputApp(this)){
+            return "white";
+        }
+
+        const outputApplication : Node = this.getOutputApplication();
+
+        if (typeof outputApplication === "undefined" || outputApplication === null){
+            return "white";
+        }
+
+        return outputApplication.getColor();
     }
 }
