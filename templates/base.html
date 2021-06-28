@@ -69,7 +69,7 @@
                 </div>
             </div>
 
-            <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDrop }">
+            <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDrop, mousemove: mouseMove }">
                 <div id="logicalGraphD3Div">
                     <!-- ko if: $root.logicalGraph() !== null -->
                         <!-- ko foreach: $root.logicalGraph().getNodes() -->

@@ -1984,16 +1984,4 @@ export class Node {
 
         return outputApplication.getName();
     }
-
-    startDrag = () : void => {
-        console.log("startDrag:", this.name());
-    }
-
-    endDrag = () : void => {
-        console.log("endDrag:", this.name());
-    }
-
-    mouseMove = () : void => {
-        console.log("mouseMove:", this.name());
-    }
 }

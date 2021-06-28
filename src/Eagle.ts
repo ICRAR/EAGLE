@@ -74,6 +74,8 @@ export class Eagle {
 
     explorePalettes : ko.ObservableArray<PaletteInfo>;
 
+    draggingNode : ko.Observable<Node>;
+
     static settings : ko.ObservableArray<Setting>;
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
 
@@ -155,6 +157,8 @@ export class Eagle {
         this.rendererFrameTime = ko.observable("");
 
         this.explorePalettes = ko.observableArray([]);
+
+        this.draggingNode = ko.observable(null);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -3241,6 +3245,22 @@ export class Eagle {
     showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
     }, this);
+
+    mouseMove = (that: Eagle, event: JQueryEventObject) : void => {
+        if (this.draggingNode() !== null){
+            const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
+
+            this.draggingNode().changePosition(mouseEvent.movementX, mouseEvent.movementY);
+        }
+    }
+
+    startDrag = (node: Node) : void => {
+        this.draggingNode(node);
+    }
+
+    endDrag = (node: Node) : void => {
+        this.draggingNode(null);
+    }
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         const c = Eagle.cData[category];
