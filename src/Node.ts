@@ -2027,4 +2027,22 @@ export class Node {
 
         return outputApplication.getColor();
     }
+
+    getDataIcon = () : string => {
+        switch (this.getCategory()){
+            case Eagle.Category.File:
+                return "/static/assets/svg/hard-drive.svg";
+            case Eagle.Category.Memory:
+                return "/static/assets/svg/memory.svg";
+            case Eagle.Category.S3:
+                return "/static/assets/svg/s3_bucket.svg";
+            case Eagle.Category.NGAS:
+                return "/static/assets/svg/ngas.svg";
+            case Eagle.Category.Plasma:
+                return "/static/assets/svg/plasma.svg";
+            default:
+                console.warn("No icon available for node category", this.getCategory());
+                return "";
+        }
+    }
 }
