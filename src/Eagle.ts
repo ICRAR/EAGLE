@@ -74,6 +74,7 @@ export class Eagle {
 
     explorePalettes : ko.ObservableArray<PaletteInfo>;
 
+    isDragging : ko.Observable<boolean>;
     draggingNode : ko.Observable<Node>;
 
     static settings : ko.ObservableArray<Setting>;
@@ -158,6 +159,7 @@ export class Eagle {
 
         this.explorePalettes = ko.observableArray([]);
 
+        this.isDragging = ko.observable(false);
         this.draggingNode = ko.observable(null);
     }
 
@@ -3247,18 +3249,29 @@ export class Eagle {
     }, this);
 
     mouseMove = (that: Eagle, event: JQueryEventObject) : void => {
-        if (this.draggingNode() !== null){
-            const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
+        const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
 
-            this.draggingNode().changePosition(mouseEvent.movementX, mouseEvent.movementY);
+        if (this.isDragging()){
+            if (this.draggingNode() !== null){
+                // move node
+                this.draggingNode().changePosition(mouseEvent.movementX, mouseEvent.movementY);
+            } else {
+                // move background
+                this.globalOffsetX(this.globalOffsetX() + mouseEvent.movementX);
+                this.globalOffsetY(this.globalOffsetY() + mouseEvent.movementY);
+            }
         }
     }
 
     startDrag = (node: Node) : void => {
+        //console.log("startDrag", node ? node.getName() : node)
+        this.isDragging(true);
         this.draggingNode(node);
     }
 
     endDrag = (node: Node) : void => {
+        //console.log("endDrag", node ? node.getName() : node)
+        this.isDragging(false);
         this.draggingNode(null);
     }
 
