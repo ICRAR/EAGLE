@@ -1,0 +1,68 @@
+.node {
+    position: absolute;
+    background-color: lightgrey;
+    border-radius: 8px;
+    border: 2px solid black;
+    display: flex;
+    flex-direction: column;
+}
+
+.node.selected {
+    /*border: 4px solid black;*/
+    box-shadow: 0px 0px 2px 2px black;
+}
+
+.node .header {
+    overflow: hidden;
+    text-align: center;
+    border-bottom: 2px solid black;
+    flex-grow: 1;
+}
+
+.node .body {
+    flex-grow: 100;
+}
+
+.node .body .contents {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    height: 100%;
+}
+
+.node .header .header-name, .node .body .contents .app-name {
+    color: white;
+    padding: 4px;
+    user-select: none;
+}
+
+.node .body .contents .app-name {
+    border-bottom: 2px solid black;
+}
+
+.node .input-app, .node .output-app, .node .exit-app, .node .interior {
+    overflow: hidden;
+}
+
+.node .input-app {
+    border-right: 2px solid black;
+    flex-grow: 0;
+}
+
+.node .output-app {
+    border-left: 2px solid black;
+    flex-grow: 0;
+}
+
+.node .exit-app {
+    border-left: 2px solid black;
+    flex-grow: 0;
+}
+
+.node .interior {
+    flex-grow: 100;
+}
+
+.node .input-app span, .node .output-app span, .node .exit-app span, .node .interior span {
+    margin: 4px;
+}

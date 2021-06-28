@@ -1,0 +1,37 @@
+<div class="node" data-bind="style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY(), width: $data.width, height: $data.height}, event: {mousedown: function(){$root.startDrag($data);}, mouseup: function(){$root.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false, css: {selected: $data.selected()}">
+    <div class="header" data-bind="style: {backgroundColor: $data.color}">
+        <div class="header-name" data-bind="html: $data.name"></div>
+    </div>
+
+    <div class="body">
+        <div class="contents">
+            <!-- ko if: $data.hasInputApplication() -->
+            <div class="input-app">
+                <div class="app-name" data-bind="style: {backgroundColor: $data.getInputAppColor()}, html: $data.getInputAppText()"></div>
+                <div class="ports">
+
+                </div>
+            </div>
+            <!-- /ko -->
+            <div class="interior">
+
+            </div>
+            <!-- ko if: $data.hasOutputApplication() -->
+            <div class="output-app">
+                <div class="app-name" data-bind="style: {backgroundColor: $data.getOutputAppColor()}, html: $data.getOutputAppText()"></div>
+                <div class="ports">
+
+                </div>
+            </div>
+            <!-- /ko -->
+            <!-- ko if: $data.hasExitApplication() -->
+            <div class="exit-app">
+                <div class="app-name" data-bind="style: {backgroundColor: $data.getExitAppColor()}, html: $data.getExitAppText()"></div>
+                <div class="ports">
+
+                </div>
+            </div>
+            <!-- /ko -->
+        </div>
+    </div>
+</div>
