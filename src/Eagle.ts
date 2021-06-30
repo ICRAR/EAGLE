@@ -3255,6 +3255,8 @@ export class Eagle {
             if (this.draggingNode() !== null){
                 // move node
                 this.draggingNode().changePosition(mouseEvent.movementX, mouseEvent.movementY);
+                this.moveChildNodes(this.draggingNode(), mouseEvent.movementX, mouseEvent.movementY);
+
             } else {
                 // move background
                 this.globalOffsetX(this.globalOffsetX() + mouseEvent.movementX);
@@ -3275,6 +3277,21 @@ export class Eagle {
         //console.log("endDrag", node ? node.getName() : node)
         this.isDragging(false);
         this.draggingNode(null);
+    }
+
+    private moveChildNodes = (node: Node, deltax : number, deltay : number) : void => {
+        // get id of parent nodeIndex
+        const parentKey : number = node.getKey();
+
+        // loop through all nodes, if they belong to the parent's group, move them too
+        for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
+            const node = this.logicalGraph().getNodes()[i];
+
+            if (node.getParentKey() === parentKey){
+                node.changePosition(deltax, deltay);
+                this.moveChildNodes(node, deltax, deltay);
+            }
+        }
     }
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
