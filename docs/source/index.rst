@@ -10,8 +10,6 @@ Introduction to Eagle
    Palettes <palettes>
    Templates and Graphs <graphs>
    Modules <modules>
-   Translation <translation>
-   Execution <execution>
 
 .. Indices and tables
 .. ==================
@@ -57,10 +55,12 @@ Within the EAGLE drag-and-drop interface, :doc:`Logical Graph Templates <graphs>
 
 EAGLE allows values to be set for the exposed parameters of each component. Once these parameters are defined for a specific workflow, the graph is no longer considered a template, and is referred to as a :doc:`Logical Graph <graphs>`.
 
-.. _translation:
+Translation
+===========
 
-A completed Logical Graph may then be :doc:`translated <translation>` by the DALiuGE translation engine, using a selected algorithm. A translated graph is referred to as a :doc:`Physical Graph Template <graphs>`.
+A completed Logical Graph may then be translated  by the DALiuGE translation engine, using a selected algorithm. A translated graph is referred to as a :doc:`Physical Graph Template <graphs>`.
 
-.. _execution:
+Execution
+=========
 
-The final step is :doc:`execution <execution>`. This occurs on a selected facility, where the Physical Graph Template is mapped to specific computer nodes. At this stage it is a :doc:`Physical Graph <graphs>`.
+The final step is execution. This occurs on a selected facility, where the Physical Graph Template is mapped to specific computer nodes. At this stage it is a :doc:`Physical Graph <graphs>`.

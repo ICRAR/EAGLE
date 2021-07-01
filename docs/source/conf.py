@@ -12,6 +12,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+from datetime import datetime
+import subprocess
+import shlex
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
@@ -32,15 +35,54 @@ release = u'2'
 
 # -- General configuration ---------------------------------------------------
 
+read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+
+def prepare_for_docs(path):
+    # Run "python setup.py build" to generate the version.py files, and make
+    # packages available for documenting their APIs
+    path = os.path.abspath(path)
+    sys.path.insert(0, path)
+    if read_the_docs_build:
+        subprocess.Popen(
+            [sys.executable, 'setup.py', 'build'], cwd=path).wait()
+
+
+prepare_for_docs('../eagleServer')
+
+
+# Mock the rest of the external modules we need so the API autodoc
+# gets correctly generated
+try:
+    from unittest.mock import MagicMock
+except:
+    from mock import Mock as MagicMock
+
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, _):
+        return MagicMock()
+
+
+MOCK_MODULES = (
+)
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+
+# -- General configuration ------------------------------------------------
+
 # If your documentation needs a minimal Sphinx version, state it here.
-#
-# needs_sphinx = '1.0'
+needs_sphinx = '1.3'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc'
+    'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.imgmath',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

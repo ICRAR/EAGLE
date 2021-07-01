@@ -9,7 +9,7 @@ This video provides detailed instructions for constructing the "Hello World" :do
 .. raw:: html
     :file: _static/helloWorld_creation_video.html
 
-The graph cannot itself be executed on any hardware; it must first be :doc:`translated <translation>` into a :doc:`Physical Graph Template <graphs>` via an algorithm that will optimise it for efficiency and parallel processing. This translated graph can then be entered into the queue on the chosen facility for :doc:`execution <execution>`.
+The graph cannot itself be executed on any hardware; it must first be translated into a :doc:`Physical Graph Template <graphs>` via an algorithm that will optimise it for efficiency and parallel processing. This translated graph can then be entered into the queue on the chosen facility for execution.
 
 Saving a graph to GitHub
 ------------------------
@@ -24,7 +24,7 @@ A GitHub Personal Access Token is required to save a graph to a repository. Thes
 Translating a graph
 -------------------
 
-The graph created in EAGLE needs to be :doc:`translated <translation>` into a :doc:`Physical Graph Template <graphs>` before it can be executed. This video will step you through the process of translating a simple Hello World graph.
+The graph created in EAGLE needs to be translated into a :doc:`Physical Graph Template <graphs>` before it can be executed. This video will step you through the process of translating a simple Hello World graph.
 
 .. raw:: html
     :file: _static/helloWorld_translate_graph.html
