@@ -18,7 +18,7 @@ import shlex
 import os
 import sys
 #sys.path.insert(0, os.path.abspath('.'))
-#sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../../'))
 
 
 # -- Project information -----------------------------------------------------
@@ -36,20 +36,6 @@ release = u'2'
 # -- General configuration ---------------------------------------------------
 
 read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
-
-
-def prepare_for_docs(path):
-    # Run "python setup.py build" to generate the version.py files, and make
-    # packages available for documenting their APIs
-    path = os.path.abspath(path)
-    sys.path.insert(0, path)
-    if read_the_docs_build:
-        subprocess.Popen(
-            [sys.executable, 'setup.py', 'build'], cwd=path).wait()
-
-
-prepare_for_docs('../../eagleServer')
-
 
 # Mock the rest of the external modules we need so the API autodoc
 # gets correctly generated
