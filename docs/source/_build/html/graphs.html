@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Templates and Graphs &mdash; EAGLE - Documentation 2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Translation" href="translation.html" />
+    <link rel="prev" title="Palettes" href="palettes.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> EAGLE - Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="helloWorld.html">Hello World Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helloWorld.html#quick-start-guides">Quick Start Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="palettes.html">Palettes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Templates and Graphs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#logical-graph-template">Logical Graph Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logical-graph">Logical Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#physical-graph-template">Physical Graph Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#physical-graph">Physical Graph</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="translation.html">Translation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution.html">Execution</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EAGLE - Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Templates and Graphs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/graphs.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="templates-and-graphs">
+<h1>Templates and Graphs<a class="headerlink" href="#templates-and-graphs" title="Permalink to this headline">¶</a></h1>
+<p>The process of constructing a workflow using EAGLE begins at the most general level – a Logical Graph Template, and moves through a series of steps to the most specific level – a Physical Graph. The steps are shown in the following diagram:</p>
+<img src="_static/images/templates_and_graphs.png" alt="Templates and Graphs" usemap="#graphs" style="display:block;margin-left:auto;margin-right:auto;">
+
+<map name="graphs">
+<area shape="rect" coords="0,0,500,134" alt="Logical Graph Template" href="#logical-graph-template" style="outline-style:none">
+<area shape="rect" coords="0,135,500,268" alt="Logical Graph" href="#logical-graph" style="outline-style:none">
+<area shape="rect" coords="0,269,500,402" alt="Physical Graph Template" href="#physical-graph-template" style="outline-style:none">
+<area shape="rect" coords="0,403,500,536" alt="Physical Graph" href="#physical-graph" style="outline-style:none">
+</map>
+<div class="section" id="logical-graph-template">
+<h2>Logical Graph Template<a class="headerlink" href="#logical-graph-template" title="Permalink to this headline">¶</a></h2>
+<p>Logical Graph Templates are created within the EAGLE drag-and-drop interface. They are usually designed for one experiment or one instrument, but they allow some flexibility in the form of exposed parameters that may be set to different values by the user prior to execution.</p>
+<div class="align-center figure" id="id1">
+<a class="reference internal image-reference" href="_images/logical_graph_template.png"><img alt="An example of a Logical Graph Template" src="_images/logical_graph_template.png" style="width: 700px;" /></a>
+<p class="caption"><span class="caption-text">An example of a Logical Graph Template</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>In an operational environment Logical Graph Templates represent different data processing modes, and after a period of development and use they will become quite stable. They can increase in complexity very quickly; however if developers approach them as a template and use the ability to expose adjustable parameters, this can highlight the inherent parallelism and potential bottlenecks of complex workflows. Logical Graph Templates provide a birds-eye view of an arbitrarily parallel process, even though parallelism isn’t explicitly represented at this stage of the workflow.</p>
+</div>
+<div class="section" id="logical-graph">
+<h2>Logical Graph<a class="headerlink" href="#logical-graph" title="Permalink to this headline">¶</a></h2>
+<p>Logical Graphs are constructed from Logical Graph Templates by setting the exposed parameters of the graph’s <a class="reference internal" href="components.html"><span class="doc">Components</span></a>. In general, most of these parameters are settings that influence the behaviour of the components, while some others control the size or the parameterisation of the data being processed.</p>
+<div class="align-center figure" id="id2">
+<a class="reference internal image-reference" href="_images/helloWorld_param.gif"><img alt="An example of a parameter for the HelloWorldApp being edited" src="_images/helloWorld_param.gif" style="width: 200px;" /></a>
+<p class="caption"><span class="caption-text">An example of a parameter for the HelloWorldApp being edited</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="physical-graph-template">
+<h2>Physical Graph Template<a class="headerlink" href="#physical-graph-template" title="Permalink to this headline">¶</a></h2>
+<p>Physical Graph Templates are calculated from Logical Graphs by the DALiuGE translation engine, and then displayed within the EAGLE interface. They represent a translation of a Logical Graph into a Directed Acyclic Graph, and a mapping of that graph onto a potentially available cluster.</p>
+<div class="align-center figure" id="id3">
+<a class="reference internal image-reference" href="_images/physical_graph_template.png"><img alt="An example of a Physical Graph Template" src="_images/physical_graph_template.png" style="width: 500px;" /></a>
+<p class="caption"><span class="caption-text">An example of a Physical Graph Template</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<p>The DALiuGE translation engine implements multiple algorithms for the translation, but the result is always a Physical Graph Template partitioned in a way to meet the hardware capabilities and any additional constraints given to the algorithms (e.g. minimise run-time). Since some of the translation algorithms are quite expensive and time consuming to run, it is good practice to generate them as soon as the parameterisation of the reduction run is clear.</p>
+</div>
+<div class="section" id="physical-graph">
+<h2>Physical Graph<a class="headerlink" href="#physical-graph" title="Permalink to this headline">¶</a></h2>
+<p>Physical Graphs represent the final mapping of the Physical Graph Templates to available computer node(s), in the final step before execution. EAGLE displays the deployed graph and shows progression of the execution. It provides  a visualisation during execution time which is just informative and will not scale to many thousands or millions of tasks. However, it shows failures immediately, providing a helpful tool during graph development. Physical Graphs are completely bound to an actual execution of a workflow, and will be saved as part of the logs.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="translation.html" class="btn btn-neutral float-right" title="Translation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="palettes.html" class="btn btn-neutral float-left" title="Palettes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

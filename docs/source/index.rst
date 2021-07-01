@@ -4,15 +4,14 @@ Introduction to Eagle
 .. toctree::
    :maxdepth: 2
 
-   Introduction to EAGLE <introduction>
+   Quick Start <quickStart2>
    Hello World Example <helloWorld>
    Components <components>
    Palettes <palettes>
    Templates and Graphs <graphs>
+   Modules <modules>
    Translation <translation>
    Execution <execution>
-.. Modules <modules>
-.. Quick Start Guide <quickStart2>
 
 .. Indices and tables
 .. ==================
@@ -64,4 +63,4 @@ A completed Logical Graph may then be :doc:`translated <translation>` by the DAL
 
 .. _execution:
 
-The final step is :doc:`execution <Execution>`. This occurs on a selected facility, where the Physical Graph Template is mapped to specific computer nodes. At this stage it is a :doc:`Physical Graph <graphs>`.
+The final step is :doc:`execution <execution>`. This occurs on a selected facility, where the Physical Graph Template is mapped to specific computer nodes. At this stage it is a :doc:`Physical Graph <graphs>`.

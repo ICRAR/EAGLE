@@ -1,0 +1,536 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Quick Start Guide &mdash; EAGLE - Documentation 2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> EAGLE - Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="helloWorld.html">Hello World Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helloWorld.html#quick-start-guides">Quick Start Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="palettes.html">Palettes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Templates and Graphs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="translation.html">Translation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution.html">Execution</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EAGLE - Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Quick Start Guide</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/quickStart2.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="quick-start-guide">
+<h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Permalink to this headline">¶</a></h1>
+<p>Here are some step-by-step instructions and videos to help you get up and running with EAGLE quickly.</p>
+<div class="section" id="loading-a-palette">
+<h2>Loading a Palette<a class="headerlink" href="#loading-a-palette" title="Permalink to this headline">¶</a></h2>
+<p>EAGLE workflows are made up of <a class="reference internal" href="components.html"><span class="doc">components</span></a> that represent executable code or data that will be called when the graph is executed. To simplify the process of creating a workflow, multiple components may be collected together in a <a class="reference internal" href="palettes.html"><span class="doc">palette</span></a> designed for a certain domain, such as Radio Astronomy.</p>
+<p>To load a palette from a GitHub repository, you first need to create a GitHub Personal Access Token. The steps required are demonstrated in this video.</p>
+<figure>
+	<video controls id="load_palette">
+		<source src="_static/videos/Load_palette.mp4">
+		<!-- <source src="downtown-los-angeles.webm"> -->
+		<track kind="chapters" label="Locations" src="_static/videos/Load_palette.vtt" srclang="en" default>
+	</video>
+	<figcaption>
+		<ol id="load_palette_captions"  class="captions">
+		</ol>
+	</figcaption>
+
+	<!-- Trigger/Open The Modal -->
+	<button id="myBtn5" style="float: right">Click to see a larger video</button>
+
+</figure>
+
+<!-- The Modal -->
+<div id="myModal5" class="modal">
+
+  <!-- Modal content -->
+	<figure class="modal-content">
+		<button class="close">close &times;</button>
+		<video controls id="load_palette_modal">
+			<source src="_static/videos/Load_palette.mp4">
+			<!-- <source src="downtown-los-angeles.webm"> -->
+			<track kind="chapters" label="Locations" src="_static/videos/Load_palette.vtt" srclang="en" default>
+		</video>
+		<figcaption>
+			<ol id="load_palette_captions_modal"  class="captions">
+			</ol>
+		</figcaption>
+	</figure>
+
+</div>
+
+<script>
+var locationList5 = document.getElementById("load_palette_captions"),
+video5 = document.getElementById("load_palette"),
+trackElement5 = video5.getElementsByTagName("track")[0];
+
+all_videos.push([locationList5, video5, trackElement5]);
+
+var locationList5m = document.getElementById("load_palette_captions_modal"),
+video5m = document.getElementById("load_palette_modal"),
+trackElement5m = video5m.getElementsByTagName("track")[0];
+
+all_videos.push([locationList5m, video5m, trackElement5m]);
+
+// Get the modal
+var modal5 = document.getElementById("myModal5");
+
+// Get the button that opens the modal
+var btn5 = document.getElementById("myBtn5");
+
+// Get the <span> element that closes the modal
+var span5 = document.getElementsByClassName("close")[4];
+
+// When the user clicks on the button, open the modal
+btn5.onclick = function() {
+	video5.pause();
+  modal5.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span5.onclick = function() {
+	video5m.pause();
+  modal5.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal5) {
+		video5m.pause();
+    modal5.style.display = "none";
+  }
+}
+
+</script>
+</div>
+<div class="section" id="creating-a-new-graph">
+<h2>Creating a new graph<a class="headerlink" href="#creating-a-new-graph" title="Permalink to this headline">¶</a></h2>
+<p>You can begin creating a new graph by using the “New” menu and selecting “Create New Graph”. With a palette already loaded, the components may be added to the workspace. Things to keep in mind are:</p>
+<ul class="simple">
+<li><p>Components processed by each node on the cluster are set as parents, with components processed by GPUs on each node set as children.</p></li>
+<li><p>Selecting “Memory” for Data Components minimises the number of times data is moved around.</p></li>
+</ul>
+<p>The following video provides a walkthrough for the creation of a specific graph, showing many of the features used to construct a workflow in EAGLE. A video providing a brief background overview of this workflow <a class="reference external" href="https://vimeo.com/458850054">may be viewed here</a>, with a more detailed presentation <a class="reference external" href="https://vimeo.com/481476735">available here</a>.</p>
+<figure>
+	<video controls id="graph_creation">
+		<source src="_static/videos/Graph_creation.mp4">
+		<!-- <source src="downtown-los-angeles.webm"> -->
+		<track kind="chapters" label="Locations" src="_static/videos/Graph_creation.vtt" srclang="en" default>
+	</video>
+	<figcaption>
+		<ol id="graph_creation_captions"  class="captions">
+		</ol>
+	</figcaption>
+
+	<!-- Trigger/Open The Modal -->
+	<button id="myBtn3" style="float: right">Click to see a larger video</button>
+
+</figure>
+
+<!-- The Modal -->
+<div id="myModal3" class="modal">
+
+  <!-- Modal content -->
+	<figure class="modal-content">
+		<button class="close">close &times;</button>
+		<video controls id="graph_creation_modal">
+			<source src="_static/videos/Graph_creation.mp4">
+			<!-- <source src="downtown-los-angeles.webm"> -->
+			<track kind="chapters" label="Locations" src="_static/videos/Graph_creation.vtt" srclang="en" default>
+		</video>
+		<figcaption>
+			<ol id="graph_creation_captions_modal"  class="captions">
+			</ol>
+		</figcaption>
+	</figure>
+
+</div>
+
+<script>
+var locationList3 = document.getElementById("graph_creation_captions"),
+video3 = document.getElementById("graph_creation"),
+trackElement3 = video3.getElementsByTagName("track")[0];
+
+all_videos.push([locationList3, video3, trackElement3]);
+
+var locationList3m = document.getElementById("graph_creation_captions_modal"),
+video3m = document.getElementById("graph_creation_modal"),
+trackElement3m = video3m.getElementsByTagName("track")[0];
+
+all_videos.push([locationList3m, video3m, trackElement3m]);
+
+// Get the modal
+var modal3 = document.getElementById("myModal3");
+
+// Get the button that opens the modal
+var btn3 = document.getElementById("myBtn3");
+
+// Get the <span> element that closes the modal
+var span3 = document.getElementsByClassName("close")[2];
+
+// When the user clicks on the button, open the modal
+btn3.onclick = function() {
+  video3.pause();
+  modal3.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span3.onclick = function() {
+  video3m.pause();
+  modal3.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal3) {
+    video3m.pause();
+    modal3.style.display = "none";
+  }
+}
+
+</script>
+</div>
+<div class="section" id="saving-a-graph-to-github">
+<h2>Saving a graph to gitHub<a class="headerlink" href="#saving-a-graph-to-github" title="Permalink to this headline">¶</a></h2>
+<p>To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don’t already have access to one.</p>
+<p>Similarly to loading a palette, a GitHub Personal Access Token is required to save a graph to a repository. These steps are repeated in the following video, as well as adding a custom repository.</p>
+<figure>
+	<video controls id="save_graph">
+		<source src="_static/videos/Save_graph.mp4">
+		<!-- <source src="downtown-los-angeles.webm"> -->
+		<track kind="chapters" label="Locations" src="_static/videos/Save_graph.vtt" srclang="en" default>
+	</video>
+	<figcaption>
+		<ol id="save_graph_captions"  class="captions">
+		</ol>
+	</figcaption>
+
+	<!-- Trigger/Open The Modal -->
+	<button id="myBtn4" style="float: right">Click to see a larger video</button>
+
+</figure>
+
+<!-- The Modal -->
+<div id="myModal4" class="modal">
+
+  <!-- Modal content -->
+	<figure class="modal-content">
+		<button class="close">close &times;</button>
+		<video controls id="save_graph_modal">
+			<source src="_static/videos/Save_graph.mp4">
+			<!-- <source src="downtown-los-angeles.webm"> -->
+			<track kind="chapters" label="Locations" src="_static/videos/Save_graph.vtt" srclang="en" default>
+		</video>
+		<figcaption>
+			<ol id="save_graph_captions_modal"  class="captions">
+			</ol>
+		</figcaption>
+	</figure>
+
+</div>
+
+<script>
+var locationList4 = document.getElementById("save_graph_captions"),
+video4 = document.getElementById("save_graph"),
+trackElement4 = video4.getElementsByTagName("track")[0];
+
+all_videos.push([locationList4, video4, trackElement4]);
+
+var locationList4m = document.getElementById("save_graph_captions_modal"),
+video4m = document.getElementById("save_graph_modal"),
+trackElement4m = video4m.getElementsByTagName("track")[0];
+
+all_videos.push([locationList4m, video4m, trackElement4m]);
+
+// Get the modal
+var modal4 = document.getElementById("myModal4");
+
+// Get the button that opens the modal
+var btn4 = document.getElementById("myBtn4");
+
+// Get the <span> element that closes the modal
+var span4 = document.getElementsByClassName("close")[2];
+
+// When the user clicks on the button, open the modal
+btn4.onclick = function() {
+  video4.pause();
+  modal4.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span4.onclick = function() {
+  video4m.pause();
+  modal4.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal4) {
+    video4m.pause();
+    modal4.style.display = "none";
+  }
+}
+
+</script>
+<script>
+
+all_videos.forEach(function(thisVideo)  {
+  var locationList = thisVideo[0],
+  video = thisVideo[1],
+  trackElement = thisVideo[2];
+
+  video.addEventListener("loadedmetadata", function run_tests() {
+      if (trackElement.readyState == 1) { setTimeout(run_tests, 0); } else { displayChapters(locationList, video, trackElement); }
+  })
+})
+
+function displayChapters(locationList, video, trackElement){
+  if ((trackElement.readyState == 2) && (textTrack = trackElement.track) && (window.matchMedia("(min-width: 500px)").matches)){
+    if(textTrack.kind === "chapters"){
+      textTrack.mode = 'hidden';
+      for (var i = 0; i < textTrack.cues.length; ++i) {
+        var cue = textTrack.cues[i],
+        chapterName = cue.text,
+        start = cue.startTime,
+        cue_end = cue.endTime,
+        newLocale = document.createElement("li"),
+        location = document.createElement("a");
+        location.className = "chapLink " + start + " " + cue_end;
+        // location.setAttribute('id', start);
+        location.setAttribute('tabindex', '0');
+        var localeStart = document.createElement("div");
+        localeStart.setAttribute("class", "startTime");
+        var localeStartText = document.createTextNode(start);
+        localeStart.appendChild(localeStartText);
+        var localeDescription = document.createTextNode(chapterName);
+        location.appendChild(localeStart);
+        location.appendChild(localeDescription);
+        newLocale.appendChild(location);
+        locationList.appendChild(newLocale);
+        location.addEventListener("click",
+          function() {
+            video.currentTime = this.classList[1];
+            cue_end = this.classList[2];
+            video.play();
+
+            //Make the video pause at the correct time
+            var pausing_function = function(){
+              if(this.currentTime >= cue_end) {
+                this.pause();
+
+                // remove the event listener after you paused the playback
+                this.removeEventListener("timeupdate",pausing_function);
+              }
+            };
+
+            video.addEventListener("timeupdate", pausing_function);
+          },
+          false);
+        }
+        textTrack.addEventListener("cuechange",
+          function() {
+            var currentLocation = this.activeCues[0].startTime;
+            if (chapters = document.getElementsByClassName(currentLocation)) {
+              for (i = 0; i < chapters.length; i++) {
+                if (chapters[i].parentNode.parentNode.id == locationList.id) {
+                  var locations = [].slice.call(document.querySelectorAll(".captions li a"));
+                  for (var j = 0; j < locations.length; ++j) { locations[j].classList.remove("current"); }
+                  chapters[i].classList.add("current");
+                  locationList.parentNode.scrollTop = chapters[i].offsetTop;
+                  break;
+                }
+              }
+            }
+          },
+        false);
+    }
+  }
+}
+</script>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

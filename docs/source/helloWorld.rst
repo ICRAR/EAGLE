@@ -1,5 +1,5 @@
-Hello World Examples
-====================
+Hello World Example
+===================
 
 Graph Creation
 --------------
@@ -37,23 +37,4 @@ This video shows one method of executing the :doc:`Physical Graph Template <grap
 .. raw:: html
     :file: _static/helloWorld_execute_graph.html
 
-|
 
-Quick Start Guides
-==================
-
-Here are some additional step-by-step instructions and videos to help you get up and running with EAGLE quickly.
-
-Loading a Palette
------------------
-
-EAGLE workflows are made up of :doc:`components <components>` that represent executable code or data that will be called when the graph is executed. To simplify the process of creating a workflow, multiple components may be collected together in a :doc:`palette <palettes>` designed for a certain domain, such as Radio Astronomy.
-
-To load a palette from a GitHub repository, you first need to create a GitHub Personal Access Token. The steps required are demonstrated in this video.
-
-.. raw:: html
-    :file: _static/quickStart_load_palette.html
-
-
-.. raw:: html
-    :file: _static/load_videos.html

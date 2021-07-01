@@ -75,7 +75,7 @@ install_requires = [
     "pygithub",
     "python-gitlab",
     "sphinx",
-    "karma_sphinx_theme",
+    "sphinx_rtd_theme",
     "six"
 ]
 
