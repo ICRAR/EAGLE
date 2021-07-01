@@ -18,7 +18,7 @@ import shlex
 import os
 import sys
 #sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../../'))
+#sys.path.insert(0, os.path.abspath('../../'))
 
 
 # -- Project information -----------------------------------------------------
@@ -48,7 +48,7 @@ def prepare_for_docs(path):
             [sys.executable, 'setup.py', 'build'], cwd=path).wait()
 
 
-prepare_for_docs('eagleServer')
+prepare_for_docs('../../eagleServer')
 
 
 # Mock the rest of the external modules we need so the API autodoc
