@@ -1,0 +1,75 @@
+<script>
+
+all_videos.forEach(function(thisVideo)  {
+  var locationList = thisVideo[0],
+  video = thisVideo[1],
+  trackElement = thisVideo[2];
+
+  video.addEventListener("loadedmetadata", function run_tests() {
+      if (trackElement.readyState == 1) { setTimeout(run_tests, 0); } else { displayChapters(locationList, video, trackElement); }
+  })
+})
+
+function displayChapters(locationList, video, trackElement){
+  if ((trackElement.readyState == 2) && (textTrack = trackElement.track) && (window.matchMedia("(min-width: 500px)").matches)){
+    if(textTrack.kind === "chapters"){
+      textTrack.mode = 'hidden';
+      for (var i = 0; i < textTrack.cues.length; ++i) {
+        var cue = textTrack.cues[i],
+        chapterName = cue.text,
+        start = cue.startTime,
+        cue_end = cue.endTime,
+        newLocale = document.createElement("li"),
+        location = document.createElement("a");
+        location.className = "chapLink " + start + " " + cue_end;
+        // location.setAttribute('id', start);
+        location.setAttribute('tabindex', '0');
+        var localeStart = document.createElement("div");
+        localeStart.setAttribute("class", "startTime");
+        var localeStartText = document.createTextNode(start);
+        localeStart.appendChild(localeStartText);
+        var localeDescription = document.createTextNode(chapterName);
+        location.appendChild(localeStart);
+        location.appendChild(localeDescription);
+        newLocale.appendChild(location);
+        locationList.appendChild(newLocale);
+        location.addEventListener("click",
+          function() {
+            video.currentTime = this.classList[1];
+            cue_end = this.classList[2];
+            video.play();
+
+            //Make the video pause at the correct time
+            var pausing_function = function(){
+              if(this.currentTime >= cue_end) {
+                this.pause();
+
+                // remove the event listener after you paused the playback
+                this.removeEventListener("timeupdate",pausing_function);
+              }
+            };
+
+            video.addEventListener("timeupdate", pausing_function);
+          },
+          false);
+        }
+        textTrack.addEventListener("cuechange",
+          function() {
+            var currentLocation = this.activeCues[0].startTime;
+            if (chapters = document.getElementsByClassName(currentLocation)) {
+              for (i = 0; i < chapters.length; i++) {
+                if (chapters[i].parentNode.parentNode.id == locationList.id) {
+                  var locations = [].slice.call(document.querySelectorAll(".captions li a"));
+                  for (var j = 0; j < locations.length; ++j) { locations[j].classList.remove("current"); }
+                  chapters[i].classList.add("current");
+                  locationList.parentNode.scrollTop = chapters[i].offsetTop;
+                  break;
+                }
+              }
+            }
+          },
+        false);
+    }
+  }
+}
+</script>

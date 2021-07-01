@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Components &mdash; EAGLE - Documentation 2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Palettes" href="palettes.html" />
+    <link rel="prev" title="Hello World Examples" href="helloWorld.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> EAGLE - Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="helloWorld.html">Hello World Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helloWorld.html#quick-start-guides">Quick Start Guides</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-components-from-code">Creating Components from Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-components-for-docker-images">Creating Components for Docker Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#important-notes-on-docker-images">Important Notes on Docker Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linking-components-with-edges">Linking Components with Edges</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="palettes.html">Palettes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Templates and Graphs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="translation.html">Translation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution.html">Execution</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EAGLE - Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Components</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/components.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="components">
+<h1>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h1>
+<p>Components are created by application developers and others to be used within an EAGLE workflow. The components themselves exist outside of EAGLE, and may be <em>Application Components</em> such as command line (shell) code, in-line Python and C/C++ dynamic libraries, and MPI code; or they can be <em>Data Components</em>, such as Memory, File, S3 and NGAS. Each of these provide different underlying functionality and integration.</p>
+<p>To create a workflow, EAGLE only needs to access JSON representations of each component, which contain enough information to translate the workflow into a graph and then execute it correctly. These JSON files are referred to as <em>component descriptions</em>.</p>
+<p>During the execution of a workflow, the executables and data wrapped by a component description have to be available to the execution engine; however, during the development of a Palette or translation into a Physical Graph Template, these don’t need to be accessible by EAGLE.</p>
+<p>In this documentation, a distinction isn’t made between the component’s external code and its description unless it is necessary for clarity.</p>
+<div class="align-center figure" id="id1">
+<a class="reference internal image-reference" href="_images/components.png"><img alt="An example of components in EAGLE" src="_images/components.png" style="width: 400px;" /></a>
+<p class="caption"><span class="caption-text">An example of different components in EAGLE. Each component has inputs and outputs. They can be arranged as parents and children, and their inputs and outputs can be linked using <em>edges</em>.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>Each component has a set of inputs and outputs, as well as exposed parameters. Executable code called by an Application Component may range from the most simple – for example, just a single mathematical operation in Python or C, to a complete and complex workflow all by itself. The inner workings of the Application Component are not handled within EAGLE.</p>
+<p>In combination, components allow the parallel reduction of many individual data sets.</p>
+<div class="section" id="creating-components-from-code">
+<h2>Creating Components from Code<a class="headerlink" href="#creating-components-from-code" title="Permalink to this headline">¶</a></h2>
+<p>We have a method for automatically generating component descriptions from source code. It involves:</p>
+<ul class="simple">
+<li><p>Adding Doxygen comments to the source code</p></li>
+<li><p>Adding a CI task to the code repository, which:</p>
+<ul>
+<li><p>Uses doxygen to process the source code and output XML documentation</p></li>
+<li><p>Processes the XML with a EAGLE script called xml2palette.py</p></li>
+<li><p>Commit/push the resulting palette JSON to the ICRAR/EAGLE_test_repo repository inside a directory named after the project</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="creating-components-for-docker-images">
+<h2>Creating Components for Docker Images<a class="headerlink" href="#creating-components-for-docker-images" title="Permalink to this headline">¶</a></h2>
+<p>The process for generating component descriptions for applications contained in Docker images is as follows:</p>
+<p>Locate the image you wish to use on Docker Hub. For example, the ICRAR images are stored at <a class="reference external" href="https://hub.docker.com/u/icrar">https://hub.docker.com/u/icrar</a></p>
+<p>Create a new graph and then create one Docker node from the Template Palette</p>
+<div class="align-center figure" id="id2">
+<a class="reference internal image-reference" href="_images/new_node.png"><img alt="A new graph containing a single Docker node" src="_images/new_node.png" style="width: 210px;" /></a>
+<p class="caption"><span class="caption-text">A new graph containing a single Docker node</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<p>Click the node to modify its attributes:</p>
+<ul class="simple">
+<li><p>The “Image” field should contain the name of the image, for example, icrar/leap_cli</p></li>
+<li><p>The “Tag” field should contain the image tag, for example, 0.8.1.</p></li>
+<li><p>The “Digest” field should contain the hexadecimal hash of that version.</p></li>
+<li><p>The “Command”</p></li>
+<li><p>The “User”</p></li>
+<li><p>The “Ensure User And Switch”</p></li>
+<li><p>The “Remove Container”</p></li>
+<li><p>The “Additional Bindings”</p></li>
+</ul>
+<div class="align-center figure" id="id3">
+<a class="reference internal image-reference" href="_images/modify_parameters.png"><img alt="Modify the Docker node parameters with data from the Docker image" src="_images/modify_parameters.png" style="width: 500px;" /></a>
+<p class="caption"><span class="caption-text">Modify the Docker node parameters with data from the Docker image</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<p>Once the component has been created, it can be saved to a palette using the “Add graph nodes to Palette” button in the navbar</p>
+<div class="align-center figure" id="id4">
+<a class="reference internal image-reference" href="_images/navbar_button.png"><img alt="Click the &quot;Add graph nodes to Palette&quot; button in the navbar" src="_images/navbar_button.png" style="width: 240px;" /></a>
+<p class="caption"><span class="caption-text">Click the “Add graph nodes to Palette” button in the navbar</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+<p>The user can then click the “cloud” icon to save to git, or the “floppy disk” icon to save locally.
+As with other components, we’d recommend saving to ICRAR/EAGLE_test_repo in a directory named after the project</p>
+<div class="align-center figure" id="id5">
+<a class="reference internal image-reference" href="_images/new_palette.png"><img alt="The new palette containing the Docker component description" src="_images/new_palette.png" style="width: 500px;" /></a>
+<p class="caption"><span class="caption-text">The new palette containing the Docker component description</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="important-notes-on-docker-images">
+<h2>Important Notes on Docker Images<a class="headerlink" href="#important-notes-on-docker-images" title="Permalink to this headline">¶</a></h2>
+<p>DALiuGE can only execute applications from Docker containers that satisfy the following requirements:</p>
+<ul class="simple">
+<li><p>pack a Bash shell (/bin/bash)</p></li>
+<li><p>pack /usr/bin/cat</p></li>
+<li><p>pack /etc/passwd</p></li>
+<li><p>It is also recommended to pack /usr/bin/ls.</p></li>
+</ul>
+</div>
+<div class="section" id="linking-components-with-edges">
+<h2>Linking Components with Edges<a class="headerlink" href="#linking-components-with-edges" title="Permalink to this headline">¶</a></h2>
+<p>Within EAGLE, an output port from one component may be connected to the input port of another component via an <em>edge</em>. This is illustrated graphically by an arrow linking the two. An edge represents an event triggered by one component that in turn triggers other components to be processed.</p>
+<p>It is only possible to link components that meet certain criteria, and some edges are inadvisable as they may affect performance. EAGLE provides error and warning messages when these edges are created.</p>
+<div class="align-center figure" id="id6">
+<a class="reference internal image-reference" href="_images/components2.png"><img alt="An example of components linked together with edges" src="_images/components2.png" style="width: 500px;" /></a>
+<p class="caption"><span class="caption-text">Here three components are linked together with edges.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure">
+<a class="reference internal image-reference" href="_images/edgeWarning.png"><img alt="An example of a warning provided for an edge" src="_images/edgeWarning.png" style="width: 400px;" /></a>
+</div>
+<div class="align-center figure" id="id7">
+<a class="reference internal image-reference" href="_images/edgeError.png"><img alt="An example of an error provided for an edge" src="_images/edgeError.png" style="width: 400px;" /></a>
+<p class="caption"><span class="caption-text">A warning message (above) and an error message (below) caused by the creation of an edge that may affect performance or is invalid.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="palettes.html" class="btn btn-neutral float-right" title="Palettes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="helloWorld.html" class="btn btn-neutral float-left" title="Hello World Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
