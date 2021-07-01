@@ -68,6 +68,19 @@ class Mock(MagicMock):
 MOCK_MODULES = (
     'config',
     'config.config',
+    'six',
+    'argparse',
+    'json',
+    'logging',
+    'os'
+    'sys',
+    'tempfile'
+    'urllib.request',
+    'ssl',
+    'github',
+    'gitlab',
+    'pkg_resources',
+    'flask',
 )
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
