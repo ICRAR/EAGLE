@@ -3000,6 +3000,8 @@ export class Eagle {
                    clone.setId(Utils.uuidv4());
                    node.addPort(clone, input);
                }
+
+               this.updateInspectorTooltips();
             });
         } else {
             $("#editPortModalTitle").html("Edit Port");
@@ -3024,6 +3026,8 @@ export class Eagle {
                 const nodeKey = port.getNodeKey();
                 const portId = port.getId();
                 port.copyWithKeyAndId(newPort, nodeKey, portId);
+
+                this.updateInspectorTooltips();
             });
         }
     }
