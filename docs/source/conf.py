@@ -54,7 +54,6 @@ class Mock(MagicMock):
 MOCK_MODULES = (
     'config',
     'config.config',
-    'six',
     'argparse',
     'json',
     'tempfile'
@@ -62,7 +61,6 @@ MOCK_MODULES = (
     'ssl',
     'github',
     'gitlab',
-    'flask',
 )
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
@@ -76,6 +74,7 @@ needs_sphinx = '1.3'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinxcontrib.openapi',
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',

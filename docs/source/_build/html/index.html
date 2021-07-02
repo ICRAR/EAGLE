@@ -83,14 +83,11 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickStart2.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="helloWorld.html">Hello World Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="helloWorld.html#quick-start-guides">Quick Start Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helloWorld.html">Hello World Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="palettes.html">Palettes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="graphs.html">Templates and Graphs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="translation.html">Translation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="execution.html">Execution</a></li>
 </ul>
 
             
@@ -166,15 +163,11 @@
 <li class="toctree-l2"><a class="reference internal" href="quickStart2.html#saving-a-graph-to-github">Saving a graph to gitHub</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="helloWorld.html">Hello World Examples</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="helloWorld.html">Hello World Example</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="helloWorld.html#graph-creation">Graph Creation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="helloWorld.html#saving-a-graph-to-github">Saving a graph to GitHub</a></li>
 <li class="toctree-l2"><a class="reference internal" href="helloWorld.html#translating-a-graph">Translating a graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="helloWorld.html#executing-a-graph">Executing a graph</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="helloWorld.html#quick-start-guides">Quick Start Guides</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="helloWorld.html#loading-a-palette">Loading a Palette</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a><ul>
@@ -193,11 +186,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="eagleServer.html">eagleServer package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-contents">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="translation.html">Translation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="execution.html">Execution</a></li>
 </ul>
 </div>
 <p>EAGLE is an interface designed to streamline and simplify workflow development, while creating a clear separation of different concerns and operational constraints. A major aim of EAGLE and its larger workflow creation model is to allow code to be as re-usable as possible, while still enabling highly optimised and integrated ways of implementing or migrating algorithms. It is also concerned with optimising the granularity and potential parallelism of workflows.</p>
@@ -219,8 +210,14 @@
 <p id="palette">A <a class="reference internal" href="palettes.html"><span class="doc">palette</span></a> is used to group components together, to make it easier and more efficient to access components that are relevant to a particular workflow or domain.</p>
 <p id="graph-construction">Within the EAGLE drag-and-drop interface, <a class="reference internal" href="graphs.html"><span class="doc">Logical Graph Templates</span></a> are constructed.</p>
 <p id="graph-parameters">EAGLE allows values to be set for the exposed parameters of each component. Once these parameters are defined for a specific workflow, the graph is no longer considered a template, and is referred to as a <a class="reference internal" href="graphs.html"><span class="doc">Logical Graph</span></a>.</p>
-<p id="translation">A completed Logical Graph may then be <a class="reference internal" href="translation.html"><span class="doc">translated</span></a> by the DALiuGE translation engine, using a selected algorithm. A translated graph is referred to as a <a class="reference internal" href="graphs.html"><span class="doc">Physical Graph Template</span></a>.</p>
-<p id="execution">The final step is <a class="reference internal" href="execution.html"><span class="doc">execution</span></a>. This occurs on a selected facility, where the Physical Graph Template is mapped to specific computer nodes. At this stage it is a <a class="reference internal" href="graphs.html"><span class="doc">Physical Graph</span></a>.</p>
+</div>
+<div class="section" id="translation">
+<h1>Translation<a class="headerlink" href="#translation" title="Permalink to this headline">¶</a></h1>
+<p>A completed Logical Graph may then be translated  by the DALiuGE translation engine, using a selected algorithm. A translated graph is referred to as a <a class="reference internal" href="graphs.html"><span class="doc">Physical Graph Template</span></a>.</p>
+</div>
+<div class="section" id="execution">
+<h1>Execution<a class="headerlink" href="#execution" title="Permalink to this headline">¶</a></h1>
+<p>The final step is execution. This occurs on a selected facility, where the Physical Graph Template is mapped to specific computer nodes. At this stage it is a <a class="reference internal" href="graphs.html"><span class="doc">Physical Graph</span></a>.</p>
 </div>
 
 
