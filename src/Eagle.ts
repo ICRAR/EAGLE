@@ -1877,7 +1877,7 @@ export class Eagle {
 
         // open in new tab:
         window.open(
-          '/static/docs/build/html/index.html',
+          'https://eagle-dlg.readthedocs.io/',
           '_blank'
         );
     }
