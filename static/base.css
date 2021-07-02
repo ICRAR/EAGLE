@@ -416,6 +416,12 @@
 #nodeInspector .input-group-prepend{
     width:40%;
 }
+
+#nodeInspector .input-application .input-group-prepend,
+#nodeInspector .output-application .input-group-prepend{
+    width:auto;
+}
+
 #nodeInspector .input-group-text{
     width:100%;
     font-size: .9rem;
