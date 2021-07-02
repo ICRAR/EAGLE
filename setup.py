@@ -76,7 +76,7 @@ install_requires = [
     "python-gitlab",
     "sphinx",
     "sphinx_rtd_theme",
-    'sphinxcontrib.openapi',
+    "sphinxcontrib.openapi",
     "six"
 ]
 
