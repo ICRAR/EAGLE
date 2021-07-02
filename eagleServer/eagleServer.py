@@ -19,6 +19,9 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 #    MA 02111-1307  USA
 #
+"""
+This is the main module of the EAGLE server side code.
+"""
 import argparse
 import json
 import logging
@@ -42,6 +45,9 @@ from config.config import SERVER_PORT
 
 
 class GraphException(Exception):
+    """
+    Exception class will be used to throw exceptions when graph verification 
+    """
     pass
 
 
@@ -86,6 +92,18 @@ def hack():
 
 @app.route("/")
 def index():
+    """
+    Defines what is returned when the base URL is called.
+    The following URL GET parameters are defined here in addition:
+
+    service
+    repository
+    branch
+    path
+    filename
+
+    IF the URL does not specify a graph to load, the default template with no additional information is rendered.
+    """
     service    = request.args.get("service")
     repository = request.args.get("repository")
     branch     = request.args.get("branch")
@@ -100,9 +118,11 @@ def index():
 
 
 @app.route('/src/<path:filename>')
-# This enables debugging in a docker based environment, else the TS files
-# are not accessible.
 def send_src(filename):
+    """
+    Enables debugging in a docker based environment, else the TS files
+    are not accessible.
+    """
     return send_from_directory(srcdir, filename)
 
 

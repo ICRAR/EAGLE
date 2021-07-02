@@ -1,7 +1,9 @@
 eagleServer
 ===========
+The following is an extract of the EAGLE server component software documentation. For
+a complete reference please go to the source code.
 
-.. toctree::
-   :maxdepth: 4
-
-   eagleServer
+Module contents
+^^^^^^^^^^^^^^^
+.. automodule:: eagleServer.eagleServer
+   :members:
