@@ -1,0 +1,78 @@
+<figure>
+	<video controls id="helloWorld_save_graph">
+		<source src="_static/videos/helloWorld_save_graph.mp4">
+		<!-- <source src="downtown-los-angeles.webm"> -->
+		<track kind="chapters" label="Locations" src="_static/videos/helloWorld_save_graph.vtt" srclang="en" default>
+	</video>
+	<figcaption>
+		<ol id="helloWorld_save_graph_captions"  class="captions">
+		</ol>
+	</figcaption>
+
+	<!-- Trigger/Open The Modal -->
+	<button id="myBtn2" style="float: right">Click to see a larger video</button>
+
+</figure>
+
+<!-- The Modal -->
+<div id="myModal2" class="modal">
+
+  <!-- Modal content -->
+	<figure class="modal-content">
+		<button class="close">close &times;</button>
+		<video controls id="helloWorld_save_graph_modal">
+			<source src="_static/videos/helloWorld_save_graph.mp4">
+			<!-- <source src="downtown-los-angeles.webm"> -->
+			<track kind="chapters" label="Locations" src="_static/videos/helloWorld_save_graph.vtt" srclang="en" default>
+		</video>
+		<figcaption>
+			<ol id="helloWorld_save_graph_captions_modal"  class="captions">
+			</ol>
+		</figcaption>
+	</figure>
+
+</div>
+
+<script>
+var locationList2 = document.getElementById("helloWorld_save_graph_captions"),
+video2 = document.getElementById("helloWorld_save_graph"),
+trackElement2 = video2.getElementsByTagName("track")[0];
+
+all_videos.push([locationList2, video2, trackElement2]);
+
+var locationList2m = document.getElementById("helloWorld_save_graph_captions_modal"),
+video2m = document.getElementById("helloWorld_save_graph_modal"),
+trackElement2m = video2m.getElementsByTagName("track")[0];
+
+all_videos.push([locationList2m, video2m, trackElement2m]);
+
+// Get the modal
+var modal2 = document.getElementById("myModal2");
+
+// Get the button that opens the modal
+var btn2 = document.getElementById("myBtn2");
+
+// Get the <span> element that closes the modal
+var span2 = document.getElementsByClassName("close")[1];
+
+// When the user clicks on the button, open the modal
+btn2.onclick = function() {
+	video2.pause();
+  modal2.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span2.onclick = function() {
+	video2m.pause();
+  modal2.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal2) {
+		video2m.pause();
+    modal2.style.display = "none";
+  }
+}
+
+</script>

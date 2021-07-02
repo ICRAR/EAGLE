@@ -1,0 +1,40 @@
+WEBVTT - Some title
+
+00:00.000 --> 00:02.890
+This video will demonstrate a graph created in Eagle.
+
+00:02.891 --> 00:05.891
+Create a new graph using the "New" menu. You can then give the graph a name.
+
+00:08.165 --> 00:12.165
+An empty "description node" is created. This can be used to store text describing your graph. For now, it will be deleted.
+
+00:12.629 --> 00:15.629
+Nodes are added from "summit.palette". First a scatter component.
+
+00:19.323 --> 00:21.721
+Each component can be positioned and resized to lay out your graph clearly.
+
+00:21.722 --> 00:25.352
+Another scatter component is added, this time distributing processing across the 6 GPUs on each node in the cluster. 
+
+00:30.785 --> 00:35.885
+The inner scatter component must be a child of the outer scatter component to ensure that processing is distributed correctly to each node in the cluster, and each GPU on each node.
+
+00:38.697 --> 00:43.697
+An OSKAR2 Simulator component is added to generate simulated SKA data using an OSKAR2 instance. This is a child of the inner scatter component so it is generated for each GPU.
+
+00:50.666 --> 00:53.666
+The data from the GPUs must now be averaged, using an "Average 6 Channels" component.
+
+01:02.027 --> 01:06.027
+The output from spead2 is connected to the input to the averager, using a Memory component to avoid moving the data as much as possible.
+
+01:11.461 --> 01:15.461
+Another averager is added, this time to average the data from the entire cluster. It is again connected using a Memory component.
+
+01:23.531 --> 01:27.531
+A component is added to write the resulting data to disk. The "File" option is chosen to save the output to a file.
+
+01:33.979 --> 01:36.979
+This time the event output is connected to the event input of the new component.
