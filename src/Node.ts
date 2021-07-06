@@ -155,7 +155,6 @@ export class Node {
     }
 
     getDisplayName : ko.PureComputed<string> = ko.pureComputed(() => {
-        console.log("getDisplayName()");
         if (this.name() === 'Enter label' || this.name() == ''){
             return this.category();
         } else {
