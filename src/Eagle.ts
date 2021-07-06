@@ -2599,6 +2599,7 @@ export class Eagle {
         // retrieve data about the node being dragged
         Eagle.nodeDragPaletteIndex = $(e.target).data('palette-index');
         Eagle.nodeDragComponentIndex = $(e.target).data('component-index');
+        console.log("nodeDragPaletteIndex", Eagle.nodeDragPaletteIndex, "nodeDragComponentIndex", Eagle.nodeDragComponentIndex);
 
         // discourage the rightWindow and navbar as drop targets
         $(".rightWindow").addClass("noDropTarget");
@@ -2644,7 +2645,7 @@ export class Eagle {
         destinationPalette.addNode(sourceComponent, true);
     }
 
-    getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number}=> {
+    getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number} => {
         let x = e.clientX;
         let y = e.clientY;
 
