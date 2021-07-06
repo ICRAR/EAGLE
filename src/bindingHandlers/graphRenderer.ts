@@ -2654,20 +2654,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (node.isBranch()){
-            const portIndex = findNodePortIndex(node, edge.getSrcPortId());
-
-            if (portIndex === 0){
-                return node.getPosition().x + node.getWidth()/2;
-            }
-            if (portIndex === 1){
-                return node.getPosition().x + node.getWidth();
-            }
-        }
-
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
+
+            if (containingConstruct.isBranch()){
+                const portIndex = findNodePortIndex(node, edge.getSrcPortId());
+
+                if (portIndex === 0){
+                    return containingConstruct.getPosition().x + node.getWidth()/2;
+                }
+                if (portIndex === 1){
+                    return containingConstruct.getPosition().x + node.getWidth();
+                }
+            }
+
             return findNodePortPosition(containingConstruct, edge.getSrcPortId(), true).x;
         }
 
@@ -2695,22 +2696,23 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
-        if (node.isBranch()){
-            const portIndex = findNodePortIndex(node, edge.getSrcPortId());
-
-            if (portIndex === 0){
-                // TODO: magic number
-                return node.getPosition().y + 100;
-            }
-            if (portIndex === 1){
-                // TODO: magic number
-                return node.getPosition().y + 50;
-            }
-        }
-
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
+
+            if (containingConstruct.isBranch()){
+                const portIndex = findNodePortIndex(node, edge.getSrcPortId());
+
+                if (portIndex === 0){
+                    // TODO: magic number
+                    return containingConstruct.getPosition().y + 100;
+                }
+                if (portIndex === 1){
+                    // TODO: magic number
+                    return containingConstruct.getPosition().y + 50;
+                }
+            }
+
             return findNodePortPosition(containingConstruct, edge.getSrcPortId(), true).y - PORT_ICON_HEIGHT;
         }
 
@@ -2746,16 +2748,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (node.isBranch()){
-            const portIndex = findNodePortIndex(node, edge.getDestPortId());
-            const numPorts = node.getInputPorts().length;
-
-            return node.getPosition().x + node.getWidth()/2 - node.getWidth()/2 * portIndexRatio(portIndex, numPorts);
-        }
-
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
+
+            if (containingConstruct.isBranch()){
+                const portIndex = findNodePortIndex(node, edge.getDestPortId());
+                const numPorts = node.getInputPorts().length;
+
+                return containingConstruct.getPosition().x + containingConstruct.getWidth()/2 - containingConstruct.getWidth()/2 * portIndexRatio(portIndex, numPorts);
+            }
+
             return findNodePortPosition(containingConstruct, edge.getDestPortId(), false).x;
         }
 
@@ -2783,16 +2786,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
-        if (node.isBranch()){
-            const portIndex = findNodePortIndex(node, edge.getDestPortId());
-            const numPorts = node.getInputPorts().length;
-
-            return node.getPosition().y + 50 * portIndexRatio(portIndex, numPorts);
-        }
-
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
+
+            if (containingConstruct.isBranch()){
+                const portIndex = findNodePortIndex(node, edge.getDestPortId());
+                const numPorts = node.getInputPorts().length;
+
+                return containingConstruct.getPosition().y + 50 * portIndexRatio(portIndex, numPorts);
+            }
+
             return findNodePortPosition(containingConstruct, edge.getDestPortId(), false).y - PORT_ICON_HEIGHT;
         }
 
