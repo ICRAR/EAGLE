@@ -432,6 +432,11 @@ export class Node {
         return this.category();
     }
 
+    setCategory = (category: Eagle.Category): void => {
+        this.category(category);
+        this.color(Utils.getColorForNode(category));
+    }
+
     getCategoryType = () : Eagle.CategoryType => {
         return this.categoryType();
     }

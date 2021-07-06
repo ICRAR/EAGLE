@@ -9,7 +9,7 @@
 
             <!-- ko ifnot: $data.node() === null -->
                 <div class="input-group-prepend" data-bind="attr: {title: $data.node().getHelpHTML()}" data-toggle="tooltip" data-html="true" data-placement="left">
-                    <span class="input-group-text" data-bind="style: {'background-color': $data.node().getColor()}">
+                    <span class="input-group-text" data-bind="style: {'background-color': $data.node().color}">
                         <i class="material-icons" data-bind="text: $data.node().getIcon()"></i>
                     </span>
                 </div>

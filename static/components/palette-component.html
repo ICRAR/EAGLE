@@ -3,7 +3,7 @@
         <div class="input-group mb-1"  data-bind="attr: {'data-original-title': $data.getHelpHTML()}, click: function(){$root.setSelection(Eagle.RightWindowMode.NodeInspector, $data, Eagle.FileType.Palette);}" data-toggle="tooltip" data-html="true" data-placement="right">
             <div class="input-group-prepend">
                 <button class="nodeBtn" type="button" data-bind="click: function(){$root.addNodeToLogicalGraph($data)}, clickBubble: false, attr: {id: 'addPaletteNode' + $data.getNoWhiteSpaceName()}">
-                    <span class="input-group-text" data-bind="style: {'background-color': $data.getColor()}">
+                    <span class="input-group-text" data-bind="style: {'background-color': $data.color}">
                         <i class="material-icons" data-bind="text: $data.getIcon()"></i>
                     </span>
                 </button>
