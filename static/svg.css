@@ -83,9 +83,23 @@ g.node g.inputPorts.no-flip text, g.node g.outputPorts.flipped text, g.node g.ex
     user-select: none;
 }
 
+g.node g text.middle {
+    text-anchor: middle !important;
+}
+
+g.node g text.end {
+    text-anchor: end !important;
+}
+
+/*
 g.node g.inputPorts.no-flip text.middle, g.node g.outputPorts.flipped text.middle, g.node g.exitPorts.flipped text.middle {
     text-anchor: middle;
 }
+
+g.node g.inputLocalPorts.no-flip text.middle, g.node g.outputLocalPorts.flipped text.middle, g.node g.exitLocalPorts.flipped text.middle {
+    text-anchor: middle;
+}
+*/
 
 g.node g.inputLocalPorts.no-flip text, g.node g.outputLocalPorts.flipped text, g.node g.exitLocalPorts.flipped text {
     text-anchor: start;
@@ -103,9 +117,15 @@ g.node g.outputPorts.no-flip text, g.node g.exitPorts.no-flip text, g.node g.inp
     user-select: none;
 }
 
+/*
 g.node g.outputPorts.no-flip text.middle, g.node g.exitPorts.no-flip text.middle, g.node g.inputPorts.flipped text.middle {
     text-anchor: middle;
 }
+
+g.node g.outputLocalPorts.no-flip text.middle, g.node g.exitLocalPorts.no-flip text.middle, g.node g.inputLocalPorts.flipped text.middle {
+    text-anchor: middle;
+}
+*/
 
 g.node g.outputLocalPorts.no-flip text, g.node g.exitLocalPorts.no-flip text, g.node g.inputLocalPorts.flipped text {
     text-anchor: end;
