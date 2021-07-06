@@ -1698,6 +1698,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
+        // special case for handling "branch" nodes
+        if (node.getCategory() === Eagle.Category.Branch){
+            return "none";
+        }
+
         // if node has input or output apps, return 'inline' else 'none'
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) ){
             return "inline";
