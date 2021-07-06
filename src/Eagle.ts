@@ -86,8 +86,7 @@ export class Eagle {
 
     static selectedNodeKey : number;
 
-    static nodeDropped : Element;
-    static nodeDropLocation = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
+    static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
     static nodeDragComponentIndex : number;
 
@@ -2217,11 +2216,11 @@ export class Eagle {
         let pos = {x:0, y:0};
 
         // get new position for node
-        if (Eagle.nodeDropLocation.x == 0 && Eagle.nodeDropLocation.y == 0){
+        if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
             pos = this.getNewNodePosition();
-        }else if (Eagle.nodeDropLocation){
+        } else if (Eagle.nodeDropLocation){
             pos = Eagle.nodeDropLocation;
-        }else{
+        } else {
             //if this is fired something has gone terribly wrong
             pos = {x:0, y:0};
             Utils.showNotification("Error", "Unexpected error occurred", "warning");
@@ -2597,19 +2596,18 @@ export class Eagle {
 
     // dragdrop
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        //specifies where the node can be dropped
-        Eagle.nodeDropped = e.target;
+        // retrieve data about the node being dragged
         Eagle.nodeDragPaletteIndex = $(e.target).data('palette-index');
         Eagle.nodeDragComponentIndex = $(e.target).data('component-index');
-        console.log("Eagle.nodeDragPaletteIndex", Eagle.nodeDragPaletteIndex, "Eagle.nodeDragComponentIndex", Eagle.nodeDragComponentIndex);
 
-        //$(".leftWindow").addClass("noDropTarget");
+        // discourage the rightWindow and navbar as drop targets
         $(".rightWindow").addClass("noDropTarget");
         $(".navbar").addClass("noDropTarget");
 
-        //grabs and sets the node's icon and sets it as drag image.
-        const drag = Eagle.nodeDropped.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
+        // grab and set the node's icon and sets it as drag image.
+        const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
+
         return true;
     }
 
@@ -2625,9 +2623,13 @@ export class Eagle {
     }
 
     nodeDropLogicalGraph = (eagle : Eagle, e : JQueryEventObject) : void => {
+        // keep track of the drop location
         Eagle.nodeDropLocation = this.getNodeDropLocation(e);
-        const nodeButton = Eagle.nodeDropped.getElementsByTagName('button')[0] as HTMLElement;
-        nodeButton.click();
+
+        // determine dropped node
+        const sourceComponent : Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
+
+        this.addNodeToLogicalGraph(sourceComponent);
     }
 
     nodeDropPalette = (eagle: Eagle, e: JQueryEventObject) : void => {
@@ -2635,7 +2637,8 @@ export class Eagle {
         const sourceComponent : Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
 
         // TODO: determine destination palette
-        const destinationPalette: Palette = this.palettes()[0];
+        const destinationPaletteIndex : number = $(e.currentTarget).find('palette-component').find('.col').data('palette-index');
+        const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
         // add to destination palette
         destinationPalette.addNode(sourceComponent, true);
