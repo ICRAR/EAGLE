@@ -1798,6 +1798,17 @@ export class Utils {
             if (node.getOutputPorts().length > maxOutputs){
                 results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many output ports. Should have " + maxOutputs);
             }
+
+            // check embedded application categories are not 'None'
+            if (node.hasInputApplication() && node.getInputApplication().getCategory() === Eagle.Category.None){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.");
+            }
+            if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Eagle.Category.None){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.");
+            }
+            if (node.hasExitApplication() && node.getExitApplication().getCategory() === Eagle.Category.None){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application with category 'None'.");
+            }
         }
 
         for (let i = 0 ; i < graph.getEdges().length; i++){
