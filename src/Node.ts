@@ -163,7 +163,7 @@ export class Node {
     }, this);
 
     getNoWhiteSpaceName = () : string => {
-        return this.getDisplayName().replace(' ', '');
+        return this.getDisplayName().replace(/ /g, '');
     }
 
     getDescription = () : string => {

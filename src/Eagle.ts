@@ -86,8 +86,9 @@ export class Eagle {
 
     static selectedNodeKey : number;
 
-    static nodeDropped : Element;
-    static nodeDropLocation = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
+    static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
+    static nodeDragPaletteIndex : number;
+    static nodeDragComponentIndex : number;
 
     constructor(){
         this.palettes = ko.observableArray();
@@ -2215,11 +2216,11 @@ export class Eagle {
         let pos = {x:0, y:0};
 
         // get new position for node
-        if (Eagle.nodeDropLocation.x == 0 && Eagle.nodeDropLocation.y == 0){
+        if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
             pos = this.getNewNodePosition();
-        }else if (Eagle.nodeDropLocation){
+        } else if (Eagle.nodeDropLocation){
             pos = Eagle.nodeDropLocation;
-        }else{
+        } else {
             //if this is fired something has gone terribly wrong
             pos = {x:0, y:0};
             Utils.showNotification("Error", "Unexpected error occurred", "warning");
@@ -2595,20 +2596,24 @@ export class Eagle {
 
     // dragdrop
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        //specifies where the node can be dropped
-        Eagle.nodeDropped = e.target;
-        $(".leftWindow").addClass("noDropTarget");
+        // retrieve data about the node being dragged
+        // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
+        //       Using the native javascript works better, it always fetches the current value of the attribute
+        Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
+        Eagle.nodeDragComponentIndex = parseInt(e.target.getAttribute('data-component-index'), 10);
+
+        // discourage the rightWindow and navbar as drop targets
         $(".rightWindow").addClass("noDropTarget");
         $(".navbar").addClass("noDropTarget");
 
-        //grabs and sets the node's icon and sets it as drag image.
-        const drag = Eagle.nodeDropped.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
+        // grab and set the node's icon and sets it as drag image.
+        const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
         (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
+
         return true;
     }
 
     nodeDragEnd = () : boolean => {
-        $(".leftWindow").removeClass("noDropTarget");
         $(".rightWindow").removeClass("noDropTarget");
         $(".navbar").removeClass("noDropTarget");
         return true;
@@ -2618,13 +2623,35 @@ export class Eagle {
         return false;
     }
 
-    nodeDrop = (eagle : Eagle, e : JQueryEventObject) : void => {
+    nodeDropLogicalGraph = (eagle : Eagle, e : JQueryEventObject) : void => {
+        // keep track of the drop location
         Eagle.nodeDropLocation = this.getNodeDropLocation(e);
-        const nodeButton = Eagle.nodeDropped.getElementsByTagName('button')[0] as HTMLElement;
-        nodeButton.click();
+
+        // determine dropped node
+        const sourceComponent : Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
+
+        this.addNodeToLogicalGraph(sourceComponent);
     }
 
-    getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number}=> {
+    nodeDropPalette = (eagle: Eagle, e: JQueryEventObject) : void => {
+        // determine dropped node
+        const sourceComponent : Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
+
+        // TODO: determine destination palette
+        const destinationPaletteIndex : number = parseInt($(e.currentTarget).find('palette-component').find('.col')[0].getAttribute('data-palette-index'), 10);
+        const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
+
+        // check user can write to destination palette
+        if (destinationPalette.fileInfo().readonly){
+            Utils.showUserMessage("Error", "Unable to copy component to readonly palette.");
+            return;
+        }
+
+        // add to destination palette
+        destinationPalette.addNode(sourceComponent, true);
+    }
+
+    getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number} => {
         let x = e.clientX;
         let y = e.clientY;
 
