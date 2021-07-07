@@ -766,7 +766,20 @@
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
-            "outputPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "6ac20e14-6c34-4560-8671-ae6bce75b6e4",
+                    "IdText": "Y",
+                    "event": false,
+                    "type": "String"
+                },
+                {
+                    "Id": "e848c50b-928d-4502-8d22-56e543299744",
+                    "IdText": "N",
+                    "event": false,
+                    "type": "String"
+                }
+            ],
             "key": -23,
             "fields": [{
                 "text": "Execution time",
