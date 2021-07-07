@@ -3171,7 +3171,16 @@ export class Eagle {
             return;
         }
 
-        this.setNodeApplication("Input Application", "Choose an input application", this.selectedNode().setInputApplication);
+        this.setNodeApplication("Input Application", "Choose an input application", (node: Node) => {
+            // remove all edges incident on the old input application
+            const oldApp: Node = this.selectedNode().getInputApplication();
+
+            if (oldApp !== null){
+                this.logicalGraph().removeEdgesByKey(oldApp.getKey());
+            }
+
+            this.selectedNode().setInputApplication(node);
+        });
     }
 
     setNodeOutputApplication = () : void => {
@@ -3182,7 +3191,16 @@ export class Eagle {
             return;
         }
 
-        this.setNodeApplication("Output Application", "Choose an output application", this.selectedNode().setOutputApplication);
+        this.setNodeApplication("Output Application", "Choose an output application", (node: Node) => {
+            // remove all edges incident on the old output application
+            const oldApp: Node = this.selectedNode().getOutputApplication();
+
+            if (oldApp !== null){
+                this.logicalGraph().removeEdgesByKey(oldApp.getKey());
+            }
+
+            this.selectedNode().setOutputApplication(node);
+        });
     }
 
     setNodeExitApplication = () : void => {
@@ -3193,7 +3211,16 @@ export class Eagle {
             return;
         }
 
-        this.setNodeApplication("Exit Application", "Choose an exit application", this.selectedNode().setExitApplication);
+        this.setNodeApplication("Exit Application", "Choose an exit application", (node: Node) => {
+            // remove all edges incident on the old exit application
+            const oldApp: Node = this.selectedNode().getExitApplication();
+
+            if (oldApp !== null){
+                this.logicalGraph().removeEdgesByKey(oldApp.getKey());
+            }
+
+            this.selectedNode().setExitApplication(node);
+        });
     }
 
     getNewNodePosition = () : {x:number, y:number} => {
