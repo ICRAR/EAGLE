@@ -2597,8 +2597,10 @@ export class Eagle {
     // dragdrop
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
         // retrieve data about the node being dragged
-        Eagle.nodeDragPaletteIndex = $(e.target).data('palette-index');
-        Eagle.nodeDragComponentIndex = $(e.target).data('component-index');
+        // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
+        //       Using the native javascript works better, it always fetches the current value of the attribute
+        Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
+        Eagle.nodeDragComponentIndex = parseInt(e.target.getAttribute('data-component-index'), 10);
         console.log("nodeDragPaletteIndex", Eagle.nodeDragPaletteIndex, "nodeDragComponentIndex", Eagle.nodeDragComponentIndex);
 
         // discourage the rightWindow and navbar as drop targets
