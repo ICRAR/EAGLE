@@ -2613,7 +2613,6 @@ export class Eagle {
     }
 
     nodeDragEnd = () : boolean => {
-        //$(".leftWindow").removeClass("noDropTarget");
         $(".rightWindow").removeClass("noDropTarget");
         $(".navbar").removeClass("noDropTarget");
         return true;
