@@ -2601,7 +2601,6 @@ export class Eagle {
         //       Using the native javascript works better, it always fetches the current value of the attribute
         Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
         Eagle.nodeDragComponentIndex = parseInt(e.target.getAttribute('data-component-index'), 10);
-        console.log("nodeDragPaletteIndex", Eagle.nodeDragPaletteIndex, "nodeDragComponentIndex", Eagle.nodeDragComponentIndex);
 
         // discourage the rightWindow and navbar as drop targets
         $(".rightWindow").addClass("noDropTarget");
@@ -2639,8 +2638,14 @@ export class Eagle {
         const sourceComponent : Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
 
         // TODO: determine destination palette
-        const destinationPaletteIndex : number = $(e.currentTarget).find('palette-component').find('.col').data('palette-index');
+        const destinationPaletteIndex : number = parseInt($(e.currentTarget).find('palette-component').find('.col')[0].getAttribute('data-palette-index'), 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
+
+        // check user can write to destination palette
+        if (destinationPalette.fileInfo().readonly){
+            Utils.showUserMessage("Error", "Unable to copy component to readonly palette.");
+            return;
+        }
 
         // add to destination palette
         destinationPalette.addNode(sourceComponent, true);
