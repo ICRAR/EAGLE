@@ -680,13 +680,7 @@ export class LogicalGraph {
     }
 
     removeNodeByKey = (key : number) : void => {
-        // delete edges that start from or end at this node
-        for (let i = this.edges.length - 1 ; i >= 0; i--){
-            const edge : Edge = this.edges[i];
-            if (edge.getSrcNodeKey() === key || edge.getDestNodeKey() === key){
-                this.edges.splice(i, 1);
-            }
-        }
+        this.removeEdgesByKey(key);
 
         // delete the node
         for (let i = this.nodes.length - 1; i >= 0 ; i--){
@@ -810,6 +804,16 @@ export class LogicalGraph {
     removeEdgeById = (id: string) : void => {
         for (let i = this.edges.length - 1; i >= 0 ; i--){
             if (this.edges[i].getId() === id){
+                this.edges.splice(i, 1);
+            }
+        }
+    }
+
+    // delete edges that start from or end at the node with the given key
+    removeEdgesByKey = (key: number) : void => {
+        for (let i = this.edges.length - 1 ; i >= 0; i--){
+            const edge : Edge = this.edges[i];
+            if (edge.getSrcNodeKey() === key || edge.getDestNodeKey() === key){
                 this.edges.splice(i, 1);
             }
         }
