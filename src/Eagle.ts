@@ -2892,7 +2892,12 @@ export class Eagle {
 
     // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
     selectNodeInHierarchy = (nodeViewModel : any) : void => {
-        const node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key);
+        const node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key());
+        if (node === null){
+            console.warn("Unable to find node in hierarchy!");
+            return;
+        }
+
         node.toggleExpanded();
 
         // de-select all nodes, then select this node
