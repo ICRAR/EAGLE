@@ -2922,10 +2922,11 @@ export class Eagle {
     editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number) : void => {
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsList(this.logicalGraph());
+        allFields.sort(Field.sortFunc);
 
         const allFieldNames: string[] = [];
         for (let i = 0 ; i < allFields.length ; i++){
-            allFieldNames.push(allFields[i].getName());
+            allFieldNames.push(allFields[i].getName() + " (" + allFields[i].getType() + ")");
         }
 
         //if creating a new field component parameter
@@ -2988,11 +2989,12 @@ export class Eagle {
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
         const allPorts: Port[] = Utils.getUniquePortsList(this.logicalGraph());
+        allPorts.sort(Port.sortFunc);
 
         const allPortNames: string[] = [];
         // get list of port names from list of ports
         for (let i = 0 ; i < allPorts.length ; i++){
-            allPortNames.push(allPorts[i].getName());
+            allPortNames.push(allPorts[i].getName() + " (" + allPorts[i].getType() + ")");
         }
 
         if (modalType === Eagle.ModalType.Add){

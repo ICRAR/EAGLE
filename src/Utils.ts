@@ -340,6 +340,9 @@ export class Utils {
         if (dataType === "Complex"){
             return Eagle.DataType.Complex;
         }
+        if (dataType === "Unknown"){
+            return Eagle.DataType.Unknown;
+        }
 
         console.warn("Unknown DataType", dataType);
         return Eagle.DataType.Unknown;

@@ -85,7 +85,7 @@ export class Field {
     }
 
     getFieldValue = () : string => {
-        var tooltipText = "Val: " + this.value();
+        const tooltipText = "Val: " + this.value();
         if  (tooltipText === "Val: "){
             return "";
         }
@@ -143,5 +143,21 @@ export class Field {
             type = data.type;
 
         return new Field(data.text, data.name, data.value.toString(), data.description, readonly, type);
+    }
+
+    public static sortFunc = (a: Field, b: Field) : number => {
+        if (a.name() < b.name())
+            return -1;
+
+        if (a.name() > b.name())
+            return 1;
+
+        if (a.type() < b.type())
+            return -1;
+
+        if (a.type() > b.type())
+            return 1;
+
+        return 0;
     }
 }
