@@ -34,10 +34,10 @@ export class Node {
     private key : ko.Observable<number>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
-    private x : ko.Observable<number>;
-    private y : ko.Observable<number>;
-    private width : ko.Observable<number>;
-    private height : ko.Observable<number>;
+    private x : number;
+    private y : number;
+    private width : number;
+    private height : number;
     private color : ko.Observable<string>;
     private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
                                                    // (primary method is using parent-child relationships)
@@ -91,10 +91,10 @@ export class Node {
         this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
-        this.x = ko.observable(0);
-        this.y = ko.observable(0);
-        this.width = ko.observable(Node.DEFAULT_WIDTH);
-        this.height = ko.observable(Node.DEFAULT_HEIGHT);
+        this.x = 0;
+        this.y = 0;
+        this.width = Node.DEFAULT_WIDTH;
+        this.height = Node.DEFAULT_HEIGHT;
         this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
 
@@ -175,33 +175,33 @@ export class Node {
     }
 
     getPosition = () : {x:number, y:number} => {
-        return {x: this.x(), y: this.y()};
+        return {x: this.x, y: this.y};
     }
 
     setPosition = (x: number, y: number) : void => {
-        this.x(x);
-        this.y(y);
+        this.x = x;
+        this.y = y;
     }
 
     changePosition = (dx : number, dy : number) : void => {
-        this.x(this.x() + dx);
-        this.y(this.y() + dy);
+        this.x += dx;
+        this.y += dy;
     }
 
     getWidth = () : number => {
-        return this.width();
+        return this.width;
     }
 
     setWidth = (width : number) : void => {
-        this.width(width);
+        this.width = width;
     }
 
     getHeight = () : number => {
-        return this.height();
+        return this.height;
     }
 
     setHeight = (height : number) : void => {
-        this.height(height);
+        this.height = height;
     }
 
     getColor = () : string => {
@@ -600,10 +600,10 @@ export class Node {
         this.key(0);
         this.name("");
         this.description("");
-        this.x(0);
-        this.y(0);
-        this.width(Node.DEFAULT_WIDTH);
-        this.height(Node.DEFAULT_HEIGHT);
+        this.x = 0;
+        this.y = 0;
+        this.width = Node.DEFAULT_WIDTH;
+        this.height = Node.DEFAULT_HEIGHT;
         this.color(Node.DEFAULT_COLOR);
         this.drawOrderHint(0);
 
@@ -638,14 +638,14 @@ export class Node {
         }
 
         if (!this.isGroup() && this.isCollapsed()){
-            return this.width();
+            return this.width;
         }
 
         if (this.getCategoryType() === Eagle.CategoryType.Data && !this.isShowPorts()){
             return Node.DATA_COMPONENT_WIDTH;
         }
 
-        return this.width();
+        return this.width;
     }
 
     getDisplayHeight = () : number => {
@@ -653,7 +653,7 @@ export class Node {
             if (this.isCollapsed()){
                 return Node.COLLAPSED_HEIGHT;
             } else {
-                return this.height();
+                return this.height;
             }
         }
 
@@ -935,10 +935,10 @@ export class Node {
     clone = () : Node => {
         const result : Node = new Node(this.key(), this.name(), this.description(), this.category(), this.categoryType(), this.readonly());
 
-        result.x(this.x());
-        result.y(this.y());
-        result.width(this.width());
-        result.height(this.height());
+        result.x = this.x;
+        result.y = this.y;
+        result.width = this.width;
+        result.height = this.height;
         result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
 
@@ -1222,8 +1222,8 @@ export class Node {
         if (typeof nodeData.height !== 'undefined'){
             height = nodeData.height;
         }
-        node.width(width);
-        node.height(height);
+        node.width = width;
+        node.height = height;
 
         // showPorts
         if (typeof nodeData.showPorts !== 'undefined'){
@@ -1598,10 +1598,10 @@ export class Node {
         result.key = node.key();
         result.text = node.name();
         result.description = node.description();
-        result.x = node.x();
-        result.y = node.y();
-        result.width = node.width();
-        result.height = node.height();
+        result.x = node.x;
+        result.y = node.y;
+        result.width = node.width;
+        result.height = node.height;
         result.collapsed = node.collapsed();
         result.showPorts = node.showPorts();
         result.flipPorts = node.flipPorts();
@@ -1762,10 +1762,10 @@ export class Node {
         result.key = node.key();
         result.text = node.name();
         result.description = node.description();
-        result.x = node.x();
-        result.y = node.y();
-        result.width = node.width();
-        result.height = node.height();
+        result.x = node.x;
+        result.y = node.y;
+        result.width = node.width;
+        result.height = node.height;
         result.collapsed = node.collapsed();
         result.showPorts = node.showPorts();
         result.flipPorts = node.flipPorts();
@@ -1813,10 +1813,10 @@ export class Node {
 
         node.color(nodeData.color);
         node.drawOrderHint(nodeData.drawOrderHint);
-        node.x(nodeData.x);
-        node.y(nodeData.y);
-        node.width(nodeData.width);
-        node.height(nodeData.height);
+        node.x = nodeData.x;
+        node.y = nodeData.y;
+        node.width = nodeData.width;
+        node.height = nodeData.height;
         node.collapsed(nodeData.collapsed);
         node.showPorts(nodeData.showPorts);
         node.flipPorts(nodeData.flipPorts);
@@ -1855,10 +1855,10 @@ export class Node {
         result.color = node.color();
         result.drawOrderHint = node.drawOrderHint();
 
-        result.x = node.x();
-        result.y = node.y();
-        result.width = node.width();
-        result.height = node.height();
+        result.x = node.x;
+        result.y = node.y;
+        result.width = node.width;
+        result.height = node.height;
         result.collapsed = node.collapsed();
         result.showPorts = node.showPorts();
         result.flipPorts = node.flipPorts();
@@ -1876,10 +1876,10 @@ export class Node {
         result.color(nodeData.color);
         result.drawOrderHint(nodeData.drawOrderHint);
 
-        result.x(nodeData.x);
-        result.y(nodeData.y);
-        result.width(nodeData.width);
-        result.height(nodeData.height);
+        result.x = nodeData.x;
+        result.y = nodeData.y;
+        result.width = nodeData.width;
+        result.height = nodeData.height;
         result.collapsed(nodeData.collapsed);
         result.showPorts(nodeData.showPorts);
         result.flipPorts(nodeData.flipPorts);
