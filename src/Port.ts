@@ -127,4 +127,20 @@ export class Port {
 
         return new Port(data.Id, data.IdText, event, type);
     }
+
+    public static sortFunc = (a: Port, b: Port) : number => {
+        if (a.name() < b.name())
+            return -1;
+
+        if (a.name() > b.name())
+            return 1;
+
+        if (a.type() < b.type())
+            return -1;
+
+        if (a.type() > b.type())
+            return 1;
+
+        return 0;
+    }
 }
