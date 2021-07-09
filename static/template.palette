@@ -805,7 +805,7 @@
             }, {
                 "text": "Appclass",
                 "name": "appclass",
-                "value": "dlg.apps.simple.BranchBaseApp",
+                "value": "dlg.apps.simple.SimpleBranch",
                 "description": "The python class that implements this branch construct",
                 "readonly": false,
                 "type": "String"
