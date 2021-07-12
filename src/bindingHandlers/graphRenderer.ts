@@ -1626,16 +1626,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getSubHeaderText(data : Node) : string {
-        if (data.getCategoryType() === Eagle.CategoryType.Data && !data.isShowPorts()){
-            const multiplicity : number = findMultiplicity(data);
-
-            if (multiplicity === 1){
-                return "";
-            } else {
-                return multiplicity.toString();
-            }
-        }
-
         return "";
     }
 
@@ -3128,31 +3118,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             // otherwise continue while loop
         }
-    }
-
-    function findMultiplicity(node : Node) : number {
-        let n : Node = node;
-        let result : number = 1;
-        let iterations : number = 0;
-
-        while (true){
-            if (iterations > 10){
-                console.error("too many iterations in findMultiplicity()");
-                break;
-            }
-
-            iterations += 1;
-
-            n = findNodeWithKey(n.getParentKey(), nodeData);
-
-            if (n === null){
-                break;
-            }
-
-            result *= n.getLocalMultiplicity();
-        }
-
-        return result;
     }
 
     function getNodeDisplay(node : Node) : string {

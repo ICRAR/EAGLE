@@ -1074,6 +1074,17 @@ export class Node {
             return 1;
         }
 
+        if (this.isLoop()){
+            const numCopies = this.getFieldByName("num_of_iter");
+
+            if (numCopies === null){
+                console.warn("Unable to determine local multiplicity of Loop, no 'num_of_iter' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(numCopies.getValue(), 10);
+        }
+
         return 1;
     }
 
