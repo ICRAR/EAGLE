@@ -887,4 +887,29 @@ export class LogicalGraph {
         node.setWidth(maxX - minX);
         node.setHeight(maxY - minY);
     }
+
+    findMultiplicity = (node : Node) : number => {
+        let n : Node = node;
+        let result : number = 1;
+        let iterations : number = 0;
+
+        while (true){
+            if (iterations > 10){
+                console.error("too many iterations in findMultiplicity()");
+                break;
+            }
+
+            iterations += 1;
+
+            n = this.findNodeByKey(n.getParentKey());
+
+            if (n === null){
+                break;
+            }
+
+            result *= n.getLocalMultiplicity();
+        }
+
+        return result;
+    }
 }
