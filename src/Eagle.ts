@@ -142,6 +142,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("New palette", ["n"], KeyboardShortcut.true, (eagle): void => {eagle.newPalette();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Open palette from local disk", ["p"], KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", ["g"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Insert graph from local disk", ["i"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToInsert();}));
 
 
 
@@ -491,8 +492,8 @@ export class Eagle {
      * @param e The event to be handled.
      */
     uploadGraphFile = () : void => {
-        const uploadedGraphFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFile");
-        const fileFullPath : string = uploadedGraphFileInputElement.value;
+        const uploadedGraphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToLoad");
+        const fileFullPath : string = uploadedGraphFileToLoadInputElement.value;
         const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
@@ -507,8 +508,8 @@ export class Eagle {
 
         // Gets the file from formdata.
         const formData = new FormData();
-        formData.append('file', uploadedGraphFileInputElement.files[0]);
-        uploadedGraphFileInputElement.value = "";
+        formData.append('file', uploadedGraphFileToLoadInputElement.files[0]);
+        uploadedGraphFileToLoadInputElement.value = "";
 
         Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
             if (error !== null){
@@ -516,11 +517,100 @@ export class Eagle {
                 return;
             }
 
-            this._loadGraphJSON(data, showErrors, fileFullPath);
+            this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
+                this.logicalGraph(lg);
+
+                // update the activeFileInfo with details of the repository the file was loaded from
+                if (fileFullPath !== ""){
+                    this.updateActiveFileInfo(Eagle.FileType.Graph, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+                }
+            });
         });
     }
 
-    private _loadGraphJSON = (data: string, showErrors: boolean, fileFullPath: string) : void => {
+    /**
+     * Uploads a file from a local file location. File will be "insert"ed into the current graph
+     * @param e The event to be handled.
+     */
+    insertGraphFile = () : void => {
+        const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
+        const fileFullPath : string = uploadedGraphFileToInsertInputElement.value;
+        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+
+        // abort if value is empty string
+        if (fileFullPath === ""){
+            return;
+        }
+
+        if (!Utils.verifyFileExtension(fileFullPath)) {
+            Utils.showUserMessage("Wrong file extension!", "Filename: " + fileFullPath);
+            return;
+        }
+
+        // Gets the file from formdata.
+        const formData = new FormData();
+        formData.append('file', uploadedGraphFileToInsertInputElement.files[0]);
+        uploadedGraphFileToInsertInputElement.value = "";
+
+        Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
+            if (error !== null){
+                console.error(error);
+                return;
+            }
+
+            this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
+                // create map of inserted graph keys to final graph keys
+                const keyMap: Map<number, number> = new Map();
+                const portMap: Map<string, string> = new Map();
+
+                // insert nodes from lg into the existing logicalGraph
+                for (let i = 0 ; i < lg.getNodes().length; i++){
+                    const node: Node = lg.getNodes()[i];
+
+                    this.logicalGraph().addNode(node.clone(), node.getPosition().x, node.getPosition().y, (insertedNode: Node) => {
+                        // save mapping for node itself
+                        keyMap.set(node.getKey(), insertedNode.getKey());
+
+                        // save mapping for input ports
+                        for (let j = 0 ; j < node.getInputPorts().length; j++){
+                            portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j].getId());
+                        }
+
+                        // save mapping for output ports
+                        for (let j = 0 ; j < node.getOutputPorts().length; j++){
+                            portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j].getId());
+                        }
+                    });
+                }
+
+                // update some other details of the nodes are updated correctly
+                for (let i = 0 ; i < lg.getNodes().length ; i++){
+                    const node: Node = lg.getNodes()[i];
+                    const insertedNodeKey: number = keyMap.get(node.getKey());
+                    const insertedNode: Node = this.logicalGraph().findNodeByKey(insertedNodeKey);
+
+                    // if original node had no parent, skip
+                    if (node.getParentKey() === null){
+                        continue;
+                    }
+
+                    // make sure parent is set correctly
+                    insertedNode.setParentKey(keyMap.get(node.getParentKey()));
+
+                }
+
+                // insert edges from lg into the existing logicalGraph
+                for (let i = 0 ; i < lg.getEdges().length; i++){
+                    const edge: Edge = lg.getEdges()[i];
+                    this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), null);
+                }
+
+                this.flagActiveDiagramHasMutated();
+            });
+        });
+    }
+
+    private _loadGraphJSON = (data: string, showErrors: boolean, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void) : void => {
         let dataObject;
 
         // attempt to parse the JSON
@@ -546,15 +636,15 @@ export class Eagle {
             // use the correct parsing function based on schema version
             switch (schemaVersion){
                 case Eagle.DALiuGESchemaVersion.AppRef:
-                    this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
+                    loadFunc(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
                     break;
                 case Eagle.DALiuGESchemaVersion.V3:
                     Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                    this.logicalGraph(LogicalGraph.fromV3Json(dataObject, dummyFile, errors));
+                    loadFunc(LogicalGraph.fromV3Json(dataObject, dummyFile, errors));
                     break;
                 case Eagle.DALiuGESchemaVersion.OJS:
                 case Eagle.DALiuGESchemaVersion.Unknown:
-                    this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
+                    loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
                     break;
             }
 
@@ -568,11 +658,6 @@ export class Eagle {
             }
         } else {
             Utils.showUserMessage("Error", "This is not a graph file!");
-        }
-
-        // update the activeFileInfo with details of the repository the file was loaded from
-        if (fileFullPath !== ""){
-            this.updateActiveFileInfo(fileType, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
         }
     }
 
@@ -663,12 +748,16 @@ export class Eagle {
     /**
      * The following two functions allows the file selectors to be hidden and let tags 'click' them
      */
-    getGraphFileToLoad = () : void => {
-        document.getElementById("uploadedGraphFile").click();
-    }
+     getGraphFileToLoad = () : void => {
+         document.getElementById("uploadedGraphFileToLoad").click();
+     }
+
+     getGraphFileToInsert = () : void => {
+         document.getElementById("uploadedGraphFileToInsert").click();
+     }
 
     getPaletteFileToLoad = () : void => {
-        document.getElementById("uploadedPaletteFile").click();
+        document.getElementById("uploadedPaletteFileToLoad").click();
     }
 
     /**
