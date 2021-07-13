@@ -787,7 +787,9 @@ export class Eagle {
 
             const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
-            this._loadGraphJSON(userText, showErrors, "");
+            this._loadGraphJSON(userText, showErrors, "", (lg: LogicalGraph) : void => {
+                this.logicalGraph(lg);
+            });
         });
     }
 
