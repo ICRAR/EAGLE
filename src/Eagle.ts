@@ -570,6 +570,49 @@ export class Eagle {
                     this.logicalGraph().addNode(node.clone(), node.getPosition().x, node.getPosition().y, (insertedNode: Node) => {
                         // save mapping for node itself
                         keyMap.set(node.getKey(), insertedNode.getKey());
+                        console.log("Insert Node", node.getName(), node.getKey(), "as", insertedNode.getKey());
+
+                        // copy embedded input application
+                        if (node.hasInputApplication()){
+                            const inputApplication : Node = node.getInputApplication();
+                            const clone : Node = inputApplication.clone();
+                            const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+                            clone.setKey(newKey);
+                            keyMap.set(inputApplication.getKey(), newKey);
+
+                            insertedNode.setInputApplication(clone);
+                            console.log("Insert Input Application Node", inputApplication.getName(), inputApplication.getKey(), "as", clone.getKey());
+
+                            // loop through ports, adding them to the port map
+                            for (let j = 0 ; j < inputApplication.getInputPorts().length; j++){
+                                portMap.set(inputApplication.getInputPorts()[j].getId(), inputApplication.getInputPorts()[j].getId());
+                            }
+
+                            for (let j = 0 ; j < inputApplication.getOutputPorts().length; j++){
+                                portMap.set(inputApplication.getOutputPorts()[j].getId(), inputApplication.getOutputPorts()[j].getId());
+                            }
+                        }
+
+                        // copy embedded output application
+                        if (node.hasOutputApplication()){
+                            const outputApplication : Node = node.getOutputApplication();
+                            const clone : Node = outputApplication.clone();
+                            const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+                            clone.setKey(newKey);
+                            keyMap.set(outputApplication.getKey(), newKey);
+
+                            insertedNode.setOutputApplication(clone);
+                            console.log("Insert Output Application Node", outputApplication.getName(), outputApplication.getKey(), "as", clone.getKey());
+
+                            // loop through ports, adding them to the port map
+                            for (let j = 0 ; j < outputApplication.getInputPorts().length; j++){
+                                portMap.set(outputApplication.getInputPorts()[j].getId(), outputApplication.getInputPorts()[j].getId());
+                            }
+
+                            for (let j = 0 ; j < outputApplication.getOutputPorts().length; j++){
+                                portMap.set(outputApplication.getOutputPorts()[j].getId(), outputApplication.getOutputPorts()[j].getId());
+                            }
+                        }
 
                         // save mapping for input ports
                         for (let j = 0 ; j < node.getInputPorts().length; j++){
@@ -602,6 +645,10 @@ export class Eagle {
                 // insert edges from lg into the existing logicalGraph
                 for (let i = 0 ; i < lg.getEdges().length; i++){
                     const edge: Edge = lg.getEdges()[i];
+
+                    console.log(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId());
+                    console.log(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()));
+
                     this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), null);
                 }
 
