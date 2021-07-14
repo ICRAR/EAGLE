@@ -1482,10 +1482,28 @@ export class Eagle {
                     return;
                 }
 
-                this.openRemoteFile(file);
+                Utils.requestUserConfirm("Load or Insert?", "Load this file standalone, or insert contents of graph into current graph?", "Load", "Insert", (confirmed: boolean) => {
+                    if (confirmed){
+                        this.openRemoteFile(file);
+                    } else {
+                        this.insertRemoteFile(file);
+                    }
+                });
             });
         } else {
-            this.openRemoteFile(file);
+            // if current file has zero nodes, then always open instead of insert
+            // otherwise, ask user whether to load or insert
+            if (this.logicalGraph().getNodes().length === 0){
+                this.openRemoteFile(file);
+            } else {
+                Utils.requestUserConfirm("Load or Insert?", "Load this file standalone, or insert contents of graph into current graph?", "Load", "Insert", (confirmed: boolean) => {
+                    if (confirmed){
+                        this.openRemoteFile(file);
+                    } else {
+                        this.insertRemoteFile(file);
+                    }
+                });
+            }
         }
     }
 
@@ -1715,6 +1733,88 @@ export class Eagle {
             // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
             if (fileTypeLoaded === Eagle.FileType.Graph){
                 this.updateActiveFileInfo(fileTypeLoaded, file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+            }
+        });
+    };
+
+    insertRemoteFile = (file : RepositoryFile) : void => {
+        // only do this for graphs at the moment
+        if (file.type !== Eagle.FileType.Graph){
+            Utils.showUserMessage("Error", "Unable to insert non-graph!");
+            console.error("Unable to insert non-graph!");
+            return;
+        }
+
+
+        // flag file as being fetched
+        file.isFetching(true);
+
+        // check the service required to fetch the file
+        let insertRemoteFileFunc;
+        switch (file.repository.service){
+            case Eagle.RepositoryService.GitHub:
+                insertRemoteFileFunc = GitHub.openRemoteFile;
+                break;
+            case Eagle.RepositoryService.GitLab:
+                insertRemoteFileFunc = GitLab.openRemoteFile;
+                break;
+            default:
+                console.warn("Unsure how to fetch file with unknown service ", file.repository.service);
+                break;
+        }
+
+        // load file from github or gitlab
+        insertRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
+            // flag fetching as complete
+            file.isFetching(false);
+
+            // display error if one occurred
+            if (error != null){
+                Utils.showUserMessage("Error", "Failed to load a file!");
+                console.error(error);
+                return;
+            }
+
+            // if setting dictates, show errors during loading
+            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+
+            // attempt to parse the JSON
+            let dataObject;
+            try {
+                dataObject = JSON.parse(data);
+            }
+            catch(err){
+                Utils.showUserMessage("Error parsing file JSON", err.message);
+                return;
+            }
+
+            // attempt to determine schema version from FileInfo
+            const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
+            //console.log("!!!!! Determined Schema Version", schemaVersion);
+
+            const errors: string[] = [];
+
+            // use the correct parsing function based on schema version
+            switch (schemaVersion){
+                case Eagle.DALiuGESchemaVersion.AppRef:
+                    this.insertGraph(LogicalGraph.fromAppRefJson(dataObject, file, errors));
+                    break;
+                case Eagle.DALiuGESchemaVersion.V3:
+                    Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
+                    this.insertGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
+                    break;
+                case Eagle.DALiuGESchemaVersion.OJS:
+                case Eagle.DALiuGESchemaVersion.Unknown:
+                    this.insertGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
+                    break;
+            }
+
+            if (errors.length > 0){
+                if (showErrors){
+                    Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+                }
+            } else {
+                Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
             }
         });
     };
