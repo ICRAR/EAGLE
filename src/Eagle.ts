@@ -570,7 +570,6 @@ export class Eagle {
                     this.logicalGraph().addNode(node.clone(), node.getPosition().x, node.getPosition().y, (insertedNode: Node) => {
                         // save mapping for node itself
                         keyMap.set(node.getKey(), insertedNode.getKey());
-                        console.log("Insert Node", node.getName(), node.getKey(), "as", insertedNode.getKey());
 
                         // copy embedded input application
                         if (node.hasInputApplication()){
@@ -581,7 +580,6 @@ export class Eagle {
                             keyMap.set(inputApplication.getKey(), newKey);
 
                             insertedNode.setInputApplication(clone);
-                            console.log("Insert Input Application Node", inputApplication.getName(), inputApplication.getKey(), "as", clone.getKey());
 
                             // loop through ports, adding them to the port map
                             for (let j = 0 ; j < inputApplication.getInputPorts().length; j++){
@@ -602,7 +600,6 @@ export class Eagle {
                             keyMap.set(outputApplication.getKey(), newKey);
 
                             insertedNode.setOutputApplication(clone);
-                            console.log("Insert Output Application Node", outputApplication.getName(), outputApplication.getKey(), "as", clone.getKey());
 
                             // loop through ports, adding them to the port map
                             for (let j = 0 ; j < outputApplication.getInputPorts().length; j++){
@@ -645,10 +642,6 @@ export class Eagle {
                 // insert edges from lg into the existing logicalGraph
                 for (let i = 0 ; i < lg.getEdges().length; i++){
                     const edge: Edge = lg.getEdges()[i];
-
-                    console.log(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId());
-                    console.log(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()));
-
                     this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), null);
                 }
 
