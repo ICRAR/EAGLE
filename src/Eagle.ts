@@ -1798,14 +1798,17 @@ export class Eagle {
             switch (schemaVersion){
                 case Eagle.DALiuGESchemaVersion.AppRef:
                     this.insertGraph(LogicalGraph.fromAppRefJson(dataObject, file, errors));
+                    this.flagActiveDiagramHasMutated();
                     break;
                 case Eagle.DALiuGESchemaVersion.V3:
                     Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
                     this.insertGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
+                    this.flagActiveDiagramHasMutated();
                     break;
                 case Eagle.DALiuGESchemaVersion.OJS:
                 case Eagle.DALiuGESchemaVersion.Unknown:
                     this.insertGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
+                    this.flagActiveDiagramHasMutated();
                     break;
             }
 
