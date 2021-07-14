@@ -559,91 +559,7 @@ export class Eagle {
             }
 
             this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
-                // create map of inserted graph keys to final graph keys
-                const keyMap: Map<number, number> = new Map();
-                const portMap: Map<string, string> = new Map();
-
-                // insert nodes from lg into the existing logicalGraph
-                for (let i = 0 ; i < lg.getNodes().length; i++){
-                    const node: Node = lg.getNodes()[i];
-
-                    this.logicalGraph().addNode(node.clone(), node.getPosition().x, node.getPosition().y, (insertedNode: Node) => {
-                        // save mapping for node itself
-                        keyMap.set(node.getKey(), insertedNode.getKey());
-
-                        // copy embedded input application
-                        if (node.hasInputApplication()){
-                            const inputApplication : Node = node.getInputApplication();
-                            const clone : Node = inputApplication.clone();
-                            const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
-                            clone.setKey(newKey);
-                            keyMap.set(inputApplication.getKey(), newKey);
-
-                            insertedNode.setInputApplication(clone);
-
-                            // loop through ports, adding them to the port map
-                            for (let j = 0 ; j < inputApplication.getInputPorts().length; j++){
-                                portMap.set(inputApplication.getInputPorts()[j].getId(), inputApplication.getInputPorts()[j].getId());
-                            }
-
-                            for (let j = 0 ; j < inputApplication.getOutputPorts().length; j++){
-                                portMap.set(inputApplication.getOutputPorts()[j].getId(), inputApplication.getOutputPorts()[j].getId());
-                            }
-                        }
-
-                        // copy embedded output application
-                        if (node.hasOutputApplication()){
-                            const outputApplication : Node = node.getOutputApplication();
-                            const clone : Node = outputApplication.clone();
-                            const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
-                            clone.setKey(newKey);
-                            keyMap.set(outputApplication.getKey(), newKey);
-
-                            insertedNode.setOutputApplication(clone);
-
-                            // loop through ports, adding them to the port map
-                            for (let j = 0 ; j < outputApplication.getInputPorts().length; j++){
-                                portMap.set(outputApplication.getInputPorts()[j].getId(), outputApplication.getInputPorts()[j].getId());
-                            }
-
-                            for (let j = 0 ; j < outputApplication.getOutputPorts().length; j++){
-                                portMap.set(outputApplication.getOutputPorts()[j].getId(), outputApplication.getOutputPorts()[j].getId());
-                            }
-                        }
-
-                        // save mapping for input ports
-                        for (let j = 0 ; j < node.getInputPorts().length; j++){
-                            portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j].getId());
-                        }
-
-                        // save mapping for output ports
-                        for (let j = 0 ; j < node.getOutputPorts().length; j++){
-                            portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j].getId());
-                        }
-                    });
-                }
-
-                // update some other details of the nodes are updated correctly
-                for (let i = 0 ; i < lg.getNodes().length ; i++){
-                    const node: Node = lg.getNodes()[i];
-                    const insertedNodeKey: number = keyMap.get(node.getKey());
-                    const insertedNode: Node = this.logicalGraph().findNodeByKey(insertedNodeKey);
-
-                    // if original node had no parent, skip
-                    if (node.getParentKey() === null){
-                        continue;
-                    }
-
-                    // make sure parent is set correctly
-                    insertedNode.setParentKey(keyMap.get(node.getParentKey()));
-
-                }
-
-                // insert edges from lg into the existing logicalGraph
-                for (let i = 0 ; i < lg.getEdges().length; i++){
-                    const edge: Edge = lg.getEdges()[i];
-                    this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), null);
-                }
+                this.insertGraph(lg);
 
                 this.flagActiveDiagramHasMutated();
             });
@@ -698,6 +614,94 @@ export class Eagle {
             }
         } else {
             Utils.showUserMessage("Error", "This is not a graph file!");
+        }
+    }
+
+    insertGraph = (lg: LogicalGraph) : void => {
+        // create map of inserted graph keys to final graph keys
+        const keyMap: Map<number, number> = new Map();
+        const portMap: Map<string, string> = new Map();
+
+        // insert nodes from lg into the existing logicalGraph
+        for (let i = 0 ; i < lg.getNodes().length; i++){
+            const node: Node = lg.getNodes()[i];
+
+            this.logicalGraph().addNode(node.clone(), node.getPosition().x, node.getPosition().y, (insertedNode: Node) => {
+                // save mapping for node itself
+                keyMap.set(node.getKey(), insertedNode.getKey());
+
+                // copy embedded input application
+                if (node.hasInputApplication()){
+                    const inputApplication : Node = node.getInputApplication();
+                    const clone : Node = inputApplication.clone();
+                    const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+                    clone.setKey(newKey);
+                    keyMap.set(inputApplication.getKey(), newKey);
+
+                    insertedNode.setInputApplication(clone);
+
+                    // loop through ports, adding them to the port map
+                    for (let j = 0 ; j < inputApplication.getInputPorts().length; j++){
+                        portMap.set(inputApplication.getInputPorts()[j].getId(), inputApplication.getInputPorts()[j].getId());
+                    }
+
+                    for (let j = 0 ; j < inputApplication.getOutputPorts().length; j++){
+                        portMap.set(inputApplication.getOutputPorts()[j].getId(), inputApplication.getOutputPorts()[j].getId());
+                    }
+                }
+
+                // copy embedded output application
+                if (node.hasOutputApplication()){
+                    const outputApplication : Node = node.getOutputApplication();
+                    const clone : Node = outputApplication.clone();
+                    const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+                    clone.setKey(newKey);
+                    keyMap.set(outputApplication.getKey(), newKey);
+
+                    insertedNode.setOutputApplication(clone);
+
+                    // loop through ports, adding them to the port map
+                    for (let j = 0 ; j < outputApplication.getInputPorts().length; j++){
+                        portMap.set(outputApplication.getInputPorts()[j].getId(), outputApplication.getInputPorts()[j].getId());
+                    }
+
+                    for (let j = 0 ; j < outputApplication.getOutputPorts().length; j++){
+                        portMap.set(outputApplication.getOutputPorts()[j].getId(), outputApplication.getOutputPorts()[j].getId());
+                    }
+                }
+
+                // save mapping for input ports
+                for (let j = 0 ; j < node.getInputPorts().length; j++){
+                    portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j].getId());
+                }
+
+                // save mapping for output ports
+                for (let j = 0 ; j < node.getOutputPorts().length; j++){
+                    portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j].getId());
+                }
+            });
+        }
+
+        // update some other details of the nodes are updated correctly
+        for (let i = 0 ; i < lg.getNodes().length ; i++){
+            const node: Node = lg.getNodes()[i];
+            const insertedNodeKey: number = keyMap.get(node.getKey());
+            const insertedNode: Node = this.logicalGraph().findNodeByKey(insertedNodeKey);
+
+            // if original node had no parent, skip
+            if (node.getParentKey() === null){
+                continue;
+            }
+
+            // make sure parent is set correctly
+            insertedNode.setParentKey(keyMap.get(node.getParentKey()));
+
+        }
+
+        // insert edges from lg into the existing logicalGraph
+        for (let i = 0 ; i < lg.getEdges().length; i++){
+            const edge: Edge = lg.getEdges()[i];
+            this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), null);
         }
     }
 
@@ -1664,6 +1668,7 @@ export class Eagle {
                 }
 
                 fileTypeLoaded = Eagle.FileType.Graph;
+
 
             } else if (file.type === Eagle.FileType.Palette) {
                 fileTypeLoaded = Eagle.FileType.Palette;
