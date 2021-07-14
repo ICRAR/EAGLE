@@ -1482,13 +1482,17 @@ export class Eagle {
                     return;
                 }
 
-                Utils.requestUserConfirm("Load or Insert?", "Load this file standalone, or insert contents of graph into current graph?", "Load", "Insert", (confirmed: boolean) => {
-                    if (confirmed){
-                        this.openRemoteFile(file);
-                    } else {
-                        this.insertRemoteFile(file);
-                    }
-                });
+                // NOTE: we have to add a short timeout here, so that when the user dismisses the outer 'requestUserConfirm'
+                //       the event does not also dismiss the inner 'requestUserConfirm' below
+                setTimeout(() => {
+                    Utils.requestUserConfirm("Load or Insert?", "Load this file standalone, or insert contents of graph into current graph?", "Load", "Insert", (confirmed: boolean) => {
+                        if (confirmed){
+                            this.openRemoteFile(file);
+                        } else {
+                            this.insertRemoteFile(file);
+                        }
+                    });
+                }, 1000);
             });
         } else {
             // if current file has zero nodes, then always open instead of insert
