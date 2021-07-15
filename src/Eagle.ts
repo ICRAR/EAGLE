@@ -1428,6 +1428,7 @@ export class Eagle {
         });
     }
 
+    // TODO: move to Repository class?
     selectRepository = (repository : Repository) : void => {
         console.log("selectRepository(" + repository.name + ")");
 
@@ -1482,33 +1483,17 @@ export class Eagle {
                     return;
                 }
 
-                // NOTE: we have to add a short timeout here, so that when the user dismisses the outer 'requestUserConfirm'
-                //       the event does not also dismiss the inner 'requestUserConfirm' below
-                setTimeout(() => {
-                    Utils.requestUserConfirm("Load or Insert?", "Load this file standalone, or insert contents of graph into current graph?", "Load", "Insert", (confirmed: boolean) => {
-                        if (confirmed){
-                            this.openRemoteFile(file);
-                        } else {
-                            this.insertRemoteFile(file);
-                        }
-                    });
-                }, 1000);
+                this.openRemoteFile(file);
             });
         } else {
-            // if current file has zero nodes, then always open instead of insert
-            // otherwise, ask user whether to load or insert
-            if (this.logicalGraph().getNodes().length === 0){
-                this.openRemoteFile(file);
-            } else {
-                Utils.requestUserConfirm("Load or Insert?", "Load this file standalone, or insert contents of graph into current graph?", "Load", "Insert", (confirmed: boolean) => {
-                    if (confirmed){
-                        this.openRemoteFile(file);
-                    } else {
-                        this.insertRemoteFile(file);
-                    }
-                });
-            }
+            this.openRemoteFile(file);
         }
+    }
+
+    insertFile = (file : RepositoryFile) : void => {
+        console.log("insertFile() repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
+
+        this.insertRemoteFile(file);
     }
 
     refreshRepository = (repository : Repository) : void => {

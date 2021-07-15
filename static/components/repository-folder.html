@@ -6,7 +6,7 @@
 <i class="material-icons md-18">folder</i>
 <!-- /ko -->
 <span>&nbsp;</span>
-<a href="#" data-bind="attr: {id: htmlId}, click: $root.selectFolder">
+<a href="#" data-bind="attr: {id: htmlId}, click: function(folder){$root.selectFolder(folder); eagle.updateInspectorTooltips();}">
     <span data-bind="text: $data.name"></span>
 </a>
 <!-- ko if: expanded -->
