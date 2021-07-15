@@ -211,14 +211,13 @@ export class LogicalGraph {
                 continue;
             }
 
-            const newEdge : Edge = new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName());
-
             // try to read loop_aware attribute
+            let loopAware: boolean = false;
             if (typeof linkData.loop_aware !== 'undefined'){
-                newEdge.setLoopAware(linkData.loop_aware !== "0");
+                loopAware = linkData.loop_aware !== "0";
             }
 
-            result.edges.push(newEdge);
+            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName(), loopAware));
         }
 
         // check for missing name
@@ -697,7 +696,7 @@ export class LogicalGraph {
         }
     }
 
-    addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, callback : (edge: Edge) => void) : void => {
+    addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean, callback : (edge: Edge) => void) : void => {
         // check if edge is connecting two application components, if so, we should insert a data component (of type chosen by user)
         const srcNode : Node = this.findNodeByKey(srcNodeKey);
         const destNode : Node = this.findNodeByKey(destNodeKey);
@@ -713,7 +712,7 @@ export class LogicalGraph {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType);
+            const edge : Edge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware);
             this.edges.push(edge);
             if (callback !== null) callback(edge);
             return;
@@ -780,8 +779,8 @@ export class LogicalGraph {
                 const newOutputPortId : string = newNode.findPortByName(dataType, false, false).getId();
 
                 // create TWO edges, one from src to data component, one from data component to dest
-                const firstEdge : Edge = new Edge(srcNodeKey, srcPortId, newNodeKey, newInputPortId, dataType);
-                const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNodeKey, destPortId, dataType);
+                const firstEdge : Edge = new Edge(srcNodeKey, srcPortId, newNodeKey, newInputPortId, dataType, loopAware);
+                const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNodeKey, destPortId, dataType, loopAware);
 
                 this.edges.push(firstEdge);
                 this.edges.push(secondEdge);

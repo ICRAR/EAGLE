@@ -786,9 +786,10 @@ export class Utils {
             const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
             const destPortId: string = <string>$('#editEdgeModalDestPortIdSelect').val();
             const dataType: string = <string>$('#editEdgeModalDataTypeInput').val();
+            const loopAware: boolean = $('#editEdgeModalValueInputCheckbox').prop('checked');
             //console.log("srcNodeKey", srcNodeKey, "srcPortId", srcPortId, "destNodeKey", destNodeKey, "destPortId", destPortId, "dataType", dataType);
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType);
+            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware);
 
             callback(true, newEdge);
         });
@@ -1836,7 +1837,7 @@ export class Utils {
 
         for (let i = 0 ; i < graph.getEdges().length; i++){
             const edge: Edge = graph.getEdges()[i];
-            const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, false);
+            const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
 
             if (linkValid === Eagle.LinkValid.Invalid){
                 results.push("Edge " + i + " (" + edge.getId() + ") is invalid.");
