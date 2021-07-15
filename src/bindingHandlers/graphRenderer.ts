@@ -1472,7 +1472,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                         .attr("stroke", "none");
         }
 
-        eagle.rendererFrameTime("tick " + (performance.now() - startTime).toFixed(2) + "ms");
+        const elapsedTime = performance.now() - startTime;
+        if (elapsedTime > eagle.rendererFrameMax()){eagle.rendererFrameMax(elapsedTime);}
+        eagle.rendererFrameDisplay("tick " + elapsedTime.toFixed(2) + "ms (max " + eagle.rendererFrameMax().toFixed(2) + "ms)");
     }
 
     function selectEdge(edge : Edge){
@@ -3349,5 +3351,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     // performance
-    eagle.rendererFrameTime("render " + (performance.now() - startTime).toFixed(2) + "ms");
+    const elapsedTime = performance.now() - startTime;
+    if (elapsedTime > eagle.rendererFrameMax()){eagle.rendererFrameMax(elapsedTime);}
+    eagle.rendererFrameDisplay("render " + elapsedTime.toFixed(2) + "ms (max " + eagle.rendererFrameMax().toFixed(2) + "ms)");
 }
