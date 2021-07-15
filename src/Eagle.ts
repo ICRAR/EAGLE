@@ -701,7 +701,7 @@ export class Eagle {
         // insert edges from lg into the existing logicalGraph
         for (let i = 0 ; i < lg.getEdges().length; i++){
             const edge: Edge = lg.getEdges()[i];
-            this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), null);
+            this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), edge.isLoopAware(), null);
         }
     }
 
