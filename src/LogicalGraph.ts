@@ -900,6 +900,10 @@ export class LogicalGraph {
 
             iterations += 1;
 
+            if (n.getParentKey() === null){
+                break;
+            }
+
             n = this.findNodeByKey(n.getParentKey());
 
             if (n === null){
