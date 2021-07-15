@@ -1055,7 +1055,7 @@ export class Utils {
         $('#editFieldModalTextInput').val(field.getText());
         $('#editFieldModalNameInput').val(field.getName());
         $('#editFieldModalValueInputText').val(field.getValue());
-        $('#editFieldModalValueInputCheckbox').attr('checked', field.getValue());
+        $('#editFieldModalValueInputCheckbox').attr('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
         $('#editFieldModalDescriptionInput').val(field.getDescription());
         $('#editFieldModalAccessSelect').empty();
 

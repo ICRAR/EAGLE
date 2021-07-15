@@ -1478,10 +1478,7 @@ export class Node {
         if (typeof nodeData.fields !== 'undefined'){
             for (let j = 0 ; j < nodeData.fields.length ; j++){
                 const fieldData = nodeData.fields[j];
-                const fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
-                const fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                const fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
-                node.addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
+                node.addField(Field.fromOJSJson(fieldData));
             }
         }
 
@@ -1489,10 +1486,7 @@ export class Node {
         if (typeof nodeData.inputAppFields !== 'undefined'){
             for (let j = 0 ; j < nodeData.inputAppFields.length ; j++){
                 const fieldData = nodeData.inputAppFields[j];
-                const fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
-                const fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                const fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
-                node.inputApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
+                node.inputApplication().addField(Field.fromOJSJson(fieldData));
             }
         }
 
@@ -1500,10 +1494,7 @@ export class Node {
         if (typeof nodeData.outputAppFields !== 'undefined'){
             for (let j = 0 ; j < nodeData.outputAppFields.length ; j++){
                 const fieldData = nodeData.outputAppFields[j];
-                const fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
-                const fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                const fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
-                node.outputApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
+                node.outputApplication().addField(Field.fromOJSJson(fieldData));
             }
         }
 
@@ -1511,10 +1502,7 @@ export class Node {
         if (typeof nodeData.exitAppFields !== 'undefined'){
             for (let j = 0 ; j < nodeData.exitAppFields.length ; j++){
                 const fieldData = nodeData.exitAppFields[j];
-                const fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
-                const fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                const fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
-                node.exitApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
+                node.exitApplication().addField(Field.fromOJSJson(fieldData));
             }
         }
 
