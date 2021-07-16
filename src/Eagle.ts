@@ -448,7 +448,7 @@ export class Eagle {
      * Generate Physical Graph Template.
      * @param algorithmIndex Algorithm number.
      */
-    genPGT = (algorithmIndex : number) : void => {
+    genPGT = (algorithmIndex : number, testingMode: boolean) : void => {
         if (this.logicalGraph().getNumNodes() === 0) {
             Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
             return;
@@ -477,15 +477,19 @@ export class Eagle {
             }
         }
 
-        this.translator().submit(translatorURL, {
+        const translatorData = {
             algo: Config.translationAlgorithms[algorithmIndex],
             lg_name: this.logicalGraph().fileInfo().name,
-            json_data: JSON.stringify(json)
-        });
+            json_data: JSON.stringify(json),
+            test: testingMode.toString()
+        };
 
-        console.log("json data");
+        this.translator().submit(translatorURL, translatorData);
+
+        // mostly for debugging purposes
+        console.log("translator data");
         console.log("---------");
-        console.log(json);
+        console.log(translatorData);
         console.log("---------");
     }
 
