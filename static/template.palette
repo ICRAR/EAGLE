@@ -515,6 +515,34 @@
                 "description": "The port of the NGAS Server",
                 "readonly": false,
                 "type": "Integer"
+            }, {
+                "text": "File ID",
+                "name": "ngasFileId",
+                "value": "",
+                "description": "File ID on NGAS (for retrieval only)",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Connection timeout",
+                "name": "ngasConnectTimeout",
+                "value": 2,
+                "description": "Timeout for connecting to the NGAS server",
+                "readonly": false,
+                "type": "Integer"
+            }, {
+                "text": "NGAS mime-type",
+                "name": "ngasMime",
+                "value": "text/ascii",
+                "description": "Mime-type to be used for archiving",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "NGAS timeout",
+                "name": "ngasTimeout",
+                "value": 2,
+                "description": "Timeout for receiving responses for NGAS",
+                "readonly": false,
+                "type": "Integer"
             }],
             "shape": "Card",
             "key": -7,
