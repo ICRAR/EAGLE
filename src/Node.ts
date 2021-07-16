@@ -48,7 +48,7 @@ export class Node {
     private collapsed : ko.Observable<boolean>;
     private streaming : ko.Observable<boolean>;
     private precious : ko.Observable<boolean>;
-    private showPorts : ko.Observable<boolean>;
+    private showPorts : boolean;
     private flipPorts : ko.Observable<boolean>;
 
     private inputApplication : ko.Observable<Node>;
@@ -103,7 +103,7 @@ export class Node {
         this.collapsed = ko.observable(false);
         this.streaming = ko.observable(false);
         this.precious = ko.observable(false);
-        this.showPorts = ko.observable(false);
+        this.showPorts = false;
         this.flipPorts = ko.observable(false);
 
         this.inputApplication = ko.observable(null);
@@ -289,15 +289,15 @@ export class Node {
     }
 
     isShowPorts = () : boolean => {
-        return this.showPorts();
+        return this.showPorts;
     }
 
     setShowPorts = (value : boolean) : void => {
-        this.showPorts(value);
+        this.showPorts = value;
     }
 
     toggleShowPorts = () : void => {
-        this.showPorts(!this.showPorts());
+        this.showPorts = !this.showPorts;
     }
 
     isFlipPorts = () : boolean => {
@@ -948,7 +948,7 @@ export class Node {
         result.collapsed(this.collapsed());
         result.streaming(this.streaming());
         result.precious(this.precious());
-        result.showPorts(this.showPorts());
+        result.showPorts = this.showPorts;
         result.flipPorts(this.flipPorts());
 
         // copy input,output and exit applications
@@ -1238,7 +1238,7 @@ export class Node {
 
         // showPorts
         if (typeof nodeData.showPorts !== 'undefined'){
-            node.showPorts(nodeData.showPorts);
+            node.showPorts = nodeData.showPorts;
         }
 
         // flipPorts
@@ -1602,7 +1602,7 @@ export class Node {
         result.width = node.width;
         result.height = node.height;
         result.collapsed = node.collapsed();
-        result.showPorts = node.showPorts();
+        result.showPorts = node.showPorts;
         result.flipPorts = node.flipPorts();
         result.streaming = node.streaming();
         result.precious = node.precious();
@@ -1766,7 +1766,7 @@ export class Node {
         result.width = node.width;
         result.height = node.height;
         result.collapsed = node.collapsed();
-        result.showPorts = node.showPorts();
+        result.showPorts = node.showPorts;
         result.flipPorts = node.flipPorts();
         result.streaming = node.streaming();
         result.precious = node.precious();
@@ -1817,7 +1817,7 @@ export class Node {
         node.width = nodeData.width;
         node.height = nodeData.height;
         node.collapsed(nodeData.collapsed);
-        node.showPorts(nodeData.showPorts);
+        node.showPorts = nodeData.showPorts;
         node.flipPorts(nodeData.flipPorts);
         node.streaming(nodeData.streaming);
         node.precious(nodeData.precious);
@@ -1859,7 +1859,7 @@ export class Node {
         result.width = node.width;
         result.height = node.height;
         result.collapsed = node.collapsed();
-        result.showPorts = node.showPorts();
+        result.showPorts = node.showPorts;
         result.flipPorts = node.flipPorts();
 
         result.selected = node.selected();
@@ -1880,7 +1880,7 @@ export class Node {
         result.width = nodeData.width;
         result.height = nodeData.height;
         result.collapsed(nodeData.collapsed);
-        result.showPorts(nodeData.showPorts);
+        result.showPorts = nodeData.showPorts;
         result.flipPorts(nodeData.flipPorts);
 
         result.selected(nodeData.selected);
