@@ -281,11 +281,11 @@ export class Utils {
     }
 
     static translateStringToFileType(fileType : string) : Eagle.FileType {
-        if (fileType === "graph")
+        if (fileType.toLowerCase() === "graph")
             return Eagle.FileType.Graph;
-        if (fileType === "palette")
+        if (fileType.toLowerCase() === "palette")
             return Eagle.FileType.Palette;
-        if (fileType === "json")
+        if (fileType.toLowerCase() === "json")
             return Eagle.FileType.JSON;
 
         //console.warn("Unknown file type (", fileType, ") can't be translated!");
