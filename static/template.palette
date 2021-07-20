@@ -60,10 +60,31 @@
                 "readonly": false,
                 "type": "Boolean"
             },{
-                "text": "Arg01",
-                "name": "Arg01",
+                "text": "Command",
+                "name": "command",
                 "value": "",
-                "description": "The command line to be executed",
+                "description": "The command to be executed",
+                "readonly": false,
+                "type": "String"
+            },{
+                "text": "Input Redirection",
+                "name": "input_redirection",
+                "value": "",
+                "description": "The command line argument that specifies the input into this application",
+                "readonly": false,
+                "type": "String"
+            },{
+                "text": "Output Redirection",
+                "name": "output_redirection",
+                "value": "",
+                "description": "The command line argument that specifies the output from this application",
+                "readonly": false,
+                "type": "String"
+            },{
+                "text": "Command Line Arguments",
+                "name": "command_line_arguments",
+                "value": "",
+                "description": "Additional arguments to be added to the command line to be executed",
                 "readonly": false,
                 "type": "String"
             }],
