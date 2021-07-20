@@ -1,7 +1,6 @@
 import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
-import {Utils} from './Utils';
 import {Repository} from './Repository';
 
 export class RepositoryFile {
@@ -18,21 +17,8 @@ export class RepositoryFile {
         this.name = name;
         this.path = path;
         this.isFetching = ko.observable(false);
-        this.type = Utils.getFileTypeFromFileName(name);
+        this.type = Eagle.FileType.Unknown;
     }
-
-    getIconUrl : ko.PureComputed<string> = ko.pureComputed(() => {
-        switch (this.type){
-            case Eagle.FileType.Graph:
-                return "device_hub";
-            case Eagle.FileType.Palette:
-                return "palette";
-            case Eagle.FileType.JSON:
-                return "language";
-            default:
-                return "block";
-        }
-    }, this);
 
     htmlId : ko.PureComputed<string> = ko.pureComputed(() => {
         return "id_" + this.name.replace('.', '_');

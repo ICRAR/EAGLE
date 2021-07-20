@@ -507,11 +507,6 @@ export class Eagle {
             return;
         }
 
-        if (!Utils.verifyFileExtension(fileFullPath)) {
-            Utils.showUserMessage("Wrong file extension!", "Filename: " + fileFullPath);
-            return;
-        }
-
         // Gets the file from formdata.
         const formData = new FormData();
         formData.append('file', uploadedGraphFileToLoadInputElement.files[0]);
@@ -528,7 +523,7 @@ export class Eagle {
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
-                    this.updateActiveFileInfo(Eagle.FileType.Graph, Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+                    this.updateActiveFileInfo(Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
                 }
             });
         });
@@ -545,11 +540,6 @@ export class Eagle {
 
         // abort if value is empty string
         if (fileFullPath === ""){
-            return;
-        }
-
-        if (!Utils.verifyFileExtension(fileFullPath)) {
-            Utils.showUserMessage("Wrong file extension!", "Filename: " + fileFullPath);
             return;
         }
 
@@ -587,39 +577,39 @@ export class Eagle {
         const fileType : Eagle.FileType = Utils.determineFileType(dataObject);
 
         // Only load graph files.
-        if (fileType == Eagle.FileType.Graph) {
-            // attempt to determine schema version from FileInfo
-            const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
-            //console.log("!!!!! Determined Schema Version", schemaVersion);
+        if (fileType !== Eagle.FileType.Graph) {
+            Utils.showUserMessage("Error", "This is not a graph file!");
+            return;
+        }
 
-            const errors: string[] = [];
-            const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
+        // attempt to determine schema version from FileInfo
+        const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-            // use the correct parsing function based on schema version
-            switch (schemaVersion){
-                case Eagle.DALiuGESchemaVersion.AppRef:
-                    loadFunc(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
-                    break;
-                case Eagle.DALiuGESchemaVersion.V3:
-                    Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                    loadFunc(LogicalGraph.fromV3Json(dataObject, dummyFile, errors));
-                    break;
-                case Eagle.DALiuGESchemaVersion.OJS:
-                case Eagle.DALiuGESchemaVersion.Unknown:
-                    loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
-                    break;
-            }
+        const errors: string[] = [];
+        const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
-            // show errors (if found)
-            if (errors.length > 0){
-                if (showErrors){
-                    Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
-                }
-            } else {
-                Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+        // use the correct parsing function based on schema version
+        switch (schemaVersion){
+            case Eagle.DALiuGESchemaVersion.AppRef:
+                loadFunc(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
+                break;
+            case Eagle.DALiuGESchemaVersion.V3:
+                Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
+                loadFunc(LogicalGraph.fromV3Json(dataObject, dummyFile, errors));
+                break;
+            case Eagle.DALiuGESchemaVersion.OJS:
+            case Eagle.DALiuGESchemaVersion.Unknown:
+                loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
+                break;
+        }
+
+        // show errors (if found)
+        if (errors.length > 0){
+            if (showErrors){
+                Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
             }
         } else {
-            Utils.showUserMessage("Error", "This is not a graph file!");
+            Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
         }
     }
 
@@ -724,11 +714,6 @@ export class Eagle {
             return;
         }
 
-        if (!Utils.verifyFileExtension(fileFullPath)) {
-            Utils.showUserMessage("Wrong file extension!", "Filename: " + fileFullPath);
-            return;
-        }
-
         // Get and load the specified configuration file.
         const formData = new FormData();
         formData.append('file', uploadedPaletteFileInputElement.files[0]);
@@ -757,24 +742,11 @@ export class Eagle {
         }
 
         // determine file type
-        const fileType : Eagle.FileType = Utils.determineFileType(dataObject);
-
-        // debug
-        console.log("fullFilePath", fileFullPath);
-        console.log("fileType", fileType);
+        const loadedFileType : Eagle.FileType = Utils.determineFileType(dataObject);
 
         // abort if not palette
-        if (fileType !== Eagle.FileType.Palette){
-            Utils.showUserMessage("Error", "This is not a palette file! Looks like a " + Utils.translateFileTypeToString(fileType));
-            return;
-        }
-
-        // attempt to parse the JSON
-        try {
-            JSON.parse(data);
-        }
-        catch(err){
-            Utils.showUserMessage("Error parsing file JSON", err.message);
+        if (loadedFileType !== Eagle.FileType.Palette){
+            Utils.showUserMessage("Error", "This is not a palette file! Looks like a " + Utils.translateFileTypeToString(loadedFileType));
             return;
         }
 
@@ -1624,8 +1596,6 @@ export class Eagle {
 
         // load file from github or gitlab
         openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
-            let fileTypeLoaded : Eagle.FileType = Eagle.FileType.Unknown;
-
             // flag fetching as complete
             file.isFetching(false);
 
@@ -1639,70 +1609,41 @@ export class Eagle {
             // if setting dictates, show errors during loading
             const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
-            if (file.type === Eagle.FileType.Graph) {
-                // attempt to parse the JSON
-                let dataObject;
-                try {
-                    dataObject = JSON.parse(data);
-                }
-                catch(err){
-                    Utils.showUserMessage("Error parsing file JSON", err.message);
-                    return;
-                }
 
-                // attempt to determine schema version from FileInfo
-                const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
-                //console.log("!!!!! Determined Schema Version", schemaVersion);
+            // attempt to parse the JSON
+            let dataObject;
+            try {
+                dataObject = JSON.parse(data);
+            }
+            catch(err){
+                Utils.showUserMessage("Error parsing file JSON", err.message);
+                return;
+            }
 
-                const errors: string[] = [];
+            const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
 
-                // use the correct parsing function based on schema version
-                switch (schemaVersion){
-                    case Eagle.DALiuGESchemaVersion.AppRef:
-                        this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errors));
-                        break;
-                    case Eagle.DALiuGESchemaVersion.V3:
-                        Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                        this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
-                        break;
-                    case Eagle.DALiuGESchemaVersion.OJS:
-                    case Eagle.DALiuGESchemaVersion.Unknown:
-                        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
-                        break;
-                }
+            switch (fileTypeLoaded){
+                case Eagle.FileType.Graph:
+                    // attempt to determine schema version from FileInfo
+                    const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
+                    //console.log("!!!!! Determined Schema Version", schemaVersion);
 
-
-                if (errors.length > 0){
-                    if (showErrors){
-                        Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
-                    }
-                } else {
-                    Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
-                }
-
-                fileTypeLoaded = Eagle.FileType.Graph;
-
-
-            } else if (file.type === Eagle.FileType.Palette) {
-                fileTypeLoaded = Eagle.FileType.Palette;
-                this._remotePaletteLoaded(file, data);
-
-            } else if (file.type === Eagle.FileType.JSON) {
-                /*
-                if (this.userMode() === Eagle.UserMode.LogicalGraphEditor) {
-                    // attempt to parse the JSON
-                    let dataObject;
-                    try {
-                        dataObject = JSON.parse(data);
-                    }
-                    catch(err){
-                        Utils.showUserMessage("Error parsing file JSON", err.message);
-                        return;
-                    }
-
-                    //Utils.showUserMessage("Warning", "Opening JSON file as graph, make sure this is correct.");
                     const errors: string[] = [];
-                    this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
+
+                    // use the correct parsing function based on schema version
+                    switch (schemaVersion){
+                        case Eagle.DALiuGESchemaVersion.AppRef:
+                            this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errors));
+                            break;
+                        case Eagle.DALiuGESchemaVersion.V3:
+                            Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
+                            this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
+                            break;
+                        case Eagle.DALiuGESchemaVersion.OJS:
+                        case Eagle.DALiuGESchemaVersion.Unknown:
+                            this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
+                            break;
+                    }
 
                     if (errors.length > 0){
                         if (showErrors){
@@ -1712,35 +1653,22 @@ export class Eagle {
                         Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                     }
 
-                    fileTypeLoaded = Eagle.FileType.Graph;
-                } else {
-                    fileTypeLoaded = Eagle.FileType.Palette;
+                    // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
+                    this.updateActiveFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+                    break;
+
+                case Eagle.FileType.Palette:
                     this._remotePaletteLoaded(file, data);
-                }
-                */
-                Utils.showUserMessage("Not implemented", "Not sure whether a .json file is a graph or a palette!");
+                    break;
 
-            } else {
-                // Show error message
-                Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
-            }
-
-            // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
-            if (fileTypeLoaded === Eagle.FileType.Graph){
-                this.updateActiveFileInfo(fileTypeLoaded, file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+                default:
+                    // Show error message
+                    Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
             }
         });
     };
 
     insertRemoteFile = (file : RepositoryFile) : void => {
-        // only do this for graphs at the moment
-        if (file.type !== Eagle.FileType.Graph){
-            Utils.showUserMessage("Error", "Unable to insert non-graph!");
-            console.error("Unable to insert non-graph!");
-            return;
-        }
-
-
         // flag file as being fetched
         file.isFetching(true);
 
@@ -1780,6 +1708,15 @@ export class Eagle {
             }
             catch(err){
                 Utils.showUserMessage("Error parsing file JSON", err.message);
+                return;
+            }
+
+            const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+
+            // only do this for graphs at the moment
+            if (fileTypeLoaded !== Eagle.FileType.Graph){
+                Utils.showUserMessage("Error", "Unable to insert non-graph!");
+                console.error("Unable to insert non-graph!");
                 return;
             }
 
@@ -1853,8 +1790,8 @@ export class Eagle {
         }
     }
 
-    private updateActiveFileInfo = (fileType : Eagle.FileType, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
-        console.log("updateActiveFileInfo(): fileType:", Utils.translateFileTypeToString(fileType), "repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
+    private updateActiveFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
+        console.log("updateActiveFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
 
         // update the activeFileInfo with details of the repository the file was loaded from
         this.activeFileInfo().repositoryName = repositoryName;
@@ -1863,13 +1800,9 @@ export class Eagle {
         this.activeFileInfo().path = path;
         this.activeFileInfo().name = name;
 
-        // communicate tp knockout that the value of the fileInfo has been modified (so it can update UI)
-        if (fileType === Eagle.FileType.Graph){
-            this.logicalGraph().fileInfo.valueHasMutated();
-        } else if (fileType === Eagle.FileType.Palette){
-            /*this.editorPalette().fileInfo.valueHasMutated(); */
-            console.warn("Missing code here!");
-        }
+        // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
+        this.logicalGraph().fileInfo.valueHasMutated();
+
     }
 
     findPaletteByFile = (file : RepositoryFile) : Palette => {
@@ -2188,10 +2121,6 @@ export class Eagle {
             Eagle.settings()[i].resetDefault();
         }
     }
-
-    fileIsVisible = (file : RepositoryFile) : boolean => {
-        return file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.Palette || file.type === Eagle.FileType.JSON;
-    };
 
     /* TODO: remove this */
     flagActiveDiagramHasMutated = () : void => {
