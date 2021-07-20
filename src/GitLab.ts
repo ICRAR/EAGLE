@@ -80,7 +80,7 @@ export class GitLab {
     static loadRepoContent(repository : Repository) : void {
         const token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
 
-        if (token === null) {
+        if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
             return;
         }
@@ -130,11 +130,6 @@ export class GitLab {
             // add files to repo
             for (let i = 0 ; i < fileNames.length ; i++){
                 const fileName : string = fileNames[i];
-
-                // Show only the files with allowed extenstion.
-                if (!Utils.verifyFileExtension(fileName)) {
-                    continue;
-                }
 
                 repository.files.push(new RepositoryFile(repository, "", fileName));
             }
