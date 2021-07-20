@@ -134,7 +134,6 @@ export class GitLab {
                 repository.files.push(new RepositoryFile(repository, "", fileName));
             }
 
-
             // add folders to repo
             for (const path in data){
                 // skip the root directory
@@ -159,11 +158,6 @@ export class GitLab {
         // add files to repo
         for (let i = 0 ; i < fileNames.length ; i++){
             const fileName : string = fileNames[i];
-
-            // Show only the files with allowed extenstion.
-            if (!Utils.verifyFileExtension(fileName)) {
-                continue;
-            }
 
             folder.files.push(new RepositoryFile(repository, path, fileName));
         }

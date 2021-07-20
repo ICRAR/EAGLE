@@ -507,11 +507,6 @@ export class Eagle {
             return;
         }
 
-        if (!Utils.verifyFileExtension(fileFullPath)) {
-            Utils.showUserMessage("Wrong file extension!", "Filename: " + fileFullPath);
-            return;
-        }
-
         // Gets the file from formdata.
         const formData = new FormData();
         formData.append('file', uploadedGraphFileToLoadInputElement.files[0]);
@@ -545,11 +540,6 @@ export class Eagle {
 
         // abort if value is empty string
         if (fileFullPath === ""){
-            return;
-        }
-
-        if (!Utils.verifyFileExtension(fileFullPath)) {
-            Utils.showUserMessage("Wrong file extension!", "Filename: " + fileFullPath);
             return;
         }
 
@@ -587,39 +577,39 @@ export class Eagle {
         const fileType : Eagle.FileType = Utils.determineFileType(dataObject);
 
         // Only load graph files.
-        if (fileType == Eagle.FileType.Graph) {
-            // attempt to determine schema version from FileInfo
-            const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
-            //console.log("!!!!! Determined Schema Version", schemaVersion);
+        if (fileType !== Eagle.FileType.Graph) {
+            Utils.showUserMessage("Error", "This is not a graph file!");
+            return;
+        }
 
-            const errors: string[] = [];
-            const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
+        // attempt to determine schema version from FileInfo
+        const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-            // use the correct parsing function based on schema version
-            switch (schemaVersion){
-                case Eagle.DALiuGESchemaVersion.AppRef:
-                    loadFunc(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
-                    break;
-                case Eagle.DALiuGESchemaVersion.V3:
-                    Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                    loadFunc(LogicalGraph.fromV3Json(dataObject, dummyFile, errors));
-                    break;
-                case Eagle.DALiuGESchemaVersion.OJS:
-                case Eagle.DALiuGESchemaVersion.Unknown:
-                    loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
-                    break;
-            }
+        const errors: string[] = [];
+        const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
-            // show errors (if found)
-            if (errors.length > 0){
-                if (showErrors){
-                    Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
-                }
-            } else {
-                Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+        // use the correct parsing function based on schema version
+        switch (schemaVersion){
+            case Eagle.DALiuGESchemaVersion.AppRef:
+                loadFunc(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
+                break;
+            case Eagle.DALiuGESchemaVersion.V3:
+                Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
+                loadFunc(LogicalGraph.fromV3Json(dataObject, dummyFile, errors));
+                break;
+            case Eagle.DALiuGESchemaVersion.OJS:
+            case Eagle.DALiuGESchemaVersion.Unknown:
+                loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
+                break;
+        }
+
+        // show errors (if found)
+        if (errors.length > 0){
+            if (showErrors){
+                Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
             }
         } else {
-            Utils.showUserMessage("Error", "This is not a graph file!");
+            Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
         }
     }
 
@@ -721,11 +711,6 @@ export class Eagle {
 
         // abort if value is empty string
         if (fileFullPath === ""){
-            return;
-        }
-
-        if (!Utils.verifyFileExtension(fileFullPath)) {
-            Utils.showUserMessage("Wrong file extension!", "Filename: " + fileFullPath);
             return;
         }
 
