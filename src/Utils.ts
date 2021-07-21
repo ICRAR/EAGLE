@@ -54,8 +54,7 @@ export class Utils {
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
     static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
     static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
-    static readonly CONFIRM_DELETE_NODES : string = "ConfirmDeleteNodes";
-    static readonly CONFIRM_DELETE_EDGES : string = "ConfirmDeleteEdges";
+    static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
 
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
 

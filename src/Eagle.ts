@@ -58,8 +58,7 @@ export class Eagle {
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
 
-    selectedNode : ko.Observable<Node>;
-    selectedEdge : ko.Observable<Edge>;
+    selectedObjects : ko.ObservableArray<Node|Edge>;
     selectedLocation : ko.Observable<Eagle.FileType>;
 
     translator : ko.Observable<Translator>;
@@ -85,8 +84,6 @@ export class Eagle {
 
     static dragStartX : number;
 
-    static selectedNodeKey : number;
-
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
     static nodeDragComponentIndex : number;
@@ -100,8 +97,7 @@ export class Eagle {
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
-        this.selectedNode = ko.observable(null);
-        this.selectedEdge = ko.observable(null);
+        this.selectedObjects = ko.observableArray([]);
         this.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.translator = ko.observable(new Translator());
@@ -110,8 +106,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
         Eagle.settings.push(new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true));
         Eagle.settings.push(new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
-        Eagle.settings.push(new Setting("Confirm Delete Nodes", "Prompt user to confirm when deleting a node from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_NODES, true));
-        Eagle.settings.push(new Setting("Confirm Delete Edges", "Prompt user to confirm when deleting an edge from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_EDGES, true));
+        Eagle.settings.push(new Setting("Confirm Delete Nodes", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_OBJECTS, true));
         Eagle.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
         Eagle.settings.push(new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, false));
         Eagle.settings.push(new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, false));
@@ -145,9 +140,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", ["g"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Insert graph from local disk", ["i"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToInsert();}));
 
-
-
-        this.selectedNode.subscribe(this.updateInspectorTooltips);
+        this.selectedObjects.subscribe(this.updateInspectorTooltips);
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -338,22 +331,52 @@ export class Eagle {
      * It resets al fields in the editor menu.
      */
     resetEditor = () : void => {
-        this.selectedNode(null);
-        this.selectedEdge(null);
+        this.selectedObjects([]);
         this.selectedLocation(Eagle.FileType.Unknown);
 
         // Show the last open repository.
         this.rightWindow().mode(Eagle.RightWindowMode.Repository);
     }
 
-    getSelection = () : Node | Edge | null => {
-        if (this.selectedNode() !== null){
-            return this.selectedNode();
+    getSelectedSingleNode = () : Node | null => {
+        if (this.selectedObjects().length !== 1){
+            return null;
         }
-        if (this.selectedEdge() !== null){
-            return this.selectedEdge();
+
+        const object = this.selectedObjects()[0];
+
+        if (object instanceof Node){
+            return object;
+        } else {
+            return null;
         }
-        return null;
+    }
+
+    getSelectedSingleEdge = () : Edge | null => {
+        if (this.selectedObjects().length !== 1){
+            return null;
+        }
+
+        const object = this.selectedObjects()[0];
+
+        if (object instanceof Edge){
+            return object;
+        } else {
+            return null;
+        }
+    }
+
+    keyIsSelected = (key: number) : boolean => {
+        for (let i = 0 ; i < this.selectedObjects().length ; i++){
+            const object = this.selectedObjects()[i];
+
+            if (object instanceof Node && object.getKey() === key)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectionLocation: Eagle.FileType) : void => {
@@ -2161,13 +2184,15 @@ export class Eagle {
     }
 
     editSelectedEdge = () : void => {
-        if (this.selectedEdge() === null){
+        const selectedEdge: Edge = this.getSelectedSingleEdge();
+
+        if (selectedEdge === null){
             console.log("Unable to edit selected edge: No edge selected");
             return;
         }
 
         // clone selected edge so that no changes to the original can be made by the user request modal
-        const clone: Edge = this.selectedEdge().clone();
+        const clone: Edge = selectedEdge.clone();
 
         Utils.requestUserEditEdge(clone, this.logicalGraph(), (completed: boolean, edge: Edge) => {
             if (!completed){
@@ -2192,20 +2217,22 @@ export class Eagle {
     }
 
     deleteSelectedEdge = (suppressUserConfirmationRequest: boolean) : void => {
-        if (this.selectedEdge() === null){
+        const selectedEdge: Edge = this.getSelectedSingleEdge();
+
+        if (selectedEdge === null){
             console.log("Unable to delete selected edge: No edge selected");
             return;
         }
 
         // skip confirmation if setting dictates
-        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_EDGES).value() || suppressUserConfirmationRequest){
+        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
             this._deleteSelectedEdge();
             return;
         }
 
         // build a user-readable name for this node
-        const srcNodeName : string = this.logicalGraph().findNodeByKey(this.selectedEdge().getSrcNodeKey()).getName();
-        const destNodeName : string = this.logicalGraph().findNodeByKey(this.selectedEdge().getDestNodeKey()).getName();
+        const srcNodeName : string = this.logicalGraph().findNodeByKey(selectedEdge.getSrcNodeKey()).getName();
+        const destNodeName : string = this.logicalGraph().findNodeByKey(selectedEdge.getDestNodeKey()).getName();
 
         // request confirmation from user
         Utils.requestUserConfirm("Delete edge from " + srcNodeName + " to " + destNodeName + "?", "Are you sure you wish to delete this edge?", "Yes", "No", (confirmed : boolean) : void => {
@@ -2550,10 +2577,13 @@ export class Eagle {
                         const tag = data.results[userChoiceIndex].name;
                         const digest = data.results[userChoiceIndex].images[0].digest;
 
+                        // get reference to the selectedNode
+                        const selectedNode = that.getSelectedSingleNode();
+
                         // get references to image, tag and digest fields in this component
-                        const imageField: Field = that.selectedNode().getFieldByName("image");
-                        const tagField: Field = that.selectedNode().getFieldByName("tag");
-                        const digestField: Field = that.selectedNode().getFieldByName("digest");
+                        const imageField:  Field = selectedNode.getFieldByName("image");
+                        const tagField:    Field = selectedNode.getFieldByName("tag");
+                        const digestField: Field = selectedNode.getFieldByName("digest");
 
                         // set values for the fields
                         if (imageField !== null){
@@ -2579,7 +2609,7 @@ export class Eagle {
      * Adds an input port to the selected node via HTML.
      */
     addInputPortHTML = () : void => {
-        const node: Node = <Node>this.getSelection();
+        const node: Node = this.getSelectedSingleNode();
 
         // check whether node already has maximum number of ports
         const maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxInputs;
@@ -2596,7 +2626,7 @@ export class Eagle {
      * Adds an output port to the selected node via HTML arguments.
      */
     addOutputPortHTML = () : void => {
-        const node: Node = <Node>this.getSelection();
+        const node: Node = this.getSelectedSingleNode();
 
         // check whether node already has maximum number of ports
         const maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxOutputs;
@@ -2613,12 +2643,13 @@ export class Eagle {
      * Adds an field to the selected node via HTML.
      */
     addFieldHTML = () : void => {
-        const node = this.getSelection();
+        const node: Node = this.getSelectedSingleNode();
         this.editField(<Node>node, Eagle.ModalType.Add, null);
     }
 
     changeNodeParent = () : void => {
         // build list of node name + ids (exclude self)
+        const selectedNode: Node = this.getSelectedSingleNode();
         const nodeList : string[] = [];
         let selectedChoiceIndex = 0;
 
@@ -2627,12 +2658,12 @@ export class Eagle {
             const node : Node = this.logicalGraph().getNodes()[i];
 
             // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
-            if (node.getKey() === this.selectedNode().getParentKey()){
+            if (node.getKey() === selectedNode.getParentKey()){
                 selectedChoiceIndex = i;
             }
 
             // a node can't be its own parent
-            if (node.getKey() === this.selectedNode().getKey()){
+            if (node.getKey() === selectedNode.getKey()){
                 continue;
             }
 
@@ -2659,19 +2690,20 @@ export class Eagle {
 
             // key '0' is a special case
             if (newParentKey === 0){
-                this.selectedNode().setParentKey(null);
+                selectedNode.setParentKey(null);
             } else {
-                this.selectedNode().setParentKey(newParentKey);
+                selectedNode.setParentKey(newParentKey);
             }
 
             // refresh the display
-            this.selectedNode.valueHasMutated();
+            this.selectedObjects.valueHasMutated();
             this.flagActiveDiagramHasMutated();
         });
     }
 
     changeNodeSubject = () : void => {
         // build list of node name + ids (exclude self)
+        const selectedNode: Node = this.getSelectedSingleNode();
         const nodeList : string[] = [];
         let selectedChoiceIndex = 0;
 
@@ -2680,7 +2712,7 @@ export class Eagle {
             const node : Node = this.logicalGraph().getNodes()[i];
 
             // if this node is already the subject, note its index, so that we can preselect this subject node in the modal dialog
-            if (node.getKey() === this.selectedNode().getSubjectKey()){
+            if (node.getKey() === selectedNode.getSubjectKey()){
                 selectedChoiceIndex = i;
             }
 
@@ -2701,8 +2733,10 @@ export class Eagle {
 
             // change the subject
             const newSubjectKey : number = parseInt(choice.substring(choice.lastIndexOf(" ") + 1), 10);
-            this.selectedNode().setSubjectKey(newSubjectKey);
-            this.selectedNode.valueHasMutated();
+            selectedNode.setSubjectKey(newSubjectKey);
+
+            // refresh the display
+            this.selectedObjects.valueHasMutated();
             this.flagActiveDiagramHasMutated();
         });
     }

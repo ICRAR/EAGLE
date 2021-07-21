@@ -2373,7 +2373,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        if (node.getKey() === Eagle.selectedNodeKey){
+        if (eagle.keyIsSelected(node.getKey())){
             return "black";
         }
 

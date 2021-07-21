@@ -7,8 +7,9 @@ ko.bindingHandlers.nodeDataProperty = {
         $(element).keyup(function() {
             const dataProperty = ko.unwrap(valueAccessor());
             const eagle : Eagle = bindingContext.$root;
+            const selectedNode = eagle.getSelectedSingleNode();
 
-            (<any>eagle.selectedNode())[dataProperty] = $(element).val();
+            (<any>selectedNode)[dataProperty] = $(element).val();
             eagle.flagActiveFileModified();
             eagle.flagActiveDiagramHasMutated();
         });
@@ -16,13 +17,14 @@ ko.bindingHandlers.nodeDataProperty = {
     update: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
         const dataProperty = ko.unwrap(valueAccessor());
         const eagle : Eagle = bindingContext.$root;
+        const selectedNode = eagle.getSelectedSingleNode();
 
         if (eagle.logicalGraph() === null){
             console.warn("nodeDataProperty: logicalGraph is null");
             return;
         }
 
-        if (eagle.selectedNode() !== null)
-            $(element).val((<any>eagle.selectedNode())[dataProperty]);
+        if (selectedNode !== null)
+            $(element).val((<any>selectedNode)[dataProperty]);
     }
 };
