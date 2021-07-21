@@ -2281,7 +2281,7 @@ export class Eagle {
         const paletteNames: string[] = this.buildWritablePaletteNamesList();
 
         // ask user to select the destination node
-        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node", paletteNames, 0, true, "New Palette Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
+        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node(s)", paletteNames, 0, true, "New Palette Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
             // abort if the user aborted
             if (!completed){
                 return;
@@ -2309,22 +2309,31 @@ export class Eagle {
                 return;
             }
 
-            // check if clone has embedded applications, if so, add them to destination palette and remove
-            if (this.selectedNode().hasInputApplication()){
-                destinationPalette.addNode(this.selectedNode().getInputApplication(), true);
-            }
-            if (this.selectedNode().hasOutputApplication()){
-                destinationPalette.addNode(this.selectedNode().getOutputApplication(), true);
-            }
-            if (this.selectedNode().hasExitApplication()){
-                destinationPalette.addNode(this.selectedNode().getExitApplication(), true);
-            }
+            for (let i = 0 ; i < this.selectedObjects().length ; i++){
+                const object = this.selectedObjects()[i];
 
-            // add clone to palette
-            destinationPalette.addNode(this.selectedNode(), true);
+                // skip non-node objects
+                if (!(object instanceof Node)){
+                    continue;
+                }
 
-            // mark the palette as modified
-            destinationPalette.fileInfo().modified = true;
+                // check if clone has embedded applications, if so, add them to destination palette and remove
+                if (object.hasInputApplication()){
+                    destinationPalette.addNode(object.getInputApplication(), true);
+                }
+                if (object.hasOutputApplication()){
+                    destinationPalette.addNode(object.getOutputApplication(), true);
+                }
+                if (object.hasExitApplication()){
+                    destinationPalette.addNode(object.getExitApplication(), true);
+                }
+
+                // add clone to palette
+                destinationPalette.addNode(object, true);
+
+                // mark the palette as modified
+                destinationPalette.fileInfo().modified = true;
+            }
         });
     }
 
@@ -2741,20 +2750,6 @@ export class Eagle {
         });
     }
 
-    selectEdge = (nodeKey : number, portId : string) : void => {
-        for (let i = 0 ; i < this.logicalGraph().getEdges().length; i++){
-            const edge : Edge = this.logicalGraph().getEdges()[i];
-
-            if (edge.getSrcNodeKey() === nodeKey && edge.getSrcPortId() === portId ||
-                edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
-                this.selectedEdge(edge);
-                this.selectedNode(null);
-                this.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
-                return;
-            }
-        }
-    }
-
     removePortFromNodeByIndex = (node : Node, index : number, input : boolean) : void => {
         console.log("removePortFromNodeByIndex(): node", node.getName(), "index", index, "input", input);
 
@@ -2987,19 +2982,21 @@ export class Eagle {
     // NOTE: enabling the tooltips must be delayed slightly to make sure the html has been generated (hence the setTimeout)
     // NOTE: now needs a timeout longer that 1ms! UGLY HACK TODO
     updateInspectorTooltips = () : void => {
-        const eagle : Eagle = this;
+        const selectedNode = this.getSelectedSingleNode();
 
         setTimeout(function(){
             // destroy orphaned tooltips
             Eagle.reloadTooltips();
 
             // update title on all right window component buttons
-            if (eagle.selectedNode() !== null && eagle.selectedNode().getInputApplication() !== null)
-                $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getInputApplication().getHelpHTML());
-            if (eagle.selectedNode() !== null && eagle.selectedNode().getOutputApplication() !== null)
-                $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getOutputApplication().getHelpHTML());
-            if (eagle.selectedNode() !== null && eagle.selectedNode().getExitApplication() !== null)
-                $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', eagle.selectedNode().getExitApplication().getHelpHTML());
+            if (selectedNode !== null){
+                if (selectedNode.getInputApplication() !== null)
+                    $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getInputApplication().getHelpHTML());
+                if (selectedNode.getOutputApplication() !== null)
+                    $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getOutputApplication().getHelpHTML());
+                if (selectedNode.getExitApplication() !== null)
+                    $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getExitApplication().getHelpHTML());
+            }
         }, 150);
     }
 
@@ -3014,8 +3011,13 @@ export class Eagle {
     }
 
     selectedEdgeValid = () : Eagle.LinkValid => {
-        console.log("selectedEdgeValid()");
-        return Edge.isValid(this.logicalGraph(), this.selectedEdge().getSrcNodeKey(), this.selectedEdge().getSrcPortId(), this.selectedEdge().getDestNodeKey(), this.selectedEdge().getDestPortId(), this.selectedEdge().isLoopAware(), false, true);
+        const selectedEdge = this.getSelectedSingleEdge();
+
+        if (selectedEdge === null){
+            return Eagle.LinkValid.Unknown;
+        }
+
+        return Edge.isValid(this.logicalGraph(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.isLoopAware(), false, true);
     }
 
     printLogicalGraphNodesTable = () : void => {
@@ -3110,15 +3112,15 @@ export class Eagle {
     }
 
     selectInputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getInputApplication(), Eagle.FileType.Graph);
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.getSelectedSingleNode().getInputApplication(), Eagle.FileType.Graph);
     }
 
     selectOutputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.getSelectedSingleNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
     selectExitApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication(), Eagle.FileType.Graph);
+        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.getSelectedSingleNode().getExitApplication(), Eagle.FileType.Graph);
     }
 
     editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number) : void => {
@@ -3167,7 +3169,7 @@ export class Eagle {
 
         } else {
             //if editing an existing field
-            const field: Field = this.selectedNode().getFields()[fieldIndex];
+            const field: Field = this.getSelectedSingleNode().getFields()[fieldIndex];
             $("#editFieldModalTitle").html("Edit Parameter");
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
@@ -3242,9 +3244,9 @@ export class Eagle {
             // get a reference to the port we are editing
             let port: Port;
             if (input){
-                port = this.selectedNode().getInputPorts()[portIndex];
+                port = this.getSelectedSingleNode().getInputPorts()[portIndex];
             } else {
-                port = this.selectedNode().getOutputPorts()[portIndex];
+                port = this.getSelectedSingleNode().getOutputPorts()[portIndex];
             }
 
             Utils.requestUserEditPort(Eagle.ModalType.Edit, port, allPortNames, (completed : boolean, newPort: Port) => {
@@ -3268,10 +3270,10 @@ export class Eagle {
     }
 
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
-        console.log("ShowFieldValuePicker() node:", this.selectedNode().getName(), "fieldIndex:", fieldIndex, "input", input);
+        const selectedNode = this.getSelectedSingleNode();
+        const selectedNodeKey : number = selectedNode.getKey();
 
-        // get the key for the currently selected node
-        const selectedNodeKey : number = this.selectedNode().getKey();
+        console.log("ShowFieldValuePicker() node:", selectedNode.getName(), "fieldIndex:", fieldIndex, "input", input);
 
         // build list of nodes that are attached to this node
         const nodes : string[] = [];
@@ -3312,19 +3314,21 @@ export class Eagle {
             }
 
             // update the correct field
-            this.selectedNode().getFields()[fieldIndex].setValue(newValue);
+            selectedNode.getFields()[fieldIndex].setValue(newValue);
 
-            this.hackNodeUpdate();
+            this.hackObjectsUpdate();
         });
     }
 
-    hackNodeUpdate = () : void => {
+    private hackObjectsUpdate = () : void => {
+        console.warn("hackObjectsUpdate()");
+
         // HACK to make sure that new value is shown in the UI
-        const x = this.selectedNode();
-        this.selectedNode(null);
+        const x = this.selectedObjects();
+        this.selectedObjects([]);
         const that = this;
         setTimeout(function(){
-            that.selectedNode(x);
+            that.selectedObjects(x);
         }, 1);
     }
 
