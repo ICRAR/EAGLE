@@ -2260,6 +2260,8 @@ export class Eagle {
     //       maybe a better approach would be to copy the selection into a
     //       logicalGraph, then insert the logicalGraph into the current graph
     duplicateSelection = () : void => {
+        const DUPLICATE_OFFSET: number = 20;
+
         console.log("duplicateSelection()", this.selectedObjects().length, "objects");
 
         switch(this.selectedLocation()){
@@ -2268,7 +2270,7 @@ export class Eagle {
                     const object = this.selectedObjects()[i];
 
                     if (object instanceof Node){
-                        this.logicalGraph().addNode(object, object.getPosition().x, object.getPosition().y, null);
+                        this.logicalGraph().addNode(object, object.getPosition().x + DUPLICATE_OFFSET, object.getPosition().y + DUPLICATE_OFFSET, null);
                     }
 
                     if (object instanceof Edge){
@@ -2278,6 +2280,7 @@ export class Eagle {
                 }
 
                 this.logicalGraph.valueHasMutated();
+                this.flagActiveDiagramHasMutated();
 
                 break;
             case Eagle.FileType.Palette:
@@ -2294,7 +2297,7 @@ export class Eagle {
                 this.addNodesToPalette(nodes);
                 break;
             default:
-                console.error("Unkown selectedLocation", this.selectedLocation());
+                console.error("Unknown selectedLocation", this.selectedLocation());
                 break;
         }
     }
@@ -2361,6 +2364,17 @@ export class Eagle {
                 destinationPalette.fileInfo().modified = true;
             }
         });
+    }
+
+    addSelectedNodeToPalette = () : void => {
+        const selectedNode = this.selectedNode();
+
+        if (selectedNode === null){
+            console.error("Attempt to add selected node to palette when no node selected");
+            return;
+        }
+
+        this.addNodesToPalette([selectedNode]);
     }
 
     deleteSelection = (suppressUserConfirmationRequest: boolean) : void => {
