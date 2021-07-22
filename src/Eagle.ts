@@ -367,20 +367,6 @@ export class Eagle {
         }
     }, this);
 
-    keyIsSelected = (key: number) : boolean => {
-        for (let i = 0 ; i < this.selectedObjects().length ; i++){
-            const object = this.selectedObjects()[i];
-
-            if (object instanceof Node && object.getKey() === key)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectionLocation: Eagle.FileType) : void => {
         console.log("setSelection()", rightWindowMode, selectionLocation);
         this.selectedObjects([selection]);
@@ -401,6 +387,33 @@ export class Eagle {
     objectIsSelected = (object: Node | Edge): boolean => {
         // TODO: loop through the selected objects
 
+        if (object instanceof Node){
+            for (let i = 0 ; i < this.selectedObjects().length ; i++){
+                const o = this.selectedObjects()[i];
+
+                if (o instanceof Node && o.getKey() === object.getKey())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if (object instanceof Edge){
+            for (let i = 0 ; i < this.selectedObjects().length ; i++){
+                const o = this.selectedObjects()[i];
+
+                if (o instanceof Edge && o.getId() === object.getId())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        console.error("Checking if object of unknown type is selected", object);
         return false;
     }
 

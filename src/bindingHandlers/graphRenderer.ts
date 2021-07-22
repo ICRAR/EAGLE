@@ -76,8 +76,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const HEADER_BUTTON_LABEL_FONT_SIZE : number = 12;
 
     const LINK_WARNING_COLOR : string = "orange";
+    const LINK_WARNING_SELECTED_COLOR : string = "chocolate";
     const LINK_INVALID_COLOR : string = "red";
+    const LINK_INVALID_SELECTED_COLOR : string = "firebrick";
     const LINK_VALID_COLOR : string = "limegreen";
+    const LINK_EVENT_COLOR : string = "rgb(128,128,255)";
+    const LINK_EVENT_SELECTED_COLOR : string = "blue";
 
     const SHRINK_BUTTONS_ENABLED : boolean = true;
     const COLLAPSE_BUTTONS_ENABLED : boolean = true;
@@ -1488,15 +1492,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         eagle.rendererFrameDisplay("tick " + elapsedTime.toFixed(2) + "ms (max " + eagle.rendererFrameMax().toFixed(2) + "ms)");
     }
 
-    function selectEdge(edge : Edge){
+    function selectEdge(edge : Edge, addToSelection: boolean){
         if (edge !== null){
-            eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
+            if (addToSelection){
+                eagle.editSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
+            } else {
+                eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
+            }
         }
     }
 
     function selectNode(node : Node, addToSelection: boolean){
-        console.log("selectNode(", addToSelection, ")");
-
         if (node !== null){
             if (addToSelection){
                 eagle.editSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Graph);
@@ -2389,7 +2395,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        if (eagle.keyIsSelected(node.getKey())){
+        if (eagle.objectIsSelected(node)){
             return "black";
         }
 
@@ -2851,13 +2857,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetStrokeColor(edge: Edge, index: number) : string {
-        const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
-
-        if (linkValid === Eagle.LinkValid.Invalid)
-            return LINK_INVALID_COLOR;
-        if (linkValid === Eagle.LinkValid.Warning)
-            return LINK_WARNING_COLOR;
-
         let normalColor: string = "grey";
         let selectedColor: string = "black";
 
@@ -2868,9 +2867,22 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
 
             if (srcPort !== null && srcPort.isEvent()){
-                normalColor = "rgb(128,128,255)";
-                selectedColor = "blue";
+                normalColor = LINK_EVENT_COLOR;
+                selectedColor = LINK_EVENT_SELECTED_COLOR;
             }
+        }
+
+        // check if link has a warning or is invalid
+        const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
+
+        if (linkValid === Eagle.LinkValid.Invalid){
+            normalColor = LINK_INVALID_COLOR;
+            selectedColor = LINK_INVALID_SELECTED_COLOR;
+        }
+
+        if (linkValid === Eagle.LinkValid.Warning){
+            normalColor = LINK_WARNING_COLOR;
+            selectedColor = LINK_WARNING_SELECTED_COLOR;
         }
 
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
@@ -2937,8 +2949,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeOnClick(edge : Edge, index : number){
-        //console.log("clicked on edge", index, "fromNode", edge.getSrcNodeKey(), "toNode", edge.getDestNodeKey());
-        selectEdge(edge);
+        console.log("clicked on edge", index, "fromNode", edge.getSrcNodeKey(), "toNode", edge.getDestNodeKey(), d3.event.shiftKey);
+        selectEdge(edge, d3.event.shiftKey);
         tick();
     }
 
