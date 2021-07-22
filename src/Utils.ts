@@ -291,18 +291,6 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static translateFileTypeToString(fileType : Eagle.FileType) : string {
-        if (fileType === Eagle.FileType.Graph)
-            return "graph";
-        if (fileType === Eagle.FileType.Palette)
-            return "palette";
-        if (fileType === Eagle.FileType.JSON)
-            return "json";
-
-        //console.warn("Unknown file type (", fileType, ") can't be translated!");
-        return "";
-    }
-
     static translateRightWindowModeToString(rightWindowMode: Eagle.RightWindowMode): string {
         switch(rightWindowMode){
             case Eagle.RightWindowMode.EdgeInspector:
@@ -1847,7 +1835,7 @@ export class Utils {
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        console.log("validateJSON(): version:", version, "fileType:", Utils.translateFileTypeToString(fileType));
+        console.log("validateJSON(): version:", version, "fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;

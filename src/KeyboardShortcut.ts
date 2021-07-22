@@ -14,16 +14,20 @@ export class KeyboardShortcut {
     }
 
     static nodeIsSelected = (eagle: Eagle) : boolean => {
-        return eagle.getSelectedSingleNode() !== null;
+        return eagle.selectedNode() !== null;
     }
 
     static commentNodeIsSelected = (eagle: Eagle) : boolean => {
-        const selectedNode = eagle.getSelectedSingleNode();
+        const selectedNode = eagle.selectedNode();
         return selectedNode !== null && selectedNode.getCategory() === Eagle.Category.Comment;
     }
 
     static edgeIsSelected = (eagle: Eagle) : boolean => {
-        return eagle.getSelectedSingleEdge() !== null;
+        return eagle.selectedEdge() !== null;
+    }
+
+    static somethingIsSelected = (eagle: Eagle) : boolean => {
+        return eagle.selectedObjects().length > 0;
     }
 
     static true = (eagle: Eagle) : boolean => {
