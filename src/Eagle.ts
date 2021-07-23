@@ -2379,6 +2379,48 @@ export class Eagle {
 
     deleteSelection = (suppressUserConfirmationRequest: boolean) : void => {
         console.log("deleteSelection()", suppressUserConfirmationRequest);
+
+        // if no objects selected, warn user
+        if (this.selectedObjects().length === 0){
+            console.warn("Unable to delete selection: Nothing selected");
+            Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
+            return;
+        }
+
+        // skip confirmation if setting dictates
+        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
+            this._deleteSelection();
+            return;
+        }
+    }
+
+    private _deleteSelection = () : void => {
+        console.log("_deleteSelection()");
+
+        if (this.selectedLocation() === Eagle.FileType.Graph){
+
+            for (let i = 0 ; i < this.selectedObjects().length ; i++){
+                const object = this.selectedObjects()[i];
+
+                if (object instanceof Node){
+                    this.logicalGraph().removeNodeByKey(object.getKey());
+                }
+
+                if (object instanceof Edge){
+                    this.logicalGraph().removeEdgeById(object.getId());
+                }
+            }
+
+            // flag LG has changed
+            this.logicalGraph().fileInfo().modified = true;
+        }
+
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+
+        }
+
+        // empty the selected objects, should have all been deleted
+        this.selectedObjects([]);
     }
 
     /*
