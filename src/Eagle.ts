@@ -367,15 +367,19 @@ export class Eagle {
         }
     }, this);
 
-    setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectionLocation: Eagle.FileType) : void => {
-        console.log("setSelection()", rightWindowMode, selectionLocation);
+    setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+        console.log("setSelection()", rightWindowMode, selectedLocation);
         this.selectedObjects([selection]);
-        this.selectedLocation(selectionLocation);
+        this.selectedLocation(selectedLocation);
         this.rightWindow().mode(rightWindowMode);
     }
 
-    editSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectionLocation: Eagle.FileType) : void => {
-        // TODO: check that location is the same, otherwise default back to set
+    editSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+        // check that location is the same, otherwise default back to set
+        if (selectedLocation !== this.selectedLocation()){
+            Utils.showNotification("Selection Error", "Can't add object from " + selectedLocation + " to existing selected objects in " + this.selectedLocation(), "warning");
+            return;
+        }
 
         // check if object is already selected, if so remove?
         let alreadySelected = false;
