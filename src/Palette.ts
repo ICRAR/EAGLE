@@ -200,6 +200,14 @@ export class Palette {
         }
     }
 
+    removeNodeById = (id : string) : void => {
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getId() === id){
+                this.nodes.splice(i, 1);
+            }
+        }
+    }
+
     replaceNode = (index : number, newNode : Node) : void => {
         this.nodes.splice(index, 1, newNode);
     }

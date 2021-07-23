@@ -106,7 +106,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true));
         Eagle.settings.push(new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true));
         Eagle.settings.push(new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true));
-        Eagle.settings.push(new Setting("Confirm Delete Nodes", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_OBJECTS, true));
+        Eagle.settings.push(new Setting("Confirm Delete", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_OBJECTS, true));
         Eagle.settings.push(new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false));
         Eagle.settings.push(new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, false));
         Eagle.settings.push(new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, false));
@@ -127,7 +127,7 @@ export class Eagle {
         Eagle.shortcuts = ko.observableArray();
         Eagle.shortcuts.push(new KeyboardShortcut("Add Edge", ["e"], KeyboardShortcut.true, (eagle): void => {eagle.addEdgeToLogicalGraph();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Modify Selected Edge", ["m"], KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.editSelectedEdge();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Delete Selection", ["Backspace", "Delete"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(true);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Delete Selection", ["Backspace", "Delete"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false);}));
         Eagle.shortcuts.push(new KeyboardShortcut("Duplicate Selection", ["d"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Parent", ["h"], KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Subject", ["s"], KeyboardShortcut.commentNodeIsSelected, (eagle): void => {eagle.changeNodeSubject();}));
@@ -2425,6 +2425,31 @@ export class Eagle {
             this._deleteSelection();
             return;
         }
+
+        // determine number of nodes and edges in current selection
+        let numNodes = 0;
+        let numEdges = 0;
+        for (let i = 0 ; i < this.selectedObjects().length; i++){
+            const object = this.selectedObjects()[i];
+
+            if (object instanceof Node){
+                numNodes += 1;
+            }
+
+            if (object instanceof Edge){
+                numEdges += 1;
+            }
+        }
+
+        // request confirmation from user
+        Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete " + numEdges + " edge(s) and " + numNodes + " node(s) (and their children)?", "Yes", "No", (confirmed : boolean) : void => {
+            if (!confirmed){
+                console.log("User aborted deleteSelectedNode()");
+                return;
+            }
+
+            this._deleteSelection();
+        });
     }
 
     private _deleteSelection = () : void => {
@@ -2450,6 +2475,20 @@ export class Eagle {
 
         if (this.selectedLocation() === Eagle.FileType.Palette){
 
+            for (let i = 0 ; i < this.selectedObjects().length ; i++){
+                const object = this.selectedObjects()[i];
+
+                if (object instanceof Node){
+                    for (let j = 0 ; j < this.palettes().length ; j++){
+                        this.palettes()[j].removeNodeById(object.getId());
+                    }
+                }
+
+                // NOTE: do nothing with edges! shouldn't be any in palettes
+            }
+
+            // flag LG has changed
+            this.logicalGraph().fileInfo().modified = true;
         }
 
         // empty the selected objects, should have all been deleted
