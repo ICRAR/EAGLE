@@ -377,10 +377,24 @@ export class Eagle {
     editSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectionLocation: Eagle.FileType) : void => {
         // TODO: check that location is the same, otherwise default back to set
 
-        // TODO: check if object is already selected, if so remove?
+        // check if object is already selected, if so remove?
+        let alreadySelected = false;
+        let index = -1;
+        for (let i = 0 ; i < this.selectedObjects().length ; i++){
+            if (selection === this.selectedObjects()[i]){
+                alreadySelected = true;
+                index = i;
+                break;
+            }
+        }
 
-        // add
-        this.selectedObjects.push(selection);
+        if (alreadySelected){
+            // remove
+            this.selectedObjects.splice(index,1);
+        } else {
+            // add
+            this.selectedObjects.push(selection);
+        }
 
     }
 
@@ -391,7 +405,7 @@ export class Eagle {
             for (let i = 0 ; i < this.selectedObjects().length ; i++){
                 const o = this.selectedObjects()[i];
 
-                if (o instanceof Node && o.getKey() === object.getKey())
+                if (o instanceof Node && o.getId() === object.getId())
                 {
                     return true;
                 }
@@ -414,6 +428,25 @@ export class Eagle {
         }
 
         console.error("Checking if object of unknown type is selected", object);
+        return false;
+    }
+
+    // NOTE: we use this to check objects that are not ACTUALLY Node or Edge instances
+    //       the objects are actually knockout viewModels derived from Node or Edge
+    objectIsSelectedById = (id: string): boolean => {
+        for (let i = 0 ; i < this.selectedObjects().length ; i++){
+            const o = this.selectedObjects()[i];
+
+            if (o instanceof Node && o.getId() === id)
+            {
+                return true;
+            }
+
+            if (o instanceof Edge && o.getId() === id){
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -3170,6 +3203,13 @@ export class Eagle {
         });
     }
 
+    paletteComponentClick = (node: Node, event:JQueryEventObject) : void => {
+        if (event.shiftKey)
+            this.editSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Palette);
+        else
+            this.setSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Palette);
+    }
+
     selectedEdgeValid = () : Eagle.LinkValid => {
         const selectedEdge = this.selectedEdge();
 
@@ -3259,13 +3299,6 @@ export class Eagle {
         }
 
         node.toggleExpanded();
-
-        // de-select all nodes, then select this node
-        // TODO: we now have multiple loops here (findNodeByKey(), setSelected, etc), they could be consolidated into one loop
-        for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
-            this.logicalGraph().getNodes()[i].setSelected(false);
-        }
-        node.setSelected(true);
 
         this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
 

@@ -31,6 +31,7 @@ import {Port} from './Port';
 import {Field} from './Field';
 
 export class Node {
+    private _id : string
     private key : ko.Observable<number>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
@@ -66,7 +67,6 @@ export class Node {
     private subject : ko.Observable<number>; // the key of another node that is the subject of this node. used by comment nodes only.
 
     private expanded : ko.Observable<boolean>; // true, if the node has been expanded in the hierarchy tab in EAGLE
-    private selected : ko.Observable<boolean>; // true, if the node has been selected in EAGLE
 
     private readonly : ko.Observable<boolean>;
 
@@ -88,6 +88,7 @@ export class Node {
     public static readonly NO_APP_STRING : string = "<no app>";
 
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, readonly: boolean){
+        this._id = Utils.uuidv4();
         this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
@@ -121,9 +122,16 @@ export class Node {
         this.subject = ko.observable(null);
 
         this.expanded = ko.observable(false);
-        this.selected = ko.observable(false);
 
         this.readonly = ko.observable(readonly);
+    }
+
+    getId = () : string => {
+        return this._id;
+    }
+
+    setId = (id: string) : void => {
+        this._id = id;
     }
 
     getKey = () : number => {
@@ -534,14 +542,6 @@ export class Node {
         this.subject(key);
     }
 
-    setSelected = (selected : boolean) : void => {
-        this.selected(selected);
-    }
-
-    getSelected = () : boolean => {
-        return this.selected();
-    }
-
     setInputApplication = (inputApplication : Node) : void => {
         this.inputApplication(inputApplication);
 
@@ -597,6 +597,7 @@ export class Node {
     }
 
     clear = () : void => {
+        this._id = "";
         this.key(0);
         this.name("");
         this.description("");
@@ -628,7 +629,6 @@ export class Node {
         this.subject(null);
 
         this.expanded(false);
-        this.selected(false);
         this.readonly(true);
     }
 
@@ -935,6 +935,7 @@ export class Node {
     clone = () : Node => {
         const result : Node = new Node(this.key(), this.name(), this.description(), this.category(), this.categoryType(), this.readonly());
 
+        result._id = this._id;
         result.x = this.x;
         result.y = this.y;
         result.width = this.width;
@@ -984,7 +985,6 @@ export class Node {
         }
 
         result.expanded(this.expanded());
-        result.selected(this.selected());
 
         return result;
     }
@@ -1607,7 +1607,6 @@ export class Node {
         result.streaming = node.streaming();
         result.precious = node.precious();
         result.subject = node.subject();
-        result.selected = node.selected();
         result.expanded = node.expanded();
         result.readonly = node.readonly();
 
@@ -1771,7 +1770,6 @@ export class Node {
         result.streaming = node.streaming();
         result.precious = node.precious();
         result.subject = node.subject();
-        result.selected = node.selected();
         result.expanded = node.expanded();
         result.readonly = node.readonly();
 
@@ -1822,7 +1820,6 @@ export class Node {
         node.streaming(nodeData.streaming);
         node.precious(nodeData.precious);
         node.subject(nodeData.subject);
-        node.selected(nodeData.selected);
         node.expanded(nodeData.expanded);
         node.parentKey(nodeData.parentKey);
         node.embedKey(nodeData.embedKey);
@@ -1862,7 +1859,6 @@ export class Node {
         result.showPorts = node.showPorts;
         result.flipPorts = node.flipPorts();
 
-        result.selected = node.selected();
         result.expanded = node.expanded();
         result.readonly = node.readonly();
 
@@ -1883,7 +1879,6 @@ export class Node {
         result.showPorts = nodeData.showPorts;
         result.flipPorts(nodeData.flipPorts);
 
-        result.selected(nodeData.selected);
         result.expanded(nodeData.expanded);
 
         return result;

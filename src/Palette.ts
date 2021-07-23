@@ -152,6 +152,7 @@ export class Palette {
         const newNode : Node = node.clone();
 
         // set appropriate key for node (one that is not already in use)
+        newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.getNodes()));
         newNode.setReadonly(false);
         newNode.setEmbedKey(null);
