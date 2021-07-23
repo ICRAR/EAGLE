@@ -233,29 +233,38 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .on("start", function (node : Node) {
             isDraggingNode = false;
 
-            selectNode(node, d3.event.sourceEvent.shiftKey);
+            // if node not selected, then select it
+            if (!eagle.objectIsSelected(node)){
+                selectNode(node, d3.event.sourceEvent.shiftKey);
+            }
 
             tick();
         })
         .on("drag", function (node : Node, index : number) {
             // we ignore the first drag event on purpose
-            // it seems d3.event.dx and d3.event.dy are incorrect for the first event
+            // it seems d3.event.dx and d3.event.dy are incorrect (too large) for the first event
             if (!isDraggingNode){
                 isDraggingNode = true;
                 return;
             }
 
+            // transform change in x,y position using current scale factor
             const dx = DISPLAY_TO_REAL_SCALE(d3.event.dx);
             const dy = DISPLAY_TO_REAL_SCALE(d3.event.dy);
-            node.changePosition(dx, dy);
 
-            // update children locations
-            moveChildNodes(index, dx, dy);
+            // move all selected nodes, skip edges (they just follow nodes anyway)
+            for (let i = 0 ; i < eagle.selectedObjects().length ; i++){
+                const object = eagle.selectedObjects()[i];
+
+                if (object instanceof Node){
+                    object.changePosition(dx, dy);
+                    moveChildNodes(object, dx, dy);
+                }
+            }
+
+            // trigger updates
             eagle.flagActiveFileModified();
-
-            // debug
             eagle.logicalGraph.valueHasMutated();
-
             tick();
         })
         .on("end", function(node : Node){
@@ -3087,17 +3096,22 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         eagle.flagActiveDiagramHasMutated();
     }
 
-    function moveChildNodes(nodeIndex : number, deltax : number, deltay : number) : void {
-        // get id of parent nodeIndex
-        const parentKey : number = nodeData[nodeIndex].getKey();
+    function moveChildNodes(node: Node, deltax: number, deltay: number) : void {
+        // get id of parent node
+        const parentKey : number = node.getKey();
 
         // loop through all nodes, if they belong to the parent's group, move them too
         for (let i = 0 ; i < nodeData.length ; i++){
-            const node = nodeData[i];
+            const n = nodeData[i];
 
-            if (node.getParentKey() === parentKey){
-                moveNode(node, deltax, deltay);
-                moveChildNodes(i, deltax, deltay);
+            // skip selected nodes, they are handled in the main drag code
+            if (eagle.objectIsSelected(n)){
+                continue;
+            }
+
+            if (n.getParentKey() === parentKey){
+                moveNode(n, deltax, deltay);
+                moveChildNodes(n, deltax, deltay);
             }
         }
     }
