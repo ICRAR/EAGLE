@@ -40,6 +40,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     let hasDraggedBackground : boolean = false;
     let isDraggingNode : boolean = false;
+    let isDraggingSelectionRegion : boolean = false;
     let sourcePortId : string | null = null;
     let sourceNodeKey : number | null = null;
     let sourceDataType : string | null = null;
@@ -47,7 +48,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     let destinationNodeKey : number | null = null;
     let isDraggingPort : boolean = false;
     let isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
+
     const mousePosition = {x:0, y:0};
+    const selectionRegionStart = {x:0, y:0};
+    const selectionRegionEnd = {x:0, y:0};
 
     const APPS_HEIGHT : number = 28;
     const PORT_HEIGHT : number = 24;
@@ -152,11 +156,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .drag()
         .on("start", function (node : Node) {
             hasDraggedBackground = false;
+            isDraggingSelectionRegion = d3.event.sourceEvent.shiftKey;
+            selectionRegionStart.x = REAL_TO_DISPLAY_POSITION_X(d3.event.x);
+            selectionRegionStart.y = REAL_TO_DISPLAY_POSITION_Y(d3.event.y);
         })
         .on("end", function(){
             const hadPreviousSelection: boolean = eagle.selectedObjects().length > 0;
 
-            if (!hasDraggedBackground){
+            if (!hasDraggedBackground && !isDraggingSelectionRegion){
                 eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null, Eagle.FileType.Unknown);
                 hasDraggedBackground = false;
 
@@ -166,9 +173,26 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         })
         .on("drag", function(){
-            eagle.globalOffsetX += d3.event.dx;
-            eagle.globalOffsetY += d3.event.dy;
-            hasDraggedBackground = true;
+            if (isDraggingSelectionRegion){
+                selectionRegionEnd.x = REAL_TO_DISPLAY_POSITION_X(d3.event.x);
+                selectionRegionEnd.y = REAL_TO_DISPLAY_POSITION_Y(d3.event.y);
+
+                const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
+                console.log("Found", nodes.length, "nodes in region");
+
+                eagle.selectedObjects(nodes);
+                eagle.selectedLocation(Eagle.FileType.Graph);
+                eagle.rightWindow().mode(Eagle.RightWindowMode.NodeInspector);
+
+                // debug
+                eagle.logicalGraph.valueHasMutated();
+
+            } else {
+                // move background
+                eagle.globalOffsetX += d3.event.dx;
+                eagle.globalOffsetY += d3.event.dy;
+                hasDraggedBackground = true;
+            }
             tick();
         });
 
@@ -802,6 +826,33 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("marker-end", "url(#black-arrowhead)")
         .style("display", getCommentLinkDisplay);
 
+    // create one link that is only used during the creation of a new link
+    // this new link follows the mouse pointer to indicate the position
+    const draggingLink = svgContainer.append("line")
+                                     .attr("class", "draggingLink")
+                                     .attr("x1", 0)
+                                     .attr("y1", 0)
+                                     .attr("x2", 0)
+                                     .attr("y2", 0)
+                                     .attr("stroke", draggingEdgeGetStrokeColor);
+
+    const selectionRegion = svgContainer
+        .append("rect")
+        .attr("class", "selection-region")
+        /*
+        .attr("width", selectionRegionEnd.x - selectionRegionStart.x)
+        .attr("height", selectionRegionEnd.y - selectionRegionStart.y)
+        .attr("x", selectionRegionStart.x)
+        .attr("y", selectionRegionStart.y)
+        */
+        .attr("width", 100)
+        .attr("height", 200)
+        .attr("x", 600)
+        .attr("y", 200)
+        .attr("stroke", "black")
+        .attr("fill", "transparent")
+        .style("display", "inline");
+
     function determineDirection(source: boolean, node: Node, portIndex: number, portType: string): Eagle.Direction {
         if (source){
             if (node.isBranch()){
@@ -872,16 +923,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         return createBezier(x1, y1, x2, y2, startDirection, endDirection);
     }
-
-    // create one link that is only used during the creation of a new link
-    // this new link follows the mouse pointer to indicate the position
-    const draggingLink = svgContainer.append("line")
-                                     .attr("class", "draggingLink")
-                                     .attr("x1", 0)
-                                     .attr("y1", 0)
-                                     .attr("x2", 0)
-                                     .attr("y2", 0)
-                                     .attr("stroke", draggingEdgeGetStrokeColor);
 
     function tick(){
         //console.log("tick()");
@@ -1495,6 +1536,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                         .attr("y2", 0)
                         .attr("stroke", "none");
         }
+
+        // selection region
+        selectionRegion
+            .attr("width", selectionRegionEnd.x - selectionRegionStart.x)
+            .attr("height", selectionRegionEnd.y - selectionRegionStart.y)
+            .attr("x", selectionRegionStart.x)
+            .attr("y", selectionRegionStart.y)
+            .attr("stroke", "black")
+            .attr("fill", "transparent")
+            .style("display", "inline");
+
+        console.log("width", selectionRegion.attr("width"), "height", selectionRegion.attr("height"), "x", selectionRegion.attr("x"), "y", selectionRegion.attr("y"));
 
         const elapsedTime = performance.now() - startTime;
         if (elapsedTime > eagle.rendererFrameMax()){eagle.rendererFrameMax(elapsedTime);}
@@ -3295,6 +3348,22 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
         return null;
+    }
+
+    function findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
+        const result: Node[] = [];
+
+        for (let i = nodeData.length - 1; i >= 0 ; i--){
+            const node : Node = nodeData[i];
+            const x : number = node.getPosition().x;
+            const y : number = node.getPosition().y;
+
+            if (x >= left && right >= x && y >= top && bottom >= y){
+                result.push(node);
+            }
+        }
+
+        return result;
     }
 
     function mouseEnterPort(port : Port) : void {
