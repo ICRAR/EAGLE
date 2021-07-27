@@ -70,7 +70,8 @@ export class Eagle {
     inspectorState : ko.Observable<InspectorState>;
 
     rendererFrameDisplay : ko.Observable<string>;
-    rendererFrameMax : ko.Observable<number>;
+    rendererFrameMax : number;
+    rendererFrameCount : number;
 
     explorePalettes : ko.ObservableArray<PaletteInfo>;
 
@@ -148,7 +149,8 @@ export class Eagle {
         this.inspectorState = ko.observable(new InspectorState());
 
         this.rendererFrameDisplay = ko.observable("");
-        this.rendererFrameMax = ko.observable(0);
+        this.rendererFrameMax = 0;
+        this.rendererFrameCount = 0;
 
         this.explorePalettes = ko.observableArray([]);
     }
