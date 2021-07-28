@@ -60,10 +60,31 @@
                 "readonly": false,
                 "type": "Boolean"
             },{
-                "text": "Arg01",
-                "name": "Arg01",
+                "text": "Command",
+                "name": "command",
                 "value": "",
-                "description": "The command line to be executed",
+                "description": "The command to be executed",
+                "readonly": false,
+                "type": "String"
+            },{
+                "text": "Input Redirection",
+                "name": "input_redirection",
+                "value": "",
+                "description": "The command line argument that specifies the input into this application",
+                "readonly": false,
+                "type": "String"
+            },{
+                "text": "Output Redirection",
+                "name": "output_redirection",
+                "value": "",
+                "description": "The command line argument that specifies the output from this application",
+                "readonly": false,
+                "type": "String"
+            },{
+                "text": "Command Line Arguments",
+                "name": "command_line_arguments",
+                "value": "",
+                "description": "Additional arguments to be added to the command line to be executed",
                 "readonly": false,
                 "type": "String"
             }],
@@ -515,6 +536,34 @@
                 "description": "The port of the NGAS Server",
                 "readonly": false,
                 "type": "Integer"
+            }, {
+                "text": "File ID",
+                "name": "ngasFileId",
+                "value": "",
+                "description": "File ID on NGAS (for retrieval only)",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Connection timeout",
+                "name": "ngasConnectTimeout",
+                "value": 2,
+                "description": "Timeout for connecting to the NGAS server",
+                "readonly": false,
+                "type": "Integer"
+            }, {
+                "text": "NGAS mime-type",
+                "name": "ngasMime",
+                "value": "text/ascii",
+                "description": "Mime-type to be used for archiving",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "NGAS timeout",
+                "name": "ngasTimeout",
+                "value": 2,
+                "description": "Timeout for receiving responses for NGAS",
+                "readonly": false,
+                "type": "Integer"
             }],
             "shape": "Card",
             "key": -7,
@@ -766,7 +815,20 @@
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
-            "outputPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "6ac20e14-6c34-4560-8671-ae6bce75b6e4",
+                    "IdText": "Y",
+                    "event": false,
+                    "type": "String"
+                },
+                {
+                    "Id": "e848c50b-928d-4502-8d22-56e543299744",
+                    "IdText": "N",
+                    "event": false,
+                    "type": "String"
+                }
+            ],
             "key": -23,
             "fields": [{
                 "text": "Execution time",
@@ -792,7 +854,7 @@
             }, {
                 "text": "Appclass",
                 "name": "appclass",
-                "value": "dlg.apps.simple.BranchBaseApp",
+                "value": "dlg.apps.simple.SimpleBranch",
                 "description": "The python class that implements this branch construct",
                 "readonly": false,
                 "type": "String"

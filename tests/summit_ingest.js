@@ -135,7 +135,7 @@ test('Create palette', async t =>{
         .click('#choiceModal .modal-footer button')
         .wait(250)
 
-        .typeText(Selector('#nodeInspectorInputAppFieldValue4'), "/home/wu082/proj/jacal/summit_demo/oskar/ingest/conf/recv.json", {replace:true})
+        .typeText(Selector('#nodeInspectorInputAppFieldValue4'), "/home/wu082/proj/jacal/summit_demo/oskar/ingest/conf/recv.graph", {replace:true})
 
         // create an input port on the gather
         .click('#nodeInspectorAddInputPort')

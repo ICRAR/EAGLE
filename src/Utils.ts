@@ -281,11 +281,11 @@ export class Utils {
     }
 
     static translateStringToFileType(fileType : string) : Eagle.FileType {
-        if (fileType === "graph")
+        if (fileType.toLowerCase() === "graph")
             return Eagle.FileType.Graph;
-        if (fileType === "palette")
+        if (fileType.toLowerCase() === "palette")
             return Eagle.FileType.Palette;
-        if (fileType === "json")
+        if (fileType.toLowerCase() === "json")
             return Eagle.FileType.JSON;
 
         //console.warn("Unknown file type (", fileType, ") can't be translated!");
@@ -339,6 +339,9 @@ export class Utils {
         }
         if (dataType === "Complex"){
             return Eagle.DataType.Complex;
+        }
+        if (dataType === "Unknown"){
+            return Eagle.DataType.Unknown;
         }
 
         console.warn("Unknown DataType", dataType);
@@ -679,7 +682,8 @@ export class Utils {
             // extract field data from HTML elements
             const text : string = <string>$('#editFieldModalTextInput').val();
             const name : string = <string>$('#editFieldModalNameInput').val();
-            const value : string = <string>$('#editFieldModalValueInput').val();
+            const valueText : string = <string>$('#editFieldModalValueInputText').val();
+            const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
             const description: string = <string>$('#editFieldModalDescriptionInput').val();
             const access: string = <string>$('#editFieldModalAccessSelect').val();
             const type: string = <string>$('#editFieldModalTypeSelect').val();
@@ -687,15 +691,28 @@ export class Utils {
             // translate access and type
             const readonly: boolean = access === 'readonly';
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+            let newField;
 
-            const newField = new Field(text, name, value, description, readonly, realType);
+            if (realType === Eagle.DataType.Boolean){
+                newField = new Field(text, name, valueCheckbox.toString(), description, readonly, realType);
+            } else {
+                newField = new Field(text, name, valueText, description, readonly, realType);
+            }
 
             callback(true, newField);
         });
 
         $('#editFieldModal').on('show.bs.modal', Utils.validateFieldValue);
-        $('#editFieldModalValueInput').on('keyup', Utils.validateFieldValue);
-        $('#editFieldModalTypeSelect').on('change', Utils.validateFieldValue);
+        $('#editFieldModalValueInputText').on('keyup', Utils.validateFieldValue);
+        $('#editFieldModalTypeSelect').on('change', function(){
+            Utils.validateFieldValue();
+
+            // show the correct entry field based on the field type
+            const value = $('#editFieldModalTypeSelect').val();
+            console.log("editFieldModalTypeSelect change", value);
+            $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean);
+            $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
+        });
 
         // #editPortModal - requestUserEditPort()
         $('#editPortModalAffirmativeButton').on('click', function(){
@@ -769,9 +786,10 @@ export class Utils {
             const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
             const destPortId: string = <string>$('#editEdgeModalDestPortIdSelect').val();
             const dataType: string = <string>$('#editEdgeModalDataTypeInput').val();
+            const loopAware: boolean = $('#editEdgeModalValueInputCheckbox').prop('checked');
             //console.log("srcNodeKey", srcNodeKey, "srcPortId", srcPortId, "destNodeKey", destNodeKey, "destPortId", destPortId, "dataType", dataType);
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType);
+            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware);
 
             callback(true, newEdge);
         });
@@ -1033,12 +1051,18 @@ export class Utils {
                 text: "Custom (enter below)"
             }));
         }
+
         // populate UI with current field data
         $('#editFieldModalTextInput').val(field.getText());
         $('#editFieldModalNameInput').val(field.getName());
-        $('#editFieldModalValueInput').val(field.getValue());
+        $('#editFieldModalValueInputText').val(field.getValue());
+        $('#editFieldModalValueInputCheckbox').attr('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
         $('#editFieldModalDescriptionInput').val(field.getDescription());
         $('#editFieldModalAccessSelect').empty();
+
+        // show the correct entry field based on the field type
+        $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
+        $('#editFieldModalValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
 
         // add options to the access select tag
         $('#editFieldModalAccessSelect').append($('<option>', {
@@ -1798,11 +1822,22 @@ export class Utils {
             if (node.getOutputPorts().length > maxOutputs){
                 results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many output ports. Should have " + maxOutputs);
             }
+
+            // check embedded application categories are not 'None'
+            if (node.hasInputApplication() && node.getInputApplication().getCategory() === Eagle.Category.None){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.");
+            }
+            if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Eagle.Category.None){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.");
+            }
+            if (node.hasExitApplication() && node.getExitApplication().getCategory() === Eagle.Category.None){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application with category 'None'.");
+            }
         }
 
         for (let i = 0 ; i < graph.getEdges().length; i++){
             const edge: Edge = graph.getEdges()[i];
-            const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, false);
+            const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
 
             if (linkValid === Eagle.LinkValid.Invalid){
                 results.push("Edge " + i + " (" + edge.getId() + ") is invalid.");
@@ -1868,33 +1903,32 @@ export class Utils {
     }
 
     static validateFieldValue() : void {
-        const value : string = <string>$('#editFieldModalValueInput').val();
+        //const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
+        const valueText : string = <string>$('#editFieldModalValueInputText').val();
+
         const type: string = <string>$('#editFieldModalTypeSelect').val();
         const realType: Eagle.DataType = Utils.translateStringToDataType(type);
 
         let isValid: boolean = true;
 
         switch (realType){
-            case Eagle.DataType.Boolean:
-                isValid = value.toLowerCase() === "true" || value.toLowerCase() === "false";
-                break;
             case Eagle.DataType.Float:
-                isValid = value.match(/^-?\d*(\.\d+)?$/) && !isNaN(parseFloat(value));
+                isValid = valueText.match(/^-?\d*(\.\d+)?$/) && !isNaN(parseFloat(valueText));
                 break;
             case Eagle.DataType.Integer:
-                isValid = value.match(/^-?\d*$/) && true;
+                isValid = valueText.match(/^-?\d*$/) && true;
                 break;
             default:
                 isValid = true;
         }
 
         if (isValid){
-            $('#editFieldModalValueInput').addClass('is-valid');
-            $('#editFieldModalValueInput').removeClass('is-invalid');
+            $('#editFieldModalValueInputText').addClass('is-valid');
+            $('#editFieldModalValueInputText').removeClass('is-invalid');
             $('#editFieldModalValueFeedback').text('');
         } else {
-            $('#editFieldModalValueInput').removeClass('is-valid');
-            $('#editFieldModalValueInput').addClass('is-invalid');
+            $('#editFieldModalValueInputText').removeClass('is-valid');
+            $('#editFieldModalValueInputText').addClass('is-invalid');
             $('#editFieldModalValueFeedback').text('Invalid value for ' + type + ' type.');
         }
     }

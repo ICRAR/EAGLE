@@ -156,7 +156,6 @@ export class Node {
     }
 
     getDisplayName : ko.PureComputed<string> = ko.pureComputed(() => {
-        console.log("getDisplayName()");
         if (this.name() === 'Enter label' || this.name() == ''){
             return this.category();
         } else {
@@ -165,7 +164,7 @@ export class Node {
     }, this);
 
     getNoWhiteSpaceName = () : string => {
-        return this.getDisplayName().replace(' ', '');
+        return this.getDisplayName().replace(/ /g, '');
     }
 
     getDescription = () : string => {
@@ -434,6 +433,11 @@ export class Node {
         return this.category();
     }
 
+    setCategory = (category: Eagle.Category): void => {
+        this.category(category);
+        this.color(Utils.getColorForNode(category));
+    }
+
     getCategoryType = () : Eagle.CategoryType => {
         return this.categoryType();
     }
@@ -609,6 +613,8 @@ export class Node {
         this.collapsed(false);
         this.streaming(false);
         this.precious(false);
+        this.showPorts(false);
+        this.flipPorts(false);
 
         this.inputApplication(null);
         this.outputApplication(null);
@@ -1071,6 +1077,17 @@ export class Node {
             return 1;
         }
 
+        if (this.isLoop()){
+            const numCopies = this.getFieldByName("num_of_iter");
+
+            if (numCopies === null){
+                console.warn("Unable to determine local multiplicity of Loop, no 'num_of_iter' field. Using default value (1).");
+                return 1;
+            }
+
+            return parseInt(numCopies.getValue(), 10);
+        }
+
         return 1;
     }
 
@@ -1464,10 +1481,7 @@ export class Node {
         if (typeof nodeData.fields !== 'undefined'){
             for (let j = 0 ; j < nodeData.fields.length ; j++){
                 const fieldData = nodeData.fields[j];
-                const fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
-                const fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                const fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
-                node.addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
+                node.addField(Field.fromOJSJson(fieldData));
             }
         }
 
@@ -1475,10 +1489,7 @@ export class Node {
         if (typeof nodeData.inputAppFields !== 'undefined'){
             for (let j = 0 ; j < nodeData.inputAppFields.length ; j++){
                 const fieldData = nodeData.inputAppFields[j];
-                const fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
-                const fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                const fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
-                node.inputApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
+                node.inputApplication().addField(Field.fromOJSJson(fieldData));
             }
         }
 
@@ -1486,10 +1497,7 @@ export class Node {
         if (typeof nodeData.outputAppFields !== 'undefined'){
             for (let j = 0 ; j < nodeData.outputAppFields.length ; j++){
                 const fieldData = nodeData.outputAppFields[j];
-                const fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
-                const fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                const fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
-                node.outputApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
+                node.outputApplication().addField(Field.fromOJSJson(fieldData));
             }
         }
 
@@ -1497,10 +1505,7 @@ export class Node {
         if (typeof nodeData.exitAppFields !== 'undefined'){
             for (let j = 0 ; j < nodeData.exitAppFields.length ; j++){
                 const fieldData = nodeData.exitAppFields[j];
-                const fieldDescription : string = fieldData.description === undefined ? "" : fieldData.description;
-                const fieldReadonly : boolean = fieldData.readonly === undefined ? false : fieldData.readonly;
-                const fieldType : Eagle.DataType = fieldData.type === undefined ? Eagle.DataType.Unknown : fieldData.type;
-                node.exitApplication().addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription, fieldReadonly, fieldType));
+                node.exitApplication().addField(Field.fromOJSJson(fieldData));
             }
         }
 

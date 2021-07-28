@@ -700,14 +700,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                                 if (destinationPortId !== null){
                                     // check if link is valid
-                                    const linkValid : Eagle.LinkValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, true, true);
+                                    const linkValid : Eagle.LinkValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, false, true, true);
 
                                     // check if we should allow invalid edges
                                     const allowInvalidEdges : boolean = Eagle.findSettingValue(Utils.ALLOW_INVALID_EDGES);
 
                                     // abort if source port and destination port have different data types
                                     if (allowInvalidEdges || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
-                                        addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, sourceDataType);
+                                        if (linkValid === Eagle.LinkValid.Warning){
+                                            addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, sourceDataType, true);
+                                        } else {
+                                            addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, sourceDataType, false);
+                                        }
                                     } else {
                                         console.warn("link not valid, result", linkValid);
                                     }
@@ -1438,8 +1442,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // dragging link
         if (isDraggingPort){
-            const x1 : number = REAL_TO_DISPLAY_POSITION_X(edgeGetX1(new Edge(sourceNodeKey, sourcePortId, 0, "", "")));
-            const y1 : number = REAL_TO_DISPLAY_POSITION_Y(edgeGetY1(new Edge(sourceNodeKey, sourcePortId, 0, "", "")));
+            const tempEdge: Edge = new Edge(sourceNodeKey, sourcePortId, 0, "", "", false);
+            const x1 : number = REAL_TO_DISPLAY_POSITION_X(edgeGetX1(tempEdge));
+            const y1 : number = REAL_TO_DISPLAY_POSITION_Y(edgeGetY1(tempEdge));
             let x2 : number = mousePosition.x;
             let y2 : number = mousePosition.y;
 
@@ -1467,7 +1472,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                         .attr("stroke", "none");
         }
 
-        eagle.rendererFrameTime("tick " + (performance.now() - startTime).toFixed(2) + "ms");
+        const elapsedTime = performance.now() - startTime;
+        if (elapsedTime > eagle.rendererFrameMax()){eagle.rendererFrameMax(elapsedTime);}
+        eagle.rendererFrameDisplay("tick " + elapsedTime.toFixed(2) + "ms (max " + eagle.rendererFrameMax().toFixed(2) + "ms)");
     }
 
     function selectEdge(edge : Edge){
@@ -1626,16 +1633,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getSubHeaderText(data : Node) : string {
-        if (data.getCategoryType() === Eagle.CategoryType.Data && !data.isShowPorts()){
-            const multiplicity : number = findMultiplicity(data);
-
-            if (multiplicity === 1){
-                return "";
-            } else {
-                return multiplicity.toString();
-            }
-        }
-
         return "";
     }
 
@@ -1844,7 +1841,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "";
         }
 
-
         if (node.isBranch()){
             if (index === 0){
                 return port.isEvent() ? "event middle" : "middle";
@@ -1974,7 +1970,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isBranch()){
-            const numPorts = node.getInputPorts().length;
+            const numPorts = node.getInputApplicationInputPorts().length;
             return REAL_TO_DISPLAY_SCALE(100 - 76 * portIndexRatio(index, numPorts));
         }
 
@@ -1994,8 +1990,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isBranch()){
-            const numPorts = node.getInputPorts().length;
-
+            const numPorts = node.getInputApplicationInputPorts().length;
             return REAL_TO_DISPLAY_SCALE(24 + 30 * portIndexRatio(index, numPorts));
         }
 
@@ -2073,6 +2068,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return getLeftSidePortPositionX(port, index);
         }
 
+        if (node.isBranch()){
+            if (index === 0){
+                return REAL_TO_DISPLAY_SCALE(200) / 2;
+            }
+            if (index === 1){
+                return REAL_TO_DISPLAY_SCALE(200 - 24);
+            }
+        }
+
         if (node.isFlipPorts()){
             return getRightSidePortPositionX(port, index);
         } else {
@@ -2148,7 +2152,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isBranch()){
             const numPorts = node.getInputPorts().length;
-
             return REAL_TO_DISPLAY_SCALE(100 - 100 * portIndexRatio(index, numPorts));
         }
 
@@ -2168,7 +2171,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isBranch()){
             const numPorts = node.getInputPorts().length;
-
             return REAL_TO_DISPLAY_SCALE(50 * portIndexRatio(index, numPorts));
         }
 
@@ -2576,6 +2578,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
+
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
 
@@ -2828,7 +2831,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetStrokeColor(edge: Edge, index: number) : string {
-        const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), false, false);
+        const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
 
         if (linkValid === Eagle.LinkValid.Invalid)
             return LINK_INVALID_COLOR;
@@ -2889,15 +2892,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function addEdge(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string) : void {
-        console.log("addLink()", "port", srcPortId, "on node", srcNodeKey, "to port", destPortId, "on node", destNodeKey);
+    function addEdge(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean) : void {
+        console.log("addLink()", "port", srcPortId, "on node", srcNodeKey, "to port", destPortId, "on node", destNodeKey, "loopAware", loopAware);
 
         if (srcPortId === destPortId){
             console.warn("Abort addLink() from port to itself!");
             return;
         }
 
-        graph.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, (edge : Edge) : void =>{
+        graph.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, (edge : Edge) : void =>{
             eagle.flagActiveDiagramHasMutated();
             //eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
 
@@ -3124,31 +3127,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function findMultiplicity(node : Node) : number {
-        let n : Node = node;
-        let result : number = 1;
-        let iterations : number = 0;
-
-        while (true){
-            if (iterations > 10){
-                console.error("too many iterations in findMultiplicity()");
-                break;
-            }
-
-            iterations += 1;
-
-            n = findNodeWithKey(n.getParentKey(), nodeData);
-
-            if (n === null){
-                break;
-            }
-
-            result *= n.getLocalMultiplicity();
-        }
-
-        return result;
-    }
-
     function getNodeDisplay(node : Node) : string {
         // hide if node has collapsed ancestor
         if (findAncestorCollapsedNode(node) !== null){
@@ -3283,7 +3261,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         destinationPortId = port.getId();
         destinationNodeKey = port.getNodeKey();
 
-        isDraggingPortValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, true, true);
+        isDraggingPortValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, true, true, true);
     }
 
     function mouseLeavePort(port : Port) : void {
@@ -3373,5 +3351,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     // performance
-    eagle.rendererFrameTime("render " + (performance.now() - startTime).toFixed(2) + "ms");
+    const elapsedTime = performance.now() - startTime;
+    if (elapsedTime > eagle.rendererFrameMax()){eagle.rendererFrameMax(elapsedTime);}
+    eagle.rendererFrameDisplay("render " + elapsedTime.toFixed(2) + "ms (max " + eagle.rendererFrameMax().toFixed(2) + "ms)");
 }

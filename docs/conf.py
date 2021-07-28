@@ -12,15 +12,18 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+from datetime import datetime
+import subprocess
+import shlex
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../../'))
+#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = u'EAGLE'
+project = u'EAGLE - Documentation'
 copyright = u'2020, James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec'
 author = u'James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec'
 
@@ -32,15 +35,50 @@ release = u'2'
 
 # -- General configuration ---------------------------------------------------
 
+read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+# Mock the rest of the external modules we need so the API autodoc
+# gets correctly generated
+try:
+    from unittest.mock import MagicMock
+except:
+    from mock import Mock as MagicMock
+
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, _):
+        return MagicMock()
+
+
+MOCK_MODULES = (
+    'config',
+    'config.config',
+    'argparse',
+    'json',
+    'tempfile'
+    'urllib.request',
+    'ssl',
+    'github',
+    'gitlab',
+)
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+
+# -- General configuration ------------------------------------------------
+
 # If your documentation needs a minimal Sphinx version, state it here.
-#
-# needs_sphinx = '1.0'
+needs_sphinx = '1.3'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc'
+    'sphinxcontrib.openapi',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.imgmath',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -76,9 +114,9 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'yummy_sphinx_theme'
+html_theme = 'sphinx_rtd_theme'
+#html_theme = 'karma_sphinx_theme'
 html_theme_options = {
-    'fixed_sidebar':'true'
 }
 
 # Adding this so we can increase the width of the central column of text.

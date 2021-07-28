@@ -88,3 +88,50 @@ figure figcaption ol li {
   text-decoration: none;
   cursor: pointer;
 }
+
+header{
+	background: linear-gradient(90deg, rgba(0,64,133,1) 0%, rgba(0,52,107,1) 20%, rgba(0,35,73,1) 100%);
+    padding: 1rem 1rem;
+}
+
+.breadcrumbs-outer{
+    background: #002349;
+	border:none;
+}
+
+.breadcrumbs-outer ul{
+	padding:0px;
+}
+
+.main-outer{
+	background: #d8ddf0;
+}
+
+.toctree-wrapper{
+	visibility: hidden;
+	position: absolute;
+}
+
+.breadcrumbs li {
+	color: rgb(206, 206, 206);
+}
+
+.breadcrumbs li a {
+	color:rgb(0, 132, 255);
+}
+
+.site-title{
+	color: white;
+}
+
+.breadcrumbs-aside {
+	visibility: hidden;
+}
+
+.footer{
+	padding: 0px;
+}
+
+.document h1{
+	margin-top:0px;
+}

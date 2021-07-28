@@ -13,8 +13,8 @@
 
         <!-- ko if: $data.expanded -->
             <ul class="nodes" data-bind="foreach: $root.logicalGraph().getNodes()">
-                <!--<li><span data-bind="text: parentKey + ' ' + key + ' ' + $parentContext.key + ' ' + $component.key"></span></li>-->
-                <!-- ko if: parentKey === $component.key -->
+                <!--<li><span data-bind="text: parentKey() + ' ' + key() + ' ' + $parentContext.key + ' ' + $component.key()"></span></li>-->
+                <!-- ko if: parentKey() === $component.key() -->
                     <hierarchy-node params="data: $data, parentKey: key, select: $root.selectNodeInHierarchy"></hierarchy-node>
                 <!-- /ko -->
             </ul>

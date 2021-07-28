@@ -85,7 +85,7 @@ export class Field {
     }
 
     getFieldValue = () : string => {
-        var tooltipText = "Val: " + this.value();
+        const tooltipText = "Val: " + this.value();
         if  (tooltipText === "Val: "){
             return "";
         }
@@ -98,10 +98,10 @@ export class Field {
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
-    private static string2Type = (value: string, type: Eagle.DataType) : any => {
+    static string2Type = (value: string, type: Eagle.DataType) : any => {
         switch (type){
             case Eagle.DataType.Boolean:
-                return value === 'true';
+                return value.toLowerCase() === 'true';
             case Eagle.DataType.Float:
                 return parseFloat(value);
             case Eagle.DataType.Integer:
@@ -134,14 +134,33 @@ export class Field {
     }
 
     static fromOJSJson = (data : any) : Field => {
-        let readonly = false;
-        let type = Eagle.DataType.Unknown;
+        let description: string = "";
+        let readonly: boolean = false;
+        let type: Eagle.DataType = Eagle.DataType.Unknown;
 
+        if (typeof data.description !== 'undefined')
+            description = data.description;
         if (typeof data.readonly !== 'undefined')
             readonly = data.readonly;
         if (typeof data.type !== 'undefined')
             type = data.type;
 
-        return new Field(data.text, data.name, data.value.toString(), data.description, readonly, type);
+        return new Field(data.text, data.name, data.value.toString(), description, readonly, type);
+    }
+
+    public static sortFunc = (a: Field, b: Field) : number => {
+        if (a.name() < b.name())
+            return -1;
+
+        if (a.name() > b.name())
+            return 1;
+
+        if (a.type() < b.type())
+            return -1;
+
+        if (a.type() > b.type())
+            return 1;
+
+        return 0;
     }
 }

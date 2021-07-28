@@ -37,7 +37,7 @@ export class Edge {
     private dataType : string;
     private loopAware : boolean;
 
-    constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string){
+    constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean){
         this._id = Utils.uuidv4();
 
         this.srcNodeKey = srcNodeKey;
@@ -46,7 +46,7 @@ export class Edge {
         this.destPortId = destPortId;
 
         this.dataType = dataType;
-        this.loopAware = false;
+        this.loopAware = loopAware;
     }
 
     getId = () : string => {
@@ -112,10 +112,9 @@ export class Edge {
     }
 
     clone = () : Edge => {
-        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType);
+        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware);
 
         result._id = this._id;
-        result.loopAware = this.loopAware;
 
         return result;
     }
@@ -141,9 +140,7 @@ export class Edge {
     }
 
     static fromV3Json = (edgeData: any, errors: string[]): Edge => {
-        const edge = new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown);
-        edge.loopAware = edgeData.loop_aware === "1";
-        return edge;
+        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown, edgeData.loop_aware === "1");
     }
 
     static toAppRefJson = (edge : Edge) : object => {
@@ -159,13 +156,11 @@ export class Edge {
 
     static fromAppRefJson = (edgeData: any, errors: string[]): Edge => {
         //console.log("Edge.fromAppRefJson()", edgeData);
-        const edge = new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType);
-        edge.loopAware = edgeData.loopAware;
-        return edge;
+        return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware);
     }
 
 
-    static isValid = (graph : LogicalGraph, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, showNotification : boolean, showConsole : boolean) : Eagle.LinkValid => {
+    static isValid = (graph : LogicalGraph, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, showNotification : boolean, showConsole : boolean) : Eagle.LinkValid => {
         //console.log("IsValid()", "sourceNodeKey", sourceNodeKey, "sourcePortId", sourcePortId, "destinationNodeKey", destinationNodeKey, "destinationPortId", destinationPortId);
 
         // check for problems
@@ -297,7 +292,7 @@ export class Edge {
         }
 
         // if link is not a parent, child or sibling, then warn user
-        if (!parentIsEFN && !isParent && !isChild && !isSibling){
+        if (!parentIsEFN && !isParent && !isChild && !isSibling && !loopAware){
             Edge.isValidLog("Warning", "Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive", "warning", showNotification, showConsole);
             return Eagle.LinkValid.Warning;
         }

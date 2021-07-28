@@ -19,6 +19,9 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 #    MA 02111-1307  USA
 #
+"""
+This is the main module of the EAGLE server side code.
+"""
 import argparse
 import json
 import logging
@@ -42,6 +45,9 @@ from config.config import SERVER_PORT
 
 
 class GraphException(Exception):
+    """
+    Exception class will be used to throw exceptions when graph verification 
+    """
     pass
 
 
@@ -86,6 +92,20 @@ def hack():
 
 @app.route("/")
 def index():
+    """
+    FLASK GET routing method for '/'
+
+    Defines what is returned when the base URL is called.
+    The following URL GET parameters are defined here in addition:
+
+    service
+    repository
+    branch
+    path
+    filename
+
+    IF the URL does not specify a graph to load, the default template with no additional information is rendered.
+    """
     service    = request.args.get("service")
     repository = request.args.get("repository")
     branch     = request.args.get("branch")
@@ -100,15 +120,21 @@ def index():
 
 
 @app.route('/src/<path:filename>')
-# This enables debugging in a docker based environment, else the TS files
-# are not accessible.
 def send_src(filename):
+    """
+    FLASK GET routing method for '/src/<path:filename>'
+    
+    Enables debugging in a docker based environment, else the TS files
+    are not accessible.
+    """
     return send_from_directory(srcdir, filename)
 
 
 @app.route("/uploadFile", methods=["POST"])
 def upload_file():
     """
+    FLASK POST routing method for '/uploadFile'
+
     Uploads a custom file from local computer.
     """
     f = request.files["file"]
@@ -121,6 +147,11 @@ def upload_file():
 
 @app.route("/saveFileToLocal", methods=["POST"])
 def save():
+    """
+    FLASK POST routing method for '/saveToLocalFile'
+
+    Saves a file to local computer.
+    """
     content = request.get_json(silent=True)
     temp_file = tempfile.TemporaryFile()
 
@@ -145,6 +176,11 @@ def save():
 
 @app.route("/openRemoteFileLocalServer/<filetype>/<path:filename>", methods=["POST"])
 def open_file(filetype, filename):
+    """
+    FLASK POST routing method for '/openRemoteFileLocalServer/<filetype>/<path:filename>'
+
+    Opens and retruns a JSON file on a local server
+    """
     path = request.data.decode().strip("/")
     path = os.path.join(TEMP_FILE_FOLDER, path)
     norm_path = os.path.join(os.path.normpath(path), filename)
@@ -159,20 +195,32 @@ def open_file(filetype, filename):
 
 @app.route("/getGitHubRepositoryList", methods=["GET"])
 def get_git_hub_repository_list():
+    """
+    FLASK GET routing method for '/getGitHubRepositoryList'
+    
+    Returns the list of defined default GitHub repositories.
+    """
     return jsonify(GITHUB_DEFAULT_REPO_LIST)
 
 
 @app.route("/getGitLabRepositoryList", methods=["GET"])
 def get_git_lab_repository_list():
+    """
+    FLASK GET routing method for '/getGitHubRepositoryList'
+    
+    Returns the list of defined default GitLab repositories.
+    """
     return jsonify(GITLAB_DEFAULT_REPO_LIST)
 
 
 def extract_folder_and_repo_names(repo_name):
-    # If repository name has more than one slash, then after the second slash it is a folder name in that repository.
-    # E.g. repo = <username or organisation name>/<reponame>/<folder>. The Github library considers repository name
-    # as <..>/<reponame>
-    #
-    # Extract folder name and update repository name to the true one.
+    """
+    If repository name has more than one slash, then after the second slash it is a folder name in that repository.
+    E.g. repo = <username or organisation name>/<reponame>/<folder>. The Github library considers repository name
+    as <..>/<reponame>
+    
+    Extract folder name and update repository name to the true one.
+    """
     folder_name = ""
     if repo_name.count("/") > 1:
         folder_name = repo_name.split("/", 2)[2]
@@ -184,6 +232,11 @@ def extract_folder_and_repo_names(repo_name):
 # NOTE: largely made obsolete by get_git_hub_files_all()
 @app.route("/getGitHubFiles", methods=["POST"])
 def get_git_hub_files():
+    """
+    FLASK POST routing method for '/getGitHubFiles'
+    
+    Returns a JSON list of files in a GitHub repository. Both the repository name and the access token have to passed in the POST content.
+    """
     content = request.get_json(silent=True)
     repo_name = content["repository"]
     repo_token = content["token"]
@@ -243,6 +296,11 @@ def get_git_hub_files():
 
 @app.route("/getGitHubFilesAll", methods=["POST"])
 def get_git_hub_files_all():
+    """
+    FLASK POST routing method for '/getGitHubFilesAll'
+    
+    Returns the list files in a GitHub repository. The POST request content is a JSON string containing repository, branch and token.
+    """
     content = request.get_json(silent=True)
 
     try:
@@ -278,6 +336,11 @@ def get_git_hub_files_all():
 
 @app.route("/getGitLabFilesAll", methods=["POST"])
 def get_git_lab_files_all():
+    """
+    FLASK POST routing method for '/getGitLabFilesAll'
+    
+    Returns the list files in a GitLab repository. The POST request content is a JSON string containing repository, branch and token.
+    """
     content = request.get_json(silent=True)
 
     try:
@@ -306,6 +369,11 @@ def get_git_lab_files_all():
 
 @app.route("/getDockerImages", methods=["POST"])
 def get_docker_images():
+    """
+    FLASK POST routing method for '/getDockerImages'
+    
+    Returns a list of public docker images for a given user on DockerHub. The POST request content is a JSON string containing the DockerHub user name.
+    """
     content = request.get_json(silent=True)
 
     try:
@@ -329,6 +397,11 @@ def get_docker_images():
 
 @app.route("/getDockerImageTags", methods=["POST"])
 def get_docker_image_tags():
+    """
+    FLASK POST routing method for '/getDockerImagesTag'
+    
+    Returns a list of tags for a certain docker image from the docker registry. The POST request content is a JSON string containing the image name.
+    """
     content = request.get_json(silent=True)
 
     try:
@@ -352,6 +425,11 @@ def get_docker_image_tags():
 
 @app.route("/getExplorePalettes", methods=["POST"])
 def get_explore_palettes():
+    """
+    FLASK POST routing method for '/getExplorePalettes'
+    
+    Returns a list of palettes from a repository. The POST request content is a JSON string containing the repository name, branch and access token.
+    """
     content = request.get_json(silent=True)
 
     try:
@@ -381,6 +459,11 @@ def get_explore_palettes():
 
 @app.route("/saveFileToRemoteGithub", methods=["POST"])
 def save_git_hub_file():
+    """
+    FLASK POST routing method for '/saveFileToRemoteGithub'
+    
+    Save a file to a GitHub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token, the graph data in JSON format and a commit message.
+    """
     # Extract parameters and file content from json.
     content = request.get_json(silent=True)
     filename = content["filename"]
@@ -465,6 +548,11 @@ def save_git_hub_file():
 # TODO: update for gitlab
 @app.route("/saveFileToRemoteGitlab", methods=["POST"])
 def save_git_lab_file():
+    """
+    FLASK POST routing method for '/saveFileToRemoteGitLab'
+    
+    Save a file to a GitLab repository. The POST request content is a JSON string containing the file name, repository name, branch, access token, the graph data in JSON format and a commit message.
+    """
     # Extract parameters and file content from json.
     content = request.get_json(silent=True)
     filename = content["filename"]
@@ -514,6 +602,11 @@ def save_git_lab_file():
 
 @app.route("/openRemoteGithubFile", methods=["POST"])
 def open_git_hub_file():
+    """
+    FLASK POST routing method for '/openRemoteGithubFile'
+    
+    Reads a file from a GitHub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
+    """
     content = request.get_json(silent=True)
     repo_name = content["repositoryName"]
     repo_branch = content["repositoryBranch"]
@@ -551,6 +644,11 @@ def open_git_hub_file():
 
 @app.route("/openRemoteGitlabFile", methods=["POST"])
 def open_git_lab_file():
+    """
+    FLASK POST routing method for '/openRemoteGitlabFile'
+    
+    Reads a file from a GitLub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
+    """
     content = request.get_json(silent=True)
     repo_name = content["repositoryName"]
     repo_branch = content["repositoryBranch"]
@@ -596,6 +694,9 @@ def open_git_lab_file():
 
 
 def parse_github_folder(repo, path, branch):
+    """
+    Helper method to parse the retrieve and parse the content of a github folder.
+    """
     result = {"": []}
 
     # Getting repository file list
@@ -617,6 +718,9 @@ def parse_github_folder(repo, path, branch):
 
 
 def parse_gitlab_folder(items, path):
+    """
+    Helper method to parse the retrieve and parse the content of a gitlab folder.
+    """
     result = {"": []}
 
     for item in items:
@@ -656,6 +760,9 @@ def parse_gitlab_folder(items, path):
 
 
 def find_github_palettes(repo, path, branch):
+    """
+    Helper method to parse the retrieve and parse palettes from a github folder.
+    """
     result = []
 
     # Getting repository file list
@@ -734,11 +841,10 @@ def parse_args():
 
 
 def main():
+    """
+    Main function of eagleServer, will run the APP indefinetly.
+    """
     args = parse_args()
-
-    # Initialise Physical Graph Manager - responsible for storing graph
-    # templates.
-
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
     app.run(host="0.0.0.0", debug=True, port=args.port)

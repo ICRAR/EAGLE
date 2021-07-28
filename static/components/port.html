@@ -1,18 +1,5 @@
 <div class="input-group mb-1">
-    <!-- ko ifnot: $root.selectedNode().isLocked() -->
-    <div class="input-group-prepend">
-        <!-- ko if: input -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), true);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveInputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
-                <i class="material-icons md-18">remove</i>
-            </button>
-        <!-- /ko -->
-        <!-- ko if: !input -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), false);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveOutputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
-                <i class="material-icons md-18">remove</i>
-            </button>
-        <!-- /ko -->
-    </div>
-    <!-- /ko -->
+
 
     <input type="text" class="form-control" placeholder="" readonly data-bind="value: name, attr: {'data-original-title': description}" data-toggle="tooltip" data-html="true" data-placement="left">
 
@@ -21,14 +8,13 @@
             <span data-bind="text: multiplicity"></span>
         </button>
     </div>
-
     <div class="input-group-append">
-        <!-- ko if: $root.logicalGraph().portIsLinked($root.selectedNode().getKey(), id) -->
+        <!-- ko if: $root.logicalGraph().portIsLinked($root.selectedNode().getKey(), id()) -->
             <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectEdge($root.selectedNode().getKey(), id);}, attr: {id: 'nodeInspectorSelectEdge' + id, title: 'Port is connected<br/>Click to inspect edge'}" data-toggle="tooltip" data-html="true" data-placement="left">
                 <i class="material-icons md-18">link</i>
             </button>
         <!-- /ko -->
-        <!-- ko ifnot: $root.logicalGraph().portIsLinked($root.selectedNode().getKey(), id) -->
+        <!-- ko ifnot: $root.logicalGraph().portIsLinked($root.selectedNode().getKey(), id()) -->
             <button class="btn btn-secondary btn-sm" type="button" data-bind="attr: {title: 'Port is not connected'}" data-toggle="tooltip" data-html="true" data-placement="left">
                 <i class="material-icons md-18">link_off</i>
             </button>
@@ -52,4 +38,19 @@
             <i class="material-icons md-18">edit</i>
         </button>
     </div>
+
+    <!-- ko ifnot: $root.selectedNode().isLocked() -->
+    <div class="input-group-append">
+        <!-- ko if: input -->
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), true);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveInputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
+                <i class="material-icons md-18">delete</i>
+            </button>
+        <!-- /ko -->
+        <!-- ko if: !input -->
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(), $index(), false);$root.flagActiveDiagramHasMutated();$root.selectedNode.valueHasMutated();}, attr: {id: 'nodeInspectorRemoveOutputPort' + $index(), title: 'Remove port'}" data-toggle="tooltip" data-html="true" data-placement="left">
+                <i class="material-icons md-18">delete</i>
+            </button>
+        <!-- /ko -->
+    </div>
+    <!-- /ko -->
 </div>
