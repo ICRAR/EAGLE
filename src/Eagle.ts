@@ -1755,6 +1755,7 @@ export class Eagle {
     };
 
     private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
+        console.log("_remotePaletteLoaded()");
         // load the remote palette into EAGLE's palettes object.
 
         // check palette is not already loaded
@@ -1773,6 +1774,7 @@ export class Eagle {
     }
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
+        console.log("_reloadPalette()");
         // close the existing version of the open palette
         if (palette !== null){
             this.closePalette(palette);
@@ -1784,10 +1786,13 @@ export class Eagle {
 
         if (errors.length > 0){
             // TODO: do stuff with the errors
-        } else {
-            this.leftWindow().shown(true);
-            Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
         }
+
+        this.leftWindow().shown(true);
+        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+
+        // HACK to update the tooltips once the new palette has been rendered
+        setTimeout(Eagle.reloadTooltips, 100);
     }
 
     private updateActiveFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
