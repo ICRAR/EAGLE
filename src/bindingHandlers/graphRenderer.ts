@@ -277,7 +277,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 selectNode(node, d3.event.sourceEvent.shiftKey);
             }
 
-            tick();
+            //tick();
         })
         .on("drag", function (node : Node, index : number) {
             // we ignore the first drag event on purpose
