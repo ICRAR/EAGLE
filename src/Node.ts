@@ -1753,6 +1753,11 @@ export class Node {
         result.categoryType = node.categoryType();
         result.isData = node.isData();
         result.isGroup = node.isGroup();
+
+        if (node.parentKey() !== null){
+            result.group = node.parentKey();
+        }
+
         result.canHaveInputs = node.canHaveInputs();
         result.canHaveOutputs = node.canHaveOutputs();
         result.color = node.color();
