@@ -6,12 +6,21 @@
 
     <!-- ko ifnot: ($data.getCategoryType() === Eagle.CategoryType.Data) && !$data.isShowPorts() -->
     <div class="rect" data-bind="css: {selected: $data.selected()}">
+
+        <!-- ko ifnot: $data.getCategory() === Eagle.Category.Description || $data.getCategory() === Eagle.Category.Comment -->
         <div class="header" data-bind="style: {backgroundColor: $data.color}">
             <div class="header-name" data-bind="html: $data.name"></div>
         </div>
+        <!-- /ko -->
 
         <div class="body">
             <div class="contents">
+                <!-- ko if: $data.getCategory() === Eagle.Category.Description || $data.getCategory() === Eagle.Category.Comment -->
+                <div class="text" data-bind="text: $data.getCustomData()">
+                </div>
+                <!-- /ko -->
+
+
                 <!-- ko if: $data.hasInputApplication() -->
                 <div class="input-app">
                     <div class="app-name" data-bind="style: {backgroundColor: $data.getInputAppColor()}, html: $data.getInputAppText()"></div>
