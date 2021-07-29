@@ -368,7 +368,7 @@ export class LogicalGraph {
         result.linkDataArray = [];
         for (let i = 0 ; i < graph.getEdges().length ; i++){
             const edge : Edge = graph.getEdges()[i];
-            result.linkDataArray.push(Edge.toAppRefJson(edge));
+            result.linkDataArray.push(Edge.toAppRefJson(edge, graph));
         }
 
         return result;
