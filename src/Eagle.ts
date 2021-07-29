@@ -637,14 +637,24 @@ export class Eagle {
         // create map of inserted graph keys to final graph keys
         const keyMap: Map<number, number> = new Map();
         const portMap: Map<string, string> = new Map();
+        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, Eagle.CategoryType.Group, false);
+        const parentNodePosition = this.getNewNodePosition();
+
+        // add the parent node to the logical graph
+        this.logicalGraph().addNodeComplete(parentNode);
 
         // insert nodes from lg into the existing logicalGraph
         for (let i = 0 ; i < lg.getNodes().length; i++){
             const node: Node = lg.getNodes()[i];
 
-            this.logicalGraph().addNode(node.clone(), node.getPosition().x, node.getPosition().y, (insertedNode: Node) => {
+            this.logicalGraph().addNode(node.clone(), parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
                 // save mapping for node itself
                 keyMap.set(node.getKey(), insertedNode.getKey());
+
+                // if insertedNode has no parent, make it a parent of the parent node
+                if (insertedNode.getParentKey() === null){
+                    insertedNode.setParentKey(parentNode.getKey());
+                }
 
                 // copy embedded input application
                 if (node.hasInputApplication()){
@@ -711,7 +721,6 @@ export class Eagle {
 
             // make sure parent is set correctly
             insertedNode.setParentKey(keyMap.get(node.getParentKey()));
-
         }
 
         // insert edges from lg into the existing logicalGraph
@@ -719,6 +728,10 @@ export class Eagle {
             const edge: Edge = lg.getEdges()[i];
             this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), edge.isLoopAware(), null);
         }
+
+        // resize the parent node so that it fits all its children, and collapse it by default
+        this.logicalGraph().shrinkNode(parentNode);
+        parentNode.setCollapsed(true);
     }
 
     /**
@@ -3548,6 +3561,8 @@ export class Eagle {
         Variables          : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
         Branch             : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
 
+        SubGraph           : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "stars", color: "#00750E"},
+
         Unknown            : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "device_unknown", color: "#FF66CC"},
         None               : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block", color: "#FF66CC"}
     };
@@ -3646,6 +3661,8 @@ export namespace Eagle
 
         Variables = "Variables",
         Branch = "Branch",
+
+        SubGraph = "SubGraph",
 
         Unknown = "Unknown",
         None = "None",
