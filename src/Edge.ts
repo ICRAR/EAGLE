@@ -143,8 +143,8 @@ export class Edge {
         return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown, edgeData.loop_aware === "1");
     }
 
-    static toAppRefJson = (edge : Edge) : object => {
-        return {
+    static toAppRefJson = (edge : Edge, lg: LogicalGraph) : object => {
+        const result : any = {
             from: edge.srcNodeKey,
             fromPort: edge.srcPortId,
             to: edge.destNodeKey,
@@ -152,6 +152,20 @@ export class Edge {
             loopAware: edge.loopAware,
             dataType: edge.dataType
         };
+
+        // if srcNode is an embedded application, add a 'fromRef' attribute to the edge
+        const srcNode : Node = lg.findNodeByKey(edge.srcNodeKey);
+        if (srcNode.getEmbedKey() !== null){
+            result.fromRef = srcNode.getEmbedKey();
+        }
+
+        // if destNode is an embedded application, add a 'toRef' attribute to the edge
+        const destNode : Node = lg.findNodeByKey(edge.destNodeKey);
+        if (destNode.getEmbedKey() != null){
+            result.toRef = destNode.getEmbedKey();
+        }
+
+        return result;
     }
 
     static fromAppRefJson = (edgeData: any, errors: string[]): Edge => {

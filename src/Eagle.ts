@@ -510,6 +510,8 @@ export class Eagle {
             console.log("---------");
             console.log(translatorData);
             console.log("---------");
+            console.log(json);
+            console.log("---------");
         });
     }
 
