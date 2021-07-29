@@ -861,6 +861,19 @@
             }],
             "categoryType": "Control",
             "readonly": true
+        },
+        {
+            "category": "SubGraph",
+            "text": "Sub-Graph",
+            "description": "A subsection of a complete graph. Can enclose logical parts of a graph be collapsed to save space in the graph display.",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -24,
+            "fields": [],
+            "categoryType": "Group",
+            "readonly": true
         }
     ],
     "linkDataArray": []
