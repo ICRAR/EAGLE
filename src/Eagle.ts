@@ -740,7 +740,7 @@ export class Eagle {
      * Loads a custom palette from a file.
      */
     uploadPaletteFile = () : void => {
-        const uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFile");
+        const uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFileToLoad");
         const fileFullPath : string = uploadedPaletteFileInputElement.value;
         const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
