@@ -20,13 +20,44 @@
                 </div>
                 <!-- /ko -->
 
+                <!-- ko if: $data.canHaveInputs() -->
+                <div class="input-ports">
+                    <!-- ko foreach: $data.inputPorts -->
+                        {% include 'input_port.html' %}
+                    <!-- /ko -->
+                </div>
+                <!-- /ko -->
+
+                <!-- ko if: $data.canHaveOutputs() -->
+                <div class="output-ports">
+                    <!-- ko foreach: $data.outputPorts -->
+                        {% include 'output_port.html' %}
+                    <!-- /ko -->
+                </div>
+                <!-- /ko -->
 
                 <!-- ko if: $data.hasInputApplication() -->
                 <div class="input-app">
                     <div class="app-name" data-bind="style: {backgroundColor: $data.getInputAppColor()}, html: $data.getInputAppText()"></div>
-                    <div class="ports">
 
+                    <div class="contents">
+                        <!-- ko if: $data.inputApplication().canHaveInputs() -->
+                        <div class="input-ports">
+                            <!-- ko foreach: $data.inputApplication().inputPorts -->
+                                {% include 'input_port.html' %}
+                            <!-- /ko -->
+                        </div>
+                        <!-- /ko -->
+
+                        <!-- ko if: $data.inputApplication().canHaveOutputs() -->
+                        <div class="output-ports">
+                            <!-- ko foreach: $data.inputApplication().outputPorts -->
+                                {% include 'output_port.html' %}
+                            <!-- /ko -->
+                        </div>
+                        <!-- /ko -->
                     </div>
+
                 </div>
                 <!-- /ko -->
                 <div class="interior">
@@ -35,17 +66,49 @@
                 <!-- ko if: $data.hasOutputApplication() -->
                 <div class="output-app">
                     <div class="app-name" data-bind="style: {backgroundColor: $data.getOutputAppColor()}, html: $data.getOutputAppText()"></div>
-                    <div class="ports">
 
+                    <div class="contents">
+                        <!-- ko if: $data.outputApplication().canHaveInputs() -->
+                        <div class="input-ports">
+                            <!-- ko foreach: $data.outputApplication().inputPorts -->
+                                {% include 'input_port.html' %}
+                            <!-- /ko -->
+                        </div>
+                        <!-- /ko -->
+
+                        <!-- ko if: $data.outputApplication().canHaveOutputs() -->
+                        <div class="output-ports">
+                            <!-- ko foreach: $data.outputApplication().outputPorts -->
+                                {% include 'output_port.html' %}
+                            <!-- /ko -->
+                        </div>
+                        <!-- /ko -->
                     </div>
+
                 </div>
                 <!-- /ko -->
                 <!-- ko if: $data.hasExitApplication() -->
                 <div class="exit-app">
                     <div class="app-name" data-bind="style: {backgroundColor: $data.getExitAppColor()}, html: $data.getExitAppText()"></div>
-                    <div class="ports">
 
+                    <div class="contents">
+                        <!-- ko if: $data.exitApplication().canHaveInputs() -->
+                        <div class="input-ports">
+                            <!-- ko foreach: $data.exitApplication().inputPorts -->
+                                {% include 'input_port.html' %}
+                            <!-- /ko -->
+                        </div>
+                        <!-- /ko -->
+
+                        <!-- ko if: $data.exitApplication().canHaveOutputs() -->
+                        <div class="output-ports">
+                            <!-- ko foreach: $data.exitApplication().outputPorts -->
+                                {% include 'output_port.html' %}
+                            <!-- /ko -->
+                        </div>
+                        <!-- /ko -->
                     </div>
+
                 </div>
                 <!-- /ko -->
             </div>

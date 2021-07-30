@@ -33,7 +33,7 @@
     flex-grow: 100;
 }
 
-.node .body .contents {
+.node .body .contents, .node .input-app .contents, .node .output-app .contents {
     display: flex;
     flex-direction: row;
     align-items: stretch;
@@ -75,4 +75,36 @@
 
 .node .input-app span, .node .output-app span, .node .exit-app span, .node .interior span {
     margin: 4px;
+}
+
+.node .input-ports, .node .output-ports {
+    width: 50%;
+}
+
+.port {
+    display: flex;
+    flex-direction: row;
+}
+
+.input-ports .port .port-name {
+    padding-left: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    flex-grow: 1;
+    text-align: left;
+}
+
+.output-ports .port .port-name {
+    padding-right: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    flex-grow: 1;
+    text-align: right;
+}
+
+.port-shape {
+    flex-grow: 0;
+    flex-basis: 16px;
+    height: 32px;
+    background-color: black;
 }
