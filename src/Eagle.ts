@@ -71,7 +71,8 @@ export class Eagle {
 
     rendererFrameDisplay : ko.Observable<string>;
     rendererFrameMax : number;
-    rendererFrameCount : number;
+    rendererFrameCountRender : number;
+    rendererFrameCountTick : number;
 
     explorePalettes : ko.ObservableArray<PaletteInfo>;
 
@@ -150,7 +151,8 @@ export class Eagle {
 
         this.rendererFrameDisplay = ko.observable("");
         this.rendererFrameMax = 0;
-        this.rendererFrameCount = 0;
+        this.rendererFrameCountRender = 0;
+        this.rendererFrameCountTick = 0;
 
         this.explorePalettes = ko.observableArray([]);
     }
@@ -186,7 +188,6 @@ export class Eagle {
     flagActiveFileModified = () : void => {
         if (this.logicalGraph()){
             this.logicalGraph().fileInfo().modified = true;
-            this.logicalGraph().fileInfo.valueHasMutated();
         }
     }
 
@@ -196,17 +197,21 @@ export class Eagle {
 
         const fileInfo : FileInfo = this.activeFileInfo();
 
-        if (fileInfo && fileInfo.modified){
+        if (fileInfo === null){
+            return "";
+        }
+
+        if (fileInfo.modified){
             mod = '*';
         }
 
         // Display file name in tab title if non-empty
-        const fileName = this.repositoryFileName();
+        const fileName = fileInfo.name;
 
         if (fileName === ""){
             return "EAGLE";
         } else {
-            return mod + "EAGLE: " + this.repositoryFileName();
+            return mod + "EAGLE: " + fileName;
         }
     }, this);
 
