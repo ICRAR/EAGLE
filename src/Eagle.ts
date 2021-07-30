@@ -371,6 +371,20 @@ export class Eagle {
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         console.log("setSelection()", rightWindowMode, selectedLocation);
+
+        // hide ports of old selection
+        for (let i = 0 ; i < this.selectedObjects().length; i++){
+            const object = this.selectedObjects()[i];
+            if (object instanceof Node){
+                object.setShowPorts(false);
+            }
+        }
+
+        // show ports of new selection
+        if (selection instanceof Node){
+            selection.setShowPorts(true);
+        }
+
         this.selectedObjects([selection]);
         this.selectedLocation(selectedLocation);
         this.rightWindow().mode(rightWindowMode);
@@ -383,7 +397,7 @@ export class Eagle {
             return;
         }
 
-        // check if object is already selected, if so remove?
+        // check if object is already selected
         let alreadySelected = false;
         let index = -1;
         for (let i = 0 ; i < this.selectedObjects().length ; i++){
@@ -394,6 +408,12 @@ export class Eagle {
             }
         }
 
+        // show or hide ports as appropriate
+        if (selection instanceof Node){
+            selection.setShowPorts(!alreadySelected);
+        }
+
+        // add or remove the new selection from the list of selected objects as appropriate
         if (alreadySelected){
             // remove
             this.selectedObjects.splice(index,1);

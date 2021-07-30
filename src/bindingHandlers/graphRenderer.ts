@@ -157,9 +157,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .drag()
         .on("start", function (node : Node) {
             hasDraggedBackground = false;
-            isDraggingSelectionRegion = d3.event.sourceEvent.shiftKey;
-            selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(d3.event.x);
-            selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(d3.event.y);
+
+            if (d3.event.sourceEvent.shiftKey){
+                isDraggingSelectionRegion = true;
+                selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(d3.event.x);
+                selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(d3.event.y);
+            }
         })
         .on("end", function(){
             const hadPreviousSelection: boolean = eagle.selectedObjects().length > 0;
@@ -183,11 +186,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 eagle.selectedLocation(Eagle.FileType.Graph);
                 eagle.rightWindow().mode(Eagle.RightWindowMode.NodeInspector);
 
+                for (let i = 0 ; i < nodes.length; i++){
+                    const node = nodes[i];
+                    node.setShowPorts(true);
+                }
+
                 selectionRegionStart.x = 0;
                 selectionRegionStart.y = 0;
                 selectionRegionEnd.x = 0;
                 selectionRegionEnd.y = 0;
             }
+
+            eagle.logicalGraph.valueHasMutated();
         })
         .on("drag", function(){
             if (isDraggingSelectionRegion){
@@ -199,6 +209,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 eagle.globalOffsetY += d3.event.dy;
                 hasDraggedBackground = true;
             }
+
             tick();
         });
 
@@ -245,7 +256,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("stroke", nodeGetStroke)
         .style("stroke-width", NODE_STROKE_WIDTH)
         .attr("stroke-dasharray", nodeGetStrokeDashArray);
-        //.on("click", nodeOnClick);
 
     // custom-shaped nodes
     nodes
@@ -256,45 +266,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("stroke", nodeGetStroke)
         .style("stroke-width", NODE_STROKE_WIDTH)
         .attr("stroke-dasharray", nodeGetStrokeDashArray);
-        //.on("click", nodeOnClick);
 
     const nodeDragHandler = d3
         .drag()
         .on("start", function (node : Node) {
             isDraggingNode = false;
 
-            /*
-            isDraggingSelectionRegion = d3.event.sourceEvent.shiftKey;
-            if (isDraggingSelectionRegion){
-                selectionRegionStart.x = REAL_TO_DISPLAY_POSITION_X(d3.event.x);
-                selectionRegionStart.y = REAL_TO_DISPLAY_POSITION_Y(d3.event.y);
-                return;
-            }
-            */
-
             // if node not selected, then select it
             if (!eagle.objectIsSelected(node)){
                 selectNode(node, d3.event.sourceEvent.shiftKey);
             }
 
-            //tick();
+            tick();
         })
         .on("drag", function (node : Node, index : number) {
-            // we ignore the first drag event on purpose
-            // it seems d3.event.dx and d3.event.dy are incorrect (too large) for the first event
-            if (!isDraggingNode){
-                isDraggingNode = true;
-                return;
-            }
-
-            /*
-            if (isDraggingSelectionRegion){
-                selectionRegionEnd.x = DISPLAY_TO_REAL_POSITION_X(d3.event.x);
-                selectionRegionEnd.y = DISPLAY_TO_REAL_POSITION_Y(d3.event.y);
-                tick();
-                return;
-            }
-            */
+            isDraggingNode = true;
 
             // transform change in x,y position using current scale factor
             const dx = DISPLAY_TO_REAL_SCALE(d3.event.dx);
@@ -313,7 +299,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // trigger updates
             eagle.flagActiveFileModified();
             eagle.logicalGraph.valueHasMutated();
-            tick();
+            //tick();
         })
         .on("end", function(node : Node){
             // update location (in real node data, not sortedData)
@@ -322,24 +308,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 isDraggingNode = false;
             }
 
-            // if we dragged a selection region
-            /*
-            if (isDraggingSelectionRegion){
-                const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
-                console.log("Found", nodes.length, "nodes in region");
-
-                eagle.selectedObjects(nodes);
-                eagle.selectedLocation(Eagle.FileType.Graph);
-                eagle.rightWindow().mode(Eagle.RightWindowMode.NodeInspector);
-
-                selectionRegionStart.x = 0;
-                selectionRegionStart.y = 0;
-                selectionRegionEnd.x = 0;
-                selectionRegionEnd.y = 0;
-                return;
-            }
-            */
-
             // check for nodes underneath the top left corner of the node we dropped
             const parent : Node = checkForNodeAt(node, d3.event.subject.x, d3.event.subject.y);
 
@@ -347,16 +315,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
                 //console.log("set parent", parent.getKey());
                 node.setParentKey(parent.getKey());
-                //eagle.selectedObjects.valueHasMutated();
-                //eagle.flagActiveDiagramHasMutated();
             }
 
             // if no parent found, update
             if (parent === null && node.getParentKey() !== null){
                 //console.log("set parent", null);
                 node.setParentKey(null);
-                //eagle.selectedObjects.valueHasMutated();
-                //eagle.flagActiveDiagramHasMutated();
             }
 
             tick();
@@ -870,23 +834,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // create one link that is only used during the creation of a new link
     // this new link follows the mouse pointer to indicate the position
-    const draggingLink = svgContainer.append("line")
-                                     .attr("class", "draggingLink")
-                                     .attr("x1", 0)
-                                     .attr("y1", 0)
-                                     .attr("x2", 0)
-                                     .attr("y2", 0)
-                                     .attr("stroke", draggingEdgeGetStrokeColor);
+    const draggingLink = svgContainer
+        .append("line")
+        .attr("class", "draggingLink")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", 0)
+        .attr("y2", 0)
+        .attr("stroke", draggingEdgeGetStrokeColor);
 
     const selectionRegion = svgContainer
         .append("rect")
         .attr("class", "selection-region")
-        /*
-        .attr("width", selectionRegionEnd.x - selectionRegionStart.x)
-        .attr("height", selectionRegionEnd.y - selectionRegionStart.y)
-        .attr("x", selectionRegionStart.x)
-        .attr("y", selectionRegionStart.y)
-        */
         .attr("width", 0)
         .attr("height", 0)
         .attr("x", 0)
@@ -1044,7 +1003,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("stroke", nodeGetStroke)
             .style("stroke-width", NODE_STROKE_WIDTH)
             .attr("stroke-dasharray", nodeGetStrokeDashArray);
-            //.on("click", nodeOnClick);
 
         svgContainer
             .selectAll("g.node polygon")
@@ -1055,7 +1013,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("stroke", nodeGetStroke)
             .style("stroke-width", NODE_STROKE_WIDTH)
             .attr("stroke-dasharray", nodeGetStrokeDashArray);
-            //.on("click", nodeOnClick);
 
         svgContainer
             .selectAll("g.node rect.header-background")
@@ -2510,16 +2467,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
         return "";
     }
-
-    /*
-    function nodeOnClick(node : Node, index : number) : void {
-        //console.log("clicked on node", index, "key", node.getKey(), "name", node.getName());
-        console.log("nodeOnClick()", d3.event);
-
-        selectNode(node, false);
-        tick();
-    }
-    */
 
     function findDepthOfNode(index: number, nodes : Node[]) : number {
         if (index >= nodes.length){
