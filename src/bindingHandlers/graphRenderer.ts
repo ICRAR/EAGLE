@@ -3002,7 +3002,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeOnClick(edge : Edge, index : number){
-        console.log("clicked on edge", index, "fromNode", edge.getSrcNodeKey(), "toNode", edge.getDestNodeKey(), d3.event.shiftKey);
         selectEdge(edge, d3.event.shiftKey);
         tick();
     }

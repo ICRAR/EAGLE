@@ -375,8 +375,6 @@ export class Eagle {
     }, this);
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
-        console.log("setSelection()", rightWindowMode, selectedLocation);
-
         // hide ports of old selection
         for (let i = 0 ; i < this.selectedObjects().length; i++){
             const object = this.selectedObjects()[i];
