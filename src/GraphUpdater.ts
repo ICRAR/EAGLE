@@ -284,8 +284,7 @@ export class GraphUpdater {
     static correctOJSNegativePositions(graph : LogicalGraph) : boolean {
         // check if any nodes are negative
         let anyNegative : boolean = false;
-        for (let i = 0 ; i < graph.getNodes().length ; i++){
-            const node : Node = graph.getNodes()[i];
+        for (const node of graph.getNodes()){
             if (node.getPosition().x < 0 || node.getPosition().y < 0){
                 anyNegative = true;
                 break;
@@ -300,8 +299,7 @@ export class GraphUpdater {
         // find the most negative position
         let maxX = 0;
         let maxY = 0;
-        for (let i = 0 ; i < graph.getNodes().length ; i++){
-            const node : Node = graph.getNodes()[i];
+        for (const node of graph.getNodes()){
             if (node.getPosition().x < maxX){
                 maxX = node.getPosition().x;
             }
@@ -311,144 +309,12 @@ export class GraphUpdater {
         }
 
         // move all nodes by -maxX, -maxY
-        for (let i = 0 ; i < graph.getNodes().length ; i++){
-            const node : Node = graph.getNodes()[i];
+        for (const node of graph.getNodes()){
             const newX : number = node.getPosition().x - maxX;
             const newY : number = node.getPosition().y - maxY;
-            //console.log("move node", i, "from", node.getPosition().x, ",", node.getPosition().y, "to", newX, ",", newY);
-
             node.setPosition(newX, newY);
         }
 
         return true;
-    }
-
-    // TODO: this function replicates data that is stored in templatePalette.json, we should only store in one place
-    static getCanHaveInputsForCategory(category : Eagle.Category) : boolean {
-        switch (category){
-            case Eagle.Category.BashShellApp:
-            case Eagle.Category.Branch:
-            case Eagle.Category.Docker:
-            case Eagle.Category.DynlibApp:
-            case Eagle.Category.End:
-            case Eagle.Category.File:
-            case Eagle.Category.Gather:
-            case Eagle.Category.GroupBy:
-            case Eagle.Category.Loop:
-            case Eagle.Category.Memory:
-            case Eagle.Category.MKN:
-            case Eagle.Category.MPI:
-            case Eagle.Category.NGAS:
-            case Eagle.Category.PythonApp:
-            case Eagle.Category.S3:
-            case Eagle.Category.Scatter:
-                return true;
-            case Eagle.Category.Comment:
-            case Eagle.Category.Description:
-            case Eagle.Category.ExclusiveForceNode:
-            case Eagle.Category.Start:
-            case Eagle.Category.Variables:
-                return false;
-            default:
-                console.warn("Unknown canHaveInputs for node with category", category);
-                return false;
-        }
-    }
-
-    // TODO: this function replicates data that is stored in templatePalette.json, we should only store in one place
-    static getCanHaveOutputsForCategory(category : Eagle.Category) : boolean {
-        switch (category){
-            case Eagle.Category.BashShellApp:
-            case Eagle.Category.Branch:
-            case Eagle.Category.Docker:
-            case Eagle.Category.DynlibApp:
-            case Eagle.Category.File:
-            case Eagle.Category.Gather:
-            case Eagle.Category.GroupBy:
-            case Eagle.Category.Loop:
-            case Eagle.Category.Memory:
-            case Eagle.Category.MKN:
-            case Eagle.Category.MPI:
-            case Eagle.Category.NGAS:
-            case Eagle.Category.PythonApp:
-            case Eagle.Category.S3:
-            case Eagle.Category.Scatter:
-            case Eagle.Category.Start:
-                return true;
-            case Eagle.Category.Comment:
-            case Eagle.Category.Description:
-            case Eagle.Category.End:
-            case Eagle.Category.ExclusiveForceNode:
-            case Eagle.Category.Variables:
-                return false;
-            default:
-                console.warn("Unknown canHaveOutputs for node with category", category);
-                return false;
-        }
-    }
-
-    // TODO: this function replicates data that is stored in templatePalette.json, we should only store in one place
-    static getIsDataForCategory(category : Eagle.Category) : boolean {
-        switch (category){
-            case Eagle.Category.File:
-            case Eagle.Category.Memory:
-            case Eagle.Category.NGAS:
-            case Eagle.Category.S3:
-                return true;
-            case Eagle.Category.BashShellApp:
-            case Eagle.Category.Branch:
-            case Eagle.Category.Description:
-            case Eagle.Category.Docker:
-            case Eagle.Category.DynlibApp:
-            case Eagle.Category.End:
-            case Eagle.Category.ExclusiveForceNode:
-            case Eagle.Category.Gather:
-            case Eagle.Category.GroupBy:
-            case Eagle.Category.Loop:
-            case Eagle.Category.MKN:
-            case Eagle.Category.MPI:
-            case Eagle.Category.PythonApp:
-            case Eagle.Category.Scatter:
-            case Eagle.Category.Comment:
-            case Eagle.Category.Start:
-            case Eagle.Category.Variables:
-                return false;
-            default:
-                console.warn("Unknown isData for node with category", category);
-                return false;
-        }
-    }
-
-    // TODO: this function replicates data that is stored in templatePalette.json, we should only store in one place
-    static getIsGroupForCategory(category : Eagle.Category) : boolean {
-        switch (category){
-            case Eagle.Category.ExclusiveForceNode:
-            case Eagle.Category.Gather:
-            case Eagle.Category.GroupBy:
-            case Eagle.Category.Loop:
-            case Eagle.Category.MKN:
-            case Eagle.Category.Scatter:
-                return true;
-
-            case Eagle.Category.File:
-            case Eagle.Category.Memory:
-            case Eagle.Category.NGAS:
-            case Eagle.Category.S3:
-            case Eagle.Category.BashShellApp:
-            case Eagle.Category.Branch:
-            case Eagle.Category.Docker:
-            case Eagle.Category.DynlibApp:
-            case Eagle.Category.End:
-            case Eagle.Category.MPI:
-            case Eagle.Category.Comment:
-            case Eagle.Category.Description:
-            case Eagle.Category.PythonApp:
-            case Eagle.Category.Start:
-            case Eagle.Category.Variables:
-                return false;
-            default:
-                console.warn("Unknown isGroup for node with category", category);
-                return false;
-        }
     }
 }

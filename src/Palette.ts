@@ -46,8 +46,6 @@ export class Palette {
     static fromOJSJson = (data : string, file : RepositoryFile, errors : string[]) : Palette => {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
-
-        // TODO: use correct name from dataObject above
         const result : Palette = new Palette();
 
         // copy modelData into fileInfo
@@ -93,7 +91,8 @@ export class Palette {
             result.fileInfo().name = file.name;
         }
 
-        // TODO: check for duplicate keys
+        // check palette, and then add any resulting errors to the end of the errors list
+        errors.push(...Utils.checkPalette(result));
 
         return result;
     }
@@ -101,14 +100,11 @@ export class Palette {
     static toOJSJson = (palette: Palette) : object => {
         const result : any = {};
 
-        //result.class = "go.GraphLinksModel";
-
         result.modelData = FileInfo.toOJSJson(palette.fileInfo());
 
         // add nodes
         result.nodeDataArray = [];
-        for (let i = 0 ; i < palette.nodes().length ; i++){
-            const node : Node = palette.nodes()[i];
+        for (const node of palette.nodes()){
             result.nodeDataArray.push(Node.toOJSJson(node));
         }
 

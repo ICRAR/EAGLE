@@ -169,14 +169,11 @@ export class Edge {
     }
 
     static fromAppRefJson = (edgeData: any, errors: string[]): Edge => {
-        //console.log("Edge.fromAppRefJson()", edgeData);
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware);
     }
 
 
     static isValid = (graph : LogicalGraph, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, showNotification : boolean, showConsole : boolean) : Eagle.LinkValid => {
-        //console.log("IsValid()", "sourceNodeKey", sourceNodeKey, "sourcePortId", sourcePortId, "destinationNodeKey", destinationNodeKey, "destinationPortId", destinationPortId);
-
         // check for problems
         if (isNaN(sourceNodeKey)){
             return Eagle.LinkValid.Unknown;
@@ -207,7 +204,6 @@ export class Edge {
         const destinationNode : Node = graph.findNodeByKey(destinationNodeKey);
 
         if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
-            //Utils.showNotification("Unknown Error", "sourceNode or destinationNode cannot be found", "danger");
             return Eagle.LinkValid.Unknown;
         }
 
@@ -235,7 +231,6 @@ export class Edge {
         const destinationPort : Port = destinationNode.findPortById(destinationPortId);
 
         if (sourcePort === null || destinationPort === null){
-            //Utils.showNotification("Unknown Error", "sourcePort or destinationPort cannot be found", "danger");
             return Eagle.LinkValid.Unknown;
         }
 

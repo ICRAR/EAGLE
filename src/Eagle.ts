@@ -168,8 +168,8 @@ export class Eagle {
         }
 
         // check all the open palettes
-        for (let i = 0 ; i < this.palettes().length ; i++){
-            if (this.palettes()[i].fileInfo().modified){
+        for (const palette of this.palettes()){
+            if (palette.fileInfo().modified){
                 return true;
             }
         }
@@ -220,12 +220,8 @@ export class Eagle {
     getApplications = () : Node[] => {
         const list: Node[] = [];
 
-        for (let i = 0 ; i < this.palettes().length ; i++){
-            const palette : Palette = this.palettes()[i];
-
-            for (let j = 0 ; j < palette.getNodes().length; j++){
-                const node : Node = palette.getNodes()[j];
-
+        for (const palette of this.palettes()){
+            for (const node of palette.getNodes()){
                 if (node.getCategoryType() === Eagle.CategoryType.Application){
                     list.push(node);
                 }
@@ -249,9 +245,9 @@ export class Eagle {
     getRepositoryList = (service : Eagle.RepositoryService) : Repository[] => {
         const list : Repository[] = [];
 
-        for (let i = 0 ; i < this.repositories().length ; i++){
-            if (this.repositories()[i].service === service){
-                list.push(this.repositories()[i]);
+        for (const repository of this.repositories()){
+            if (repository.service === service){
+                list.push(repository);
             }
         }
 
@@ -261,9 +257,9 @@ export class Eagle {
     getRepository = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
         console.log("getRepository()", service, name, branch);
 
-        for (let i = 0 ; i < this.repositories().length ; i++){
-            if (this.repositories()[i].service === service && this.repositories()[i].name === name && this.repositories()[i].branch === branch){
-                return this.repositories()[i];
+        for (const repository of this.repositories()){
+            if (repository.service === service && repository.name === name && repository.branch === branch){
+                return repository;
             }
         }
         console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
@@ -297,9 +293,7 @@ export class Eagle {
         let minY : number = Number.MAX_VALUE;
         let maxX : number = -Number.MAX_VALUE;
         let maxY : number = -Number.MAX_VALUE;
-        for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
-            const node : Node = this.logicalGraph().getNodes()[i];
-
+        for (const node of this.logicalGraph().getNodes()){
             if (node.getPosition().x < minX){
                 minX = node.getPosition().x;
             }
@@ -369,15 +363,13 @@ export class Eagle {
                 }
 
                 // de-select all the nodes in the logical graph
-                for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
-                    this.logicalGraph().getNodes()[i].setSelected(false);
-                    this.logicalGraph().getNodes()[i].setShowPorts(false);
+                for (const node of this.logicalGraph().getNodes()){
+                    node.setSelected(false);
+                    node.setShowPorts(false);
                 }
 
                 // de-select all the nodes in the palettes
-                for (let i = 0 ; i < this.palettes.length; i++){
-                    const palette = this.palettes()[i];
-
+                for (const palette of this.palettes()){
                     for (let j = 0 ; j < palette.getNodes().length; j++){
                         palette.getNodes()[j].setSelected(false);
                         palette.getNodes()[j].setShowPorts(false);
@@ -646,9 +638,7 @@ export class Eagle {
         this.logicalGraph().addNodeComplete(parentNode);
 
         // insert nodes from lg into the existing logicalGraph
-        for (let i = 0 ; i < lg.getNodes().length; i++){
-            const node: Node = lg.getNodes()[i];
-
+        for (const node of lg.getNodes()){
             this.logicalGraph().addNode(node.clone(), parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
                 // save mapping for node itself
                 keyMap.set(node.getKey(), insertedNode.getKey());
@@ -669,12 +659,12 @@ export class Eagle {
                     insertedNode.setInputApplication(clone);
 
                     // loop through ports, adding them to the port map
-                    for (let j = 0 ; j < inputApplication.getInputPorts().length; j++){
-                        portMap.set(inputApplication.getInputPorts()[j].getId(), inputApplication.getInputPorts()[j].getId());
+                    for (const inputPort of inputApplication.getInputPorts()){
+                        portMap.set(inputPort.getId(), inputPort.getId());
                     }
 
-                    for (let j = 0 ; j < inputApplication.getOutputPorts().length; j++){
-                        portMap.set(inputApplication.getOutputPorts()[j].getId(), inputApplication.getOutputPorts()[j].getId());
+                    for (const outputPort of inputApplication.getOutputPorts()){
+                        portMap.set(outputPort.getId(), outputPort.getId());
                     }
                 }
 
@@ -689,12 +679,12 @@ export class Eagle {
                     insertedNode.setOutputApplication(clone);
 
                     // loop through ports, adding them to the port map
-                    for (let j = 0 ; j < outputApplication.getInputPorts().length; j++){
-                        portMap.set(outputApplication.getInputPorts()[j].getId(), outputApplication.getInputPorts()[j].getId());
+                    for (const inputPort of outputApplication.getInputPorts()){
+                        portMap.set(inputPort.getId(), inputPort.getId());
                     }
 
-                    for (let j = 0 ; j < outputApplication.getOutputPorts().length; j++){
-                        portMap.set(outputApplication.getOutputPorts()[j].getId(), outputApplication.getOutputPorts()[j].getId());
+                    for (const outputPort of outputApplication.getOutputPorts()){
+                        portMap.set(outputPort.getId(), outputPort.getId());
                     }
                 }
 
@@ -711,8 +701,7 @@ export class Eagle {
         }
 
         // update some other details of the nodes are updated correctly
-        for (let i = 0 ; i < lg.getNodes().length ; i++){
-            const node: Node = lg.getNodes()[i];
+        for (const node of lg.getNodes()){
             const insertedNodeKey: number = keyMap.get(node.getKey());
             const insertedNode: Node = this.logicalGraph().findNodeByKey(insertedNodeKey);
 
@@ -726,8 +715,7 @@ export class Eagle {
         }
 
         // insert edges from lg into the existing logicalGraph
-        for (let i = 0 ; i < lg.getEdges().length; i++){
-            const edge: Edge = lg.getEdges()[i];
+        for (const edge of lg.getEdges()){
             this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), edge.isLoopAware(), null);
         }
 
@@ -943,23 +931,11 @@ export class Eagle {
             this.activeFileInfo().name = fileName;
         }
 
-        let json : object;
-        if (fileType === Eagle.FileType.Graph){
-            // clone the logical graph and remove github info ready for local save
-            const lg_clone : LogicalGraph = this.logicalGraph().clone();
-            lg_clone.fileInfo().removeGitInfo();
-            lg_clone.fileInfo().updateEagleInfo();
-            json = LogicalGraph.toOJSJson(lg_clone);
-        } else {
-            // clone the palette and remove github info ready for local save
-
-            /*
-            const p_clone : Palette = this.editorPalette().clone();
-            p_clone.fileInfo().removeGitInfo();
-            p_clone.fileInfo().updateEagleInfo();
-            json = Palette.toOJSJson(p_clone);
-            */
-        }
+        // clone the logical graph and remove github info ready for local save
+        const lg_clone : LogicalGraph = this.logicalGraph().clone();
+        lg_clone.fileInfo().removeGitInfo();
+        lg_clone.fileInfo().updateEagleInfo();
+        const json : object = LogicalGraph.toOJSJson(lg_clone);
 
         // validate json
         if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
@@ -989,24 +965,13 @@ export class Eagle {
 
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
-            if (fileType === Eagle.FileType.Graph){
-                this.logicalGraph().fileInfo().modified = false;
-                this.logicalGraph().fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
-                this.logicalGraph().fileInfo().repositoryName = "";
-                this.logicalGraph().fileInfo().gitUrl = "";
-                this.logicalGraph().fileInfo().sha = "";
-                this.logicalGraph().fileInfo.valueHasMutated();
-            } else {
-                /*
-                this.editorPalette().fileInfo().modified = false;
-                this.editorPalette().fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
-                this.editorPalette().fileInfo().repositoryName = "";
-                this.editorPalette().fileInfo().gitUrl = "";
-                this.editorPalette().fileInfo().sha = "";
-                this.editorPalette().fileInfo.valueHasMutated();
-                */
-                console.warn("Missing code here");
-            }
+
+            this.logicalGraph().fileInfo().modified = false;
+            this.logicalGraph().fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
+            this.logicalGraph().fileInfo().repositoryName = "";
+            this.logicalGraph().fileInfo().gitUrl = "";
+            this.logicalGraph().fileInfo().sha = "";
+            this.logicalGraph().fileInfo.valueHasMutated();
         });
     }
 
@@ -1026,7 +991,6 @@ export class Eagle {
                 url = '/saveFileToRemoteGitlab';
                 break;
             default:
-                url = '';
                 Utils.showUserMessage("Error", "Unknown repository service : " + repository.service);
                 return;
         }
@@ -1076,16 +1040,9 @@ export class Eagle {
 
         // create default repository to supply to modal so that the modal is populated with useful defaults
         let defaultRepository: Repository;
-        if (fileType === Eagle.FileType.Graph){
-            if (this.logicalGraph()){
-                defaultRepository = new Repository(this.logicalGraph().fileInfo().repositoryService, this.logicalGraph().fileInfo().repositoryName, this.logicalGraph().fileInfo().repositoryBranch, false);
-            }
-        } else {
-            /*
-            if (this.editorPalette()){
-                defaultRepository = new Repository(this.editorPalette().fileInfo().repositoryService, this.editorPalette().fileInfo().repositoryName, this.editorPalette().fileInfo().repositoryBranch, false);
-            }
-            */
+
+        if (this.logicalGraph()){
+            defaultRepository = new Repository(this.logicalGraph().fileInfo().repositoryService, this.logicalGraph().fileInfo().repositoryName, this.logicalGraph().fileInfo().repositoryBranch, false);
         }
 
         Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(Eagle.RepositoryService.GitHub),  this.activeFileInfo().path, this.activeFileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
@@ -1389,15 +1346,14 @@ export class Eagle {
 
                 // check if all requests are now complete, then we can call the callback
                 let allComplete = true;
-                for (let j = 0 ; j < complete.length ; j++){
-                    if (!complete[j]){
+                for (const requestComplete of complete){
+                    if (!requestComplete){
                         allComplete = false;
                     }
                 }
                 if (allComplete){
                     callback(results);
                 }
-
             });
         }
     }
@@ -1844,11 +1800,9 @@ export class Eagle {
     }
 
     findPaletteByFile = (file : RepositoryFile) : Palette => {
-        for (let i = 0 ; i < this.palettes().length ; i++){
-            const p : Palette = this.palettes()[i];
-
-            if (p.fileInfo().name === file.name){
-                return p;
+        for (const palette of this.palettes()){
+            if (palette.fileInfo().name === file.name){
+                return palette;
             }
         }
 
@@ -2006,14 +1960,10 @@ export class Eagle {
     };
 
     toggleCollapseAllGroups = () : void => {
-        console.log("toggleCollapseAllGroups");
-
         // first work out whether we should be collapsing or expanding
         let numCollapsed: number = 0;
         let numExpanded: number = 0;
-        for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
-            const node: Node = this.logicalGraph().getNodes()[i];
-
+        for (const node of this.logicalGraph().getNodes()){
             if (node.isGroup()){
                 if (node.isCollapsed()){
                     numCollapsed += 1;
@@ -2025,9 +1975,7 @@ export class Eagle {
         const collapse: boolean = numExpanded > numCollapsed;
 
         // now loop through and collapse or expand all group nodes
-        for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
-            const node: Node = this.logicalGraph().getNodes()[i];
-
+        for (const node of this.logicalGraph().getNodes()){
             if (node.isGroup()){
                 node.setCollapsed(collapse);
             }
@@ -2037,14 +1985,10 @@ export class Eagle {
     }
 
     toggleCollapseAllNodes = () : void => {
-        console.log("toggleCollapseAllNodes");
-
         // first work out whether we should be collapsing or expanding
         let numCollapsed: number = 0;
         let numExpanded: number = 0;
-        for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
-            const node: Node = this.logicalGraph().getNodes()[i];
-
+        for (const node of this.logicalGraph().getNodes()){
             if (!node.isGroup()){
                 if (node.isCollapsed()){
                     numCollapsed += 1;
@@ -2056,9 +2000,7 @@ export class Eagle {
         const collapse: boolean = numExpanded > numCollapsed;
 
         // now loop through and collapse or expand all group nodes
-        for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
-            const node: Node = this.logicalGraph().getNodes()[i];
-
+        for (const node of this.logicalGraph().getNodes()){
             if (!node.isGroup()){
                 node.setCollapsed(collapse);
             }
@@ -2125,11 +2067,9 @@ export class Eagle {
             return null;
         }
 
-        for (let i = 0 ; i < Eagle.settings().length ; i++){
-            const s = Eagle.settings()[i];
-
-            if (s.getKey() === key){
-                return s;
+        for (const setting of Eagle.settings()){
+            if (setting.getKey() === key){
+                return setting;
             }
         }
         return null;
@@ -2155,8 +2095,8 @@ export class Eagle {
     }
 
     resetSettingsDefaults = () : void => {
-        for (let i = 0 ; i < Eagle.settings().length ; i++){
-            Eagle.settings()[i].resetDefault();
+        for (const setting of Eagle.settings()){
+            setting.resetDefault();
         }
     }
 
@@ -2375,12 +2315,8 @@ export class Eagle {
 
         if (this.selectedLocation() === Eagle.FileType.Palette){
             // delete the node from a palette
-            for (let i = 0 ; i < this.palettes().length; i++){
-                const palette = this.palettes()[i];
-
-                for (let j = 0 ; j < palette.getNodes().length; j++){
-                    const node = palette.getNodes()[j];
-
+            for (const palette of this.palettes()){
+                for (const node of palette.getNodes()){
                     if (node === this.selectedNode()){
                         // check if palette is readonly
                         if (palette.fileInfo().readonly){
@@ -2413,8 +2349,7 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
-        //console.log("addNodeToLogicalGraph()", node.getName(), node.getCategory(), node.getInputPorts().length, node.getOutputPorts().length, node.getFields().length);
-        let pos = {x:0, y:0};
+        let pos : {x:number, y:number};
 
         // get new position for node
         if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
@@ -2437,8 +2372,6 @@ export class Eagle {
     }
 
     addGraphNodesToPalette = () : void => {
-        //console.log("addGraphNodesToPalette()");
-
         // build a list of palette names
         const paletteNames: string[] = this.buildWritablePaletteNamesList();
 
@@ -2472,9 +2405,7 @@ export class Eagle {
             }
 
             // copy nodes to palette
-            for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
-                const node : Node = this.logicalGraph().getNodes()[i];
-
+            for (const node of this.logicalGraph().getNodes()){
                 // check if clone has embedded applications, if so, add them to destination palette and remove
                 if (node.hasInputApplication()){
                     destinationPalette.addNode(node.getInputApplication(), false);
@@ -2496,21 +2427,21 @@ export class Eagle {
 
     private buildWritablePaletteNamesList = () : string[] => {
         const paletteNames : string[] = [];
-        for (let i = 0 ; i < this.palettes().length; i++){
+        for (const palette of this.palettes()){
             // skip the dynamically generated palette that contains all nodes
-            if (this.palettes()[i].fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
+            if (palette.fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
                 continue;
             }
             // skip the built-in palette
-            if (this.palettes()[i].fileInfo().name === Palette.BUILTIN_PALETTE_NAME){
+            if (palette.fileInfo().name === Palette.BUILTIN_PALETTE_NAME){
                 continue;
             }
             // skip read-only palettes as well
-            if (this.palettes()[i].fileInfo().readonly){
+            if (palette.fileInfo().readonly){
                 continue;
             }
 
-            paletteNames.push(this.palettes()[i].fileInfo().name);
+            paletteNames.push(palette.fileInfo().name);
         }
 
         return paletteNames;
@@ -2520,9 +2451,9 @@ export class Eagle {
         let p: Palette = null;
 
         // look for palette in open palettes
-        for (let i = 0 ; i < this.palettes().length ; i++){
-            if (this.palettes()[i].fileInfo().name === name){
-                p = this.palettes()[i];
+        for (const palette of this.palettes()){
+            if (palette.fileInfo().name === name){
+                p = palette;
                 break;
             }
         }
@@ -2553,8 +2484,8 @@ export class Eagle {
 
             // build list of image strings
             const images: string[] = [];
-            for (let i = 0 ; i < data.results.length ; i++){
-                images.push(data.results[i].user + "/" + data.results[i].name);
+            for (const result of data.results){
+                images.push(result.user + "/" + result.name);
             }
 
             // present list of image names to user
@@ -2575,8 +2506,8 @@ export class Eagle {
                     }
 
                     const tags: string[] = [];
-                    for (let i = 0 ; i < data.results.length; i++){
-                        tags.push(data.results[i].name);
+                    for (const result of data.results){
+                        tags.push(result.name);
                     }
 
                     // present list of tags to user
@@ -2627,7 +2558,7 @@ export class Eagle {
             return;
         }
 
-        this.editPort(<Node>node, Eagle.ModalType.Add, null, true);
+        this.editPort(node, Eagle.ModalType.Add, null, true);
     }
 
     /**
@@ -2644,7 +2575,7 @@ export class Eagle {
             return;
         }
 
-        this.editPort(<Node>node, Eagle.ModalType.Add, null, false);
+        this.editPort(node, Eagle.ModalType.Add, null, false);
     }
 
     /**
@@ -3026,9 +2957,7 @@ export class Eagle {
         const tableData : any[] = [];
 
         // add logical graph nodes to table
-        for (let i = 0; i < this.logicalGraph().getNodes().length; i++){
-            const node : Node = this.logicalGraph().getNodes()[i];
-
+        for (const node of this.logicalGraph().getNodes()){
             tableData.push({
                 "name":node.getName(),
                 "key":node.getKey(),
@@ -3059,9 +2988,7 @@ export class Eagle {
         const tableData : any[] = [];
 
         // add logical graph nodes to table
-        for (let i = 0; i < this.logicalGraph().getEdges().length; i++){
-            const edge : Edge = this.logicalGraph().getEdges()[i];
-
+        for (const edge of this.logicalGraph().getEdges()){
             tableData.push({
                 "_id":edge.getId(),
                 "sourceNodeKey":edge.getSrcNodeKey(),
@@ -3080,11 +3007,9 @@ export class Eagle {
         const tableData : any[] = [];
 
         // add logical graph nodes to table
-        for (let i = 0; i < this.palettes().length; i++){
-            for (let j = 0; j < this.palettes()[i].getNodes().length; j++){
-                const node : Node = this.palettes()[i].getNodes()[j];
-
-                tableData.push({"palette":this.palettes()[i].fileInfo().name, "name":node.getName(), "key":node.getKey(), "categoryType":node.getCategoryType(), "category":node.getCategory()});
+        for (const palette of this.palettes()){
+            for (const node of palette.getNodes()){
+                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "categoryType":node.getCategoryType(), "category":node.getCategory()});
             }
         }
 
@@ -3103,8 +3028,8 @@ export class Eagle {
 
         // de-select all nodes, then select this node
         // TODO: we now have multiple loops here (findNodeByKey(), setSelected, etc), they could be consolidated into one loop
-        for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
-            this.logicalGraph().getNodes()[i].setSelected(false);
+        for (const lgNode of this.logicalGraph().getNodes()){
+            lgNode.setSelected(false);
         }
         node.setSelected(true);
 
@@ -3131,8 +3056,8 @@ export class Eagle {
         allFields.sort(Field.sortFunc);
 
         const allFieldNames: string[] = [];
-        for (let i = 0 ; i < allFields.length ; i++){
-            allFieldNames.push(allFields[i].getName() + " (" + allFields[i].getType() + ")");
+        for (const field of allFields){
+            allFieldNames.push(field.getName() + " (" + field.getType() + ")");
         }
 
         //if creating a new field component parameter
@@ -3199,8 +3124,8 @@ export class Eagle {
 
         const allPortNames: string[] = [];
         // get list of port names from list of ports
-        for (let i = 0 ; i < allPorts.length ; i++){
-            allPortNames.push(allPorts[i].getName() + " (" + allPorts[i].getType() + ")");
+        for (const port of allPorts){
+            allPortNames.push(port.getName() + " (" + port.getType() + ")");
         }
 
         if (modalType === Eagle.ModalType.Add){
@@ -3279,9 +3204,7 @@ export class Eagle {
 
         // build list of nodes that are attached to this node
         const nodes : string[] = [];
-        for (let i = 0 ; i < this.logicalGraph().getEdges().length ; i++){
-            const edge : Edge = this.logicalGraph().getEdges()[i];
-
+        for (const edge of this.logicalGraph().getEdges()){
             // add output nodes to the list
             if (edge.getSrcNodeKey() === selectedNodeKey){
                 const destNode : Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
@@ -3333,12 +3256,10 @@ export class Eagle {
     }
 
     private setNodeApplication = (title: string, message: string, callback:(node:Node) => void) : void => {
-        console.log("setNodeApplication()");
-
         const applications: Node[] = this.getApplications();
         const applicationNames: string[] = [];
-        for (let i = 0 ; i < applications.length ; i++){
-            applicationNames.push(applications[i].getName())
+        for (const application of applications){
+            applicationNames.push(application.getName())
         }
 
         // add "None" to the application list
@@ -3372,8 +3293,6 @@ export class Eagle {
     }
 
     setNodeInputApplication = () : void => {
-        console.log("setNodeInputApplication()");
-
         if (this.selectedLocation() === Eagle.FileType.Palette){
             Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
             return;
@@ -3392,8 +3311,6 @@ export class Eagle {
     }
 
     setNodeOutputApplication = () : void => {
-        console.log("setNodeOutputApplication()");
-
         if (this.selectedLocation() === Eagle.FileType.Palette){
             Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
             return;
@@ -3412,8 +3329,6 @@ export class Eagle {
     }
 
     setNodeExitApplication = () : void => {
-        console.log("setNodeExitApplication()");
-
         if (this.selectedLocation() === Eagle.FileType.Palette){
             Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
             return;
@@ -3450,7 +3365,6 @@ export class Eagle {
         x /= this.globalScale;
         y /= this.globalScale;
 
-        //console.log("setNewNodePosition() x:", x, "y:", y);
         return {x:x, y:y};
     }
 

@@ -44,11 +44,9 @@ export class KeyboardShortcut {
         const eagle = (<any>window).eagle;
 
         // loop through all the keyboard shortcuts here
-        for (let i = 0 ; i < Eagle.shortcuts().length ; i++){
-            const shortcut: KeyboardShortcut = Eagle.shortcuts()[i];
-
-            for (let j = 0 ; j < shortcut.keys.length ; j++){
-                if (shortcut.keys[j] === e.key){
+        for (const shortcut of Eagle.shortcuts()){
+            for (const key of shortcut.keys){
+                if (key === e.key){
                     if (shortcut.canRun(eagle)){
                         shortcut.run(eagle);
                     }

@@ -17,46 +17,45 @@ if (process.argv.length < 4){
 }
 
 // get input and output filenames from the command line arguments
-var inputFilename : string = process.argv[2];
-var outputFilename : string = process.argv[3];
+const inputFilename : string = process.argv[2];
+const outputFilename : string = process.argv[3];
 //console.log("inputFilename", inputFilename);
 //console.log("outputFilename", outputFilename);
 
 // load input file from disk
-var data : Buffer = fs.readFileSync(inputFilename);
-var inputGraph = JSON.parse(data.toString());
+const data : Buffer = fs.readFileSync(inputFilename);
+const inputGraph = JSON.parse(data.toString());
 //console.log("inputGraph", inputGraph);
 
 // create an empty output graph
-var outputGraph : LogicalGraph = new LogicalGraph();
+const outputGraph : LogicalGraph = new LogicalGraph();
 
 // copy fineInfo from the input graph to the output graph
 outputGraph.fileInfo(readFileInfo(inputGraph.modelData, inputFilename));
 
 // copy nodes from the input graph to the output graph
-for (var i = 0 ; i < inputGraph.nodeDataArray.length ; i++){
-    var oldNode = inputGraph.nodeDataArray[i];
-    var newNode : Node = readNode(oldNode);
+for (let i = 0 ; i < inputGraph.nodeDataArray.length; i++){
+    const oldNode = inputGraph.nodeDataArray[i];
+    const newNode : Node = readNode(oldNode, i);
     outputGraph.addNodeComplete(newNode);
 }
 
 // make sure to set parentId for all nodes
-for (var i = 0 ; i < inputGraph.nodeDataArray.length ; i++){
-    var oldNode = inputGraph.nodeDataArray[i];
-    var parentKey = oldNode.group;
-    var parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(inputGraph.nodeDataArray, parentKey);
+for (let i = 0 ; i < inputGraph.nodeDataArray.length ; i++){
+    const oldNode = inputGraph.nodeDataArray[i];
+    const parentKey = oldNode.group;
+    const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(inputGraph.nodeDataArray, parentKey);
 
     if (parentIndex !== -1){
-        var newNode = outputGraph.getNodes()[i];
-        var parentNode = outputGraph.getNodes()[parentIndex];
+        const newNode = outputGraph.getNodes()[i];
+        const parentNode = outputGraph.getNodes()[parentIndex];
         newNode.setParentKey(parentNode.getKey());
     }
 }
 
 // copy edges from the input graph to the output graph
-for (var i = 0 ; i < inputGraph.linkDataArray.length ; i++){
-    var oldEdge = inputGraph.linkDataArray[i];
-    var newEdge : Edge = readEdge(oldEdge);
+for (const oldEdge of inputGraph.linkDataArray){
+    const newEdge : Edge = readEdge(oldEdge);
 
     if (newEdge !== null){
         outputGraph.addEdgeComplete(newEdge);
@@ -64,14 +63,14 @@ for (var i = 0 ; i < inputGraph.linkDataArray.length ; i++){
 }
 
 // make sure that positions of nodes are in the +x, +y quadrant
-var hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(outputGraph);
+const hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(outputGraph);
 if (hadNegativePositions){
     logMessage("Adjusting position of all nodes to move to positive quadrant.");
 }
 
 // adjust size of group nodes so that they are large enough to contain their children
-for (var i = 0 ; i < outputGraph.getNodes().length ; i++){
-    outputGraph.shrinkNode(outputGraph.getNodes()[i]);
+for (const node of outputGraph.getNodes()){
+    outputGraph.shrinkNode(node);
 }
 
 // write the logical graph to disk using the outputFilename
@@ -81,7 +80,7 @@ fs.writeFileSync(outputFilename, JSON.stringify(LogicalGraph.toOJSJson(outputGra
 process.exit();
 
 function readFileInfo(modelData : any, inputFilename : string) : FileInfo {
-    var result : FileInfo = new FileInfo();
+    const result : FileInfo = new FileInfo();
 
     // if modelData is undefined, then we have no data to build the FileInfo
     if (typeof modelData === "undefined"){
@@ -106,9 +105,9 @@ function readFileInfo(modelData : any, inputFilename : string) : FileInfo {
     return result;
 }
 
-function readNode(nodeData : any) : Node {
-    var x = Node.DEFAULT_POSITION_X;
-    var y = Node.DEFAULT_POSITION_Y;
+function readNode(nodeData : any, index : number) : Node {
+    let x = 0;
+    let y = 0;
     if (typeof nodeData.loc !== 'undefined'){
         x = parseInt(nodeData.loc.substring(0, nodeData.loc.indexOf(' ')), 10);
         y = parseInt(nodeData.loc.substring(nodeData.loc.indexOf(' ')), 10);
@@ -121,32 +120,32 @@ function readNode(nodeData : any) : Node {
     }
 
     // translate categories if required
-    var category : string = GraphUpdater.translateOldCategory(nodeData.category);
-    var categoryType : string = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
+    let category : Eagle.Category = GraphUpdater.translateOldCategory(nodeData.category);
+    const categoryType : Eagle.CategoryType = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
 
     if (category === Eagle.Category.Unknown){
-        logError("Unable to translate category '" + nodeData.category + "' of node " + i);
+        logError("Unable to translate category '" + nodeData.category + "' of node " + index);
     } else {
         if (category !== nodeData.category){
-            logMessage("Translated old category: '" + nodeData.category + "' into '" + category + "' for node " + i);
+            logMessage("Translated old category: '" + nodeData.category + "' into '" + category + "' for node " + index);
         }
     }
 
     if (!Utils.isKnownCategory(category)){
-        logError("Unknown category '" + category + "' of node " + i);
+        logError("Unknown category '" + category + "' of node " + index);
         category = Eagle.Category.Unknown;
     }
 
     if (categoryType === Eagle.CategoryType.Unknown){
-        logError("Unable to translate categoryType '" + nodeData.categoryType + "' of node " + i + " with category '" + category + "'");
+        logError("Unable to translate categoryType '" + nodeData.categoryType + "' of node " + index + " with category '" + category + "'");
     } else {
         if (categoryType !== nodeData.categoryType){
-            logMessage("Translated old categoryType: '" + nodeData.categoryType + "' into '" + categoryType + "' for node " + i);
+            logMessage("Translated old categoryType: '" + nodeData.categoryType + "' into '" + categoryType + "' for node " + index);
         }
     }
 
     // create new node
-    var node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, x, y);
+    const node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, false);
 
     // get description (if exists)
     if (typeof nodeData.description !== 'undefined'){
@@ -161,14 +160,14 @@ function readNode(nodeData : any) : Node {
         if (typeof nodeData.width !== 'undefined'){
             node.setWidth(nodeData.width);
         } else {
-            logMessage("Using default width for node " + i);
+            logMessage("Using default width for node " + index);
             node.setWidth(Node.DEFAULT_WIDTH);
         }
 
         if (typeof nodeData.height !== 'undefined'){
             node.setHeight(nodeData.height);
         } else {
-            logMessage("Using default height for node " + i);
+            logMessage("Using default height for node " + index);
             node.setHeight(Node.DEFAULT_HEIGHT);
         }
     }

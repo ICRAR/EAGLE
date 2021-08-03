@@ -1778,6 +1778,24 @@ export class Utils {
         return Eagle.DALiuGESchemaVersion.Unknown;
     }
 
+    static checkPalette(palette: Palette): string[] {
+        const results: string[] = [];
+
+        // check for duplicate keys
+        const keys: number[] = [];
+
+        for (const node of palette.getNodes()){
+            // check existing keys
+            if (keys.indexOf(node.getKey()) !== -1){
+                results.push("Key " + node.getKey() + " used by multiple components in palette.");
+            } else {
+                keys.push(node.getKey());
+            }
+        }
+
+        return results;
+    }
+
     static checkGraph(graph: LogicalGraph): string[] {
         const results: string[] = [];
 

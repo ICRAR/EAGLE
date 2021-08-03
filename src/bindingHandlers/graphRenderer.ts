@@ -808,8 +808,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function createLink(edge : Edge) : string {
-        //console.log("createLink()", edge.getSrcNodeKey(), edge.getSrcPortId(), "->", edge.getDestNodeKey(), edge.getDestPortId());
-
         // determine if edge is "forward" or not
         const srcNode : Node  = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
         const destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
@@ -829,7 +827,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let x2 = REAL_TO_DISPLAY_POSITION_X(edgeGetX2(edge));
         let y2 = REAL_TO_DISPLAY_POSITION_Y(edgeGetY2(edge));
 
-        //console.log("x1", x1, "y1", y1, "x2", x2, "y2", y2);
         console.assert(!isNaN(x1));
         console.assert(!isNaN(y1));
         console.assert(!isNaN(x2));
@@ -843,8 +840,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         const startDirection = determineDirection(true, srcNode, srcPortIndex, srcPortType);
         const endDirection = determineDirection(false, destNode, destPortIndex, destPortType);
-
-        //console.log("edge", srcNode.getKey(), "->", destNode.getKey(), "start", startDirection, "end", endDirection);
 
         return createBezier(x1, y1, x2, y2, startDirection, endDirection);
     }
