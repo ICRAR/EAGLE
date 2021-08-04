@@ -116,14 +116,10 @@ export class Utils {
 
     static findNewKey(usedKeys : number[]): number {
         for (let i = -1 ; ; i--){
-            //console.log("newKey, searching for ", i, "amongst", usedKeys.length, "keys");
             let found = false;
 
-            for (let j = 0 ; j < usedKeys.length ; j++){
-                // debug
-                //console.log("findNewKey, checking key", j, "key is", usedKeys[j]);
-
-                if (i === usedKeys[j]){
+            for (const usedKey of usedKeys){
+                if (i === usedKey){
                     found = true;
                     break;
                 }
@@ -139,22 +135,22 @@ export class Utils {
         // build a list of used keys
         const usedKeys: number[] = [];
 
-        for (let i = 0 ; i < nodes.length ; i++){
-            usedKeys.push(nodes[i].getKey())
+        for (const node of nodes){
+            usedKeys.push(node.getKey())
 
             // if this node has inputApp, add the inputApp key
-            if (nodes[i].hasInputApplication()){
-                usedKeys.push(nodes[i].getInputApplication().getKey());
+            if (node.hasInputApplication()){
+                usedKeys.push(node.getInputApplication().getKey());
             }
 
             // if this node has outputApp, add the outputApp key
-            if (nodes[i].hasOutputApplication()){
-                usedKeys.push(nodes[i].getOutputApplication().getKey());
+            if (node.hasOutputApplication()){
+                usedKeys.push(node.getOutputApplication().getKey());
             }
 
             // if this node has exitApp, add the exitApp key
-            if (nodes[i].hasExitApplication()){
-                usedKeys.push(nodes[i].getExitApplication().getKey());
+            if (node.hasExitApplication()){
+                usedKeys.push(node.getExitApplication().getKey());
             }
         }
 
@@ -165,9 +161,7 @@ export class Utils {
         // build a list of used keys
         const usedKeys: number[] = [];
 
-        //console.log("nodeData.length", nodeData.length);
         for (let i = 0 ; i < nodeData.length ; i++){
-            //console.log(i, nodeData[i].key);
             usedKeys.push(nodeData[i].key);
         }
 

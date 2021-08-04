@@ -133,9 +133,8 @@ export class Palette {
 
         result.fileInfo(this.fileInfo().clone());
 
-        for (let i = 0 ; i < this.nodes().length ; i++){
-            const n_clone = this.nodes()[i].clone();
-            result.nodes.push(n_clone);
+        for (const node of this.nodes()){
+            result.nodes.push(node.clone());
         }
 
         return result;
@@ -156,7 +155,6 @@ export class Palette {
         newNode.setExitApplication(null);
 
         if (force){
-            //console.log("Copy node", newNode.getName(), "to destination palette", palette.fileInfo().name, "now contains", palette.getNodes().length);
             this.nodes.push(newNode);
             return;
         }
@@ -168,7 +166,6 @@ export class Palette {
 
             if (paletteNode.getName() === newNode.getName() && paletteNode.getCategory() === newNode.getCategory()){
                 this.replaceNode(i, newNode);
-                //console.log("Replace node", newNode.getName(), "in destination palette", palette.fileInfo().name);
                 return;
             }
         }
