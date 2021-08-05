@@ -739,8 +739,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     linkExtras
         .attr("class", "linkExtra")
         .attr("d", createLink)
-        .attr("stroke", edgeExtraGetStrokeColor)
-        .attr("stroke-dasharray", edgeGetStrokeDashArray)
+        .attr("stroke", "transparent")
+        .attr("stroke-width", "10px")
         .attr("fill", "transparent")
         .style("display", getEdgeDisplay)
         .on("click", edgeOnClick);
@@ -1417,8 +1417,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("class", "linkExtra")
             .attr("d", createLink)
             .attr("fill", "transparent")
-            .attr("stroke", edgeExtraGetStrokeColor)
-            .attr("stroke-dasharray", edgeGetStrokeDashArray)
+            .attr("stroke", "transparent")
+            .attr("stroke-width", "10px")
             .style("display", getEdgeDisplay);
 
         // update attributes of all links
