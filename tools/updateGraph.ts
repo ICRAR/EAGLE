@@ -19,13 +19,10 @@ if (process.argv.length < 4){
 // get input and output filenames from the command line arguments
 const inputFilename : string = process.argv[2];
 const outputFilename : string = process.argv[3];
-//console.log("inputFilename", inputFilename);
-//console.log("outputFilename", outputFilename);
 
 // load input file from disk
 const data : Buffer = fs.readFileSync(inputFilename);
 const inputGraph = JSON.parse(data.toString());
-//console.log("inputGraph", inputGraph);
 
 // create an empty output graph
 const outputGraph : LogicalGraph = new LogicalGraph();
@@ -254,98 +251,84 @@ function readNode(nodeData : any, index : number) : Node {
 
     // if an old-style application is found, add them as the new input application type
     if (typeof nodeData.application !== "undefined"){
-        logMessage("Only found old 'application', not new 'inputApplicationType' and 'outputApplicationType'. Setting 'inputApplicationType' to " + nodeData.application + " for node " + 1);
+        logMessage("Only found old 'application', not new 'inputApplicationType' and 'outputApplicationType'. Setting 'inputApplicationType' to " + nodeData.application + " for node " + index);
         node.setInputApplicationType(nodeData.application);
     }
 
     // add input ports
     if (typeof nodeData.inputPorts !== 'undefined'){
-        for (var j = 0 ; j < nodeData.inputPorts.length; j++){
-            var portData = nodeData.inputPorts[j];
-            node.addPort(new Port(portData.Id, portData.IdText), true, false);
+        for (const portData of nodeData.inputPorts){
+            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType.Unknown), true);
         }
     }
 
     // add output ports
     if (typeof nodeData.outputPorts !== 'undefined'){
-        for (var j = 0 ; j < nodeData.outputPorts.length; j++){
-            var portData = nodeData.outputPorts[j];
-            node.addPort(new Port(portData.Id, portData.IdText), false, false);
+        for (const portData of nodeData.outputPorts){
+            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType.Unknown), false);
         }
     }
 
     // add input local ports
     if (typeof nodeData.inputLocalPorts !== 'undefined'){
-        for (var j = 0 ; j < nodeData.inputLocalPorts.length; j++){
-            var portData = nodeData.inputLocalPorts[j];
-            node.addPort(new Port(portData.Id, portData.IdText), true, true);
+        for (const portData of nodeData.inputLocalPorts){
+            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType.Unknown), true);
         }
     }
 
     // add output local ports
     if (typeof nodeData.outputLocalPorts !== 'undefined'){
-        for (var j = 0 ; j < nodeData.outputLocalPorts.length; j++){
-            var portData = nodeData.outputLocalPorts[j];
-            node.addPort(new Port(portData.Id, portData.IdText), false, true);
+        for (const portData of nodeData.outputLocalPorts){
+            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType.Unknown), false);
         }
     }
 
     // add inputAppFields
     if (typeof nodeData.inputAppFields !== 'undefined'){
-        for (var j = 0 ; j < nodeData.inputAppFields.length ; j++){
-            var fieldData = nodeData.inputAppFields[j];
-            var fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
+        for (const fieldData of nodeData.inputAppFields){
+            const fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
             node.addAppField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription), true);
         }
     }
 
     // add outputAppFields
     if (typeof nodeData.outputAppFields !== 'undefined'){
-        for (var j = 0 ; j < nodeData.outputAppFields.length ; j++){
-            var fieldData = nodeData.outputAppFields[j];
-            var fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
+        for (const fieldData of nodeData.outputAppFields){
+            const fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
             node.addAppField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription), false);
         }
     }
 
     // if old-style appFields are found, add them as new input fields
     if (typeof nodeData.appFields !== "undefined"){
-        logMessage("Only found old 'appFields', not new 'inputAppFields' and 'outputAppFields' in node " + i);
-        for (var j = 0 ; j < nodeData.appFields.length ; j++){
-            var fieldData = nodeData.appFields[j];
+        logMessage("Only found old 'appFields', not new 'inputAppFields' and 'outputAppFields' in node " + index);
+        for (const fieldData of nodeData.appFields.length){
             node.addAppField(new Field(fieldData.text, fieldData.name, fieldData.value, ""), true);
         }
     }
 
     // add fields
     if (typeof nodeData.fields !== 'undefined'){
-        for (var j = 0 ; j < nodeData.fields.length ; j++){
-            var fieldData = nodeData.fields[j];
-            var fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
+        for (const fieldData of nodeData.fields){
             node.addField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription));
         }
     }
 
     // read OLD attributes from the root level of the nodes (if they exist)
-    for (var j = 0 ; j < GraphUpdater.OLD_ATTRIBUTES.length ; j++){
-        var oldAttribute : {text:string, name:string, description:string} = GraphUpdater.OLD_ATTRIBUTES[j];
-
+    for (const oldAttribute of GraphUpdater.OLD_ATTRIBUTES){
         if (typeof nodeData[oldAttribute.name] !== 'undefined'){
-            logMessage("Moved root level attribute '" + oldAttribute.name + "' to new field in node " + i);
+            logMessage("Moved root level attribute '" + oldAttribute.name + "' to new field in node " + index);
             node.addField(new Field(oldAttribute.text, oldAttribute.name, nodeData[oldAttribute.name], oldAttribute.description));
         }
     }
 
     // read column data from nodes with the Variables category
     if (typeof nodeData.var_list !== 'undefined'){
-        for (var j = 0 ; j < nodeData.var_list.length ; j++){
-            var v = nodeData.var_list[j];
-            var name = "";
-            var value = "";
+        for (const v of nodeData.var_list){
+            let name = "";
+            let value = "";
 
-            for (var k = 0; k < v.columns.length ; k++){
-                var column = v.columns[k];
-
+            for (const column of v.columns){
                 if (column.attr === "name"){
                     name = column.text;
                 }
@@ -353,92 +336,74 @@ function readNode(nodeData : any, index : number) : Node {
                     value = column.text;
                 }
             }
-            logMessage("Moved var_list variable '" + name + "' (" + value + ") to new field in node " + i);
-            node.addField(new Field(name, name, value, ""));
+            logMessage("Moved var_list variable '" + name + "' (" + value + ") to new field in node " + index);
+            node.addField(new Field(name, name, value, "", false, Eagle.DataType.Unknown));
         }
     }
 
     // make sure scatter nodes have a 'num_of_copies' field
     if (node.getCategory() === Eagle.Category.Scatter){
         if (node.getFieldByName('num_of_copies') === null){
-            node.addField(new Field("Number of copies", "num_of_copies", "1", ""));
-            logMessage("Added missing 'num_of_copies' field to Scatter node " + i);
+            node.addField(new Field("Number of copies", "num_of_copies", "1", "", false, Eagle.DataType.Integer));
+            logMessage("Added missing 'num_of_copies' field to Scatter node " + index);
         }
         if (node.getFieldByName('scatter_axis') === null){
-            node.addField(new Field("Scatter Axis", "scatter_axis", "", ""));
-            logMessage("Added missing 'scatter_axis' field to Scatter node " + i);
+            node.addField(new Field("Scatter Axis", "scatter_axis", "", "", false, Eagle.DataType.String));
+            logMessage("Added missing 'scatter_axis' field to Scatter node " + index);
         }
     }
 
     // make sure gather nodes have a 'num_of_inputs' field
     if (node.getCategory() === Eagle.Category.Gather){
         if (node.getFieldByName('num_of_inputs') === null){
-            node.addField(new Field("Number of inputs", "num_of_inputs", "1", ""));
-            logMessage("Added missing 'num_of_inputs' field to Gather node " + i);
+            node.addField(new Field("Number of inputs", "num_of_inputs", "1", "", false, Eagle.DataType.Integer));
+            logMessage("Added missing 'num_of_inputs' field to Gather node " + index);
         }
         if (node.getFieldByName('gather_axis') === null){
-            node.addField(new Field("Gather Axis", "gather_axis", "", ""));
-            logMessage("Added missing 'gather_axis' field to Gather node " + i);
+            node.addField(new Field("Gather Axis", "gather_axis", "", "", false, Eagle.DataType.String));
+            logMessage("Added missing 'gather_axis' field to Gather node " + index);
         }
     }
 
     // make sure MKN nodes have 'm', 'k', and 'n' fields
     if (node.getCategory() === Eagle.Category.MKN){
         if (node.getFieldByName('m') === null){
-            node.addField(new Field("M", "m", "1", ""));
-            logMessage("Added missing 'm' field to MKN node " + i);
+            node.addField(new Field("M", "m", "1", "", false, Eagle.DataType.Integer));
+            logMessage("Added missing 'm' field to MKN node " + index);
         }
         if (node.getFieldByName('k') === null){
-            node.addField(new Field("K", "k", "1", ""));
-            logMessage("Added missing 'k' field to MKN node " + i);
+            node.addField(new Field("K", "k", "1", "", false, Eagle.DataType.Integer));
+            logMessage("Added missing 'k' field to MKN node " + index);
         }
         if (node.getFieldByName('n') === null){
-            node.addField(new Field("N", "n", "1", ""));
-            logMessage("Added missing 'n' field to MKN node " + i);
+            node.addField(new Field("N", "n", "1", "", false, Eagle.DataType.Integer));
+            logMessage("Added missing 'n' field to MKN node " + index);
         }
     }
 
     // make sure comment nodes have appropriate fields
     if (node.getCategory() === Eagle.Category.Comment){
         if (node.getFieldByName('comment') === null){
-            node.addField(new Field("Comment", "comment", node.getName(), "The text value of the comment"));
+            node.addField(new Field("Comment", "comment", node.getName(), "The text value of the comment", false, Eagle.DataType.String));
             node.setName("");
-            logMessage("Added missing 'comment' field to Comment node " + i);
+            logMessage("Added missing 'comment' field to Comment node " + index);
         }
     }
 
     // make sure description nodes have appropriate fields
     if (node.getCategory() === Eagle.Category.Description){
         if (node.getFieldByName('description') === null){
-            node.addField(new Field("Description", "description", "", "The text value of the description"));
-            logMessage("Added missing 'description' field to Description node " + i);
+            node.addField(new Field("Description", "description", "", "The text value of the description", false, Eagle.DataType.String));
+            logMessage("Added missing 'description' field to Description node " + index);
         }
     }
 
     // make sure "file" nodes that were created from old "Data" nodes have appropriate fields
     if (node.getCategory() === Eagle.Category.File && nodeData.category === "Data"){
         if (node.getFieldByName('filepath') === null){
-            node.addField(new Field("File path", "filepath", nodeData.text, ""));
-            logMessage("Copied old 'text' value (" + nodeData.text + ") as filepath field for old Data node translated to File node " + i);
+            node.addField(new Field("File path", "filepath", nodeData.text, "", false, Eagle.DataType.String));
+            logMessage("Copied old 'text' value (" + nodeData.text + ") as filepath field for old Data node translated to File node " + index);
         }
-    }
-
-    // make sure isData, isGroup, canHaveInputs and canHaveOutputs are set appropriately for this category
-    if (node.isData() !== GraphUpdater.getIsDataForCategory(category)){
-        node.setIsData(GraphUpdater.getIsDataForCategory(category));
-        logMessage("Set isData to " + node.isData() + " for node " + i);
-    }
-    if (node.isGroup() !== GraphUpdater.getIsGroupForCategory(category)){
-        node.setIsGroup(GraphUpdater.getIsGroupForCategory(category));
-        logMessage("Set isGroup to " + node.isGroup() + " for node " + i);
-    }
-    if (node.canHaveInputs() !== GraphUpdater.getCanHaveInputsForCategory(category)){
-        node.setCanHaveInputs(GraphUpdater.getCanHaveInputsForCategory(category));
-        logMessage("Set canHaveInputs to " + node.canHaveInputs() + " for node " + i);
-    }
-    if (node.canHaveOutputs() !== GraphUpdater.getCanHaveOutputsForCategory(category)){
-        node.setCanHaveOutputs(GraphUpdater.getCanHaveOutputsForCategory(category));
-        logMessage("Set canHaveOutputs to " + node.canHaveOutputs() + " for node " + i);
     }
 
     return node;
@@ -446,31 +411,31 @@ function readNode(nodeData : any, index : number) : Node {
 
 function readEdge(linkData : any) : Edge {
     // find source and destination nodes for this edge
-    var srcNode : Node  = outputGraph.getNodes()[GraphUpdater.findIndexOfNodeDataArrayWithKey(inputGraph.nodeDataArray, linkData.from)];
-    var destNode : Node  = outputGraph.getNodes()[GraphUpdater.findIndexOfNodeDataArrayWithKey(inputGraph.nodeDataArray, linkData.to)];
+    const srcNode : Node  = outputGraph.getNodes()[GraphUpdater.findIndexOfNodeDataArrayWithKey(inputGraph.nodeDataArray, linkData.from)];
+    const destNode : Node  = outputGraph.getNodes()[GraphUpdater.findIndexOfNodeDataArrayWithKey(inputGraph.nodeDataArray, linkData.to)];
 
     // log error if source node not found
     if (typeof srcNode === 'undefined'){
-        var error : string = "Unable to find node with key " + linkData.from + " used as source node in link " + i + ". Discarding link!";
+        const error : string = "Unable to find node with key " + linkData.from + " used as source node in link " + linkData.id + ". Discarding link!";
         logError(error);
     }
 
     // log error if dest node not found
     if (typeof destNode === 'undefined'){
-        var error : string = "Unable to find node with key " + linkData.to + " used as destination node in link " + i + ". Discarding link!";
+        const error : string = "Unable to find node with key " + linkData.to + " used as destination node in link " + linkData.id + ". Discarding link!";
         logError(error);
     }
 
     // abort if one or both nodes cannot be found
     if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'){
-        logError("Unable to translate link " + i + ". Source or destination node unknown.");
+        logError("Unable to translate link " + linkData.id + ". Source or destination node unknown.");
         return null;
     }
 
-    var srcPort : Port = null;
-    var destPort : Port = null;
-    var oldFromPortId : number = linkData.fromPort;
-    var oldToPortId : number = linkData.toPort;
+    let srcPort : Port = null;
+    let destPort : Port = null;
+    const oldFromPortId : number = linkData.fromPort;
+    const oldToPortId : number = linkData.toPort;
 
     // check if fromPort is undefined
     if (typeof linkData.fromPort === 'undefined'){
@@ -498,34 +463,34 @@ function readEdge(linkData : any) : Edge {
 
     // add it if source port not found
     if (srcPort === null){
-        var srcPortName : string = linkData.fromPort + "-" + linkData.toPort;
-        srcPort = new Port(Utils.uuidv4(), srcPortName);
-        srcNode.addPort(srcPort, false, false);
+        const srcPortName : string = linkData.fromPort + "-" + linkData.toPort;
+        srcPort = new Port(Utils.uuidv4(), srcPortName, false, Eagle.DataType.Unknown);
+        srcNode.addPort(srcPort, false);
 
-        logMessage("Added a new src port " + srcPort.getName() + " to node " + srcNode.getKey() + " in link " + i + " since port (" + oldFromPortId + ") is missing.");
+        logMessage("Added a new src port " + srcPort.getName() + " to node " + srcNode.getKey() + " in link " + linkData.id + " since port (" + oldFromPortId + ") is missing.");
      }
 
     // add it if dest port not found
     if (destPort === null){
-        var destPortName : string = linkData.fromPort + "-" + linkData.toPort;
-        destPort = new Port(Utils.uuidv4(), destPortName);
-        destNode.addPort(destPort, true, false);
+        const destPortName : string = linkData.fromPort + "-" + linkData.toPort;
+        destPort = new Port(Utils.uuidv4(), destPortName, false, Eagle.DataType.Unknown);
+        destNode.addPort(destPort, true);
 
-        logMessage("Added a new dst port " + destPort.getName() + " to node " + destNode.getKey() + " in link " + i + " since port (" + oldToPortId + ") is missing.");
+        logMessage("Added a new dst port " + destPort.getName() + " to node " + destNode.getKey() + " in link " + linkData.id + " since port (" + oldToPortId + ") is missing.");
     }
 
     if (srcPort === null || destPort === null){
-        logError("Unable to translate link " + i + ". Source or destination port unknown.");
+        logError("Unable to translate link " + linkData.id + ". Source or destination port unknown.");
         return null;
     }
 
     // check if srcPort and destPort have different names
     if (srcPort.getName() !== destPort.getName()){
-        logError("Name of source and destination do not match for link " + i);
+        logError("Name of source and destination do not match for link " + linkData.id);
         return null;
     }
 
-    return new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getName());
+    return new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), false);
 }
 
 function logMessage(message : string){
