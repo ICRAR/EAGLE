@@ -170,22 +170,6 @@ function readNode(nodeData : any, index : number) : Node {
         }
     }
 
-    if (typeof nodeData.isData !== 'undefined'){
-        node.setIsData(nodeData.isData);
-    }
-
-    if (typeof nodeData.isGroup !== 'undefined'){
-        node.setIsGroup(nodeData.isGroup);
-    }
-
-    if (typeof nodeData.canHaveInputs !== 'undefined'){
-        node.setCanHaveInputs(nodeData.canHaveInputs);
-    }
-
-    if (typeof nodeData.canHaveOutputs !== 'undefined'){
-        node.setCanHaveOutputs(nodeData.canHaveOutputs);
-    }
-
     if (typeof nodeData.inputAppName !== 'undefined'){
         node.setInputApplicationName(nodeData.inputAppName);
     }
@@ -439,13 +423,11 @@ function readEdge(linkData : any) : Edge {
 
     // check if fromPort is undefined
     if (typeof linkData.fromPort === 'undefined'){
-        //logMessage("'fromPort' undefined in link " + i + ". Using default port.");
         linkData.fromPort = Port.DEFAULT_ID;
     }
 
     // check if toPort is undefined
     if (typeof linkData.toPort === 'undefined'){
-        //logMessage("'toPort' undefined in link " + i + ". Using default port.");
         linkData.toPort = Port.DEFAULT_ID;
     }
 
@@ -458,8 +440,6 @@ function readEdge(linkData : any) : Edge {
     if (typeof destNode !== 'undefined'){
         destPort = destNode.findPortById(linkData.toPort);
     }
-
-    //console.log("srcPort", srcPort, "destPort", destPort);
 
     // add it if source port not found
     if (srcPort === null){
