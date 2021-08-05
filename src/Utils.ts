@@ -178,36 +178,36 @@ export class Utils {
         const usedKeys: number[] = Utils.getUsedKeys(nodes);
 
         // loop through nodes, look for embedded nodes with null key, create new key, add to usedKeys
-        for (let i = 0 ; i < nodes.length ; i++){
-            usedKeys.push(nodes[i].getKey())
+        for (const node of nodes){
+            usedKeys.push(node.getKey())
 
             // if this node has inputApp, add the inputApp key
-            if (nodes[i].hasInputApplication()){
-                if (nodes[i].getInputApplication().getKey() === null){
+            if (node.hasInputApplication()){
+                if (node.getInputApplication().getKey() === null){
                     const newKey = Utils.findNewKey(usedKeys);
-                    nodes[i].getInputApplication().setKey(newKey);
+                    node.getInputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "input app key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "input app key", newKey);
                 }
             }
 
             // if this node has outputApp, add the outputApp key
-            if (nodes[i].hasOutputApplication()){
-                if (nodes[i].getOutputApplication().getKey() === null){
+            if (node.hasOutputApplication()){
+                if (node.getOutputApplication().getKey() === null){
                     const newKey = Utils.findNewKey(usedKeys);
-                    nodes[i].getOutputApplication().setKey(newKey);
+                    node.getOutputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "output app key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "output app key", newKey);
                 }
             }
 
             // if this node has exitApp, add the exitApp key
-            if (nodes[i].hasExitApplication()){
-                if (nodes[i].getExitApplication().getKey() === null){
+            if (node.hasExitApplication()){
+                if (node.getExitApplication().getKey() === null){
                     const newKey = Utils.findNewKey(usedKeys);
-                    nodes[i].getExitApplication().setKey(newKey);
+                    node.getExitApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "exit app key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "exit app key", newKey);
                 }
             }
         }
@@ -216,8 +216,7 @@ export class Utils {
     // extracts a file name from the full path.
     static getFileNameFromFullPath(fullPath : string) : string {
         if (typeof fullPath === 'undefined'){return "";}
-        const fileName = fullPath.replace(/^.*[\\\/]/, '');
-        return fileName;
+        return fullPath.replace(/^.*[\\\/]/, '');
     }
 
     // extracts a file path (not including the file name) from the full path.
@@ -282,7 +281,6 @@ export class Utils {
         if (fileType.toLowerCase() === "json")
             return Eagle.FileType.JSON;
 
-        //console.warn("Unknown file type (", fileType, ") can't be translated!");
         return Eagle.FileType.Unknown;
     }
 
@@ -294,7 +292,6 @@ export class Utils {
         if (fileType === Eagle.FileType.JSON)
             return "json";
 
-        //console.warn("Unknown file type (", fileType, ") can't be translated!");
         return "";
     }
 
@@ -419,7 +416,6 @@ export class Utils {
                 callback(null, data);
             },
             error: function(xhr, status, error : string){
-                //console.log("xhr", xhr, "status", status, "error", error);
                 callback(error + " " + xhr.responseText, null);
             }
         });
@@ -826,9 +822,7 @@ export class Utils {
             }
 
             // loop through the explorePalettes, find any selected and load them
-            for (let i = 0 ; i < eagle.explorePalettes().length ; i++){
-                const ep = eagle.explorePalettes()[i];
-
+            for (const ep of eagle.explorePalettes()){
                 if (ep.isSelected()){
                     eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
                 }
@@ -1241,8 +1235,8 @@ export class Utils {
             console.log("error", error, "data", data);
 
             const explorePalettes: PaletteInfo[] = [];
-            for (let i = 0 ; i < data.length ; i++){
-                explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, data[i].name, data[i].path));
+            for (const palette of data){
+                explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, palette.name, palette.path));
             }
 
             eagle.explorePalettes(explorePalettes);
@@ -1250,8 +1244,6 @@ export class Utils {
     }
 
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {
-        //console.log("requestUserEditEdge()");
-
         Utils.updateEditEdgeModal(edge, logicalGraph);
 
         $('#editEdgeModal').data('completed', false);
@@ -1272,12 +1264,9 @@ export class Utils {
         // populate UI with current edge data
         // add src node keys
         $('#editEdgeModalSrcNodeKeySelect').empty();
-        for (let i = 0 ; i < logicalGraph.getNodes().length; i++){
-            let node = logicalGraph.getNodes()[i];
-
+        for (const node of logicalGraph.getNodes()){
             // if node itself can have output ports, add the node to the list
             if (node.canHaveOutputs()){
-                //console.log("add node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
                     value: node.getKey(),
                     text: node.getName(),
@@ -1291,56 +1280,53 @@ export class Utils {
 
             // add input application node, if present
             if (node.hasInputApplication()){
-                node = node.getInputApplication();
+                const inputApp = node.getInputApplication();
 
-                //console.log("add input app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getSrcNodeKey() === node.getKey()
+                    value: inputApp.getKey(),
+                    text: inputApp.getName(),
+                    selected: edge.getSrcNodeKey() === inputApp.getKey()
                 }));
 
-                if (node.getKey() === edge.getSrcNodeKey()){
-                    srcNode = node;
+                if (inputApp.getKey() === edge.getSrcNodeKey()){
+                    srcNode = inputApp;
                 }
             }
 
             // add output application node, if present
             if (node.hasOutputApplication()){
-                node = node.getOutputApplication();
+                const outputApp = node.getOutputApplication();
 
-                //console.log("add output app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getSrcNodeKey() === node.getKey()
+                    value: outputApp.getKey(),
+                    text: outputApp.getName(),
+                    selected: edge.getSrcNodeKey() === outputApp.getKey()
                 }));
 
-                if (node.getKey() === edge.getSrcNodeKey()){
-                    srcNode = node;
+                if (outputApp.getKey() === edge.getSrcNodeKey()){
+                    srcNode = outputApp;
                 }
             }
 
             // add exit applicaiton node, if present
             if (node.hasExitApplication()){
-                node = node.getExitApplication();
+                const exitApp = node.getExitApplication();
 
-                //console.log("add exit app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getSrcNodeKey() === node.getKey()
+                    value: exitApp.getKey(),
+                    text: exitApp.getName(),
+                    selected: edge.getSrcNodeKey() === exitApp.getKey()
                 }));
 
-                if (node.getKey() === edge.getSrcNodeKey()){
-                    srcNode = node;
+                if (exitApp.getKey() === edge.getSrcNodeKey()){
+                    srcNode = exitApp;
                 }
             }
         }
 
         // make sure srcNode reflects what is actually selected in the UI
         const srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
-        //console.log("srcNodeKey", srcNodeKey);
+
         if (isNaN(srcNodeKey)){
             srcNode = null;
         } else {
@@ -1355,7 +1341,7 @@ export class Utils {
             // add src port ids
             for (let i = 0 ; i < srcNode.getOutputPorts().length; i++){
                 const port: Port = srcNode.getOutputPorts()[i];
-                //console.log("add source (" + srcNode.getName() + ") output port", port.getName(), "selected", edge.getSrcPortId() === port.getId());
+
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getName(),
@@ -1366,11 +1352,8 @@ export class Utils {
 
         // add dest node keys
         $('#editEdgeModalDestNodeKeySelect').empty();
-        for (let i = 0 ; i < logicalGraph.getNodes().length; i++){
-            let node = logicalGraph.getNodes()[i];
-
+        for (const node of logicalGraph.getNodes()){
             if (node.canHaveInputs()){
-                //console.log("add node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
                     value: node.getKey(),
                     text: node.getName(),
@@ -1384,49 +1367,46 @@ export class Utils {
 
             // input application node, if present
             if (node.hasInputApplication()){
-                node = node.getInputApplication();
+                const inputApp = node.getInputApplication();
 
-                //console.log("add input app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getDestNodeKey() === node.getKey()
+                    value: inputApp.getKey(),
+                    text: inputApp.getName(),
+                    selected: edge.getDestNodeKey() === inputApp.getKey()
                 }));
 
-                if (node.getKey() === edge.getDestNodeKey()){
-                    destNode = node;
+                if (inputApp.getKey() === edge.getDestNodeKey()){
+                    destNode = inputApp;
                 }
             }
 
             // output application node, if present
             if (node.hasOutputApplication()){
-                node = node.getOutputApplication();
+                const outputApp = node.getOutputApplication();
 
-                //console.log("add output app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getDestNodeKey() === node.getKey()
+                    value: outputApp.getKey(),
+                    text: outputApp.getName(),
+                    selected: edge.getDestNodeKey() === outputApp.getKey()
                 }));
 
-                if (node.getKey() === edge.getDestNodeKey()){
-                    destNode = node;
+                if (outputApp.getKey() === edge.getDestNodeKey()){
+                    destNode = outputApp;
                 }
             }
 
             // exit application node, if present
             if (node.hasExitApplication()){
-                node = node.getExitApplication();
+                const exitApp = node.getExitApplication();
 
-                //console.log("add exit app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getDestNodeKey() === node.getKey()
+                    value: exitApp.getKey(),
+                    text: exitApp.getName(),
+                    selected: edge.getDestNodeKey() === exitApp.getKey()
                 }));
 
-                if (node.getKey() === edge.getDestNodeKey()){
-                    destNode = node;
+                if (exitApp.getKey() === edge.getDestNodeKey()){
+                    destNode = exitApp;
                 }
             }
         }
@@ -1446,9 +1426,7 @@ export class Utils {
             $('#editEdgeModalDestPortIdSelect').attr('disabled', 'true');
         } else {
             // add dest port ids
-            for (let i = 0 ; i < destNode.getInputPorts().length; i++){
-                const port: Port = destNode.getInputPorts()[i];
-                //console.log("add dest (" + destNode.getName() + ") input port", port.getName(), "selected", edge.getDestPortId() === port.getId());
+            for (const port of destNode.getInputPorts()){
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getName(),
@@ -1467,20 +1445,16 @@ export class Utils {
         const uniquePorts : Port[] = [];
 
         // build a list from all nodes
-        for (let i = 0; i < diagram.getNodes().length; i++) {
-            const node : Node = diagram.getNodes()[i];
-
+        for (const node of diagram.getNodes()) {
             // add input port names into the list
-            for (let j = 0; j < node.getInputPorts().length; j++) {
-                const port : Port = node.getInputPorts()[j];
+            for (const port of node.getInputPorts()) {
                 if (!port.isEvent()){
                     Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
             }
 
             // add output port names into the list
-            for (let j = 0; j < node.getOutputPorts().length; j++) {
-                const port : Port = node.getOutputPorts()[j];
+            for (const port of node.getOutputPorts()) {
                 if (!port.isEvent()) {
                     Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
@@ -1489,16 +1463,14 @@ export class Utils {
             // add input application input and output ports
             if (node.hasInputApplication()){
                 // input ports
-                for (let j = 0; j < node.getInputApplication().getInputPorts().length; j++) {
-                    const port : Port = node.getInputApplication().getInputPorts()[j];
+                for (const port of node.getInputApplication().getInputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (let j = 0; j < node.getInputApplication().getOutputPorts().length; j++) {
-                    const port : Port = node.getInputApplication().getOutputPorts()[j];
+                for (const port of node.getInputApplication().getOutputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
@@ -1550,8 +1522,8 @@ export class Utils {
     private static _addPortIfUnique = (ports : Port[], port: Port) : void => {
 
         // check if the new port matches an existing port (by name and type), if so, abort
-        for (let i = 0 ; i < ports.length ; i++){
-            if (ports[i].getName() === port.getName() && ports[i].getType() === port.getType()){
+        for (const p of ports){
+            if (p.getName() === port.getName() && p.getType() === port.getType()){
                 return;
             }
         }
@@ -1566,13 +1538,9 @@ export class Utils {
     static getUniqueFieldsList = (diagram : Palette | LogicalGraph) : Field[] => {
         const uniqueFields : Field[] = [];
 
-        // build a list from all nodes
-        for (let i = 0; i < diagram.getNodes().length; i++) {
-            const node : Node = diagram.getNodes()[i];
-
-            // add fields into the list
-            for (let j = 0; j < node.getFields().length; j++) {
-                const field : Field = node.getFields()[j];
+        // build a list from all nodes, add fields into the list
+        for (const node of diagram.getNodes()) {
+            for (const field of node.getFields()) {
                 Utils._addFieldIfUnique(uniqueFields, field.clone());
             }
         }
@@ -1581,10 +1549,9 @@ export class Utils {
     }
 
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
-
         // check if the new field matches an existing field (by name and type), if so, abort
-        for (let i = 0 ; i < fields.length ; i++){
-            if (fields[i].getName() === field.getName() && fields[i].getType() === field.getType()){
+        for (const f of fields){
+            if (f.getName() === field.getName() && f.getType() === field.getType()){
                 return;
             }
         }
@@ -1696,8 +1663,7 @@ export class Utils {
         const result : Node[] = [];
 
         // Searching for the node.
-        for (let i = 0; i < palette.getNodes().length; i++) {
-            const node : Node = palette.getNodes()[i];
+        for (const node of palette.getNodes()) {
             if (node.getCategoryType() === categoryType) {
                 result.push(node);
             }
@@ -1710,8 +1676,7 @@ export class Utils {
         const result : Eagle.Category[] = [];
 
         // Searching for the node.
-        for (let i = 0; i < palette.getNodes().length; i++) {
-            const node : Node = palette.getNodes()[i];
+        for (const node of palette.getNodes()) {
             if (node.getCategoryType() === categoryType) {
                 result.push(node.getCategory());
             }
@@ -1727,11 +1692,11 @@ export class Utils {
 
     static giveNodePortsNewIds(node: Node) : void {
         // set new ids for any ports in this node
-        for (let i = 0 ; i < node.getInputPorts().length ; i++){
-            node.getInputPorts()[i].setId(Utils.uuidv4());
+        for (const port of node.getInputPorts()){
+            port.setId(Utils.uuidv4());
         }
-        for (let i = 0 ; i < node.getOutputPorts().length ; i++){
-            node.getOutputPorts()[i].setId(Utils.uuidv4());
+        for (const port of node.getOutputPorts()){
+            port.setId(Utils.uuidv4());
         }
     }
 
@@ -1794,19 +1759,13 @@ export class Utils {
         const results: string[] = [];
 
         // check that all port dataTypes have been defined
-        for (let i = 0 ; i < graph.getNodes().length; i++){
-            const node: Node = graph.getNodes()[i];
-
-            for (let j = 0 ; j < node.getInputPorts().length ; j++){
-                const port: Port = node.getInputPorts()[j];
-
+        for (const node of graph.getNodes()){
+            for (const port of node.getInputPorts()){
                 if (port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has input port " + port.getName() + " with dataType: " + port.getType());
                 }
             }
-            for (let j = 0 ; j < node.getOutputPorts().length ; j++){
-                const port: Port = node.getOutputPorts()[j];
-
+            for (const port of node.getOutputPorts()){
                 if (port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port " + port.getName() + " with dataType: " + port.getType());
                 }
@@ -1814,8 +1773,7 @@ export class Utils {
         }
 
         // check that all nodes have correct numbers of inputs and outputs
-        for (let i = 0 ; i < graph.getNodes().length; i++){
-            const node: Node = graph.getNodes()[i];
+        for (const node of graph.getNodes()){
             const cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
             const minInputs  = cData.minInputs;
             const maxInputs  = cData.maxInputs;
@@ -1847,12 +1805,11 @@ export class Utils {
             }
         }
 
-        for (let i = 0 ; i < graph.getEdges().length; i++){
-            const edge: Edge = graph.getEdges()[i];
+        for (const edge of graph.getEdges()){
             const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
 
             if (linkValid === Eagle.LinkValid.Invalid){
-                results.push("Edge " + i + " (" + edge.getId() + ") is invalid.");
+                results.push("Edge (" + edge.getId() + ") is invalid.");
             }
         }
 
@@ -1915,7 +1872,6 @@ export class Utils {
     }
 
     static validateFieldValue() : void {
-        //const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
         const valueText : string = <string>$('#editFieldModalValueInputText').val();
 
         const type: string = <string>$('#editFieldModalTypeSelect').val();
@@ -1930,8 +1886,6 @@ export class Utils {
             case Eagle.DataType.Integer:
                 isValid = valueText.match(/^-?\d*$/) && true;
                 break;
-            default:
-                isValid = true;
         }
 
         if (isValid){

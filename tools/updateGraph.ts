@@ -146,6 +146,7 @@ function readNode(nodeData : any, index : number) : Node {
 
     // create new node
     const node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, false);
+    node.setPosition(x, y);
 
     // get description (if exists)
     if (typeof nodeData.description !== 'undefined'){
