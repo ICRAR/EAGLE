@@ -33,6 +33,7 @@ ko.bindingHandlers.graphRenderer = {
 
 function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const startTime: number = performance.now();
+    eagle.rendererFrameCountRender = eagle.rendererFrameCountRender + 1;
 
     // sort the nodes array so that groups appear first, this ensures that child nodes are drawn on top of the group their parents
     const nodeData : Node[] = depthFirstTraversalOfNodes(graph.getNodes());
@@ -40,6 +41,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     let hasDraggedBackground : boolean = false;
     let isDraggingNode : boolean = false;
+    let isDraggingSelectionRegion : boolean = false;
     let sourcePortId : string | null = null;
     let sourceNodeKey : number | null = null;
     let sourceDataType : string | null = null;
@@ -47,7 +49,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     let destinationNodeKey : number | null = null;
     let isDraggingPort : boolean = false;
     let isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
+
     const mousePosition = {x:0, y:0};
+    const selectionRegionStart = {x:0, y:0};
+    const selectionRegionEnd = {x:0, y:0};
 
     const APPS_HEIGHT : number = 28;
     const PORT_HEIGHT : number = 24;
@@ -76,8 +81,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const HEADER_BUTTON_LABEL_FONT_SIZE : number = 12;
 
     const LINK_WARNING_COLOR : string = "orange";
+    const LINK_WARNING_SELECTED_COLOR : string = "chocolate";
     const LINK_INVALID_COLOR : string = "red";
+    const LINK_INVALID_SELECTED_COLOR : string = "firebrick";
     const LINK_VALID_COLOR : string = "limegreen";
+    const LINK_EVENT_COLOR : string = "rgb(128,128,255)";
+    const LINK_EVENT_SELECTED_COLOR : string = "blue";
 
     const SHRINK_BUTTONS_ENABLED : boolean = true;
     const COLLAPSE_BUTTONS_ENABLED : boolean = true;
@@ -148,23 +157,59 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .drag()
         .on("start", function (node : Node) {
             hasDraggedBackground = false;
+
+            if (d3.event.sourceEvent.shiftKey){
+                isDraggingSelectionRegion = true;
+                selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(d3.event.x);
+                selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(d3.event.y);
+            }
         })
         .on("end", function(){
-            const previousSelection = eagle.getSelection();
+            const hadPreviousSelection: boolean = eagle.selectedObjects().length > 0;
 
-            if (!hasDraggedBackground){
+            // if we just clicked on a node
+            if (!hasDraggedBackground && !isDraggingSelectionRegion){
                 eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null, Eagle.FileType.Unknown);
                 hasDraggedBackground = false;
 
-                if (previousSelection !== null){
+                if (hadPreviousSelection){
                     eagle.rightWindow().mode(Eagle.RightWindowMode.Hierarchy);
                 }
             }
+
+            // if we dragged a selection region
+            if (isDraggingSelectionRegion){
+                const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
+                console.log("Found", nodes.length, "nodes in region");
+
+                eagle.selectedObjects(nodes);
+                eagle.selectedLocation(Eagle.FileType.Graph);
+                eagle.rightWindow().mode(Eagle.RightWindowMode.NodeInspector);
+
+                for (let i = 0 ; i < nodes.length; i++){
+                    const node = nodes[i];
+                    node.setShowPorts(true);
+                }
+
+                selectionRegionStart.x = 0;
+                selectionRegionStart.y = 0;
+                selectionRegionEnd.x = 0;
+                selectionRegionEnd.y = 0;
+            }
+
+            eagle.logicalGraph.valueHasMutated();
         })
         .on("drag", function(){
-            eagle.globalOffsetX += d3.event.dx;
-            eagle.globalOffsetY += d3.event.dy;
-            hasDraggedBackground = true;
+            if (isDraggingSelectionRegion){
+                selectionRegionEnd.x = DISPLAY_TO_REAL_POSITION_X(d3.event.x);
+                selectionRegionEnd.y = DISPLAY_TO_REAL_POSITION_Y(d3.event.y);
+            } else {
+                // move background
+                eagle.globalOffsetX += d3.event.sourceEvent.movementX;
+                eagle.globalOffsetY += d3.event.sourceEvent.movementY;
+                hasDraggedBackground = true;
+            }
+
             tick();
         });
 
@@ -210,8 +255,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("fill", nodeGetFill)
         .style("stroke", nodeGetStroke)
         .style("stroke-width", NODE_STROKE_WIDTH)
-        .attr("stroke-dasharray", nodeGetStrokeDashArray)
-        .on("click", nodeOnClick);
+        .attr("stroke-dasharray", nodeGetStrokeDashArray);
 
     // custom-shaped nodes
     nodes
@@ -221,27 +265,43 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("fill", nodeGetColor)
         .style("stroke", nodeGetStroke)
         .style("stroke-width", NODE_STROKE_WIDTH)
-        .attr("stroke-dasharray", nodeGetStrokeDashArray)
-        .on("click", nodeOnClick);
+        .attr("stroke-dasharray", nodeGetStrokeDashArray);
 
     const nodeDragHandler = d3
         .drag()
         .on("start", function (node : Node) {
             isDraggingNode = false;
-            selectNode(node);
-            tick();
+
+            // if node not selected, then select it
+            if (!eagle.objectIsSelected(node)){
+                selectNode(node, d3.event.sourceEvent.shiftKey);
+            }
+
+            //tick();
         })
         .on("drag", function (node : Node, index : number) {
-            isDraggingNode = true;
+            if (!isDraggingNode){
+                isDraggingNode = true;
+            }
 
-            const dx = DISPLAY_TO_REAL_SCALE(d3.event.dx);
-            const dy = DISPLAY_TO_REAL_SCALE(d3.event.dy);
-            node.changePosition(dx, dy);
+            // transform change in x,y position using current scale factor
+            const dx = DISPLAY_TO_REAL_SCALE(d3.event.sourceEvent.movementX);
+            const dy = DISPLAY_TO_REAL_SCALE(d3.event.sourceEvent.movementY);
 
-            // update children locations
-            moveChildNodes(index, dx, dy);
+            // move all selected nodes, skip edges (they just follow nodes anyway)
+            for (let i = 0 ; i < eagle.selectedObjects().length ; i++){
+                const object = eagle.selectedObjects()[i];
+
+                if (object instanceof Node){
+                    object.changePosition(dx, dy);
+                    moveChildNodes(object, dx, dy);
+                }
+            }
+
+            // trigger updates
             eagle.flagActiveFileModified();
-            tick();
+            eagle.logicalGraph.valueHasMutated();
+            //tick();
         })
         .on("end", function(node : Node){
             // update location (in real node data, not sortedData)
@@ -257,19 +317,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
                 //console.log("set parent", parent.getKey());
                 node.setParentKey(parent.getKey());
-                eagle.selectedNode.valueHasMutated();
-                eagle.flagActiveDiagramHasMutated();
             }
 
             // if no parent found, update
             if (parent === null && node.getParentKey() !== null){
                 //console.log("set parent", null);
                 node.setParentKey(null);
-                eagle.selectedNode.valueHasMutated();
-                eagle.flagActiveDiagramHasMutated();
             }
 
-            tick();
+            //tick();
         });
 
     nodeDragHandler(svgContainer.selectAll("g.node"));
@@ -402,12 +458,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const resizeDragHandler = d3
         .drag()
         .on("start", function (node : Node) {
-            selectNode(node);
+            selectNode(node, false);
             tick();
         })
         .on("drag", function (node : Node) {
-            let newWidth = node.getWidth() + DISPLAY_TO_REAL_SCALE(d3.event.dx);
-            let newHeight = node.getHeight() + DISPLAY_TO_REAL_SCALE(d3.event.dy);
+            let newWidth = node.getWidth() + DISPLAY_TO_REAL_SCALE(d3.event.sourceEvent.movementX);
+            let newHeight = node.getHeight() + DISPLAY_TO_REAL_SCALE(d3.event.sourceEvent.movementY);
 
             // ensure node are of at least a minimum size
             newWidth = Math.max(newWidth, Node.MINIMUM_WIDTH);
@@ -415,7 +471,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             node.setWidth(newWidth);
             node.setHeight(newHeight);
-            tick();
+
+            eagle.logicalGraph.valueHasMutated();
+            //tick();
         });
 
     resizeDragHandler(svgContainer.selectAll("g.node rect.resize-control"));
@@ -778,6 +836,28 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("marker-end", "url(#black-arrowhead)")
         .style("display", getCommentLinkDisplay);
 
+    // create one link that is only used during the creation of a new link
+    // this new link follows the mouse pointer to indicate the position
+    const draggingLink = svgContainer
+        .append("line")
+        .attr("class", "draggingLink")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", 0)
+        .attr("y2", 0)
+        .attr("stroke", draggingEdgeGetStrokeColor);
+
+    const selectionRegion = svgContainer
+        .append("rect")
+        .attr("class", "selection-region")
+        .attr("width", 0)
+        .attr("height", 0)
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("stroke", "black")
+        .attr("fill", "transparent")
+        .style("display", "inline");
+
     function determineDirection(source: boolean, node: Node, portIndex: number, portType: string): Eagle.Direction {
         if (source){
             if (node.isBranch()){
@@ -849,19 +929,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return createBezier(x1, y1, x2, y2, startDirection, endDirection);
     }
 
-    // create one link that is only used during the creation of a new link
-    // this new link follows the mouse pointer to indicate the position
-    const draggingLink = svgContainer.append("line")
-                                     .attr("class", "draggingLink")
-                                     .attr("x1", 0)
-                                     .attr("y1", 0)
-                                     .attr("x2", 0)
-                                     .attr("y2", 0)
-                                     .attr("stroke", draggingEdgeGetStrokeColor);
-
     function tick(){
-        //console.log("tick()");
         const startTime = performance.now();
+        eagle.rendererFrameCountTick = eagle.rendererFrameCountTick + 1;
 
         // enter any new nodes
         svgContainer
@@ -936,8 +1006,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("fill", nodeGetFill)
             .style("stroke", nodeGetStroke)
             .style("stroke-width", NODE_STROKE_WIDTH)
-            .attr("stroke-dasharray", nodeGetStrokeDashArray)
-            .on("click", nodeOnClick);
+            .attr("stroke-dasharray", nodeGetStrokeDashArray);
 
         svgContainer
             .selectAll("g.node polygon")
@@ -947,8 +1016,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("fill", nodeGetColor)
             .style("stroke", nodeGetStroke)
             .style("stroke-width", NODE_STROKE_WIDTH)
-            .attr("stroke-dasharray", nodeGetStrokeDashArray)
-            .on("click", nodeOnClick);
+            .attr("stroke-dasharray", nodeGetStrokeDashArray);
 
         svgContainer
             .selectAll("g.node rect.header-background")
@@ -1472,21 +1540,38 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                         .attr("stroke", "none");
         }
 
+        // selection region
+        selectionRegion
+            .attr("width", REAL_TO_DISPLAY_POSITION_X(selectionRegionEnd.x) - REAL_TO_DISPLAY_POSITION_X(selectionRegionStart.x))
+            .attr("height", REAL_TO_DISPLAY_POSITION_Y(selectionRegionEnd.y) - REAL_TO_DISPLAY_POSITION_Y(selectionRegionStart.y))
+            .attr("x", REAL_TO_DISPLAY_POSITION_X(selectionRegionStart.x))
+            .attr("y", REAL_TO_DISPLAY_POSITION_Y(selectionRegionStart.y))
+            .attr("stroke", "black")
+            .attr("fill", "transparent")
+            .style("display", "inline");
+
         const elapsedTime = performance.now() - startTime;
-        if (elapsedTime > eagle.rendererFrameMax()){eagle.rendererFrameMax(elapsedTime);}
-        eagle.rendererFrameDisplay("tick " + elapsedTime.toFixed(2) + "ms (max " + eagle.rendererFrameMax().toFixed(2) + "ms)");
+        if (elapsedTime > eagle.rendererFrameMax){eagle.rendererFrameMax = elapsedTime;}
+        eagle.rendererFrameDisplay("tick " + elapsedTime.toFixed(2) + "ms (max " + eagle.rendererFrameMax.toFixed(2) + "ms) Renders " + eagle.rendererFrameCountRender + " Ticks " + eagle.rendererFrameCountTick);
     }
 
-    function selectEdge(edge : Edge){
+    function selectEdge(edge : Edge, addToSelection: boolean){
         if (edge !== null){
-            eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
+            if (addToSelection){
+                eagle.editSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
+            } else {
+                eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
+            }
         }
     }
 
-    function selectNode(node : Node){
+    function selectNode(node : Node, addToSelection: boolean){
         if (node !== null){
-            //console.log("setSelection()", node.getName());
-            eagle.setSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Graph);
+            if (addToSelection){
+                eagle.editSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Graph);
+            } else {
+                eagle.setSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Graph);
+            }
         }
     }
 
@@ -2373,7 +2458,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        if (node.getKey() === Eagle.selectedNodeKey){
+        if (eagle.objectIsSelected(node)){
             return "black";
         }
 
@@ -2385,12 +2470,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "8";
         }
         return "";
-    }
-
-    function nodeOnClick(node : Node, index : number) : void {
-        //console.log("clicked on node", index, "key", node.getKey(), "name", node.getName());
-        selectNode(node);
-        tick();
     }
 
     function findDepthOfNode(index: number, nodes : Node[]) : number {
@@ -2831,13 +2910,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetStrokeColor(edge: Edge, index: number) : string {
-        const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
-
-        if (linkValid === Eagle.LinkValid.Invalid)
-            return LINK_INVALID_COLOR;
-        if (linkValid === Eagle.LinkValid.Warning)
-            return LINK_WARNING_COLOR;
-
         let normalColor: string = "grey";
         let selectedColor: string = "black";
 
@@ -2848,12 +2920,25 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
 
             if (srcPort !== null && srcPort.isEvent()){
-                normalColor = "rgb(128,128,255)";
-                selectedColor = "blue";
+                normalColor = LINK_EVENT_COLOR;
+                selectedColor = LINK_EVENT_SELECTED_COLOR;
             }
         }
 
-        return edge === eagle.selectedEdge() ? selectedColor : normalColor;
+        // check if link has a warning or is invalid
+        const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
+
+        if (linkValid === Eagle.LinkValid.Invalid){
+            normalColor = LINK_INVALID_COLOR;
+            selectedColor = LINK_INVALID_SELECTED_COLOR;
+        }
+
+        if (linkValid === Eagle.LinkValid.Warning){
+            normalColor = LINK_WARNING_COLOR;
+            selectedColor = LINK_WARNING_SELECTED_COLOR;
+        }
+
+        return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
     }
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
@@ -2917,8 +3002,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeOnClick(edge : Edge, index : number){
-        //console.log("clicked on edge", index, "fromNode", edge.getSrcNodeKey(), "toNode", edge.getDestNodeKey());
-        selectEdge(edge);
+        selectEdge(edge, d3.event.shiftKey);
         tick();
     }
 
@@ -3055,17 +3139,22 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         eagle.flagActiveDiagramHasMutated();
     }
 
-    function moveChildNodes(nodeIndex : number, deltax : number, deltay : number) : void {
-        // get id of parent nodeIndex
-        const parentKey : number = nodeData[nodeIndex].getKey();
+    function moveChildNodes(node: Node, deltax: number, deltay: number) : void {
+        // get id of parent node
+        const parentKey : number = node.getKey();
 
         // loop through all nodes, if they belong to the parent's group, move them too
         for (let i = 0 ; i < nodeData.length ; i++){
-            const node = nodeData[i];
+            const n = nodeData[i];
 
-            if (node.getParentKey() === parentKey){
-                moveNode(node, deltax, deltay);
-                moveChildNodes(i, deltax, deltay);
+            // skip selected nodes, they are handled in the main drag code
+            if (eagle.objectIsSelected(n)){
+                continue;
+            }
+
+            if (n.getParentKey() === parentKey){
+                moveNode(n, deltax, deltay);
+                moveChildNodes(n, deltax, deltay);
             }
         }
     }
@@ -3251,6 +3340,22 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return null;
     }
 
+    function findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
+        const result: Node[] = [];
+
+        for (let i = nodeData.length - 1; i >= 0 ; i--){
+            const node : Node = nodeData[i];
+            const x : number = node.getPosition().x;
+            const y : number = node.getPosition().y;
+
+            if (x >= left && right >= x && y >= top && bottom >= y){
+                result.push(node);
+            }
+        }
+
+        return result;
+    }
+
     function mouseEnterPort(port : Port) : void {
         //console.log("mouseEnterPort nodeKey", port.getNodeKey(), "portId", port.getId());
         if (!isDraggingPort){
@@ -3352,6 +3457,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // performance
     const elapsedTime = performance.now() - startTime;
-    if (elapsedTime > eagle.rendererFrameMax()){eagle.rendererFrameMax(elapsedTime);}
-    eagle.rendererFrameDisplay("render " + elapsedTime.toFixed(2) + "ms (max " + eagle.rendererFrameMax().toFixed(2) + "ms)");
+    if (elapsedTime > eagle.rendererFrameMax){eagle.rendererFrameMax = elapsedTime;}
+    eagle.rendererFrameDisplay("render " + elapsedTime.toFixed(2) + "ms (max " + eagle.rendererFrameMax.toFixed(2) + "ms) Renders " + eagle.rendererFrameCountRender + " Ticks " + eagle.rendererFrameCountTick);
 }

@@ -54,8 +54,7 @@ export class Utils {
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
     static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
     static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
-    static readonly CONFIRM_DELETE_NODES : string = "ConfirmDeleteNodes";
-    static readonly CONFIRM_DELETE_EDGES : string = "ConfirmDeleteEdges";
+    static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
 
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
 
@@ -290,18 +289,6 @@ export class Utils {
 
         //console.warn("Unknown file type (", fileType, ") can't be translated!");
         return Eagle.FileType.Unknown;
-    }
-
-    static translateFileTypeToString(fileType : Eagle.FileType) : string {
-        if (fileType === Eagle.FileType.Graph)
-            return "graph";
-        if (fileType === Eagle.FileType.Palette)
-            return "palette";
-        if (fileType === Eagle.FileType.JSON)
-            return "json";
-
-        //console.warn("Unknown file type (", fileType, ") can't be translated!");
-        return "";
     }
 
     static translateRightWindowModeToString(rightWindowMode: Eagle.RightWindowMode): string {
@@ -1848,7 +1835,7 @@ export class Utils {
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        console.log("validateJSON(): version:", version, "fileType:", Utils.translateFileTypeToString(fileType));
+        console.log("validateJSON(): version:", version, "fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;
