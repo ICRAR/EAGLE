@@ -1555,11 +1555,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // selection region
+        // make sure to send the lesser of the two coordinates as the top left point
         selectionRegion
-            .attr("width", selectionRegionEnd.x - selectionRegionStart.x)
-            .attr("height", selectionRegionEnd.y - selectionRegionStart.y)
-            .attr("x", selectionRegionStart.x)
-            .attr("y", selectionRegionStart.y)
+            .attr("width", Math.abs(selectionRegionEnd.x - selectionRegionStart.x))
+            .attr("height", Math.abs(selectionRegionEnd.y - selectionRegionStart.y))
+            .attr("x", selectionRegionStart.x <= selectionRegionEnd.x ? selectionRegionStart.x : selectionRegionEnd.x)
+            .attr("y", selectionRegionStart.y <= selectionRegionEnd.y ? selectionRegionStart.y : selectionRegionEnd.y)
             .attr("stroke", "black")
             .attr("fill", "transparent")
             .style("display", "inline");
@@ -3363,12 +3364,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
         const result: Node[] = [];
 
+        // re-assign left, right, top, bottom in case selection region was not dragged in the typical NW->SE direction
+        const realLeft = left <= right ? left : right;
+        const realRight = left <= right ? right : left;
+        const realTop = top <= bottom ? top : bottom;
+        const realBottom = top <= bottom ? bottom : top;
+
         for (let i = nodeData.length - 1; i >= 0 ; i--){
             const node : Node = nodeData[i];
             const x : number = node.getPosition().x;
             const y : number = node.getPosition().y;
 
-            if (x >= left && right >= x && y >= top && bottom >= y){
+            if (x >= realLeft && realRight >= x && y >= realTop && realBottom >= y){
                 result.push(node);
             }
         }
