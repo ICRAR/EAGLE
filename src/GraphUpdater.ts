@@ -201,7 +201,7 @@ export class GraphUpdater {
         }
 
         // NOTE: temporary fix until the translator supports Plasma nodes
-        if (category === Eagle.Category.Plasma){
+        if (category === Eagle.Category.Plasma || category === Eagle.Category.PlasmaFlight){
             console.warn("Translated category from", category, "to", Eagle.Category.File);
             return Eagle.Category.File;
         }

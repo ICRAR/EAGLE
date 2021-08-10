@@ -95,6 +95,9 @@ export class Node {
         this.y = 0;
         this.width = Node.DEFAULT_WIDTH;
         this.height = Node.DEFAULT_HEIGHT;
+        console.log(name)
+        console.log(category)
+        console.log(categoryType)
         this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
 
