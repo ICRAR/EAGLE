@@ -1017,16 +1017,31 @@ export class Utils {
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#fieldModalSelect').empty();
+            $("#nodeInspectorAddFieldDiv .nodeInspectorDropdownInner").empty();
 
             // add empty choice
             $('#fieldModalSelect').append($('<option>', {
                 value: -1,
                 text: ""
             }));
-
+            $("#nodeInspectorAddFieldDiv .nodeInspectorDropdownInner").append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){$root.nodeInspectorDropdownClick}",
+                value: -1,
+                text: ""
+            }));
+            
             // add options to the modal select tag
             for (let i = 0 ; i < choices.length ; i++){
                 $('#fieldModalSelect').append($('<option>', {
+                    value: i,
+                    text: choices[i]
+                }));
+                $("#nodeInspectorAddFieldDiv .nodeInspectorDropdownInner").append($('<a>', {
+                    href: "#",
+                    class: "nodeInspectorDropdownOption",
+                    "data-bind":"click:function(){$root.nodeInspectorDropdownClick}",
                     value: i,
                     text: choices[i]
                 }));
@@ -1037,8 +1052,14 @@ export class Utils {
                 value: choices.length,
                 text: "Custom (enter below)"
             }));
+            $("#nodeInspectorAddFieldDiv .nodeInspectorDropdownInner").append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){$root.nodeInspectorDropdownClick}",
+                value: choices.length,
+                text: "Custom (enter below)"
+            }));
         }
-
         // populate UI with current field data
         $('#editFieldModalTextInput').val(field.getText());
         $('#editFieldModalNameInput').val(field.getName());
@@ -1100,6 +1121,9 @@ export class Utils {
         $('#editFieldModal').data('callback', callback);
         $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal();
+
+        //select custom field externally
+        $("#fieldModalSelect").val(choices.length).trigger('change');
     }
 
     static requestUserEditPort(modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {

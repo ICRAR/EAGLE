@@ -2941,6 +2941,21 @@ export class Eagle {
         }
 
         this.editField(node, Eagle.ModalType.Add, null);
+        $("#editFieldModal").addClass("forceHide");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddFieldDiv").show();
+    }
+
+    hideDropDown = () : void => {
+         //hides the dropdown node inspector elements when stopping hovering over the element
+        $("#editFieldModal").modal('hide');
+        $("#nodeInspectorAddFieldDiv").hide();
+        $("#editFieldModal").removeClass("forceHide");
+        $(".modal-backdrop").removeClass("forceHide");
+    }
+
+    nodeInspectorDropdownClick = () : void => {
+        alert("x.val()")
     }
 
     changeNodeParent = () : void => {
@@ -3441,8 +3456,11 @@ export class Eagle {
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field("", "", "", "", false, Eagle.DataType.Integer);
-
+           
+           
             Utils.requestUserEditField(Eagle.ModalType.Add, field, allFieldNames, (completed : boolean, newField: Field) => {
+               
+    
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -4008,4 +4026,13 @@ $( document ).ready(function() {
     $(".dropdown-menu").mouseleave(function(){
       $(".dropdown-menu").dropdown('hide')
     })
+
+
+    // $(".nodeInspectorDropdownOption").on('click',function(){
+    //     // this.nodeInspectorDropdownClick(this)
+    //     alert("blam")
+    // })
+    // $(".nodeInspectorDropdownOption").click(function(){
+    //     alert("blamp")
+    // })
 });

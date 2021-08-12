@@ -316,6 +316,58 @@
     list-style-type: none;
 }
 
+#nodeInspectorAddField{
+    padding:0px;
+}
+
+#nodeInspectorAddInputPort{
+    padding:0px;
+}
+
+#nodeInspectorAddOutputPort{
+    padding:0px;
+}
+
+#nodeInspectorAddFieldDiv{
+    display: none;
+}
+
+.forceHide{
+    display: none !important;
+}
+
+.nodeInspectorDropdownDiv{
+    margin-top: 5px;
+    /* width: 100%; */
+    position: static;
+    /* float: none; */
+    position: relative;
+    z-index: 100;
+}
+
+.nodeInspectorDropdownInner{
+    position: absolute;
+    width: 100%;
+    background-color: #e9ecef;
+    border: solid 1px #495057;
+    border-radius: 6px;
+    max-height:400px;
+    overflow-y:scroll ;
+}
+
+.nodeInspectorDropdownDiv a{
+    padding-left:10px;
+    display: block;
+    color: #495057;
+    text-decoration: none;
+}
+
+.nodeInspectorDropdownDiv a:hover{
+    background-color: #495057;
+    color: #e9ecef;
+    text-decoration: none;
+}
+
 .leftWindow .card-header i.material-icons {
     position: relative;
     top: 5px;
