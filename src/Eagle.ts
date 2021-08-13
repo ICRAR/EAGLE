@@ -140,6 +140,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("Open palette from local disk", ["p"], KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", ["g"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Insert graph from local disk", ["i"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToInsert();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Create subgraph from selection", ["["], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
 
         this.selectedObjects.subscribe(this.updateInspectorTooltips);
 
@@ -388,7 +389,11 @@ export class Eagle {
             selection.setShowPorts(true);
         }
 
-        this.selectedObjects([selection]);
+        if (selection === null){
+            this.selectedObjects([]);
+        } else {
+            this.selectedObjects([selection]);
+        }
         this.selectedLocation(selectedLocation);
         this.rightWindow().mode(rightWindowMode);
     }
@@ -758,6 +763,32 @@ export class Eagle {
         } else {
             Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
         }
+    }
+
+    createSubgraphFromSelection = () : void => {
+        console.log("createSubgraphFromSelection()");
+
+        // create new subgraph
+        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph, Eagle.CategoryType.Group, false);
+
+        // add the parent node to the logical graph
+        this.logicalGraph().addNodeComplete(parentNode);
+
+        // switch items in selection to be children of subgraph
+        for (const node of this.selectedObjects()){
+            if (!(node instanceof Node)){
+                continue;
+            }
+
+            node.setParentKey(parentNode.getKey());
+        }
+
+        // shrink/expand subgraph node to fit children
+        this.logicalGraph().shrinkNode(parentNode);
+
+        // flag graph as changed
+        this.flagActiveFileModified();
+        this.flagActiveDiagramHasMutated();
     }
 
     insertGraph = (lg: LogicalGraph) : void => {
