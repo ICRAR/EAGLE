@@ -2953,7 +2953,6 @@ export class Eagle {
     }
 
     hideDropDown = (divID:string) : void => {
-        console.log("nya "+divID)
         if (divID === "nodeInspectorAddFieldDiv"){
             //hides the dropdown node inspector elements when stopping hovering over the element
             if(!$("#editFieldModal").hasClass("nodeSelected")){
@@ -2973,7 +2972,6 @@ export class Eagle {
     }
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
-        console.log(val+" out of "+num)
         var selectSectionID
         var modalID
         var submitBtnID
@@ -2989,19 +2987,16 @@ export class Eagle {
         }
 
         if (val===-1){
-            console.log("1")
             this.hideDropDown(divID)
             return;
         }else if(val===num){
             //select custom field externally
-            console.log("2")
             $("#"+divID).hide();
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
             $("#"+modalID).removeClass("forceHide");
             $(".modal-backdrop").removeClass("forceHide");
         }else{
-            console.log("3")
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
             $("#"+modalID).removeClass("forceHide");
