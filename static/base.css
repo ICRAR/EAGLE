@@ -328,9 +328,9 @@
     padding:0px;
 }
 
-#nodeInspectorAddFieldDiv{
+/* #nodeInspectorAddFieldDiv{
     display: none;
-}
+} */
 
 .forceHide{
     display: none !important;
@@ -338,11 +338,10 @@
 
 .nodeInspectorDropdownDiv{
     margin-top: 5px;
-    /* width: 100%; */
     position: static;
-    /* float: none; */
     position: relative;
     z-index: 100;
+    display: none;
 }
 
 .nodeInspectorDropdownInner{

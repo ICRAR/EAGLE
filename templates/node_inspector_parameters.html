@@ -22,7 +22,7 @@
                     <i class="material-icons md-18">add</i>
                 </button>
                 <div id="nodeInspectorAddFieldDiv" class="nodeInspectorDropdownDiv">
-                    <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:hideDropDown}">
+                    <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:function(){hideDropDown('nodeInspectorAddFieldDiv')}}">
                         <div id="nodeInspectorDropDownKO">
                             <a href="#" data-bind="click:nodeInspectorDropdownClick">hi</a>
                             <a href="#">hi2</a>

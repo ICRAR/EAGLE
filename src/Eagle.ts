@@ -2905,6 +2905,9 @@ export class Eagle {
         }
 
         this.editPort(<Node>node, Eagle.ModalType.Add, null, true);
+        $("#editPortModal").addClass("forceHide");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddInputPortDiv").show();
     }
 
     /**
@@ -2927,6 +2930,9 @@ export class Eagle {
         }
 
         this.editPort(node, Eagle.ModalType.Add, null, false);
+        $("#editPortModal").addClass("forceHide");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddOutputPortDiv").show();
     }
 
     /**
@@ -2946,40 +2952,61 @@ export class Eagle {
         $("#nodeInspectorAddFieldDiv").show();
     }
 
-    hideDropDown = () : void => {
-         //hides the dropdown node inspector elements when stopping hovering over the element
-         if(!$("#editFieldModal").hasClass("nodeSelected")){
-            //  alert("a")
-            $("#editFieldModal").modal('hide');
-            $("#nodeInspectorAddFieldDiv").hide();
-         }
+    hideDropDown = (divID:string) : void => {
+        console.log("nya "+divID)
+        if (divID === "nodeInspectorAddFieldDiv"){
+            //hides the dropdown node inspector elements when stopping hovering over the element
+            if(!$("#editFieldModal").hasClass("nodeSelected")){
+                $("#editFieldModal").modal('hide');
+                // $("#"+divID).hide();
+            }
+        }else{
+            //hides the dropdown node inspector elements when stopping hovering over the element
+            if(!$("#editPortModal").hasClass("nodeSelected")){
+                $("#editPortModal").modal('hide');
+                // $("#"+divID).hide();
+            }
+        }
+         
          $("#editFieldModal").removeClass("nodeSelected");
-         $("#nodeInspectorAddFieldDiv").hide();
+         $("#"+divID).hide();
     }
 
-    nodeInspectorDropdownClick = (val:number, num:number) : void => {
+    nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
         console.log(val+" out of "+num)
-        // $("#editFieldModal").removeClass("forceHide");
+        var selectSectionID
+        var modalID
+        var submitBtnID
+
+        if(divID==="nodeInspectorAddFieldDiv"){
+            selectSectionID = "fieldModalSelect"
+            modalID = "editFieldModal"
+            submitBtnID = "editFieldModalAffirmativeButton"
+        }else{
+            selectSectionID = "portModalSelect"
+            modalID = "editPortModal"
+            submitBtnID = "editPortModalAffirmativeButton"
+        }
 
         if (val===-1){
             console.log("1")
-            this.hideDropDown
+            this.hideDropDown(divID)
             return;
         }else if(val===num){
             //select custom field externally
             console.log("2")
-            $("#nodeInspectorAddFieldDiv").hide();
-            $("#fieldModalSelect").val(val).trigger('change');
-            $("#editFieldModal").addClass("nodeSelected");
-            $("#editFieldModal").removeClass("forceHide");
+            $("#"+divID).hide();
+            $("#"+selectSectionID).val(val).trigger('change');
+            $("#"+modalID).addClass("nodeSelected");
+            $("#"+modalID).removeClass("forceHide");
             $(".modal-backdrop").removeClass("forceHide");
         }else{
             console.log("3")
-            $("#fieldModalSelect").val(val).trigger('change');
-            $("#editFieldModal").addClass("nodeSelected");
-            $("#editFieldModal").removeClass("forceHide");
+            $("#"+selectSectionID).val(val).trigger('change');
+            $("#"+modalID).addClass("nodeSelected");
+            $("#"+modalID).removeClass("forceHide");
             $(".modal-backdrop").removeClass("forceHide");
-            $("#editFieldModalAffirmativeButton").click()
+            $("#"+submitBtnID).click()
         }
     }
 
@@ -3552,7 +3579,7 @@ export class Eagle {
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const port: Port = new Port("", "", false, Eagle.DataType.String);
 
-            Utils.requestUserEditPort(Eagle.ModalType.Add, port, allPortNames, (completed : boolean, newPort: Port) => {
+            Utils.requestUserEditPort(this, Eagle.ModalType.Add, port, allPortNames, (completed : boolean, newPort: Port) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -3592,7 +3619,7 @@ export class Eagle {
                 port = this.selectedNode().getOutputPorts()[portIndex];
             }
 
-            Utils.requestUserEditPort(Eagle.ModalType.Edit, port, allPortNames, (completed : boolean, newPort: Port) => {
+            Utils.requestUserEditPort(this, Eagle.ModalType.Edit, port, allPortNames, (completed : boolean, newPort: Port) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
