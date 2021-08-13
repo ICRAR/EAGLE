@@ -23,6 +23,7 @@
 */
 
 import * as Ajv from "ajv";
+import * as ko from "knockout";
 
 import {Config} from './Config';
 
@@ -1011,22 +1012,37 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         console.log("requestUserEditField()");
 
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#fieldModalSelect').empty();
+            $("#nodeInspectorDropDownKO").empty();
 
             // add empty choice
             $('#fieldModalSelect').append($('<option>', {
                 value: -1,
                 text: ""
             }));
-
+            $("#nodeInspectorDropDownKO").append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                value: -1,
+                text: ""
+            }));
+            
             // add options to the modal select tag
             for (let i = 0 ; i < choices.length ; i++){
                 $('#fieldModalSelect').append($('<option>', {
+                    value: i,
+                    text: choices[i]
+                }));
+                $("#nodeInspectorDropDownKO").append($('<a>', {
+                    href: "#",
+                    class: "nodeInspectorDropdownOption",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
                     value: i,
                     text: choices[i]
                 }));
@@ -1037,6 +1053,17 @@ export class Utils {
                 value: choices.length,
                 text: "Custom (enter below)"
             }));
+            $("#nodeInspectorDropDownKO").append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                value: choices.length,
+                text: "Custom (enter below)"
+            }));
+            //applying knockout bindings for the new buttonsgenerated above
+            ko.cleanNode(document.getElementById("nodeInspectorDropDownKO"));
+            ko.applyBindings(eagle, document.getElementById("nodeInspectorDropDownKO"));
+
         }
 
         // populate UI with current field data
@@ -1100,22 +1127,55 @@ export class Utils {
         $('#editFieldModal').data('callback', callback);
         $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal();
+
     }
 
-    static requestUserEditPort(modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {
+    static requestUserEditPort(eagle:Eagle, modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#portModalSelect').empty();
+            $('#nodeInspectorInputPortDropDownKO').empty();
+            $('#nodeInspectorOutputPortDropDownKO').empty();
+            
 
             // add empty choice
             $('#portModalSelect').append($('<option>', {
                 value: -1,
                 text: ""
             }));
+            $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddInputPortDiv')}",
+                value: -1,
+                text: ""
+            }));
+            $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
+                value: -1,
+                text: ""
+            }));
+
 
             // add options to the modal select tag
             for (let i = 0 ; i < choices.length ; i++){
                 $('#portModalSelect').append($('<option>', {
+                    value: i,
+                    text: choices[i]
+                }));
+                $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
+                    href: "#",
+                    class: "nodeInspectorDropdownOption",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
+                    value: i,
+                    text: choices[i]
+                }));
+                $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
+                    href: "#",
+                    class: "nodeInspectorDropdownOption",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
                     value: i,
                     text: choices[i]
                 }));
@@ -1126,6 +1186,26 @@ export class Utils {
                 value: choices.length,
                 text: "Custom (enter below)"
             }));
+            $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
+                value: choices.length,
+                text: "Custom (enter below)"
+            }));
+            $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
+                value: choices.length,
+                text: "Custom (enter below)"
+            }));
+
+            //applying knockout bindings for the new buttonsgenerated above
+            ko.cleanNode(document.getElementById("nodeInspectorInputPortDropDownKO"));
+            ko.applyBindings(eagle, document.getElementById("nodeInspectorInputPortDropDownKO"));
+            ko.cleanNode(document.getElementById("nodeInspectorOutputPortDropDownKO"));
+            ko.applyBindings(eagle, document.getElementById("nodeInspectorOutputPortDropDownKO"));
         }
 
         // populate UI with current port data
