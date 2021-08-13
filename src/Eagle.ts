@@ -2948,14 +2948,39 @@ export class Eagle {
 
     hideDropDown = () : void => {
          //hides the dropdown node inspector elements when stopping hovering over the element
-        $("#editFieldModal").modal('hide');
-        $("#nodeInspectorAddFieldDiv").hide();
-        $("#editFieldModal").removeClass("forceHide");
-        $(".modal-backdrop").removeClass("forceHide");
+         if(!$("#editFieldModal").hasClass("nodeSelected")){
+            //  alert("a")
+            $("#editFieldModal").modal('hide');
+            $("#nodeInspectorAddFieldDiv").hide();
+         }
+         $("#editFieldModal").removeClass("nodeSelected");
+         $("#nodeInspectorAddFieldDiv").hide();
     }
 
-    nodeInspectorDropdownClick = () : void => {
-        alert("x.val()")
+    nodeInspectorDropdownClick = (val:number, num:number) : void => {
+        console.log(val+" out of "+num)
+        // $("#editFieldModal").removeClass("forceHide");
+
+        if (val===-1){
+            console.log("1")
+            this.hideDropDown
+            return;
+        }else if(val===num){
+            //select custom field externally
+            console.log("2")
+            $("#nodeInspectorAddFieldDiv").hide();
+            $("#fieldModalSelect").val(val).trigger('change');
+            $("#editFieldModal").addClass("nodeSelected");
+            $("#editFieldModal").removeClass("forceHide");
+            $(".modal-backdrop").removeClass("forceHide");
+        }else{
+            console.log("3")
+            $("#fieldModalSelect").val(val).trigger('change');
+            $("#editFieldModal").addClass("nodeSelected");
+            $("#editFieldModal").removeClass("forceHide");
+            $(".modal-backdrop").removeClass("forceHide");
+            $("#editFieldModalAffirmativeButton").click()
+        }
     }
 
     changeNodeParent = () : void => {
@@ -3458,7 +3483,7 @@ export class Eagle {
             const field: Field = new Field("", "", "", "", false, Eagle.DataType.Integer);
            
            
-            Utils.requestUserEditField(Eagle.ModalType.Add, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Add, field, allFieldNames, (completed : boolean, newField: Field) => {
                
     
                 // abort if the user aborted
@@ -3492,7 +3517,7 @@ export class Eagle {
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
 
-            Utils.requestUserEditField(Eagle.ModalType.Edit, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Edit, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -4027,12 +4052,4 @@ $( document ).ready(function() {
       $(".dropdown-menu").dropdown('hide')
     })
 
-
-    // $(".nodeInspectorDropdownOption").on('click',function(){
-    //     // this.nodeInspectorDropdownClick(this)
-    //     alert("blam")
-    // })
-    // $(".nodeInspectorDropdownOption").click(function(){
-    //     alert("blamp")
-    // })
 });

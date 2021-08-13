@@ -23,6 +23,7 @@
 */
 
 import * as Ajv from "ajv";
+import * as ko from "knockout";
 
 import {Config} from './Config';
 
@@ -1011,23 +1012,23 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         console.log("requestUserEditField()");
 
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#fieldModalSelect').empty();
-            $("#nodeInspectorAddFieldDiv .nodeInspectorDropdownInner").empty();
+            $("#nodeInspectorDropDownKO").empty();
 
             // add empty choice
             $('#fieldModalSelect').append($('<option>', {
                 value: -1,
                 text: ""
             }));
-            $("#nodeInspectorAddFieldDiv .nodeInspectorDropdownInner").append($('<a>', {
+            $("#nodeInspectorDropDownKO").append($('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){$root.nodeInspectorDropdownClick}",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+")}",
                 value: -1,
                 text: ""
             }));
@@ -1038,10 +1039,10 @@ export class Utils {
                     value: i,
                     text: choices[i]
                 }));
-                $("#nodeInspectorAddFieldDiv .nodeInspectorDropdownInner").append($('<a>', {
+                $("#nodeInspectorDropDownKO").append($('<a>', {
                     href: "#",
                     class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){$root.nodeInspectorDropdownClick}",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+")}",
                     value: i,
                     text: choices[i]
                 }));
@@ -1052,14 +1053,19 @@ export class Utils {
                 value: choices.length,
                 text: "Custom (enter below)"
             }));
-            $("#nodeInspectorAddFieldDiv .nodeInspectorDropdownInner").append($('<a>', {
+            $("#nodeInspectorDropDownKO").append($('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){$root.nodeInspectorDropdownClick}",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+")}",
                 value: choices.length,
                 text: "Custom (enter below)"
             }));
+            //applying knockout bindings for the new buttonsgenerated above
+            ko.cleanNode(document.getElementById("nodeInspectorDropDownKO"));
+            ko.applyBindings(eagle, document.getElementById("nodeInspectorDropDownKO"));
+
         }
+
         // populate UI with current field data
         $('#editFieldModalTextInput').val(field.getText());
         $('#editFieldModalNameInput').val(field.getName());
@@ -1122,8 +1128,6 @@ export class Utils {
         $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal();
 
-        //select custom field externally
-        $("#fieldModalSelect").val(choices.length).trigger('change');
     }
 
     static requestUserEditPort(modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {

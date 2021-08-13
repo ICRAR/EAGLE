@@ -23,9 +23,11 @@
                 </button>
                 <div id="nodeInspectorAddFieldDiv" class="nodeInspectorDropdownDiv">
                     <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:hideDropDown}">
-                        <a href="">hi</a>
-                        <a href="">hi2</a>
-                        <a href="">hi3</a>
+                        <div id="nodeInspectorDropDownKO">
+                            <a href="#" data-bind="click:nodeInspectorDropdownClick">hi</a>
+                            <a href="#">hi2</a>
+                            <a href="#">hi3</a>
+                        </div>
                     </div>
                 </div>
                 <!-- ko if: selectedNode().category() === Eagle.Category.Docker -->

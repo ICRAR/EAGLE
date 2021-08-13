@@ -351,7 +351,7 @@
     background-color: #e9ecef;
     border: solid 1px #495057;
     border-radius: 6px;
-    max-height:400px;
+    max-height:200px;
     overflow-y:scroll ;
 }
 
