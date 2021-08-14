@@ -200,6 +200,7 @@
 
 .leftWindow .card-header h5{
     font-weight: 400;
+    padding: 0.25rem 1.00rem;
 }
 
 .template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
@@ -389,6 +390,11 @@
     top: 5px;
 }
 
+div.rightWindow h5.card-header {
+    font-weight: 500;
+    padding: 0.25rem 1.00rem 0.25rem 1.00rem;
+}
+
 .rightWindow i.material-icons.interactive {
     cursor: pointer;
 }
@@ -524,7 +530,7 @@
 }
 
 .translationMenu .card-header{
-    padding:8px 20px;
+    padding:0.25rem 1rem;
 }
 
 #translationMenu h5{
