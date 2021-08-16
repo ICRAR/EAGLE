@@ -78,9 +78,6 @@ ko.components.register('hierarchy-node', {
         this.expanded = params.data.expanded;
 
         this.select = params.select;
-
-        //this.visible = params.data.parentKey === params.parentKey;
-        //console.log("this.visible", this.visible, "params.data.parentKey", params.data.parentKey, "params.parentKey", params.parentKey);
     },
     template: { require: "text!static/components/hierarchy-node.html" }
 });

@@ -46,8 +46,8 @@ export class GitLab {
             }
 
             // add the repositories from the POST response
-            for (let i = 0 ; i < data.length ; i++){
-                eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, data[i].repository, data[i].branch, true));
+            for (const d of data){
+                eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, d.repository, d.branch, true));
             }
 
             // search for custom repositories, and add them into the list.
@@ -128,9 +128,7 @@ export class GitLab {
             fileNames.sort(Repository.fileSortFunc);
 
             // add files to repo
-            for (let i = 0 ; i < fileNames.length ; i++){
-                const fileName : string = fileNames[i];
-
+            for (const fileName of fileNames){
                 repository.files.push(new RepositoryFile(repository, "", fileName));
             }
 
@@ -156,9 +154,7 @@ export class GitLab {
         fileNames.sort(Repository.fileSortFunc);
 
         // add files to repo
-        for (let i = 0 ; i < fileNames.length ; i++){
-            const fileName : string = fileNames[i];
-
+        for (const fileName of fileNames){
             folder.files.push(new RepositoryFile(repository, path, fileName));
         }
 

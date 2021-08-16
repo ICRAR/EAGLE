@@ -49,24 +49,19 @@ export class LogicalGraph {
     static toOJSJson = (graph : LogicalGraph) : object => {
         const result : any = {};
 
-        //result.class = "go.GraphLinksModel";
-
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
         result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.OJS;
 
         // add nodes
         result.nodeDataArray = [];
-        for (let i = 0 ; i < graph.getNodes().length ; i++){
-            const node : Node = graph.getNodes()[i];
+        for (const node of graph.getNodes()){
             const nodeData : any = Node.toOJSJson(node);
-
             result.nodeDataArray.push(nodeData);
         }
 
         // add links
         result.linkDataArray = [];
-        for (let i = 0 ; i < graph.getEdges().length ; i++){
-            const edge : Edge = graph.getEdges()[i];
+        for (const edge of graph.getEdges()){
             const linkData : any = Edge.toOJSJson(edge);
 
             let srcKey = edge.getSrcNodeKey();
@@ -100,19 +95,16 @@ export class LogicalGraph {
         result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
-        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
-            const nodeData = dataObject.nodeDataArray[i];
+        for (const nodeData of dataObject.nodeDataArray){
             const extraUsedKeys: number[] = [];
 
             const newNode = Node.fromOJSJson(nodeData, errors, (): number => {
                 const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                 const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
                 const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
-                //console.log("resultKeys", resultKeys, "nodeDataKeys", nodeDataKeys, "extraUsedKeys", extraUsedKeys);
-                //console.log("combinedKeys", combinedKeys);
 
                 const newKey = Utils.findNewKey(combinedKeys);
-                //console.log("generated new key", newKey);
+
                 extraUsedKeys.push(newKey);
                 return newKey;
             });
@@ -273,11 +265,8 @@ export class LogicalGraph {
 
         // add components
         dlgg.componentData = {};
-        for (let i = 0 ; i < graph.getNodes().length ; i++){
-            const node : Node = graph.getNodes()[i];
-            const componentData : any = Node.toV3ComponentJson(node);
-
-            dlgg.componentData[node.getKey()] = componentData;
+        for (const node of graph.getNodes()){
+            dlgg.componentData[node.getKey()] = Node.toV3ComponentJson(node);
         }
 
         return result;
@@ -315,17 +304,13 @@ export class LogicalGraph {
     static toAppRefJson = (graph : LogicalGraph) : object => {
         const result : any = {};
 
-        //result.class = "go.GraphLinksModel";
-
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
         result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.AppRef;
 
         // add nodes
         result.nodeDataArray = [];
-        for (let i = 0 ; i < graph.getNodes().length ; i++){
-            const node : Node = graph.getNodes()[i];
+        for (const node of graph.getNodes()){
             const nodeData : any = Node.toAppRefJson(node);
-
             result.nodeDataArray.push(nodeData);
         }
 
@@ -366,8 +351,7 @@ export class LogicalGraph {
 
         // add links
         result.linkDataArray = [];
-        for (let i = 0 ; i < graph.getEdges().length ; i++){
-            const edge : Edge = graph.getEdges()[i];
+        for (const edge of graph.getEdges()){
             result.linkDataArray.push(Edge.toAppRefJson(edge, graph));
         }
 
@@ -382,12 +366,10 @@ export class LogicalGraph {
         result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
-        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
-            const nodeData = dataObject.nodeDataArray[i];
+        for (const nodeData of dataObject.nodeDataArray){
             let node;
 
             // check if node is an embedded node, if so, don't push to nodes array
-            //console.log("node index", i, "key", nodeData.key, "embedKey", nodeData.embedKey);
             if (nodeData.embedKey === null){
                 node = Node.fromAppRefJson(nodeData, errors);
             } else {
@@ -414,23 +396,8 @@ export class LogicalGraph {
             result.nodes.push(node);
         }
 
-        // set keys for all embedded nodes
-        //Utils.setEmbeddedApplicationNodeKeys(result);
-
-        // make sure to set parentId for all nodes
-        //for (var i = 0 ; i < dataObject.nodeDataArray.length ; i++){
-        //    var nodeData = dataObject.nodeDataArray[i];
-        //    var parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.group);
-        //
-        //    if (parentIndex !== -1){
-        //        result.nodes[i].setParentKey(result.nodes[parentIndex].getKey());
-        //    }
-        //}
-
         // add edges
-        for (let i = 0 ; i < dataObject.linkDataArray.length ; i++){
-            const linkData = dataObject.linkDataArray[i];
-
+        for (const linkData of dataObject.linkDataArray){
             result.edges.push(Edge.fromAppRefJson(linkData, errors));
         }
 
@@ -447,9 +414,9 @@ export class LogicalGraph {
     }
 
     static _findNodeDataWithKey = (nodeDataArray: any[], key: number): any => {
-        for (let i = 0 ; i < nodeDataArray.length ; i++){
-            if (nodeDataArray[i].key === key){
-                return nodeDataArray[i];
+        for (const nodeData of nodeDataArray){
+            if (nodeData.key === key){
+                return nodeData;
             }
         }
         return null;
@@ -488,14 +455,13 @@ export class LogicalGraph {
         result.fileInfo(this.fileInfo().clone());
 
         // copy nodes
-        for (let i = 0 ; i < this.nodes.length ; i++){
-            const n_clone = this.nodes[i].clone();
-            result.nodes.push(n_clone);
+        for (const node of this.nodes){
+            result.nodes.push(node.clone());
         }
 
         // copy edges
-        for (let i = 0 ; i < this.edges.length ; i++){
-            result.edges.push(this.edges[i].clone());
+        for (const edge of this.edges){
+            result.edges.push(edge.clone());
         }
 
         return result;
@@ -503,8 +469,6 @@ export class LogicalGraph {
 
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
-        //console.log("addNode()", node.getName());
-
         // copy node
         let newNode : Node = node.clone();
 
@@ -569,18 +533,6 @@ export class LogicalGraph {
                 Utils.giveNodePortsNewIds(newNode.getExitApplication());
             }
 
-            // make sure that the new nodes have at least the minimum number of input and output ports
-            /*
-            let minInputs  = Eagle.getCategoryData(newNode.getCategory()).minInputs;
-            let minOutputs = Eagle.getCategoryData(newNode.getCategory()).minOutputs;
-            while (newNode.getInputPorts().length < minInputs){
-                newNode.addPort(new Port(Utils.uuidv4(), "input", false, Eagle.DataType.Unknown), true);
-            }
-            while (newNode.getOutputPorts().length < minOutputs){
-                newNode.addPort(new Port(Utils.uuidv4(), "output", false, Eagle.DataType.Unknown), false);
-            }
-            */
-
             // flag that the logical graph has been modified
             this.fileInfo().modified = true;
             this.fileInfo.valueHasMutated();
@@ -595,16 +547,16 @@ export class LogicalGraph {
     addDataComponentDialog = (ineligibleTypes : Eagle.Category[], callback : (dataType: string) => void) : void => {
         // remove the ineligible types from Eagle.dataCategories and store in eligibleTypes
         const eligibleTypes : string[] = [];
-        for (let i = 0 ; i < Eagle.dataCategories.length ; i++){
+        for (const dataCategory of Eagle.dataCategories){
             let ineligible : boolean = false;
-            for (let j = 0; j < ineligibleTypes.length ; j++){
-                if (Eagle.dataCategories[i] === ineligibleTypes[j]){
+            for (const ineligibleType of ineligibleTypes){
+                if (dataCategory === ineligibleType){
                     ineligible = true;
                     break;
                 }
             }
             if (!ineligible){
-                eligibleTypes.push(Eagle.dataCategories[i]);
+                eligibleTypes.push(dataCategory);
             }
         }
 
@@ -624,9 +576,9 @@ export class LogicalGraph {
     addDataComponentToGraph = (category : Eagle.Category, location : {x: number, y:number}) : Node => {
         // select the correct data component based on the category
         let templateNode : Node;
-        for (let i = 0 ; i < Eagle.dataNodes.length ; i++){
-            if (Eagle.dataNodes[i].getCategory() === category){
-                templateNode = Eagle.dataNodes[i];
+        for (const dataNode of Eagle.dataNodes){
+            if (dataNode.getCategory() === category){
+                templateNode = dataNode;
             }
         }
 
@@ -820,9 +772,7 @@ export class LogicalGraph {
     }
 
     portIsLinked = (nodeKey : number, portId : string) : boolean => {
-        for (let i = 0 ; i < this.edges.length; i++){
-            const edge : Edge = this.edges[i];
-
+        for (const edge of this.edges){
             if (edge.getSrcNodeKey() === nodeKey && edge.getSrcPortId() === portId ||
                 edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
                 return true;
@@ -846,9 +796,7 @@ export class LogicalGraph {
         let numChildren : number = 0;
 
         // loop through all nodes, finding all children and determining minimum bounding box to contain all children
-        for (let i = 0 ; i < nodes.length ; i++){
-            const n = nodes[i];
-
+        for (const n of nodes){
             if (n.getParentKey() === node.getKey()){
                 numChildren += 1;
 
@@ -867,8 +815,6 @@ export class LogicalGraph {
             }
         }
 
-        //console.log("minX", minX, "minY", minY, "maxX", maxX, "maxY", maxY, "numChildren", numChildren);
-
         // if no children were found, set to default size
         if (numChildren === 0){
             node.setWidth(Node.DEFAULT_WIDTH);
@@ -876,7 +822,7 @@ export class LogicalGraph {
             return;
         }
 
-        // TODO: add some padding
+        // add some padding
         minX -= 24;
         minY -= 96;
         maxX += 24;

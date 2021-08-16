@@ -68,10 +68,10 @@ $(function(){
         eagle.loadPalettes([
             {name:Palette.BUILTIN_PALETTE_NAME, filename:"./static/" + Config.builtinPaletteFileName, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:"./static/" + Config.templatePaletteFileName, readonly:true}
-        ], (data: Palette[]):void => {
-            for (let i = 0; i < data.length; i++){
-                if (data[i] !== null){
-                    eagle.palettes.push(data[i]);
+        ], (palettes: Palette[]):void => {
+            for (const palette of palettes){
+                if (palette !== null){
+                    eagle.palettes.push(palette);
                 }
             }
             eagle.leftWindow().shown(true);

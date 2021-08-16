@@ -904,8 +904,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function createLink(edge : Edge) : string {
-        //console.log("createLink()", edge.getSrcNodeKey(), edge.getSrcPortId(), "->", edge.getDestNodeKey(), edge.getDestPortId());
-
         // determine if edge is "forward" or not
         const srcNode : Node  = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
         const destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
@@ -925,7 +923,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let x2 = edgeGetX2(edge);
         let y2 = edgeGetY2(edge);
 
-        //console.log("x1", x1, "y1", y1, "x2", x2, "y2", y2);
         console.assert(!isNaN(x1));
         console.assert(!isNaN(y1));
         console.assert(!isNaN(x2));
@@ -939,8 +936,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         const startDirection = determineDirection(true, srcNode, srcPortIndex, srcPortType);
         const endDirection = determineDirection(false, destNode, destPortIndex, destPortType);
-
-        //console.log("edge", srcNode.getKey(), "->", destNode.getKey(), "start", startDirection, "end", endDirection);
 
         return createBezier(x1, y1, x2, y2, startDirection, endDirection);
     }
@@ -2550,8 +2545,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         });
 
         // write nodes to result in sorted order
-        for (let i = 0 ; i < indexPlusDepths.length ; i++){
-            result.push(nodes[indexPlusDepths[i].index]);
+        for (const indexPlusDepth of indexPlusDepths){
+            result.push(nodes[indexPlusDepth.index]);
         }
 
         return result;
@@ -2562,30 +2557,29 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return null;
         }
 
-        for (let i = 0 ; i < nodes.length; i++){
-            if (nodes[i].getKey() === key){
-                //console.log("found node", i);
-                return nodes[i];
+        for (const node of nodes){
+            if (node.getKey() === key){
+                return node;
             }
 
             // check if the node's inputApp has a matching key
-            if (nodes[i].hasInputApplication()){
-                if (nodes[i].getInputApplication().getKey() === key){
-                    return nodes[i].getInputApplication();
+            if (node.hasInputApplication()){
+                if (node.getInputApplication().getKey() === key){
+                    return node.getInputApplication();
                 }
             }
 
             // check if the node's outputApp has a matching key
-            if (nodes[i].hasOutputApplication()){
-                if (nodes[i].getOutputApplication().getKey() === key){
-                    return nodes[i].getOutputApplication();
+            if (node.hasOutputApplication()){
+                if (node.getOutputApplication().getKey() === key){
+                    return node.getOutputApplication();
                 }
             }
 
             // check if the node's exitApp has a matching key
-            if (nodes[i].hasExitApplication()){
-                if (nodes[i].getExitApplication().getKey() === key){
-                    return nodes[i].getExitApplication();
+            if (node.hasExitApplication()){
+                if (node.getExitApplication().getKey() === key){
+                    return node.getExitApplication();
                 }
             }
         }
@@ -2878,8 +2872,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        //console.log("findNodePortPosition(): node.name", node.getName(), "portId", portId, "inset", inset, "local", local, "input", input, "index", index);
-
         // determine whether we need to move down an extra amount to clear the apps display title row
         let appsOffset : number = 0;
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
@@ -3014,8 +3006,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         graph.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, (edge : Edge) : void =>{
             eagle.flagActiveDiagramHasMutated();
-            //eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
-
             clearEdgeVars();
         });
     }
@@ -3191,8 +3181,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function findAncestorCollapsedNode(node : Node) : Node {
-        //console.log("findAncestorCollapsedNode()", node.getName(), node.getKey());
-
         let n : Node = node;
         let iterations = 0;
 
@@ -3211,8 +3199,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             iterations += 1;
 
             const oldKey : number = n.getKey();
-            //console.log("oldKey", oldKey);
-            //console.log("parentKey", n.getParentKey());
 
             // move up one level (preference using the node's embed key, then the parent key)
             if (n.getEmbedKey() !== null){
@@ -3226,8 +3212,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 return null;
             }
             else {
-                // DEBUG
-                //console.log("newKey", n.getKey());
                 if (n.getKey() === oldKey){
                     console.warn("move up did not move, aborting");
                     return null;
@@ -3417,7 +3401,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function mouseEnterPort(port : Port) : void {
-        //console.log("mouseEnterPort nodeKey", port.getNodeKey(), "portId", port.getId());
         if (!isDraggingPort){
             return;
         }
@@ -3430,8 +3413,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function mouseLeavePort(port : Port) : void {
-        //console.log("mouseLeavePort nodeKey", null, "portId", null);
-
         destinationPortId = null;
         destinationNodeKey = null;
 
@@ -3466,8 +3447,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let s : string = "";
 
         // loop through all nodes, if they belong to the parent's group, move them too
-        for (let i = 0 ; i < ns.length ; i++){
-            const node = ns[i];
+        for (const node of ns){
             s += node.getKey() + ', ';
         }
 
