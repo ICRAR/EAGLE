@@ -147,6 +147,7 @@ export class Palette {
         const newNode : Node = node.clone();
 
         // set appropriate key for node (one that is not already in use)
+        newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.getNodes()));
         newNode.setReadonly(false);
         newNode.setEmbedKey(null);
@@ -187,6 +188,14 @@ export class Palette {
     removeNodeByKey = (key : number) : void => {
         for (let i = this.nodes().length - 1; i >= 0 ; i--){
             if (this.nodes()[i].getKey() === key){
+                this.nodes.splice(i, 1);
+            }
+        }
+    }
+
+    removeNodeById = (id : string) : void => {
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getId() === id){
                 this.nodes.splice(i, 1);
             }
         }

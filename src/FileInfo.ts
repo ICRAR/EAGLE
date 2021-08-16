@@ -221,7 +221,7 @@ export class FileInfo {
 
         s += "Name:" + this._name();
         s += " Path:" + this._path();
-        s += " Type:" + Utils.translateFileTypeToString(this._type());
+        s += " Type:" + this._type();
         s += " Git URL:" + this._gitUrl();
         s += " Repository Service:" + this._repositoryService();
         s += " Repository Name:" + this._repositoryName();
@@ -238,7 +238,7 @@ export class FileInfo {
 
     static toOJSJson = (fileInfo : FileInfo) : object => {
         return {
-            fileType: Utils.translateFileTypeToString(fileInfo.type),
+            fileType: fileInfo.type,
             repoService: fileInfo.repositoryService,
             repoBranch: fileInfo.repositoryBranch,
             repo: fileInfo.repositoryName,

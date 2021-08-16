@@ -15,6 +15,15 @@
             <button class="btn btn-secondary btn-block" id="nodeInspectorAddOutputPort" type="button" data-bind="click: $root.addOutputPortHTML, attr:{title:'Add port'}" data-toggle="tooltip" data-html="true" data-placement="left">
                 <i class="material-icons md-18">add</i>
             </button>
+            <div id="nodeInspectorAddOutputPortDiv" class="nodeInspectorDropdownDiv">
+                <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:function(){hideDropDown('nodeInspectorAddOutputPortDiv')}}">
+                    <div id="nodeInspectorOutputPortDropDownKO">
+                        <a href="#" data-bind="click:nodeInspectorDropdownClick">hi</a>
+                        <a href="#">hi2</a>
+                        <a href="#">hi3</a>
+                    </div>
+                </div>
+            </div>
             <!-- /ko -->
         </div>
     </div>

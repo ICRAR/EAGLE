@@ -23,6 +23,7 @@
 */
 
 import * as Ajv from "ajv";
+import * as ko from "knockout";
 
 import {Config} from './Config';
 
@@ -54,8 +55,7 @@ export class Utils {
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
     static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
     static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
-    static readonly CONFIRM_DELETE_NODES : string = "ConfirmDeleteNodes";
-    static readonly CONFIRM_DELETE_EDGES : string = "ConfirmDeleteEdges";
+    static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
 
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
 
@@ -282,17 +282,6 @@ export class Utils {
             return Eagle.FileType.JSON;
 
         return Eagle.FileType.Unknown;
-    }
-
-    static translateFileTypeToString(fileType : Eagle.FileType) : string {
-        if (fileType === Eagle.FileType.Graph)
-            return "graph";
-        if (fileType === Eagle.FileType.Palette)
-            return "palette";
-        if (fileType === Eagle.FileType.JSON)
-            return "json";
-
-        return "";
     }
 
     static translateRightWindowModeToString(rightWindowMode: Eagle.RightWindowMode): string {
@@ -1012,15 +1001,23 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         console.log("requestUserEditField()");
 
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#fieldModalSelect').empty();
+            $("#nodeInspectorDropDownKO").empty();
 
             // add empty choice
             $('#fieldModalSelect').append($('<option>', {
+                value: -1,
+                text: ""
+            }));
+            $("#nodeInspectorDropDownKO").append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddFieldDiv')}",
                 value: -1,
                 text: ""
             }));
@@ -1031,6 +1028,13 @@ export class Utils {
                     value: i,
                     text: choices[i]
                 }));
+                $("#nodeInspectorDropDownKO").append($('<a>', {
+                    href: "#",
+                    class: "nodeInspectorDropdownOption",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                    value: i,
+                    text: choices[i]
+                }));
             }
 
             // add custom choice
@@ -1038,6 +1042,17 @@ export class Utils {
                 value: choices.length,
                 text: "Custom (enter below)"
             }));
+            $("#nodeInspectorDropDownKO").append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                value: choices.length,
+                text: "Custom (enter below)"
+            }));
+            //applying knockout bindings for the new buttonsgenerated above
+            ko.cleanNode(document.getElementById("nodeInspectorDropDownKO"));
+            ko.applyBindings(eagle, document.getElementById("nodeInspectorDropDownKO"));
+
         }
 
         // populate UI with current field data
@@ -1101,22 +1116,55 @@ export class Utils {
         $('#editFieldModal').data('callback', callback);
         $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal();
+
     }
 
-    static requestUserEditPort(modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {
+    static requestUserEditPort(eagle:Eagle, modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#portModalSelect').empty();
+            $('#nodeInspectorInputPortDropDownKO').empty();
+            $('#nodeInspectorOutputPortDropDownKO').empty();
+
 
             // add empty choice
             $('#portModalSelect').append($('<option>', {
                 value: -1,
                 text: ""
             }));
+            $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddInputPortDiv')}",
+                value: -1,
+                text: ""
+            }));
+            $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
+                value: -1,
+                text: ""
+            }));
+
 
             // add options to the modal select tag
             for (let i = 0 ; i < choices.length ; i++){
                 $('#portModalSelect').append($('<option>', {
+                    value: i,
+                    text: choices[i]
+                }));
+                $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
+                    href: "#",
+                    class: "nodeInspectorDropdownOption",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
+                    value: i,
+                    text: choices[i]
+                }));
+                $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
+                    href: "#",
+                    class: "nodeInspectorDropdownOption",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
                     value: i,
                     text: choices[i]
                 }));
@@ -1127,6 +1175,26 @@ export class Utils {
                 value: choices.length,
                 text: "Custom (enter below)"
             }));
+            $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
+                value: choices.length,
+                text: "Custom (enter below)"
+            }));
+            $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
+                value: choices.length,
+                text: "Custom (enter below)"
+            }));
+
+            //applying knockout bindings for the new buttonsgenerated above
+            ko.cleanNode(document.getElementById("nodeInspectorInputPortDropDownKO"));
+            ko.applyBindings(eagle, document.getElementById("nodeInspectorInputPortDropDownKO"));
+            ko.cleanNode(document.getElementById("nodeInspectorOutputPortDropDownKO"));
+            ko.applyBindings(eagle, document.getElementById("nodeInspectorOutputPortDropDownKO"));
         }
 
         // populate UI with current port data
@@ -1817,7 +1885,7 @@ export class Utils {
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        console.log("validateJSON(): version:", version, "fileType:", Utils.translateFileTypeToString(fileType));
+        console.log("validateJSON(): version:", version, "fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;
