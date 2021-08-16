@@ -188,9 +188,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // if we dragged a selection region
             if (isDraggingSelectionRegion){
                 const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
-                console.log("Found", nodes.length, "nodes in region");
 
-                eagle.selectedObjects(nodes);
+                const edges: Edge[] = findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
+                console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
+                const objects: (Node | Edge)[] = [];
+
+                objects.push(...nodes);
+                objects.push(...edges);
+
+                eagle.selectedObjects(objects);
                 eagle.selectedLocation(Eagle.FileType.Graph);
                 eagle.rightWindow().mode(Eagle.RightWindowMode.NodeInspector);
 
@@ -3377,6 +3383,33 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             if (x >= realLeft && realRight >= x && y >= realTop && realBottom >= y){
                 result.push(node);
+            }
+        }
+
+        return result;
+    }
+
+    function findEdgesContainedByNodes(edges: Edge[], nodes: Node[]): Edge[]{
+        const result: Edge[] = [];
+
+        for (const edge of edges){
+            const srcKey = edge.getSrcNodeKey();
+            const destKey = edge.getDestNodeKey();
+            let srcFound = false;
+            let destFound = false;
+
+            for (const node of nodes){
+                if (node.getKey() === srcKey){
+                    srcFound = true;
+                }
+
+                if (node.getKey() === destKey){
+                    destFound = true;
+                }
+            }
+
+            if (srcFound && destFound){
+                result.push(edge);
             }
         }
 

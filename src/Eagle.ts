@@ -707,7 +707,9 @@ export class Eagle {
             }
 
             this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
-                this.insertGraph(lg);
+                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, Eagle.CategoryType.Group, false);
+
+                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
                 this.flagActiveDiagramHasMutated();
             });
@@ -791,26 +793,32 @@ export class Eagle {
         this.flagActiveDiagramHasMutated();
     }
 
-    insertGraph = (lg: LogicalGraph) : void => {
+    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node) : void => {
+        const DUPLICATE_OFFSET: number = 20;
+
         // create map of inserted graph keys to final graph keys
         const keyMap: Map<number, number> = new Map();
         const portMap: Map<string, string> = new Map();
-        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, Eagle.CategoryType.Group, false);
-        const parentNodePosition = this.getNewNodePosition();
+        let parentNodePosition;
 
         // add the parent node to the logical graph
-        this.logicalGraph().addNodeComplete(parentNode);
+        if (parentNode !== null){
+            this.logicalGraph().addNodeComplete(parentNode);
+            parentNodePosition = this.getNewNodePosition();
+        } else {
+            parentNodePosition = {x: DUPLICATE_OFFSET, y: DUPLICATE_OFFSET};
+        }
 
         // insert nodes from lg into the existing logicalGraph
-        for (let i = 0 ; i < lg.getNodes().length; i++){
-            const node: Node = lg.getNodes()[i];
+        for (let i = 0 ; i < nodes.length; i++){
+            const node: Node = nodes[i];
 
             this.logicalGraph().addNode(node.clone(), parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
                 // save mapping for node itself
                 keyMap.set(node.getKey(), insertedNode.getKey());
 
                 // if insertedNode has no parent, make it a parent of the parent node
-                if (insertedNode.getParentKey() === null){
+                if (insertedNode.getParentKey() === null && parentNode !== null){
                     insertedNode.setParentKey(parentNode.getKey());
                 }
 
@@ -867,8 +875,8 @@ export class Eagle {
         }
 
         // update some other details of the nodes are updated correctly
-        for (let i = 0 ; i < lg.getNodes().length ; i++){
-            const node: Node = lg.getNodes()[i];
+        for (let i = 0 ; i < nodes.length ; i++){
+            const node: Node = nodes[i];
             const insertedNodeKey: number = keyMap.get(node.getKey());
             const insertedNode: Node = this.logicalGraph().findNodeByKey(insertedNodeKey);
 
@@ -882,14 +890,16 @@ export class Eagle {
         }
 
         // insert edges from lg into the existing logicalGraph
-        for (let i = 0 ; i < lg.getEdges().length; i++){
-            const edge: Edge = lg.getEdges()[i];
+        for (let i = 0 ; i < edges.length; i++){
+            const edge: Edge = edges[i];
             this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), edge.isLoopAware(), null);
         }
 
         // resize the parent node so that it fits all its children, and collapse it by default
-        this.logicalGraph().shrinkNode(parentNode);
-        parentNode.setCollapsed(true);
+        if (parentNode !== null){
+            this.logicalGraph().shrinkNode(parentNode);
+            parentNode.setCollapsed(true);
+        }
     }
 
     /**
@@ -1920,19 +1930,34 @@ export class Eagle {
             // use the correct parsing function based on schema version
             switch (schemaVersion){
                 case Eagle.DALiuGESchemaVersion.AppRef:
-                    this.insertGraph(LogicalGraph.fromAppRefJson(dataObject, file, errors));
-                    this.flagActiveDiagramHasMutated();
+                    {
+                        const lg = LogicalGraph.fromAppRefJson(dataObject, file, errors);
+                        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, Eagle.CategoryType.Group, false);
+
+                        this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+                        this.flagActiveDiagramHasMutated();
+                    }
                     break;
                 case Eagle.DALiuGESchemaVersion.V3:
                     Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                    this.insertGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
-                    this.flagActiveDiagramHasMutated();
+                    {
+                        const lg = LogicalGraph.fromV3Json(dataObject, file, errors);
+                        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, Eagle.CategoryType.Group, false);
+
+                        this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+                        this.flagActiveDiagramHasMutated();
+                    }
                     break;
                 case Eagle.DALiuGESchemaVersion.OJS:
                 case Eagle.DALiuGESchemaVersion.Unknown:
-                    this.insertGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
-                    this.flagActiveDiagramHasMutated();
-                    break;
+                    {
+                        const lg = LogicalGraph.fromOJSJson(dataObject, file, errors);
+                        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, Eagle.CategoryType.Group, false);
+
+                        this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+                        this.flagActiveDiagramHasMutated();
+                        break;
+                    }
             }
 
             if (errors.length > 0){
@@ -2391,44 +2416,47 @@ export class Eagle {
     //       maybe a better approach would be to copy the selection into a
     //       logicalGraph, then insert the logicalGraph into the current graph
     duplicateSelection = () : void => {
-        const DUPLICATE_OFFSET: number = 20;
-
         console.log("duplicateSelection()", this.selectedObjects().length, "objects");
 
         switch(this.selectedLocation()){
             case Eagle.FileType.Graph:
-                for (let i = 0 ; i < this.selectedObjects().length ; i++){
-                    const object = this.selectedObjects()[i];
+                {
+                    const nodes : Node[] = [];
+                    const edges : Edge[] = [];
 
-                    if (object instanceof Node){
-                        this.logicalGraph().addNode(object, object.getPosition().x + DUPLICATE_OFFSET, object.getPosition().y + DUPLICATE_OFFSET, null);
+                    // split objects into nodes and edges
+                    for (let i = 0 ; i < this.selectedObjects().length ; i++){
+                        const object = this.selectedObjects()[i];
+
+                        if (object instanceof Node){
+                            nodes.push(object);
+                        }
+
+                        if (object instanceof Edge){
+                            edges.push(object);
+                        }
                     }
 
-                    if (object instanceof Edge){
-                        // make copy the edge with new id
-                        const edge = new Edge(object.getSrcNodeKey(), object.getSrcPortId(), object.getDestNodeKey(), object.getDestPortId(), object.getDataType(), object.isLoopAware());
+                    this.insertGraph(nodes, edges, null);
 
-                        // add edge to logical graph
-                        this.logicalGraph().addEdgeComplete(edge);
-                    }
+                    this.logicalGraph.valueHasMutated();
+                    this.flagActiveDiagramHasMutated();
                 }
-
-                this.logicalGraph.valueHasMutated();
-                this.flagActiveDiagramHasMutated();
-
                 break;
             case Eagle.FileType.Palette:
-                const nodes: Node[] = [];
+                {
+                    const nodes: Node[] = [];
 
-                for (let i = 0 ; i < this.selectedObjects().length ; i++){
-                    const object = this.selectedObjects()[i];
+                    for (let i = 0 ; i < this.selectedObjects().length ; i++){
+                        const object = this.selectedObjects()[i];
 
-                    if (object instanceof Node){
-                        nodes.push(object);
+                        if (object instanceof Node){
+                            nodes.push(object);
+                        }
                     }
-                }
 
-                this.addNodesToPalette(nodes);
+                    this.addNodesToPalette(nodes);
+                }
                 break;
             default:
                 console.error("Unknown selectedLocation", this.selectedLocation());
