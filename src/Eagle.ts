@@ -2405,8 +2405,11 @@ export class Eagle {
                     }
 
                     if (object instanceof Edge){
-                        // TODO: probably need to clone and set a new id etc
-                        this.logicalGraph().addEdgeComplete(object);
+                        // make copy the edge with new id
+                        const edge = new Edge(object.getSrcNodeKey(), object.getSrcPortId(), object.getDestNodeKey(), object.getDestPortId(), object.getDataType(), object.isLoopAware());
+
+                        // add edge to logical graph
+                        this.logicalGraph().addEdgeComplete(edge);
                     }
                 }
 
@@ -2997,7 +3000,7 @@ export class Eagle {
                 // $("#"+divID).hide();
             }
         }
-         
+
          $("#editFieldModal").removeClass("nodeSelected");
          $("#"+divID).hide();
     }
@@ -3534,11 +3537,11 @@ export class Eagle {
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field("", "", "", "", false, Eagle.DataType.Integer);
-           
-           
+
+
             Utils.requestUserEditField(this, Eagle.ModalType.Add, field, allFieldNames, (completed : boolean, newField: Field) => {
-               
-    
+
+
                 // abort if the user aborted
                 if (!completed){
                     return;

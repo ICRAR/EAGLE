@@ -1032,7 +1032,7 @@ export class Utils {
                 value: -1,
                 text: ""
             }));
-            
+
             // add options to the modal select tag
             for (let i = 0 ; i < choices.length ; i++){
                 $('#fieldModalSelect').append($('<option>', {
@@ -1136,7 +1136,7 @@ export class Utils {
             $('#portModalSelect').empty();
             $('#nodeInspectorInputPortDropDownKO').empty();
             $('#nodeInspectorOutputPortDropDownKO').empty();
-            
+
 
             // add empty choice
             $('#portModalSelect').append($('<option>', {
