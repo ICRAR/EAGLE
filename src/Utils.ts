@@ -1718,6 +1718,19 @@ export class Utils {
         return result;
     }
 
+    static buildGroupCategoryList() : Eagle.Category[] {
+        const result : Eagle.Category[] = [];
+
+        for (const category in Eagle.cData){
+            const cData = Eagle.getCategoryData(<Eagle.Category>category);
+            if (cData.isGroup){
+                result.push(<Eagle.Category>category);
+            }
+        }
+
+        return result;
+    }
+
     static giveNodePortsNewIds(node: Node) : void {
         // set new ids for any ports in this node
         for (const port of node.getInputPorts()){

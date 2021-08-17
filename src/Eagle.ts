@@ -141,6 +141,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", ["g"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Insert graph from local disk", ["i"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToInsert();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Create subgraph from selection", ["["], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("Create construct from selection", ["]"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
 
         this.selectedObjects.subscribe(this.updateInspectorTooltips);
 
@@ -689,6 +690,44 @@ export class Eagle {
         // flag graph as changed
         this.flagActiveFileModified();
         this.logicalGraph.valueHasMutated();
+    }
+
+    createConstructFromSelection = () : void => {
+        console.log("createConstructFromSelection()");
+
+        const constructs : string[] = Utils.buildGroupCategoryList();
+
+        // ask the user what type of construct to use
+        Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, -1, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+
+            const userChoice: string = constructs[userChoiceIndex];
+
+            // create new subgraph
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Eagle.Category>userChoice, Eagle.CategoryType.Group, false);
+
+            // add the parent node to the logical graph
+            this.logicalGraph().addNodeComplete(parentNode);
+
+            // switch items in selection to be children of subgraph
+            for (const node of this.selectedObjects()){
+                if (!(node instanceof Node)){
+                    continue;
+                }
+
+                node.setParentKey(parentNode.getKey());
+            }
+
+            // shrink/expand subgraph node to fit children
+            this.logicalGraph().shrinkNode(parentNode);
+
+            // flag graph as changed
+            this.flagActiveFileModified();
+            this.logicalGraph.valueHasMutated();
+        });
     }
 
     insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node) : void => {
