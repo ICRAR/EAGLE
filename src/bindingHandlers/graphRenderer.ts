@@ -49,6 +49,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     let destinationNodeKey : number | null = null;
     let isDraggingPort : boolean = false;
     let isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
+    let isDraggingWithAlt : boolean = false;
 
     const mousePosition = {x:0, y:0};
     const selectionRegionStart = {x:0, y:0};
@@ -165,11 +166,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .on("start", function (node : Node) {
             hasDraggedBackground = false;
 
-            if (d3.event.sourceEvent.shiftKey){
+            if (d3.event.sourceEvent.shiftKey || d3.event.sourceEvent.altKey){
                 isDraggingSelectionRegion = true;
                 selectionRegionStart.x = d3.event.x;
                 selectionRegionStart.y = d3.event.y;
-                console.log("d3.event", d3.event.x, d3.event.y, "selectionRegionStart", selectionRegionStart);
+            }
+
+            if (d3.event.sourceEvent.altKey){
+                isDraggingWithAlt = true;
+            } else {
+                isDraggingWithAlt = false;
             }
         })
         .on("end", function(){
@@ -200,8 +206,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 eagle.selectedLocation(Eagle.FileType.Graph);
                 eagle.rightWindow().mode(Eagle.RightWindowMode.NodeInspector);
 
-                for (const node of nodes){
-                    node.setShowPorts(true);
+                if (isDraggingWithAlt){
+                    for (const node of nodes){
+                        node.setShowPorts(true);
+                    }
                 }
 
                 selectionRegionStart.x = 0;
