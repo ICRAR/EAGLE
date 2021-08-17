@@ -3005,7 +3005,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         graph.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, (edge : Edge) : void =>{
-            eagle.flagActiveDiagramHasMutated();
+            eagle.logicalGraph.valueHasMutated();
             clearEdgeVars();
         });
     }
@@ -3129,7 +3129,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         console.log("shrink node", index);
 
         eagle.logicalGraph().shrinkNode(node);
-        eagle.flagActiveDiagramHasMutated();
+        eagle.logicalGraph.valueHasMutated();
     }
 
     function collapseOnClick(node : Node, index : number){
@@ -3141,7 +3141,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         node.setCollapsed(true);
-        eagle.flagActiveDiagramHasMutated();
+        eagle.logicalGraph.valueHasMutated();
     }
 
     function expandOnClick(node : Node, index : number){
@@ -3153,7 +3153,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         node.setCollapsed(false);
-        eagle.flagActiveDiagramHasMutated();
+        eagle.logicalGraph.valueHasMutated();
     }
 
     function moveChildNodes(node: Node, deltax: number, deltay: number) : void {

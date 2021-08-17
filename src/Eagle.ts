@@ -2524,6 +2524,7 @@ export class Eagle {
         return p;
     }
 
+    /* TODO: 4-level-deep callbacks here, probably should move this to use Promises */
     fetchDockerHTML = () : void => {
         Utils.showNotification("EAGLE", "Fetching data from Docker Hub", "info");
 
