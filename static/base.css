@@ -542,7 +542,6 @@ div.rightWindow h5.card-header {
 }
 
 #graphNameWrapper{
-    position: absolute;
     top: 56px;
     display: block;
     width: 100%;
@@ -714,8 +713,6 @@ palette-component input.form-control.selected {
 }
 
 .tooltip-inner{
-    visibility: hidden;
     transition: 0s visibility;
     visibility: visible;
-
 }

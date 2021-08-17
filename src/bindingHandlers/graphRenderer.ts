@@ -200,8 +200,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 eagle.selectedLocation(Eagle.FileType.Graph);
                 eagle.rightWindow().mode(Eagle.RightWindowMode.NodeInspector);
 
-                for (let i = 0 ; i < nodes.length; i++){
-                    const node = nodes[i];
+                for (const node of nodes){
                     node.setShowPorts(true);
                 }
 
@@ -305,9 +304,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const dy = DISPLAY_TO_REAL_SCALE(d3.event.sourceEvent.movementY);
 
             // move all selected nodes, skip edges (they just follow nodes anyway)
-            for (let i = 0 ; i < eagle.selectedObjects().length ; i++){
-                const object = eagle.selectedObjects()[i];
-
+            for (const object of eagle.selectedObjects()){
                 if (object instanceof Node){
                     object.changePosition(dx, dy);
                     moveChildNodes(object, dx, dy);
@@ -375,9 +372,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     nodes
         .append("text")
         .attr("class", "subheader")
-        .attr("x", function(node:Node){return getSubHeaderPositionX(node);})
+        .attr("x", function(node:Node){return getHeaderPositionX(node);})
         .attr("y", function(node:Node){return getSubHeaderPositionY(node);})
-        .style("fill", getSubHeaderFill)
+        .style("fill", getHeaderFill)
         .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
         .style("display", getSubHeaderDisplay)
         .text(getSubHeaderText);
@@ -580,7 +577,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
         .enter()
         .append("text")
-        .attr("class", getInputPortClass)
+        .attr("class", getPortClass)
         .attr("x", getInputPortPositionX)
         .attr("y", getInputPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
@@ -642,7 +639,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .data(function(node : Node, index : number){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
         .enter()
         .append("text")
-        .attr("class", getOutputPortClass)
+        .attr("class", getPortClass)
         .attr("x", getOutputPortPositionX)
         .attr("y", getOutputPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
@@ -1059,9 +1056,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         rootContainer
             .selectAll("g.node text.subheader")
             .data(nodeData)
-            .attr("x", function(node:Node){return getSubHeaderPositionX(node);})
+            .attr("x", function(node:Node){return getHeaderPositionX(node);})
             .attr("y", function(node:Node){return getSubHeaderPositionY(node);})
-            .style("fill", getSubHeaderFill)
+            .style("fill", getHeaderFill)
             .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
             .style("display", getSubHeaderDisplay)
             .text(getSubHeaderText);
@@ -1203,7 +1200,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes
             .selectAll("g.inputPorts text")
             .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-            .attr("class", getInputPortClass)
+            .attr("class", getPortClass)
             .attr("x", getInputPortPositionX)
             .attr("y", getInputPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
@@ -1307,7 +1304,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes
             .selectAll("g.outputPorts text")
             .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
-            .attr("class", getOutputPortClass)
+            .attr("class", getPortClass)
             .attr("x", getOutputPortPositionX)
             .attr("y", getOutputPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
@@ -1743,15 +1740,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return "";
     }
 
-    function getSubHeaderPositionX(node : Node) : number {
-
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return node.getWidth()/2;
-        }
-
-        return getWidth(node) /2;
-    }
-
     function getSubHeaderPositionY(node : Node) : number {
         if (node.isGroup() && node.isCollapsed()){
             return Node.COLLAPSED_HEIGHT / 2;
@@ -1782,18 +1770,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return 20;
-    }
-
-    function getSubHeaderFill(node : Node) : string {
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
-            return "black";
-        }
-
-        if (node.getCategory() === Eagle.Category.ExclusiveForceNode){
-            return "black";
-        }
-
-        return "white";
     }
 
     function getAppsBackgroundDisplay(node : Node) : string {
@@ -1941,26 +1917,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getInputPortClass(port : Port, index: number): string {
-        const node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
-        if (node === null){
-            console.warn("Unable to find node from port's node key", port.getNodeKey());
-            return "";
-        }
-
-        if (node.isBranch()){
-            if (index === 0){
-                return port.isEvent() ? "event middle" : "middle";
-            }
-            if (index === 1){
-                return port.isEvent() ? "event" : "";
-            }
-        }
-
-        return port.isEvent() ? "event" : "";
-    }
-
-    function getOutputPortClass(port : Port, index: number): string {
+    function getPortClass(port : Port, index: number): string {
         const node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
         if (node === null){
             console.warn("Unable to find node from port's node key", port.getNodeKey());
@@ -2502,7 +2459,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         let depth : number = 0;
         let node : Node = nodes[index];
-        let nodeKey : number = node.getKey();
+        let nodeKey : number;
         let nodeParentKey : number = node.getParentKey();
 
         while (nodeParentKey != null){
@@ -3005,7 +2962,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         graph.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, (edge : Edge) : void =>{
-            eagle.flagActiveDiagramHasMutated();
+            eagle.logicalGraph.valueHasMutated();
             clearEdgeVars();
         });
     }
@@ -3129,7 +3086,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         console.log("shrink node", index);
 
         eagle.logicalGraph().shrinkNode(node);
-        eagle.flagActiveDiagramHasMutated();
+        eagle.logicalGraph.valueHasMutated();
     }
 
     function collapseOnClick(node : Node, index : number){
@@ -3141,7 +3098,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         node.setCollapsed(true);
-        eagle.flagActiveDiagramHasMutated();
+        eagle.logicalGraph.valueHasMutated();
     }
 
     function expandOnClick(node : Node, index : number){
@@ -3153,7 +3110,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         node.setCollapsed(false);
-        eagle.flagActiveDiagramHasMutated();
+        eagle.logicalGraph.valueHasMutated();
     }
 
     function moveChildNodes(node: Node, deltax: number, deltay: number) : void {
@@ -3161,9 +3118,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const parentKey : number = node.getKey();
 
         // loop through all nodes, if they belong to the parent's group, move them too
-        for (let i = 0 ; i < nodeData.length ; i++){
-            const n = nodeData[i];
-
+        for (const n of nodeData){
             // skip selected nodes, they are handled in the main drag code
             if (eagle.objectIsSelected(n)){
                 continue;

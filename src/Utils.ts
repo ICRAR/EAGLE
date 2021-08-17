@@ -161,8 +161,8 @@ export class Utils {
         // build a list of used keys
         const usedKeys: number[] = [];
 
-        for (let i = 0 ; i < nodeData.length ; i++){
-            usedKeys.push(nodeData[i].key);
+        for (const node of nodeData){
+            usedKeys.push(node.key);
         }
 
         return usedKeys;
@@ -1340,10 +1340,6 @@ export class Utils {
                     text: node.getName(),
                     selected: edge.getSrcNodeKey() === node.getKey()
                 }));
-
-                if (node.getKey() === edge.getSrcNodeKey()){
-                    srcNode = node;
-                }
             }
 
             // add input application node, if present
@@ -1355,10 +1351,6 @@ export class Utils {
                     text: inputApp.getName(),
                     selected: edge.getSrcNodeKey() === inputApp.getKey()
                 }));
-
-                if (inputApp.getKey() === edge.getSrcNodeKey()){
-                    srcNode = inputApp;
-                }
             }
 
             // add output application node, if present
@@ -1370,10 +1362,6 @@ export class Utils {
                     text: outputApp.getName(),
                     selected: edge.getSrcNodeKey() === outputApp.getKey()
                 }));
-
-                if (outputApp.getKey() === edge.getSrcNodeKey()){
-                    srcNode = outputApp;
-                }
             }
 
             // add exit applicaiton node, if present
@@ -1385,10 +1373,6 @@ export class Utils {
                     text: exitApp.getName(),
                     selected: edge.getSrcNodeKey() === exitApp.getKey()
                 }));
-
-                if (exitApp.getKey() === edge.getSrcNodeKey()){
-                    srcNode = exitApp;
-                }
             }
         }
 
@@ -1407,9 +1391,7 @@ export class Utils {
             $('#editEdgeModalSrcPortIdSelect').attr('disabled', 'true');
         } else {
             // add src port ids
-            for (let i = 0 ; i < srcNode.getOutputPorts().length; i++){
-                const port: Port = srcNode.getOutputPorts()[i];
-
+            for (const port of srcNode.getOutputPorts()){
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getName(),
@@ -1427,10 +1409,6 @@ export class Utils {
                     text: node.getName(),
                     selected: edge.getDestNodeKey() === node.getKey()
                 }));
-
-                if (node.getKey() === edge.getDestNodeKey()){
-                    destNode = node;
-                }
             }
 
             // input application node, if present
@@ -1442,10 +1420,6 @@ export class Utils {
                     text: inputApp.getName(),
                     selected: edge.getDestNodeKey() === inputApp.getKey()
                 }));
-
-                if (inputApp.getKey() === edge.getDestNodeKey()){
-                    destNode = inputApp;
-                }
             }
 
             // output application node, if present
@@ -1457,10 +1431,6 @@ export class Utils {
                     text: outputApp.getName(),
                     selected: edge.getDestNodeKey() === outputApp.getKey()
                 }));
-
-                if (outputApp.getKey() === edge.getDestNodeKey()){
-                    destNode = outputApp;
-                }
             }
 
             // exit application node, if present
@@ -1472,10 +1442,6 @@ export class Utils {
                     text: exitApp.getName(),
                     selected: edge.getDestNodeKey() === exitApp.getKey()
                 }));
-
-                if (exitApp.getKey() === edge.getDestNodeKey()){
-                    destNode = exitApp;
-                }
             }
         }
 
@@ -1548,16 +1514,14 @@ export class Utils {
             // add output application input and output ports
             if (node.hasOutputApplication()){
                 // input ports
-                for (let j = 0; j < node.getOutputApplication().getInputPorts().length; j++) {
-                    const port : Port = node.getOutputApplication().getInputPorts()[j];
+                for (const port of node.getOutputApplication().getInputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (let j = 0; j < node.getOutputApplication().getOutputPorts().length; j++) {
-                    const port : Port = node.getOutputApplication().getOutputPorts()[j];
+                for (const port of node.getOutputApplication().getOutputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
@@ -1567,16 +1531,14 @@ export class Utils {
             // add exit application input and output ports
             if (node.hasExitApplication()){
                 // input ports
-                for (let j = 0; j < node.getExitApplication().getInputPorts().length; j++) {
-                    const port : Port = node.getExitApplication().getInputPorts()[j];
+                for (const port of node.getExitApplication().getInputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (let j = 0; j < node.getExitApplication().getOutputPorts().length; j++) {
-                    const port : Port = node.getExitApplication().getOutputPorts()[j];
+                for (const port of node.getExitApplication().getOutputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
@@ -1650,8 +1612,7 @@ export class Utils {
             svgString = svgString.substring(0, svgString.indexOf(">") + 1) + CSS_ELEMENT + svgString.substring(svgString.indexOf(">") + 1);
             //console.log("svgString", svgString);
 
-            const canvas : HTMLCanvasElement = <HTMLCanvasElement> document.createElement("canvas");
-            //console.log("svgElement", svgElement.clientWidth.toString(), svgElement.clientHeight.toString());
+            const canvas : HTMLCanvasElement = document.createElement("canvas");
             canvas.setAttribute("width", svgElement.clientWidth.toString());
             canvas.setAttribute("height", svgElement.clientHeight.toString());
             const ctx = canvas.getContext("2d");
@@ -1662,7 +1623,6 @@ export class Utils {
             img.onload = function() {
                 ctx.drawImage(img, 0, 0);
                 const png = canvas.toDataURL("image/png");
-                //document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';
 
                 // Element that will be used for downloading.
                 const a : HTMLAnchorElement = document.createElement("a");
@@ -1965,5 +1925,21 @@ export class Utils {
             $('#editFieldModalValueInputText').addClass('is-invalid');
             $('#editFieldModalValueFeedback').text('Invalid value for ' + type + ' type.');
         }
+    }
+
+    static downloadFile(error : string, data : string, fileName : string) : void {
+        if (error != null){
+            Utils.showUserMessage("Error", "Error saving the file!");
+            console.error(error);
+            return;
+        }
+
+        // NOTE: this stuff is a hacky way of saving a file locally
+        const blob = new Blob([data]);
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
     }
 }
