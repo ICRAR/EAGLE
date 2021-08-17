@@ -305,6 +305,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .on("drag", function (node : Node, index : number) {
             if (!isDraggingNode){
                 isDraggingNode = true;
+
+                if (d3.event.sourceEvent.altKey){
+                    isDraggingWithAlt = true;
+                } else {
+                    isDraggingWithAlt = false;
+                }
             }
 
             // transform change in x,y position using current scale factor
@@ -315,7 +321,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             for (const object of eagle.selectedObjects()){
                 if (object instanceof Node){
                     object.changePosition(dx, dy);
-                    moveChildNodes(object, dx, dy);
+
+                    if (!isDraggingWithAlt){
+                        moveChildNodes(object, dx, dy);
+                    }
                 }
             }
 
