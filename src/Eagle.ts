@@ -390,6 +390,9 @@ export class Eagle {
         }
         this.selectedLocation(selectedLocation);
         this.rightWindow().mode(rightWindowMode);
+
+        // update the display of all the sections of the node inspector (collapse/expand as appropriate)
+        this.inspectorState().updateAllInspectorSections();
     }
 
     editSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
