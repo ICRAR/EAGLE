@@ -2706,7 +2706,6 @@ export class Eagle {
 
         if (val===-1){
             this.hideDropDown(divID)
-            return;
         }else if(val===num){
             //select custom field externally
             $("#"+divID).hide();
@@ -2908,7 +2907,7 @@ export class Eagle {
         // determine dropped node
         const sourceComponent : Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
 
-        // TODO: determine destination palette
+        // determine destination palette
         const destinationPaletteIndex : number = parseInt($(e.currentTarget).find('palette-component').find('.col')[0].getAttribute('data-palette-index'), 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
@@ -2949,7 +2948,7 @@ export class Eagle {
     }
 
     //workaround to aviod left or right window adjusting on any and all drag events
-    rightWindowAdjustEnd = () : boolean => {
+    sideWindowAdjustEnd = () : boolean => {
         this.leftWindow().adjusting(false);
         this.rightWindow().adjusting(false);
 
@@ -3045,14 +3044,6 @@ export class Eagle {
 
         Eagle.dragStartX = e.clientX;
         this.leftWindow().adjusting(true);
-        this.rightWindow().adjusting(false);
-
-        return true;
-    }
-
-    //workaround to aviod left or right window adjusting on any and all drag events
-    leftWindowAdjustEnd = () : boolean => {
-        this.leftWindow().adjusting(false);
         this.rightWindow().adjusting(false);
 
         return true;

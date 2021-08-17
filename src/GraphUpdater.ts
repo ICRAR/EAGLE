@@ -24,7 +24,6 @@
 
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
-import {Node} from './Node';
 
 export class GraphUpdater {
 

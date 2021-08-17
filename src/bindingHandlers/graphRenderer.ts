@@ -200,8 +200,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 eagle.selectedLocation(Eagle.FileType.Graph);
                 eagle.rightWindow().mode(Eagle.RightWindowMode.NodeInspector);
 
-                for (let i = 0 ; i < nodes.length; i++){
-                    const node = nodes[i];
+                for (const node of nodes){
                     node.setShowPorts(true);
                 }
 
@@ -305,9 +304,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const dy = DISPLAY_TO_REAL_SCALE(d3.event.sourceEvent.movementY);
 
             // move all selected nodes, skip edges (they just follow nodes anyway)
-            for (let i = 0 ; i < eagle.selectedObjects().length ; i++){
-                const object = eagle.selectedObjects()[i];
-
+            for (const object of eagle.selectedObjects()){
                 if (object instanceof Node){
                     object.changePosition(dx, dy);
                     moveChildNodes(object, dx, dy);
