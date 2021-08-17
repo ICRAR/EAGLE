@@ -1966,4 +1966,20 @@ export class Utils {
             $('#editFieldModalValueFeedback').text('Invalid value for ' + type + ' type.');
         }
     }
+
+    static downloadFile(error : string, data : string, fileName : string) : void {
+        if (error != null){
+            Utils.showUserMessage("Error", "Error saving the file!");
+            console.error(error);
+            return;
+        }
+
+        // NOTE: this stuff is a hacky way of saving a file locally
+        const blob = new Blob([data]);
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+    }
 }
