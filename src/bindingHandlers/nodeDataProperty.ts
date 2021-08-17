@@ -11,7 +11,7 @@ ko.bindingHandlers.nodeDataProperty = {
 
             (<any>selectedNode)[dataProperty] = $(element).val();
             eagle.flagActiveFileModified();
-            eagle.flagActiveDiagramHasMutated();
+            eagle.logicalGraph.valueHasMutated();
         });
     },
     update: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
