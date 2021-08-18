@@ -355,6 +355,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 node.setParentKey(null);
             }
 
+            // also check that to see if current children are still in within the group
+            if (node.isGroup()){
+                // TODO: loop through all nodes, check if node is a child
+                // if so, run checkForNodeAt and make sure result is parent
+                
+            }
+
             //tick();
         });
 
