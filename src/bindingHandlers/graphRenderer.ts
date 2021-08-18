@@ -357,9 +357,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             // also check that to see if current children are still in within the group
             if (node.isGroup()){
-                // TODO: loop through all nodes, check if node is a child
+                // loop through all nodes, check if node is a child
                 // if so, run checkForNodeAt and make sure result is parent
-                
+                for (let i = 0; i < nodeData.length ; i++){
+                    const child : Node = nodeData[i];
+
+                    if (child.getParentKey() === node.getKey()){
+                        const parent : Node = checkForNodeAt(child, child.getPosition().x, child.getPosition().y);
+
+                        // un-parent the child if no longer contained within the node we are dragging
+                        if (parent === null || parent.getKey() !== node.getKey()){
+                            child.setParentKey(null);
+                        }
+                    }
+                }
             }
 
             //tick();
