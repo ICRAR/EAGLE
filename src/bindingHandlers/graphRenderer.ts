@@ -1740,6 +1740,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     return HEADER_OFFSET_Y_NGAS;
                 case Eagle.Category.Plasma:
                     return HEADER_OFFSET_Y_PLASMA;
+                case Eagle.Category.PlasmaFlight:
+                    return HEADER_OFFSET_Y_PLASMA;
             }
         }
 
@@ -1797,6 +1799,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     y += SUBHEADER_OFFSET_Y_NGAS;
                     break;
                 case Eagle.Category.Plasma:
+                    y += SUBHEADER_OFFSET_Y_PLASMA;
+                    break;
+                case Eagle.Category.PlasmaFlight:
                     y += SUBHEADER_OFFSET_Y_PLASMA;
                     break;
             }
@@ -2439,6 +2444,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     return "/static/assets/svg/ngas.svg";
                 case Eagle.Category.Plasma:
                     return "/static/assets/svg/plasma.svg";
+                case Eagle.Category.PlasmaFlight:
+                    return "/static/assets/svg/plasmaflight.svg";
                 default:
                     console.warn("No icon available for node category", node.getCategory());
                     return "";

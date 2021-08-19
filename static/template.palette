@@ -253,6 +253,13 @@
                 "description":"Directories which will be visible inside the container during run-time. Format is srcdir_on_host:trgtdir_on_container. Multiple entries can be separated by commas.",
                 "readonly": false,
                 "type": "String"
+            }, {
+                "text": "Port Mappings",
+                "name": "portMappings",
+                "value": "",
+                "description": "Port mappings on the host machine",
+                "readonly": false,
+                "type": "String"
             }],
             "key": -11,
             "text": "Docker",
@@ -593,6 +600,31 @@
             "shape": "Card",
             "key": -24,
             "text": "Plasma",
+            "categoryType": "Data",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "PlasmaFlight",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float"
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean"
+            }],
+            "shape": "Card",
+            "key": -29,
+            "text": "PlasmaFlight",
             "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
