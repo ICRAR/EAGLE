@@ -654,7 +654,7 @@ nav.navbar .introjs-helperLayer {
 }
 
 #headerBtns{
-    position: absolute;
+    position: relative;
     right: 10px;
     padding:5px 0px;
     text-align: right;
