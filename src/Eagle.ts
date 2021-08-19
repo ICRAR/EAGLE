@@ -2691,6 +2691,7 @@ export class Eagle {
 
         this.editPort(node, Eagle.ModalType.Add, null, false);
         $("#editPortModal").addClass("forceHide");
+        $("#editPortModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
         $("#nodeInspectorAddOutputPortDiv").show();
     }
@@ -2708,6 +2709,7 @@ export class Eagle {
 
         this.editField(node, Eagle.ModalType.Add, null);
         $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
         $("#nodeInspectorAddFieldDiv").show();
     }
@@ -2717,16 +2719,18 @@ export class Eagle {
             //hides the dropdown node inspector elements when stopping hovering over the element
             if(!$("#editFieldModal").hasClass("nodeSelected")){
                 $("#editFieldModal").modal('hide');
+                $("#editFieldModal").addClass("fade");
+                
                 // $("#"+divID).hide();
             }
         }else{
             //hides the dropdown node inspector elements when stopping hovering over the element
             if(!$("#editPortModal").hasClass("nodeSelected")){
                 $("#editPortModal").modal('hide');
+                $("#editPortModal").addClass("fade");
                 // $("#"+divID).hide();
             }
         }
-
          $("#editFieldModal").removeClass("nodeSelected");
          $("#"+divID).hide();
     }
@@ -2748,8 +2752,9 @@ export class Eagle {
 
         if (val===-1){
             this.hideDropDown(divID)
+            return
         }else if(val===num){
-            //select custom field externally
+            //select custom field externally and open custom properties menu
             $("#"+divID).hide();
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
@@ -2761,6 +2766,7 @@ export class Eagle {
             $("#"+modalID).removeClass("forceHide");
             $(".modal-backdrop").removeClass("forceHide");
             $("#"+submitBtnID).click()
+            this.hideDropDown(divID)
         }
     }
 
