@@ -2335,19 +2335,25 @@ export class Eagle {
                     continue;
                 }
 
+                // add clone to palette
+                destinationPalette.addNode(node, true);
+
+                // get key of just-added node
+                const key: number = destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].getKey();
+
                 // check if clone has embedded applications, if so, add them to destination palette and remove
                 if (node.hasInputApplication()){
                     destinationPalette.addNode(node.getInputApplication(), true);
+                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedKey(key);
                 }
                 if (node.hasOutputApplication()){
                     destinationPalette.addNode(node.getOutputApplication(), true);
+                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedKey(key);
                 }
                 if (node.hasExitApplication()){
                     destinationPalette.addNode(node.getExitApplication(), true);
+                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedKey(key);
                 }
-
-                // add clone to palette
-                destinationPalette.addNode(node, true);
 
                 // mark the palette as modified
                 destinationPalette.fileInfo().modified = true;
@@ -2720,7 +2726,7 @@ export class Eagle {
             if(!$("#editFieldModal").hasClass("nodeSelected")){
                 $("#editFieldModal").modal('hide');
                 $("#editFieldModal").addClass("fade");
-                
+
                 // $("#"+divID).hide();
             }
         }else{
@@ -3202,7 +3208,7 @@ export class Eagle {
         // add logical graph nodes to table
         for (const palette of this.palettes()){
             for (const node of palette.getNodes()){
-                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "categoryType":node.getCategoryType(), "category":node.getCategory()});
+                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "categoryType":node.getCategoryType(), "category":node.getCategory()});
             }
         }
 

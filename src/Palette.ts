@@ -150,10 +150,6 @@ export class Palette {
         newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.getNodes()));
         newNode.setReadonly(false);
-        newNode.setEmbedKey(null);
-        newNode.setInputApplication(null);
-        newNode.setOutputApplication(null);
-        newNode.setExitApplication(null);
 
         if (force){
             this.nodes.push(newNode);

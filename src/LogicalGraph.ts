@@ -519,16 +519,19 @@ export class LogicalGraph {
             // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
             if (newNode.hasInputApplication()){
                 newNode.getInputApplication().setKey(Utils.newKey(this.getNodes()));
+                newNode.getInputApplication().setEmbedKey(newNode.getKey());
 
                 Utils.giveNodePortsNewIds(newNode.getInputApplication());
             }
             if (newNode.hasOutputApplication()){
                 newNode.getOutputApplication().setKey(Utils.newKey(this.getNodes()));
+                newNode.getOutputApplication().setEmbedKey(newNode.getKey());
 
                 Utils.giveNodePortsNewIds(newNode.getOutputApplication());
             }
             if (newNode.hasExitApplication()){
                 newNode.getExitApplication().setKey(Utils.newKey(this.getNodes()));
+                newNode.getExitApplication().setEmbedKey(newNode.getKey());
 
                 Utils.giveNodePortsNewIds(newNode.getExitApplication());
             }
