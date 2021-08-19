@@ -305,6 +305,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .on("drag", function (node : Node, index : number) {
             if (!isDraggingNode){
                 isDraggingNode = true;
+
+                if (d3.event.sourceEvent.altKey){
+                    isDraggingWithAlt = true;
+                } else {
+                    isDraggingWithAlt = false;
+                }
             }
 
             // transform change in x,y position using current scale factor
@@ -315,7 +321,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             for (const object of eagle.selectedObjects()){
                 if (object instanceof Node){
                     object.changePosition(dx, dy);
-                    moveChildNodes(object, dx, dy);
+
+                    if (!isDraggingWithAlt){
+                        moveChildNodes(object, dx, dy);
+                    }
                 }
             }
 
@@ -344,6 +353,24 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (parent === null && node.getParentKey() !== null){
                 //console.log("set parent", null);
                 node.setParentKey(null);
+            }
+
+            // also check that to see if current children are still in within the group
+            if (node.isGroup()){
+                // loop through all nodes, check if node is a child
+                // if so, run checkForNodeAt and make sure result is parent
+                for (let i = 0; i < nodeData.length ; i++){
+                    const child : Node = nodeData[i];
+
+                    if (child.getParentKey() === node.getKey()){
+                        const parent : Node = checkForNodeAt(child, child.getPosition().x, child.getPosition().y);
+
+                        // un-parent the child if no longer contained within the node we are dragging
+                        if (parent === null || parent.getKey() !== node.getKey()){
+                            child.setParentKey(null);
+                        }
+                    }
+                }
             }
 
             //tick();
