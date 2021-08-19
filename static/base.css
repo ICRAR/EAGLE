@@ -640,8 +640,8 @@ nav.navbar .introjs-helperLayer {
 }
 
 #nodeInspectorHeading{
-    background-color: transparent;
     border:none;
+    color: white;
 }
 
 #nodeInspectorMenus{
