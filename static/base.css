@@ -200,7 +200,6 @@
 
 .leftWindow .card-header h5{
     font-weight: 400;
-    padding: 0.25rem 1.00rem;
 }
 
 .template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
@@ -329,20 +328,20 @@
     padding:0px;
 }
 
-/* #nodeInspectorAddFieldDiv{
-    display: none;
-} */
-
 .forceHide{
     display: none !important;
 }
 
 .nodeInspectorDropdownDiv{
-    margin-top: 5px;
     position: static;
     position: relative;
     z-index: 100;
     display: none;
+}
+
+.nodeInspectorDropdownDiv::before{
+    margin-bottom: 5px;
+    height: 5px;
 }
 
 .nodeInspectorDropdownInner{
@@ -655,15 +654,15 @@ nav.navbar .introjs-helperLayer {
 }
 
 #headerBtns{
-    position: absolute;
+    position: relative;
     right: 10px;
-    padding:12px 0px;
+    padding:5px 0px;
     text-align: right;
 }
 
 #headerBtns button{
     color: #0859af;
-    background-color: #d8ddf0;
+    background-color: transparent;
     padding:4px;
     margin-left:-4px;
     border: none;

@@ -1047,7 +1047,7 @@ export class Utils {
                 class: "nodeInspectorDropdownOption",
                 "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
                 value: choices.length,
-                text: "Custom (enter below)"
+                text: "Custom"
             }));
             //applying knockout bindings for the new buttonsgenerated above
             ko.cleanNode(document.getElementById("nodeInspectorDropDownKO"));
@@ -1173,21 +1173,21 @@ export class Utils {
             // add custom choice
             $('#portModalSelect').append($('<option>', {
                 value: choices.length,
-                text: "Custom (enter below)"
+                text: "Custom"
             }));
             $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
                 "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
                 value: choices.length,
-                text: "Custom (enter below)"
+                text: "Custom"
             }));
             $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
                 "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
                 value: choices.length,
-                text: "Custom (enter below)"
+                text: "Custom"
             }));
 
             //applying knockout bindings for the new buttonsgenerated above
