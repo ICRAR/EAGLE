@@ -12,7 +12,7 @@
     <!-- ko if: selectedNode() != null -->
     <div class="row">
         <div class="col-9">
-            <h5 class="card-header" id="nodeInspectorHeading" data-bind="click: inspectorState().toggleAll">
+            <h5 class="card-header" id="nodeInspectorHeading" data-bind="click: inspectorState().toggleAll, style: {backgroundColor: selectedNode().color}">
                 <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse All'}, css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
                 <!-- ko if: selectedNode().isLocked() -->
                 <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
