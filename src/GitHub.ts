@@ -137,7 +137,10 @@ export class GitHub {
 
             // add files to repo
             for (const fileName of fileNames){
-                repository.files.push(new RepositoryFile(repository, "", fileName));
+                // if file is not a .graph, .palette, or .json, just ignore it!
+                if (Utils.verifyFileExtension(fileName)){
+                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                }
             }
 
 
