@@ -55,6 +55,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const selectionRegionStart = {x:0, y:0};
     const selectionRegionEnd = {x:0, y:0};
 
+    const DOUBLE_CLICK_DURATION : number = 200;
+
     const APPS_HEIGHT : number = 28;
     const PORT_HEIGHT : number = 24;
 
@@ -294,6 +296,24 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .drag()
         .on("start", function (node : Node) {
             isDraggingNode = false;
+
+            // new click time
+            const newTime = Date.now();
+            const elapsedTime = newTime - Eagle.lastClickTime;
+            Eagle.lastClickTime = newTime;
+
+            // check if this is a double click
+            if (elapsedTime < DOUBLE_CLICK_DURATION){
+                if (node.isData()){
+                    console.log("Double click data");
+                    node.toggleShowPorts();
+                    eagle.logicalGraph.valueHasMutated();
+                }
+                if (node.isGroup()){
+                    console.log("Double click group");
+                    node.toggleCollapsed();
+                }
+            }
 
             // if node not selected, then select it
             if (!eagle.objectIsSelected(node)){
