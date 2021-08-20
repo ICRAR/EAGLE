@@ -3272,11 +3272,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             let destFound = false;
 
             for (const node of nodes){
-                if (node.getKey() === srcKey){
+                if ((node.getKey() === srcKey) ||
+                    (node.hasInputApplication() && node.getInputApplication().getKey() === srcKey) ||
+                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === srcKey) ||
+                    (node.hasExitApplication() && node.getExitApplication().getKey() === srcKey)){
                     srcFound = true;
                 }
 
-                if (node.getKey() === destKey){
+                if ((node.getKey() === destKey) ||
+                    (node.hasInputApplication() && node.getInputApplication().getKey() === destKey) ||
+                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === destKey) ||
+                    (node.hasExitApplication() && node.getExitApplication().getKey() === destKey)){
                     destFound = true;
                 }
             }
