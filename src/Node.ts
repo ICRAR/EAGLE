@@ -268,6 +268,10 @@ export class Node {
         this.collapsed(value);
     }
 
+    toggleCollapsed = () : void => {
+        this.collapsed(!this.collapsed());
+    }
+
     isStreaming = () : boolean => {
         return this.streaming();
     }
