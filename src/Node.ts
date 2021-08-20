@@ -97,7 +97,7 @@ export class Node {
 
         this.parentKey = ko.observable(null);
         this.embedKey = ko.observable(null);
-        this.collapsed = ko.observable(false);
+        this.collapsed = ko.observable(false); // indicates whether the node is shown collapsed in the graph display
         this.streaming = ko.observable(false);
         this.precious = ko.observable(false);
         this.showPorts = false;
@@ -117,7 +117,7 @@ export class Node {
 
         this.subject = ko.observable(null);
 
-        this.expanded = ko.observable(false);
+        this.expanded = ko.observable(false); // indicates whether the node is shown expanded in the hierarchy display
 
         this.readonly = ko.observable(readonly);
     }
