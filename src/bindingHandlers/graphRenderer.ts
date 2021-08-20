@@ -371,7 +371,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             // also check that to see if current children are still in within the group
-            if (node.isGroup() && !node.isCollapsed()){
+            if (isDraggingWithAlt && node.isGroup() && !node.isCollapsed()){
                 // loop through all nodes, check if node is a child
                 // if so, run checkForNodeAt and make sure result is parent
                 for (let i = 0; i < nodeData.length ; i++){
