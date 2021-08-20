@@ -69,13 +69,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const RESIZE_CONTROL_SIZE : number = 16;
     const SHRINK_BUTTON_SIZE : number = 16;
-    const COLLAPSE_BUTTON_SIZE : number = 16;
-    const EXPAND_BUTTON_SIZE : number = 16;
 
     const RESIZE_BUTTON_LABEL : string = "\u25F2";
     const SHRINK_BUTTON_LABEL : string = "\u21B9";
-    const COLLAPSE_BUTTON_LABEL : string = "\u25BC";
-    const EXPAND_BUTTON_LABEL : string = "\u25B2";
 
     const HEADER_TEXT_FONT_SIZE : number = 16;
     const CONTENT_TEXT_FONT_SIZE : number = 14;
@@ -92,7 +88,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const LINK_EVENT_SELECTED_COLOR : string = "blue";
 
     const SHRINK_BUTTONS_ENABLED : boolean = true;
-    const COLLAPSE_BUTTONS_ENABLED : boolean = true;
 
     const HEADER_OFFSET_Y_MEMORY : number = 16;
     const SUBHEADER_OFFSET_Y_MEMORY : number = -6;
@@ -563,61 +558,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .append("text")
         .attr("class", "shrink-button-label")
         .attr('x', function(node : Node){return getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 2;})
-        .attr('y', HEADER_INSET + 8 + (COLLAPSE_BUTTON_SIZE/2))
+        .attr('y', HEADER_INSET + 8 + (SHRINK_BUTTON_SIZE/2))
         .style('font-size', HEADER_BUTTON_LABEL_FONT_SIZE + 'px')
         .style('fill', 'black')
         .style('display', getShrinkControlDisplay)
         .style('user-select', 'none')
         .text(SHRINK_BUTTON_LABEL)
         .on("click", shrinkOnClick);
-
-    // add collapse buttons
-    nodes
-        .append("rect")
-        .attr("class", "collapse-button")
-        .attr("width", COLLAPSE_BUTTON_SIZE)
-        .attr("height", COLLAPSE_BUTTON_SIZE)
-        .attr("x", function(node : Node){return getWidth(node) - SHRINK_BUTTON_SIZE - 8 - COLLAPSE_BUTTON_SIZE - HEADER_INSET;})
-        .attr("y", HEADER_INSET + 4)
-        .style("display", getCollapseButtonDisplay)
-        .on("click", collapseOnClick);
-
-    // add collapse button labels
-    nodes
-        .append("text")
-        .attr("class", "collapse-button-label")
-        .attr('x', function(node : Node){return getWidth(node) - SHRINK_BUTTON_SIZE - 5.5 - COLLAPSE_BUTTON_SIZE - HEADER_INSET;})
-        .attr('y', HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2))
-        .style('font-size', HEADER_BUTTON_LABEL_FONT_SIZE + 'px')
-        .style('fill', 'black')
-        .style('display', getCollapseButtonDisplay)
-        .style('user-select', 'none')
-        .text(COLLAPSE_BUTTON_LABEL)
-        .on("click", collapseOnClick);
-
-    // add expand buttons
-    nodes
-        .append("rect")
-        .attr("class", "expand-button")
-        .attr("width", EXPAND_BUTTON_SIZE)
-        .attr("height", EXPAND_BUTTON_SIZE)
-        .attr("x", function(node : Node){return getWidth(node) - EXPAND_BUTTON_SIZE - HEADER_INSET - 4;})
-        .attr("y", HEADER_INSET + 4)
-        .style("display", getExpandButtonDisplay)
-        .on("click", expandOnClick);
-
-    // add expand button labels
-    nodes
-        .append("text")
-        .attr("class", "expand-button-label")
-        .attr('x', function(node : Node){return getWidth(node) - (SHRINK_BUTTON_SIZE/2) - HEADER_INSET - 9.5;})
-        .attr('y', HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2))
-        .attr('font-size', HEADER_BUTTON_LABEL_FONT_SIZE + 'px')
-        .style('fill', 'black')
-        .style('display', getExpandButtonDisplay)
-        .style('user-select', 'none')
-        .text(EXPAND_BUTTON_LABEL)
-        .on("click", expandOnClick);
 
     // add the left-side ports (by default, the input ports)
     const inputPortGroups = nodes
@@ -1065,7 +1012,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         nodes.attr("transform", nodeGetTranslation);
 
         rootContainer
-            .selectAll("g.node rect:not(.header-background):not(.apps-background):not(.resize-control):not(.shrink-button):not(.collapse-button):not(.expand-button)")
+            .selectAll("g.node rect:not(.header-background):not(.apps-background):not(.resize-control):not(.shrink-button)")
             .data(nodeData)
             .attr("width", function(node:Node){return getWidth(node);})
             .attr("height", function(node:Node){return getHeight(node);})
@@ -1206,32 +1153,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         rootContainer
             .selectAll("text.shrink-button-label")
             .attr('x', function(node : Node){return getWidth(node) - SHRINK_BUTTON_SIZE - HEADER_INSET - 2;})
-            .attr('y', HEADER_INSET + 8 + (COLLAPSE_BUTTON_SIZE/2))
+            .attr('y', HEADER_INSET + 8 + (SHRINK_BUTTON_SIZE/2))
             .style('font-size', HEADER_BUTTON_LABEL_FONT_SIZE + 'px')
             .style('display', getShrinkControlDisplay);
-
-        rootContainer
-            .selectAll("g.node rect.collapse-button")
-            .attr("width", COLLAPSE_BUTTON_SIZE)
-            .attr("height", COLLAPSE_BUTTON_SIZE)
-            .attr("x", function(node : Node){return getWidth(node) - SHRINK_BUTTON_SIZE - 8 - COLLAPSE_BUTTON_SIZE - HEADER_INSET;})
-            .attr("y", HEADER_INSET + 4)
-            .style("display", getCollapseButtonDisplay);
-
-        rootContainer
-            .selectAll("text.collapse-button-label")
-            .attr('x', function(node : Node){return getWidth(node) - SHRINK_BUTTON_SIZE - 5.5 - COLLAPSE_BUTTON_SIZE - HEADER_INSET;})
-            .attr('y', HEADER_INSET + 8.5 + (COLLAPSE_BUTTON_SIZE/2))
-            .style('font-size', HEADER_BUTTON_LABEL_FONT_SIZE + 'px')
-            .style('display', getCollapseButtonDisplay);
-
-        rootContainer
-            .selectAll("g.node rect.expand-button")
-            .attr("width", EXPAND_BUTTON_SIZE)
-            .attr("height", EXPAND_BUTTON_SIZE)
-            .attr("x", function(node : Node){return getWidth(node) - EXPAND_BUTTON_SIZE - HEADER_INSET - 4;})
-            .attr("y", HEADER_INSET + 4)
-            .style("display", getExpandButtonDisplay);
 
         // inputPorts
         nodes
@@ -1703,7 +1627,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeaderBackgroundHeight(node : Node) : number {
         if (node.isGroup() && node.isCollapsed()){
-            return Node.COLLAPSED_HEIGHT;
+            return Node.COLLAPSED_HEIGHT - HEADER_INSET*2;
         }
 
         if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
@@ -3151,30 +3075,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         eagle.logicalGraph.valueHasMutated();
     }
 
-    function collapseOnClick(node : Node, index : number){
-        console.log("collapse node", index);
-
-        // abort collapse of non-group node
-        if (!node.isGroup()){
-            return;
-        }
-
-        node.setCollapsed(true);
-        eagle.logicalGraph.valueHasMutated();
-    }
-
-    function expandOnClick(node : Node, index : number){
-        console.log("expand node", index);
-
-        // abort expand of non-group node
-        if (!node.isGroup()){
-            return;
-        }
-
-        node.setCollapsed(false);
-        eagle.logicalGraph.valueHasMutated();
-    }
-
     function moveChildNodes(node: Node, deltax: number, deltay: number) : void {
         // get id of parent node
         const parentKey : number = node.getKey();
@@ -3299,20 +3199,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    // whether or not the collapse button is visible
-    function getCollapseButtonDisplay(node : Node) : string {
-        if (COLLAPSE_BUTTONS_ENABLED){
-            if (node.isGroup()){
-                return node.isCollapsed() ? "none" : "inline";
-            } else {
-                return "none";
-            }
-        }
-        else {
-            return "none";
-        }
-    }
-
     // whether or not an object in the graph should be rendered or not
     function getPortsDisplay(node : Node) : string {
         if (node.isCollapsed()){
@@ -3324,20 +3210,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return "inline";
-    }
-
-    // whether or not the expand button is visible
-    function getExpandButtonDisplay(node : Node) : string {
-        if (COLLAPSE_BUTTONS_ENABLED){
-            if (node.isGroup()){
-                return node.isCollapsed() ? "inline" : "none";
-            } else {
-                return "none";
-            }
-        }
-        else {
-            return "none";
-        }
     }
 
     function checkForNodeAt(child: Node, x: number, y: number) : Node {
