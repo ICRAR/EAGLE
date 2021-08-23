@@ -765,6 +765,101 @@
             "readonly": true
         },
         {
+            "category": "DockerService",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean"
+            }, {
+                "text": "Image",
+                "name": "image",
+                "value": "icrar/",
+                "description": "The name of the docker image to be used for this application",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Tag",
+                "name": "tag",
+                "value": "1.0",
+                "description": "The tag of the docker image to be used for this application",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Digest",
+                "name": "digest",
+                "value": "",
+                "description": "The hexadecimal hash (long version) of the docker image to be used for this application",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Command",
+                "name": "command",
+                "value": "",
+                "description": "The command line to run within the docker instance. The specified command will be executed in a bash shell. That means that images will need a bash shell.",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "User",
+                "name": "user",
+                "value": "",
+                "description": "Username of the user who will run the application within the docker image",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Ensure User And Switch",
+                "name": "ensureUserAndSwitch",
+                "value": false,
+                "description":"Make sure the user specified in the User parameter exists and then run the docker container as that user",
+                "readonly": false,
+                "type": "Boolean"
+            }, {
+                "text": "Remove Container",
+                "name": "removeContainer",
+                "value": true,
+                "description":"Instruct Docker engine to delete the container after execution is complete",
+                "readonly": false,
+                "type": "Boolean"
+            }, {
+                "text": "Additional Bindings",
+                "name": "additionalBindings",
+                "value": "",
+                "description":"Directories which will be visible inside the container during run-time. Format is srcdir_on_host:trgtdir_on_container. Multiple entries can be separated by commas.",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Port Mappings",
+                "name": "portMappings",
+                "value": "",
+                "description": "Port mappings on the host machine",
+                "readonly": false,
+                "type": "String"
+            }],
+            "key": -11,
+            "text": "DockerService",
+            "description":"A service component run from a Docker image",
+            "categoryType": "Application",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
             "category": "Service",
             "text": "Service",
             "description": "An external service (e.g. a database)",
@@ -774,7 +869,7 @@
             "outputPorts": [],
             "key": -19,
             "fields": [],
-            "categoryType": "Other",
+            "categoryType": "Group",
             "readonly": true
         },
         {
