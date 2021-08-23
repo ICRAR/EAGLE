@@ -355,8 +355,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 isDraggingNode = false;
             }
 
+            // find location of mouse realtive to top-left of logicalGraphParent (translate to real coord system)
+            const offset = $("#logicalGraphParent").offset();
+            const x = DISPLAY_TO_REAL_POSITION_X(d3.event.sourceEvent.x - offset.left);
+            const y = DISPLAY_TO_REAL_POSITION_Y(d3.event.sourceEvent.y - offset.top);
+
             // check for nodes underneath the top left corner of the node we dropped
-            const parent : Node = checkForNodeAt(node, d3.event.subject.x, d3.event.subject.y);
+            const parent : Node = checkForNodeAt(node, x, y);
 
             // if a parent was found, update
             if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
@@ -414,6 +419,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("eagle-wrap-width", getWrapWidth)
         .style("fill", getHeaderFill)
         .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
+        .style("font-weight", getHeaderFontWeight)
         .style("display", getHeaderDisplay)
         .text(getHeaderText)
         .call(wrap, false);
@@ -1051,6 +1057,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("eagle-wrap-width", getWrapWidth)
             .style("fill", getHeaderFill)
             .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
+            .style("font-weight", getHeaderFontWeight)
             .style("display", getHeaderDisplay)
             .text(getHeaderText)
             .call(wrap, false);
@@ -1706,6 +1713,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return "white";
+    }
+
+    function getHeaderFontWeight(node : Node) : string {
+        //if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts() &&  eagle.objectIsSelected(node)){
+        if (eagle.objectIsSelected(node)){
+            return "bold";
+        }
+
+        return "normal";
     }
 
     function getSubHeaderDisplay(node : Node) : string {
