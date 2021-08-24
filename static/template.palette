@@ -413,9 +413,9 @@
                 "readonly": false,
                 "type": "Boolean"
             }],
-            "shape": "Card",
             "key": -4,
             "text": "Memory",
+            "description": "In-memory storage of intermediate data products",
             "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
@@ -459,9 +459,9 @@
                 "readonly": false,
                 "type": "String"
             }],
-            "shape": "Card",
             "key": -5,
             "text": "File",
+            "description": "A standard file on a filesystem mounted to the deployment machine",
             "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
@@ -505,9 +505,9 @@
                 "readonly": false,
                 "type": "String"
             }],
-            "shape": "Card",
             "key": -6,
             "text": "S3",
+            "description": "A 'bucket' object available on Amazon's Simple Storage Service (S3)",
             "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
@@ -572,9 +572,9 @@
                 "readonly": false,
                 "type": "Integer"
             }],
-            "shape": "Card",
             "key": -7,
             "text": "NGAS",
+            "description": "An archive on the Next Generation Archive System (NGAS).",
             "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
@@ -597,9 +597,9 @@
                 "readonly": false,
                 "type": "Boolean"
             }],
-            "shape": "Card",
             "key": -24,
             "text": "Plasma",
+            "description": "An object in a Apache Arrow Plasma in-memory object store",
             "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
@@ -622,9 +622,9 @@
                 "readonly": false,
                 "type": "Boolean"
             }],
-            "shape": "Card",
             "key": -29,
             "text": "PlasmaFlight",
+            "description": "An Apache Arrow Flight server providing distributed access to a Plasma in-memory object store",
             "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
@@ -632,7 +632,7 @@
         {
             "category": "GroupBy",
             "text": "Group By",
-            "description": "Placeholder 'group by' description",
+            "description": "A construct that runs an application on a number of inputs and groups the outputs by results",
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
@@ -649,7 +649,7 @@
                 "text": "Group axis",
                 "name": "group_axis",
                 "value": "frequency",
-                "description": "",
+                "description": "The axis by which to group the inputs together",
                 "readonly": false,
                 "type": "String"
             }],
@@ -659,7 +659,7 @@
         {
             "category": "Gather",
             "text": "Gather",
-            "description": "Placeholder 'gather' description",
+            "description": "A construct that gathers together multiple inputs and processes them using a specified number of instances",
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
@@ -669,7 +669,7 @@
                 "text": "Number of inputs",
                 "name": "num_of_inputs",
                 "value": 2,
-                "description": "The number of inputs that will be gathered together by this construct.",
+                "description": "The Gather “width”, stating how many partitions each Gather instance will handle",
                 "readonly": false,
                 "type": "Integer"
             }, {
@@ -686,7 +686,7 @@
         {
             "category": "Scatter",
             "text": "Scatter",
-            "description": "Placeholder 'scatter' description",
+            "description": "A construct that splits inputs into multiple parallel processing instances",
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
@@ -713,7 +713,7 @@
         {
             "category": "MKN",
             "text": "MKN",
-            "description": "Placeholder 'mkn' description",
+            "description": "A generalised Scatter and Gather node. MKN stands for a multiplicity of M on the input side of the construct, K internal and N on the output side.",
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
@@ -747,7 +747,7 @@
         {
             "category": "Loop",
             "text": "Loop",
-            "description": "Placeholder 'loop' description",
+            "description": "Components inside a Loop will be repeatedly executed for a fixed number of times",
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
@@ -788,7 +788,6 @@
                 "readonly": false,
                 "type": "String"
             }],
-            "shape": "File",
             "key": -12,
             "text": "Comment",
             "description": "A node that places a comment in the graph. The comment can be used to communicate important information or intention",
@@ -896,8 +895,8 @@
         },
         {
             "category": "SubGraph",
-            "text": "Sub-Graph",
-            "description": "A subsection of a complete graph. Can enclose logical parts of a graph be collapsed to save space in the graph display.",
+            "text": "SubGraph",
+            "description": "A subsection of a complete graph. Can enclose logical parts of a graph and be collapsed to save space in the graph display.",
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
