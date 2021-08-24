@@ -211,6 +211,9 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // enter the translator url
             .typeText(Selector('#settingTranslatorURLValue'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
 
+            // use the complex translator options
+            .click('#settingUseSimplifiedTranslatorOptionsButton')
+
             // close settings modal
             .click('#settingsModal .modal-footer button')
 
