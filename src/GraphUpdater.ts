@@ -223,7 +223,6 @@ export class GraphUpdater {
                 case Eagle.Category.DynlibApp:
                 case Eagle.Category.MPI:
                 case Eagle.Category.Docker:
-                case Eagle.Category.DockerService:
                 case Eagle.Category.PythonApp:
                     return Eagle.CategoryType.Application;
 
@@ -330,7 +329,6 @@ export class GraphUpdater {
             case Eagle.Category.BashShellApp:
             case Eagle.Category.Branch:
             case Eagle.Category.Docker:
-            case Eagle.Category.DockerService:
             case Eagle.Category.Service:
             case Eagle.Category.DynlibApp:
             case Eagle.Category.End:
@@ -379,7 +377,6 @@ export class GraphUpdater {
             case Eagle.Category.Start:
                 return true;
             case Eagle.Category.Service:
-            case Eagle.Category.DockerService:
             case Eagle.Category.Comment:
             case Eagle.Category.Description:
             case Eagle.Category.End:
@@ -443,7 +440,6 @@ export class GraphUpdater {
             case Eagle.Category.BashShellApp:
             case Eagle.Category.Branch:
             case Eagle.Category.Docker:
-            case Eagle.Category.DockerService:
             case Eagle.Category.DynlibApp:
             case Eagle.Category.End:
             case Eagle.Category.MPI:
