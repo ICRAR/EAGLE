@@ -2413,7 +2413,7 @@ export class Eagle {
 
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
-                    this.logicalGraph().removeNodeByKey(object.getKey());
+                    this.logicalGraph().removeNode(object);
                 }
 
                 if (object instanceof Edge){

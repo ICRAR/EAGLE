@@ -634,8 +634,22 @@ export class LogicalGraph {
         return null;
     }
 
-    removeNodeByKey = (key : number) : void => {
+    removeNode = (node: Node) : void => {
+        const key = node.getKey();
+
+        // delete edges incident on this node
         this.removeEdgesByKey(key);
+
+        // delete edges incident on the embedded apps of this node
+        if (node.hasInputApplication()){
+            this.removeEdgesByKey(node.getInputApplication().getKey());
+        }
+        if (node.hasOutputApplication()){
+            this.removeEdgesByKey(node.getOutputApplication().getKey());
+        }
+        if (node.hasExitApplication()){
+            this.removeEdgesByKey(node.getExitApplication().getKey());
+        }
 
         // delete the node
         for (let i = this.nodes.length - 1; i >= 0 ; i--){
@@ -646,8 +660,14 @@ export class LogicalGraph {
 
         // delete children
         for (let i = this.nodes.length - 1; i >= 0 ; i--){
+            // check that iterator still points to a valid element in the nodes array
+            // a check like this wouldn't normally be necessary, but we are deleting elements from the array within the loop, so it might be shorter than we expect
+            if (i >= this.nodes.length){
+                continue;
+            }
+
             if (this.nodes[i].getParentKey() === key){
-                this.removeNodeByKey(this.nodes[i].getKey());
+                this.removeNode(this.nodes[i]);
             }
         }
     }
