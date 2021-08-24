@@ -77,6 +77,7 @@ export class Utils {
     static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
     static readonly SPAWN_TRANSLATION_TAB: string = "SpawnTranslationTab";
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
+    static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
 
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};

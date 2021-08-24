@@ -126,6 +126,7 @@ export class Eagle {
         Eagle.settings.push(new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, "icrar"));
         Eagle.settings.push(new Setting("Spawn Translation Tab", "When translating a graph, display the output of the translator in a new tab", Setting.Type.Boolean, Utils.SPAWN_TRANSLATION_TAB, true));
         Eagle.settings.push(new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false));
+        Eagle.settings.push(new Setting("Use Simplified Translator Options", "Hide the complex and rarely used translator options", Setting.Type.Boolean, Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS, true));
 
         Eagle.shortcuts = ko.observableArray();
         Eagle.shortcuts.push(new KeyboardShortcut("Add Edge", ["e"], KeyboardShortcut.true, (eagle): void => {eagle.addEdgeToLogicalGraph();}));
@@ -456,12 +457,16 @@ export class Eagle {
         return false;
     }
 
+    showSimplifiedTranslatorOptions : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return Eagle.findSetting(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value();
+    }, this);
+
     //----------------- Physical Graph Generation --------------------------------
     /**
      * Generate Physical Graph Template.
      * @param algorithmIndex Algorithm number.
      */
-    genPGT = (algorithmIndex : number, testingMode: boolean) : void => {
+    genPGT = (algorithmIndex : number, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
         if (this.logicalGraph().getNumNodes() === 0) {
             Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
             return;
@@ -473,59 +478,67 @@ export class Eagle {
         }
 
         const translatorURL : string = Eagle.findSetting(Utils.TRANSLATOR_URL).value();
-        const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS, Eagle.DALiuGESchemaVersion.AppRef];
-
         console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
 
-        // ask user to specify graph format to be sent to translator
-        Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
-            if (!completed){
-                console.log("User aborted translation.");
-                return;
-            }
+        if (format === Eagle.DALiuGESchemaVersion.Unknown){
+            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS, Eagle.DALiuGESchemaVersion.AppRef];
 
-            // get json for logical graph
-            let json;
-            switch (schemas[userChoiceIndex]){
-                case Eagle.DALiuGESchemaVersion.OJS:
-                    json = LogicalGraph.toOJSJson(this.logicalGraph());
-                    break;
-                case Eagle.DALiuGESchemaVersion.AppRef:
-                    json = LogicalGraph.toAppRefJson(this.logicalGraph());
-                    break;
-                default:
-                    console.error("Unsupported graph format for translator!");
+            // ask user to specify graph format to be sent to translator
+            Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
+                if (!completed){
+                    console.log("User aborted translation.");
                     return;
-            }
-
-            // validate json
-            if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-                const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, schemas[userChoiceIndex], Eagle.FileType.Graph);
-                if (!validatorResult.valid){
-                    const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                    console.error(message, validatorResult.errors);
-                    Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                    //return;
                 }
+
+                this._genPGT(translatorURL, algorithmIndex, testingMode, schemas[userChoiceIndex]);
+            });
+        } else {
+            this._genPGT(translatorURL, algorithmIndex, testingMode, format);
+        }
+    }
+
+    _genPGT = (translatorURL: string, algorithmIndex : number, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+        // get json for logical graph
+        let json;
+        switch (format){
+            case Eagle.DALiuGESchemaVersion.OJS:
+                json = LogicalGraph.toOJSJson(this.logicalGraph());
+                break;
+            case Eagle.DALiuGESchemaVersion.AppRef:
+                json = LogicalGraph.toAppRefJson(this.logicalGraph());
+                break;
+            default:
+                console.error("Unsupported graph format for translator!");
+                return;
+        }
+
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, format, Eagle.FileType.Graph);
+            if (!validatorResult.valid){
+                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+                console.error(message, validatorResult.errors);
+                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+                //return;
             }
+        }
 
-            const translatorData = {
-                algo: Config.translationAlgorithms[algorithmIndex],
-                lg_name: this.logicalGraph().fileInfo().name,
-                json_data: JSON.stringify(json),
-                test: testingMode.toString()
-            };
+        const translatorData = {
+            algo: Config.translationAlgorithms[algorithmIndex],
+            lg_name: this.logicalGraph().fileInfo().name,
+            json_data: JSON.stringify(json),
+            test: testingMode.toString()
+        };
 
-            this.translator().submit(translatorURL, translatorData);
+        this.translator().submit(translatorURL, translatorData);
 
-            // mostly for debugging purposes
-            console.log("translator data");
-            console.log("---------");
-            console.log(translatorData);
-            console.log("---------");
-            console.log(json);
-            console.log("---------");
-        });
+        // mostly for debugging purposes
+        console.log("translator data");
+        console.log("---------");
+        console.log(translatorData);
+        console.log("---------");
+        console.log(json);
+        console.log("---------");
     }
 
     /**
