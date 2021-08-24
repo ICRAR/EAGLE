@@ -665,6 +665,16 @@ export class Eagle {
                 continue;
             }
 
+            // if already parented to a node in this selection, skip
+            const parentKey = node.getParentKey();
+            if (parentKey !== null){
+                const parent = this.logicalGraph().findNodeByKey(parentKey);
+                if (this.objectIsSelected(parent)){
+                    continue;
+                }
+            }
+
+            // update selection
             node.setParentKey(parentNode.getKey());
         }
 
