@@ -79,8 +79,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const RESIZE_BUTTON_LABEL_FONT_SIZE : number = 24;
     const HEADER_BUTTON_LABEL_FONT_SIZE : number = 12;
 
-    const LINK_WARNING_COLOR : string = "orange";
-    const LINK_WARNING_SELECTED_COLOR : string = "chocolate";
+    const LINK_WARNING_COLOR : string = "steelblue";
+    const LINK_WARNING_SELECTED_COLOR : string = "navy";
     const LINK_INVALID_COLOR : string = "red";
     const LINK_INVALID_SELECTED_COLOR : string = "firebrick";
     const LINK_VALID_COLOR : string = "limegreen";
