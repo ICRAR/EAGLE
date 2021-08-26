@@ -201,7 +201,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                 eagle.selectedObjects(objects);
                 eagle.selectedLocation(Eagle.FileType.Graph);
-                eagle.rightWindow().mode(Eagle.RightWindowMode.NodeInspector);
+                eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector);
 
                 if (isDraggingWithAlt){
                     for (const node of nodes){
@@ -1557,9 +1557,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function selectEdge(edge : Edge, addToSelection: boolean){
         if (edge !== null){
             if (addToSelection){
-                eagle.editSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
+                eagle.editSelection(Eagle.RightWindowMode.Inspector, edge, Eagle.FileType.Graph);
             } else {
-                eagle.setSelection(Eagle.RightWindowMode.EdgeInspector, edge, Eagle.FileType.Graph);
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, edge, Eagle.FileType.Graph);
             }
         }
     }
@@ -1567,9 +1567,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function selectNode(node : Node, addToSelection: boolean){
         if (node !== null){
             if (addToSelection){
-                eagle.editSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Graph);
+                eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
             } else {
-                eagle.setSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Graph);
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
             }
         }
     }

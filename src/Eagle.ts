@@ -2474,7 +2474,7 @@ export class Eagle {
 
         this.logicalGraph().addNode(node, pos.x, pos.y, (newNode: Node) => {
             // make sure the new node is selected
-            this.setSelection(Eagle.RightWindowMode.NodeInspector, newNode, Eagle.FileType.Graph);
+            this.setSelection(Eagle.RightWindowMode.Inspector, newNode, Eagle.FileType.Graph);
             Eagle.nodeDropLocation = {x:0, y:0};
 
             this.logicalGraph.valueHasMutated();
@@ -3143,9 +3143,9 @@ export class Eagle {
 
     paletteComponentClick = (node: Node, event:JQueryEventObject) : void => {
         if (event.shiftKey)
-            this.editSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Palette);
+            this.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
         else
-            this.setSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Palette);
+            this.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
     }
 
     selectedEdgeValid = () : Eagle.LinkValid => {
@@ -3238,15 +3238,15 @@ export class Eagle {
     }
 
     selectInputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getInputApplication(), Eagle.FileType.Graph);
+        this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getInputApplication(), Eagle.FileType.Graph);
     }
 
     selectOutputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
+        this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
     selectExitApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication(), Eagle.FileType.Graph);
+        this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getExitApplication(), Eagle.FileType.Graph);
     }
 
     editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number) : void => {
