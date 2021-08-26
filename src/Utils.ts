@@ -285,25 +285,25 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static translateRightWindowModeToString(rightWindowMode: Eagle.RightWindowMode): string {
-        switch(rightWindowMode){
-            case Eagle.RightWindowMode.EdgeInspector:
-                return "EdgeInspector";
-            case Eagle.RightWindowMode.Hierarchy:
-                return "Hierarchy";
-            case Eagle.RightWindowMode.NodeInspector:
-                return "NodeInspector";
-            case Eagle.RightWindowMode.Repository:
-                return "Repository";
-            case Eagle.RightWindowMode.TranslationMenu:
-                return "TranslationMenu";
-            case Eagle.RightWindowMode.None:
-                return "None";
-            default:
-                console.warn("Unknown rightWindowMode", rightWindowMode);
-                return "";
-        }
-    }
+    // static translateRightWindowModeToString(rightWindowMode: Eagle.RightWindowMode): string {
+    //     switch(rightWindowMode){
+    //         case Eagle.RightWindowMode.EdgeInspector:
+    //             return "Inspector";
+    //         case Eagle.RightWindowMode.Hierarchy:
+    //             return "Hierarchy";
+    //         case Eagle.RightWindowMode.NodeInspector:
+    //             return "Inspector";
+    //         case Eagle.RightWindowMode.Repository:
+    //             return "Repository";
+    //         case Eagle.RightWindowMode.TranslationMenu:
+    //             return "TranslationMenu";
+    //         case Eagle.RightWindowMode.None:
+    //             return "None";
+    //         default:
+    //             console.warn("Unknown rightWindowMode", rightWindowMode);
+    //             return "";
+    //     }
+    // }
 
     static translateStringToDataType(dataType: string): Eagle.DataType {
         if (dataType === "Boolean"){

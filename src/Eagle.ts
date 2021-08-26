@@ -3708,8 +3708,9 @@ export namespace Eagle
     export enum RightWindowMode {
         None = "None",
         Repository = "Repository",
-        NodeInspector = "NodeInspector",
-        EdgeInspector = "EdgeInspector",
+        NodeInspector = "Inspector",
+        EdgeInspector = "Inspector",
+        Inspector = "Inspector",
         TranslationMenu = "TranslationMenu",
         Hierarchy = "Hierarchy"
     }
