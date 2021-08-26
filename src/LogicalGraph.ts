@@ -515,7 +515,7 @@ export class LogicalGraph {
         newNode.setEmbedKey(null);
 
         // convert start of end nodes to data components
-        if (newNode.getCategory() === Eagle.Category.Start || newNode.getCategory() === Eagle.Category.End) {
+        if (newNode.getCategory() === Eagle.Category.Start) {
             // Store the node's location.
             const nodePosition = newNode.getPosition();
 
