@@ -829,11 +829,11 @@ export class LogicalGraph {
                 if (n.getPosition().y < minY){
                     minY = n.getPosition().y;
                 }
-                if (n.getPosition().x + n.getDisplayWidth() > maxX){
-                    maxX = n.getPosition().x + n.getDisplayWidth();
+                if (n.getPosition().x + n.getWidth() > maxX){
+                    maxX = n.getPosition().x + n.getWidth();
                 }
-                if (n.getPosition().y + n.getDisplayHeight() > maxY){
-                    maxY = n.getPosition().y + n.getDisplayHeight();
+                if (n.getPosition().y + n.getHeight() > maxY){
+                    maxY = n.getPosition().y + n.getHeight();
                 }
             }
         }
@@ -884,5 +884,53 @@ export class LogicalGraph {
         }
 
         return result;
+    }
+
+    checkForNodeAt = (x: number, y: number, width: number, height: number, ignoreKey: number) : Node => {
+        for (const node of this.nodes){
+            // abort if checking for self!
+            if (node.getKey() === ignoreKey){
+                continue;
+            }
+
+            if (Utils.nodesOverlap(x, y, width, height, node.getPosition().x, node.getPosition().y, node.getWidth(), node.getHeight())){
+                return node;
+            }
+        }
+        return null;
+    }
+
+    static normaliseNodes = (nodes: Node[], marginX: number, marginY: number) : {x: number, y: number} => {
+        let minX = Number.MAX_SAFE_INTEGER;
+        let maxX = Number.MIN_SAFE_INTEGER;
+        let minY = Number.MAX_SAFE_INTEGER;
+        let maxY = Number.MIN_SAFE_INTEGER;
+
+        // find the max and min extent of all nodes in the x and y axis
+        for (const node of nodes){
+            if (node.getPosition().x < minX){
+                minX = node.getPosition().x;
+            }
+
+            if (node.getPosition().y < minY){
+                minY = node.getPosition().y;
+            }
+
+            if (node.getPosition().x + node.getWidth() > maxX){
+                maxX = node.getPosition().x + node.getWidth();
+            }
+
+            if (node.getPosition().y + node.getHeight() > maxY){
+                maxY = node.getPosition().y + node.getHeight();
+            }
+        }
+
+        // move all nodes so that the top left corner of the graph starts at the origin 0,0
+        for (const node of nodes){
+            const pos = node.getPosition();
+            node.setPosition(pos.x - minX + marginX, pos.y - minY + marginY);
+        }
+
+        return {x: maxX - minX + marginX*2, y: maxY - minY + marginY*2};
     }
 }
