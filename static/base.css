@@ -58,10 +58,6 @@
     overflow-x: hidden;
 }
 
-.mw-140 {
-    min-width: 140px;
-}
-
 .rightWindow .btn-primary, .leftWindow .btn-primary {
     background-color: #0059a5;
     border-color: #0059a5;
@@ -469,7 +465,7 @@ div.rightWindow h5.card-header {
     color: white;
 }
 
-#nodeInspector .input-group-prepend{
+#nodeInspector .input-group-prepend, #translationMenu .input-group-prepend {
     width:40%;
 }
 
@@ -478,12 +474,11 @@ div.rightWindow h5.card-header {
     width:auto;
 }
 
-#nodeInspector .input-group-text{
+#nodeInspector .input-group-text, #translationMenu .input-group-text{
     width:100%;
     font-size: .9rem;
     text-align: left;
     white-space: normal;
-    min-width:unset;
 }
 
 #nodeInspector input{
