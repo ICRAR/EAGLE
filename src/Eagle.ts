@@ -739,9 +739,7 @@ export class Eagle {
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node) : void => {
-        const DUPLICATE_OFFSET: number = 20;
-        const CONSTRUCT_MARGIN_X: number = 20;
-        const CONSTRUCT_MARGIN_Y: number = 40;
+        const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph keys
         const keyMap: Map<number, number> = new Map();
@@ -753,7 +751,7 @@ export class Eagle {
             this.logicalGraph().addNodeComplete(parentNode);
 
             // we need to know the required width for the new parentNode, which will be a bounding box for all nodes in nodes[]
-            const bbSize = LogicalGraph.normaliseNodes(nodes, CONSTRUCT_MARGIN_X, CONSTRUCT_MARGIN_Y);
+            const bbSize = LogicalGraph.normaliseNodes(nodes);
 
             // find a suitable position for the parent node
             parentNodePosition = this.getNewNodePosition(bbSize.x, bbSize.y);
