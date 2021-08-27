@@ -155,7 +155,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .append("path")
         .attr("d", "M 0 0 L 10 5 L 0 10 z")
         .attr("stroke", "none")
-        .attr("fill", LINK_COLORS[0]);
+        .attr("fill", LINK_COLORS['LINK_DEFAULT_COLOR']);
 
     // background
     rootContainer
