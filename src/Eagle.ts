@@ -2469,9 +2469,7 @@ export class Eagle {
 
         // get new position for node
         if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-            const width = Math.max(Node.DEFAULT_WIDTH, node.getDisplayWidth());
-            const height = Math.max(Node.DEFAULT_HEIGHT, node.getDisplayHeight());
-            pos = this.getNewNodePosition(width, height);
+            pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
         } else if (Eagle.nodeDropLocation){
             pos = Eagle.nodeDropLocation;
         } else {
