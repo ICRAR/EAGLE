@@ -737,8 +737,9 @@ export class Eagle {
         });
     }
 
+    // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node) : void => {
-        const DUPLICATE_OFFSET: number = 20;
+        const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph keys
         const keyMap: Map<number, number> = new Map();
@@ -748,7 +749,18 @@ export class Eagle {
         // add the parent node to the logical graph
         if (parentNode !== null){
             this.logicalGraph().addNodeComplete(parentNode);
-            parentNodePosition = this.getNewNodePosition();
+
+            // we need to know the required width for the new parentNode, which will be a bounding box for all nodes in nodes[]
+            const bbSize = LogicalGraph.normaliseNodes(nodes);
+
+            // find a suitable position for the parent node
+            parentNodePosition = this.getNewNodePosition(bbSize.x, bbSize.y);
+
+            // set attributes of parentNode
+            parentNode.setPosition(parentNodePosition.x, parentNodePosition.y);
+            parentNode.setWidth(bbSize.x);
+            parentNode.setHeight(bbSize.y);
+            parentNode.setCollapsed(true);
         } else {
             parentNodePosition = {x: DUPLICATE_OFFSET, y: DUPLICATE_OFFSET};
         }
@@ -833,12 +845,6 @@ export class Eagle {
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
             this.logicalGraph().addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), edge.isLoopAware(), null);
-        }
-
-        // resize the parent node so that it fits all its children, and collapse it by default
-        if (parentNode !== null){
-            this.logicalGraph().shrinkNode(parentNode);
-            parentNode.setCollapsed(true);
         }
     }
 
@@ -931,7 +937,7 @@ export class Eagle {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
             const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
-            const pos = this.getNewNodePosition();
+            const pos = this.getNewNodePosition(node.getDisplayWidth(), node.getDisplayHeight());
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.logicalGraph().addNode(node, pos.x, pos.y, null);
             this.logicalGraph.valueHasMutated();
@@ -2463,7 +2469,7 @@ export class Eagle {
 
         // get new position for node
         if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-            pos = this.getNewNodePosition();
+            pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
         } else if (Eagle.nodeDropLocation){
             pos = Eagle.nodeDropLocation;
         } else {
@@ -3559,24 +3565,48 @@ export class Eagle {
         });
     }
 
-    getNewNodePosition = () : {x:number, y:number} => {
-        // get screen size
-        const width = $('#logicalGraphD3Div').width();
-        const height = $('#logicalGraphD3Div').height();
+    getNewNodePosition = (width:number, height:number) : {x:number, y:number} => {
+        const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area
+        let suitablePositionFound = false;
+        let numIterations = 0;
+        const MAX_ITERATIONS = 100;
+        let x;
+        let y;
 
-        let x = width / 2;
-        let y = height / 2;
+        while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
+            // get visible screen size
+            const minX = this.leftWindow().shown() ? this.leftWindow().width(): 0;
+            const maxX = this.rightWindow().shown() ? $('#logicalGraphD3Div').width() - this.rightWindow().width() - width - MARGIN : $('#logicalGraphD3Div').width() - width - MARGIN;
+            const minY = 0;
+            const maxY = $('#logicalGraphD3Div').height() - height - MARGIN;
 
-        // choose random position centered around the 0, min -200, max 200
-        x += Math.floor(Math.random() * (201)) - 100;
-        y += Math.floor(Math.random() * (201)) - 100;
+            // choose random position within minimums and maximums determined above
+            const randomX = Math.floor(Math.random() * (maxX - minX + 1) + minX);
+            const randomY = Math.floor(Math.random() * (maxY - minY + 1) + minY);
 
-        // modify random positions using current translation of viewport
-        x -= this.globalOffsetX;
-        y -= this.globalOffsetY;
+            x = randomX;
+            y = randomY;
 
-        x /= this.globalScale;
-        y /= this.globalScale;
+            // modify random positions using current translation of viewport
+            x -= this.globalOffsetX;
+            y -= this.globalOffsetY;
+
+            x /= this.globalScale;
+            y /= this.globalScale;
+
+            //console.log("Candidate Position", numIterations, ":", x, ",", y, "X:", minX, "-", maxX, "Y:", minY, "-", maxY);
+
+            // check position is suitable, doesn't collide with any existing nodes
+            const collision = this.logicalGraph().checkForNodeAt(x, y, width, height, null);
+            suitablePositionFound = collision === null;
+
+            numIterations += 1;
+        }
+
+        // if we tried to find a suitable position 100 times, just print a console message
+        if (numIterations > MAX_ITERATIONS){
+            console.warn("Tried to find suitable position for new node", numIterations, "times and failed, using the last try by default.");
+        }
 
         return {x:x, y:y};
     }

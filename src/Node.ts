@@ -71,9 +71,9 @@ export class Node {
     private readonly : ko.Observable<boolean>;
 
     public static readonly DEFAULT_WIDTH : number = 200;
-    public static readonly DEFAULT_HEIGHT : number = 200;
+    public static readonly DEFAULT_HEIGHT : number = 72;
     public static readonly MINIMUM_WIDTH : number = 200;
-    public static readonly MINIMUM_HEIGHT : number = 100;
+    public static readonly MINIMUM_HEIGHT : number = 72;
     public static readonly DEFAULT_COLOR : string = "ffffff";
 
     public static readonly COLLAPSED_WIDTH : number = 128;
@@ -82,6 +82,13 @@ export class Node {
     public static readonly DATA_COMPONENT_HEIGHT : number = 48;
 
     public static readonly NO_APP_STRING : string = "<no app>";
+
+    // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
+    // this is the default margin that should be left on each side
+    public static readonly CONSTRUCT_MARGIN_LEFT: number = 24;
+    public static readonly CONSTRUCT_MARGIN_RIGHT: number = 24;
+    public static readonly CONSTRUCT_MARGIN_TOP: number = 72;
+    public static readonly CONSTRUCT_MARGIN_BOTTOM: number = 16;
 
     constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, readonly: boolean){
         this._id = Utils.uuidv4();
@@ -1234,6 +1241,12 @@ export class Node {
         }
         node.width = width;
         node.height = height;
+
+        // if node is not a group or comment/description, make its width/height the default values
+        if (!Eagle.getCategoryData(node.getCategory()).isResizable){
+            node.width = Node.DEFAULT_WIDTH;
+            node.height = Node.DEFAULT_HEIGHT;
+        }
 
         // showPorts
         if (typeof nodeData.showPorts !== 'undefined'){

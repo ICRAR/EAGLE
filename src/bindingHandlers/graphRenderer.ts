@@ -3228,6 +3228,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return "inline";
     }
 
+    // TODO: try to use LogicalGraph.checkForNodeAt() instead
     function checkForNodeAt(child: Node, x: number, y: number) : Node {
         for (let i = nodeData.length - 1; i >= 0 ; i--){
             const node : Node = nodeData[i];
