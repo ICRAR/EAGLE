@@ -596,6 +596,20 @@
                 "description": "Is this node the end of a group?",
                 "readonly": false,
                 "type": "Boolean"
+            }, {
+                "text": "Plasma Path",
+                "name": "plasma_path",
+                "value": "",
+                "description": "Path to the local plasma store",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Object Id",
+                "name": "object_id",
+                "value": "",
+                "description": "Id of the object for all compute nodes",
+                "readonly": false,
+                "type": "String"
             }],
             "key": -24,
             "text": "Plasma",
@@ -621,6 +635,27 @@
                 "description": "Is this node the end of a group?",
                 "readonly": false,
                 "type": "Boolean"
+            }, {
+                "text": "Plasma Path",
+                "name": "plasma_path",
+                "value": "",
+                "description": "Path to the local plasma store",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Object Id",
+                "name": "object_id",
+                "value": "",
+                "description": "Id of the object for all compute nodes",
+                "readonly": false,
+                "type": "String"
+            }, {
+                "text": "Flight Path",
+                "name": "flight_path",
+                "value": "",
+                "description": "IP and flight port of the drop owner",
+                "readonly": false,
+                "type": "String"
             }],
             "key": -29,
             "text": "PlasmaFlight",

@@ -285,26 +285,6 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static translateRightWindowModeToString(rightWindowMode: Eagle.RightWindowMode): string {
-        switch(rightWindowMode){
-            case Eagle.RightWindowMode.EdgeInspector:
-                return "EdgeInspector";
-            case Eagle.RightWindowMode.Hierarchy:
-                return "Hierarchy";
-            case Eagle.RightWindowMode.NodeInspector:
-                return "NodeInspector";
-            case Eagle.RightWindowMode.Repository:
-                return "Repository";
-            case Eagle.RightWindowMode.TranslationMenu:
-                return "TranslationMenu";
-            case Eagle.RightWindowMode.None:
-                return "None";
-            default:
-                console.warn("Unknown rightWindowMode", rightWindowMode);
-                return "";
-        }
-    }
-
     static translateStringToDataType(dataType: string): Eagle.DataType {
         if (dataType === "Boolean"){
             return Eagle.DataType.Boolean;
@@ -1955,5 +1935,33 @@ export class Utils {
         link.download = fileName;
         document.body.appendChild(link);
         link.click();
+    }
+
+    // https://noonat.github.io/intersect/#aabb-vs-aabb
+    static nodesOverlap(n0x: number, n0y: number, n0width: number, n0height: number, n1x: number, n1y: number, n1width: number, n1height: number) : boolean {
+        const n0pos = {x:n0x + n0width/2, y:n0y + n0height/2};
+        const n1pos = {x:n1x + n1width/2, y:n1y + n1height/2};
+        const n0half = {x:n0width/2, y:n0height/2};
+        const n1half = {x:n1width/2, y:n1height/2};
+
+        //console.log("compare", n0x, n0y, n0width, n0height, n1x, n1y, n1width, n1height);
+
+        const dx = n0pos.x - n1pos.x;
+        const px = (n0half.x + n1half.x) - Math.abs(dx);
+        if (px <= 0) {
+            //console.log("compare OK");
+            return false;
+        }
+
+        const dy = n0pos.y - n1pos.y;
+        const py = (n0half.y + n1half.y) - Math.abs(dy);
+        if (py <= 0) {
+            //console.log("compare OK");
+            return false;
+        }
+
+        //console.log("compares HIT");
+
+        return true;
     }
 }

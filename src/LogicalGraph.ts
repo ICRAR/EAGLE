@@ -805,6 +805,7 @@ export class LogicalGraph {
         return false;
     }
 
+    // TODO: shrinkNode and normaliseNodes seem to share some common code, maybe factor out or combine?
     shrinkNode = (node : Node) : void => {
         // abort shrink of non-group node
         if (!node.isGroup()){
@@ -829,11 +830,11 @@ export class LogicalGraph {
                 if (n.getPosition().y < minY){
                     minY = n.getPosition().y;
                 }
-                if (n.getPosition().x + n.getDisplayWidth() > maxX){
-                    maxX = n.getPosition().x + n.getDisplayWidth();
+                if (n.getPosition().x + n.getWidth() > maxX){
+                    maxX = n.getPosition().x + n.getWidth();
                 }
-                if (n.getPosition().y + n.getDisplayHeight() > maxY){
-                    maxY = n.getPosition().y + n.getDisplayHeight();
+                if (n.getPosition().y + n.getHeight() > maxY){
+                    maxY = n.getPosition().y + n.getHeight();
                 }
             }
         }
@@ -846,10 +847,10 @@ export class LogicalGraph {
         }
 
         // add some padding
-        minX -= 24;
-        minY -= 96;
-        maxX += 24;
-        maxY += 16;
+        minX -= Node.CONSTRUCT_MARGIN_LEFT;
+        minY -= Node.CONSTRUCT_MARGIN_TOP;
+        maxX += Node.CONSTRUCT_MARGIN_RIGHT;
+        maxY += Node.CONSTRUCT_MARGIN_BOTTOM;
 
         // set the size of the node
         node.setPosition(minX, minY);
@@ -884,5 +885,53 @@ export class LogicalGraph {
         }
 
         return result;
+    }
+
+    checkForNodeAt = (x: number, y: number, width: number, height: number, ignoreKey: number) : Node => {
+        for (const node of this.nodes){
+            // abort if checking for self!
+            if (node.getKey() === ignoreKey){
+                continue;
+            }
+
+            if (Utils.nodesOverlap(x, y, width, height, node.getPosition().x, node.getPosition().y, node.getWidth(), node.getHeight())){
+                return node;
+            }
+        }
+        return null;
+    }
+
+    static normaliseNodes = (nodes: Node[]) : {x: number, y: number} => {
+        let minX = Number.MAX_SAFE_INTEGER;
+        let maxX = Number.MIN_SAFE_INTEGER;
+        let minY = Number.MAX_SAFE_INTEGER;
+        let maxY = Number.MIN_SAFE_INTEGER;
+
+        // find the max and min extent of all nodes in the x and y axis
+        for (const node of nodes){
+            if (node.getPosition().x < minX){
+                minX = node.getPosition().x;
+            }
+
+            if (node.getPosition().y < minY){
+                minY = node.getPosition().y;
+            }
+
+            if (node.getPosition().x + node.getWidth() > maxX){
+                maxX = node.getPosition().x + node.getWidth();
+            }
+
+            if (node.getPosition().y + node.getHeight() > maxY){
+                maxY = node.getPosition().y + node.getHeight();
+            }
+        }
+
+        // move all nodes so that the top left corner of the graph starts at the origin 0,0
+        for (const node of nodes){
+            const pos = node.getPosition();
+            node.setPosition(pos.x - minX + Node.CONSTRUCT_MARGIN_LEFT, pos.y - minY + Node.CONSTRUCT_MARGIN_TOP);
+        }
+
+        return {x: maxX - minX + Node.CONSTRUCT_MARGIN_LEFT + Node.CONSTRUCT_MARGIN_RIGHT, y: maxY - minY + Node.CONSTRUCT_MARGIN_TOP + Node.CONSTRUCT_MARGIN_BOTTOM};
     }
 }
