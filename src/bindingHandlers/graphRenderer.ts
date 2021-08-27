@@ -79,13 +79,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const RESIZE_BUTTON_LABEL_FONT_SIZE : number = 24;
     const HEADER_BUTTON_LABEL_FONT_SIZE : number = 12;
 
-    const LINK_WARNING_COLOR : string = "steelblue";
-    const LINK_WARNING_SELECTED_COLOR : string = "navy";
-    const LINK_INVALID_COLOR : string = "red";
-    const LINK_INVALID_SELECTED_COLOR : string = "firebrick";
-    const LINK_VALID_COLOR : string = "limegreen";
-    const LINK_EVENT_COLOR : string = "rgb(128,128,255)";
-    const LINK_EVENT_SELECTED_COLOR : string = "blue";
+    const LINK_COLORS:{[key:string]:string} = {
+        LINK_DEFAULT_COLOR: 'dimgrey',
+        LINK_DEFAULT_SELECTED_COLOR: 'black',
+        LINK_WARNING_COLOR: 'orange',
+        LINK_WARNING_SELECTED_COLOR: 'tomato',
+        LINK_INVALID_COLOR: 'red',
+        LINK_INVALID_SELECTED_COLOR: 'firebrick',
+        LINK_VALID_COLOR: 'limegreen',
+        LINK_EVENT_COLOR: 'rgb(128,128,255)',
+        LINK_EVENT_SELECTED_COLOR: 'blue'
+    }
 
     const SHRINK_BUTTONS_ENABLED : boolean = true;
 
@@ -151,7 +155,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .append("path")
         .attr("d", "M 0 0 L 10 5 L 0 10 z")
         .attr("stroke", "none")
-        .attr("fill","grey");
+        .attr("fill", LINK_COLORS['LINK_DEFAULT_COLOR']);
 
     // background
     rootContainer
@@ -2888,8 +2892,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetStrokeColor(edge: Edge, index: number) : string {
-        let normalColor: string = "grey";
-        let selectedColor: string = "black";
+        let normalColor: string = LINK_COLORS['LINK_DEFAULT_COLOR'];
+        let selectedColor: string = LINK_COLORS['LINK_DEFAULT_SELECTED_COLOR'];
 
         // check if source node is an event, if so, draw in blue
         const srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
@@ -2898,8 +2902,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
 
             if (srcPort !== null && srcPort.isEvent()){
-                normalColor = LINK_EVENT_COLOR;
-                selectedColor = LINK_EVENT_SELECTED_COLOR;
+                normalColor = LINK_COLORS['LINK_EVENT_COLOR'];
+                selectedColor = LINK_COLORS['LINK_EVENT_SELECTED_COLOR'];
             }
         }
 
@@ -2907,13 +2911,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
 
         if (linkValid === Eagle.LinkValid.Invalid){
-            normalColor = LINK_INVALID_COLOR;
-            selectedColor = LINK_INVALID_SELECTED_COLOR;
+            normalColor = LINK_COLORS['LINK_INVALID_COLOR'];
+            selectedColor = LINK_COLORS['LINK_INVALID_SELECTED_COLOR'];
         }
 
         if (linkValid === Eagle.LinkValid.Warning){
-            normalColor = LINK_WARNING_COLOR;
-            selectedColor = LINK_WARNING_SELECTED_COLOR;
+            normalColor = LINK_COLORS['LINK_WARNING_COLOR'];
+            selectedColor = LINK_COLORS['LINK_WARNING_SELECTED_COLOR'];
         }
 
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
@@ -2947,11 +2951,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             case Eagle.LinkValid.Unknown:
                 return "black";
             case Eagle.LinkValid.Invalid:
-                return LINK_INVALID_COLOR;
+                return LINK_COLORS['LINK_INVALID_COLOR'];
             case Eagle.LinkValid.Warning:
-                return LINK_WARNING_COLOR;
+                return LINK_COLORS['LINK_WARNING_COLOR'];
             case Eagle.LinkValid.Valid:
-                return LINK_VALID_COLOR;
+                return LINK_COLORS['LINK_VALID_COLOR'];
         }
     }
 
