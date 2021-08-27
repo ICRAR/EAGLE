@@ -143,8 +143,8 @@ export class Edge {
         return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown, edgeData.loop_aware === "1");
     }
 
-    static toAppRefJson = (edge : Edge) : object => {
-        return {
+    static toAppRefJson = (edge : Edge, lg: LogicalGraph) : object => {
+        const result : any = {
             from: edge.srcNodeKey,
             fromPort: edge.srcPortId,
             to: edge.destNodeKey,
@@ -152,17 +152,28 @@ export class Edge {
             loopAware: edge.loopAware,
             dataType: edge.dataType
         };
+
+        // if srcNode is an embedded application, add a 'fromRef' attribute to the edge
+        const srcNode : Node = lg.findNodeByKey(edge.srcNodeKey);
+        if (srcNode.getEmbedKey() !== null){
+            result.fromRef = srcNode.getEmbedKey();
+        }
+
+        // if destNode is an embedded application, add a 'toRef' attribute to the edge
+        const destNode : Node = lg.findNodeByKey(edge.destNodeKey);
+        if (destNode.getEmbedKey() != null){
+            result.toRef = destNode.getEmbedKey();
+        }
+
+        return result;
     }
 
     static fromAppRefJson = (edgeData: any, errors: string[]): Edge => {
-        //console.log("Edge.fromAppRefJson()", edgeData);
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware);
     }
 
 
     static isValid = (graph : LogicalGraph, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, showNotification : boolean, showConsole : boolean) : Eagle.LinkValid => {
-        //console.log("IsValid()", "sourceNodeKey", sourceNodeKey, "sourcePortId", sourcePortId, "destinationNodeKey", destinationNodeKey, "destinationPortId", destinationPortId);
-
         // check for problems
         if (isNaN(sourceNodeKey)){
             return Eagle.LinkValid.Unknown;
@@ -193,7 +204,6 @@ export class Edge {
         const destinationNode : Node = graph.findNodeByKey(destinationNodeKey);
 
         if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
-            //Utils.showNotification("Unknown Error", "sourceNode or destinationNode cannot be found", "danger");
             return Eagle.LinkValid.Unknown;
         }
 
@@ -221,7 +231,6 @@ export class Edge {
         const destinationPort : Port = destinationNode.findPortById(destinationPortId);
 
         if (sourcePort === null || destinationPort === null){
-            //Utils.showNotification("Unknown Error", "sourcePort or destinationPort cannot be found", "danger");
             return Eagle.LinkValid.Unknown;
         }
 

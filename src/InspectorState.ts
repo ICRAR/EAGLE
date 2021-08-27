@@ -106,7 +106,6 @@ export class InspectorState {
             this.toggle(sectionName);
         } else {
             console.log("Abort section toggle, already collapsing");
-            return;
         }
     }
 

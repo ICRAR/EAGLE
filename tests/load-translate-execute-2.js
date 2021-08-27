@@ -211,6 +211,9 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // enter the translator url
             .typeText(Selector('#settingTranslatorURLValue'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
 
+            // use the complex translator options
+            .click('#settingUseSimplifiedTranslatorOptionsButton')
+
             // close settings modal
             .click('#settingsModal .modal-footer button')
 
@@ -245,7 +248,10 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // click the 'Generate PGT' button
             .click('#alg1PGT');
 
-            // wait for the graph to translate
+        // choose the 'OJS' output format
+        await page.selectOption('OJS');
+
+        // wait for the graph to translate
         await t.wait(PAGE_TRANSITION_WAIT_DURATION);
 
         // debug

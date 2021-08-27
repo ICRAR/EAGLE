@@ -1,10 +1,10 @@
 <div class="input-group mb-1">
 
     <div class="input-group-prepend">
-        <span class="input-group-text mw-140" id="group-addon" data-bind="text: $data.text, attr: {'data-original-title': $data.getDescriptionText()}" data-toggle="tooltip" data-html="true" data-placement="left"></span>
+        <span class="input-group-text" id="group-addon" data-bind="text: $data.text, attr: {'data-original-title': $data.getDescriptionText()}" data-toggle="tooltip" data-html="true" data-placement="left"></span>
     </div>
 
-    <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-toggle="tooltip" data-html="true" data-placement="right" title data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: $data.ro, attr: {title: getFieldValue(), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedNode.valueHasMutated();}}">
+    <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-toggle="tooltip" data-html="true" data-placement="right" title data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: $data.ro, attr: {title: getFieldValue(), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}">
 
     <!-- ko ifnot: $data.ro -->
     <div class="input-group-append">
@@ -24,7 +24,7 @@
 
     <!-- ko ifnot: $root.selectedNode().isLocked() -->
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedNode.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index(), title:'Remove parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index(), title:'Remove parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
             <i class="material-icons md-18">delete</i>
         </button>
     </div>

@@ -74,9 +74,9 @@ install_requires = [
     "flask",
     "pygithub",
     "python-gitlab",
-    "sphinx",
-    "sphinx_rtd_theme",
-    "sphinxcontrib-openapi",
+#    "sphinx",
+#    "sphinx_rtd_theme",
+#    "sphinxcontrib-openapi",
     "six"
 ]
 

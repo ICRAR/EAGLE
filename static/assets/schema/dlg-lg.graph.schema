@@ -99,9 +99,6 @@
                     "subject": {
                         "type": "null"
                     },
-                    "selected": {
-                        "type": "boolean"
-                    },
                     "expanded": {
                         "type": "boolean"
                     },
@@ -304,7 +301,6 @@
                     "outputApplicationType",
                     "outputLocalPorts",
                     "outputPorts",
-                    "selected",
                     "showPorts",
                     "streaming",
                     "subject",

@@ -6,7 +6,7 @@
 //-->
 
     <head>
-        <title id="tabTitle">EAGLE</title>
+        <title id="tabTitle" data-bind="text: getTabTitle">EAGLE</title>
 
         <link rel="stylesheet" href="static/bootstrap.min.css">
         <link rel="stylesheet" href="static/base.css">
@@ -46,7 +46,7 @@
         <div style="display:none;">
             <input id="uploadedGraphFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: uploadGraphFile }">
             <input id="uploadedGraphFileToInsert" class="fileSelector" type="file" name="file" data-bind="event: { change: insertGraphFile }">
-            <input id="uploadedPaletteFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: function(){uploadPaletteFile();} }">
+            <input id="uploadedPaletteFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: uploadPaletteFile }">
         </div>
 
         {% include 'navbar.html' %}
@@ -66,7 +66,7 @@
                     {% include 'palettes.html' %}
                 </div>
 
-                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart , dragend: leftWindowAdjustEnd }">
+                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart , dragend: sideWindowAdjustEnd }">
                 </div>
             </div>
 
@@ -88,16 +88,12 @@
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}" data-intro='Load palettes and graphs from remote git repositories.'>
                             Repositories
                         </button>
-                        <!-- ko if: selectedNode() !== null -->
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.NodeInspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.NodeInspector}">
-                                Node
-                            </button>
-                        <!-- /ko -->
-                        <!-- ko if: selectedEdge() !== null -->
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeEdge" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.EdgeInspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.EdgeInspector}">
-                                Edge
-                            </button>
-                        <!-- /ko -->
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.NodeInspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.NodeInspector}">
+                            Node
+                        </button>
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeEdge" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.EdgeInspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.EdgeInspector}">
+                            Edge
+                        </button>
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}" data-intro='Submit a logical graph for translation into a physical graph.'>
                             Translation
                         </button>
@@ -131,7 +127,7 @@
                     </div>
                 </div>
 
-                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart, dragend: rightWindowAdjustEnd }">
+                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart, dragend: sideWindowAdjustEnd }">
                 </div>
             </div>
         </div>

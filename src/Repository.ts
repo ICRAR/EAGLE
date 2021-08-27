@@ -80,7 +80,7 @@ export class Repository {
         const bType : Eagle.FileType = Utils.getFileTypeFromFileName(b);
 
         if (aType !== bType){
-            return aType - bType;
+            return aType > bType ? -1 : 1;
         }
         return aType > bType ? -1 : 1;
     }
