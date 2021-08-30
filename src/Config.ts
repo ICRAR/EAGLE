@@ -44,7 +44,7 @@ export class Config {
         "simple"
     ];
 
-    static readonly defaultRightWindowWidth : number = 380;
+    static readonly defaultRightWindowWidth : number = 400;
     static readonly defaultLeftWindowWidth : number = 310;
 
     static readonly DEFAULT_PALETTE_REPOSITORY : string = "ICRAR/EAGLE_test_repo";

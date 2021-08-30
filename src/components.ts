@@ -71,16 +71,13 @@ ko.components.register('hierarchy', {
 
 ko.components.register('hierarchy-node', {
     viewModel: function(params : {data : any, parentKey : number | null, select : Function}){
+        this._id = params.data._id;
         this.name = params.data.name().trim() === "" ? params.data.category : params.data.name;
         this.key = params.data.key;
         this.parentKey = params.data.parentKey;
         this.expanded = params.data.expanded;
-        this.selected = params.data.selected;
 
         this.select = params.select;
-
-        //this.visible = params.data.parentKey === params.parentKey;
-        //console.log("this.visible", this.visible, "params.data.parentKey", params.data.parentKey, "params.parentKey", params.parentKey);
     },
     template: { require: "text!static/components/hierarchy-node.html" }
 });

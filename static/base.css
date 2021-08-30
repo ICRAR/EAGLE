@@ -58,10 +58,6 @@
     overflow-x: hidden;
 }
 
-.mw-140 {
-    min-width: 140px;
-}
-
 .rightWindow .btn-primary, .leftWindow .btn-primary {
     background-color: #0059a5;
     border-color: #0059a5;
@@ -316,6 +312,57 @@
     list-style-type: none;
 }
 
+#nodeInspectorAddField{
+    padding:0px;
+}
+
+#nodeInspectorAddInputPort{
+    padding:0px;
+}
+
+#nodeInspectorAddOutputPort{
+    padding:0px;
+}
+
+.forceHide{
+    display: none !important;
+}
+
+.nodeInspectorDropdownDiv{
+    position: static;
+    position: relative;
+    z-index: 100;
+    display: none;
+}
+
+.nodeInspectorDropdownDiv::before{
+    margin-bottom: 5px;
+    height: 5px;
+}
+
+.nodeInspectorDropdownInner{
+    position: absolute;
+    width: 100%;
+    background-color: #e9ecef;
+    border: solid 1px #495057;
+    border-radius: 6px;
+    max-height:200px;
+    overflow-y:scroll ;
+}
+
+.nodeInspectorDropdownDiv a{
+    padding-left:10px;
+    display: block;
+    color: #495057;
+    text-decoration: none;
+}
+
+.nodeInspectorDropdownDiv a:hover{
+    background-color: #495057;
+    color: #e9ecef;
+    text-decoration: none;
+}
+
 .leftWindow .card-header i.material-icons {
     position: relative;
     top: 5px;
@@ -336,6 +383,11 @@
 .rightWindow h5 i.material-icons {
     position: relative;
     top: 5px;
+}
+
+div.rightWindow h5.card-header {
+    font-weight: 500;
+    padding: 0.25rem 1.00rem 0.25rem 1.00rem;
 }
 
 .rightWindow i.material-icons.interactive {
@@ -413,7 +465,7 @@
     color: white;
 }
 
-#nodeInspector .input-group-prepend{
+#nodeInspector .input-group-prepend, #edgeInspector .input-group-prepend, #translationMenu .input-group-prepend {
     width:40%;
 }
 
@@ -422,12 +474,11 @@
     width:auto;
 }
 
-#nodeInspector .input-group-text{
+#nodeInspector .input-group-text, #edgeInspector .input-group-text, #translationMenu .input-group-text{
     width:100%;
     font-size: .9rem;
     text-align: left;
     white-space: normal;
-    min-width:unset;
 }
 
 #nodeInspector input{
@@ -473,7 +524,7 @@
 }
 
 .translationMenu .card-header{
-    padding:8px 20px;
+    padding:0.25rem 1rem;
 }
 
 #translationMenu h5{
@@ -485,7 +536,6 @@
 }
 
 #graphNameWrapper{
-    position: absolute;
     top: 56px;
     display: block;
     width: 100%;
@@ -584,8 +634,8 @@ nav.navbar .introjs-helperLayer {
 }
 
 #nodeInspectorHeading{
-    background-color: transparent;
     border:none;
+    color: white;
 }
 
 #nodeInspectorMenus{
@@ -599,15 +649,15 @@ nav.navbar .introjs-helperLayer {
 }
 
 #headerBtns{
-    position: absolute;
+    position: relative;
     right: 10px;
-    padding:12px 0px;
+    padding:5px 0px;
     text-align: right;
 }
 
 #headerBtns button{
     color: #0859af;
-    background-color: #d8ddf0;
+    background-color: transparent;
     padding:4px;
     margin-left:-4px;
     border: none;
@@ -657,8 +707,6 @@ palette-component input.form-control.selected {
 }
 
 .tooltip-inner{
-    visibility: hidden;
     transition: 0s visibility;
     visibility: visible;
-
 }

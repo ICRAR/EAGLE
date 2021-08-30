@@ -23,6 +23,7 @@
 */
 
 import * as Ajv from "ajv";
+import * as ko from "knockout";
 
 import {Config} from './Config';
 
@@ -54,8 +55,7 @@ export class Utils {
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
     static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
     static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
-    static readonly CONFIRM_DELETE_NODES : string = "ConfirmDeleteNodes";
-    static readonly CONFIRM_DELETE_EDGES : string = "ConfirmDeleteEdges";
+    static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
 
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
 
@@ -77,6 +77,7 @@ export class Utils {
     static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
     static readonly SPAWN_TRANSLATION_TAB: string = "SpawnTranslationTab";
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
+    static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
 
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};
@@ -116,14 +117,10 @@ export class Utils {
 
     static findNewKey(usedKeys : number[]): number {
         for (let i = -1 ; ; i--){
-            //console.log("newKey, searching for ", i, "amongst", usedKeys.length, "keys");
             let found = false;
 
-            for (let j = 0 ; j < usedKeys.length ; j++){
-                // debug
-                //console.log("findNewKey, checking key", j, "key is", usedKeys[j]);
-
-                if (i === usedKeys[j]){
+            for (const usedKey of usedKeys){
+                if (i === usedKey){
                     found = true;
                     break;
                 }
@@ -139,22 +136,22 @@ export class Utils {
         // build a list of used keys
         const usedKeys: number[] = [];
 
-        for (let i = 0 ; i < nodes.length ; i++){
-            usedKeys.push(nodes[i].getKey())
+        for (const node of nodes){
+            usedKeys.push(node.getKey())
 
             // if this node has inputApp, add the inputApp key
-            if (nodes[i].hasInputApplication()){
-                usedKeys.push(nodes[i].getInputApplication().getKey());
+            if (node.hasInputApplication()){
+                usedKeys.push(node.getInputApplication().getKey());
             }
 
             // if this node has outputApp, add the outputApp key
-            if (nodes[i].hasOutputApplication()){
-                usedKeys.push(nodes[i].getOutputApplication().getKey());
+            if (node.hasOutputApplication()){
+                usedKeys.push(node.getOutputApplication().getKey());
             }
 
             // if this node has exitApp, add the exitApp key
-            if (nodes[i].hasExitApplication()){
-                usedKeys.push(nodes[i].getExitApplication().getKey());
+            if (node.hasExitApplication()){
+                usedKeys.push(node.getExitApplication().getKey());
             }
         }
 
@@ -165,10 +162,8 @@ export class Utils {
         // build a list of used keys
         const usedKeys: number[] = [];
 
-        //console.log("nodeData.length", nodeData.length);
-        for (let i = 0 ; i < nodeData.length ; i++){
-            //console.log(i, nodeData[i].key);
-            usedKeys.push(nodeData[i].key);
+        for (const node of nodeData){
+            usedKeys.push(node.key);
         }
 
         return usedKeys;
@@ -184,36 +179,36 @@ export class Utils {
         const usedKeys: number[] = Utils.getUsedKeys(nodes);
 
         // loop through nodes, look for embedded nodes with null key, create new key, add to usedKeys
-        for (let i = 0 ; i < nodes.length ; i++){
-            usedKeys.push(nodes[i].getKey())
+        for (const node of nodes){
+            usedKeys.push(node.getKey())
 
             // if this node has inputApp, add the inputApp key
-            if (nodes[i].hasInputApplication()){
-                if (nodes[i].getInputApplication().getKey() === null){
+            if (node.hasInputApplication()){
+                if (node.getInputApplication().getKey() === null){
                     const newKey = Utils.findNewKey(usedKeys);
-                    nodes[i].getInputApplication().setKey(newKey);
+                    node.getInputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "input app key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "input app key", newKey);
                 }
             }
 
             // if this node has outputApp, add the outputApp key
-            if (nodes[i].hasOutputApplication()){
-                if (nodes[i].getOutputApplication().getKey() === null){
+            if (node.hasOutputApplication()){
+                if (node.getOutputApplication().getKey() === null){
                     const newKey = Utils.findNewKey(usedKeys);
-                    nodes[i].getOutputApplication().setKey(newKey);
+                    node.getOutputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "output app key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "output app key", newKey);
                 }
             }
 
             // if this node has exitApp, add the exitApp key
-            if (nodes[i].hasExitApplication()){
-                if (nodes[i].getExitApplication().getKey() === null){
+            if (node.hasExitApplication()){
+                if (node.getExitApplication().getKey() === null){
                     const newKey = Utils.findNewKey(usedKeys);
-                    nodes[i].getExitApplication().setKey(newKey);
+                    node.getExitApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", nodes[i].getKey(), "exit app key", newKey);
+                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "exit app key", newKey);
                 }
             }
         }
@@ -222,8 +217,7 @@ export class Utils {
     // extracts a file name from the full path.
     static getFileNameFromFullPath(fullPath : string) : string {
         if (typeof fullPath === 'undefined'){return "";}
-        const fileName = fullPath.replace(/^.*[\\\/]/, '');
-        return fileName;
+        return fullPath.replace(/^.*[\\\/]/, '');
     }
 
     // extracts a file path (not including the file name) from the full path.
@@ -288,40 +282,7 @@ export class Utils {
         if (fileType.toLowerCase() === "json")
             return Eagle.FileType.JSON;
 
-        //console.warn("Unknown file type (", fileType, ") can't be translated!");
         return Eagle.FileType.Unknown;
-    }
-
-    static translateFileTypeToString(fileType : Eagle.FileType) : string {
-        if (fileType === Eagle.FileType.Graph)
-            return "graph";
-        if (fileType === Eagle.FileType.Palette)
-            return "palette";
-        if (fileType === Eagle.FileType.JSON)
-            return "json";
-
-        //console.warn("Unknown file type (", fileType, ") can't be translated!");
-        return "";
-    }
-
-    static translateRightWindowModeToString(rightWindowMode: Eagle.RightWindowMode): string {
-        switch(rightWindowMode){
-            case Eagle.RightWindowMode.EdgeInspector:
-                return "EdgeInspector";
-            case Eagle.RightWindowMode.Hierarchy:
-                return "Hierarchy";
-            case Eagle.RightWindowMode.NodeInspector:
-                return "NodeInspector";
-            case Eagle.RightWindowMode.Repository:
-                return "Repository";
-            case Eagle.RightWindowMode.TranslationMenu:
-                return "TranslationMenu";
-            case Eagle.RightWindowMode.None:
-                return "None";
-            default:
-                console.warn("Unknown rightWindowMode", rightWindowMode);
-                return "";
-        }
     }
 
     static translateStringToDataType(dataType: string): Eagle.DataType {
@@ -425,7 +386,6 @@ export class Utils {
                 callback(null, data);
             },
             error: function(xhr, status, error : string){
-                //console.log("xhr", xhr, "status", status, "error", error);
                 callback(error + " " + xhr.responseText, null);
             }
         });
@@ -832,9 +792,7 @@ export class Utils {
             }
 
             // loop through the explorePalettes, find any selected and load them
-            for (let i = 0 ; i < eagle.explorePalettes().length ; i++){
-                const ep = eagle.explorePalettes()[i];
-
+            for (const ep of eagle.explorePalettes()){
                 if (ep.isSelected()){
                     eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
                 }
@@ -1024,15 +982,23 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         console.log("requestUserEditField()");
 
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#fieldModalSelect').empty();
+            $("#nodeInspectorDropDownKO").empty();
 
             // add empty choice
             $('#fieldModalSelect').append($('<option>', {
+                value: -1,
+                text: ""
+            }));
+            $("#nodeInspectorDropDownKO").append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddFieldDiv')}",
                 value: -1,
                 text: ""
             }));
@@ -1043,6 +1009,13 @@ export class Utils {
                     value: i,
                     text: choices[i]
                 }));
+                $("#nodeInspectorDropDownKO").append($('<a>', {
+                    href: "#",
+                    class: "nodeInspectorDropdownOption",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                    value: i,
+                    text: choices[i]
+                }));
             }
 
             // add custom choice
@@ -1050,6 +1023,17 @@ export class Utils {
                 value: choices.length,
                 text: "Custom (enter below)"
             }));
+            $("#nodeInspectorDropDownKO").append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                value: choices.length,
+                text: "Custom"
+            }));
+            //applying knockout bindings for the new buttonsgenerated above
+            ko.cleanNode(document.getElementById("nodeInspectorDropDownKO"));
+            ko.applyBindings(eagle, document.getElementById("nodeInspectorDropDownKO"));
+
         }
 
         // populate UI with current field data
@@ -1113,22 +1097,55 @@ export class Utils {
         $('#editFieldModal').data('callback', callback);
         $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal();
+
     }
 
-    static requestUserEditPort(modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {
+    static requestUserEditPort(eagle:Eagle, modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#portModalSelect').empty();
+            $('#nodeInspectorInputPortDropDownKO').empty();
+            $('#nodeInspectorOutputPortDropDownKO').empty();
+
 
             // add empty choice
             $('#portModalSelect').append($('<option>', {
                 value: -1,
                 text: ""
             }));
+            $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddInputPortDiv')}",
+                value: -1,
+                text: ""
+            }));
+            $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
+                value: -1,
+                text: ""
+            }));
+
 
             // add options to the modal select tag
             for (let i = 0 ; i < choices.length ; i++){
                 $('#portModalSelect').append($('<option>', {
+                    value: i,
+                    text: choices[i]
+                }));
+                $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
+                    href: "#",
+                    class: "nodeInspectorDropdownOption",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
+                    value: i,
+                    text: choices[i]
+                }));
+                $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
+                    href: "#",
+                    class: "nodeInspectorDropdownOption",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
                     value: i,
                     text: choices[i]
                 }));
@@ -1137,8 +1154,28 @@ export class Utils {
             // add custom choice
             $('#portModalSelect').append($('<option>', {
                 value: choices.length,
-                text: "Custom (enter below)"
+                text: "Custom"
             }));
+            $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
+                value: choices.length,
+                text: "Custom"
+            }));
+            $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
+                value: choices.length,
+                text: "Custom"
+            }));
+
+            //applying knockout bindings for the new buttonsgenerated above
+            ko.cleanNode(document.getElementById("nodeInspectorInputPortDropDownKO"));
+            ko.applyBindings(eagle, document.getElementById("nodeInspectorInputPortDropDownKO"));
+            ko.cleanNode(document.getElementById("nodeInspectorOutputPortDropDownKO"));
+            ko.applyBindings(eagle, document.getElementById("nodeInspectorOutputPortDropDownKO"));
         }
 
         // populate UI with current port data
@@ -1247,8 +1284,8 @@ export class Utils {
             console.log("error", error, "data", data);
 
             const explorePalettes: PaletteInfo[] = [];
-            for (let i = 0 ; i < data.length ; i++){
-                explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, data[i].name, data[i].path));
+            for (const palette of data){
+                explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, palette.name, palette.path));
             }
 
             eagle.explorePalettes(explorePalettes);
@@ -1256,8 +1293,6 @@ export class Utils {
     }
 
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {
-        //console.log("requestUserEditEdge()");
-
         Utils.updateEditEdgeModal(edge, logicalGraph);
 
         $('#editEdgeModal').data('completed', false);
@@ -1278,75 +1313,53 @@ export class Utils {
         // populate UI with current edge data
         // add src node keys
         $('#editEdgeModalSrcNodeKeySelect').empty();
-        for (let i = 0 ; i < logicalGraph.getNodes().length; i++){
-            let node = logicalGraph.getNodes()[i];
-
+        for (const node of logicalGraph.getNodes()){
             // if node itself can have output ports, add the node to the list
             if (node.canHaveOutputs()){
-                //console.log("add node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
                     value: node.getKey(),
                     text: node.getName(),
                     selected: edge.getSrcNodeKey() === node.getKey()
                 }));
-
-                if (node.getKey() === edge.getSrcNodeKey()){
-                    srcNode = node;
-                }
             }
 
             // add input application node, if present
             if (node.hasInputApplication()){
-                node = node.getInputApplication();
+                const inputApp = node.getInputApplication();
 
-                //console.log("add input app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getSrcNodeKey() === node.getKey()
+                    value: inputApp.getKey(),
+                    text: inputApp.getName(),
+                    selected: edge.getSrcNodeKey() === inputApp.getKey()
                 }));
-
-                if (node.getKey() === edge.getSrcNodeKey()){
-                    srcNode = node;
-                }
             }
 
             // add output application node, if present
             if (node.hasOutputApplication()){
-                node = node.getOutputApplication();
+                const outputApp = node.getOutputApplication();
 
-                //console.log("add output app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getSrcNodeKey() === node.getKey()
+                    value: outputApp.getKey(),
+                    text: outputApp.getName(),
+                    selected: edge.getSrcNodeKey() === outputApp.getKey()
                 }));
-
-                if (node.getKey() === edge.getSrcNodeKey()){
-                    srcNode = node;
-                }
             }
 
             // add exit applicaiton node, if present
             if (node.hasExitApplication()){
-                node = node.getExitApplication();
+                const exitApp = node.getExitApplication();
 
-                //console.log("add exit app node", node.getKey(), "selected", edge.getSrcNodeKey() === node.getKey());
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getSrcNodeKey() === node.getKey()
+                    value: exitApp.getKey(),
+                    text: exitApp.getName(),
+                    selected: edge.getSrcNodeKey() === exitApp.getKey()
                 }));
-
-                if (node.getKey() === edge.getSrcNodeKey()){
-                    srcNode = node;
-                }
             }
         }
 
         // make sure srcNode reflects what is actually selected in the UI
         const srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
-        //console.log("srcNodeKey", srcNodeKey);
+
         if (isNaN(srcNodeKey)){
             srcNode = null;
         } else {
@@ -1359,9 +1372,7 @@ export class Utils {
             $('#editEdgeModalSrcPortIdSelect').attr('disabled', 'true');
         } else {
             // add src port ids
-            for (let i = 0 ; i < srcNode.getOutputPorts().length; i++){
-                const port: Port = srcNode.getOutputPorts()[i];
-                //console.log("add source (" + srcNode.getName() + ") output port", port.getName(), "selected", edge.getSrcPortId() === port.getId());
+            for (const port of srcNode.getOutputPorts()){
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getName(),
@@ -1372,68 +1383,46 @@ export class Utils {
 
         // add dest node keys
         $('#editEdgeModalDestNodeKeySelect').empty();
-        for (let i = 0 ; i < logicalGraph.getNodes().length; i++){
-            let node = logicalGraph.getNodes()[i];
-
+        for (const node of logicalGraph.getNodes()){
             if (node.canHaveInputs()){
-                //console.log("add node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
                     value: node.getKey(),
                     text: node.getName(),
                     selected: edge.getDestNodeKey() === node.getKey()
                 }));
-
-                if (node.getKey() === edge.getDestNodeKey()){
-                    destNode = node;
-                }
             }
 
             // input application node, if present
             if (node.hasInputApplication()){
-                node = node.getInputApplication();
+                const inputApp = node.getInputApplication();
 
-                //console.log("add input app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getDestNodeKey() === node.getKey()
+                    value: inputApp.getKey(),
+                    text: inputApp.getName(),
+                    selected: edge.getDestNodeKey() === inputApp.getKey()
                 }));
-
-                if (node.getKey() === edge.getDestNodeKey()){
-                    destNode = node;
-                }
             }
 
             // output application node, if present
             if (node.hasOutputApplication()){
-                node = node.getOutputApplication();
+                const outputApp = node.getOutputApplication();
 
-                //console.log("add output app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getDestNodeKey() === node.getKey()
+                    value: outputApp.getKey(),
+                    text: outputApp.getName(),
+                    selected: edge.getDestNodeKey() === outputApp.getKey()
                 }));
-
-                if (node.getKey() === edge.getDestNodeKey()){
-                    destNode = node;
-                }
             }
 
             // exit application node, if present
             if (node.hasExitApplication()){
-                node = node.getExitApplication();
+                const exitApp = node.getExitApplication();
 
-                //console.log("add exit app node", node.getKey(), "selected", edge.getDestNodeKey() === node.getKey());
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
-                    text: node.getName(),
-                    selected: edge.getDestNodeKey() === node.getKey()
+                    value: exitApp.getKey(),
+                    text: exitApp.getName(),
+                    selected: edge.getDestNodeKey() === exitApp.getKey()
                 }));
-
-                if (node.getKey() === edge.getDestNodeKey()){
-                    destNode = node;
-                }
             }
         }
 
@@ -1452,9 +1441,7 @@ export class Utils {
             $('#editEdgeModalDestPortIdSelect').attr('disabled', 'true');
         } else {
             // add dest port ids
-            for (let i = 0 ; i < destNode.getInputPorts().length; i++){
-                const port: Port = destNode.getInputPorts()[i];
-                //console.log("add dest (" + destNode.getName() + ") input port", port.getName(), "selected", edge.getDestPortId() === port.getId());
+            for (const port of destNode.getInputPorts()){
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getName(),
@@ -1473,20 +1460,16 @@ export class Utils {
         const uniquePorts : Port[] = [];
 
         // build a list from all nodes
-        for (let i = 0; i < diagram.getNodes().length; i++) {
-            const node : Node = diagram.getNodes()[i];
-
+        for (const node of diagram.getNodes()) {
             // add input port names into the list
-            for (let j = 0; j < node.getInputPorts().length; j++) {
-                const port : Port = node.getInputPorts()[j];
+            for (const port of node.getInputPorts()) {
                 if (!port.isEvent()){
                     Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
             }
 
             // add output port names into the list
-            for (let j = 0; j < node.getOutputPorts().length; j++) {
-                const port : Port = node.getOutputPorts()[j];
+            for (const port of node.getOutputPorts()) {
                 if (!port.isEvent()) {
                     Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
@@ -1495,16 +1478,14 @@ export class Utils {
             // add input application input and output ports
             if (node.hasInputApplication()){
                 // input ports
-                for (let j = 0; j < node.getInputApplication().getInputPorts().length; j++) {
-                    const port : Port = node.getInputApplication().getInputPorts()[j];
+                for (const port of node.getInputApplication().getInputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (let j = 0; j < node.getInputApplication().getOutputPorts().length; j++) {
-                    const port : Port = node.getInputApplication().getOutputPorts()[j];
+                for (const port of node.getInputApplication().getOutputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
@@ -1514,16 +1495,14 @@ export class Utils {
             // add output application input and output ports
             if (node.hasOutputApplication()){
                 // input ports
-                for (let j = 0; j < node.getOutputApplication().getInputPorts().length; j++) {
-                    const port : Port = node.getOutputApplication().getInputPorts()[j];
+                for (const port of node.getOutputApplication().getInputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (let j = 0; j < node.getOutputApplication().getOutputPorts().length; j++) {
-                    const port : Port = node.getOutputApplication().getOutputPorts()[j];
+                for (const port of node.getOutputApplication().getOutputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
@@ -1533,16 +1512,14 @@ export class Utils {
             // add exit application input and output ports
             if (node.hasExitApplication()){
                 // input ports
-                for (let j = 0; j < node.getExitApplication().getInputPorts().length; j++) {
-                    const port : Port = node.getExitApplication().getInputPorts()[j];
+                for (const port of node.getExitApplication().getInputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (let j = 0; j < node.getExitApplication().getOutputPorts().length; j++) {
-                    const port : Port = node.getExitApplication().getOutputPorts()[j];
+                for (const port of node.getExitApplication().getOutputPorts()) {
                     if (!port.isEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
@@ -1556,8 +1533,8 @@ export class Utils {
     private static _addPortIfUnique = (ports : Port[], port: Port) : void => {
 
         // check if the new port matches an existing port (by name and type), if so, abort
-        for (let i = 0 ; i < ports.length ; i++){
-            if (ports[i].getName() === port.getName() && ports[i].getType() === port.getType()){
+        for (const p of ports){
+            if (p.getName() === port.getName() && p.getType() === port.getType()){
                 return;
             }
         }
@@ -1572,13 +1549,9 @@ export class Utils {
     static getUniqueFieldsList = (diagram : Palette | LogicalGraph) : Field[] => {
         const uniqueFields : Field[] = [];
 
-        // build a list from all nodes
-        for (let i = 0; i < diagram.getNodes().length; i++) {
-            const node : Node = diagram.getNodes()[i];
-
-            // add fields into the list
-            for (let j = 0; j < node.getFields().length; j++) {
-                const field : Field = node.getFields()[j];
+        // build a list from all nodes, add fields into the list
+        for (const node of diagram.getNodes()) {
+            for (const field of node.getFields()) {
                 Utils._addFieldIfUnique(uniqueFields, field.clone());
             }
         }
@@ -1587,10 +1560,9 @@ export class Utils {
     }
 
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
-
         // check if the new field matches an existing field (by name and type), if so, abort
-        for (let i = 0 ; i < fields.length ; i++){
-            if (fields[i].getName() === field.getName() && fields[i].getType() === field.getType()){
+        for (const f of fields){
+            if (f.getName() === field.getName() && f.getType() === field.getType()){
                 return;
             }
         }
@@ -1621,8 +1593,7 @@ export class Utils {
             svgString = svgString.substring(0, svgString.indexOf(">") + 1) + CSS_ELEMENT + svgString.substring(svgString.indexOf(">") + 1);
             //console.log("svgString", svgString);
 
-            const canvas : HTMLCanvasElement = <HTMLCanvasElement> document.createElement("canvas");
-            //console.log("svgElement", svgElement.clientWidth.toString(), svgElement.clientHeight.toString());
+            const canvas : HTMLCanvasElement = document.createElement("canvas");
             canvas.setAttribute("width", svgElement.clientWidth.toString());
             canvas.setAttribute("height", svgElement.clientHeight.toString());
             const ctx = canvas.getContext("2d");
@@ -1633,7 +1604,6 @@ export class Utils {
             img.onload = function() {
                 ctx.drawImage(img, 0, 0);
                 const png = canvas.toDataURL("image/png");
-                //document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';
 
                 // Element that will be used for downloading.
                 const a : HTMLAnchorElement = document.createElement("a");
@@ -1702,8 +1672,7 @@ export class Utils {
         const result : Node[] = [];
 
         // Searching for the node.
-        for (let i = 0; i < palette.getNodes().length; i++) {
-            const node : Node = palette.getNodes()[i];
+        for (const node of palette.getNodes()) {
             if (node.getCategoryType() === categoryType) {
                 result.push(node);
             }
@@ -1716,8 +1685,7 @@ export class Utils {
         const result : Eagle.Category[] = [];
 
         // Searching for the node.
-        for (let i = 0; i < palette.getNodes().length; i++) {
-            const node : Node = palette.getNodes()[i];
+        for (const node of palette.getNodes()) {
             if (node.getCategoryType() === categoryType) {
                 result.push(node.getCategory());
             }
@@ -1731,13 +1699,26 @@ export class Utils {
         return result;
     }
 
+    static buildGroupCategoryList() : Eagle.Category[] {
+        const result : Eagle.Category[] = [];
+
+        for (const category in Eagle.cData){
+            const cData = Eagle.getCategoryData(<Eagle.Category>category);
+            if (cData.isGroup){
+                result.push(<Eagle.Category>category);
+            }
+        }
+
+        return result;
+    }
+
     static giveNodePortsNewIds(node: Node) : void {
         // set new ids for any ports in this node
-        for (let i = 0 ; i < node.getInputPorts().length ; i++){
-            node.getInputPorts()[i].setId(Utils.uuidv4());
+        for (const port of node.getInputPorts()){
+            port.setId(Utils.uuidv4());
         }
-        for (let i = 0 ; i < node.getOutputPorts().length ; i++){
-            node.getOutputPorts()[i].setId(Utils.uuidv4());
+        for (const port of node.getOutputPorts()){
+            port.setId(Utils.uuidv4());
         }
     }
 
@@ -1778,23 +1759,35 @@ export class Utils {
         return Eagle.DALiuGESchemaVersion.Unknown;
     }
 
+    static checkPalette(palette: Palette): string[] {
+        const results: string[] = [];
+
+        // check for duplicate keys
+        const keys: number[] = [];
+
+        for (const node of palette.getNodes()){
+            // check existing keys
+            if (keys.indexOf(node.getKey()) !== -1){
+                results.push("Key " + node.getKey() + " used by multiple components in palette.");
+            } else {
+                keys.push(node.getKey());
+            }
+        }
+
+        return results;
+    }
+
     static checkGraph(graph: LogicalGraph): string[] {
         const results: string[] = [];
 
         // check that all port dataTypes have been defined
-        for (let i = 0 ; i < graph.getNodes().length; i++){
-            const node: Node = graph.getNodes()[i];
-
-            for (let j = 0 ; j < node.getInputPorts().length ; j++){
-                const port: Port = node.getInputPorts()[j];
-
+        for (const node of graph.getNodes()){
+            for (const port of node.getInputPorts()){
                 if (port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has input port " + port.getName() + " with dataType: " + port.getType());
                 }
             }
-            for (let j = 0 ; j < node.getOutputPorts().length ; j++){
-                const port: Port = node.getOutputPorts()[j];
-
+            for (const port of node.getOutputPorts()){
                 if (port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port " + port.getName() + " with dataType: " + port.getType());
                 }
@@ -1802,8 +1795,7 @@ export class Utils {
         }
 
         // check that all nodes have correct numbers of inputs and outputs
-        for (let i = 0 ; i < graph.getNodes().length; i++){
-            const node: Node = graph.getNodes()[i];
+        for (const node of graph.getNodes()){
             const cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
             const minInputs  = cData.minInputs;
             const maxInputs  = cData.maxInputs;
@@ -1835,12 +1827,11 @@ export class Utils {
             }
         }
 
-        for (let i = 0 ; i < graph.getEdges().length; i++){
-            const edge: Edge = graph.getEdges()[i];
+        for (const edge of graph.getEdges()){
             const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
 
             if (linkValid === Eagle.LinkValid.Invalid){
-                results.push("Edge " + i + " (" + edge.getId() + ") is invalid.");
+                results.push("Edge (" + edge.getId() + ") is invalid.");
             }
         }
 
@@ -1848,7 +1839,7 @@ export class Utils {
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        console.log("validateJSON(): version:", version, "fileType:", Utils.translateFileTypeToString(fileType));
+        console.log("validateJSON(): version:", version, "fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;
@@ -1903,7 +1894,6 @@ export class Utils {
     }
 
     static validateFieldValue() : void {
-        //const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
         const valueText : string = <string>$('#editFieldModalValueInputText').val();
 
         const type: string = <string>$('#editFieldModalTypeSelect').val();
@@ -1918,8 +1908,6 @@ export class Utils {
             case Eagle.DataType.Integer:
                 isValid = valueText.match(/^-?\d*$/) && true;
                 break;
-            default:
-                isValid = true;
         }
 
         if (isValid){
@@ -1931,5 +1919,49 @@ export class Utils {
             $('#editFieldModalValueInputText').addClass('is-invalid');
             $('#editFieldModalValueFeedback').text('Invalid value for ' + type + ' type.');
         }
+    }
+
+    static downloadFile(error : string, data : string, fileName : string) : void {
+        if (error != null){
+            Utils.showUserMessage("Error", "Error saving the file!");
+            console.error(error);
+            return;
+        }
+
+        // NOTE: this stuff is a hacky way of saving a file locally
+        const blob = new Blob([data]);
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+    }
+
+    // https://noonat.github.io/intersect/#aabb-vs-aabb
+    static nodesOverlap(n0x: number, n0y: number, n0width: number, n0height: number, n1x: number, n1y: number, n1width: number, n1height: number) : boolean {
+        const n0pos = {x:n0x + n0width/2, y:n0y + n0height/2};
+        const n1pos = {x:n1x + n1width/2, y:n1y + n1height/2};
+        const n0half = {x:n0width/2, y:n0height/2};
+        const n1half = {x:n1width/2, y:n1height/2};
+
+        //console.log("compare", n0x, n0y, n0width, n0height, n1x, n1y, n1width, n1height);
+
+        const dx = n0pos.x - n1pos.x;
+        const px = (n0half.x + n1half.x) - Math.abs(dx);
+        if (px <= 0) {
+            //console.log("compare OK");
+            return false;
+        }
+
+        const dy = n0pos.y - n1pos.y;
+        const py = (n0half.y + n1half.y) - Math.abs(dy);
+        if (py <= 0) {
+            //console.log("compare OK");
+            return false;
+        }
+
+        //console.log("compares HIT");
+
+        return true;
     }
 }

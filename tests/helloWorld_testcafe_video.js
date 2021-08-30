@@ -2,12 +2,19 @@ import { Selector, ClientFunction, Role } from 'testcafe';
 import page from './page-model';
 import github from './github-model';
 
-// For logging into GitHub
+/*
+    run with:
 
+    export GITHUB_PW="<...>"; export GITHUB_ACCESS_TOKEN="<token>";testcafe -s "/Users/james/testcafe/" --video "/Users/james/testcafe/videos/" "chrome '--window-size=1920,1208'" tests/summit.js
+*/
+
+// For logging into GitHub
+var GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
+var GITHUB_PW = process.env.GITHUB_PW;
 const gitHubUser = Role('https://github.com/login', async t => {
     await t
-        .typeText('#login_field', 'icrar.testing@gmail.com')
-        .typeText('#password', '%8\\G`+Lo<')
+        .typeText('#login_field', 'markus.dolensky@uwa.edu.au')
+        .typeText('#password', GITHUB_PW)
         .click('.btn.btn-primary.btn-block');
 });
 
@@ -153,13 +160,7 @@ const showNoteBox = ClientFunction((message, rect, direction, timeout_multiplier
     });
 });
 
-/*
-    run with:
 
-    export GITHUB_ACCESS_TOKEN="<token>";testcafe -s "/Users/james/testcafe/" --video "/Users/james/testcafe/videos/" "chrome '--window-size=1920,1208'" tests/summit.js
-*/
-
-var GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
 
 var PROJECT_NAME = "summit";
 
@@ -183,7 +184,7 @@ var SPEAD2_STREAM = "spead2Stream";
 var SUB_MS = "subMS";
 var CONF = "conf";
 var SUCCESS_MESSAGE = "Success:";
-var TEST_SPEED = 0.7     //A number between 0.01 (slowest) and 1.0 (fastest)
+var TEST_SPEED = 1   //A number between 0.01 (slowest) and 1.0 (fastest)
 //var WAIT_TIME = 500;
 
 // prepare to save palette as...
@@ -209,8 +210,8 @@ test('Hello World graph', async t =>{
     await t
         // wait for the page to settle down
         //.resizeWindow(1920, 1080)
-        .maximizeWindow()
-        .wait(3000)
+        //.maximizeWindow()
+        .wait(5000)
         .setTestSpeed(TEST_SPEED*0.7);
 
     // await t
@@ -222,7 +223,7 @@ test('Hello World graph', async t =>{
     await showMessageBox('Creating a Hello World graph'); // This is all you need for a messageBox
 
     //Note
-    var rect = await page.getRect(page.navbarNew);
+    var rect = await page.getRect('#navbarDropdownGraph');
     await showNoteBox('First, create a new graph using the menu. This allows you to give your graph a name.', rect, 'below', 1.3);
 
     // create a new graph
@@ -232,25 +233,30 @@ test('Hello World graph', async t =>{
     await page.selectNode('#node0');
     var rect = await page.getRect('#node0');
     await showNoteBox('A new description node is created. You can use this to enter a description of your graph.', rect, 'above', 1.3);
-    await t.typeText(page.descriptionField, "A graph saving the output of a HelloWorldApp to disk");
+
+	await t.click(Selector('#nodeInspectorMenus span').withText('Graph Description'));
+    await t.typeText('#nodeCategoryCollapse4 .form-control', "AA graph saving the output of a HelloWorldApp to disk");
     await page.moveNode('#node0', 110, 480);
 
     //Note
-    var rect = await page.getRect(page.collapseTopPalette);
-    await showNoteBox('Collapse the default palette by clicking here', rect, 'right', 1.0);
-    await t.click(page.collapseTopPalette);
+//    var rect = await page.getRect(page.collapseTopPalette);
+//    await showNoteBox('Collapse the default palette by clicking here', rect, 'right', 1.0);
+//    await t.click(page.collapseTopPalette);
 
     //Note
-    var rect = await page.getRect('#addPaletteNode2',1);
-    await showNoteBox('Hover over the icon on the left hand side of a palette component to find out information about it', rect, 'right', 1.3)
+	await t.click(Selector('#addPaletteNodeHelloWorldApp i').withText('extension'));
+//await page.selectNode('#addPaletteNodeHelloWorldApp');
+	var rect = await page.getRect('#addPaletteNodeHelloWorldApp');
+    await showNoteBox('Hover over the icon on the left hand side of a palette component to find out information about it. Click it to add it as new node to the graph.', rect, 'right', 1.3)
 
-    await page.hoverPaletteNode(1,2,2000);
-    await t.hover(page.leftHandle);
+//    await page.hoverPaletteNode(1,2,2000);
+//    await t.hover(page.leftHandle);
+//    await t.hover('#addPaletteNodeHelloWorldApp');
 
-    var rect = await page.getRect('#addPaletteNode2',1);
-    await showNoteBox('Click the \"+\" to add a new node to the graph', rect, 'right', 1.0)
+//    var rect = await page.getRect('#addPaletteNode2',1);
+//    await showNoteBox('Click the \"+\" to add a new node to the graph', rect, 'right', 1.0)
 
-    await page.addPaletteNode(1,2);
+//    await page.addPaletteNode(1,2);
 
     var rect = await page.getRect('#node1 image');
     await showNoteBox('This is a representation of the HelloWorldApp graph node', rect, 'above', 1.1);
@@ -260,8 +266,9 @@ test('Hello World graph', async t =>{
     var rect = await page.getRect(Selector('#node1 g.outputPorts circle').nth(0));
     await showNoteBox('This is the node\'s output port', rect, 'right', 1.0);
 
-    var rect = await page.getRect(page.rightHandle);
-    await showNoteBox('Its properties and parameters are listed here, in the \"Node\" pane', rect, 'left', 1.2);
+	// TODO: fix notebox position
+//    var rect = await page.getRect(page.rightHandle);
+//    await showNoteBox('Its properties and parameters are listed here, in the \"Node\" pane', rect, 'left', 1.2);
 
     var rect = await page.getRect(page.componentParameters);
     await showNoteBox('Adjust the node\'s parameters here', rect, 'left', 1.0);
@@ -271,34 +278,43 @@ test('Hello World graph', async t =>{
     var rect = await page.getRect(page.changeGreet);
     await showNoteBox('You can edit this parameter to change the text output for the HelloWorldApp', rect, 'left', 1.2);
 
+	await t.click(Selector('#nodeInspectorMenus i').withText('keyboard_arrow_down').nth(2));
     await t.typeText(page.changeGreet, 'Felicia', { replace: true});
 
-    var rect = await page.getRect(page.collapseTopPalette);
-    await showNoteBox('Open the top palette again and add a \"File\" node', rect, 'right', 1.0);
-    await t.click(page.collapseTopPalette);
+// TODO fix positioning of notebox
+//    var rect = await page.getRect(page.collapseTopPalette);
+//    await showNoteBox('Add a \"File\" node from the palette', rect, 'right', 1.0);
+//    await t.click(page.collapseTopPalette);
 
     // Add file node
-    await page.addPaletteNode(0,8);
+//    await page.addPaletteNode(0,8);
+	await t.click(Selector('#addPaletteNodeFile i').withText('description'));
 
-    // The file node is node1. Select it.
+    // The file node is node2. Select it.
     await page.selectNode("#node2");
 
     // Note
     var rect = await page.getRect("#node2 image");
     await showNoteBox('This is a File node, representing a Data Component for saving data to disk', rect, 'above', 1.3);
     await page.moveNode('#node2', 550, 200);
+//    await page.moveNode('#node2', 1500, 350);
 
     // Add a port to the node for the HelloWordApp output
     // Hover first to get the button onto the screen
-    await t.hover(page.addInputPort);
+    await t.click(Selector('#nodeInspectorMenus i').withText('keyboard_arrow_down').nth(3));
+	await t.hover(page.addInputPort);
 
     //Note
     var rect = await page.getRect(page.addInputPort);
     await showNoteBox('Click here to add an input port to receive the output from the HelloWorldApp', rect, 'above', 1.3);
     await t.click(page.addInputPort);
-
+	await t.click('#portModalSelect');
+	await t.click(Selector('#portModalSelect option').withText('hello (Unknown)'));
+	await t.click('#editPortModalAffirmativeAnswer');
+	// TODO: fix page.selectOption to replace above 3 lines
     // Choose the option "hello"
-    await page.selectOption("hello");
+	//    await page.selectOption("hello");
+	//    await page.selectOption("hello (Unknown)");
 
     // Note
     var rect = await page.getRect(Selector('#node1 g.outputPorts circle').nth(0));
@@ -310,6 +326,8 @@ test('Hello World graph', async t =>{
     var rect = await page.getRect(Selector('#node2 g.inputPorts circle').nth(0));
     await showNoteBox('This arrow is an \"edge\". It represents an event generated by the first node that causes the second node to execute some commands.', rect, 'above', 2.0);
 
+	// wait before terminating abruptly
+	await t.wait(2000);
 
 });
 

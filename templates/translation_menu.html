@@ -1,6 +1,7 @@
 <div id="translationMenu" class="container px-0">
 
-    <div class="accordion" id="accordionExample">
+    <!-- ko ifnot: showSimplifiedTranslatorOptions() -->
+    <div class="accordion" id="translatorAccordion">
 
         <div class="card">
             <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" data-bind="click: $root.spinCollapseIcon">
@@ -9,11 +10,11 @@
                     <span>Algorithm 0 (none)</span>
                 </h5>
             </div>
-            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <p class="card-text">Base PGT Generation</p>
-                    <button id="alg0PGT" class="btn btn-primary" data-bind="click: function(){genPGT(0, false);}">Generate PGT</button>
-                    <button id="test0PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(0, true);}">Test PGT</button>
+                    <button id="alg0PGT" class="btn btn-primary" data-bind="click: function(){genPGT(0, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                    <button id="test0PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(0, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
@@ -25,7 +26,7 @@
                     <span>Algorithm 1 (metis)</span>
                 </h5>
             </div>
-            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <p class="card-text">Minimise data movement while subject to load balancing (direct graph partitioning)</p>
 
@@ -59,8 +60,8 @@
 
                     <p class="card-text"></p>
 
-                    <button id="alg1PGT" class="btn btn-primary" data-bind="click: function(){genPGT(1, false);}">Generate PGT</button>
-                    <button id="test1PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(1, true);}">Test PGT</button>
+                    <button id="alg1PGT" class="btn btn-primary" data-bind="click: function(){genPGT(1, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                    <button id="test1PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(1, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
@@ -72,7 +73,7 @@
                     <span>Algorithm 2 (mysarkar)</span>
                 </h5>
             </div>
-            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <p class="card-text">Minimise execution time whilst subject to each partition's degree of parallelism (DoP) (edgezeroing)</p>
 
@@ -97,8 +98,8 @@
 
                     <p class="card-text"></p>
 
-                    <button id="alg2PGT" class="btn btn-primary" data-bind="click: function(){genPGT(2, false);}">Generate PGT</button>
-                    <button id="test2PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(2, true);}">Test PGT</button>
+                    <button id="alg2PGT" class="btn btn-primary" data-bind="click: function(){genPGT(2, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                    <button id="test2PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(2, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
@@ -110,7 +111,7 @@
                     <span>Algorithm 3 (min_num_parts)</span>
                 </h5>
             </div>
-            <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionExample">
+            <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <p class="card-text">Minimise number of partitions whilst subject to completion deadline (lookahead)</p>
 
@@ -153,8 +154,8 @@
 
                     <p class="card-text"></p>
 
-                    <button id="alg3PGT" class="btn btn-primary" data-bind="click: function(){genPGT(3, false);}">Generate PGT</button>
-                    <button id="test3PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(3, true);}">Test PGT</button>
+                    <button id="alg3PGT" class="btn btn-primary" data-bind="click: function(){genPGT(3, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                    <button id="test3PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(3, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
@@ -166,7 +167,7 @@
                     <span>Algorithm 4 (pso)</span>
                 </h5>
             </div>
-            <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionExample">
+            <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <p class="card-text">Minimise number of partitions whilst optionally subject to completion deadline (warning PSO is 10 times slower, a larger swarm size or dimension further decreases speed)</p>
 
@@ -212,8 +213,8 @@
 
                     <p class="card-text"></p>
 
-                    <button id="alg4PGT" class="btn btn-primary" data-bind="click: function(){genPGT(4, false);}">Generate PGT</button>
-                    <button id="test4PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(4, true);}">Test PGT</button>
+                    <button id="alg4PGT" class="btn btn-primary" data-bind="click: function(){genPGT(4, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                    <button id="test4PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(4, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
@@ -225,7 +226,7 @@
                     <span>Algorithm 5 (simple)</span>
                 </h5>
             </div>
-            <div id="collapseSix" class="collapse show" aria-labelledby="headingSix" data-parent="#accordionExample">
+            <div id="collapseSix" class="collapse show" aria-labelledby="headingSix" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <!--<p class="card-text">Base PGT Generation</p>-->
                     <div class="input-group mb-1">
@@ -243,8 +244,8 @@
 
                     <p class="card-text"></p>
 
-                    <button id="alg5PGT" class="btn btn-primary" data-bind="click: function(){genPGT(5, false);}">Generate PGT</button>
-                    <button id="test5PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(5, true);}">Test PGT</button>
+                    <button id="alg5PGT" class="btn btn-primary" data-bind="click: function(){genPGT(5, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                    <button id="test5PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(5, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
@@ -255,4 +256,40 @@
             </div>
         </div>
     </div>
+    <!-- /ko -->
+    <!-- ko if: showSimplifiedTranslatorOptions() -->
+    <div class="row">
+        <div class="col">
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="alg1-islands">No. of islands</span>
+                </div>
+                <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-islands" data-bind="value: translator().numberOfIslands">
+            </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="alg1-nodes">No. of nodes</span>
+                </div>
+                <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-nodes" data-bind="value: translator().numberOfNodes">
+            </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="alg1-partition-label">Partition label</span>
+                </div>
+                <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-partition-label" data-bind="value: translator().partitionLabel">
+            </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="alg1-load-balancing">Load balancing</span>
+                </div>
+                <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-load-balancing" data-bind="value: translator().loadBalancing">
+                <div class="input-group-append">
+                    <span class="input-group-text">%</span>
+                </div>
+            </div>
+            <button id="alg1PGT" class="btn btn-primary btn-block mt-2" data-bind="click: function(){genPGT(1, false, Eagle.DALiuGESchemaVersion.OJS);}">Generate PGT</button>
+            <button id="test1PGT" class="btn btn-secondary btn-block mt-1" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(1, true, Eagle.DALiuGESchemaVersion.OJS);}">Test PGT</button>
+        </div>
+    </div>
+    <!-- /ko -->
 </div>

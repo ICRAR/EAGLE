@@ -46,8 +46,8 @@ export class GitHub {
             }
 
             // add the repositories from the POST response
-            for (let i = 0 ; i < data.length ; i++){
-                eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, data[i].repository, data[i].branch, true));
+            for (const d of data){
+                eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, d.repository, d.branch, true));
             }
 
             // search for custom repositories in localStorage, and add them into the list
@@ -136,10 +136,11 @@ export class GitHub {
             fileNames.sort(Repository.fileSortFunc);
 
             // add files to repo
-            for (let i = 0 ; i < fileNames.length ; i++){
-                const fileName : string = fileNames[i];
-
-                repository.files.push(new RepositoryFile(repository, "", fileName));
+            for (const fileName of fileNames){
+                // if file is not a .graph, .palette, or .json, just ignore it!
+                if (Utils.verifyFileExtension(fileName)){
+                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                }
             }
 
 
@@ -165,9 +166,7 @@ export class GitHub {
         fileNames.sort(Repository.fileSortFunc);
 
         // add files to repo
-        for (let i = 0 ; i < fileNames.length ; i++){
-            const fileName : string = fileNames[i];
-
+        for (const fileName of fileNames){
             folder.files.push(new RepositoryFile(repository, path, fileName));
         }
 

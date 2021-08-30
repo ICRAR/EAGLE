@@ -1,18 +1,28 @@
 <div id="nodeInspector" class="container px-0">
+    <!-- ko if: selectedNode() == null -->
+    <div class="row">
+        <div class="col">
+            <h5 class="card-header" id="nodeInspectorHeading">
+                <span style="color:black;">No or multiple nodes selected</span>
+            </h5>
+        </div>
+    </div>
+    <!-- /ko -->
+
     <!-- ko if: selectedNode() != null -->
-        <div class="row">
-            <div class="col-9">
-                <h5 class="card-header" id="nodeInspectorHeading" data-bind="click: inspectorState().toggleAll">
-                    <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse All'}, css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
-                    <!-- ko if: selectedNode().isLocked() -->
-                    <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
-                    <!-- /ko -->
-                    <!-- ko ifnot: selectedNode().isLocked() -->
-                    <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
-                    <!-- /ko -->
-                    <span data-bind="text: selectedNode().getName()"></span>
-                </h5>
-            </div>
+    <div class="row">
+        <div class="col-9">
+            <h5 class="card-header" id="nodeInspectorHeading" data-bind="click: inspectorState().toggleAll, style: {backgroundColor: selectedNode().color}">
+                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse All'}, css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
+                <!-- ko if: selectedNode().isLocked() -->
+                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
+                <!-- /ko -->
+                <!-- ko ifnot: selectedNode().isLocked() -->
+                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
+                <!-- /ko -->
+                <span data-bind="text: selectedNode().getName()"></span>
+            </h5>
+        </div>
             <div class="col-3" id="headerBtns">
                 <!-- ko if: selectedLocation() == Eagle.FileType.Graph || allowPaletteEditing() -->
                 <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelectedNode" data-toggle="tooltip" data-placement="left" data-original-title="Duplicate Selected Node [d]"><i  class="material-icons md-24">content_copy</i></button>
@@ -27,7 +37,7 @@
         </div>
         <div class="breakLine"></div>
         <h4 class="nodeInspectorSubTitle">Key: <span data-bind="text: selectedNode().getKey()"></span></h4>
-        <h4 class="nodeInspectorSubTitle" >Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
+        <h4 class="nodeInspectorSubTitle">Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
         <h4 class="nodeInspectorSubTitle">Category Type: <span data-bind="text: selectedNode().getCategoryType()"></span></h4>
 
         <div id="nodeInspectorMenus">

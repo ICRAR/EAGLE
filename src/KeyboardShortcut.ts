@@ -18,15 +18,16 @@ export class KeyboardShortcut {
     }
 
     static commentNodeIsSelected = (eagle: Eagle) : boolean => {
-        return eagle.selectedNode() !== null && eagle.selectedNode().getCategory() === Eagle.Category.Comment;
+        const selectedNode = eagle.selectedNode();
+        return selectedNode !== null && selectedNode.getCategory() === Eagle.Category.Comment;
     }
 
     static edgeIsSelected = (eagle: Eagle) : boolean => {
         return eagle.selectedEdge() !== null;
     }
 
-    static edgeIsNotSelected = (eagle: Eagle) : boolean => {
-        return eagle.selectedEdge() === null;
+    static somethingIsSelected = (eagle: Eagle) : boolean => {
+        return eagle.selectedObjects().length > 0;
     }
 
     static true = (eagle: Eagle) : boolean => {
@@ -44,11 +45,9 @@ export class KeyboardShortcut {
         const eagle = (<any>window).eagle;
 
         // loop through all the keyboard shortcuts here
-        for (let i = 0 ; i < Eagle.shortcuts().length ; i++){
-            const shortcut: KeyboardShortcut = Eagle.shortcuts()[i];
-
-            for (let j = 0 ; j < shortcut.keys.length ; j++){
-                if (shortcut.keys[j] === e.key){
+        for (const shortcut of Eagle.shortcuts()){
+            for (const key of shortcut.keys){
+                if (key === e.key){
                     if (shortcut.canRun(eagle)){
                         shortcut.run(eagle);
                     }

@@ -6,7 +6,7 @@
 //-->
 
     <head>
-        <title id="tabTitle">EAGLE</title>
+        <title id="tabTitle" data-bind="text: getTabTitle">EAGLE</title>
 
         <link rel="stylesheet" href="static/bootstrap.min.css">
         <link rel="stylesheet" href="static/base.css">
@@ -65,7 +65,7 @@
                     {% include 'palettes.html' %}
                 </div>
 
-                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart , dragend: leftWindowAdjustEnd }">
+                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart , dragend: sideWindowAdjustEnd }">
                 </div>
             </div>
 
@@ -79,16 +79,9 @@
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}" data-intro='Load palettes and graphs from remote git repositories.'>
                             Repositories
                         </button>
-                        <!-- ko if: selectedNode() !== null -->
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.NodeInspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.NodeInspector}">
-                                Node
-                            </button>
-                        <!-- /ko -->
-                        <!-- ko if: selectedEdge() !== null -->
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeEdge" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.EdgeInspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.EdgeInspector}">
-                                Edge
-                            </button>
-                        <!-- /ko -->
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="visible: selectedObjects().length > 0, click: function(){rightWindow().mode(Eagle.RightWindowMode.Inspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Inspector}">
+                            Inspector
+                        </button>
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}" data-intro='Submit a logical graph for translation into a physical graph.'>
                             Translation
                         </button>
@@ -108,11 +101,16 @@
                     <div class="rightWindowDisplay repository" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Repository">
                         {% include 'repositories.html' %}
                     </div>
-                    <div class="rightWindowDisplay nodeInspector" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.NodeInspector">
-                        {% include 'node_inspector.html' %}
-                    </div>
-                    <div class="rightWindowDisplay edgeInspector" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.EdgeInspector">
-                        {% include 'edge_inspector.html' %}
+                    <div data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Inspector">
+                        <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() === null && selectedObjects().length > 1">
+                            Select a single node or edge
+                        </div> 
+                        <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() !== null">
+                            {% include 'node_inspector.html' %}
+                        </div> 
+                        <div class="rightWindowDisplay edgeInspector" data-bind="visible: selectedEdge() !== null">
+                            {% include 'edge_inspector.html' %}
+                        </div>  
                     </div>
                     <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
                         {% include 'translation_menu.html' %}
@@ -122,7 +120,7 @@
                     </div>
                 </div>
 
-                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart, dragend: rightWindowAdjustEnd }">
+                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart, dragend: sideWindowAdjustEnd }">
                 </div>
             </div>
         </div>
