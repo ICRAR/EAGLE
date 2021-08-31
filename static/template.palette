@@ -809,7 +809,7 @@
             "outputPorts": [],
             "key": -19,
             "fields": [],
-            "categoryType": "Other",
+            "categoryType": "Service",
             "readonly": true
         },
         {
