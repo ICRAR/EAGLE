@@ -225,13 +225,15 @@ export class GraphUpdater {
                 case Eagle.Category.PythonApp:
                     return Eagle.CategoryType.Application;
 
+                case Eagle.Category.Service:
+                    return Eagle.CategoryType.Service;
+
                 case Eagle.Category.File:
                 case Eagle.Category.Memory:
                 case Eagle.Category.NGAS:
                 case Eagle.Category.S3:
                     return Eagle.CategoryType.Data;
 
-                case Eagle.Category.Service:
                 case Eagle.Category.GroupBy:
                 case Eagle.Category.Gather:
                 case Eagle.Category.Scatter:
