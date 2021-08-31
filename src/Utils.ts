@@ -1825,6 +1825,11 @@ export class Utils {
             if (node.hasExitApplication() && node.getExitApplication().getCategory() === Eagle.Category.None){
                 results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application with category 'None'.");
             }
+
+            // check that Service nodes have inputApplications with no output ports!
+            if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
+            }
         }
 
         for (const edge of graph.getEdges()){

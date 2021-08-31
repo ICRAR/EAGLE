@@ -671,7 +671,10 @@ export class Node {
 
         if (this.getCategory() === Eagle.Category.Service){
             // NOTE: Service nodes can't have input ports, or input application output ports!
-            return (2 * 30) + (this.getInputApplicationInputPorts().length * 24) + 8;
+            return (2 * 30) +
+                (this.getInputApplicationInputPorts().length * 24) +
+                (this.getInputApplicationOutputPorts().length * 24) +
+                8;
         }
 
         const leftHeight = (
