@@ -13,7 +13,7 @@ RUN apk add --update npm bash git curl alpine-sdk libffi-dev linux-headers &&\
     pip uninstall -y pip &&\
     mv /app/docker/prestart.dep.sh /tmp/prestart.sh &&\
     mv static/VERSION /usr/local/lib/python3.8/site-packages/static/. &&\
-    cp -R static/docs /usr/local/lib/python3.8/site-packages/static &&\
+    # cp -R static/docs /usr/local/lib/python3.8/site-packages/static &&\
     npm uninstall -g typescript &&\
     apk del git curl alpine-sdk linux-headers npm &&\
     rm -rf * .[a-z]* &&\
