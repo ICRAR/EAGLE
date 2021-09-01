@@ -1792,6 +1792,42 @@ export class Utils {
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port " + port.getName() + " with dataType: " + port.getType());
                 }
             }
+
+            for (const port of node.getInputApplicationInputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application input port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+
+            for (const port of node.getInputApplicationOutputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application output port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+
+            for (const port of node.getOutputApplicationInputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application input port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+
+            for (const port of node.getOutputApplicationOutputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application output port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+
+            for (const port of node.getExitApplicationInputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application input port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+
+            for (const port of node.getExitApplicationOutputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application output port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
         }
 
         // check that all nodes have correct numbers of inputs and outputs
@@ -1824,6 +1860,11 @@ export class Utils {
             }
             if (node.hasExitApplication() && node.getExitApplication().getCategory() === Eagle.Category.None){
                 results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application with category 'None'.");
+            }
+
+            // check that Service nodes have inputApplications with no output ports!
+            if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
             }
         }
 
