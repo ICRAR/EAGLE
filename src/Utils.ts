@@ -1792,6 +1792,42 @@ export class Utils {
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port " + port.getName() + " with dataType: " + port.getType());
                 }
             }
+
+            for (const port of node.getInputApplicationInputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application input port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+
+            for (const port of node.getInputApplicationOutputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application output port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+
+            for (const port of node.getOutputApplicationInputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application input port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+
+            for (const port of node.getOutputApplicationOutputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application output port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+
+            for (const port of node.getExitApplicationInputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application input port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
+
+            for (const port of node.getExitApplicationOutputPorts()){
+                if (port.getType() === Eagle.DataType.Unknown){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application output port " + port.getName() + " with dataType: " + port.getType());
+                }
+            }
         }
 
         // check that all nodes have correct numbers of inputs and outputs

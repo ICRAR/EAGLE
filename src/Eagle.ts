@@ -76,6 +76,8 @@ export class Eagle {
 
     explorePalettes : ko.ObservableArray<PaletteInfo>;
 
+    graphErrors : ko.ObservableArray<string>;
+
     static settings : ko.ObservableArray<Setting>;
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
 
@@ -159,6 +161,8 @@ export class Eagle {
         this.rendererFrameCountTick = 0;
 
         this.explorePalettes = ko.observableArray([]);
+
+        this.graphErrors = ko.observableArray([]);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -607,6 +611,7 @@ export class Eagle {
 
                 this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
+                this.checkGraph();
                 this.logicalGraph.valueHasMutated();
             });
         });
@@ -696,6 +701,7 @@ export class Eagle {
 
         // flag graph as changed
         this.flagActiveFileModified();
+        this.checkGraph();
         this.logicalGraph.valueHasMutated();
     }
 
@@ -733,6 +739,7 @@ export class Eagle {
 
             // flag graph as changed
             this.flagActiveFileModified();
+            this.checkGraph();
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -940,6 +947,7 @@ export class Eagle {
             const pos = this.getNewNodePosition(node.getDisplayWidth(), node.getDisplayHeight());
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.logicalGraph().addNode(node, pos.x, pos.y, null);
+            this.checkGraph();
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -1838,6 +1846,7 @@ export class Eagle {
 
             // trigger re-render
             this.logicalGraph.valueHasMutated();
+            this.checkGraph();
 
             if (errors.length > 0){
                 if (showErrors){
@@ -2224,6 +2233,7 @@ export class Eagle {
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), () => {
+                this.checkGraph();
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2257,6 +2267,7 @@ export class Eagle {
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
             this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), () => {
+                this.checkGraph();
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2284,6 +2295,7 @@ export class Eagle {
                     }
 
                     this.insertGraph(nodes, edges, null);
+                    this.checkGraph();
                     this.logicalGraph.valueHasMutated();
                 }
                 break;
@@ -2460,6 +2472,8 @@ export class Eagle {
             this.logicalGraph().fileInfo().modified = true;
         }
 
+        this.checkGraph();
+
         // empty the selected objects, should have all been deleted
         this.selectedObjects([]);
     }
@@ -2483,6 +2497,7 @@ export class Eagle {
             this.setSelection(Eagle.RightWindowMode.Inspector, newNode, Eagle.FileType.Graph);
             Eagle.nodeDropLocation = {x:0, y:0};
 
+            this.checkGraph();
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -2844,6 +2859,7 @@ export class Eagle {
             }
 
             // refresh the display
+            this.checkGraph();
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -2890,6 +2906,7 @@ export class Eagle {
             selectedNode.setSubjectKey(newSubjectKey);
 
             // refresh the display
+            this.checkGraph();
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -2929,6 +2946,8 @@ export class Eagle {
                 edges.splice(i, 1);
             }
         }
+
+        this.checkGraph();
     }
 
     // dragdrop
@@ -3369,6 +3388,7 @@ export class Eagle {
                    node.addPort(clone, input);
                }
 
+               this.checkGraph();
                this.updateInspectorTooltips();
             });
         } else {
@@ -3395,6 +3415,7 @@ export class Eagle {
                 const portId = port.getId();
                 port.copyWithKeyAndId(newPort, nodeKey, portId);
 
+                this.checkGraph();
                 this.updateInspectorTooltips();
             });
         }
@@ -3524,6 +3545,8 @@ export class Eagle {
             }
 
             selectedNode.setInputApplication(node);
+
+            this.checkGraph();
         });
     }
 
@@ -3543,6 +3566,8 @@ export class Eagle {
             }
 
             selectedNode.setOutputApplication(node);
+
+            this.checkGraph();
         });
     }
 
@@ -3562,6 +3587,8 @@ export class Eagle {
             }
 
             selectedNode.setExitApplication(node);
+
+            this.checkGraph();
         });
     }
 
@@ -3652,10 +3679,12 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        const results: string[] = Utils.checkGraph(this.logicalGraph());
+        this.graphErrors(Utils.checkGraph(this.logicalGraph()));
+    };
 
-        if (results.length > 0){
-            Utils.showUserMessage("Check graph", results.join('<br/>'))
+    showGraphErrors = (): void => {
+        if (this.graphErrors().length > 0){
+            Utils.showUserMessage("Check graph", this.graphErrors().join('<br/>'))
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
