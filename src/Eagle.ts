@@ -1750,6 +1750,9 @@ export class Eagle {
                         Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                     }
 
+                    // check graph
+                    this.checkGraph();
+
                     // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
                     this.updateActiveFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
                     break;
