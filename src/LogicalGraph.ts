@@ -484,8 +484,11 @@ export class LogicalGraph {
             // Store the node's location.
             const nodePosition = newNode.getPosition();
 
+            // build a list of ineligible types
+            const ineligibleTypes: Eagle.Category[] = [Eagle.Category.Memory];
+
             // ask the user which data type should be added
-            this.addDataComponentDialog([], (category: Eagle.Category) : void => {
+            this.addDataComponentDialog(ineligibleTypes, (category: Eagle.Category) : void => {
                 if (category !== null) {
                     // Add a data component to the graph.
                     newNode = this.addDataComponentToGraph(category, nodePosition);

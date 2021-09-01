@@ -304,12 +304,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // check if this is a double click
             if (elapsedTime < DOUBLE_CLICK_DURATION){
                 if (node.isData()){
-                    console.log("Double click data");
                     node.toggleShowPorts();
                     eagle.logicalGraph.valueHasMutated();
                 }
                 if (node.isGroup()){
-                    console.log("Double click group");
                     node.toggleCollapsed();
                 }
             }
