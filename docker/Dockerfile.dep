@@ -2,14 +2,14 @@
 # the final image low.
 
 FROM tiangolo/meinheld-gunicorn-flask:python3.8-alpine3.11
-COPY .. .
-RUN apk add --update npm bash git curl alpine-sdk linux-headers &&\
+COPY . .
+RUN apk add --update npm bash git curl alpine-sdk libffi-dev linux-headers &&\
     npm install -g typescript &&\
     pip install --upgrade pip &&\
     pip install . &&\
-#    sphinx-apidoc -o docs/source eagleServer &&\
-    cd docs; make html; cd .. &&\
-   # pip list | grep -i sphinx | awk '{print $1}'|xargs pip uninstall -y &&\
+    # sphinx-apidoc -o docs/source eagleServer &&\
+    # cd docs; make html; cd .. &&\
+    # pip list | grep -i sphinx | awk '{print $1}'|xargs pip uninstall -y &&\
     pip uninstall -y pip &&\
     mv /app/docker/prestart.dep.sh /tmp/prestart.sh &&\
     mv static/VERSION /usr/local/lib/python3.8/site-packages/static/. &&\
