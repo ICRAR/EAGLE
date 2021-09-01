@@ -261,7 +261,7 @@
                 "readonly": false,
                 "type": "String"
             }],
-            "key": -11,
+            "key": -8,
             "text": "Docker",
             "description":"An application component run from a Docker image",
             "categoryType": "Application",
@@ -807,7 +807,7 @@
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "key": -19,
+            "key": -20,
             "fields": [],
             "categoryType": "Service",
             "readonly": true
@@ -936,7 +936,7 @@
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "key": -24,
+            "key": -25,
             "fields": [],
             "categoryType": "Group",
             "readonly": true
