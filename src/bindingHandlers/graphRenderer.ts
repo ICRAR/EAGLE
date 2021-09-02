@@ -763,7 +763,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const portDragHandler = d3.drag()
                             .on("start", function (port : Port) {
-                                console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getName());
+                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getName());
                                 isDraggingPort = true;
                                 sourceNodeKey = port.getNodeKey();
                                 sourcePortId = port.getId();
@@ -776,17 +776,35 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 tick();
                             })
                             .on("end", function(port : Port){
-                                console.log("drag end", port.getId());
+                                //console.log("drag end", port.getId());
                                 isDraggingPort = false;
 
                                 if (destinationPortId !== null){
+                                    const srcNode = findNodeWithKey(sourceNodeKey, nodeData);
+                                    const destNode = findNodeWithKey(destinationNodeKey, nodeData);
+                                    const srcPortType = srcNode.findPortTypeById(sourcePortId);
+                                    const destPortType = destNode.findPortTypeById(destinationPortId);
+
+                                    // check if edge is back-to-front (input-to-output), if so, swap the source and destination
+                                    if ((srcPortType === "input" || srcPortType === "outputLocal") && (destPortType === "output" || destPortType === "inputLocal")){
+                                        const tempNodeKey = sourceNodeKey;
+                                        const tempPortId = sourcePortId;
+                                        sourceNodeKey = destinationNodeKey;
+                                        sourcePortId = destinationPortId;
+                                        destinationNodeKey = tempNodeKey;
+                                        destinationPortId = tempPortId;
+
+                                        // notify user
+                                        Utils.showNotification("Automatically reversed edge direction", "The edge began at an input port and ended at an output port, so the direction was reversed.", "info");
+                                    }
+
                                     // check if link is valid
                                     const linkValid : Eagle.LinkValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, false, true, true);
 
                                     // check if we should allow invalid edges
                                     const allowInvalidEdges : boolean = Eagle.findSettingValue(Utils.ALLOW_INVALID_EDGES);
 
-                                    // abort if source port and destination port have different data types
+                                    // abort if edge is invalid
                                     if (allowInvalidEdges || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
                                         if (linkValid === Eagle.LinkValid.Warning){
                                             addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, sourceDataType, true);
