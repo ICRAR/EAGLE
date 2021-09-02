@@ -225,6 +225,9 @@ export class GraphUpdater {
                 case Eagle.Category.PythonApp:
                     return Eagle.CategoryType.Application;
 
+                case Eagle.Category.Service:
+                    return Eagle.CategoryType.Service;
+
                 case Eagle.Category.File:
                 case Eagle.Category.Memory:
                 case Eagle.Category.NGAS:
@@ -238,7 +241,6 @@ export class GraphUpdater {
                 case Eagle.Category.Loop:
                     return Eagle.CategoryType.Group;
 
-                case Eagle.Category.Service:
                 case Eagle.Category.Comment:
                 case Eagle.Category.Description:
                 case Eagle.Category.Variables:

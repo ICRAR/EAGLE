@@ -78,6 +78,7 @@ export class Eagle {
 
     isDragging : ko.Observable<boolean>;
     draggingNode : ko.Observable<Node>;
+    graphErrors : ko.ObservableArray<string>;
 
     static settings : ko.ObservableArray<Setting>;
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
@@ -165,6 +166,7 @@ export class Eagle {
 
         this.isDragging = ko.observable(false);
         this.draggingNode = ko.observable(null);
+        this.graphErrors = ko.observableArray([]);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -613,6 +615,7 @@ export class Eagle {
 
                 this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
+                this.checkGraph();
                 this.logicalGraph.valueHasMutated();
             });
         });
@@ -702,6 +705,7 @@ export class Eagle {
 
         // flag graph as changed
         this.flagActiveFileModified();
+        this.checkGraph();
         this.logicalGraph.valueHasMutated();
     }
 
@@ -739,6 +743,7 @@ export class Eagle {
 
             // flag graph as changed
             this.flagActiveFileModified();
+            this.checkGraph();
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -946,6 +951,7 @@ export class Eagle {
             const pos = this.getNewNodePosition(node.getDisplayWidth(), node.getDisplayHeight());
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.logicalGraph().addNode(node, pos.x, pos.y, null);
+            this.checkGraph();
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -1748,6 +1754,9 @@ export class Eagle {
                         Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                     }
 
+                    // check graph
+                    this.checkGraph();
+
                     // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
                     this.updateActiveFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
                     break;
@@ -1844,6 +1853,7 @@ export class Eagle {
 
             // trigger re-render
             this.logicalGraph.valueHasMutated();
+            this.checkGraph();
 
             if (errors.length > 0){
                 if (showErrors){
@@ -2230,6 +2240,7 @@ export class Eagle {
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), () => {
+                this.checkGraph();
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2263,6 +2274,7 @@ export class Eagle {
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
             this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), () => {
+                this.checkGraph();
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2290,6 +2302,7 @@ export class Eagle {
                     }
 
                     this.insertGraph(nodes, edges, null);
+                    this.checkGraph();
                     this.logicalGraph.valueHasMutated();
                 }
                 break;
@@ -2466,6 +2479,8 @@ export class Eagle {
             this.logicalGraph().fileInfo().modified = true;
         }
 
+        this.checkGraph();
+
         // empty the selected objects, should have all been deleted
         this.selectedObjects([]);
     }
@@ -2486,9 +2501,10 @@ export class Eagle {
 
         this.logicalGraph().addNode(node, pos.x, pos.y, (newNode: Node) => {
             // make sure the new node is selected
-            this.setSelection(Eagle.RightWindowMode.NodeInspector, newNode, Eagle.FileType.Graph);
+            this.setSelection(Eagle.RightWindowMode.Inspector, newNode, Eagle.FileType.Graph);
             Eagle.nodeDropLocation = {x:0, y:0};
 
+            this.checkGraph();
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -2850,6 +2866,7 @@ export class Eagle {
             }
 
             // refresh the display
+            this.checkGraph();
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -2896,6 +2913,7 @@ export class Eagle {
             selectedNode.setSubjectKey(newSubjectKey);
 
             // refresh the display
+            this.checkGraph();
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -2935,6 +2953,8 @@ export class Eagle {
                 edges.splice(i, 1);
             }
         }
+
+        this.checkGraph();
     }
 
     // dragdrop
@@ -3155,9 +3175,9 @@ export class Eagle {
 
     paletteComponentClick = (node: Node, event:JQueryEventObject) : void => {
         if (event.shiftKey)
-            this.editSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Palette);
+            this.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
         else
-            this.setSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Palette);
+            this.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
     }
 
     selectedEdgeValid = () : Eagle.LinkValid => {
@@ -3250,15 +3270,15 @@ export class Eagle {
     }
 
     selectInputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getInputApplication(), Eagle.FileType.Graph);
+        this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getInputApplication(), Eagle.FileType.Graph);
     }
 
     selectOutputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
+        this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
     selectExitApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, this.selectedNode().getExitApplication(), Eagle.FileType.Graph);
+        this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getExitApplication(), Eagle.FileType.Graph);
     }
 
     editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number) : void => {
@@ -3375,6 +3395,7 @@ export class Eagle {
                    node.addPort(clone, input);
                }
 
+               this.checkGraph();
                this.updateInspectorTooltips();
             });
         } else {
@@ -3401,6 +3422,7 @@ export class Eagle {
                 const portId = port.getId();
                 port.copyWithKeyAndId(newPort, nodeKey, portId);
 
+                this.checkGraph();
                 this.updateInspectorTooltips();
             });
         }
@@ -3530,6 +3552,8 @@ export class Eagle {
             }
 
             selectedNode.setInputApplication(node);
+
+            this.checkGraph();
         });
     }
 
@@ -3549,6 +3573,8 @@ export class Eagle {
             }
 
             selectedNode.setOutputApplication(node);
+
+            this.checkGraph();
         });
     }
 
@@ -3568,6 +3594,8 @@ export class Eagle {
             }
 
             selectedNode.setExitApplication(node);
+
+            this.checkGraph();
         });
     }
 
@@ -3658,10 +3686,12 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        const results: string[] = Utils.checkGraph(this.logicalGraph());
+        this.graphErrors(Utils.checkGraph(this.logicalGraph()));
+    };
 
-        if (results.length > 0){
-            Utils.showUserMessage("Check graph", results.join('<br/>'))
+    showGraphErrors = (): void => {
+        if (this.graphErrors().length > 0){
+            Utils.showUserMessage("Check graph", this.graphErrors().join('<br/>'))
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
@@ -3693,7 +3723,7 @@ export class Eagle {
         this.isDragging(true);
         this.draggingNode(node);
 
-        this.setSelection(Eagle.RightWindowMode.NodeInspector, node, Eagle.FileType.Graph);
+        this.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
     }
 
     endDrag = (node: Node) : void => {
@@ -3747,11 +3777,11 @@ export class Eagle {
         End                : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "stop", color: "#CB4335"},
         Comment            : {isData: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 1, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "comment", color: "#799938"},
         Description        : {isData: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "note", color: "#9B3065"},
-        Scatter            : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_split", color: "#DDAD00"},
-        Gather             : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_merge", color: "#D35400"},
-        MKN                : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "waves", color: "#D32000"},
-        GroupBy            : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "group_work", color: "#7F8C8D"},
-        Loop               : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true, icon: "loop", color: "#512E5F"},
+        Scatter            : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_split", color: "#DDAD00"},
+        Gather             : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_merge", color: "#D35400"},
+        MKN                : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "waves", color: "#D32000"},
+        GroupBy            : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "group_work", color: "#7F8C8D"},
+        Loop               : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true, icon: "loop", color: "#512E5F"},
 
         PythonApp          : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "extension", color: "#3498DB"},
         BashShellApp       : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "attach_money", color: "#1C2833"},
@@ -3767,7 +3797,7 @@ export class Eagle {
         Plasma             : {isData: true, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "star", color: "#394BB2"},
         PlasmaFlight       : {isData: true, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "local_airport", color: "#394BB2"},
 
-        Service            : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "build", color: "#EB1672"},
+        Service            : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "build", color: "#EB1672"},
         ExclusiveForceNode : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "picture_in_picture", color: "#000000"},
 
         Variables          : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
@@ -3790,8 +3820,7 @@ export namespace Eagle
     export enum RightWindowMode {
         None = "None",
         Repository = "Repository",
-        NodeInspector = "NodeInspector",
-        EdgeInspector = "EdgeInspector",
+        Inspector = "Inspector",
         TranslationMenu = "TranslationMenu",
         Hierarchy = "Hierarchy"
     }
@@ -3886,6 +3915,7 @@ export namespace Eagle
     export enum CategoryType {
         Control = "Control",
         Application = "Application",
+        Service = "Service",
         Group = "Group",
         Data = "Data",
         Other = "Other",

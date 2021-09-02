@@ -33,8 +33,8 @@ class npmBuild(build):
         # run original build code
         build.run(self)
 
-        # build docs
-        build_path = os.path.abspath(self.build_temp)
+        # don't build docs
+        # build_path = os.path.abspath(self.build_temp)
 
         cmd = ["npm"]
 
