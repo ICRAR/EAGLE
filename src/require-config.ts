@@ -22,6 +22,7 @@ require.config({
         "Eagle": "./static/built/Eagle",
         "Utils": "./static/built/Utils",
         "GraphUpdater": "./static/built/GraphUpdater",
+        "GraphRenderer": "./static/built/GraphRenderer",
         "Repository": "./static/built/Repository",
         "RepositoryFolder": "./static/built/RepositoryFolder",
         "RepositoryFile": "./static/built/RepositoryFile",

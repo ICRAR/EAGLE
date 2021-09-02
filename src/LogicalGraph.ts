@@ -26,6 +26,7 @@ import * as ko from "knockout";
 
 import {Utils} from './Utils';
 import {GraphUpdater} from './GraphUpdater';
+import {GraphRenderer} from './GraphRenderer';
 
 import {Eagle} from './Eagle';
 import {Node} from './Node';
@@ -902,6 +903,28 @@ export class LogicalGraph {
             }
         }
         return null;
+    }
+
+    getPath = (edge: Edge) : string => {
+        let srcNode : Node  = this.findNodeByKey(edge.getSrcNodeKey());
+        let destNode : Node = this.findNodeByKey(edge.getDestNodeKey());
+
+        // if the src or dest nodes are embedded nodes, use the position of the construct instead
+        if (srcNode.isEmbedded()){
+            srcNode = this.findNodeByKey(srcNode.getEmbedKey());
+        }
+        if (destNode.isEmbedded()){
+            destNode = this.findNodeByKey(destNode.getEmbedKey());
+        }
+
+        // find positions of the nodes
+        const srcX = srcNode.getPosition().x + srcNode.getDisplayWidth();
+        const srcY = srcNode.getPosition().y;
+        const destX = destNode.getPosition().x;
+        const destY = destNode.getPosition().y + destNode.getDisplayHeight();
+
+        //return "M234,159.5C280,159.5,280,41.5,330,41.5";
+        return GraphRenderer.createBezier(srcX, srcY, destX, destY, Eagle.Direction.Right, Eagle.Direction.Right);
     }
 
     static normaliseNodes = (nodes: Node[]) : {x: number, y: number} => {

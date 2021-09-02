@@ -76,9 +76,11 @@
                     <!-- ko foreach: $root.logicalGraph().getNodes() -->
                         {% include 'node.html' %}
                     <!-- /ko -->
-                    <!-- ko foreach: $root.logicalGraph().getEdges() -->
-                        <div class="edge"></div>
-                    <!-- /ko -->
+                    <svg>
+                        <!-- ko foreach: $root.logicalGraph().getEdges() -->
+                        <path data-bind="attr:{d: $root.logicalGraph().getPath($data)}" stroke-width="2" fill="transparent" stroke="black" class=""></path>
+                        <!-- /ko -->
+                    </svg>
                     <!-- /ko -->
                 </div>
             </div>
@@ -113,13 +115,13 @@
                     <div data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Inspector">
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() === null && selectedObjects().length > 1">
                             Select a single node or edge
-                        </div> 
+                        </div>
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() !== null">
                             {% include 'node_inspector.html' %}
-                        </div> 
+                        </div>
                         <div class="rightWindowDisplay edgeInspector" data-bind="visible: selectedEdge() !== null">
                             {% include 'edge_inspector.html' %}
-                        </div>  
+                        </div>
                     </div>
                     <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
                         {% include 'translation_menu.html' %}
