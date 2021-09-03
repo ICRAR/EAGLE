@@ -134,11 +134,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const defs = rootContainer.append("defs");
 
     if (!defsDeclared){
-        Object.keys(LINK_COLORS).forEach(function (value) {
-            console.log(value +":"+ LINK_COLORS[value]);
-            const value = defs
+        Object.keys(LINK_COLORS).forEach(function (value, i) {
+            const x = defs
                 .append("marker")
-                .attr("id", "black-arrowhead")
+                .attr("id", value)
                 .attr("viewBox", "0 0 10 10")
                 .attr("refX", "7")
                 .attr("refY", "5")
@@ -146,42 +145,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 .attr("markerWidth","8")
                 .attr("markerHeight", "6")
                 .attr("orient", "auto"); 
+            
+            x
+                .append("path")
+                .attr("d", "M 0 0 L 10 5 L 0 10 z")
+                .attr("stroke", "none")
+                .attr("fill",LINK_COLORS[value]);
         })
-
-    const black_arrowhead = defs
-        .append("marker")
-        .attr("id", "black-arrowhead")
-        .attr("viewBox", "0 0 10 10")
-        .attr("refX", "7")
-        .attr("refY", "5")
-        .attr("markerUnits", "strokeWidth")
-        .attr("markerWidth","8")
-        .attr("markerHeight", "6")
-        .attr("orient", "auto");
-
-    // black_arrowhead
-    //     .append("path")
-    //     .attr("d", "M 0 0 L 10 5 L 0 10 z")
-    //     .attr("stroke", "none")
-    //     .attr("fill","black");
-
-    // // add def for markers
-    // const grey_arrowhead = defs
-    //     .append("marker")
-    //     .attr("id", "grey-arrowhead")
-    //     .attr("viewBox", "0 0 10 10")
-    //     .attr("refX", "7")
-    //     .attr("refY", "5")
-    //     .attr("markerUnits", "strokeWidth")
-    //     .attr("markerWidth","8")
-    //     .attr("markerHeight", "6")
-    //     .attr("orient", "auto");
-
-    // grey_arrowhead
-    //     .append("path")
-    //     .attr("d", "M 0 0 L 10 5 L 0 10 z")
-    //     .attr("stroke", "none")
-    //     .attr("fill", LINK_COLORS['LINK_DEFAULT_COLOR']);
     }
 
     // background
@@ -869,7 +839,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("stroke", edgeGetStrokeColor)
         .attr("stroke-dasharray", edgeGetStrokeDashArray)
         .attr("fill", "transparent")
-        .attr("marker-end", "url(#grey-arrowhead)")
+        .attr("marker-end", getArrowType)
         .style("display", getEdgeDisplay)
         .on("click", edgeOnClick);
 
@@ -883,9 +853,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     commentLinks
         .attr("class", "commentLink")
         .attr("d", createCommentLink)
-        .attr("stroke", "black")
+        .attr("stroke", LINK_COLORS["LINK_DEFAULT_COLOR"])
         .attr("fill", "transparent")
-        .attr("marker-end", "url(#black-arrowhead)")
+        .attr("marker-end", "url(#LINK_DEFAULT_COLOR)")
         .style("display", getCommentLinkDisplay);
 
     // create one link that is only used during the creation of a new link
@@ -1525,16 +1495,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("stroke", edgeGetStrokeColor)
             .attr("stroke-dasharray", edgeGetStrokeDashArray)
             .attr("fill", "transparent")
-            .attr("marker-end", "url(#grey-arrowhead)")
+            .attr("marker-end", getArrowType)
             .style("display", getEdgeDisplay);
 
         // update attributes of all comment links
         commentLinks
             .attr("class", "commentLink")
             .attr("d", createCommentLink)
-            .attr("stroke", "black")
+            .attr("stroke", LINK_COLORS["LINK_DEFAULT_COLOR"])
             .attr("fill", "transparent")
-            .attr("marker-end", "url(#black-arrowhead)")
+            .attr("marker-end", "ur(#LINK_DEFAULT_COLOR)")
             .style("display", getCommentLinkDisplay);
 
         // dragging link
@@ -2946,9 +2916,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             normalColor = LINK_COLORS['LINK_WARNING_COLOR'];
             selectedColor = LINK_COLORS['LINK_WARNING_SELECTED_COLOR'];
         }
-
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
     }
+
+    function getArrowType(edge: Edge, index: number) {
+        const x = edgeGetStrokeColor(edge, index)
+        return "url(#"+Object.keys(LINK_COLORS).find(key => LINK_COLORS[key] === x)+")";
+    }
+      
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
         const srcNode : Node  = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
@@ -2967,10 +2942,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         } else {
             return "";
         }
-    }
-
-    function edgeExtraGetStrokeColor(edge: Edge, index: number) : string {
-        return "grey"; // note: stroke-opacity is set to zero, so the color doesn't matter here
     }
 
     function draggingEdgeGetStrokeColor(edge: Edge, index: number) : string {
