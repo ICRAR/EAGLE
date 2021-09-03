@@ -1668,43 +1668,12 @@ export class Utils {
         return repositoryName+"|"+repositoryBranch;
     }
 
-    static buildNodeList(palette : Palette, categoryType : Eagle.CategoryType) : Node[] {
-        const result : Node[] = [];
-
-        // Searching for the node.
-        for (const node of palette.getNodes()) {
-            if (node.getCategoryType() === categoryType) {
-                result.push(node);
-            }
-        }
-
-        return result;
-    }
-
-    static buildCategoryList (palette : Palette, categoryType : Eagle.CategoryType) : Eagle.Category[] {
-        const result : Eagle.Category[] = [];
-
-        // Searching for the node.
-        for (const node of palette.getNodes()) {
-            if (node.getCategoryType() === categoryType) {
-                result.push(node.getCategory());
-            }
-        }
-
-        // debug until PythonApp is used everywhere
-        if (categoryType === Eagle.CategoryType.Application){
-            result.push(Eagle.Category.Component);
-        }
-
-        return result;
-    }
-
-    static buildGroupCategoryList() : Eagle.Category[] {
+    static buildComponentList(filter: (cData: Eagle.CategoryData) => boolean) : Eagle.Category[] {
         const result : Eagle.Category[] = [];
 
         for (const category in Eagle.cData){
             const cData = Eagle.getCategoryData(<Eagle.Category>category);
-            if (cData.isGroup){
+            if (filter(cData)){
                 result.push(<Eagle.Category>category);
             }
         }
