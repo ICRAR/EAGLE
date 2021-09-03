@@ -45,9 +45,6 @@
                     "category": {
                         "type": "string"
                     },
-                    "categoryType": {
-                        "type": "string"
-                    },
                     "isData": {
                         "type": "boolean"
                     },
@@ -278,7 +275,6 @@
                     "canHaveInputs",
                     "canHaveOutputs",
                     "category",
-                    "categoryType",
                     "collapsed",
                     "color",
                     "description",

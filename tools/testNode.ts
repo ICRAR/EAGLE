@@ -7,7 +7,6 @@ const KEY : number = -9;
 const NAME : string = "Test Node";
 const DESCRIPTION : string = "Test description";
 const CATEGORY : Eagle.Category = Eagle.Category.Loop;
-const CATEGORY_TYPE : Eagle.CategoryType = Eagle.CategoryType.Group;
 const X : number = 234;
 const Y : number = 567;
 
@@ -115,7 +114,6 @@ function checkNode(n0 : Node, n1 : Node, displayTable : boolean){
     checkString("Name", n0.getName(), n1.getName(), NAME);
     checkString("Description", n0.getDescription(), n1.getDescription(), DESCRIPTION);
     checkString("Category", n0.getCategory(), n1.getCategory(), CATEGORY);
-    checkString("Category Type", n0.getCategoryType(), n1.getCategoryType(), CATEGORY_TYPE);
     checkNumber("X", n0.getPosition().x, n1.getPosition().x, X);
     checkNumber("Y", n0.getPosition().y, n1.getPosition().y, Y);
 

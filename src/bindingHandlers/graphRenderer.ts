@@ -1645,7 +1645,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        return node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts() ? "none" : "inline";
+        return node.isData() && !node.isShowPorts() ? "none" : "inline";
     }
 
     function getHeaderBackgroundWidth(node : Node) : number {
@@ -1657,7 +1657,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT - HEADER_INSET*2;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
@@ -1680,7 +1680,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeaderPositionX(node : Node) : number {
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return node.getWidth()/2;
         }
 
@@ -1699,7 +1699,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT / 2;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             switch(node.getCategory()){
                 case Eagle.Category.Memory:
                     return HEADER_OFFSET_Y_MEMORY;
@@ -1724,7 +1724,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getHeaderFill(node : Node) : string {
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return "black";
         }
 
@@ -1736,7 +1736,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getHeaderFontWeight(node : Node) : string {
-        //if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts() &&  eagle.objectIsSelected(node)){
+        //if (node.isData() && !node.isShowPorts() &&  eagle.objectIsSelected(node)){
         if (eagle.objectIsSelected(node)){
             return "bold";
         }
@@ -1746,7 +1746,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getSubHeaderDisplay(node : Node) : string {
         // don't show header background for comment and description nodes
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return "inline";
         } else {
             return "none";
@@ -1762,7 +1762,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT / 2;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             let y = (3 * Node.DATA_COMPONENT_HEIGHT / 2);
 
             switch (node.getCategory()){
@@ -1815,7 +1815,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
@@ -2412,7 +2412,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getDataIcon(node : Node) : string {
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             switch (node.getCategory()){
                 case Eagle.Category.File:
                     return "/static/assets/svg/hard-drive.svg";
@@ -2442,7 +2442,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function nodeGetFill(node : Node) : string {
         //console.log("nodeGetFill() category", node.getCategory());
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return "none";
         }
 
@@ -2455,7 +2455,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function nodeGetStroke(node : Node) : string {
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return "none";
         }
 
@@ -2608,7 +2608,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             if (node.isFlipPorts()){
                 return node.getPosition().x + getIconLocationX(node);
             } else {
@@ -2653,7 +2653,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
@@ -2701,7 +2701,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             if (node.isFlipPorts()){
                 return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
             } else {
@@ -2742,7 +2742,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
@@ -3034,7 +3034,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
         }
 
-        if (subjectNode.getCategoryType() === Eagle.CategoryType.Data && !subjectNode.isShowPorts()){
+        if (subjectNode.isData() && !subjectNode.isShowPorts()){
             if (node.isFlipPorts()){
                 x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + getIconLocationX(subjectNode) + Node.DATA_COMPONENT_WIDTH);
                 y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y + getIconLocationY(subjectNode) + Node.DATA_COMPONENT_HEIGHT/2);
@@ -3241,7 +3241,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return "none";
         }
 
