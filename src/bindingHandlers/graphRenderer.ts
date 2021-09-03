@@ -31,6 +31,18 @@ ko.bindingHandlers.graphRenderer = {
     }
 };
 
+const LINK_COLORS:{[key:string]:string} = {
+    LINK_DEFAULT_COLOR: 'dimgrey',
+    LINK_DEFAULT_SELECTED_COLOR: 'black',
+    LINK_WARNING_COLOR: 'orange',
+    LINK_WARNING_SELECTED_COLOR: 'tomato',
+    LINK_INVALID_COLOR: 'red',
+    LINK_INVALID_SELECTED_COLOR: 'firebrick',
+    LINK_VALID_COLOR: 'limegreen',
+    LINK_EVENT_COLOR: 'rgb(128,128,255)',
+    LINK_EVENT_SELECTED_COLOR: 'blue'
+}
+
 function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const startTime: number = performance.now();
     eagle.rendererFrameCountRender = eagle.rendererFrameCountRender + 1;
@@ -79,17 +91,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const RESIZE_BUTTON_LABEL_FONT_SIZE : number = 24;
     const HEADER_BUTTON_LABEL_FONT_SIZE : number = 12;
 
-    const LINK_COLORS:{[key:string]:string} = {
-        LINK_DEFAULT_COLOR: 'dimgrey',
-        LINK_DEFAULT_SELECTED_COLOR: 'black',
-        LINK_WARNING_COLOR: 'orange',
-        LINK_WARNING_SELECTED_COLOR: 'tomato',
-        LINK_INVALID_COLOR: 'red',
-        LINK_INVALID_SELECTED_COLOR: 'firebrick',
-        LINK_VALID_COLOR: 'limegreen',
-        LINK_EVENT_COLOR: 'rgb(128,128,255)',
-        LINK_EVENT_SELECTED_COLOR: 'blue'
-    }
 
     const SHRINK_BUTTONS_ENABLED : boolean = true;
 
@@ -118,44 +119,29 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("transform", rootScaleTranslation)
         .attr("class", "root")
         .attr("id", "root");
-
+        
     // add def for markers
     const defs = rootContainer.append("defs");
 
-    const black_arrowhead = defs
-        .append("marker")
-        .attr("id", "black-arrowhead")
-        .attr("viewBox", "0 0 10 10")
-        .attr("refX", "7")
-        .attr("refY", "5")
-        .attr("markerUnits", "strokeWidth")
-        .attr("markerWidth","8")
-        .attr("markerHeight", "6")
-        .attr("orient", "auto");
-
-    black_arrowhead
-        .append("path")
-        .attr("d", "M 0 0 L 10 5 L 0 10 z")
-        .attr("stroke", "none")
-        .attr("fill","black");
-
-    // add def for markers
-    const grey_arrowhead = defs
-        .append("marker")
-        .attr("id", "grey-arrowhead")
-        .attr("viewBox", "0 0 10 10")
-        .attr("refX", "7")
-        .attr("refY", "5")
-        .attr("markerUnits", "strokeWidth")
-        .attr("markerWidth","8")
-        .attr("markerHeight", "6")
-        .attr("orient", "auto");
-
-    grey_arrowhead
-        .append("path")
-        .attr("d", "M 0 0 L 10 5 L 0 10 z")
-        .attr("stroke", "none")
-        .attr("fill", LINK_COLORS['LINK_DEFAULT_COLOR']);
+    //generating defs from colors array
+    Object.keys(LINK_COLORS).forEach(function (value, i) {
+        const newArrowhead = defs
+            .append("marker")
+            .attr("id", value)
+            .attr("viewBox", "0 0 10 10")
+            .attr("refX", "7")
+            .attr("refY", "5")
+            .attr("markerUnits", "strokeWidth")
+            .attr("markerWidth","8")
+            .attr("markerHeight", "6")
+            .attr("orient", "auto"); 
+        
+        newArrowhead
+            .append("path")
+            .attr("d", "M 0 0 L 10 5 L 0 10 z")
+            .attr("stroke", "none")
+            .attr("fill",LINK_COLORS[value]);
+    })
 
     // background
     rootContainer
@@ -858,7 +844,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("stroke", edgeGetStrokeColor)
         .attr("stroke-dasharray", edgeGetStrokeDashArray)
         .attr("fill", "transparent")
-        .attr("marker-end", "url(#grey-arrowhead)")
+        .attr("marker-end", edgeGetArrowheadUrl)
         .style("display", getEdgeDisplay)
         .on("click", edgeOnClick);
 
@@ -872,9 +858,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     commentLinks
         .attr("class", "commentLink")
         .attr("d", createCommentLink)
-        .attr("stroke", "black")
+        .attr("stroke", LINK_COLORS["LINK_DEFAULT_COLOR"])
         .attr("fill", "transparent")
-        .attr("marker-end", "url(#black-arrowhead)")
+        .attr("marker-end", "url(#LINK_DEFAULT_COLOR)")
         .style("display", getCommentLinkDisplay);
 
     // create one link that is only used during the creation of a new link
@@ -1514,16 +1500,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("stroke", edgeGetStrokeColor)
             .attr("stroke-dasharray", edgeGetStrokeDashArray)
             .attr("fill", "transparent")
-            .attr("marker-end", "url(#grey-arrowhead)")
+            .attr("marker-end", edgeGetArrowheadUrl)
             .style("display", getEdgeDisplay);
 
         // update attributes of all comment links
         commentLinks
             .attr("class", "commentLink")
             .attr("d", createCommentLink)
-            .attr("stroke", "black")
+            .attr("stroke", LINK_COLORS["LINK_DEFAULT_COLOR"])
             .attr("fill", "transparent")
-            .attr("marker-end", "url(#black-arrowhead)")
+            .attr("marker-end", "ur(#LINK_DEFAULT_COLOR)")
             .style("display", getCommentLinkDisplay);
 
         // dragging link
@@ -2935,8 +2921,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             normalColor = LINK_COLORS['LINK_WARNING_COLOR'];
             selectedColor = LINK_COLORS['LINK_WARNING_SELECTED_COLOR'];
         }
-
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
+    }
+
+    function edgeGetArrowheadUrl(edge: Edge, index: number) {
+        const selectedEdgeColor = edgeGetStrokeColor(edge, index)
+        return "url(#"+Object.keys(LINK_COLORS).find(key => LINK_COLORS[key] === selectedEdgeColor)+")";
     }
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
@@ -2956,10 +2946,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         } else {
             return "";
         }
-    }
-
-    function edgeExtraGetStrokeColor(edge: Edge, index: number) : string {
-        return "grey"; // note: stroke-opacity is set to zero, so the color doesn't matter here
     }
 
     function draggingEdgeGetStrokeColor(edge: Edge, index: number) : string {
