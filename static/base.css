@@ -642,9 +642,15 @@ nav.navbar .introjs-helperLayer {
     color: white;
 }
 
+#nodeInspectorHeading span {
+    font-size: 1.25em;
+    font-weight: bold;
+    user-select: none;
+}
+
 #nodeInspectorMenus{
-    padding: 0px 5px 5px 5px;
-    margin-bottom: 10px;
+    //padding: 0px 5px 5px 5px;
+    //margin-bottom: 10px;
 }
 
 #nodeInspectorMenus .card{
@@ -652,15 +658,14 @@ nav.navbar .introjs-helperLayer {
     margin-right: 4px;
 }
 
-#headerBtns{
-    position: relative;
-    right: 10px;
-    padding:5px 0px;
-    text-align: right;
+.headerBtns {
+    //position: relative;
+    //right: 10px;
+    //padding:5px 0px;
+    //text-align: right;
 }
 
-#headerBtns button{
-    color: #0859af;
+.headerBtns button {
     background-color: transparent;
     padding:4px;
     margin-left:-4px;
@@ -668,16 +673,13 @@ nav.navbar .introjs-helperLayer {
     box-shadow: none;
 }
 
-#headerBtns button:hover{
+.headerBtns button:hover {
     color:#001933;
+    background-color: transparent;
 }
 
-#headerBtns #deleteSelectedNode{
-    color:#cb4335;
-}
-
-#headerBtns #deleteSelectedNode :hover{
-    color:#520800;
+.headerBtns button.btn:focus {
+    box-shadow: none;
 }
 
 .nodeInspectorSubsectionTitle{
