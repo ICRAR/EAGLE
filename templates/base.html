@@ -101,7 +101,7 @@
                     <div class="rightWindowDisplay repository" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Repository">
                         {% include 'repositories.html' %}
                     </div>
-                    <div data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Inspector">
+                    <div id="nodeInspectorKOWrapper" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Inspector">
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() === null && selectedObjects().length > 1">
                             Select a single node or edge
                         </div> 
