@@ -13,7 +13,6 @@ import {Utils} from '../Utils';
 
 ko.bindingHandlers.graphRenderer = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
-        // prepareDefs()
         //console.log("bindingHandlers.graphRenderer.init()");
     },
     update: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -32,8 +31,6 @@ ko.bindingHandlers.graphRenderer = {
     }
 };
 
-const defsDeclared = false;
-
 const LINK_COLORS:{[key:string]:string} = {
     LINK_DEFAULT_COLOR: 'dimgrey',
     LINK_DEFAULT_SELECTED_COLOR: 'black',
@@ -45,13 +42,6 @@ const LINK_COLORS:{[key:string]:string} = {
     LINK_EVENT_COLOR: 'rgb(128,128,255)',
     LINK_EVENT_SELECTED_COLOR: 'blue'
 }
-
-// function prepareDefs() {
-//     Object.keys(LINK_COLORS).forEach(function (value) {
-//         console.log(value +":"+ LINK_COLORS[value]);
-//     })
-   
-// }
 
 function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const startTime: number = performance.now();
@@ -133,26 +123,25 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add def for markers
     const defs = rootContainer.append("defs");
 
-    if (!defsDeclared){
-        Object.keys(LINK_COLORS).forEach(function (value, i) {
-            const x = defs
-                .append("marker")
-                .attr("id", value)
-                .attr("viewBox", "0 0 10 10")
-                .attr("refX", "7")
-                .attr("refY", "5")
-                .attr("markerUnits", "strokeWidth")
-                .attr("markerWidth","8")
-                .attr("markerHeight", "6")
-                .attr("orient", "auto"); 
-            
-            x
-                .append("path")
-                .attr("d", "M 0 0 L 10 5 L 0 10 z")
-                .attr("stroke", "none")
-                .attr("fill",LINK_COLORS[value]);
-        })
-    }
+    //generating defs from colors array
+    Object.keys(LINK_COLORS).forEach(function (value, i) {
+        const x = defs
+            .append("marker")
+            .attr("id", value)
+            .attr("viewBox", "0 0 10 10")
+            .attr("refX", "7")
+            .attr("refY", "5")
+            .attr("markerUnits", "strokeWidth")
+            .attr("markerWidth","8")
+            .attr("markerHeight", "6")
+            .attr("orient", "auto"); 
+        
+        x
+            .append("path")
+            .attr("d", "M 0 0 L 10 5 L 0 10 z")
+            .attr("stroke", "none")
+            .attr("fill",LINK_COLORS[value]);
+    })
 
     // background
     rootContainer
