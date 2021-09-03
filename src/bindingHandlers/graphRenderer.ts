@@ -125,7 +125,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     //generating defs from colors array
     Object.keys(LINK_COLORS).forEach(function (value, i) {
-        const x = defs
+        const newArrowhead = defs
             .append("marker")
             .attr("id", value)
             .attr("viewBox", "0 0 10 10")
@@ -136,7 +136,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("markerHeight", "6")
             .attr("orient", "auto"); 
         
-        x
+        newArrowhead
             .append("path")
             .attr("d", "M 0 0 L 10 5 L 0 10 z")
             .attr("stroke", "none")
@@ -828,7 +828,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("stroke", edgeGetStrokeColor)
         .attr("stroke-dasharray", edgeGetStrokeDashArray)
         .attr("fill", "transparent")
-        .attr("marker-end", getArrowType)
+        .attr("marker-end", edgeGetArrowheadUrl)
         .style("display", getEdgeDisplay)
         .on("click", edgeOnClick);
 
@@ -1484,7 +1484,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("stroke", edgeGetStrokeColor)
             .attr("stroke-dasharray", edgeGetStrokeDashArray)
             .attr("fill", "transparent")
-            .attr("marker-end", getArrowType)
+            .attr("marker-end", edgeGetArrowheadUrl)
             .style("display", getEdgeDisplay);
 
         // update attributes of all comment links
@@ -2908,9 +2908,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
     }
 
-    function getArrowType(edge: Edge, index: number) {
-        const x = edgeGetStrokeColor(edge, index)
-        return "url(#"+Object.keys(LINK_COLORS).find(key => LINK_COLORS[key] === x)+")";
+    function edgeGetArrowheadUrl(edge: Edge, index: number) {
+        const selectedEdgeColor = edgeGetStrokeColor(edge, index)
+        return "url(#"+Object.keys(LINK_COLORS).find(key => LINK_COLORS[key] === selectedEdgeColor)+")";
     }
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
