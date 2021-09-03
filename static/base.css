@@ -58,6 +58,15 @@
     overflow-x: hidden;
 }
 
+#nodeInspectorKOWrapper{
+    height: 100%;
+}
+
+#rightWindowContainer{
+    padding: 4px;
+    height: 100%;
+}
+
 .rightWindow .btn-primary, .leftWindow .btn-primary {
     background-color: #0059a5;
     border-color: #0059a5;
@@ -130,11 +139,6 @@
     position: absolute;
     background-color: rgba(0,0,0,0);
     cursor: col-resize;
-}
-
-#rightWindowContainer{
-    padding: 4px;
-    height: 100%;
 }
 
 .leftWindow {

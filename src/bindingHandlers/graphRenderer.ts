@@ -290,12 +290,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // check if this is a double click
             if (elapsedTime < DOUBLE_CLICK_DURATION){
                 if (node.isData()){
-                    console.log("Double click data");
                     node.toggleShowPorts();
                     eagle.logicalGraph.valueHasMutated();
                 }
                 if (node.isGroup()){
-                    console.log("Double click group");
                     node.toggleCollapsed();
                 }
             }
@@ -751,7 +749,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const portDragHandler = d3.drag()
                             .on("start", function (port : Port) {
-                                console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getName());
+                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getName());
                                 isDraggingPort = true;
                                 sourceNodeKey = port.getNodeKey();
                                 sourcePortId = port.getId();
@@ -764,17 +762,35 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 tick();
                             })
                             .on("end", function(port : Port){
-                                console.log("drag end", port.getId());
+                                //console.log("drag end", port.getId());
                                 isDraggingPort = false;
 
                                 if (destinationPortId !== null){
+                                    const srcNode = findNodeWithKey(sourceNodeKey, nodeData);
+                                    const destNode = findNodeWithKey(destinationNodeKey, nodeData);
+                                    const srcPortType = srcNode.findPortTypeById(sourcePortId);
+                                    const destPortType = destNode.findPortTypeById(destinationPortId);
+
+                                    // check if edge is back-to-front (input-to-output), if so, swap the source and destination
+                                    if ((srcPortType === "input" || srcPortType === "outputLocal") && (destPortType === "output" || destPortType === "inputLocal")){
+                                        const tempNodeKey = sourceNodeKey;
+                                        const tempPortId = sourcePortId;
+                                        sourceNodeKey = destinationNodeKey;
+                                        sourcePortId = destinationPortId;
+                                        destinationNodeKey = tempNodeKey;
+                                        destinationPortId = tempPortId;
+
+                                        // notify user
+                                        Utils.showNotification("Automatically reversed edge direction", "The edge began at an input port and ended at an output port, so the direction was reversed.", "info");
+                                    }
+
                                     // check if link is valid
                                     const linkValid : Eagle.LinkValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, false, true, true);
 
                                     // check if we should allow invalid edges
                                     const allowInvalidEdges : boolean = Eagle.findSettingValue(Utils.ALLOW_INVALID_EDGES);
 
-                                    // abort if source port and destination port have different data types
+                                    // abort if edge is invalid
                                     if (allowInvalidEdges || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
                                         if (linkValid === Eagle.LinkValid.Warning){
                                             addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, sourceDataType, true);
@@ -1615,7 +1631,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        return node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts() ? "none" : "inline";
+        return node.isData() && !node.isShowPorts() ? "none" : "inline";
     }
 
     function getHeaderBackgroundWidth(node : Node) : number {
@@ -1627,7 +1643,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT - HEADER_INSET*2;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
@@ -1650,7 +1666,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeaderPositionX(node : Node) : number {
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return node.getWidth()/2;
         }
 
@@ -1669,7 +1685,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT / 2;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             switch(node.getCategory()){
                 case Eagle.Category.Memory:
                     return HEADER_OFFSET_Y_MEMORY;
@@ -1694,7 +1710,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getHeaderFill(node : Node) : string {
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return "black";
         }
 
@@ -1706,7 +1722,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getHeaderFontWeight(node : Node) : string {
-        //if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts() &&  eagle.objectIsSelected(node)){
+        //if (node.isData() && !node.isShowPorts() &&  eagle.objectIsSelected(node)){
         if (eagle.objectIsSelected(node)){
             return "bold";
         }
@@ -1716,7 +1732,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getSubHeaderDisplay(node : Node) : string {
         // don't show header background for comment and description nodes
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return "inline";
         } else {
             return "none";
@@ -1732,7 +1748,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT / 2;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             let y = (3 * Node.DATA_COMPONENT_HEIGHT / 2);
 
             switch (node.getCategory()){
@@ -1785,7 +1801,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
@@ -2382,7 +2398,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getDataIcon(node : Node) : string {
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             switch (node.getCategory()){
                 case Eagle.Category.File:
                     return "/static/assets/svg/hard-drive.svg";
@@ -2412,7 +2428,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function nodeGetFill(node : Node) : string {
         //console.log("nodeGetFill() category", node.getCategory());
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return "none";
         }
 
@@ -2425,7 +2441,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function nodeGetStroke(node : Node) : string {
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return "none";
         }
 
@@ -2578,7 +2594,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             if (node.isFlipPorts()){
                 return node.getPosition().x + getIconLocationX(node);
             } else {
@@ -2623,7 +2639,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
@@ -2671,7 +2687,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             if (node.isFlipPorts()){
                 return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
             } else {
@@ -2712,7 +2728,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y;
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
@@ -3004,7 +3020,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
         }
 
-        if (subjectNode.getCategoryType() === Eagle.CategoryType.Data && !subjectNode.isShowPorts()){
+        if (subjectNode.isData() && !subjectNode.isShowPorts()){
             if (node.isFlipPorts()){
                 x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + getIconLocationX(subjectNode) + Node.DATA_COMPONENT_WIDTH);
                 y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y + getIconLocationY(subjectNode) + Node.DATA_COMPONENT_HEIGHT/2);
@@ -3211,7 +3227,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        if (node.getCategoryType() === Eagle.CategoryType.Data && !node.isShowPorts()){
+        if (node.isData() && !node.isShowPorts()){
             return "none";
         }
 

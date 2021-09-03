@@ -208,66 +208,6 @@ export class GraphUpdater {
         return category;
     }
 
-    static translateOldCategoryType(categoryType : string, category : Eagle.Category) : Eagle.CategoryType {
-        if (typeof categoryType === "undefined"){
-            // try to determine categoryType based on category
-            switch(category){
-                case Eagle.Category.Start:
-                case Eagle.Category.End:
-                case Eagle.Category.ExclusiveForceNode:
-                case Eagle.Category.Branch:
-                    return Eagle.CategoryType.Control;
-
-                case Eagle.Category.BashShellApp:
-                case Eagle.Category.DynlibApp:
-                case Eagle.Category.MPI:
-                case Eagle.Category.Docker:
-                case Eagle.Category.PythonApp:
-                    return Eagle.CategoryType.Application;
-
-                case Eagle.Category.File:
-                case Eagle.Category.Memory:
-                case Eagle.Category.NGAS:
-                case Eagle.Category.S3:
-                    return Eagle.CategoryType.Data;
-
-                case Eagle.Category.GroupBy:
-                case Eagle.Category.Gather:
-                case Eagle.Category.Scatter:
-                case Eagle.Category.MKN:
-                case Eagle.Category.Loop:
-                    return Eagle.CategoryType.Group;
-
-                case Eagle.Category.Service:
-                case Eagle.Category.Comment:
-                case Eagle.Category.Description:
-                case Eagle.Category.Variables:
-                    return Eagle.CategoryType.Other;
-
-                default:
-                    return Eagle.CategoryType.Unknown;
-            }
-        }
-
-        if (categoryType === "ControlComponent"){
-            return Eagle.CategoryType.Control;
-        }
-
-        if (categoryType === "ApplicationDrop"){
-            return Eagle.CategoryType.Application;
-        }
-
-        if (categoryType === "GroupComponent"){
-            return Eagle.CategoryType.Group;
-        }
-
-        if (categoryType === "DataDrop"){
-            return Eagle.CategoryType.Data;
-        }
-
-        return <Eagle.CategoryType>categoryType;
-    }
-
     // NOTE: for use in translation of OJS object to internal graph representation
     static findIndexOfNodeDataArrayWithKey(nodeDataArray : any[], key: number) : number {
         for (let i = 0 ; i < nodeDataArray.length ; i++){

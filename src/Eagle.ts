@@ -76,13 +76,10 @@ export class Eagle {
 
     explorePalettes : ko.ObservableArray<PaletteInfo>;
 
+    graphErrors : ko.ObservableArray<string>;
+
     static settings : ko.ObservableArray<Setting>;
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
-
-    static dataNodes : Node[] = [];
-    static dataCategories : Eagle.Category[] = [];
-    static applicationNodes : Node[] = [];
-    static applicationCategories : Eagle.Category[] = [];
 
     static dragStartX : number;
     static lastClickTime : number = 0;
@@ -159,6 +156,8 @@ export class Eagle {
         this.rendererFrameCountTick = 0;
 
         this.explorePalettes = ko.observableArray([]);
+
+        this.graphErrors = ko.observableArray([]);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -227,7 +226,7 @@ export class Eagle {
 
         for (const palette of this.palettes()){
             for (const node of palette.getNodes()){
-                if (node.getCategoryType() === Eagle.CategoryType.Application){
+                if (node.isApplication()){
                     list.push(node);
                 }
             }
@@ -603,10 +602,11 @@ export class Eagle {
             }
 
             this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
-                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, Eagle.CategoryType.Group, false);
+                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, false);
 
                 this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
+                this.checkGraph();
                 this.logicalGraph.valueHasMutated();
             });
         });
@@ -667,7 +667,7 @@ export class Eagle {
         console.log("createSubgraphFromSelection()");
 
         // create new subgraph
-        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph, Eagle.CategoryType.Group, false);
+        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph, false);
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -696,13 +696,16 @@ export class Eagle {
 
         // flag graph as changed
         this.flagActiveFileModified();
+        this.checkGraph();
         this.logicalGraph.valueHasMutated();
     }
 
     createConstructFromSelection = () : void => {
         console.log("createConstructFromSelection()");
 
-        const constructs : string[] = Utils.buildGroupCategoryList();
+        const constructs : string[] = Utils.buildComponentList((cData: Eagle.CategoryData) => {
+            return cData.isGroup;
+        });
 
         // ask the user what type of construct to use
         Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, -1, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
@@ -714,7 +717,7 @@ export class Eagle {
             const userChoice: string = constructs[userChoiceIndex];
 
             // create new subgraph
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Eagle.Category>userChoice, Eagle.CategoryType.Group, false);
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Eagle.Category>userChoice, false);
 
             // add the parent node to the logical graph
             this.logicalGraph().addNodeComplete(parentNode);
@@ -733,6 +736,7 @@ export class Eagle {
 
             // flag graph as changed
             this.flagActiveFileModified();
+            this.checkGraph();
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -936,10 +940,11 @@ export class Eagle {
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
-            const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
+            const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, false);
             const pos = this.getNewNodePosition(node.getDisplayWidth(), node.getDisplayHeight());
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.logicalGraph().addNode(node, pos.x, pos.y, null);
+            this.checkGraph();
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -975,19 +980,19 @@ export class Eagle {
             p.fileInfo().readonly = false;
 
             // NOTE: we can construct all these new nodes with key=0, since they will be assigned correct keys when added to the palette
-            const startNode : Node = new Node(0, "Start", "", Eagle.Category.Start, Eagle.CategoryType.Control, false);
+            const startNode : Node = new Node(0, "Start", "", Eagle.Category.Start, false);
             startNode.setColor(Utils.getColorForNode(Eagle.Category.Start));
             p.addNode(startNode, true);
 
-            const endNode : Node = new Node(0, "End", "", Eagle.Category.End, Eagle.CategoryType.Control, false);
+            const endNode : Node = new Node(0, "End", "", Eagle.Category.End, false);
             endNode.setColor(Utils.getColorForNode(Eagle.Category.End));
             p.addNode(endNode, true);
 
-            const commentNode : Node = new Node(0, "Comment", "", Eagle.Category.Comment, Eagle.CategoryType.Other, false);
+            const commentNode : Node = new Node(0, "Comment", "", Eagle.Category.Comment, false);
             commentNode.setColor(Utils.getColorForNode(Eagle.Category.Comment));
             p.addNode(commentNode, true);
 
-            const descriptionNode : Node = new Node(0, "Description", "", Eagle.Category.Description, Eagle.CategoryType.Other, false);
+            const descriptionNode : Node = new Node(0, "Description", "", Eagle.Category.Description, false);
             descriptionNode.setColor(Utils.getColorForNode(Eagle.Category.Description));
             p.addNode(descriptionNode, true);
 
@@ -1410,12 +1415,6 @@ export class Eagle {
             if (errors.length > 0 && showErrors){
                 Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
             }
-
-            // Extracting data from the palette template.
-            Eagle.dataNodes = Utils.buildNodeList(templatePalette, Eagle.CategoryType.Data);
-            Eagle.dataCategories = Utils.buildCategoryList(templatePalette, Eagle.CategoryType.Data);
-            Eagle.applicationNodes = Utils.buildNodeList(templatePalette, Eagle.CategoryType.Application);
-            Eagle.applicationCategories = Utils.buildCategoryList(templatePalette, Eagle.CategoryType.Application);
         });
     }
 
@@ -1742,6 +1741,9 @@ export class Eagle {
                         Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                     }
 
+                    // check graph
+                    this.checkGraph();
+
                     // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
                     this.updateActiveFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
                     break;
@@ -1831,13 +1833,14 @@ export class Eagle {
             }
 
             // create parent node
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, Eagle.CategoryType.Group, false);
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, false);
 
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
             // trigger re-render
             this.logicalGraph.valueHasMutated();
+            this.checkGraph();
 
             if (errors.length > 0){
                 if (showErrors){
@@ -2224,6 +2227,7 @@ export class Eagle {
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), () => {
+                this.checkGraph();
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2257,6 +2261,7 @@ export class Eagle {
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
             this.logicalGraph().addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), () => {
+                this.checkGraph();
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2284,6 +2289,7 @@ export class Eagle {
                     }
 
                     this.insertGraph(nodes, edges, null);
+                    this.checkGraph();
                     this.logicalGraph.valueHasMutated();
                 }
                 break;
@@ -2460,6 +2466,8 @@ export class Eagle {
             this.logicalGraph().fileInfo().modified = true;
         }
 
+        this.checkGraph();
+
         // empty the selected objects, should have all been deleted
         this.selectedObjects([]);
     }
@@ -2483,6 +2491,7 @@ export class Eagle {
             this.setSelection(Eagle.RightWindowMode.Inspector, newNode, Eagle.FileType.Graph);
             Eagle.nodeDropLocation = {x:0, y:0};
 
+            this.checkGraph();
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -2844,6 +2853,7 @@ export class Eagle {
             }
 
             // refresh the display
+            this.checkGraph();
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -2890,6 +2900,7 @@ export class Eagle {
             selectedNode.setSubjectKey(newSubjectKey);
 
             // refresh the display
+            this.checkGraph();
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -2929,6 +2940,8 @@ export class Eagle {
                 edges.splice(i, 1);
             }
         }
+
+        this.checkGraph();
     }
 
     // dragdrop
@@ -3174,7 +3187,6 @@ export class Eagle {
                 "name":node.getName(),
                 "key":node.getKey(),
                 "parentKey":node.getParentKey(),
-                "categoryType":node.getCategoryType(),
                 "category":node.getCategory(),
                 "expanded":node.getExpanded(),
                 "x":node.getPosition().x,
@@ -3221,7 +3233,7 @@ export class Eagle {
         // add logical graph nodes to table
         for (const palette of this.palettes()){
             for (const node of palette.getNodes()){
-                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "categoryType":node.getCategoryType(), "category":node.getCategory()});
+                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "category":node.getCategory()});
             }
         }
 
@@ -3369,6 +3381,7 @@ export class Eagle {
                    node.addPort(clone, input);
                }
 
+               this.checkGraph();
                this.updateInspectorTooltips();
             });
         } else {
@@ -3395,6 +3408,7 @@ export class Eagle {
                 const portId = port.getId();
                 port.copyWithKeyAndId(newPort, nodeKey, portId);
 
+                this.checkGraph();
                 this.updateInspectorTooltips();
             });
         }
@@ -3524,6 +3538,8 @@ export class Eagle {
             }
 
             selectedNode.setInputApplication(node);
+
+            this.checkGraph();
         });
     }
 
@@ -3543,6 +3559,8 @@ export class Eagle {
             }
 
             selectedNode.setOutputApplication(node);
+
+            this.checkGraph();
         });
     }
 
@@ -3562,6 +3580,8 @@ export class Eagle {
             }
 
             selectedNode.setExitApplication(node);
+
+            this.checkGraph();
         });
     }
 
@@ -3652,10 +3672,12 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        const results: string[] = Utils.checkGraph(this.logicalGraph());
+        this.graphErrors(Utils.checkGraph(this.logicalGraph()));
+    };
 
-        if (results.length > 0){
-            Utils.showUserMessage("Check graph", results.join('<br/>'))
+    showGraphErrors = (): void => {
+        if (this.graphErrors().length > 0){
+            Utils.showUserMessage("Check graph", this.graphErrors().join('<br/>'))
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
@@ -3672,6 +3694,7 @@ export class Eagle {
             console.error("Could not fetch category data for category", category);
             return {
                 isData: false,
+                isApplication: false,
                 isGroup: false,
                 isResizable: false,
                 minInputs: 0,
@@ -3691,40 +3714,40 @@ export class Eagle {
     }
 
     static readonly cData : {[category:string] : Eagle.CategoryData} = {
-        Start              : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "play_arrow", color: "#229954"},
-        End                : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "stop", color: "#CB4335"},
-        Comment            : {isData: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "comment", color: "#799938"},
-        Description        : {isData: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "note", color: "#9B3065"},
-        Scatter            : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_split", color: "#DDAD00"},
-        Gather             : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_merge", color: "#D35400"},
-        MKN                : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "waves", color: "#D32000"},
-        GroupBy            : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "group_work", color: "#7F8C8D"},
-        Loop               : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 1, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true, icon: "loop", color: "#512E5F"},
+        Start              : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "play_arrow", color: "#229954"},
+        End                : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "stop", color: "#CB4335"},
+        Comment            : {isData: false, isApplication: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "comment", color: "#799938"},
+        Description        : {isData: false, isApplication: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "note", color: "#9B3065"},
+        Scatter            : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_split", color: "#DDAD00"},
+        Gather             : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "call_merge", color: "#D35400"},
+        MKN                : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "waves", color: "#D32000"},
+        GroupBy            : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "group_work", color: "#7F8C8D"},
+        Loop               : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true, icon: "loop", color: "#512E5F"},
 
-        PythonApp          : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "extension", color: "#3498DB"},
-        BashShellApp       : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "attach_money", color: "#1C2833"},
-        DynlibApp          : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "menu_book", color: "#3470AA"},
-        Mpi                : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "apps", color: "#1E90FF"},
-        Docker             : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "computer", color: "#331C54"},
-        Singularity        : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "looks_5", color: "#5B09D2"},
+        PythonApp          : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "extension", color: "#3498DB"},
+        BashShellApp       : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "attach_money", color: "#1C2833"},
+        DynlibApp          : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "menu_book", color: "#3470AA"},
+        Mpi                : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "apps", color: "#1E90FF"},
+        Docker             : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "computer", color: "#331C54"},
+        Singularity        : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "looks_5", color: "#5B09D2"},
 
-        NGAS               : {isData: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "storage", color: "#394BB2"},
-        S3                 : {isData: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "cloud_queue", color: "#394BB2"},
-        Memory             : {isData: true, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "memory", color: "#394BB2"},
-        File               : {isData: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "description", color: "#394BB2"},
-        Plasma             : {isData: true, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "star", color: "#394BB2"},
-        PlasmaFlight       : {isData: true, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "local_airport", color: "#394BB2"},
+        File               : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "description", color: "#394BB2"},
+        Memory             : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "memory", color: "#394BB2"},
+        NGAS               : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "storage", color: "#394BB2"},
+        S3                 : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "cloud_queue", color: "#394BB2"},
+        Plasma             : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "star", color: "#394BB2"},
+        PlasmaFlight       : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "local_airport", color: "#394BB2"},
 
-        Service            : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "build", color: "#EB1672"},
-        ExclusiveForceNode : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "picture_in_picture", color: "#000000"},
+        Service            : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "build", color: "#EB1672"},
+        ExclusiveForceNode : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "picture_in_picture", color: "#000000"},
 
-        Variables          : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
-        Branch             : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
+        Variables          : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "tune", color: "#C10000"},
+        Branch             : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "share", color: "#00BDA1"},
 
-        SubGraph           : {isData: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "stars", color: "#00750E"},
+        SubGraph           : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "stars", color: "#00750E"},
 
-        Unknown            : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "device_unknown", color: "#FF66CC"},
-        None               : {isData: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block", color: "#FF66CC"}
+        Unknown            : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "device_unknown", color: "#FF66CC"},
+        None               : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "block", color: "#FF66CC"}
     };
 }
 
@@ -3830,15 +3853,6 @@ export namespace Eagle
         Component = "Component" // legacy only
     }
 
-    export enum CategoryType {
-        Control = "Control",
-        Application = "Application",
-        Group = "Group",
-        Data = "Data",
-        Other = "Other",
-        Unknown = "Unknown"
-    }
-
     export enum Direction {
         Up = "Up",
         Down = "Down",
@@ -3846,7 +3860,7 @@ export namespace Eagle
         Right = "Right"
     }
 
-    export type CategoryData = {isData: boolean, isGroup:boolean, isResizable:boolean, minInputs: number, maxInputs: number, minOutputs: number, maxOutputs: number, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean, icon: string, color: string};
+    export type CategoryData = {isData: boolean, isApplication: boolean, isGroup:boolean, isResizable:boolean, minInputs: number, maxInputs: number, minOutputs: number, maxOutputs: number, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean, icon: string, color: string};
 }
 
 

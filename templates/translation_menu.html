@@ -1,7 +1,7 @@
 <div id="translationMenu" class="container px-0">
 
     <!-- ko ifnot: showSimplifiedTranslatorOptions() -->
-    <div class="accordion" id="accordionExample">
+    <div class="accordion" id="translatorAccordion">
 
         <div class="card">
             <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" data-bind="click: $root.spinCollapseIcon">
@@ -10,7 +10,7 @@
                     <span>Algorithm 0 (none)</span>
                 </h5>
             </div>
-            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <p class="card-text">Base PGT Generation</p>
                     <button id="alg0PGT" class="btn btn-primary" data-bind="click: function(){genPGT(0, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
@@ -26,7 +26,7 @@
                     <span>Algorithm 1 (metis)</span>
                 </h5>
             </div>
-            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <p class="card-text">Minimise data movement while subject to load balancing (direct graph partitioning)</p>
 
@@ -73,7 +73,7 @@
                     <span>Algorithm 2 (mysarkar)</span>
                 </h5>
             </div>
-            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <p class="card-text">Minimise execution time whilst subject to each partition's degree of parallelism (DoP) (edgezeroing)</p>
 
@@ -111,7 +111,7 @@
                     <span>Algorithm 3 (min_num_parts)</span>
                 </h5>
             </div>
-            <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionExample">
+            <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <p class="card-text">Minimise number of partitions whilst subject to completion deadline (lookahead)</p>
 
@@ -167,7 +167,7 @@
                     <span>Algorithm 4 (pso)</span>
                 </h5>
             </div>
-            <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionExample">
+            <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <p class="card-text">Minimise number of partitions whilst optionally subject to completion deadline (warning PSO is 10 times slower, a larger swarm size or dimension further decreases speed)</p>
 
@@ -226,7 +226,7 @@
                     <span>Algorithm 5 (simple)</span>
                 </h5>
             </div>
-            <div id="collapseSix" class="collapse show" aria-labelledby="headingSix" data-parent="#accordionExample">
+            <div id="collapseSix" class="collapse show" aria-labelledby="headingSix" data-parent="#translatorAccordion">
                 <div class="card-body">
                     <!--<p class="card-text">Base PGT Generation</p>-->
                     <div class="input-group mb-1">

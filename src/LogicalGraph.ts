@@ -484,8 +484,11 @@ export class LogicalGraph {
             // Store the node's location.
             const nodePosition = newNode.getPosition();
 
+            // build a list of ineligible types
+            const ineligibleTypes: Eagle.Category[] = [Eagle.Category.Memory];
+
             // ask the user which data type should be added
-            this.addDataComponentDialog([], (category: Eagle.Category) : void => {
+            this.addDataComponentDialog(ineligibleTypes, (category: Eagle.Category) : void => {
                 if (category !== null) {
                     // Add a data component to the graph.
                     newNode = this.addDataComponentToGraph(category, nodePosition);
@@ -548,9 +551,15 @@ export class LogicalGraph {
      * Opens a dialog for selecting a data component type.
      */
     addDataComponentDialog = (ineligibleTypes : Eagle.Category[], callback : (dataType: string) => void) : void => {
-        // remove the ineligible types from Eagle.dataCategories and store in eligibleTypes
-        const eligibleTypes : string[] = [];
-        for (const dataCategory of Eagle.dataCategories){
+        let eligibleTypes: Eagle.Category[] = [];
+
+        // build list of data categories
+        const dataCategories : Eagle.Category[] = Utils.buildComponentList((cData: Eagle.CategoryData) => {
+            return cData.isData;
+        });
+
+        // loop through dataCategories and store in eligibleTypes, except where category appears in ineligibleTypes
+        for (const dataCategory of dataCategories){
             let ineligible : boolean = false;
             for (const ineligibleType of ineligibleTypes){
                 if (dataCategory === ineligibleType){
@@ -571,29 +580,12 @@ export class LogicalGraph {
         });
     }
 
-    // TODO: rather than pass just the category, perhaps we should pass the nodeData
-    //       then we won't need a reference to Eagle.dataNodes
     /**
      * Adds data component to the graph
      */
-    addDataComponentToGraph = (category : Eagle.Category, location : {x: number, y:number}) : Node => {
-        // select the correct data component based on the category
-        let templateNode : Node;
-        for (const dataNode of Eagle.dataNodes){
-            if (dataNode.getCategory() === category){
-                templateNode = dataNode;
-            }
-        }
-
-        // error if we could not find a node with the correct category in the dataNodes list
-        if (templateNode === null){
-            console.error("Could not find node with category", category, "in the dataNodes list");
-            return null;
-        }
-
+    addDataComponentToGraph = (category: Eagle.Category, location : {x: number, y:number}) : Node => {
         // clone the template node, set position and add to logicalGraph
-        const newNode: Node = templateNode.clone();
-        newNode.setKey(Utils.newKey(this.getNodes()));
+        const newNode: Node = new Node(Utils.newKey(this.getNodes()), category, "", category, false);
         newNode.setPosition(location.x, location.y);
         this.nodes.push(newNode);
 
@@ -681,8 +673,8 @@ export class LogicalGraph {
         const destPort : Port = destNode.findPortById(destPortId);
 
         const edgeConnectsTwoApplications : boolean =
-            (srcNode.getCategoryType() === Eagle.CategoryType.Application || srcNode.getCategoryType() === Eagle.CategoryType.Group) &&
-            (destNode.getCategoryType() === Eagle.CategoryType.Application || destNode.getCategoryType() === Eagle.CategoryType.Group);
+            (srcNode.isApplication() || srcNode.isGroup()) &&
+            (destNode.isApplication() || destNode.isGroup());
 
         const twoEventPorts : boolean = srcPort.isEvent() && destPort.isEvent();
 

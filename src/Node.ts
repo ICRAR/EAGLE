@@ -62,7 +62,6 @@ export class Node {
     private fields : ko.ObservableArray<Field>;
 
     private category : ko.Observable<Eagle.Category>;
-    private categoryType : ko.Observable<Eagle.CategoryType>;
 
     private subject : ko.Observable<number>; // the key of another node that is the subject of this node. used by comment nodes only.
 
@@ -90,7 +89,7 @@ export class Node {
     public static readonly CONSTRUCT_MARGIN_TOP: number = 72;
     public static readonly CONSTRUCT_MARGIN_BOTTOM: number = 16;
 
-    constructor(key : number, name : string, description : string, category : Eagle.Category, categoryType : Eagle.CategoryType, readonly: boolean){
+    constructor(key : number, name : string, description : string, category : Eagle.Category, readonly: boolean){
         this._id = Utils.uuidv4();
         this.key = ko.observable(key);
         this.name = ko.observable(name);
@@ -120,7 +119,6 @@ export class Node {
         this.fields = ko.observableArray([]);
 
         this.category = ko.observable(category);
-        this.categoryType = ko.observable(categoryType);
 
         this.subject = ko.observable(null);
 
@@ -452,16 +450,16 @@ export class Node {
         this.color(Utils.getColorForNode(category));
     }
 
-    getCategoryType = () : Eagle.CategoryType => {
-        return this.categoryType();
-    }
-
     isData = () : boolean => {
         return Eagle.getCategoryData(this.category()).isData;
     }
 
     isGroup = () : boolean => {
         return Eagle.getCategoryData(this.category()).isGroup;
+    }
+
+    isApplication = () : boolean => {
+        return Eagle.getCategoryData(this.category()).isApplication;
     }
 
     isScatter = () : boolean => {
@@ -551,7 +549,6 @@ export class Node {
 
         if (inputApplication !== null){
             inputApplication.setEmbedKey(this.getKey());
-            console.assert(inputApplication.getCategoryType() === Eagle.CategoryType.Application);
             console.assert(this.canHaveInputApplication());
         }
     }
@@ -569,7 +566,6 @@ export class Node {
 
         if (outputApplication !== null){
             outputApplication.setEmbedKey(this.getKey());
-            console.assert(outputApplication.getCategoryType() === Eagle.CategoryType.Application);
             console.assert(this.canHaveOutputApplication());
         }
     }
@@ -587,7 +583,6 @@ export class Node {
 
         if (exitApplication !== null){
             exitApplication.setEmbedKey(this.getKey());
-            console.assert(exitApplication.getCategoryType() === Eagle.CategoryType.Application);
             console.assert(this.canHaveExitApplication());
         }
     }
@@ -628,7 +623,6 @@ export class Node {
         this.fields([]);
 
         this.category(Eagle.Category.Unknown);
-        this.categoryType(Eagle.CategoryType.Unknown);
 
         this.subject(null);
 
@@ -645,7 +639,7 @@ export class Node {
             return this.width;
         }
 
-        if (this.getCategoryType() === Eagle.CategoryType.Data && !this.isShowPorts()){
+        if (this.isData() && !this.isShowPorts()){
             return Node.DATA_COMPONENT_WIDTH;
         }
 
@@ -665,8 +659,16 @@ export class Node {
             return 32;
         }
 
-        if (this.getCategoryType() === Eagle.CategoryType.Data && !this.isShowPorts()){
+        if (this.isData() && !this.isShowPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
+        }
+
+        if (this.getCategory() === Eagle.Category.Service){
+            // NOTE: Service nodes can't have input ports, or input application output ports!
+            return (2 * 30) +
+                (this.getInputApplicationInputPorts().length * 24) +
+                (this.getInputApplicationOutputPorts().length * 24) +
+                8;
         }
 
         const leftHeight = (
@@ -916,7 +918,7 @@ export class Node {
     }
 
     clone = () : Node => {
-        const result : Node = new Node(this.key(), this.name(), this.description(), this.category(), this.categoryType(), this.readonly());
+        const result : Node = new Node(this.key(), this.name(), this.description(), this.category(), this.readonly());
 
         result._id = this._id;
         result.x = this.x;
@@ -1207,16 +1209,14 @@ export class Node {
 
         // translate categories if required
         let category: Eagle.Category = GraphUpdater.translateOldCategory(nodeData.category);
-        let categoryType: Eagle.CategoryType = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
             errors.push("Node with key " + nodeData.key + " has unknown category: " + category);
             category = Eagle.Category.Unknown;
-            categoryType = Eagle.CategoryType.Unknown;
         }
 
-        const node : Node = new Node(nodeData.key, name, "", category, categoryType, readonly);
+        const node : Node = new Node(nodeData.key, name, "", category, readonly);
 
         // set position
         node.setPosition(x, y);
@@ -1360,7 +1360,7 @@ export class Node {
 
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
         if (nodeData.application !== undefined && nodeData.application !== ""){
-            console.warn("only found old application type, not new input application type and output application type", categoryType, category);
+            console.warn("only found old application type, not new input application type and output application type", category);
 
             if (!Eagle.getCategoryData(category).canHaveInputApplication){
                 console.error("attempt to add inputApplication to unsuitable node:", category);
@@ -1589,7 +1589,6 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
-        result.categoryType = node.categoryType();
         result.isData = node.isData();
         result.isGroup = node.isGroup();
         result.canHaveInputs = node.canHaveInputs();
@@ -1734,7 +1733,6 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
-        result.categoryType = node.categoryType();
         result.isData = node.isData();
         result.isGroup = node.isGroup();
 
@@ -1795,7 +1793,7 @@ export class Node {
     }
 
     static fromAppRefJson = (nodeData : any, errors: string[]) : Node => {
-        const node = new Node(nodeData.key, nodeData.text, nodeData.description, nodeData.category, nodeData.categoryType, nodeData.readonly);
+        const node = new Node(nodeData.key, nodeData.text, nodeData.description, nodeData.category, nodeData.readonly);
 
         node.color(nodeData.color);
         node.drawOrderHint(nodeData.drawOrderHint);
@@ -1855,7 +1853,7 @@ export class Node {
     }
 
     static fromV3NodeJson = (nodeData : any, key: string, errors: string[]) : Node => {
-        const result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown, Eagle.CategoryType.Unknown, nodeData.readonly);
+        const result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown, nodeData.readonly);
 
         result.color(nodeData.color);
         result.drawOrderHint(nodeData.drawOrderHint);
@@ -1880,7 +1878,6 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
-        result.categoryType = node.categoryType();
         result.isData = node.isData();
         result.isGroup = node.isGroup();
 
@@ -1923,7 +1920,6 @@ export class Node {
 
     static fromV3ComponentJson = (nodeData: any, node: Node, errors: string[]): void => {
         node.category(nodeData.category);
-        node.categoryType(nodeData.categoryType);
         node.name(nodeData.name);
         node.description(nodeData.description);
 
@@ -1936,7 +1932,8 @@ export class Node {
     }
 
     static createEmbeddedApplicationNode = (key: number, name : string, category: Eagle.Category, embedKey: number, readonly: boolean) : Node => {
-        const node = new Node(key, name, "", category, Eagle.CategoryType.Application, readonly);
+        const node = new Node(key, name, "", category, readonly);
+        console.assert(node.isApplication());
         node.setEmbedKey(embedKey);
         return node;
     }
