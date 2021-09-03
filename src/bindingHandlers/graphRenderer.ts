@@ -2912,7 +2912,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const x = edgeGetStrokeColor(edge, index)
         return "url(#"+Object.keys(LINK_COLORS).find(key => LINK_COLORS[key] === x)+")";
     }
-      
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
         const srcNode : Node  = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
