@@ -119,7 +119,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("transform", rootScaleTranslation)
         .attr("class", "root")
         .attr("id", "root");
-        
+
     // add def for markers
     const defs = rootContainer.append("defs");
 
@@ -134,8 +134,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("markerUnits", "strokeWidth")
             .attr("markerWidth","8")
             .attr("markerHeight", "6")
-            .attr("orient", "auto"); 
-        
+            .attr("orient", "auto");
+
         newArrowhead
             .append("path")
             .attr("d", "M 0 0 L 10 5 L 0 10 z")
@@ -3005,34 +3005,34 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let x1, y1, x2, y2;
 
         if (node.isFlipPorts()){
-            x1 = REAL_TO_DISPLAY_POSITION_X(node.getPosition().x);
-            y1 = REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y);
+            x1 = node.getPosition().x;
+            y1 = node.getPosition().y;
         } else {
-            x1 = REAL_TO_DISPLAY_POSITION_X(node.getPosition().x + node.getWidth());
-            y1 = REAL_TO_DISPLAY_POSITION_Y(node.getPosition().y);
+            x1 = node.getPosition().x + node.getWidth();
+            y1 = node.getPosition().y;
         }
 
         if (subjectNode.isFlipPorts()){
-            x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + subjectNode.getWidth());
-            y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
+            x2 = subjectNode.getPosition().x + subjectNode.getWidth();
+            y2 = subjectNode.getPosition().y;
         } else {
-            x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x);
-            y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
+            x2 = subjectNode.getPosition().x;
+            y2 = subjectNode.getPosition().y;
         }
 
         if (subjectNode.isData() && !subjectNode.isShowPorts()){
             if (node.isFlipPorts()){
-                x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + getIconLocationX(subjectNode) + Node.DATA_COMPONENT_WIDTH);
-                y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y + getIconLocationY(subjectNode) + Node.DATA_COMPONENT_HEIGHT/2);
+                x2 = subjectNode.getPosition().x + getIconLocationX(subjectNode) + Node.DATA_COMPONENT_WIDTH;
+                y2 = subjectNode.getPosition().y + getIconLocationY(subjectNode) + Node.DATA_COMPONENT_HEIGHT/2;
             } else {
-                x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + getIconLocationX(subjectNode));
-                y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y + getIconLocationY(subjectNode) + Node.DATA_COMPONENT_HEIGHT/2);
+                x2 = subjectNode.getPosition().x + getIconLocationX(subjectNode);
+                y2 = subjectNode.getPosition().y + getIconLocationY(subjectNode) + Node.DATA_COMPONENT_HEIGHT/2;
             }
         }
 
         if (subjectNode.isBranch()){
-            x2 = REAL_TO_DISPLAY_POSITION_X(subjectNode.getPosition().x + subjectNode.getWidth()/2);
-            y2 = REAL_TO_DISPLAY_POSITION_Y(subjectNode.getPosition().y);
+            x2 = subjectNode.getPosition().x + subjectNode.getWidth()/2;
+            y2 = subjectNode.getPosition().y;
         }
 
         // determine incident directions for start and end of edge
