@@ -65,6 +65,7 @@ export class Utils {
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
+    static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 

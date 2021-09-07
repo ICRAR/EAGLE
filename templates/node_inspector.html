@@ -52,7 +52,9 @@
                 <h4 class="nodeInspectorSubTitle">Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
             </div>
             <div class="col-4">
+                <!-- ko if: displayNodeKeys() -->
                 <h4 class="nodeInspectorSubTitle">Key: <span data-bind="text: selectedNode().getKey()"></span></h4>
+                <!-- /ko -->
             </div>
         </div>
     </div>
