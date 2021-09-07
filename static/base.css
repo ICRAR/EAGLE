@@ -638,8 +638,14 @@ nav.navbar .introjs-helperLayer {
 }
 
 #nodeInspectorHeading{
-    border:none;
+    margin: 0px;
     color: white;
+    border-radius: .25rem;
+    padding: 5px 10px 0px;
+}
+
+#nodeInspectorInfoCard{
+    margin-bottom: 1px;
 }
 
 #nodeInspectorHeading span {
@@ -648,21 +654,13 @@ nav.navbar .introjs-helperLayer {
     user-select: none;
 }
 
-#nodeInspectorMenus{
-    //padding: 0px 5px 5px 5px;
-    //margin-bottom: 10px;
-}
-
 #nodeInspectorMenus .card{
     margin-top:4px;
     margin-right: 4px;
 }
 
 .headerBtns {
-    //position: relative;
-    //right: 10px;
-    //padding:5px 0px;
-    //text-align: right;
+    padding: 0px;;
 }
 
 .headerBtns button {
