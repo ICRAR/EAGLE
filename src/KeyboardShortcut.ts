@@ -41,6 +41,11 @@ export class KeyboardShortcut {
             return;
         }
 
+        //if the command key is pressed return
+        if(e.metaKey){
+            return
+        }
+
         // get reference to eagle
         const eagle = (<any>window).eagle;
 
