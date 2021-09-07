@@ -391,7 +391,7 @@
 
 div.rightWindow h5.card-header {
     font-weight: 500;
-    padding: 0.25rem 1.00rem 0.25rem 1.00rem;
+    padding: 0rem 1.0rem 0.4rem 1.00rem;
 }
 
 .rightWindow i.material-icons.interactive {
@@ -638,13 +638,20 @@ nav.navbar .introjs-helperLayer {
 }
 
 #nodeInspectorHeading{
-    border:none;
+    margin: 0px;
     color: white;
+    border-radius: .25rem;
+    padding: 5px 10px 0px;
 }
 
-#nodeInspectorMenus{
-    padding: 0px 5px 5px 5px;
-    margin-bottom: 10px;
+#nodeInspectorInfoCard{
+    margin-bottom: 1px;
+}
+
+#nodeInspectorHeading span {
+    font-size: 1.25em;
+    font-weight: bold;
+    user-select: none;
 }
 
 #nodeInspectorMenus .card{
@@ -652,15 +659,11 @@ nav.navbar .introjs-helperLayer {
     margin-right: 4px;
 }
 
-#headerBtns{
-    position: relative;
-    right: 10px;
-    padding:5px 0px;
-    text-align: right;
+.headerBtns {
+    padding: 0px;;
 }
 
-#headerBtns button{
-    color: #0859af;
+.headerBtns button {
     background-color: transparent;
     padding:4px;
     margin-left:-4px;
@@ -668,16 +671,13 @@ nav.navbar .introjs-helperLayer {
     box-shadow: none;
 }
 
-#headerBtns button:hover{
+.headerBtns button:hover {
     color:#001933;
+    background-color: transparent;
 }
 
-#headerBtns #deleteSelectedNode{
-    color:#cb4335;
-}
-
-#headerBtns #deleteSelectedNode :hover{
-    color:#520800;
+.headerBtns button.btn:focus {
+    box-shadow: none;
 }
 
 .nodeInspectorSubsectionTitle{
