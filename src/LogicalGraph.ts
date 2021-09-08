@@ -528,15 +528,8 @@ export class LogicalGraph {
                     // copy name from the original node
                     newNode.setName(node.getName());
 
-                    // Remove the redundant input/output port.
-                    switch(newNode.getCategory()){
-                        case Eagle.Category.Start:
-                            newNode.removePortByIndex(0, true);
-                            break;
-                        case Eagle.Category.End:
-                            newNode.removePortByIndex(0, false);
-                            break;
-                    }
+                    // Remove the redundant input port
+                    newNode.removePortByIndex(0, true);
 
                     // flag that the logical graph has been modified
                     this.fileInfo().modified = true;
