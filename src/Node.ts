@@ -482,6 +482,10 @@ export class Node {
         return this.category() === Eagle.Category.Branch;
     }
 
+    isService = () : boolean => {
+        return this.category() === Eagle.Category.Service;
+    }
+
     isResizable = () : boolean => {
         return Eagle.getCategoryData(this.category()).isResizable;
     }
