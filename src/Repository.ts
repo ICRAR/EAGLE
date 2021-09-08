@@ -75,13 +75,17 @@ export class Repository {
         return 0;
     }
 
-    public static fileSortFunc = (a: string, b: string) : number => {
-        const aType : Eagle.FileType = Utils.getFileTypeFromFileName(a);
-        const bType : Eagle.FileType = Utils.getFileTypeFromFileName(b);
+    public static fileSortFunc = (fileNameA: string, fileNameB: string) : number => {
+        const aType : Eagle.FileType = Utils.getFileTypeFromFileName(fileNameA);
+        const bType : Eagle.FileType = Utils.getFileTypeFromFileName(fileNameB);
 
         if (aType !== bType){
-            return aType > bType ? -1 : 1;
+            const aTypeNum : number = Utils.getFileTypeNum(aType);
+            const bTypeNum : number = Utils.getFileTypeNum(bType);
+
+            return aTypeNum > bTypeNum ? 1 : -1;
         }
-        return aType > bType ? -1 : 1;
+
+        return fileNameA.toLowerCase() > fileNameB.toLowerCase() ? 1 : -1;
     }
 }
