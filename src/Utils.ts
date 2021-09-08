@@ -231,6 +231,19 @@ export class Utils {
         return Utils.translateStringToFileType(Utils.getFileExtension(fileName));
     }
 
+    static getFileTypeNum(fileType: Eagle.FileType) : number {
+        switch (fileType){
+            case Eagle.FileType.Graph:
+                return 0;
+            case Eagle.FileType.Palette:
+                return 1;
+            case Eagle.FileType.JSON:
+                return 2;
+            case Eagle.FileType.Unknown:
+                return 3;
+        }
+    }
+
     /**
      * Returns the file extension.
      * @param path File name.
