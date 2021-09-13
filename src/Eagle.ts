@@ -3336,6 +3336,11 @@ export class Eagle {
                 field.setType(newField.getType());
             });
         }
+
+    // modal draggables
+    $('.modal-dialog').draggable({
+        handle: ".modal-header"
+      });
     };
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
@@ -3871,5 +3876,9 @@ $( document ).ready(function() {
     $(".dropdown-menu").mouseleave(function(){
       $(".dropdown-menu").dropdown('hide')
     })
+
+    $('.modal').on('hidden.bs.modal', function () {
+        $('.modal-dialog').css({"left":"0px", "top":"0px"})
+    });
 
 });

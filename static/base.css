@@ -408,6 +408,11 @@ div.rightWindow h5.card-header {
     color:white;
 }
 
+.btn-outline-secondary:hover{
+    background-color: white;
+    color: #002349;
+}
+
 .navbar{
     background: rgb(0,64,133);
     background: linear-gradient(90deg, rgba(0,64,133,1) 0%, rgba(0,52,107,1) 20%, rgba(0,35,73,1) 100%);
@@ -641,6 +646,14 @@ nav.navbar .introjs-helperLayer {
     border:none;
     color: white;
 }
+
+.modal-dialog {
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    margin-left: 50%;
+    transform: translateX(-50%) !important;
+  }
 
 #nodeInspectorMenus{
     padding: 0px 5px 5px 5px;
