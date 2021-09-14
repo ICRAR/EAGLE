@@ -2970,6 +2970,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         graph.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, (edge : Edge) : void =>{
+            eagle.checkGraph();
             eagle.logicalGraph.valueHasMutated();
             clearEdgeVars();
         });

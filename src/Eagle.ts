@@ -181,7 +181,7 @@ export class Eagle {
         return Eagle.findSetting(Utils.ALLOW_PALETTE_EDITING).value();
     }
 
-    displayNodeKeys = () :boolean => { 
+    displayNodeKeys = () :boolean => {
         return Eagle.findSetting(Utils.DISPLAY_NODE_KEYS).value();
     }
 

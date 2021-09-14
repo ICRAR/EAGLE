@@ -1834,6 +1834,18 @@ export class Utils {
                 results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many output ports. Should have at most " + maxOutputs);
             }
 
+            // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
+            let isConnected: boolean = false;
+            for (const edge of graph.getEdges()){
+                if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+                    isConnected = true;
+                    break;
+                }
+            }
+            if (!isConnected){
+                results.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
+            }
+
             // check embedded application categories are not 'None'
             if (node.hasInputApplication() && node.getInputApplication().getCategory() === Eagle.Category.None){
                 results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.");
