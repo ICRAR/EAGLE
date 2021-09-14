@@ -41,6 +41,11 @@ export class KeyboardShortcut {
             return;
         }
 
+        // check if a modal is shown, if so abort
+        if ($(".modal.show").length > 0){
+            return;
+        }
+
         // get reference to eagle
         const eagle = (<any>window).eagle;
 

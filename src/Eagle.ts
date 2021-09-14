@@ -3338,7 +3338,7 @@ export class Eagle {
         }
 
     // modal draggables
-    //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it. 
+    //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
     (<any>$('.modal-dialog')).draggable({
         handle: ".modal-header"
       });
