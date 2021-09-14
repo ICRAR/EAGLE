@@ -65,6 +65,7 @@ export class Utils {
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
+    static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
@@ -228,6 +229,19 @@ export class Utils {
 
     static getFileTypeFromFileName(fileName : string) : Eagle.FileType {
         return Utils.translateStringToFileType(Utils.getFileExtension(fileName));
+    }
+
+    static getFileTypeNum(fileType: Eagle.FileType) : number {
+        switch (fileType){
+            case Eagle.FileType.Graph:
+                return 0;
+            case Eagle.FileType.Palette:
+                return 1;
+            case Eagle.FileType.JSON:
+                return 2;
+            case Eagle.FileType.Unknown:
+                return 3;
+        }
     }
 
     /**
