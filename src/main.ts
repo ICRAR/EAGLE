@@ -24,6 +24,7 @@
 
 import * as ko from "knockout";
 import * as $ from "jquery";
+import "jqueryui";
 
 import {Config} from './Config';
 import {Eagle} from './Eagle';

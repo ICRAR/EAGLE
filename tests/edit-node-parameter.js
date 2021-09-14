@@ -32,6 +32,8 @@ test('Edit node parameter', async t =>{
         // add selected node to palette
         .click("#addSelectedNodeToPalette")
 
+        .wait(1000)
+
         // new destination palette
         .typeText(Selector('#choiceModalString'), NEW_PALETTE_NAME)
 
