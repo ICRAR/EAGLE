@@ -3018,6 +3018,10 @@ export class Eagle {
         x = x - offset.left;
         y = y - offset.top;
 
+        // transform display coords into real coords
+        x = (x - this.globalOffsetX)/this.globalScale;
+        y = (y - this.globalOffsetY)/this.globalScale;
+
         return {x:x, y:y};
     };
 
