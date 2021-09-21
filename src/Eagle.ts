@@ -1484,7 +1484,6 @@ export class Eagle {
         });
     }
 
-    //WIP
     refreshRepositoryList = () : void => {
         console.log("refreshRepositoryList()");
 
@@ -1492,10 +1491,12 @@ export class Eagle {
         GitLab.loadRepoList(this);
     };
 
+    //WIP
     static reloadTooltips = () : void => {
         // destroy orphaned tooltips and initializing tooltip on document ready.
         $('.tooltip[role="tooltip"]').remove();
-
+        console.log('[data-bs-toggle="tooltip"]')
+        console.log($('[data-bs-toggle="tooltip"]'))
         $('[data-bs-toggle="tooltip"]').tooltip({
             boundary: document.body,
             trigger : 'hover',
@@ -3178,13 +3179,14 @@ export class Eagle {
 
     //WIP
     updatePaletteComponentTooltip = (nodes: any) : void => {
-        const node = $(nodes[1]);
-
-        node.tooltip({
-            boundary: document.body,
-            trigger : 'hover',
-            delay: { "show": 800, "hide": 100 }
-        });
+        // const node = $(nodes[1])[0];
+        // console.log('node')
+        // console.log(node)
+        // node.tooltip({
+        //     boundary: document.body,
+        //     trigger : 'hover',
+        //     delay: { "show": 800, "hide": 100 }
+        // });
         // console.log($(nodes[1])[0])
         // nodes[1].tooltip()
         // var nodeTooltip = new bootstrap.Tooltip($(nodes[1])[0], {

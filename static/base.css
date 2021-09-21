@@ -486,6 +486,7 @@ div.rightWindow h5.card-header {
 
 #nodeInspector .input-group-text, #edgeInspector .input-group-text, #translationMenu .input-group-text{
     width:100%;
+    height: 100%;
     font-size: .9rem;
     text-align: left;
     white-space: normal;
@@ -498,12 +499,22 @@ div.rightWindow h5.card-header {
 
 #nodeInspector .input-group-append button{
     padding:4px;
+    border-radius: 0px;
+    height: 100%;
 }
 
 #rightWindowTabs{
     width:100%;
     border: none;
     height:48px;
+}
+
+.btn_wide{
+    width: 100% !important;
+}
+
+.text-right{
+    text-align: right;
 }
 
 #rightWindowTabs button{
