@@ -517,6 +517,10 @@ div.rightWindow h5.card-header {
     text-align: right;
 }
 
+.alert-danger .btn-close{
+    content: none;
+}
+
 #rightWindowTabs button{
     border-radius: 0px;
     border:0px;
