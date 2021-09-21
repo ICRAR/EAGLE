@@ -573,6 +573,9 @@ export class Eagle {
             this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
                 this.logicalGraph(lg);
 
+                // center graph
+                this.centerGraph();
+
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
                     this.updateActiveFileInfo(Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
@@ -1745,6 +1748,9 @@ export class Eagle {
                     } else {
                         Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                     }
+
+                    // center graph
+                    this.centerGraph();
 
                     // check graph
                     this.checkGraph();
