@@ -3909,7 +3909,8 @@ $( document ).ready(function() {
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
-      $(".dropdown-menu").dropdown('hide')
+      $(".dropdown-toggle").removeClass("show")
+      $(".dropdown-menu").removeClass("show")
     })
 
     $('.modal').on('hidden.bs.modal', function () {
