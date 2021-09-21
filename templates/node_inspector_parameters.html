@@ -1,6 +1,6 @@
 <div class="card">
-    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse9" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Parameters">
-        <i class="material-icons interactive nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:inspectorState().parameters}">keyboard_arrow_down</i>
+    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse9" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Parameters">
+        <i class="material-icons interactive nodeMenuIndicator" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:inspectorState().parameters}">keyboard_arrow_down</i>
         <i class="material-icons">archive</i>
         <span class="nodeInspectorSubsectionTitle">Component Parameters</span>
     </h5>
@@ -18,7 +18,7 @@
             <!-- /ko -->
 
             <!-- ko ifnot: selectedNode().isLocked()-->
-                <button class="btn btn-secondary btn-block nodeInspectorDropDown" id="nodeInspectorAddField" type="button" data-bind="click: $root.addFieldHTML, attr:{title:'Add parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
+                <button class="btn btn-secondary btn-block nodeInspectorDropDown" id="nodeInspectorAddField" type="button" data-bind="click: $root.addFieldHTML, attr:{title:'Add parameter'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
                     <i class="material-icons md-18">add</i>
                 </button>
                 <div id="nodeInspectorAddFieldDiv" class="nodeInspectorDropdownDiv">
@@ -31,7 +31,7 @@
                     </div>
                 </div>
                 <!-- ko if: selectedNode().category() === Eagle.Category.Docker -->
-                    <button class="btn btn-secondary btn-block mt-1" id="nodeInspectorFetchDocker" type="button" data-bind="click: $root.fetchDockerHTML, attr:{title:'Fetch docker image data from Docker Hub'}" data-toggle="tooltip" data-html="true" data-placement="left">Fetch from Docker Hub</button>
+                    <button class="btn btn-secondary btn-block mt-1" id="nodeInspectorFetchDocker" type="button" data-bind="click: $root.fetchDockerHTML, attr:{title:'Fetch docker image data from Docker Hub'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">Fetch from Docker Hub</button>
                 <!-- /ko -->
             <!-- /ko -->
         </div>

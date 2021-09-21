@@ -4,9 +4,9 @@
     <div class="accordion" id="translatorAccordion">
 
         <div class="card">
-            <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" data-bind="click: $root.spinCollapseIcon">
+            <div class="card-header" id="headingOne" data-bs-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" data-bind="click: $root.spinCollapseIcon">
                 <h5>
-                    <i class="material-icons interactive translationToggle closedIcon" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+                    <i class="material-icons interactive translationToggle closedIcon" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
                     <span>Algorithm 0 (none)</span>
                 </h5>
             </div>
@@ -14,15 +14,15 @@
                 <div class="card-body">
                     <p class="card-text">Base PGT Generation</p>
                     <button id="alg0PGT" class="btn btn-primary" data-bind="click: function(){genPGT(0, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test0PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(0, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
+                    <button id="test0PGT" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(0, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header" id="headingTwo" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo" data-bind="click: $root.spinCollapseIcon">
+            <div class="card-header" id="headingTwo" data-bs-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo" data-bind="click: $root.spinCollapseIcon">
                 <h5>
-                    <i class="material-icons interactive closedIcon translationToggle" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+                    <i class="material-icons interactive closedIcon translationToggle" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
                     <span>Algorithm 1 (metis)</span>
                 </h5>
             </div>
@@ -61,15 +61,15 @@
                     <p class="card-text"></p>
 
                     <button id="alg1PGT" class="btn btn-primary" data-bind="click: function(){genPGT(1, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test1PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(1, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
+                    <button id="test1PGT" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(1, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header" id="headingThree" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree" data-bind="click: $root.spinCollapseIcon">
+            <div class="card-header" id="headingThree" data-bs-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree" data-bind="click: $root.spinCollapseIcon">
                 <h5>
-                    <i class="material-icons interactive closedIcon translationToggle" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+                    <i class="material-icons interactive closedIcon translationToggle" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
                     <span>Algorithm 2 (mysarkar)</span>
                 </h5>
             </div>
@@ -99,15 +99,15 @@
                     <p class="card-text"></p>
 
                     <button id="alg2PGT" class="btn btn-primary" data-bind="click: function(){genPGT(2, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test2PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(2, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
+                    <button id="test2PGT" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(2, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header" id="headingFour" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour" data-bind="click: $root.spinCollapseIcon">
+            <div class="card-header" id="headingFour" data-bs-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour" data-bind="click: $root.spinCollapseIcon">
                <h5>
-                    <i class="material-icons interactive closedIcon translationToggle" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+                    <i class="material-icons interactive closedIcon translationToggle" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
                     <span>Algorithm 3 (min_num_parts)</span>
                 </h5>
             </div>
@@ -155,15 +155,15 @@
                     <p class="card-text"></p>
 
                     <button id="alg3PGT" class="btn btn-primary" data-bind="click: function(){genPGT(3, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test3PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(3, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
+                    <button id="test3PGT" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(3, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header" id="headingFive" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive" data-bind="click: $root.spinCollapseIcon">
+            <div class="card-header" id="headingFive" data-bs-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive" data-bind="click: $root.spinCollapseIcon">
                 <h5>
-                    <i class="material-icons interactive closedIcon translationToggle" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+                    <i class="material-icons interactive closedIcon translationToggle" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
                     <span>Algorithm 4 (pso)</span>
                 </h5>
             </div>
@@ -214,15 +214,15 @@
                     <p class="card-text"></p>
 
                     <button id="alg4PGT" class="btn btn-primary" data-bind="click: function(){genPGT(4, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test4PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(4, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
+                    <button id="test4PGT" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(4, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header" id="headingSix" data-toggle="collapse" data-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix" data-bind="click: $root.spinCollapseIcon">
+            <div class="card-header" id="headingSix" data-bs-toggle="collapse" data-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix" data-bind="click: $root.spinCollapseIcon">
                <h5>
-                    <i class="material-icons interactive closedIcon translationToggle" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
+                    <i class="material-icons interactive closedIcon translationToggle" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}">keyboard_arrow_down</i>
                     <span>Algorithm 5 (simple)</span>
                 </h5>
             </div>
@@ -245,7 +245,7 @@
                     <p class="card-text"></p>
 
                     <button id="alg5PGT" class="btn btn-primary" data-bind="click: function(){genPGT(5, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test5PGT" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(5, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
+                    <button id="test5PGT" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(5, true, Eagle.DALiuGESchemaVersion.Unknown);}">Test PGT</button>
                 </div>
             </div>
         </div>
@@ -288,7 +288,7 @@
                 </div>
             </div>
             <button id="alg1PGT" class="btn btn-primary btn-block mt-2" data-bind="click: function(){genPGT(1, false, Eagle.DALiuGESchemaVersion.OJS);}">Generate PGT</button>
-            <button id="test1PGT" class="btn btn-secondary btn-block mt-1" data-toggle="tooltip" data-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(1, true, Eagle.DALiuGESchemaVersion.OJS);}">Test PGT</button>
+            <button id="test1PGT" class="btn btn-secondary btn-block mt-1" data-bs-toggle="tooltip" data-bs-placement="right" title="Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging." data-bind="click: function(){genPGT(1, true, Eagle.DALiuGESchemaVersion.OJS);}">Test PGT</button>
         </div>
     </div>
     <!-- /ko -->

@@ -26,6 +26,8 @@
 
 import * as ko from "knockout";
 import * as ij from "intro.js";
+import * as bootstrap from 'bootstrap';
+
 
 import {Utils} from './Utils';
 import {Config} from './Config';
@@ -1482,6 +1484,7 @@ export class Eagle {
         });
     }
 
+    //WIP
     refreshRepositoryList = () : void => {
         console.log("refreshRepositoryList()");
 
@@ -1493,12 +1496,26 @@ export class Eagle {
         // destroy orphaned tooltips and initializing tooltip on document ready.
         $('.tooltip[role="tooltip"]').remove();
 
-        $('[data-toggle="tooltip"]').tooltip({
-            boundary: 'window',
+        $('[data-bs-toggle="tooltip"]').tooltip({
+            boundary: document.body,
             trigger : 'hover',
             delay: { "show": 800, "hide": 100 }
         });
     }
+
+    // static reloadTooltips = () : void => {
+    //     // destroy orphaned tooltips and initializing tooltip on document ready.
+    //     $('.tooltip[role="tooltip"]').remove();
+
+    //     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    //     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl:any) {
+    //         return new bootstrap.Tooltip(tooltipTriggerEl, {
+    //             boundary: document.body, // or document.querySelector('#boundary')
+    //             trigger : 'hover',
+    //             delay: { "show": 800, "hide": 100 }
+    //         })
+    //     })
+    // }
 
     // TODO: move to Repository class?
     selectRepository = (repository : Repository) : void => {
@@ -3159,14 +3176,22 @@ export class Eagle {
         }, 150);
     }
 
+    //WIP
     updatePaletteComponentTooltip = (nodes: any) : void => {
         const node = $(nodes[1]);
 
         node.tooltip({
-            boundary: 'window',
+            boundary: document.body,
             trigger : 'hover',
             delay: { "show": 800, "hide": 100 }
         });
+        // console.log($(nodes[1])[0])
+        // nodes[1].tooltip()
+        // var nodeTooltip = new bootstrap.Tooltip($(nodes[1])[0], {
+        //     boundary: document.body, // or document.querySelector('#boundary')
+        //             trigger : 'hover',
+        //             delay: { "show": 800, "hide": 100 }
+        //   })
     }
 
     paletteComponentClick = (node: Node, event:JQueryEventObject) : void => {

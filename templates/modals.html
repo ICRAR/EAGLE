@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="messageModalTitle">Title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -24,7 +24,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="inputModalTitle">Title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -55,7 +55,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="inputTextModalTitle">Title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -86,7 +86,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="choiceModalTitle">Title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -128,7 +128,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="confirmModalTitle">Title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -153,7 +153,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="gitCommitModalTitle">Git Commit</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -227,7 +227,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="gitCustomRepositoryModalTitle">Add Custom Git Repository</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -284,7 +284,7 @@
                 <img src="/static/assets/img/favicon.png" class="rounded float-left" alt="EAGLE logo">
                 <span>&nbsp;&nbsp;</span>
                 <h5 class="modal-title" id="aboutModalTitle">About EAGLE</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -306,7 +306,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="settingsModalTitle">Settings</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -316,14 +316,14 @@
                     <!-- ko if: $data.getType() === 0 -->
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey(),title:$data.getDescription()},text:$data.getName()" data-toggle="tooltip" data-html="true" data-placement="left"></span>
+                            <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey(),title:$data.getDescription()},text:$data.getName()" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left"></span>
                         </div>
                         <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
                     </div>
                     <!-- /ko -->
                     <!-- ko if: $data.getType() === 2 -->
                     <div class="input-group mb-1">
-                        <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName(),title:$data.getDescription()}" data-toggle="tooltip" data-html="true" data-placement="left" readonly>
+                        <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName(),title:$data.getDescription()}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left" readonly>
                         <div class="input-group-append">
                             <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.toggle, attr:{id:'setting'+$data.getKey()+'Button'}">
                                 <i class="material-icons md-18" data-bind="visible: $data.value">radio_button_checked</i>
@@ -335,7 +335,7 @@
                     <!-- ko if: $data.getType() === 3 -->
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey(),title:$data.getDescription()},text:$data.getName()" data-toggle="tooltip" data-html="true" data-placement="left"></span>
+                            <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey(),title:$data.getDescription()},text:$data.getName()" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left"></span>
                         </div>
                         <input type="password" autocomplete="off" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
                         <div class="input-group-append">
@@ -363,7 +363,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="shortcutsModalTitle">Keyboard Shortcuts</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -398,7 +398,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editFieldModalTitle">Edit Parameter</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -499,7 +499,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editPortModalTitle">Edit Port</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -555,7 +555,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editEdgeModalTitle">Edit Edge</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -640,7 +640,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="explorePalettesModalTitle">Explore Palettes</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
