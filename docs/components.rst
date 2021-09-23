@@ -13,7 +13,7 @@ In this documentation, a distinction isn't made between the component's external
 
 .. figure:: _static/images/components.png
   :width: 400px
-  :align: center
+  :align: left
   :alt: An example of components in EAGLE
   :figclass: align-left
 

@@ -2,11 +2,11 @@ figure {
 	font-size: 0;
 	position: relative;
 	background: #000;
-	width: 800px;
+	width: 100%;
 	margin: 0;
 }
 figure video {
-	width: 80%;
+	width: 100%;
 	height: auto;
 	display: inline-block;
 }
@@ -14,7 +14,6 @@ figure figcaption {
 	position: absolute;
 	right: 0; top: 0;
 	background: #222;
-	width: 20%;
 	font-size: .8rem;
 	color: #FFF;
 	height: 100%;
