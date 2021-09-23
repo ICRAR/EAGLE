@@ -13,9 +13,9 @@ In this documentation, a distinction isn't made between the component's external
 
 .. figure:: _static/images/components.png
   :width: 400px
-  :align: left
+  :align: center
   :alt: An example of components in EAGLE
-  :figclass: align-left
+  :figclass: align-center
 
   An example of different components in EAGLE. Each component has inputs and outputs. They can be arranged as parents and children, and their inputs and outputs can be linked using *edges*.
 
