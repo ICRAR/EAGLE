@@ -726,10 +726,7 @@ export class Utils {
             const name: string = <string>$('#editPortModalNameInput').val();
             const type: string = <string>$('#editPortModalTypeInput').val();
 
-            // translate access and type
-            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
-
-            const newPort = new Port(id, name, false, realType);
+            const newPort = new Port(id, name, false, type);
 
             callback(true, newPort);
         });
