@@ -38,7 +38,7 @@ We have a method for automatically generating component descriptions from source
   * Processes the XML with a EAGLE script called xml2palette.py
   * Commit/push the resulting palette JSON to the ICRAR/EAGLE_test_repo repository inside a directory named after the project
 
-This process is described in further detail within the `DALiuGE Documentation <https://daliuge.readthedocs.io/en/latest/development/app_development/eagle_integration.html/>`
+This process is described in further detail within the `DALiuGE Documentation <https://daliuge.readthedocs.io/en/latest/development/app_development/eagle_integration.html/>`_
 
 
 Creating Palettes within EAGLE
