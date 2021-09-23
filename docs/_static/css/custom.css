@@ -10,6 +10,11 @@ figure video {
 	height: auto;
 	display: inline-block;
 }
+figure button {
+	width: 100px;
+	height: 28px;
+	font-size: x-small;
+}
 figure figcaption {
 	position: absolute;
 	right: 0; top: 0;
