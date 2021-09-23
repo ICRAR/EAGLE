@@ -19,7 +19,7 @@
 
   <!-- Modal content -->
 	<figure class="modal-content">
-		<button class="close" onclick="span4Click">close &times;</button>
+		<button class="close" onclick="span4Click()">close &times;</button>
 		<video controls id="save_graph_modal">
 			<source src="_static/videos/Save_graph.mp4">
 			<!-- <source src="downtown-los-angeles.webm"> -->
@@ -48,12 +48,6 @@ all_videos.push([locationList4m, video4m, trackElement4m]);
 
 // Get the modal
 var modal4 = document.getElementById("myModal4");
-
-// Get the button that opens the modal
-var btn4 = document.getElementById("myBtn4");
-
-// Get the <span> element that closes the modal
-var span4 = document.getElementsByClassName("close")[2];
 
 // When the user clicks on the button, open the modal
 function myBtn4Click(){
