@@ -140,7 +140,7 @@ export class Edge {
     }
 
     static fromV3Json = (edgeData: any, errors: string[]): Edge => {
-        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown, edgeData.loop_aware === "1");
+        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, "", edgeData.loop_aware === "1");
     }
 
     static toAppRefJson = (edge : Edge, lg: LogicalGraph) : object => {
