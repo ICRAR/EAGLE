@@ -1490,8 +1490,7 @@ export class Eagle {
         GitHub.loadRepoList(this);
         GitLab.loadRepoList(this);
     };
-
-    //WIP
+\
     static reloadTooltips = () : void => {
         // destroy orphaned tooltips and initializing tooltip on document ready.
         $('.tooltip[role="tooltip"]').remove();
@@ -1504,19 +1503,6 @@ export class Eagle {
         });
     }
 
-    // static reloadTooltips = () : void => {
-    //     // destroy orphaned tooltips and initializing tooltip on document ready.
-    //     $('.tooltip[role="tooltip"]').remove();
-
-    //     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    //     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl:any) {
-    //         return new bootstrap.Tooltip(tooltipTriggerEl, {
-    //             boundary: document.body, // or document.querySelector('#boundary')
-    //             trigger : 'hover',
-    //             delay: { "show": 800, "hide": 100 }
-    //         })
-    //     })
-    // }
 
     // TODO: move to Repository class?
     selectRepository = (repository : Repository) : void => {

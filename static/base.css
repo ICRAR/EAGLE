@@ -206,6 +206,10 @@
     width:100%;
 }
 
+#settingsModal .btn-secondary{
+    height:100%;
+}
+
 .template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
     color: white;
 
