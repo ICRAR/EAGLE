@@ -171,7 +171,7 @@ export class Node {
         }
     }, this);
 
-    getPaletteComponentId : ko.PureComputed<string> = ko.pureComputed(() => {
+    getPaletteComponentId = () : string => {
         if (this.name() === 'Enter label' || this.name() == ''){
             var processedCategory = this.category().replace(/\s/g, '_')
             return processedCategory;
@@ -179,7 +179,7 @@ export class Node {
             var processedName = this.name().replace(/\s/g, '_')
             return processedName;
         }
-    }, this);
+    };
 
     getNoWhiteSpaceName = () : string => {
         return this.getDisplayName().replace(/ /g, '');
