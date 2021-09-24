@@ -202,8 +202,15 @@
     font-weight: 400;
 }
 
+#nodeInspectorFetchDocker{
+    width:100%;
+}
+
 .template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
     color: white;
+
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 #paletteDiv {
@@ -484,12 +491,18 @@ div.rightWindow h5.card-header {
     width:auto;
 }
 
+#nodeInspector .input-group{
+    border-radius: 5px;
+    overflow: hidden;
+}
+
 #nodeInspector .input-group-text, #edgeInspector .input-group-text, #translationMenu .input-group-text{
     width:100%;
     height: 100%;
     font-size: .9rem;
     text-align: left;
     white-space: normal;
+    border-radius: 0px;
 }
 
 #nodeInspector input{
@@ -554,6 +567,11 @@ div.rightWindow h5.card-header {
 
 #translationMenu h5{
     font-size: 1rem;
+}
+
+#translationMenu .input-group {
+    border-radius: 5px;
+    overflow: hidden;
 }
 
 #rightWindowTabs .btn-secondary:focus{

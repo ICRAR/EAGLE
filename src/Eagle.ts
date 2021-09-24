@@ -1496,7 +1496,7 @@ export class Eagle {
         // destroy orphaned tooltips and initializing tooltip on document ready.
         $('.tooltip[role="tooltip"]').remove();
         console.log('[data-bs-toggle="tooltip"]')
-        console.log($('[data-bs-toggle="tooltip"]'))
+        console.log(typeof $('[data-bs-toggle="tooltip"]'))
         $('[data-bs-toggle="tooltip"]').tooltip({
             boundary: document.body,
             trigger : 'hover',
@@ -3168,32 +3168,22 @@ export class Eagle {
             // update title on all right window component buttons
             if (selectedNode !== null){
                 if (selectedNode.getInputApplication() !== null)
-                    $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getInputApplication().getHelpHTML());
+                    $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getInputApplication().getHelpHTML());
                 if (selectedNode.getOutputApplication() !== null)
-                    $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getOutputApplication().getHelpHTML());
+                    $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getOutputApplication().getHelpHTML());
                 if (selectedNode.getExitApplication() !== null)
-                    $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getExitApplication().getHelpHTML());
+                    $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getExitApplication().getHelpHTML());
             }
         }, 150);
     }
 
-    //WIP
     updatePaletteComponentTooltip = (nodes: any) : void => {
-        // const node = $(nodes[1])[0];
-        // console.log('node')
-        // console.log(node)
-        // node.tooltip({
-        //     boundary: document.body,
-        //     trigger : 'hover',
-        //     delay: { "show": 800, "hide": 100 }
-        // });
-        // console.log($(nodes[1])[0])
-        // nodes[1].tooltip()
-        // var nodeTooltip = new bootstrap.Tooltip($(nodes[1])[0], {
-        //     boundary: document.body, // or document.querySelector('#boundary')
-        //             trigger : 'hover',
-        //             delay: { "show": 800, "hide": 100 }
-        //   })
+        const node = $(nodes[1]);
+        node.tooltip({
+            boundary: document.body,
+            trigger : 'hover',
+            delay: { "show": 800, "hide": 100 }
+        });
     }
 
     paletteComponentClick = (node: Node, event:JQueryEventObject) : void => {
