@@ -1490,13 +1490,12 @@ export class Eagle {
         GitHub.loadRepoList(this);
         GitLab.loadRepoList(this);
     };
-\
+
     static reloadTooltips = () : void => {
         // destroy orphaned tooltips and initializing tooltip on document ready.
         $('.tooltip[role="tooltip"]').remove();
-        console.log('[data-bs-toggle="tooltip"]')
-        console.log(typeof $('[data-bs-toggle="tooltip"]'))
         $('[data-bs-toggle="tooltip"]').tooltip({
+            html : true,
             boundary: document.body,
             trigger : 'hover',
             delay: { "show": 800, "hide": 100 }
@@ -3166,6 +3165,7 @@ export class Eagle {
     updatePaletteComponentTooltip = (nodes: any) : void => {
         const node = $(nodes[1]);
         node.tooltip({
+            html : true,
             boundary: document.body,
             trigger : 'hover',
             delay: { "show": 800, "hide": 100 }
