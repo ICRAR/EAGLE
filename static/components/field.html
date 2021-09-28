@@ -4,8 +4,9 @@
         <span class="input-group-text" id="group-addon" data-bind="text: $data.text, attr: {'data-bs-original-title': $data.getDescriptionText()}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left"></span>
     </div>
 
-    <input class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data id="loadPaletteText"-toggle="tooltip" data-html="true" data id="loadPaletteText"-placement="right" title data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: $data.ro, attr: {title: getFieldValue(), type: $root.getFieldType(getType()), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}">
+    <input class="form-control inspectorCheckbox" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-toggle="tooltip" data-html="true" data-bs-placement="bottom" title data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: $data.ro, attr: {title: getFieldValue(), type: $root.getFieldType(getType(), 'nodeInspectorFieldValue' + $index(), $data.value()), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}">
 
+    
     <!-- ko ifnot: $data.ro -->
     <div class="input-group-append">
         <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Open Field Value Wizard'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">

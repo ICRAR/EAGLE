@@ -2190,12 +2190,25 @@ export class Eagle {
         return null;
     }
 
-    getFieldType = (type:string) : string => {
+    getFieldType = (type:string, id:string, value:string) : string => {
         console.log("getting field type")
         console.log(type)
         if (type === "Float" || type === "Integer"){
             return "number"
         }else if(type === "Boolean"){
+            console.log("1")
+            console.log($("#"+id).val())
+            console.log(value)
+            $("#"+id).addClass("form-check-input")
+            if (value === "true"){
+                console.log("2")
+                $("#"+id).addClass("inputChecked")
+                $("#"+id).html("Checked")
+            }else {
+                console.log("3")
+                $("#"+id).removeClass("inputChecked")
+                $("#"+id).html("Check")
+            }
             return "checkbox"
         }else{
             return "text"
