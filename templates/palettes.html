@@ -1,30 +1,29 @@
 <div id="paletteList">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary btn-block" data-bind="click: showExplorePalettes, attr:{title: 'Retrieve information on all palettes in ' + Config.DEFAULT_PALETTE_REPOSITORY}" data-toggle="tooltip" data-html="true" data-placement="bottom">Explore Palettes</button>
+            <button class="btn btn-primary btn-block btn_wide" data-bind="click: showExplorePalettes, attr:{title: 'Retrieve information on all palettes in ' + Config.DEFAULT_PALETTE_REPOSITORY}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="bottom">Explore Palettes</button>
         </div>
     </div>
     <div data-bind="foreach: palettes">
         <div class="card" data-bind="event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
-            <div class="card-header" data-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}, click: $root.spinCollapseIcon">
-                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'},text:getCollapseIcon()"></i>
-                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:fileInfo().getSummaryHTML()}">info</i>
+            <div class="card-header" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}, click: $root.spinCollapseIcon">
+                <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="right" data-html="true" data-bind="attr:{title:'Expand/Collapse'},text:getCollapseIcon()"></i>
+                <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="right" data-html="true" data-bind="attr:{title:fileInfo().getSummaryHTML()}">info</i>
                 <!-- ko if: $data.fileInfo().readonly -->
-                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
+                <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
                 <!-- /ko -->
                 <!-- ko ifnot: $data.fileInfo().readonly -->
-                <i class="material-icons interactive" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
+                <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
                 <!-- /ko -->
                 <span>&nbsp;</span>
                 <h5 class="template-title" data-bind="text: fileInfo().nameAndModifiedIndicator()"></h5>
-                <button type="button" class="close" aria-label="Close" data-bind="click: function(palette, event){$root.closePalette(palette);event.stopPropagation()}, attr:{title:'Close'}" data-toggle="tooltip" data-html="true" data-placement="top">
-                    <i class="material-icons">close</i>
+                <button type="button" class="btn-close" aria-label="Close" data-bind="click: function(palette, event){$root.closePalette(palette);event.stopPropagation()}, attr:{title:'Close'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
                 </button>
                 <!-- ko if: $data.fileInfo().modified -->
-                    <button type="button" class="close save-to-git" aria-label="Save to Git" data-bind="click: function(palette, event){$root.savePaletteToGit(palette);event.stopPropagation()}, attr:{title:'Save to Git'}" data-toggle="tooltip" data-html="true" data-placement="top">
+                    <button type="button" class="close save-to-git" aria-label="Save to Git" data-bind="click: function(palette, event){$root.savePaletteToGit(palette);event.stopPropagation()}, attr:{title:'Save to Git'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
                         <i class="material-icons">cloud_upload</i>
                     </button>
-                    <button type="button" class="close save-to-disk" aria-label="Save to Disk" data-bind="click: function(palette, event){$root.savePaletteToDisk(palette);event.stopPropagation()}, attr:{title:'Save to Disk'}" data-toggle="tooltip" data-html="true" data-placement="top">
+                    <button type="button" class="close save-to-disk" aria-label="Save to Disk" data-bind="click: function(palette, event){$root.savePaletteToDisk(palette);event.stopPropagation()}, attr:{title:'Save to Disk'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
                         <i class="material-icons">save</i>
                     </button>
                 <!-- /ko -->
