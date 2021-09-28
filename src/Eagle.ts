@@ -2190,6 +2190,18 @@ export class Eagle {
         return null;
     }
 
+    getFieldType = (type:string) : string => {
+        console.log("getting field type")
+        console.log(type)
+        if (type === "Float" || type === "Integer"){
+            return "number"
+        }else if(type === "Boolean"){
+            return "checkbox"
+        }else{
+            return "text"
+        }
+    }
+
     static findSettingValue = (key : string) : any => {
         const setting = Eagle.findSetting(key);
 
