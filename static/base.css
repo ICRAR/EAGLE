@@ -529,7 +529,7 @@ div.rightWindow h5.card-header {
 .accordion-item{
     border-radius: 7px !important;
     overflow: hidden;
-    margin-bottom:4px;
+    margin-bottom:2px;
 }
 
 #translationMenu .accordion h5{
