@@ -24,6 +24,8 @@
 
 import * as ko from "knockout";
 import * as $ from "jquery";
+import "jqueryui";
+import * as bootstrap from 'bootstrap';
 
 import {Config} from './Config';
 import {Eagle} from './Eagle';
@@ -88,7 +90,9 @@ $(function(){
     eagle.loadSchemas();
 
     // enable bootstrap accordion collapse
-    $('.collapse').collapse();
+    // $('.collapse').collapse();
+    var bsCollapse = new bootstrap.Collapse('.collapse', {
+      })
 
     // initialise all the modal dialogs. event handlers etc
     Utils.initModals(eagle);

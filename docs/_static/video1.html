@@ -10,7 +10,7 @@
 	</figcaption>
 
 	<!-- Trigger/Open The Modal -->
-	<button id="myBtn5" style="float: right">Click to see a larger video</button>
+	<button id="myBtn5" style="float: right" onclick="myBtn5Click()">Click to see a larger video</button>
 
 </figure>
 
@@ -19,7 +19,7 @@
 
   <!-- Modal content -->
 	<figure class="modal-content">
-		<button class="close">close &times;</button>
+		<button class="close" onclick="span5Click()">close &times;</button>
 		<video controls id="load_palette_modal">
 			<source src="_static/videos/Load_palette.mp4">
 			<!-- <source src="downtown-los-angeles.webm"> -->
@@ -38,6 +38,8 @@ var locationList5 = document.getElementById("load_palette_captions"),
 video5 = document.getElementById("load_palette"),
 trackElement5 = video5.getElementsByTagName("track")[0];
 
+var all_videos = [];
+
 all_videos.push([locationList5, video5, trackElement5]);
 
 var locationList5m = document.getElementById("load_palette_captions_modal"),
@@ -49,22 +51,16 @@ all_videos.push([locationList5m, video5m, trackElement5m]);
 // Get the modal
 var modal5 = document.getElementById("myModal5");
 
-// Get the button that opens the modal
-var btn5 = document.getElementById("myBtn5");
-
-// Get the <span> element that closes the modal
-var span5 = document.getElementsByClassName("close")[4];
-
 // When the user clicks on the button, open the modal
-btn5.onclick = function() {
+function myBtn5Click() {
 	video5.pause();
-  modal5.style.display = "block";
+  	modal5.style.display = "block";
 }
 
 // When the user clicks on <span> (x), close the modal
-span5.onclick = function() {
+function span5Click() {
 	video5m.pause();
-  modal5.style.display = "none";
+  	modal5.style.display = "none";
 }
 
 // When the user clicks anywhere outside of the modal, close it

@@ -1,7 +1,9 @@
 Components
 ==========
 
-Components are created by application developers and others to be used within an EAGLE workflow. The components themselves exist outside of EAGLE, and may be *Application Components* such as command line (shell) code, in-line Python and C/C++ dynamic libraries, and MPI code; or they can be *Data Components*, such as Memory, File, S3 and NGAS. Each of these provide different underlying functionality and integration.
+Components are created by application developers and others to be used within an
+EAGLE workflow. The components themselves exist outside of EAGLE, and may be
+*Application Components* such as command line (shell) code, in-line Python and C/C++ dynamic libraries, and MPI code; or they can be *Data Components*, such as Memory, File, S3 and NGAS. Each of these provide different underlying functionality and integration.
 
 To create a workflow, EAGLE only needs to access JSON representations of each component, which contain enough information to translate the workflow into a graph and then execute it correctly. These JSON files are referred to as *component descriptions*.
 
@@ -20,18 +22,6 @@ In this documentation, a distinction isn't made between the component's external
 Each component has a set of inputs and outputs, as well as exposed parameters. Executable code called by an Application Component may range from the most simple -- for example, just a single mathematical operation in Python or C, to a complete and complex workflow all by itself. The inner workings of the Application Component are not handled within EAGLE.
 
 In combination, components allow the parallel reduction of many individual data sets.
-
-Creating Components from Code
------------------------------
-
-We have a method for automatically generating component descriptions from source code. It involves:
-
-* Adding Doxygen comments to the source code
-* Adding a CI task to the code repository, which:
-
-  * Uses doxygen to process the source code and output XML documentation
-  * Processes the XML with a EAGLE script called xml2palette.py
-  * Commit/push the resulting palette JSON to the ICRAR/EAGLE_test_repo repository inside a directory named after the project
 
 Creating Components for Docker Images
 -------------------------------------
@@ -69,26 +59,6 @@ Click the node to modify its attributes:
 
   Modify the Docker node parameters with data from the Docker image
 
-Once the component has been created, it can be saved to a palette using the "Add graph nodes to Palette" button in the navbar
-
-.. figure:: _static/images/components/navbar_button.png
-  :width: 240px
-  :align: center
-  :alt: Click the "Add graph nodes to Palette" button in the navbar
-  :figclass: align-center
-
-  Click the "Add graph nodes to Palette" button in the navbar
-
-The user can then click the "cloud" icon to save to git, or the "floppy disk" icon to save locally.
-As with other components, we'd recommend saving to ICRAR/EAGLE_test_repo in a directory named after the project
-
-.. figure:: _static/images/components/new_palette.png
-  :width: 500px
-  :align: center
-  :alt: The new palette containing the Docker component description
-  :figclass: align-center
-
-  The new palette containing the Docker component description
 
 Important Notes on Docker Images
 --------------------------------

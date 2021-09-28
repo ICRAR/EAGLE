@@ -8,12 +8,12 @@ export class Port {
     private nodeKey : ko.Observable<number>;
     private local : ko.Observable<boolean>;
     private event : ko.Observable<boolean>;
-    private type : ko.Observable<Eagle.DataType>;
+    private type : ko.Observable<string>;
 
     public static readonly DEFAULT_ID : string = "<default>";
     public static readonly DEFAULT_EVENT_PORT_NAME = "event";
 
-    constructor(id : string, name : string, event : boolean, type: Eagle.DataType){
+    constructor(id : string, name : string, event : boolean, type: string){
         this._id = ko.observable(id);
         this.name = ko.observable(name);
         this.nodeKey = ko.observable(0);
@@ -52,7 +52,7 @@ export class Port {
         this.nodeKey(0);
         this.local(false);
         this.event(false);
-        this.type(Eagle.DataType.Unknown);
+        this.type("");
     }
 
     isEvent = () : boolean => {
@@ -68,7 +68,7 @@ export class Port {
         this.event(!this.event());
     }
 
-    getType = (): Eagle.DataType => {
+    getType = (): string => {
         return this.type();
     }
 
@@ -118,7 +118,7 @@ export class Port {
 
     static fromOJSJson = (data : any) : Port => {
         let event: boolean = false;
-        let type: Eagle.DataType = Eagle.DataType.Unknown;
+        let type: string = "";
 
         if (typeof data.event !== 'undefined')
             event = data.event;

@@ -26,6 +26,8 @@
 
 import * as ko from "knockout";
 import * as ij from "intro.js";
+import * as bootstrap from 'bootstrap';
+
 
 import {Utils} from './Utils';
 import {Config} from './Config';
@@ -181,7 +183,7 @@ export class Eagle {
         return Eagle.findSetting(Utils.ALLOW_PALETTE_EDITING).value();
     }
 
-    displayNodeKeys = () :boolean => { 
+    displayNodeKeys = () :boolean => {
         return Eagle.findSetting(Utils.DISPLAY_NODE_KEYS).value();
     }
 
@@ -572,6 +574,9 @@ export class Eagle {
 
             this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
                 this.logicalGraph(lg);
+
+                // center graph
+                this.centerGraph();
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
@@ -1492,13 +1497,14 @@ export class Eagle {
     static reloadTooltips = () : void => {
         // destroy orphaned tooltips and initializing tooltip on document ready.
         $('.tooltip[role="tooltip"]').remove();
-
-        $('[data-toggle="tooltip"]').tooltip({
-            boundary: 'window',
+        $('[data-bs-toggle="tooltip"]').tooltip({
+            html : true,
+            boundary: document.body,
             trigger : 'hover',
             delay: { "show": 800, "hide": 100 }
         });
     }
+
 
     // TODO: move to Repository class?
     selectRepository = (repository : Repository) : void => {
@@ -1745,6 +1751,9 @@ export class Eagle {
                     } else {
                         Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
                     }
+
+                    // center graph
+                    this.centerGraph();
 
                     // check graph
                     this.checkGraph();
@@ -3030,6 +3039,10 @@ export class Eagle {
         x = x - offset.left;
         y = y - offset.top;
 
+        // transform display coords into real coords
+        x = (x - this.globalOffsetX)/this.globalScale;
+        y = (y - this.globalOffsetY)/this.globalScale;
+
         return {x:x, y:y};
     };
 
@@ -3158,20 +3171,20 @@ export class Eagle {
             // update title on all right window component buttons
             if (selectedNode !== null){
                 if (selectedNode.getInputApplication() !== null)
-                    $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getInputApplication().getHelpHTML());
+                    $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getInputApplication().getHelpHTML());
                 if (selectedNode.getOutputApplication() !== null)
-                    $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getOutputApplication().getHelpHTML());
+                    $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getOutputApplication().getHelpHTML());
                 if (selectedNode.getExitApplication() !== null)
-                    $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getExitApplication().getHelpHTML());
+                    $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getExitApplication().getHelpHTML());
             }
         }, 150);
     }
 
     updatePaletteComponentTooltip = (nodes: any) : void => {
         const node = $(nodes[1]);
-
         node.tooltip({
-            boundary: 'window',
+            html : true,
+            boundary: document.body,
             trigger : 'hover',
             delay: { "show": 800, "hide": 100 }
         });
@@ -3303,7 +3316,6 @@ export class Eagle {
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field("", "", "", "", false, Eagle.DataType.Integer);
 
-
             Utils.requestUserEditField(this, Eagle.ModalType.Add, field, allFieldNames, (completed : boolean, newField: Field) => {
 
 
@@ -3353,6 +3365,12 @@ export class Eagle {
                 field.setType(newField.getType());
             });
         }
+
+    // modal draggables
+    //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
+    (<any>$('.modal-dialog')).draggable({
+        handle: ".modal-header"
+      });
     };
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
@@ -3371,7 +3389,7 @@ export class Eagle {
             $("#customPortOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const port: Port = new Port("", "", false, Eagle.DataType.String);
+            const port: Port = new Port("", "", false, "String");
 
             Utils.requestUserEditPort(this, Eagle.ModalType.Add, port, allPortNames, (completed : boolean, newPort: Port) => {
                 // abort if the user aborted
@@ -3886,7 +3904,12 @@ $( document ).ready(function() {
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
-      $(".dropdown-menu").dropdown('hide')
+      $(".dropdown-toggle").removeClass("show")
+      $(".dropdown-menu").removeClass("show")
     })
+
+    $('.modal').on('hidden.bs.modal', function () {
+        $('.modal-dialog').css({"left":"0px", "top":"0px"})
+    });
 
 });
