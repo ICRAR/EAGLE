@@ -513,6 +513,29 @@ div.rightWindow h5.card-header {
     border-radius: 0px;
 }
 
+#translationMenu .accordion button{
+    padding: 9px 20px;
+}
+
+#translationMenu .accordion-body button{
+    margin-bottom: 5px;
+    padding: 3px 10px;
+}
+
+#setTranslatorUrlBtn{
+    padding: 5px 10px;
+}
+
+.accordion-item{
+    border-radius: 7px !important;
+    overflow: hidden;
+    margin-bottom:4px;
+}
+
+#translationMenu .accordion h5{
+    margin-bottom: 0px;
+}
+
 #nodeInspector input{
     height: auto;
     font-size: .9rem;
