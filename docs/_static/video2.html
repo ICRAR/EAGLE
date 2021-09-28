@@ -10,7 +10,7 @@
 	</figcaption>
 
 	<!-- Trigger/Open The Modal -->
-	<button id="myBtn3" style="float: right">Click to see a larger video</button>
+	<button id="myBtn3" style="float: right" onclick="myBtn3Click()">Click to see a larger video</button>
 
 </figure>
 
@@ -19,7 +19,7 @@
 
   <!-- Modal content -->
 	<figure class="modal-content">
-		<button class="close">close &times;</button>
+		<button class="close" onclick="span3Click()">close &times;</button>
 		<video controls id="graph_creation_modal">
 			<source src="_static/videos/Graph_creation.mp4">
 			<!-- <source src="downtown-los-angeles.webm"> -->
@@ -49,22 +49,16 @@ all_videos.push([locationList3m, video3m, trackElement3m]);
 // Get the modal
 var modal3 = document.getElementById("myModal3");
 
-// Get the button that opens the modal
-var btn3 = document.getElementById("myBtn3");
-
-// Get the <span> element that closes the modal
-var span3 = document.getElementsByClassName("close")[2];
-
 // When the user clicks on the button, open the modal
-btn3.onclick = function() {
-  video3.pause();
-  modal3.style.display = "block";
+function myBtn3Click() {
+  	video3.pause();
+  	modal3.style.display = "block";
 }
 
 // When the user clicks on <span> (x), close the modal
-span3.onclick = function() {
-  video3m.pause();
-  modal3.style.display = "none";
+function span3Click() {
+  	video3m.pause();
+  	modal3.style.display = "none";
 }
 
 // When the user clicks anywhere outside of the modal, close it

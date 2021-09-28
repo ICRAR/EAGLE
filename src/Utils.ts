@@ -723,13 +723,10 @@ export class Utils {
             // extract field data from HTML elements
             // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
             const id = "dummy-id";
-            const name : string = <string>$('#editPortModalNameInput').val();
-            const type: string = <string>$('#editPortModalTypeSelect').val();
+            const name: string = <string>$('#editPortModalNameInput').val();
+            const type: string = <string>$('#editPortModalTypeInput').val();
 
-            // translate access and type
-            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
-
-            const newPort = new Port(id, name, false, realType);
+            const newPort = new Port(id, name, false, type);
 
             callback(true, newPort);
         });
@@ -1194,39 +1191,7 @@ export class Utils {
 
         // populate UI with current port data
         $('#editPortModalNameInput').val(port.getName());
-
-        $('#editPortModalTypeSelect').empty();
-        // TODO: we should iterate through the values in the Eagle.DataType enum, rather than hard-code each type
-        $('#editPortModalTypeSelect').append($('<option>', {
-            value: "Integer",
-            text: "Integer",
-            selected: port.getType() === Eagle.DataType.Integer
-        }));
-        $('#editPortModalTypeSelect').append($('<option>', {
-            value: "Float",
-            text: "Float",
-            selected: port.getType() === Eagle.DataType.Float
-        }));
-        $('#editPortModalTypeSelect').append($('<option>', {
-            value: "String",
-            text: "String",
-            selected: port.getType() === Eagle.DataType.String
-        }));
-        $('#editPortModalTypeSelect').append($('<option>', {
-            value: "Boolean",
-            text: "Boolean",
-            selected: port.getType() === Eagle.DataType.Boolean
-        }));
-        $('#editPortModalTypeSelect').append($('<option>', {
-            value: "Complex",
-            text: "Complex",
-            selected: port.getType() === Eagle.DataType.Complex
-        }));
-        $('#editPortModalTypeSelect').append($('<option>', {
-            value: "Unknown",
-            text: "Unknown",
-            selected: port.getType() === Eagle.DataType.Unknown
-        }));
+        $('#editPortModalTypeInput').val(port.getType());
 
         $('#editPortModal').data('completed', false);
         $('#editPortModal').data('callback', callback);
@@ -1766,49 +1731,49 @@ export class Utils {
         // check that all port dataTypes have been defined
         for (const node of graph.getNodes()){
             for (const port of node.getInputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getName() + ") with dataType: " + port.getType());
+                if (port.getType() === ""){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getName() + ") whose type is not specified");
                 }
             }
             for (const port of node.getOutputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getName() + ") with dataType: " + port.getType());
+                if (port.getType() === ""){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationInputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getName() + ") whose dataType is " + port.getType());
+                if (port.getType() === ""){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationOutputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getName() + ") whose dataType is " + port.getType());
+                if (port.getType() === ""){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationInputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getName() + ") whose dataType is " + port.getType());
+                if (port.getType() === ""){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationOutputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getName() + ") whose dataType is " + port.getType());
+                if (port.getType() === ""){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getExitApplicationInputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with input port (" + port.getName() + ") whose dataType is " + port.getType());
+                if (port.getType() === ""){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getExitApplicationOutputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with output port (" + port.getName() + ") whose dataType is " + port.getType());
+                if (port.getType() === ""){
+                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
         }
@@ -1842,7 +1807,8 @@ export class Utils {
                     break;
                 }
             }
-            if (!isConnected){
+            // NOTE: if more types than just Description are exempted from this test, consider adding a "canBeDisconnected" attribute to CategoryData
+            if (!isConnected && node.getCategory() !== Eagle.Category.Description){
                 results.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
             }
 
