@@ -62,6 +62,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     let isDraggingPort : boolean = false;
     let isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
     let isDraggingWithAlt : boolean = false;
+    let dragEventCount : number = 0;
 
     const mousePosition = {x:0, y:0};
     const selectionRegionStart = {x:0, y:0};
@@ -281,6 +282,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .drag()
         .on("start", function (node : Node) {
             isDraggingNode = false;
+            dragEventCount = 0;
 
             // new click time
             const newTime = Date.now();
@@ -306,6 +308,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             //tick();
         })
         .on("drag", function (node : Node, index : number) {
+            dragEventCount += 1;
+
             if (!isDraggingNode){
                 isDraggingNode = true;
 
@@ -316,9 +320,24 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 }
             }
 
+            // get distance the mouse was moved
+            let movementX = d3.event.sourceEvent.movementX;
+            let movementY = d3.event.sourceEvent.movementY;
+
+            // in testcafe, d3.event.sourceEvent.movementX and Y are always zero, use the d3.event.dx and dy instead
+            if (movementX === 0 && movementY === 0){
+                movementX = d3.event.dx;
+                movementY = d3.event.dy;
+
+                // NOTE: the second drag event on any drag will be offset in Y by a large amount, don't know why, it is some mistake with the way I use d3
+                if (dragEventCount === 2){
+                    movementY -= 80;
+                }
+            }
+
             // transform change in x,y position using current scale factor
-            const dx = DISPLAY_TO_REAL_SCALE(d3.event.sourceEvent.movementX);
-            const dy = DISPLAY_TO_REAL_SCALE(d3.event.sourceEvent.movementY);
+            const dx = DISPLAY_TO_REAL_SCALE(movementX);
+            const dy = DISPLAY_TO_REAL_SCALE(movementY);
 
             // move all selected nodes, skip edges (they just follow nodes anyway)
             for (const object of eagle.selectedObjects()){
