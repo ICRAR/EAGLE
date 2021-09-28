@@ -217,6 +217,10 @@
     border-bottom-right-radius: 0;
 }
 
+#loadPaletteText{
+    padding: 7px 0px 0px 7px;
+}
+
 #paletteDiv {
     position: relative;
     width: 100%;
