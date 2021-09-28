@@ -221,6 +221,14 @@
     padding: 7px 0px 0px 7px;
 }
 
+.inputChecked{
+    background-color: blue;
+}
+
+.inspectorCheckbox{
+    background-color:burlywood;
+}
+
 #paletteDiv {
     position: relative;
     width: 100%;
