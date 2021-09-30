@@ -69,6 +69,24 @@ This is a useful tool to install globally
 
     sudo npm install -g typescript
 
+### Install dependencies using NPM
+
+EAGLE depends on a number of packages. These are listed in package.json. To install all the dependencies:
+
+    npm install
+
+within the EAGLE directory.
+
+### Compile the Typescript
+
+Since Typescript is not interpretable by browsers, the source must be compiled/transcoded into native javascript. Run the Typescript compiler in the EAGLE directory.
+
+    tsc
+
+If you are actively developing EAGLE, it is recommended to use the Typescript compiler in "watcher mode", in which the tsc process persists, is notified of changes to the Typescript source, and automatically recompiles.
+
+    tsc -w
+
 ### Install, create and activate virtualenv
 
 Virtualenvs are standard in python3 and the recommended method
@@ -82,7 +100,7 @@ using virtual environments, but strongly recommends to use a separate one for EA
 
     pip install .   
 
-### Start Server`
+### Start Server
 
 Simply start it using in the main directory:
 
