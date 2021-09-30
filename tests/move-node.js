@@ -1,4 +1,4 @@
-import { Selector } from 'testcafe';
+import { Selector, ClientFunction } from 'testcafe';
 import page from './page-model';
 
 /*
@@ -25,4 +25,12 @@ test('Move node', async t =>{
 
     await t
         .wait(1000);
+
+    const getNode0Position = ClientFunction(() => {
+        return eagle.logicalGraph().getNodes()[0].getPosition();
+    });
+
+    const node0Position = await getNode0Position();
+
+    await t.expect(node0Position).eql({ x: 320, y: 446 });
 });
