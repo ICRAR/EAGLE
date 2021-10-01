@@ -38,6 +38,7 @@ GITHUB_DEFAULT_REPO_LIST = [
 ]
 
 GITLAB_DEFAULT_REPO_LIST = [
+    {"repository":"ska-telescope/ska-sdp-daliuge-graphs", "branch":"master"},
 ]
 
 # This is the default, but needs to be changed if installed under a different user.
