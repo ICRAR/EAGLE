@@ -186,15 +186,6 @@ export class Eagle {
     }
 
     // TODO: remove?
-    activeFileInfo = () : FileInfo => {
-        if (this.logicalGraph()){
-            return this.logicalGraph().fileInfo();
-        }
-
-        return null;
-    }
-
-    // TODO: remove?
     flagActiveFileModified = () : void => {
         if (this.logicalGraph()){
             this.logicalGraph().fileInfo().modified = true;
@@ -205,7 +196,11 @@ export class Eagle {
         // Adding a star symbol in front of the title if file is modified.
         let mod = '';
 
-        const fileInfo : FileInfo = this.activeFileInfo();
+        if (this.logicalGraph() === null){
+            return "";
+        }
+
+        const fileInfo : FileInfo = this.logicalGraph().fileInfo();
 
         if (fileInfo === null){
             return "";
@@ -241,7 +236,11 @@ export class Eagle {
     }
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
-        const fileInfo : FileInfo = this.activeFileInfo();
+        if (this.logicalGraph() === null){
+            return "";
+        }
+
+        const fileInfo : FileInfo = this.logicalGraph().fileInfo();
 
         // if no FileInfo is available, return empty string
         if (fileInfo === null){
@@ -578,7 +577,7 @@ export class Eagle {
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
-                    this.updateActiveFileInfo(Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+                    this.updateLogicalGraphFileInfo(Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
                 }
             });
         });
@@ -1050,22 +1049,25 @@ export class Eagle {
      * Saves the file to a local download folder.
      */
     saveFileToLocal = (fileType : Eagle.FileType) : void => {
+        let fileInfo : ko.Observable<FileInfo>;
+
         // TODO: missing code here
         if (fileType !== Eagle.FileType.Graph){
             Utils.showUserMessage("Not implemented", "Not sure which palette is the right one to commit to git");
             return;
         }
+        fileInfo = this.logicalGraph().fileInfo;
 
         // check that the fileType has been set for the logicalGraph
-        if (typeof this.logicalGraph().fileInfo().type === 'undefined'){
+        if (typeof fileInfo().type === 'undefined'){
             Utils.showUserMessage("Error", "Graph fileType has not been set. Could not save file.");
             return;
         }
 
-        let fileName = this.activeFileInfo().name;
+        let fileName = fileInfo().name;
         if (fileName === "") {
             fileName = "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
-            this.activeFileInfo().name = fileName;
+            fileInfo().name = fileName;
         }
 
         // clone the logical graph and remove github info ready for local save
@@ -1115,7 +1117,7 @@ export class Eagle {
     /**
      * Saves a file to the remote server repository.
      */
-    saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, json : object) : void => {
+    saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, json : object) : void => {
         console.log("saveFileToRemote() repository.name", repository.name, "repository.service", repository.service);
 
         let url : string;
@@ -1159,30 +1161,14 @@ export class Eagle {
                 Utils.showNotification("Success", "The file has been saved to GitLab repository.", "success");
             }
 
-            // check which fileInfo object to use, based on the current editor mode
-            let activeFileInfo : ko.Observable<FileInfo>;
-            if (fileType === Eagle.FileType.Graph){
-                if (this.logicalGraph()){
-                    activeFileInfo = this.logicalGraph().fileInfo;
-                }
-            } else {
-                // TODO: add code here to maybe search all the palettes for one that matches the repository/filePath/fileName
-                //       or better yet, modify the inputs to saveFileToRemote to pass the info there
-                /*
-                if (this.editorPalette()){
-                    activeFileInfo = this.editorPalette().fileInfo;
-                }
-                */
-            }
-
             // Mark file as non-modified.
-            activeFileInfo().modified = false;
+            fileInfo().modified = false;
 
-            activeFileInfo().repositoryService = repository.service;
-            activeFileInfo().repositoryName = repository.name;
-            activeFileInfo().repositoryBranch = repository.branch;
-            activeFileInfo().path = filePath;
-            activeFileInfo().type = fileType;
+            fileInfo().repositoryService = repository.service;
+            fileInfo().repositoryName = repository.name;
+            fileInfo().repositoryBranch = repository.branch;
+            fileInfo().path = filePath;
+            fileInfo().type = fileType;
 
             // Adding file extension to the title if it does not have it.
             if (!Utils.verifyFileExtension(fileName)) {
@@ -1190,13 +1176,13 @@ export class Eagle {
             }
 
             // Change the title name.
-            activeFileInfo().name = fileName;
+            fileInfo().name = fileName;
 
             // set the EAGLE version etc according to this running version
-            activeFileInfo().updateEagleInfo();
+            fileInfo().updateEagleInfo();
 
             // flag fileInfo object as modified
-            activeFileInfo.valueHasMutated();
+            fileInfo.valueHasMutated();
         });
     }
 
@@ -1206,20 +1192,23 @@ export class Eagle {
     commitToGitAs = (fileType : Eagle.FileType) : void => {
         console.log("commitToGitAs()");
 
+        let fileInfo : ko.Observable<FileInfo>;
+
         // TODO: missing code here
         if (fileType !== Eagle.FileType.Graph){
             Utils.showUserMessage("Not implemented", "Not sure which palette is the right one to commit to git");
             return;
         }
+        fileInfo = this.logicalGraph().fileInfo;
 
         // create default repository to supply to modal so that the modal is populated with useful defaults
         let defaultRepository: Repository;
 
         if (this.logicalGraph()){
-            defaultRepository = new Repository(this.logicalGraph().fileInfo().repositoryService, this.logicalGraph().fileInfo().repositoryName, this.logicalGraph().fileInfo().repositoryBranch, false);
+            defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
         }
 
-        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(Eagle.RepositoryService.GitHub),  this.activeFileInfo().path, this.activeFileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(Eagle.RepositoryService.GitHub),  fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -1233,7 +1222,7 @@ export class Eagle {
                 return;
             }
 
-            this.saveDiagramToGit(repository, fileType, filePath, fileName, commitMessage);
+            this.saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage);
         });
     };
 
@@ -1241,14 +1230,17 @@ export class Eagle {
      * Performs a Git commit of a graph/palette.
      */
     commitToGit = (fileType : Eagle.FileType) : void => {
-        if (this.activeFileInfo().repositoryService === Eagle.RepositoryService.Unknown || this.activeFileInfo().repositoryName === null) {
+        let fileInfo : ko.Observable<FileInfo> = this.logicalGraph().fileInfo;
+
+
+        if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown || fileInfo().repositoryName === null) {
             Utils.showUserMessage("Error", "There is no repository selected. Please use 'save as' instead!");
             console.log("No repository selected!");
             return;
         }
 
         // check that filetype is appropriate for a file with this extension
-        if (this.activeFileInfo().name === "") {
+        if (fileInfo().name === "") {
             if (fileType == Eagle.FileType.Graph) {
                 Utils.showUserMessage('Error', 'Graph is not chosen! Open existing or create a new graph.');
             } else if (fileType == Eagle.FileType.Palette) {
@@ -1273,25 +1265,26 @@ export class Eagle {
             }
 
             // set the EAGLE version etc according to this running version
-            this.activeFileInfo().updateEagleInfo();
+            fileInfo().updateEagleInfo();
 
             // get the repository for this file
-            const repository = this.getRepository(this.activeFileInfo().repositoryService, this.activeFileInfo().repositoryName, this.activeFileInfo().repositoryBranch);
+            const repository = this.getRepository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
 
             // check that repository was found
             if (repository === null){
-                Utils.showUserMessage("Error", "Unable to get find correct repository from the information from the active file.<br/>Service:" + this.activeFileInfo().repositoryService + "<br/>Name:" + this.activeFileInfo().repositoryName + "<br/>Branch:" + this.activeFileInfo().repositoryBranch);
+                Utils.showUserMessage("Error", "Unable to get find correct repository from the information from the active file.<br/>Service:" +
+                 fileInfo().repositoryService + "<br/>Name:" + fileInfo().repositoryName + "<br/>Branch:" + fileInfo().repositoryBranch);
                 return;
             }
 
-            this.saveDiagramToGit(repository, fileType, this.activeFileInfo().path, this.activeFileInfo().name, userString);
+            this.saveDiagramToGit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, userString);
         });
     };
 
     /**
      * Saves a graph/palette file to the GitHub repository.
      */
-    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, commitMessage : string) : void => {
+    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string) : void => {
         console.log("saveDiagramToGit() repositoryName", repository.name, "filePath", filePath, "fileName", fileName, "commitMessage", commitMessage);
 
         // TODO: missing code here
@@ -1353,7 +1346,7 @@ export class Eagle {
             commitMessage: commitMessage
         };
 
-        this.saveFileToRemote(repository, filePath, fileName, fileType, jsonData);
+        this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, jsonData);
     }
 
     /**
@@ -1362,10 +1355,11 @@ export class Eagle {
     exportV3Json = () : void => {
         Utils.showUserMessage("Unsupported feature", "Saving files using the V3 schema is not supported.");
 
-        const fileName : string = this.activeFileInfo().name;
+        const fileInfo : ko.Observable<FileInfo> = this.logicalGraph().fileInfo;
+        const fileName : string = fileInfo().name;
 
         // set the EAGLE version etc according to this running version
-        this.logicalGraph().fileInfo().updateEagleInfo();
+        fileInfo().updateEagleInfo();
 
         const json = LogicalGraph.toV3Json(this.logicalGraph());
 
@@ -1393,7 +1387,7 @@ export class Eagle {
      * them by ID and key within the node
      */
     exportAppRefJson = () : void => {
-        const fileName : string = this.activeFileInfo().name;
+        const fileName : string = this.logicalGraph().fileInfo().name;
 
         // set the EAGLE version etc according to this running version
         this.logicalGraph().fileInfo().updateEagleInfo();
@@ -1549,7 +1543,7 @@ export class Eagle {
                 isModified = palette !== null && palette.fileInfo().modified;
                 break;
             case Eagle.FileType.JSON:
-                isModified = this.activeFileInfo().modified;
+                isModified = this.logicalGraph().fileInfo().modified;
                 break;
         }
 
@@ -1759,7 +1753,7 @@ export class Eagle {
                     this.checkGraph();
 
                     // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
-                    this.updateActiveFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+                    this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
                     break;
 
                 case Eagle.FileType.Palette:
@@ -1910,15 +1904,15 @@ export class Eagle {
         setTimeout(Eagle.reloadTooltips, 100);
     }
 
-    private updateActiveFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
-        console.log("updateActiveFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
+    private updateLogicalGraphFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
+        console.log("updateLogicalGraphFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
 
         // update the activeFileInfo with details of the repository the file was loaded from
-        this.activeFileInfo().repositoryName = repositoryName;
-        this.activeFileInfo().repositoryBranch = repositoryBranch;
-        this.activeFileInfo().repositoryService = repositoryService;
-        this.activeFileInfo().path = path;
-        this.activeFileInfo().name = name;
+        this.logicalGraph().fileInfo().repositoryName = repositoryName;
+        this.logicalGraph().fileInfo().repositoryBranch = repositoryBranch;
+        this.logicalGraph().fileInfo().repositoryService = repositoryService;
+        this.logicalGraph().fileInfo().path = path;
+        this.logicalGraph().fileInfo().name = name;
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         this.logicalGraph().fileInfo.valueHasMutated();
@@ -2002,22 +1996,6 @@ export class Eagle {
                 return;
             }
 
-            // TODO: move this code to somewhere after we know the save was a success
-            // update the fileInfo of the palette
-            palette.fileInfo().modified = false;
-            palette.fileInfo().repositoryService = repositoryService;
-            palette.fileInfo().repositoryName = repositoryName;
-            palette.fileInfo().repositoryBranch = repositoryBranch;
-            palette.fileInfo().path = filePath;
-            palette.fileInfo().type = Eagle.FileType.Palette;
-            palette.fileInfo().name = fileName;
-
-            // set the EAGLE version etc according to this running version
-            palette.fileInfo().updateEagleInfo();
-
-            // flag fileInfo object as modified
-            palette.fileInfo.valueHasMutated();
-
             // get access token for this type of repository
             let token : string;
 
@@ -2053,7 +2031,7 @@ export class Eagle {
                 commitMessage: commitMessage
             };
 
-            this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, jsonData);
+            this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, jsonData);
         });
     }
 
