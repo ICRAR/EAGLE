@@ -591,6 +591,8 @@ def save_git_lab_file():
         # update content
         f.content = json_data
         f.save(branch=repo_branch, commit_message=commit_message)
+    except gitlab.GitlabHttpError as ghe:
+        return jsonify({"error": str(ghe)}), 400
     except gitlab.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
         getSuccessful = False
