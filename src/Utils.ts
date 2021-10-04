@@ -1731,48 +1731,48 @@ export class Utils {
         // check that all port dataTypes have been defined
         for (const node of graph.getNodes()){
             for (const port of node.getInputPorts()){
-                if (port.getType() === ""){
+                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getName() + ") whose type is not specified");
                 }
             }
             for (const port of node.getOutputPorts()){
-                if (port.getType() === ""){
+                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationInputPorts()){
-                if (port.getType() === ""){
+                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationOutputPorts()){
-                if (port.getType() === ""){
+                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationInputPorts()){
-                if (port.getType() === ""){
+                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationOutputPorts()){
-                if (port.getType() === ""){
+                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getExitApplicationInputPorts()){
-                if (port.getType() === ""){
+                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getExitApplicationOutputPorts()){
-                if (port.getType() === ""){
+                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
                     results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
