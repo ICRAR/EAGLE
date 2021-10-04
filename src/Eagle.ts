@@ -50,6 +50,7 @@ import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {PaletteInfo} from './PaletteInfo';
+import { treemapSquarify } from "d3";
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -2212,6 +2213,14 @@ export class Eagle {
             return "checkbox"
         }else{
             return "text"
+        }
+    }
+
+    fieldIsBoolean = (type:string) : boolean => {
+        if (type === "Boolean"){
+            return true
+        }else{
+            return false
         }
     }
 
