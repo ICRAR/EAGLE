@@ -7,7 +7,7 @@ import { Selector } from 'testcafe';
 */
 
 var NEW_PALETTE_NAME = "new.palette";
-var DUMMY_VALUE = "0sdvh5gb8v7r4";
+var DUMMY_VALUE = "02348562";
 
 fixture `EAGLE Edit Node Parameter`
     .page `http://localhost:8888/`

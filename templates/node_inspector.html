@@ -12,16 +12,16 @@
     <!-- ko if: selectedNode() != null -->
     <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: selectedNode().color}, click: inspectorState().toggleAll">
         <div class="col-8 headerBtns">
-            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: inspectorState().toggleAll" data-toggle="tooltip" data-placement="top" data-original-title="Expand/Collapse All">
+            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: inspectorState().toggleAll" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Expand/Collapse All">
                 <i class="material-icons md-24" data-bind="css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
             </button>
             <!-- ko if: selectedNode().isLocked() -->
-            <button type="button" class="btn btn-secondary btn-sm" data-toggle="tooltip" data-placement="top" data-original-title="readonly">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="readonly">
                 <i class="material-icons md-24">lock</i>
             </button>
             <!-- /ko -->
             <!-- ko ifnot: selectedNode().isLocked() -->
-            <button type="button" class="btn btn-secondary btn-sm" data-toggle="tooltip" data-placement="top" data-original-title="readwrite">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="readwrite">
                 <i class="material-icons md-24">lock_open</i>
             </button>
             <!-- /ko -->
@@ -29,17 +29,17 @@
         </div>
         <div class="col-4 text-right headerBtns">
             <!-- ko if: selectedLocation() == Eagle.FileType.Graph || allowPaletteEditing() -->
-            <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false" data-toggle="tooltip" data-placement="top" data-original-title="Duplicate Selection [d]">
+            <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Duplicate Selection [d]">
                 <i  class="material-icons md-24">content_copy</i>
             </button>
             <!-- /ko -->
             <!-- ko if: allowPaletteEditing() -->
-            <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodeToPalette, clickBubble: false" data-toggle="tooltip" data-placement="top" data-original-title="Add Selected Node To Palette">
+            <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodeToPalette, clickBubble: false" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Add Selected Node To Palette">
                 <i  class="material-icons md-24">library_add</i>
             </button>
             <!-- /ko -->
             <!-- ko if: selectedLocation() == Eagle.FileType.Graph || allowPaletteEditing() -->
-            <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false" data-toggle="tooltip" data-placement="top" data-original-title="Delete Selected Node [backspace]">
+            <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Delete Selected Node [backspace]">
                 <i class="material-icons md-24">delete</i>
             </button>
             <!-- /ko -->

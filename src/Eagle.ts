@@ -26,6 +26,8 @@
 
 import * as ko from "knockout";
 import * as ij from "intro.js";
+import * as bootstrap from 'bootstrap';
+
 
 import {Utils} from './Utils';
 import {Config} from './Config';
@@ -48,6 +50,7 @@ import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {PaletteInfo} from './PaletteInfo';
+import { treemapSquarify } from "d3";
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -1495,13 +1498,14 @@ export class Eagle {
     static reloadTooltips = () : void => {
         // destroy orphaned tooltips and initializing tooltip on document ready.
         $('.tooltip[role="tooltip"]').remove();
-
-        $('[data-toggle="tooltip"]').tooltip({
-            boundary: 'window',
+        $('[data-bs-toggle="tooltip"]').tooltip({
+            html : true,
+            boundary: document.body,
             trigger : 'hover',
             delay: { "show": 800, "hide": 100 }
         });
     }
+
 
     // TODO: move to Repository class?
     selectRepository = (repository : Repository) : void => {
@@ -2185,6 +2189,39 @@ export class Eagle {
             }
         }
         return null;
+    }
+
+    getFieldType = (type:string, id:string, value:string) : string => {
+        console.log("getting field type")
+        console.log(type)
+        if (type === "Float" || type === "Integer"){
+            return "number"
+        }else if(type === "Boolean"){
+            console.log("1")
+            console.log($("#"+id).val())
+            console.log(value)
+            $("#"+id).addClass("form-check-input")
+            if (value === "true"){
+                console.log("2")
+                $("#"+id).addClass("inputChecked")
+                $("#"+id).html("Checked")
+            }else {
+                console.log("3")
+                $("#"+id).removeClass("inputChecked")
+                $("#"+id).html("Check")
+            }
+            return "checkbox"
+        }else{
+            return "text"
+        }
+    }
+
+    fieldIsBoolean = (type:string) : boolean => {
+        if (type === "Boolean"){
+            return true
+        }else{
+            return false
+        }
     }
 
     static findSettingValue = (key : string) : any => {
@@ -3156,20 +3193,20 @@ export class Eagle {
             // update title on all right window component buttons
             if (selectedNode !== null){
                 if (selectedNode.getInputApplication() !== null)
-                    $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getInputApplication().getHelpHTML());
+                    $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getInputApplication().getHelpHTML());
                 if (selectedNode.getOutputApplication() !== null)
-                    $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getOutputApplication().getHelpHTML());
+                    $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getOutputApplication().getHelpHTML());
                 if (selectedNode.getExitApplication() !== null)
-                    $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-original-title', selectedNode.getExitApplication().getHelpHTML());
+                    $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getExitApplication().getHelpHTML());
             }
         }, 150);
     }
 
     updatePaletteComponentTooltip = (nodes: any) : void => {
         const node = $(nodes[1]);
-
         node.tooltip({
-            boundary: 'window',
+            html : true,
+            boundary: document.body,
             trigger : 'hover',
             delay: { "show": 800, "hide": 100 }
         });
@@ -3889,7 +3926,8 @@ $( document ).ready(function() {
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
-      $(".dropdown-menu").dropdown('hide')
+      $(".dropdown-toggle").removeClass("show")
+      $(".dropdown-menu").removeClass("show")
     })
 
     $('.modal').on('hidden.bs.modal', function () {

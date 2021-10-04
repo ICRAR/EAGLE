@@ -202,8 +202,32 @@
     font-weight: 400;
 }
 
+#nodeInspectorFetchDocker{
+    width:100%;
+}
+
+#settingsModal .btn-secondary{
+    height:100%;
+}
+
 .template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
     color: white;
+
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#loadPaletteText{
+    padding: 7px 0px 0px 7px;
+}
+
+.inputChecked{
+    background-color: blue;
+}
+
+.inspectorCheckbox{
+    padding:0px;
+    margin:0px;
 }
 
 #paletteDiv {
@@ -414,6 +438,7 @@ div.rightWindow h5.card-header {
 }
 
 .navbar{
+    padding-left:10px;
     background: rgb(0,64,133);
     background: linear-gradient(90deg, rgba(0,64,133,1) 0%, rgba(0,52,107,1) 20%, rgba(0,35,73,1) 100%);
 }
@@ -462,7 +487,7 @@ div.rightWindow h5.card-header {
 
 .dropdown-menu-right{
     right: 0;
-    left: auto;
+    left: auto !important;
 }
 
 .dropdown-item{
@@ -483,11 +508,41 @@ div.rightWindow h5.card-header {
     width:auto;
 }
 
+#nodeInspector .input-group{
+    border-radius: 5px;
+    overflow: hidden;
+}
+
 #nodeInspector .input-group-text, #edgeInspector .input-group-text, #translationMenu .input-group-text{
     width:100%;
+    height: 100%;
     font-size: .9rem;
     text-align: left;
     white-space: normal;
+    border-radius: 0px;
+}
+
+#translationMenu .accordion button{
+    padding: 9px 20px;
+}
+
+#translationMenu .accordion-body button{
+    margin-bottom: 5px;
+    padding: 3px 10px;
+}
+
+#setTranslatorUrlBtn{
+    padding: 5px 10px !important;
+}
+
+.accordion-item{
+    border-radius: 7px !important;
+    overflow: hidden;
+    margin-bottom:2px;
+}
+
+#translationMenu .accordion h5{
+    margin-bottom: 0px;
 }
 
 #nodeInspector input{
@@ -495,14 +550,57 @@ div.rightWindow h5.card-header {
     font-size: .9rem;
 }
 
+.checkboxParent label{
+    background-color: #002349;
+}
+
+.checkboxParent .btn-check:checked+.btn-outline-primary{
+    background-color: rgb(0,64,133);
+}
+
+.checkboxParent .btn-check:checked+.btn-outline-primary:hover{
+    background-color: #0d6efd;
+}
+
+.checkboxParent .btn-outline-primary{
+    border:none;
+}
+
+.checkboxParent{
+    padding: 0px;
+    border-radius: 0px;
+    border:none;
+}
+
+#nodeInspector label{
+    width: 100%;
+    height:100%;
+    color:white;
+    border-radius:0px;
+}
+
 #nodeInspector .input-group-append button{
     padding:4px;
+    border-radius: 0px;
+    height: 100%;
 }
 
 #rightWindowTabs{
     width:100%;
     border: none;
     height:48px;
+}
+
+.btn_wide{
+    width: 100% !important;
+}
+
+.text-right{
+    text-align: right;
+}
+
+.alert-danger .btn-close{
+    content: none;
 }
 
 #rightWindowTabs button{
@@ -538,6 +636,11 @@ div.rightWindow h5.card-header {
 
 #translationMenu h5{
     font-size: 1rem;
+}
+
+#translationMenu .input-group {
+    border-radius: 5px;
+    overflow: hidden;
 }
 
 #rightWindowTabs .btn-secondary:focus{
