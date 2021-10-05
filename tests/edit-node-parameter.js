@@ -24,7 +24,7 @@ test('Edit node parameter', async t =>{
         .click('#settingAllowPaletteEditingButton')
 
         // close settings modal
-        .click('#settingsModal .modal-footer button')
+        .click('#settingsModalAffirmativeButton')
 
         // select python app node in palette
         .click("#selectPaletteNodePythonApp")
