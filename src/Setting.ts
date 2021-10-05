@@ -12,7 +12,7 @@ export class Setting {
     private defaultValue : any;
     private category : string;
 
-    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any, category:string;){
+    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any, category:string){
         this.name = name;
         this.description = description;
         this.type = type;
