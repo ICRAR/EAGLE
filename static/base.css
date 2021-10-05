@@ -210,6 +210,68 @@
     height:100%;
 }
 
+.modal-body{
+    background-color: aliceblue;
+}
+
+.modal-body li{
+    background-color: #e4ebf2;
+    border:none;
+}
+
+.modal-body li:nth-child(odd){
+    background-color: aliceblue;
+    border:none;
+}
+
+.modal-footer{
+    background-color: aliceblue;
+}
+
+.modal-header{
+    background-color: #002e5f;
+    color: white !important;
+}
+
+.modal-footer .btn-primary{
+    background-color: #002e5f;
+    border-color: #002e5f;
+}
+
+#settingsModal .settingSm{
+    display: inline-block;
+}
+
+#settingsCategoriesAccordion .accordion-button {
+    padding: 5px 15px;
+    background-color: rgb(194 200 220);
+    color: #002e5f;
+}
+
+#settingsCategoriesAccordion .accordion-body {
+    padding: 8px;
+    background-color: rgba(214, 219, 239, 0.95);
+}
+
+#settingsCategoriesAccordion .input-group input {
+    font-size: 15px;
+    padding: 2px 10px;
+    background-color: white;
+}
+
+#settingsCategoriesAccordion .input-group span {
+    font-size: 15px;
+    padding: 2px 10px;
+    height: 100%;
+    width: 200px;
+    background-color: #c2c8dc;
+}
+
+#resetSettingsDefaults{
+    left: 10px;
+    position: absolute;
+}
+
 .template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
     color: white;
 

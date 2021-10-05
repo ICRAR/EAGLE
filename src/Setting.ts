@@ -10,14 +10,16 @@ export class Setting {
     private type : Setting.Type;
     private key : string;
     private defaultValue : any;
+    private category : string;
 
-    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any){
+    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any, category:string;){
         this.name = name;
         this.description = description;
         this.type = type;
         this.key = key;
         this.value = ko.observable(defaultValue);
         this.defaultValue = defaultValue;
+        this.category = category;
 
         this.load();
 
@@ -41,6 +43,14 @@ export class Setting {
 
     getKey = () : string => {
         return this.key;
+    }
+
+    getCategory = () : string => {
+        return this.category;
+    }
+
+    getSettings = () :any => {
+        console.log("bop")
     }
 
     save = () : void => {
