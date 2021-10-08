@@ -2446,7 +2446,6 @@ export class Eagle {
             console.error("Attempt to add selected node to palette when no node selected");
             return;
         }
-
         this.addNodesToPalette([selectedNode]);
     }
 
@@ -3141,45 +3140,45 @@ export class Eagle {
         return true;
     }
 
-    spinCollapseIcon = (item: any, e: JQueryEventObject) : void => {
-        // this function handles only the visible ui element that indicates the state of the collapsable object.
-        // the collapse function itself is handled by bootstrap.
+    // spinCollapseIcon = (item: any, e: JQueryEventObject) : void => {
+    //     // this function handles only the visible ui element that indicates the state of the collapsable object.
+    //     // the collapse function itself is handled by bootstrap.
 
-        // getting event target for collapse action.
-        const target: JQuery<Element> = $(e.currentTarget);
-        const icon: JQuery<Element> = target.find('i').first();
+    //     // getting event target for collapse action.
+    //     const target: JQuery<Element> = $(e.currentTarget);
+    //     const icon: JQuery<Element> = target.find('i').first();
 
-        // getting current state of collapsable object.
-        const isTranslationToggle = icon.hasClass("translationToggle");
-        let toggleState : boolean;
+    //     // getting current state of collapsable object.
+    //     const isTranslationToggle = icon.hasClass("translationToggle");
+    //     let toggleState : boolean;
 
-        // abort if the element is already collapsing
-        if (isTranslationToggle){
-            if (icon.parent().parent().parent().children(":not(.card-header)").hasClass("collapsing")){
-                return;
-            }
-        } else {
-            if (icon.parent().parent().children(":not(.card-header)").hasClass("collapsing")){
-                return;
-            }
-        }
+    //     // abort if the element is already collapsing
+    //     if (isTranslationToggle){
+    //         if (icon.parent().parent().parent().children(":not(.card-header)").hasClass("collapsing")){
+    //             return;
+    //         }
+    //     } else {
+    //         if (icon.parent().parent().children(":not(.card-header)").hasClass("collapsing")){
+    //             return;
+    //         }
+    //     }
 
-        if (isTranslationToggle){
-            //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
-            //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
-            $(".translationToggle").addClass("closedIcon");
-            toggleState = icon.parent().parent().parent().children(".collapse").hasClass('show');
-        } else {
-            toggleState = icon.parent().parent().children(".collapse").hasClass('show');
-        }
+    //     if (isTranslationToggle){
+    //         //this is for setting toggle icons in the translation menu, as the collapse functions differently and the content is nested differently.
+    //         //the class "closedIcon" turns the collapse arrow icon by 270 degrees and is being toggled depending on the current state of the collapse.
+    //         $(".translationToggle").addClass("closedIcon");
+    //         toggleState = icon.parent().parent().parent().children(".collapse").hasClass('show');
+    //     } else {
+    //         toggleState = icon.parent().parent().children(".collapse").hasClass('show');
+    //     }
 
-        // TODO: can't we change this to a knockout "css" data-bind?
-        if (toggleState){
-            icon.addClass("closedIcon");
-        } else {
-            icon.removeClass("closedIcon");
-        }
-    }
+    //     // TODO: can't we change this to a knockout "css" data-bind?
+    //     if (toggleState){
+    //         icon.addClass("closedIcon");
+    //     } else {
+    //         icon.removeClass("closedIcon");
+    //     }
+    // }
 
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
         const img : HTMLImageElement = document.createElement("img");
