@@ -68,7 +68,6 @@ export class Field {
     }
 
     valIsTrue = (val:string) : boolean => {
-        console.log(val)
         if (val === 'true'){
             return true;
         }else{

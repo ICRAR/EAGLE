@@ -90,7 +90,6 @@ $(function(){
     eagle.loadSchemas();
 
     // enable bootstrap accordion collapse
-    // $('.collapse').collapse();
     var bsCollapse = new bootstrap.Collapse('.collapse', {
       })
 

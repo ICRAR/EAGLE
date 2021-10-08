@@ -20,12 +20,14 @@
                 <button type="button" class="btn-close" aria-label="Close" data-bind="click: function(palette, event){$root.closePalette(palette);event.stopPropagation()}, attr:{title:'Close'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
                 </button>
                 <!-- ko if: $data.fileInfo().modified -->
-                    <button type="button" class="close save-to-git" aria-label="Save to Git" data-bind="click: function(palette, event){$root.savePaletteToGit(palette);event.stopPropagation()}, attr:{title:'Save to Git'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
-                        <i class="material-icons">cloud_upload</i>
-                    </button>
-                    <button type="button" class="close save-to-disk" aria-label="Save to Disk" data-bind="click: function(palette, event){$root.savePaletteToDisk(palette);event.stopPropagation()}, attr:{title:'Save to Disk'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
-                        <i class="material-icons">save</i>
-                    </button>
+                    <div class="row">
+                        <button type="button" class="btn col-6 savePaletteBtn save-to-git" aria-label="Save to Git" data-bind="click: function(palette, event){$root.savePaletteToGit(palette);event.stopPropagation()}, attr:{title:'Save to Git'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
+                            <i class="material-icons">cloud_upload</i>
+                        </button>
+                        <button type="button" class="btn col-6 savePaletteBtn save-to-disk" aria-label="Save to Disk" data-bind="click: function(palette, event){$root.savePaletteToDisk(palette);event.stopPropagation()}, attr:{title:'Save to Disk'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
+                            <i class="material-icons">save</i>
+                        </button>
+                    </div>
                 <!-- /ko -->
             </div>
             <div class="collapse show" aria-labelledby="headingOne" data-bind="attr:{id:'collapse' + $index()}">
