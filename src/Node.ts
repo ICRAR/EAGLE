@@ -171,6 +171,16 @@ export class Node {
         }
     }, this);
 
+    getPaletteComponentId = () : string => {
+        if (this.name() === 'Enter label' || this.name() == ''){
+            var processedCategory = this.category().replace(/\s/g, '_')
+            return processedCategory;
+        } else {
+            var processedName = this.name().replace(/\s/g, '_')
+            return processedName;
+        }
+    };
+
     getNoWhiteSpaceName = () : string => {
         return this.getDisplayName().replace(/ /g, '');
     }

@@ -817,7 +817,7 @@ export class Utils {
 
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
-        $('#messageModal').modal();
+        $('#messageModal').modal("toggle");
 
         // debug
         if (title === "Error"){
@@ -862,7 +862,7 @@ export class Utils {
         $('#inputModal').data('callback', callback);
         $('#inputModal').data('returnType', "string");
 
-        $('#inputModal').modal();
+        $('#inputModal').modal("toggle");
     }
 
     static requestUserText(title : string, message : string, defaultText: string, callback : (completed : boolean, userText : string) => void) : void {
@@ -878,7 +878,7 @@ export class Utils {
         $('#inputTextModal').data('completed', false);
         $('#inputTextModal').data('callback', callback);
 
-        $('#inputTextModal').modal();
+        $('#inputTextModal').modal("toggle");
     }
 
     static requestUserNumber(title : string, message : string, defaultNumber: number, callback : (completed : boolean, userNumber : number) => void ) : void {
@@ -894,7 +894,7 @@ export class Utils {
         $('#inputModal').data('callback', callback);
         $('#inputModal').data('returnType', "number");
 
-        $('#inputModal').modal();
+        $('#inputModal').modal("toggle");
     }
 
     static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void {
@@ -939,7 +939,7 @@ export class Utils {
         // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
         $('#choiceModalSelect').trigger('change');
 
-        $('#choiceModal').modal();
+        $('#choiceModal').modal("toggle");
     }
 
     static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, callback : (confirmed : boolean) => void ) : void {
@@ -952,7 +952,7 @@ export class Utils {
 
         $('#confirmModal').data('callback', callback);
 
-        $('#confirmModal').modal();
+        $('#confirmModal').modal("toggle");
     }
 
     static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
@@ -961,7 +961,7 @@ export class Utils {
         $('#gitCommitModal').data('completed', false);
         $('#gitCommitModal').data('callback', callback);
         $('#gitCommitModal').data('repositories', repositories);
-        $('#gitCommitModal').modal();
+        $('#gitCommitModal').modal("toggle");
 
         //
         let defaultRepositoryService: Eagle.RepositoryService = Eagle.RepositoryService.Unknown;
@@ -994,7 +994,6 @@ export class Utils {
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
-        console.log("requestUserEditField()");
 
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
@@ -1052,6 +1051,7 @@ export class Utils {
         $('#editFieldModalNameInput').val(field.getName());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').attr('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
+        
         $('#editFieldModalDescriptionInput').val(field.getDescription());
         $('#editFieldModalAccessSelect').empty();
 
@@ -1107,7 +1107,7 @@ export class Utils {
         $('#editFieldModal').data('completed', false);
         $('#editFieldModal').data('callback', callback);
         $('#editFieldModal').data('choices', choices);
-        $('#editFieldModal').modal();
+        $('#editFieldModal').modal("toggle");
 
     }
 
@@ -1196,7 +1196,7 @@ export class Utils {
         $('#editPortModal').data('completed', false);
         $('#editPortModal').data('callback', callback);
         $('#editPortModal').data('choices', choices);
-        $('#editPortModal').modal();
+        $('#editPortModal').modal("toggle");
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
@@ -1207,7 +1207,7 @@ export class Utils {
 
         $('#gitCustomRepositoryModal').data('completed', false);
         $('#gitCustomRepositoryModal').data('callback', callback);
-        $('#gitCustomRepositoryModal').modal();
+        $('#gitCustomRepositoryModal').modal("toggle");
     }
 
     static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository) : void {
@@ -1231,11 +1231,11 @@ export class Utils {
     }
 
     static showSettingsModal() : void {
-        $('#settingsModal').modal();
+        $('#settingsModal').modal("toggle");
     }
 
     static showShortcutsModal() : void {
-        $('#shortcutsModal').modal();
+        $('#shortcutsModal').modal("toggle");
     }
 
     static showPalettesModal(eagle: Eagle) : void {
@@ -1257,7 +1257,7 @@ export class Utils {
         // empty the list of palettes prior to (re)fetch
         eagle.explorePalettes([]);
 
-        $('#explorePalettesModal').modal();
+        $('#explorePalettesModal').modal("toggle");
 
         Utils.httpPostJSON('/getExplorePalettes', jsonData, function(error:string, data:any){
             console.log("error", error, "data", data);
@@ -1280,7 +1280,7 @@ export class Utils {
         $('#editEdgeModal').data('edge', edge);
         $('#editEdgeModal').data('logicalGraph', logicalGraph);
 
-        $('#editEdgeModal').modal();
+        $('#editEdgeModal').modal("toggle");
     }
 
     static updateEditEdgeModal(edge: Edge, logicalGraph: LogicalGraph): void {

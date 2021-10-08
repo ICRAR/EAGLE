@@ -39,5 +39,11 @@ require.config({
         "InspectorState": "./static/built/InspectorState",
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
         "PaletteInfo": "./static/built/PaletteInfo"
+    },
+    shim: {
+        "bootstrap": {
+            deps: ["jquery"],
+            exports: "bootstrap"
+        }
     }
 });
