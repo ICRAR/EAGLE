@@ -64,6 +64,7 @@ export class Port {
         this.local(false);
         this.event(false);
         this.type("");
+        this.description("");
     }
 
     isEvent = () : boolean => {
