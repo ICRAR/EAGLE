@@ -210,6 +210,15 @@
     height:100%;
 }
 
+#editFieldModal #editFieldModalValueInputCheckbox {
+    flex: none;
+    padding: 19px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    margin-top:0px;
+
+}
+
 .modal-body{
     background-color: aliceblue;
 }

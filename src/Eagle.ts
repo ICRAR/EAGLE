@@ -1707,7 +1707,6 @@ export class Eagle {
             // if setting dictates, show errors during loading
             const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
-
             // attempt to parse the JSON
             let dataObject;
             try {

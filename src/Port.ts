@@ -119,7 +119,7 @@ export class Port {
             IdText:port.name(),
             event:port.event(),
             type:port.type(),
-            desciption:port.description()
+            description:port.description()
         };
     }
 
@@ -127,7 +127,8 @@ export class Port {
         return {
             name:port.name(),
             event:port.event(),
-            type:port.type()
+            type:port.type(),
+            description:port.description()
         };
     }
 
@@ -135,11 +136,15 @@ export class Port {
         let event: boolean = false;
         let type: string = "";
         let description: string = ""
-
+        console.log(data)
         if (typeof data.event !== 'undefined')
             event = data.event;
         if (typeof data.type !== 'undefined')
             type = data.type;
+        if (typeof data.description !== 'undefined')
+            description = data.description;
+        // console.log(data.description)
+        // console.log(description)
 
         return new Port(data.Id, data.IdText, event, type, description);
     }
