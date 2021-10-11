@@ -176,7 +176,6 @@ var SAVE_REPOSITORY = "eagle-testcafe/Saved-Graphs";
 var SAVE_PATH = "testcafe";
 var SAVE_REPOSITORY_BRANCH = "main";
 
-//var TRANSURL = "http://18.212.69.141:8084/gen_pgt";
 var TRANSURL = "http://localhost:8084/gen_pgt";
 
 var CHOICE_MODAL_CUSTOM = "Custom (enter below)";
@@ -184,7 +183,7 @@ var SPEAD2_STREAM = "spead2Stream";
 var SUB_MS = "subMS";
 var CONF = "conf";
 var SUCCESS_MESSAGE = "Success:";
-var TEST_SPEED = 1   //A number between 0.01 (slowest) and 1.0 (fastest)
+var TEST_SPEED = 0.5;   //A number between 0.01 (slowest) and 1.0 (fastest)
 //var WAIT_TIME = 500;
 
 // prepare to save palette as...
@@ -212,7 +211,7 @@ test('Hello World graph', async t =>{
         //.resizeWindow(1920, 1080)
         //.maximizeWindow()
         .wait(5000)
-        .setTestSpeed(TEST_SPEED*0.7);
+        .setTestSpeed(TEST_SPEED);
 
     // await t
     //   .click(page.navbarHelp)
@@ -234,9 +233,9 @@ test('Hello World graph', async t =>{
     var rect = await page.getRect('#node0');
     await showNoteBox('A new description node is created. You can use this to enter a description of your graph.', rect, 'above', 1.3);
 
-	await t.click(Selector('#nodeInspectorMenus span').withText('Graph Description'));
+	await t.click(Selector('#nodeInspector span').withText('Graph Description'));
     await t.typeText('#nodeCategoryCollapse4 .form-control', "AA graph saving the output of a HelloWorldApp to disk");
-    await page.moveNode('#node0', 110, 480);
+    await page.moveNode('#node0', 200, 800);
 
     //Note
 //    var rect = await page.getRect(page.collapseTopPalette);
@@ -245,13 +244,8 @@ test('Hello World graph', async t =>{
 
     //Note
 	await t.click(Selector('#addPaletteNodeHelloWorldApp i').withText('extension'));
-//await page.selectNode('#addPaletteNodeHelloWorldApp');
 	var rect = await page.getRect('#addPaletteNodeHelloWorldApp');
     await showNoteBox('Hover over the icon on the left hand side of a palette component to find out information about it. Click it to add it as new node to the graph.', rect, 'right', 1.3)
-
-//    await page.hoverPaletteNode(1,2,2000);
-//    await t.hover(page.leftHandle);
-//    await t.hover('#addPaletteNodeHelloWorldApp');
 
 //    var rect = await page.getRect('#addPaletteNode2',1);
 //    await showNoteBox('Click the \"+\" to add a new node to the graph', rect, 'right', 1.0)
@@ -261,14 +255,11 @@ test('Hello World graph', async t =>{
     var rect = await page.getRect('#node1 image');
     await showNoteBox('This is a representation of the HelloWorldApp graph node', rect, 'above', 1.1);
 
-    await page.moveNode('#node1', 160,200);
+    await page.moveNode('#node1', 200, 500);
+	await t.wait(2000);
 
     var rect = await page.getRect(Selector('#node1 g.outputPorts circle').nth(0));
     await showNoteBox('This is the node\'s output port', rect, 'right', 1.0);
-
-	// TODO: fix notebox position
-//    var rect = await page.getRect(page.rightHandle);
-//    await showNoteBox('Its properties and parameters are listed here, in the \"Node\" pane', rect, 'left', 1.2);
 
     var rect = await page.getRect(page.componentParameters);
     await showNoteBox('Adjust the node\'s parameters here', rect, 'left', 1.0);
@@ -278,43 +269,39 @@ test('Hello World graph', async t =>{
     var rect = await page.getRect(page.changeGreet);
     await showNoteBox('You can edit this parameter to change the text output for the HelloWorldApp', rect, 'left', 1.2);
 
-	await t.click(Selector('#nodeInspectorMenus i').withText('keyboard_arrow_down').nth(2));
+	await t.click(Selector('#nodeInspector i').withText('keyboard_arrow_down').nth(3));
     await t.typeText(page.changeGreet, 'Felicia', { replace: true});
 
-// TODO fix positioning of notebox
-//    var rect = await page.getRect(page.collapseTopPalette);
-//    await showNoteBox('Add a \"File\" node from the palette', rect, 'right', 1.0);
-//    await t.click(page.collapseTopPalette);
-
-    // Add file node
-//    await page.addPaletteNode(0,8);
+    // Add file node and position it.
 	await t.click(Selector('#addPaletteNodeFile i').withText('description'));
-
-    // The file node is node2. Select it.
     await page.selectNode("#node2");
-
+    await page.moveNode('#node2', 800, 500);
+		
     // Note
     var rect = await page.getRect("#node2 image");
     await showNoteBox('This is a File node, representing a Data Component for saving data to disk', rect, 'above', 1.3);
-    await page.moveNode('#node2', 550, 200);
-//    await page.moveNode('#node2', 1500, 350);
 
     // Add a port to the node for the HelloWordApp output
-    // Hover first to get the button onto the screen
-    await t.click(Selector('#nodeInspectorMenus i').withText('keyboard_arrow_down').nth(3));
-	await t.hover(page.addInputPort);
+     await t.click(Selector('#nodeInspector i').withText('keyboard_arrow_down').nth(4));
 
     //Note
     var rect = await page.getRect(page.addInputPort);
     await showNoteBox('Click here to add an input port to receive the output from the HelloWorldApp', rect, 'above', 1.3);
     await t.click(page.addInputPort);
-	await t.click('#portModalSelect');
-	await t.click(Selector('#portModalSelect option').withText('hello (Unknown)'));
-	await t.click('#editPortModalAffirmativeAnswer');
-	// TODO: fix page.selectOption to replace above 3 lines
-    // Choose the option "hello"
-	//    await page.selectOption("hello");
-	//    await page.selectOption("hello (Unknown)");
+	await t.click(Selector('#nodeInspectorInputPortDropDownKO a').withText('hello (Unknown)'));
+
+    // testcafe fails to select file icon using either a single as well as double click
+    // the workaround is selecting Show Ports in the component's Display Options 
+	await t.click(Selector('#nodeInspector i').withText('keyboard_arrow_down').nth(2));
+	await t.click('#nodeInspectorToggleShowPorts');
+    //	await t.click('#node2 image');
+    //	await t.doubleClick('#node2 image');
+
+    //Note
+//    var rect = await page.getRect(page.displayOptions);
+    var rect = await page.getRect('#nodeInspectorToggleShowPorts');
+    await showNoteBox('Toggle Show Ports on. It switches the selected node from Icon view to Component view. This is needed before connecting ports in the last step.', rect, 'left', 2.0);
+	await t.wait(2000);
 
     // Note
     var rect = await page.getRect(Selector('#node1 g.outputPorts circle').nth(0));
@@ -327,7 +314,8 @@ test('Hello World graph', async t =>{
     await showNoteBox('This arrow is an \"edge\". It represents an event generated by the first node that causes the second node to execute some commands.', rect, 'above', 2.0);
 
 	// wait before terminating abruptly
-	await t.wait(2000);
+    await showMessageBox('Congratulations! You made it to the end.');
+	await t.wait(5000);
 
 });
 
