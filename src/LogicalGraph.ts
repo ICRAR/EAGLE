@@ -98,7 +98,7 @@ export class LogicalGraph {
         for (const nodeData of dataObject.nodeDataArray){
             const extraUsedKeys: number[] = [];
 
-            const newNode = Node.fromOJSJson(nodeData, errors, (): number => {
+                const newNode = Node.fromOJSJson(nodeData, errors, (): number => {
                 const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                 const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
                 const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
@@ -715,10 +715,10 @@ export class LogicalGraph {
 
                 // add input port and output port for dataType (if they don't exist)
                 if (!newNode.hasPortWithName(dataType, true, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, srcPort.getType()), true);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, srcPort.getType(),""), true);
                 }
                 if (!newNode.hasPortWithName(dataType, false, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, destPort.getType()), false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, destPort.getType(),""), false);
                 }
 
                 // set the parent of the new node

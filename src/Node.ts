@@ -1441,7 +1441,6 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
                 const port = Port.fromOJSJson(inputPort);
-
                 if (node.canHaveInputs()){
                     node.addPort(port, true);
                 } else {

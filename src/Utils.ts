@@ -710,6 +710,7 @@ export class Utils {
                 $('#customPortOptionsWrapper').slideUp();
             }
         });
+        
         $('#editPortModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
             const completed : boolean = $('#editPortModal').data('completed');
@@ -725,8 +726,9 @@ export class Utils {
             const id = "dummy-id";
             const name: string = <string>$('#editPortModalNameInput').val();
             const type: string = <string>$('#editPortModalTypeInput').val();
+            const description: string = <string>$('#editPortModalDescriptionInput').val();
 
-            const newPort = new Port(id, name, false, type);
+            const newPort = new Port(id, name, false, type, description);
 
             callback(true, newPort);
         });
@@ -1192,6 +1194,7 @@ export class Utils {
         // populate UI with current port data
         $('#editPortModalNameInput').val(port.getName());
         $('#editPortModalTypeInput').val(port.getType());
+        $('#editPortModalDescriptionInput').val(port.getDescription());
 
         $('#editPortModal').data('completed', false);
         $('#editPortModal').data('callback', callback);
