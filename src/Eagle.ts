@@ -3363,7 +3363,7 @@ export class Eagle {
             $("#customPortOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const port: Port = new Port("", "", false, "String");
+            const port: Port = new Port("", "", false, "String","");
 
             Utils.requestUserEditPort(this, Eagle.ModalType.Add, port, allPortNames, (completed : boolean, newPort: Port) => {
                 // abort if the user aborted
