@@ -7,9 +7,9 @@
     <div class="accordion">
         <div data-bind="foreach: palettes">
             <div class="accordion-item" data-bind="event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
-                <div class="accordion-header" >
+                <div class="accordion-header">
                     <div class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
-                        <button type="button" class="btn-close" aria-label="Close" data-bind="click: function(palette, event){$root.closePalette(palette);event.stopPropagation()}, attr:{title:'Close'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
+                        <button type="button" class="btn-close" aria-label="Close" data-bind="click: $root.closePalette, clickBubble: false, attr:{title:'Close'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
                         </button>
                         <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="right" data-html="true" data-bind="attr:{title:fileInfo().getSummaryHTML()}">info</i>
                         <!-- ko if: $data.fileInfo().readonly -->
@@ -20,7 +20,7 @@
                         <!-- /ko -->
                         <span>&nbsp;</span>
                         <h5 class="template-title" data-bind="text: fileInfo().nameAndModifiedIndicator()"></h5>
-                        
+
                     </div>
                     <!-- ko if: $data.fileInfo().modified -->
                     <div class="row">
