@@ -2431,8 +2431,6 @@ export class Eagle {
     }
 
     deleteSelection = (suppressUserConfirmationRequest: boolean) : void => {
-        console.log("deleteSelection()", suppressUserConfirmationRequest);
-
         // if no objects selected, warn user
         if (this.selectedObjects().length === 0){
             console.warn("Unable to delete selection: Nothing selected");
@@ -2471,8 +2469,6 @@ export class Eagle {
     }
 
     private _deleteSelection = () : void => {
-        console.log("_deleteSelection()");
-
         if (this.selectedLocation() === Eagle.FileType.Graph){
 
             for (const object of this.selectedObjects()){

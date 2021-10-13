@@ -710,7 +710,7 @@ export class Utils {
                 $('#customPortOptionsWrapper').slideUp();
             }
         });
-        
+
         $('#editPortModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
             const completed : boolean = $('#editPortModal').data('completed');
@@ -1053,7 +1053,7 @@ export class Utils {
         $('#editFieldModalNameInput').val(field.getName());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').attr('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
-        
+
         $('#editFieldModalDescriptionInput').val(field.getDescription());
         $('#editFieldModalAccessSelect').empty();
 
@@ -1263,8 +1263,6 @@ export class Utils {
         $('#explorePalettesModal').modal("toggle");
 
         Utils.httpPostJSON('/getExplorePalettes', jsonData, function(error:string, data:any){
-            console.log("error", error, "data", data);
-
             const explorePalettes: PaletteInfo[] = [];
             for (const palette of data){
                 explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, palette.name, palette.path));
