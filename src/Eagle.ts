@@ -1939,7 +1939,7 @@ export class Eagle {
             if (p.fileInfo().name === palette.fileInfo().name){
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
-                if (p.fileInfo().modified){
+                if (p.fileInfo().modified && Eagle.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()){
                     Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", (confirmed : boolean) : void => {
                         if (confirmed){
                             this.palettes.splice(i, 1);
