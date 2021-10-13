@@ -137,6 +137,7 @@ export class Field {
         let description: string = "";
         let readonly: boolean = false;
         let type: Eagle.DataType = Eagle.DataType.Unknown;
+        let value: string = ""
 
         if (typeof data.description !== 'undefined')
             description = data.description;
@@ -144,8 +145,10 @@ export class Field {
             readonly = data.readonly;
         if (typeof data.type !== 'undefined')
             type = data.type;
+        if (typeof data.value !== 'undefined' && data.value !== null)
+            value = data.value.toString();
 
-        return new Field(data.text, data.name, data.value.toString(), description, readonly, type);
+        return new Field(data.text, data.name, value, description, readonly, type);
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
