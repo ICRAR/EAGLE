@@ -234,9 +234,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             //const tx = d3.mouse(svgContainer.node())[0];
             //const ty = d3.mouse(svgContainer.node())[1];
             const wheelDelta = d3.event.sourceEvent.deltaY;
+            const zoomDivisor = Eagle.findSettingValue(Utils.GRAPH_ZOOM_DIVISOR);
 
             //eagle.globalScale = d3.event.transform.k;
-            eagle.globalScale -= wheelDelta/1000;
+            eagle.globalScale -= wheelDelta/zoomDivisor;
 
             // limit scaling
             eagle.globalScale = Math.max(Math.min(eagle.globalScale, 3.0), 0.5);
