@@ -1244,7 +1244,7 @@ export class Utils {
     static showPalettesModal(eagle: Eagle) : void {
         const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
 
-        if (token === null) {
+        if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
             return;
         }
@@ -1263,6 +1263,18 @@ export class Utils {
         $('#explorePalettesModal').modal("toggle");
 
         Utils.httpPostJSON('/getExplorePalettes', jsonData, function(error:string, data:any){
+
+            if (error !== null){
+                // NOTE: if we immediately get an error, the explore palettes modal may still be transitioning to visible,
+                //       so we wait here for a second before hiding the modal and displaying an error
+                setTimeout(function(){
+                    $('#explorePalettesModal').modal("toggle");
+                    Utils.showUserMessage("Error", "Unable to fetch list of palettes");
+                }, 1000);
+
+                return;
+            }
+
             const explorePalettes: PaletteInfo[] = [];
             for (const palette of data){
                 explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, palette.name, palette.path));
