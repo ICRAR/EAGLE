@@ -680,15 +680,15 @@
                 </div>
                 <!-- /ko -->
                 <!-- ko if: explorePalettes().length !== 0 -->
-                <ul class="list-group" data-bind="foreach: explorePalettes">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span data-bind="text: $data.fullPath()"></span>
-                        <!--<span class="badge badge-primary badge-pill">?</span>-->
-                        <div class="form-check">
-                            <input class="form-check-input position-static" type="checkbox" aria-label="select" data-bind="checked: $data.isSelected">
-                        </div>
-                    </li>
-                </ul>
+                    <ul class="list-group" data-bind="foreach: explorePalettes">
+                        <li class="list-group-item d-flex justify-content-between align-items-center" data-bind="click: $root.explorePalettesClickHelper">
+                            <span data-bind="text: $data.fullPath()"></span>
+                            <!--<span class="badge badge-primary badge-pill">?</span>-->
+                            <div class="form-check">
+                                <input class="form-check-input position-static" type="checkbox" aria-label="select">
+                            </div>
+                        </li>
+                    </ul>
                 <!-- /ko -->
             </div>
             <div class="modal-footer">

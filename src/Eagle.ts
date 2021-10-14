@@ -176,7 +176,6 @@ export class Eagle {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -3420,6 +3419,12 @@ export class Eagle {
 
     allowEdgeEditing = (): boolean => {
         return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
+    }
+
+    explorePalettesClickHelper = (data:any, event:any): void => {
+        var newState = !data.isSelected()
+        data.isSelected(newState)
+        $(event.target).find('input').prop("checked",newState)
     }
 
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
