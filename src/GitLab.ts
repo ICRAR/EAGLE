@@ -177,7 +177,7 @@ export class GitLab {
     static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
         const token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
 
-        if (token === null) {
+        if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");
             return;
         }
