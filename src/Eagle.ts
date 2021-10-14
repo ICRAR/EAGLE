@@ -280,7 +280,7 @@ export class Eagle {
     };
 
     zoomIn = () : void => {
-        console.error("Not implemented!");
+        this.globalScale -= 50;
     }
 
     zoomOut = () : void => {

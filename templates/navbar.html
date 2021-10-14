@@ -18,12 +18,6 @@
         <ul class="nav navbar-nav navbar-center">
             <div class="btn-group" role="group" aria-label="Basic example">
                 <!--
-                <button class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Zoom In" data-bind="click: zoomIn">
-                    <i class="material-icons md-18">zoom_in</i>
-                </button>
-                <button class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Zoom Out" data-bind="click: zoomOut">
-                    <i class="material-icons md-18">zoom_out</i>
-                </button>
                 <button class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Zoom To Fit" data-bind="click: zoomToFit">
                     <i class="material-icons md-18">zoom_out_map</i>
                 </button>
@@ -36,6 +30,12 @@
                 </button> -->
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Center Graph" data-bind="click: centerGraph" data-intro="Center the current graph within the graph rendering area.">
                     <i class="material-icons md-18">filter_center_focus</i>
+                </button>
+                <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Zoom In" data-bind="click: zoomIn" data-intro="Zoom in on the graph within the graph rendering area.">
+                    <i class="material-icons md-18">zoom_in</i>
+                </button>
+                <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Zoom Out" data-bind="click: zoomOut" data-intro="Zoom out from the graph within the graph rendering area.">
+                    <i class="material-icons md-18">zoom_out</i>
                 </button>
                 <!-- ko if: allowPaletteEditing() -->
                 <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Graph Nodes to Palette" data-bind="click: addGraphNodesToPalette" data-intro="Add all nodes in the current graph to the a new or existing palette.">
