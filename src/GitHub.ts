@@ -189,7 +189,7 @@ export class GitHub {
     static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
         const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
 
-        if (token === null) {
+        if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
             return;
         }

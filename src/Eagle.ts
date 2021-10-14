@@ -1312,7 +1312,7 @@ export class Eagle {
         }
 
         // check that access token is defined
-        if (token === null) {
+        if (token === null || token === "") {
             Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
             return;
         }
@@ -2015,7 +2015,7 @@ export class Eagle {
             }
 
             // check that access token is defined
-            if (token === null) {
+            if (token === null || token === "") {
                 Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
                 return;
             }
