@@ -1,15 +1,23 @@
-<span>&nbsp;</span>
-<!-- ko if: isFetching -->
-<div class="spinner-border spinner-border-sm" role="status">
+<div class="repoIndent">
+    <div class="row">
+        <div class="col col-1">
+            <!-- ko if: isFetching -->
+            <div class="spinner-border spinner-border-sm" role="status">
+            </div>
+            <!-- /ko -->
+            <!-- ko ifnot: isFetching -->
+            <i class="material-icons md-18" data-bind="text: getIconUrl"></i>
+            <!-- /ko -->
+        </div>
+        <div class="col col-10">
+            <a href="#" data-bind="click: $root.selectFile, attr: {id: htmlId}, attr:{title: $data.name}" data-bs-toggle="tooltip" data-bs-placement="left" >
+                <span data-bind="text: $data.name"></span>
+            </a>
+        </div>
+        <!-- ko if: getIconUrl() === "device_hub" -->
+            <div class="col col-1">
+                <i class="material-icons md-18" data-bs-toggle="tooltip" data-bs-placement="left" title="Insert" style="cursor:pointer;top:3px;" data-bind="click: $root.insertFile">add_box</i>
+            </div>
+        <!-- /ko -->
+    </div>
 </div>
-<!-- /ko -->
-<!-- ko ifnot: isFetching -->
-<i class="material-icons md-18" data-bind="text: getIconUrl"></i>
-<!-- /ko -->
-<span>&nbsp;</span>
-<a href="#" data-bind="click: $root.selectFile, attr: {id: htmlId}">
-    <span data-bind="text: $data.name"></span>
-</a>
-
-<span>&nbsp;</span>
-<i class="material-icons md-18" data-bs-toggle="tooltip" data-bs-placement="right" title="Insert" style="cursor:pointer;top:3px;" data-bind="click: $root.insertFile">add_box</i>
