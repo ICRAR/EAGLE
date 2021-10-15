@@ -1,37 +1,43 @@
-<span>&nbsp;</span>
-<!-- ko if: isFetching -->
-<div class="spinner-border spinner-border-sm" role="status">
-</div>
-<!-- /ko -->
-<!-- ko ifnot: isFetching -->
-<i class="material-icons md-18 interactive" data-bind="click: refresh,visible: folders().length == 0 && files().length==0 && fetched">cloud_off</i>
-<i class="material-icons md-18 interactive" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Refresh" data-bind="click: refresh, visible: (folders().length != 0 || files().length != 0)&& fetched">cloud_done</i>
+<div class="container repoConatiner">
+    <div class="row">
+        <div class="col-1 col">
+            <!-- ko if: isFetching -->
+            <div class="spinner-border spinner-border-sm" role="status">
+            </div>
+            <!-- /ko -->
+            <!-- ko ifnot: isFetching -->
+            <i class="material-icons md-18 interactive" data-bind="click: refresh,visible: folders().length == 0 && files().length==0 && fetched">cloud_off</i>
+            <i class="material-icons md-18 interactive" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Refresh" data-bind="click: refresh, visible: (folders().length != 0 || files().length != 0)&& fetched">cloud_done</i>
 
-<!-- ko ifnot: fetched -->
-<!-- ko if: service === Eagle.RepositoryService.GitHub -->
-<img src="static/assets/img/GitHub-Mark-32px.png" data-bind="click: select" width="18px" />
-<!-- /ko -->
-<!-- ko if: service === Eagle.RepositoryService.GitLab -->
-<img src="static/assets/img/fi-cnsuxt-gitlab-alt-solid.png" data-bind="click: select" width="18px"/>
-<!-- /ko -->
-<!-- /ko -->
-<!-- /ko -->
-<span>&nbsp;</span>
-<a href="" data-bind="attr: {id: htmlId}, click: select">
-    <span data-bind="text: name + ' (' + branch + ')'"></span>
-</a>
-<!-- ko ifnot: isBuiltIn -->
-<i class="material-icons md-18 interactive" data-bind="click: remove">eject</i>
-<!-- /ko -->
-<!-- ko if: expanded -->
-<ul class="folders" data-bind="foreach: folders">
-    <li>
-        <repository-folder params="data: $data"></repository-folder>
-    </li>
-</ul>
-<ul class="files" data-bind="foreach: files">
-    <li>
-        <repository-file params="data: $data"></repository-file>
-    </li>
-</ul>
-<!-- /ko -->
+            <!-- ko ifnot: fetched -->
+            <!-- ko if: service === Eagle.RepositoryService.GitHub -->
+            <img src="static/assets/img/GitHub-Mark-32px.png" data-bind="click: select" width="18px" />
+            <!-- /ko -->
+            <!-- ko if: service === Eagle.RepositoryService.GitLab -->
+            <img src="static/assets/img/fi-cnsuxt-gitlab-alt-solid.png" data-bind="click: select" width="18px"/>
+            <!-- /ko -->
+            <!-- /ko -->
+            <!-- /ko -->
+        </div>
+        <div class="col-10 col">
+            <a href="" data-bind="attr: {id: htmlId}, click: select, attr:{title: name + ' (' + branch + ')'}" data-bs-toggle="tooltip" data-bs-placement="left">
+                <span data-bind="text: name + ' (' + branch + ')'"></span>
+            </a>
+        </div>
+            <div class="col col-1">
+                <i class="material-icons md-18 interactive" data-bind="click: remove">eject</i>
+            </div>
+        <!-- ko if: expanded -->
+        <ul class="folders" data-bind="foreach: folders">
+            <li>
+                <repository-folder params="data: $data"></repository-folder>
+            </li>
+        </ul>
+        <ul class="files" data-bind="foreach: files">
+            <li>
+                <repository-file params="data: $data"></repository-file>
+            </li>
+        </ul>
+        <!-- /ko -->
+    </div>
+</div>

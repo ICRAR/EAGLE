@@ -530,6 +530,36 @@
     color:black;
 }
 
+#repositoryList a{
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+#repositoryList .col{
+    overflow: hidden;
+    padding: 0px 4px;
+}
+
+#repositoryList .col-9{
+    max-width: 79%;
+    width: auto;
+}
+
+#repositoryList .col-10{
+    max-width: 83.33333333%;
+    width: auto;
+}
+
+.repoConatiner{
+    padding:0px 10px;
+}
+
+.repoIndent{
+    padding-left: 10px;
+    margin-left:12px;
+    border-left: solid #9ca4c1 1px;
+}
+
 #repositoryList ul.files {
     list-style-type: none;
     text-overflow: ellipsis;
