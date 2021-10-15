@@ -332,6 +332,14 @@
                                                         <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
                                                     </div>
                                                 <!-- /ko -->
+                                                <!-- ko if: $data.getType() === 1 -->
+                                                    <div class="input-group mb-1">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey(),title:$data.getDescription()},text:$data.getName()" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left"></span>
+                                                        </div>
+                                                        <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
+                                                    </div>
+                                                <!-- /ko -->
                                                 <!-- ko if: $data.getType() === 2 -->
                                                     <div class="settingSm col-6">
                                                         <div class="input-group mb-1">

@@ -80,6 +80,8 @@ export class Utils {
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
     static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
 
+    static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
+
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};
     static v3GraphSchema : object = {};

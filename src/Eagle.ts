@@ -136,6 +136,8 @@ export class Eagle {
             ]
         };
 
+        Eagle.settings.push(new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000, "Advanced Editing"));
+
         Eagle.shortcuts = ko.observableArray();
         Eagle.shortcuts.push(new KeyboardShortcut("Add Edge", ["e"], KeyboardShortcut.true, (eagle): void => {eagle.addEdgeToLogicalGraph();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Modify Selected Edge", ["m"], KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.editSelectedEdge();}));
@@ -284,11 +286,13 @@ export class Eagle {
     };
 
     zoomIn = () : void => {
-        console.error("Not implemented!");
+        this.globalScale += 0.05;
+        this.logicalGraph.valueHasMutated();
     }
 
     zoomOut = () : void => {
-        console.error("Not implemented!");
+        this.globalScale -= 0.05;
+        this.logicalGraph.valueHasMutated();
     }
 
     zoomToFit = () : void => {
