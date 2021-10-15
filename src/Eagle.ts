@@ -280,11 +280,13 @@ export class Eagle {
     };
 
     zoomIn = () : void => {
-        this.globalScale -= 50;
+        this.globalScale += 0.05;
+        this.logicalGraph.valueHasMutated();
     }
 
     zoomOut = () : void => {
-        console.error("Not implemented!");
+        this.globalScale -= 0.05;
+        this.logicalGraph.valueHasMutated();
     }
 
     zoomToFit = () : void => {
