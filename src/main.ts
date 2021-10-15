@@ -68,7 +68,7 @@ $(function(){
     // load the default palette
     if (Eagle.findSettingValue(Utils.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
-            {name:Palette.BUILTIN_PALETTE_NAME, filename:"./static/" + Config.builtinPaletteFileName, readonly:true},
+            {name:"DALiuGE Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:"./static/" + Config.templatePaletteFileName, readonly:true}
         ], (palettes: Palette[]):void => {
             for (const palette of palettes){
@@ -83,15 +83,11 @@ $(function(){
         });
     }
 
-    // load template palette (only used for Eagle.PaletteEditor)
-    eagle.loadTemplatePalette();
-
     // load schemas
     eagle.loadSchemas();
 
     // enable bootstrap accordion collapse
-    var bsCollapse = new bootstrap.Collapse('.collapse', {
-      })
+    var bsCollapse = new bootstrap.Collapse('.collapse', {});
 
     // initialise all the modal dialogs. event handlers etc
     Utils.initModals(eagle);

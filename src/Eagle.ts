@@ -1411,30 +1411,6 @@ export class Eagle {
         });
     }
 
-    /**
-     * Loads template palette from the server.
-     */
-    loadTemplatePalette = () : void => {
-        console.log("loadTemplatePalette()");
-
-        Utils.httpGet("./static/" + Config.templatePaletteFileName, (error : string, data : string) => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
-
-            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
-            const errors: string[] = [];
-            const templatePalette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Config.templatePaletteFileName), errors);
-
-            // show errors (if required)
-            if (errors.length > 0 && showErrors){
-                Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
-            }
-        });
-    }
-
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
