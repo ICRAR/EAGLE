@@ -78,7 +78,7 @@
                     <!-- /ko -->
                     <svg>
                         <!-- ko foreach: $root.logicalGraph().getEdges() -->
-                        <path data-bind="attr:{d: $root.logicalGraph().getPath($data)}" stroke-width="2" fill="transparent" stroke="black" class=""></path>
+                        <path data-bind="attr:{d: GraphRenderer.getPath($data, $root)}" stroke-width="2" fill="transparent" stroke="black" class=""></path>
                         <!-- /ko -->
                     </svg>
                     <!-- /ko -->

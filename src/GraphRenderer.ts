@@ -24,6 +24,8 @@
 
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
+import {Node} from './Node';
+import {Edge} from './Edge';
 
 export class GraphRenderer {
 
@@ -57,5 +59,34 @@ export class GraphRenderer {
         const c2y = y2 - GraphRenderer.directionOffset(false, endDirection);
 
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
+    }
+
+    static getPath(edge: Edge, eagle: Eagle) : string {
+        const lg : LogicalGraph = eagle.logicalGraph();
+        let srcNode : Node  = lg.findNodeByKey(edge.getSrcNodeKey());
+        let destNode : Node = lg.findNodeByKey(edge.getDestNodeKey());
+
+        // if the src or dest nodes are embedded nodes, use the position of the construct instead
+        if (srcNode.isEmbedded()){
+            srcNode = lg.findNodeByKey(srcNode.getEmbedKey());
+        }
+        if (destNode.isEmbedded()){
+            destNode = lg.findNodeByKey(destNode.getEmbedKey());
+        }
+
+        // get offset and scale
+        const offsetX = eagle.globalOffsetX();
+        const offsetY = eagle.globalOffsetY();
+        //const scale   = eagle.globalScale();
+        const scale = 1;
+
+        // find positions of the nodes
+        const srcX = (srcNode.getPosition().x + srcNode.getDisplayWidth() + offsetX) * scale;
+        const srcY = (srcNode.getPosition().y + offsetY) * scale;
+        const destX = (destNode.getPosition().x + offsetX) * scale;
+        const destY = (destNode.getPosition().y + destNode.getDisplayHeight() + offsetY) * scale;
+
+        //return "M234,159.5C280,159.5,280,41.5,330,41.5";
+        return GraphRenderer.createBezier(srcX, srcY, destX, destY, Eagle.Direction.Right, Eagle.Direction.Right);
     }
 }

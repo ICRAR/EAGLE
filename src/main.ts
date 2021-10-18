@@ -32,6 +32,7 @@ import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
+import {GraphRenderer} from './GraphRenderer';
 
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
@@ -49,6 +50,7 @@ $(function(){
     (<any>window).Eagle = Eagle;
     (<any>window).Utils = Utils;
     (<any>window).Config = Config;
+    (<any>window).GraphRenderer = GraphRenderer;
 
     ko.applyBindings(eagle);
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
