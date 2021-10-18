@@ -1,10 +1,10 @@
 <div class="node" data-bind="style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY(), width: $data.width, height: $data.height}, event: {mousedown: function(){$root.startDrag($data);}, mouseup: function(){$root.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
-    <!-- ko if: ($data.getCategoryType() === Eagle.CategoryType.Data) && !$data.isShowPorts() -->
+    <!-- ko if: $data.isData() && !$data.isShowPorts() -->
     <div class="icon" data-bind="style: {backgroundImage: 'url(\'' + $data.getDataIcon() + '\')', left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY(), width: $data.width, height: $data.height}">
     </div>
     <!-- /ko -->
 
-    <!-- ko ifnot: ($data.getCategoryType() === Eagle.CategoryType.Data) && !$data.isShowPorts() -->
+    <!-- ko ifnot: $data.isData() && !$data.isShowPorts() -->
     <div class="rect" data-bind="css: {selected: $root.objectIsSelected($data)}">
 
         <!-- ko ifnot: $data.getCategory() === Eagle.Category.Description || $data.getCategory() === Eagle.Category.Comment -->
