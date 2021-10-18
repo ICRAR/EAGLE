@@ -40,6 +40,16 @@ export class KeyboardShortcut {
         if($("input,textarea").is(":focus")){
             return;
         }
+      
+        //if the command key is pressed return
+        if(e.metaKey){
+            return
+        }
+      
+        // check if a modal is shown, if so abort
+        if ($(".modal.show").length > 0){
+            return;
+        }
 
         // get reference to eagle
         const eagle = (<any>window).eagle;

@@ -5,6 +5,7 @@ require.config({
         "text": "./static/externals/text",
         "knockout": "./static/externals/knockout-min",
         "jquery": "./static/externals/jquery-3.2.1",
+        "jqueryui": "./static/externals/jquery-ui.min",
         "bootstrap": "./static/externals/bootstrap.bundle.min",
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
         "introjs": "./static/externals/intro.min",
@@ -39,5 +40,11 @@ require.config({
         "InspectorState": "./static/built/InspectorState",
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
         "PaletteInfo": "./static/built/PaletteInfo"
+    },
+    shim: {
+        "bootstrap": {
+            deps: ["jquery"],
+            exports: "bootstrap"
+        }
     }
 });

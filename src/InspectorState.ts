@@ -2,6 +2,9 @@
 
 import * as ko from "knockout";
 
+var collapseRunning:boolean = false;
+var allCollapseRunning:boolean = false;
+
 export class InspectorState {
     // NOTE: for these variables, false indicates expanded, true indicates collapsed
     description: ko.Observable<boolean>;
@@ -89,23 +92,33 @@ export class InspectorState {
 
     toggleAll = (item: any, e:JQueryEventObject): void => {
         const allCollapsed = this.all();
-
-        this.setAll(!allCollapsed);
-
-        // actually ask bootstrap to collapse all the sections
-        $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
+        allCollapseRunning
+        if(!allCollapseRunning){
+            allCollapseRunning = true
+            this.setAll(!allCollapsed);
+    
+            // actually ask bootstrap to collapse all the sections
+            $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
+            setTimeout(function(){
+                allCollapseRunning = false
+            }, 350);
+        }
     }
 
     toggleSection = (item: any, e: JQueryEventObject): void => {
         const target: JQuery<Element> = $(e.currentTarget);
         const sectionName: string = target.data('section-name');
-
+        var that = this
         // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
         const collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
-        if (!collapsing){
-            this.toggle(sectionName);
-        } else {
-            console.log("Abort section toggle, already collapsing");
+       
+        //timer equals the time it takes for bootstrap to finish collapsing. it is required to keep them in sync.
+        if(!collapseRunning){
+            collapseRunning = true
+            that.toggle(sectionName);
+            setTimeout(function(){
+                collapseRunning = false
+            }, 350);
         }
     }
 

@@ -99,7 +99,7 @@ export class LogicalGraph {
         for (const nodeData of dataObject.nodeDataArray){
             const extraUsedKeys: number[] = [];
 
-            const newNode = Node.fromOJSJson(nodeData, errors, (): number => {
+                const newNode = Node.fromOJSJson(nodeData, errors, (): number => {
                 const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                 const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
                 const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
@@ -481,7 +481,7 @@ export class LogicalGraph {
         newNode.setEmbedKey(null);
 
         // convert start of end nodes to data components
-        if (newNode.getCategory() === Eagle.Category.Start || newNode.getCategory() === Eagle.Category.End) {
+        if (newNode.getCategory() === Eagle.Category.Start) {
             // Store the node's location.
             const nodePosition = newNode.getPosition();
 
@@ -497,15 +497,8 @@ export class LogicalGraph {
                     // copy name from the original node
                     newNode.setName(node.getName());
 
-                    // Remove the redundant input/output port.
-                    switch(newNode.getCategory()){
-                        case Eagle.Category.Start:
-                            newNode.removePortByIndex(0, true);
-                            break;
-                        case Eagle.Category.End:
-                            newNode.removePortByIndex(0, false);
-                            break;
-                    }
+                    // Remove the redundant input port
+                    newNode.removePortByIndex(0, true);
 
                     // flag that the logical graph has been modified
                     this.fileInfo().modified = true;
@@ -552,9 +545,15 @@ export class LogicalGraph {
      * Opens a dialog for selecting a data component type.
      */
     addDataComponentDialog = (ineligibleTypes : Eagle.Category[], callback : (dataType: string) => void) : void => {
-        // remove the ineligible types from Eagle.dataCategories and store in eligibleTypes
-        const eligibleTypes : string[] = [];
-        for (const dataCategory of Eagle.dataCategories){
+        let eligibleTypes: Eagle.Category[] = [];
+
+        // build list of data categories
+        const dataCategories : Eagle.Category[] = Utils.buildComponentList((cData: Eagle.CategoryData) => {
+            return cData.isData;
+        });
+
+        // loop through dataCategories and store in eligibleTypes, except where category appears in ineligibleTypes
+        for (const dataCategory of dataCategories){
             let ineligible : boolean = false;
             for (const ineligibleType of ineligibleTypes){
                 if (dataCategory === ineligibleType){
@@ -575,29 +574,12 @@ export class LogicalGraph {
         });
     }
 
-    // TODO: rather than pass just the category, perhaps we should pass the nodeData
-    //       then we won't need a reference to Eagle.dataNodes
     /**
      * Adds data component to the graph
      */
-    addDataComponentToGraph = (category : Eagle.Category, location : {x: number, y:number}) : Node => {
-        // select the correct data component based on the category
-        let templateNode : Node;
-        for (const dataNode of Eagle.dataNodes){
-            if (dataNode.getCategory() === category){
-                templateNode = dataNode;
-            }
-        }
-
-        // error if we could not find a node with the correct category in the dataNodes list
-        if (templateNode === null){
-            console.error("Could not find node with category", category, "in the dataNodes list");
-            return null;
-        }
-
+    addDataComponentToGraph = (category: Eagle.Category, location : {x: number, y:number}) : Node => {
         // clone the template node, set position and add to logicalGraph
-        const newNode: Node = templateNode.clone();
-        newNode.setKey(Utils.newKey(this.getNodes()));
+        const newNode: Node = new Node(Utils.newKey(this.getNodes()), category, "", category, false);
         newNode.setPosition(location.x, location.y);
         this.nodes.push(newNode);
 
@@ -685,8 +667,8 @@ export class LogicalGraph {
         const destPort : Port = destNode.findPortById(destPortId);
 
         const edgeConnectsTwoApplications : boolean =
-            (srcNode.getCategoryType() === Eagle.CategoryType.Application || srcNode.getCategoryType() === Eagle.CategoryType.Group) &&
-            (destNode.getCategoryType() === Eagle.CategoryType.Application || destNode.getCategoryType() === Eagle.CategoryType.Group);
+            (srcNode.isApplication() || srcNode.isGroup()) &&
+            (destNode.isApplication() || destNode.isGroup());
 
         const twoEventPorts : boolean = srcPort.isEvent() && destPort.isEvent();
 
@@ -734,10 +716,10 @@ export class LogicalGraph {
 
                 // add input port and output port for dataType (if they don't exist)
                 if (!newNode.hasPortWithName(dataType, true, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, srcPort.getType()), true);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, srcPort.getType(),""), true);
                 }
                 if (!newNode.hasPortWithName(dataType, false, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, destPort.getType()), false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, destPort.getType(),""), false);
                 }
 
                 // set the parent of the new node

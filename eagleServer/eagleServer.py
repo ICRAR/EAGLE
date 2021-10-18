@@ -46,7 +46,7 @@ from config.config import SERVER_PORT
 
 class GraphException(Exception):
     """
-    Exception class will be used to throw exceptions when graph verification 
+    Exception class will be used to throw exceptions when graph verification
     """
     pass
 
@@ -123,7 +123,7 @@ def index():
 def send_src(filename):
     """
     FLASK GET routing method for '/src/<path:filename>'
-    
+
     Enables debugging in a docker based environment, else the TS files
     are not accessible.
     """
@@ -197,7 +197,7 @@ def open_file(filetype, filename):
 def get_git_hub_repository_list():
     """
     FLASK GET routing method for '/getGitHubRepositoryList'
-    
+
     Returns the list of defined default GitHub repositories.
     """
     return jsonify(GITHUB_DEFAULT_REPO_LIST)
@@ -207,7 +207,7 @@ def get_git_hub_repository_list():
 def get_git_lab_repository_list():
     """
     FLASK GET routing method for '/getGitHubRepositoryList'
-    
+
     Returns the list of defined default GitLab repositories.
     """
     return jsonify(GITLAB_DEFAULT_REPO_LIST)
@@ -218,7 +218,7 @@ def extract_folder_and_repo_names(repo_name):
     If repository name has more than one slash, then after the second slash it is a folder name in that repository.
     E.g. repo = <username or organisation name>/<reponame>/<folder>. The Github library considers repository name
     as <..>/<reponame>
-    
+
     Extract folder name and update repository name to the true one.
     """
     folder_name = ""
@@ -234,7 +234,7 @@ def extract_folder_and_repo_names(repo_name):
 def get_git_hub_files():
     """
     FLASK POST routing method for '/getGitHubFiles'
-    
+
     Returns a JSON list of files in a GitHub repository. Both the repository name and the access token have to passed in the POST content.
     """
     content = request.get_json(silent=True)
@@ -298,7 +298,7 @@ def get_git_hub_files():
 def get_git_hub_files_all():
     """
     FLASK POST routing method for '/getGitHubFilesAll'
-    
+
     Returns the list files in a GitHub repository. The POST request content is a JSON string containing repository, branch and token.
     """
     content = request.get_json(silent=True)
@@ -338,7 +338,7 @@ def get_git_hub_files_all():
 def get_git_lab_files_all():
     """
     FLASK POST routing method for '/getGitLabFilesAll'
-    
+
     Returns the list files in a GitLab repository. The POST request content is a JSON string containing repository, branch and token.
     """
     content = request.get_json(silent=True)
@@ -359,7 +359,7 @@ def get_git_lab_files_all():
         items = project.repository_tree(recursive='true', all=True, ref=repo_branch)
     except gitlab.exceptions.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
-        return jsonify({"error": "Unable to get repository. Please check the repository and branch names are correct."})
+        return jsonify({"error": "Unable to get repository. Repository or branch name may be incorrect, or repository may be empty." + "\n" + str(gge)})
 
     d = parse_gitlab_folder(items, "")
 
@@ -371,7 +371,7 @@ def get_git_lab_files_all():
 def get_docker_images():
     """
     FLASK POST routing method for '/getDockerImages'
-    
+
     Returns a list of public docker images for a given user on DockerHub. The POST request content is a JSON string containing the DockerHub user name.
     """
     content = request.get_json(silent=True)
@@ -399,7 +399,7 @@ def get_docker_images():
 def get_docker_image_tags():
     """
     FLASK POST routing method for '/getDockerImagesTag'
-    
+
     Returns a list of tags for a certain docker image from the docker registry. The POST request content is a JSON string containing the image name.
     """
     content = request.get_json(silent=True)
@@ -427,7 +427,7 @@ def get_docker_image_tags():
 def get_explore_palettes():
     """
     FLASK POST routing method for '/getExplorePalettes'
-    
+
     Returns a list of palettes from a repository. The POST request content is a JSON string containing the repository name, branch and access token.
     """
     content = request.get_json(silent=True)
@@ -461,7 +461,7 @@ def get_explore_palettes():
 def save_git_hub_file():
     """
     FLASK POST routing method for '/saveFileToRemoteGithub'
-    
+
     Save a file to a GitHub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token, the graph data in JSON format and a commit message.
     """
     # Extract parameters and file content from json.
@@ -550,7 +550,7 @@ def save_git_hub_file():
 def save_git_lab_file():
     """
     FLASK POST routing method for '/saveFileToRemoteGitLab'
-    
+
     Save a file to a GitLab repository. The POST request content is a JSON string containing the file name, repository name, branch, access token, the graph data in JSON format and a commit message.
     """
     # Extract parameters and file content from json.
@@ -583,19 +583,33 @@ def save_git_lab_file():
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
 
-    # see if file exists
+    # check if file exists, if it exists, then the 'get' and 'save' approach will be sufficient
+    # if the file is new, then a GitlabGetError exception will be raised, and we try to create instead
+    getSuccessful = True
     try:
         f = project.files.get(file_path=filename, ref=repo_branch)
         # update content
         f.content = json_data
         f.save(branch=repo_branch, commit_message=commit_message)
+    except gitlab.GitlabHttpError as ghe:
+        return jsonify({"error": str(ghe)}), 400
     except gitlab.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
-        # since file doesn't exist, we need to create a new file
-        f = project.files.create({'file_path': filename,
-                          'branch': repo_branch,
-                          'content': json_data,
-                          'commit_message': commit_message})
+        getSuccessful = False
+
+    # if the 'get' approach above was unsuccessful, then we try to create the file
+    # if the 'create' approach fails, then send errors to the client
+    if not getSuccessful:
+        try:
+            f = project.files.create({'file_path': filename,
+                              'branch': repo_branch,
+                              'content': json_data,
+                              'commit_message': commit_message})
+        except gitlab.GitlabHttpError as ghe:
+            return jsonify({"error": str(ghe)}), 400
+        except gitlab.GitlabCreateError as gce:
+            return jsonify({"error": str(gce)}), 400
+
 
     return "ok"
 
@@ -604,7 +618,7 @@ def save_git_lab_file():
 def open_git_hub_file():
     """
     FLASK POST routing method for '/openRemoteGithubFile'
-    
+
     Reads a file from a GitHub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
     """
     content = request.get_json(silent=True)
@@ -646,7 +660,7 @@ def open_git_hub_file():
 def open_git_lab_file():
     """
     FLASK POST routing method for '/openRemoteGitlabFile'
-    
+
     Reads a file from a GitLub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
     """
     content = request.get_json(silent=True)

@@ -1,6 +1,6 @@
 <div class="card">
-    <h5 class="card-header" data-toggle="collapse" href="#nodeCategoryCollapse1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Display Options">
-        <i class="material-icons interactive nodeMenuIndicator" data-toggle="tooltip" data-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:inspectorState().displayOptions}">keyboard_arrow_down</i>
+    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Display Options">
+        <i class="material-icons interactive nodeMenuIndicator" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:inspectorState().displayOptions}">keyboard_arrow_down</i>
         <i class="material-icons">image</i>
         <span class="nodeInspectorSubsectionTitle">Display Options</span>
     </h5>
@@ -59,7 +59,7 @@
             </div>
             <!-- /ko -->
 
-            <!-- ko if: selectedNode().getCategoryType() === Eagle.CategoryType.Data -->
+            <!-- ko if: selectedNode().isData() -->
             <div class="input-group mb-1">
                 <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly>
                 <div class="input-group-append">
@@ -91,7 +91,7 @@
             </div>
             <!-- /ko -->
 
-            <!-- ko ifnot: selectedNode().isGroup() || selectedNode().isBranch() -->
+            <!-- ko ifnot: selectedNode().isGroup() || selectedNode().isBranch() || selectedNode().isService() -->
             <div class="input-group mb-1">
                 <input type="text" class="form-control" id="nodeFlipPortsValue" placeholder="" aria-label="Flip Ports" aria-describedby="node-flip-ports" value="Flip Ports" readonly>
                 <div class="input-group-append">

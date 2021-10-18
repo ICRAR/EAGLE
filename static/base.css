@@ -39,7 +39,7 @@
 
 .rightWindow {
     background-color: rgba(214, 219, 239, 0.95);
-    z-index: 2;
+    z-index: 1;
     position:absolute;
     top: 0px;
     right: -300px;
@@ -56,6 +56,84 @@
     height: calc(100% - 48px);
     overflow-y:auto;
     overflow-x: hidden;
+}
+
+#explorePalettesModal input{
+    pointer-events: none;
+}
+
+#explorePalettesModal li:hover{
+    background-color: #b6c3cf;
+}
+
+/*Animation must have unfilled path strokes to work*/
+.path{
+	fill: none; 
+    stroke: #6f8193;
+    stroke-width: 1px;
+    stroke-linecap: round;
+	animation: dash 6s linear;
+	animation-fill-mode: forwards; 
+	animation-iteration-count: 1;
+}
+
+#eagleIconAnimation{
+    position: absolute;
+    width: 100%;
+    height:100%;
+    top:0px;
+    left:0px;
+}
+
+#eagleIconAnimation svg{
+    width:270px;
+    height:270px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.5);
+}
+
+#eagleIconAnimation .path{ 
+    transform: scale(2);
+}
+
+#eagleIconAnimation svg:hover path{ 
+    d: path("m 88.7232 109.1043 c -6.2691 -1.6632 -26.731 -5.386 -31.0001 -11.7159 l 16.8586 0.0669 c -0.5447 -0.1061 -11.1871 -2.6822 -17.0225 -13.6649 l 6.7586 0.1379 c -1.0884 -0.4796 -7.072 -5.9689 -6.3529 -13.7203 c 0.3917 -4.2224 5.4263 -10.9429 12.2758 -18.0688 c -5.5193 -7.1373 -4.2617 -9.2962 -13.1033 -9.5172 c 5.6468 -3.4265 8.3106 -6.0962 16.8217 -6.3685 l -3.671 -3.9861 c 3.2787 0.3189 6.6579 1.1277 12.3664 3.1822 c 3.096 0.5296 12.7233 2.4709 12.6896 -1.6552 c 2.2008 0.9655 3.8226 2.6328 7.1723 2.8965 c 2.3107 0.1819 2.176 -1.6986 2.4827 -2.7586 c 2.3145 3.1212 5.1918 6.0548 11.862 7.7241 c 4.134 1.0312 11.3286 2.7925 13.3653 7.054 c 4.6415 9.7113 -8.2416 17.6887 -15.9607 16.7172 c 5.2723 -2.1145 5.3209 -4.7385 1.7677 -7.5527 c -3.8402 -3.128 -15.1404 -2.67 -22.7584 -4.0808 c -8.7782 -1.9345 -10.5894 -5.8043 -12.9654 -9.5172 m -10.0689 7.862 c 13.0789 7.1182 32.8962 9.6508 45.7927 5.7359 m -11.0344 -23.9427 C 101.216 27.6927 96.9339 21.7131 91.206 17.3809 C 83.3495 11.4388 73.8471 7.4012 64.2109 5.3573 C 56.5522 3.7328 45.583 4.1997 40.7236 5.3809 m 12.8275 2.7586 c -8.0108 -0.0702 -16.1934 0.2032 -25.655 3.0345 m 17.1033 1.3793 c -9.5789 0.7338 -19.5361 4.309 -27.8619 6.8965 m 19.5861 -0.8276 c -19.8989 5.2288 -18.3857 9.3692 -25.517 10.8965 m 19.1723 -4 c -11.3603 4.2387 -16.5782 12.0547 -22.4826 14.4826 m 80.8269 69.1029 c -43.3449 2.9566 -77.6593 -6.9245 -83.7235 -56.9651 c 10.1815 -5.0716 8.4964 -13.5592 18.2068 -16.8275 m 72.1374 -1.5172 c -0.351 -2.7003 -1.3148 -3.7853 -2.7586 -4.6896 c -4.6408 -2.9066 -10.8214 -3.4718 -14.7585 -7.1724 m 12.1732 11.0676 c 1 -2 -6 -4 -8.337 -3.2238 z")
+}
+
+/*Animation rules, offset: 0  means it will fully draw each stroke*/
+@keyframes dash{
+	to{
+		stroke-dashoffset: 0;
+	}
+}
+
+/*Stroke values are set as per console.log report (so that each line is full drawn)*/
+#path1{
+	stroke-dasharray: 727.5789794921875;
+	stroke-dashoffset: 727.5789794921875;
+}
+
+/*Stroke values are set as per console.log report (so that each line is full drawn)*/
+#pathE1{
+	stroke-dasharray: 176.09375;
+	stroke-dashoffset: 176.09375;
+}
+
+/*Stroke values are set as per console.log report (so that each line is full drawn)*/
+#pathA1{
+	stroke-dasharray: 173.44000244140625;
+	stroke-dashoffset: 173.44000244140625;
+}
+
+#nodeInspectorKOWrapper{
+    height: 100%;
+}
+
+#rightWindowContainer{
+    padding: 4px;
+    height: 100%;
 }
 
 .rightWindow .btn-primary, .leftWindow .btn-primary {
@@ -132,11 +210,6 @@
     cursor: col-resize;
 }
 
-#rightWindowContainer{
-    padding: 4px;
-    height: 100%;
-}
-
 .leftWindow {
     background-color: #002e5f;
     z-index: 100;
@@ -198,14 +271,183 @@
     font-weight: 400;
 }
 
+#nodeInspectorFetchDocker{
+    width:100%;
+}
+
+#settingsModal .btn-secondary{
+    height:100%;
+}
+
+#editFieldModal #editFieldModalValueInputCheckbox {
+    flex: none;
+    padding: 19px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    margin-top:0px;
+
+}
+
+.modal-body{
+    background-color: aliceblue;
+}
+
+.modal-body li{
+    background-color: #e4ebf2;
+    border:none;
+}
+
+.modal-body li:nth-child(odd){
+    background-color: aliceblue;
+    border:none;
+}
+
+.modal-footer{
+    background-color: aliceblue;
+}
+
+.modal-header{
+    background-color: #002e5f;
+    color: white !important;
+}
+
+.modal-footer .btn-primary{
+    background-color: #002e5f;
+    border-color: #002e5f;
+}
+
+#settingsModal .settingSm{
+    display: inline-block;
+}
+
+#settingsCategoriesAccordion .accordion-button {
+    padding: 5px 15px;
+    background-color: rgb(194 200 220);
+    color: #002e5f;
+}
+
+#settingsCategoriesAccordion .accordion-body {
+    padding: 8px;
+    background-color: rgba(214, 219, 239, 0.95);
+}
+
+#settingsCategoriesAccordion .input-group input {
+    font-size: 15px;
+    padding: 2px 10px;
+    background-color: white;
+}
+
+#settingsCategoriesAccordion .input-group span {
+    font-size: 15px;
+    padding: 2px 10px;
+    height: 100%;
+    width: 200px;
+    background-color: #c2c8dc;
+    border: 1px solid #c2c8dc;
+}
+
+#resetSettingsDefaults{
+    left: 10px;
+    position: absolute;
+}
+
+#paletteList .accordion-item{
+    margin-bottom: 5px;
+    border:1px solid #052349 !important;
+    background-color: rgba(214, 219, 239, 0.95);
+}
+
+#paletteList .accordion-item h5{
+    margin:0px;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+#paletteList .accordion-button i {
+    font-size: 22px;
+}
+
+#paletteList .accordion-item .btn-close{
+    margin-right:10px; 
+    font-size: 16px;
+}
+
+.savePaletteBtn{
+    margin:0px;
+    border-radius: 0px;
+    padding: 0px;
+    height: fit-content;
+    background-color: #c2c8dc;
+    border-bottom: 1px solid #aaafc0;
+}
+
+.savePaletteBtn:hover{
+    background-color: #8e94a7;
+}
+
+#paletteList .accordion{
+    padding-right:4px;
+}
+
+.accordion-button.collapsed::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+.accordion-button:not(.collapsed)::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+#paletteList .btn-close{
+    opacity: 100%;
+}
+
+#paletteList .accordion-button{
+    background-color: #c2c8dc !important;
+    padding: 10px 20px;
+}
+
+#paletteList .accordion-button{
+    color:#212529 !important;
+}
+
 .template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
     color: white;
+
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#loadPaletteText{
+    padding: 7px 0px 0px 7px;
+}
+
+.inputChecked{
+    background-color: blue;
+}
+
+.inspectorCheckbox{
+    padding:0px;
+    margin:0px;
 }
 
 #paletteDiv {
     position: relative;
     width: 100%;
     height: 100%;
+}
+
+.leftWindow .card-header button.save-to-git {
+    border-right: solid 1px grey;
+}
+
+.leftWindow .card-header button.btn-close{    
+    right: 15px;
+    top: 13px;
+    position: absolute;
+}
+
+.modal select {
+    margin-bottom: 1rem;
 }
 
 .leftWindow .leftWindowHandle {
@@ -281,6 +523,7 @@
     color: #002349;
     background: white;
 }
+
 .nodeSettingsBtn{
     text-align: right;
     color: #0059a5;
@@ -290,6 +533,36 @@
     list-style-type: none;
     padding: 0px;
     color:black;
+}
+
+#repositoryList a{
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+#repositoryList .col{
+    overflow: hidden;
+    padding: 0px 4px;
+}
+
+#repositoryList .col-9{
+    max-width: 79%;
+    width: auto;
+}
+
+#repositoryList .col-10{
+    max-width: 83.33333333%;
+    width: auto;
+}
+
+.repoConatiner{
+    padding:0px 10px;
+}
+
+.repoIndent{
+    padding-left: 10px;
+    margin-left:12px;
+    border-left: solid #9ca4c1 1px;
 }
 
 #repositoryList ul.files {
@@ -372,14 +645,6 @@
     cursor: pointer;
 }
 
-.leftWindow .card-header button.save-to-git {
-    margin-right: 16px;
-}
-
-.leftWindow .card-header button.save-to-disk {
-    margin-right: 8px;
-}
-
 .rightWindow h5 i.material-icons {
     position: relative;
     top: 5px;
@@ -387,7 +652,7 @@
 
 div.rightWindow h5.card-header {
     font-weight: 500;
-    padding: 0.25rem 1.00rem 0.25rem 1.00rem;
+    padding: 0rem 1.0rem 0.4rem 1.00rem;
 }
 
 .rightWindow i.material-icons.interactive {
@@ -404,7 +669,14 @@ div.rightWindow h5.card-header {
     color:white;
 }
 
+.btn-outline-secondary:hover{
+    background-color: white;
+    color: #002349;
+}
+
 .navbar{
+    height:57.78px;
+    padding-left:10px;
     background: rgb(0,64,133);
     background: linear-gradient(90deg, rgba(0,64,133,1) 0%, rgba(0,52,107,1) 20%, rgba(0,35,73,1) 100%);
 }
@@ -453,7 +725,7 @@ div.rightWindow h5.card-header {
 
 .dropdown-menu-right{
     right: 0;
-    left: auto;
+    left: auto !important;
 }
 
 .dropdown-item{
@@ -474,11 +746,41 @@ div.rightWindow h5.card-header {
     width:auto;
 }
 
+#nodeInspector .input-group{
+    border-radius: 5px;
+    overflow: hidden;
+}
+
 #nodeInspector .input-group-text, #edgeInspector .input-group-text, #translationMenu .input-group-text{
     width:100%;
+    height: 100%;
     font-size: .9rem;
     text-align: left;
     white-space: normal;
+    border-radius: 0px;
+}
+
+#translationMenu .accordion button{
+    padding: 9px 20px;
+}
+
+#translationMenu .accordion-body button{
+    margin-bottom: 5px;
+    padding: 3px 10px;
+}
+
+#setTranslatorUrlBtn{
+    padding: 5px 10px !important;
+}
+
+.accordion-item{
+    border-radius: 7px !important;
+    overflow: hidden;
+    margin-bottom:2px;
+}
+
+#translationMenu .accordion h5{
+    margin-bottom: 0px;
 }
 
 #nodeInspector input{
@@ -486,14 +788,60 @@ div.rightWindow h5.card-header {
     font-size: .9rem;
 }
 
+.checkboxParent label{
+    background-color: #011b38;
+}
+.checkboxParent label:hover{
+    background-color: #013872;
+}
+
+.checkboxParent .btn-check:checked+.btn-outline-primary{
+    background-color: #0d6efd;
+}
+
+.checkboxParent .btn-check:checked+.btn-outline-primary:hover{
+    background-color: #004fa8;
+}
+
+.checkboxParent .btn-outline-primary{
+    border:none;
+}
+
+.checkboxParent{
+    padding: 0px;
+    border-radius: 0px;
+    border:none;
+}
+
+#nodeInspector label{
+    width: 100%;
+    height:100%;
+    color:white;
+    border-radius:0px;
+}
+
 #nodeInspector .input-group-append button{
     padding:4px;
+    border-radius: 0px;
+    height: 100%;
 }
 
 #rightWindowTabs{
     width:100%;
     border: none;
     height:48px;
+}
+
+.btn_wide{
+    width: 100% !important;
+}
+
+.text-right{
+    text-align: right;
+}
+
+.alert-danger .btn-close{
+    content: none;
 }
 
 #rightWindowTabs button{
@@ -529,6 +877,11 @@ div.rightWindow h5.card-header {
 
 #translationMenu h5{
     font-size: 1rem;
+}
+
+#translationMenu .input-group {
+    border-radius: 5px;
+    overflow: hidden;
 }
 
 #rightWindowTabs .btn-secondary:focus{
@@ -634,9 +987,29 @@ nav.navbar .introjs-helperLayer {
 }
 
 #nodeInspectorHeading{
-    border:none;
+    margin: 0px;
     color: white;
+    border-radius: .25rem;
+    padding: 5px 10px 0px;
 }
+
+#nodeInspectorInfoCard{
+    margin-bottom: 1px;
+}
+
+#nodeInspectorHeading span {
+    font-size: 1.25em;
+    font-weight: bold;
+    user-select: none;
+}
+
+.modal-dialog {
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    margin-left: 50%;
+    transform: translateX(-50%) !important;
+  }
 
 #nodeInspectorMenus{
     padding: 0px 5px 5px 5px;
@@ -648,15 +1021,11 @@ nav.navbar .introjs-helperLayer {
     margin-right: 4px;
 }
 
-#headerBtns{
-    position: relative;
-    right: 10px;
-    padding:5px 0px;
-    text-align: right;
+.headerBtns {
+    padding: 0px;;
 }
 
-#headerBtns button{
-    color: #0859af;
+.headerBtns button {
     background-color: transparent;
     padding:4px;
     margin-left:-4px;
@@ -664,16 +1033,13 @@ nav.navbar .introjs-helperLayer {
     box-shadow: none;
 }
 
-#headerBtns button:hover{
+.headerBtns button:hover {
     color:#001933;
+    background-color: transparent;
 }
 
-#headerBtns #deleteSelectedNode{
-    color:#cb4335;
-}
-
-#headerBtns #deleteSelectedNode :hover{
-    color:#520800;
+.headerBtns button.btn:focus {
+    box-shadow: none;
 }
 
 .nodeInspectorSubsectionTitle{

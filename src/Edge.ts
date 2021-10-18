@@ -140,7 +140,7 @@ export class Edge {
     }
 
     static fromV3Json = (edgeData: any, errors: string[]): Edge => {
-        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, Eagle.DataType.Unknown, edgeData.loop_aware === "1");
+        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, "", edgeData.loop_aware === "1");
     }
 
     static toAppRefJson = (edge : Edge, lg: LogicalGraph) : object => {
@@ -255,7 +255,9 @@ export class Edge {
 
         // check relationship between destination and source node
         const isParent : boolean = sourceNode.getParentKey() === destinationNodeKey;
+        const isParentOfConstruct : boolean = sourceNode.getParentKey() === destinationNode.getEmbedKey() && sourceNode.getParentKey() !== null;
         const isChild : boolean = destinationNode.getParentKey() === sourceNodeKey;
+        const isChildOfConstruct : boolean = destinationNode.getParentKey() === sourceNode.getEmbedKey() && destinationNode.getParentKey() !== null;
         const isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey();
         let parentIsEFN : boolean = false;
 
@@ -270,6 +272,9 @@ export class Edge {
                 parentIsEFN = graph.findNodeByKey(sourceNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
             }
         }
+
+        // debug
+        //console.log("isParent", isParent, "isParentOfConstruct", isParentOfConstruct, "isChild", isChild, "isChildOfConstruct", isChildOfConstruct, "isSibling", isSibling, "parentIsEFN", parentIsEFN);
 
         // if a node is connecting to its parent, it must connect to the local port
         if (isParent && !destinationNode.hasLocalPortWithId(destinationPortId)){
@@ -301,7 +306,7 @@ export class Edge {
         }
 
         // if link is not a parent, child or sibling, then warn user
-        if (!parentIsEFN && !isParent && !isChild && !isSibling && !loopAware){
+        if (!parentIsEFN && !isParent && !isChild && !isSibling && !loopAware && !isParentOfConstruct && !isChildOfConstruct){
             Edge.isValidLog("Warning", "Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive", "warning", showNotification, showConsole);
             return Eagle.LinkValid.Warning;
         }

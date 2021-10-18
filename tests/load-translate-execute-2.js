@@ -215,7 +215,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .click('#settingUseSimplifiedTranslatorOptionsButton')
 
             // close settings modal
-            .click('#settingsModal .modal-footer button')
+            .click('#settingsModalAffirmativeButton')
 
             // end
             //.wait(3000);

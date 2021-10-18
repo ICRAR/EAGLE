@@ -1,14 +1,25 @@
 <div class="input-group mb-1">
 
     <div class="input-group-prepend">
-        <span class="input-group-text" id="group-addon" data-bind="text: $data.text, attr: {'data-original-title': $data.getDescriptionText()}" data-toggle="tooltip" data-html="true" data-placement="left"></span>
+        <span class="input-group-text" id="group-addon" data-bind="text: $data.text, attr: {'data-bs-original-title': $data.getDescriptionText()}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left"></span>
     </div>
 
-    <input type="text" class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-toggle="tooltip" data-html="true" data-placement="right" title data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: $data.ro, attr: {title: getFieldValue(), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}">
+    <!-- ko ifnot: $root.fieldIsBoolean(getType()) -->
+    <input class="form-control " placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-toggle="tooltip" data-html="true" data-bs-placement="bottom" title data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: $data.ro, attr: {title: getFieldValue(), type: $root.getFieldType(getType(), 'nodeInspectorFieldValue' + $index(), $data.value()), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}">
+    <!-- /ko -->
+
+
+    <!-- ko if: $root.fieldIsBoolean(getType()) -->
+    <div class="form-control checkboxParent">
+        <input class="inspectorCheckbox form-check-input btn-check" placeholder="" aria-label="Label" onclick="$(this).val(this.checked ? true : false)" aria-describedby="group-addon" data-bs-toggle="tooltip" data-html="true" data-bs-placement="bottom" title data-bind="value: $data.value, checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], readonly: $data.ro, attr: {title: getFieldValue(), type: $root.getFieldType(getType(), 'nodeInspectorFieldValue' + $index(), $data.value()), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}">
+        <label class="btn btn-outline-primary" data-bind="attr:{for: 'nodeInspectorFieldValue' + $index()}, html: $data.value() "></label><br>
+    </div>
+    <!-- /ko -->
+
 
     <!-- ko ifnot: $data.ro -->
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Open Field Value Wizard'}" data-toggle="tooltip" data-html="true" data-placement="left">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Open Field Value Wizard'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
             <i class="material-icons md-18">link</i>
         </button>
     </div>
@@ -16,7 +27,7 @@
 
     <!-- ko ifnot: $data.ro -->
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField(null, 'Edit', $index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Edit'}" data-toggle="tooltip" data-html="true" data-placement="left">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField(null, 'Edit', $index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Edit'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
             <i class="material-icons md-18">edit</i>
         </button>
     </div>
@@ -24,7 +35,7 @@
 
     <!-- ko ifnot: $root.selectedNode().isLocked() -->
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index(), title:'Remove parameter'}" data-toggle="tooltip" data-html="true" data-placement="left">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index(), title:'Remove parameter'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
             <i class="material-icons md-18">delete</i>
         </button>
     </div>

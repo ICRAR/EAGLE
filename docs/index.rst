@@ -4,6 +4,7 @@ Introduction to Eagle
 .. toctree::
    :maxdepth: 2
 
+   Installation <installation>
    Quick Start <quickStart2>
    Hello World Example <helloWorld>
    Components <components>

@@ -43,6 +43,10 @@ export class Setting {
         return this.key;
     }
 
+    getSettings = () :any => {
+        console.log("bop")
+    }
+
     save = () : void => {
         localStorage.setItem(this.key, this.valueToString(this.value()));
     }

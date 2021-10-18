@@ -8,18 +8,20 @@ export class Port {
     private nodeKey : ko.Observable<number>;
     private local : ko.Observable<boolean>;
     private event : ko.Observable<boolean>;
-    private type : ko.Observable<Eagle.DataType>;
+    private type : ko.Observable<string>;
+    private description : ko.Observable<string>;
 
     public static readonly DEFAULT_ID : string = "<default>";
     public static readonly DEFAULT_EVENT_PORT_NAME = "event";
 
-    constructor(id : string, name : string, event : boolean, type: Eagle.DataType){
+    constructor(id : string, name : string, event : boolean, type: string, description: string){
         this._id = ko.observable(id);
         this.name = ko.observable(name);
         this.nodeKey = ko.observable(0);
         this.local = ko.observable(false);
         this.event = ko.observable(event);
         this.type = ko.observable(type);
+        this.description = ko.observable(description);
     }
 
     getId = () : string => {
@@ -38,6 +40,14 @@ export class Port {
         this.name(name);
     }
 
+    getDescription = () : string => {
+        return this.description();
+    } 
+
+    setDescription = (description : string) : void => {
+        this.description(description);
+    }
+
     getNodeKey = () : number => {
         return this.nodeKey();
     }
@@ -52,7 +62,8 @@ export class Port {
         this.nodeKey(0);
         this.local(false);
         this.event(false);
-        this.type(Eagle.DataType.Unknown);
+        this.type("");
+        this.description("");
     }
 
     isEvent = () : boolean => {
@@ -68,16 +79,16 @@ export class Port {
         this.event(!this.event());
     }
 
-    getType = (): Eagle.DataType => {
+    getType = (): string => {
         return this.type();
     }
 
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
-        return this.name() + " (" + this.type() + ")";
+        return this.name() + " (" + this.type() + ') | Description:"' +this.description()+'"';
     }, this);
 
     clone = () : Port => {
-        const port = new Port(this._id(), this.name(), this.event(), this.type());
+        const port = new Port(this._id(), this.name(), this.event(), this.type(), this.description());
         port.local(this.local());
         return port;
     }
@@ -88,6 +99,7 @@ export class Port {
         this.local(src.local());
         this.event(src.event());
         this.type(src.type());
+        this.description(src.description());
     }
 
     copyWithKeyAndId = (src: Port, nodeKey: number, id: string) : void => {
@@ -97,6 +109,7 @@ export class Port {
         this.local(src.local());
         this.event(src.event());
         this.type(src.type());
+        this.description(src.description());
     }
 
     static toOJSJson = (port : Port) : object => {
@@ -104,7 +117,8 @@ export class Port {
             Id:port._id(),
             IdText:port.name(),
             event:port.event(),
-            type:port.type()
+            type:port.type(),
+            description:port.description()
         };
     }
 
@@ -112,20 +126,23 @@ export class Port {
         return {
             name:port.name(),
             event:port.event(),
-            type:port.type()
+            type:port.type(),
+            description:port.description()
         };
     }
 
     static fromOJSJson = (data : any) : Port => {
         let event: boolean = false;
-        let type: Eagle.DataType = Eagle.DataType.Unknown;
-
+        let type: string = "";
+        let description: string = ""
         if (typeof data.event !== 'undefined')
             event = data.event;
         if (typeof data.type !== 'undefined')
             type = data.type;
+        if (typeof data.description !== 'undefined')
+            description = data.description;
 
-        return new Port(data.Id, data.IdText, event, type);
+        return new Port(data.Id, data.IdText, event, type, description);
     }
 
     public static sortFunc = (a: Port, b: Port) : number => {

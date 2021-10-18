@@ -7,7 +7,7 @@ import { Selector } from 'testcafe';
 */
 
 var NEW_PALETTE_NAME = "new.palette";
-var DUMMY_VALUE = "0sdvh5gb8v7r4";
+var DUMMY_VALUE = "02348562";
 
 fixture `EAGLE Edit Node Parameter`
     .page `http://localhost:8888/`
@@ -24,13 +24,15 @@ test('Edit node parameter', async t =>{
         .click('#settingAllowPaletteEditingButton')
 
         // close settings modal
-        .click('#settingsModal .modal-footer button')
+        .click('#settingsModalAffirmativeButton')
 
         // select python app node in palette
         .click("#selectPaletteNodePythonApp")
 
         // add selected node to palette
         .click("#addSelectedNodeToPalette")
+
+        .wait(1000)
 
         // new destination palette
         .typeText(Selector('#choiceModalString'), NEW_PALETTE_NAME)

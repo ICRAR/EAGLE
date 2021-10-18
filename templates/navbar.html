@@ -9,63 +9,62 @@
         <span>{{version}}</span>
     </div>
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-        <ul class="nav navbar-nav ml-auto">
+        <ul class="nav navbar-nav navbar-center">
             <div class="btn-group" role="group" aria-label="Basic example">
                 <!--
-                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom In" data-bind="click: zoomIn">
-                    <i class="material-icons md-18">zoom_in</i>
-                </button>
-                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom Out" data-bind="click: zoomOut">
-                    <i class="material-icons md-18">zoom_out</i>
-                </button>
-                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Zoom To Fit" data-bind="click: zoomToFit">
+                <button class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Zoom To Fit" data-bind="click: zoomToFit">
                     <i class="material-icons md-18">zoom_out_map</i>
                 </button>
-                <button class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Toggle Grid" data-bind="click: toggleGrid">
+                <button class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle Grid" data-bind="click: toggleGrid">
                     <i class="material-icons md-18">grid_on</i>
                 </button>
                 -->
-                <!-- <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Save as PNG" data-bind="click: saveAsPNG" data-intro="Save a PNG of the current graph.">
+                <!-- <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Save as PNG" data-bind="click: saveAsPNG" data-intro="Save a PNG of the current graph.">
                     <i class="material-icons md-18">image</i>
                 </button> -->
-                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Center Graph" data-bind="click: centerGraph" data-intro="Center the current graph within the graph rendering area.">
+                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Center Graph" data-bind="click: centerGraph" data-intro="Center the current graph within the graph rendering area.">
                     <i class="material-icons md-18">filter_center_focus</i>
                 </button>
+                <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Zoom In" data-bind="click: zoomIn" data-intro="Zoom in on the graph within the graph rendering area.">
+                    <i class="material-icons md-18">zoom_in</i>
+                </button>
+                <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Zoom Out" data-bind="click: zoomOut" data-intro="Zoom out from the graph within the graph rendering area.">
+                    <i class="material-icons md-18">zoom_out</i>
+                </button>
                 <!-- ko if: allowPaletteEditing() -->
-                <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Add Graph Nodes to Palette" data-bind="click: addGraphNodesToPalette" data-intro="Add all nodes in the current graph to the a new or existing palette.">
+                <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Graph Nodes to Palette" data-bind="click: addGraphNodesToPalette" data-intro="Add all nodes in the current graph to the a new or existing palette.">
                     <i class="material-icons md-18">palette</i>
                 </button>
                 <!-- /ko -->
-                <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Groups" data-bind="click: toggleCollapseAllGroups" data-intro="Toggle all groups between collapsed and expanded states.">
+                <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Collapse/Expand All Groups" data-bind="click: toggleCollapseAllGroups" data-intro="Toggle all groups between collapsed and expanded states.">
                     <i class="material-icons md-18">tab_unselected</i>
                 </button>
-                <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Collapse/Expand All Nodes" data-bind="click: toggleCollapseAllNodes" data-intro="Toggle all nodes between collapsed and expanded states.">
+                <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Collapse/Expand All Nodes" data-bind="click: toggleCollapseAllNodes" data-intro="Toggle all nodes between collapsed and expanded states.">
                     <i class="material-icons md-18">vertical_align_center</i>
                 </button>
-                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Copy Graph Url" data-bind="click: copyGraphUrl" data-intro="Create a url that points to the current graph and copy the url to the clipboard.">
+                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Copy Graph Url" data-bind="click: copyGraphUrl" data-intro="Create a url that points to the current graph and copy the url to the clipboard.">
                     <i class="material-icons md-18">content_copy</i>
                 </button>
             </div>
+            <ul class="nav navbar-nav ms-4">
+                <button id="checkGraph" class="btn btn-outline-success navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Check Graph for Errors" data-bind="click: showGraphErrors, visible: graphErrors().length === 0" data-intro="Check the graph for common issues and missing information.">
+                    <i class="material-icons md-18">done_all</i>
+                </button>
+                <button id="checkGraph" class="btn btn-outline-danger navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Check Graph for Errors" style="display: none;" data-bind="click: showGraphErrors, visible: graphErrors().length > 0" data-intro="Check the graph for common issues and missing information.">
+                    <span class="badge bg-danger" data-bind="text: graphErrors().length"></span>
+                </button>
+            </ul>
         </ul>
 
-        <ul class="nav navbar-nav ml-4">
-            <button id="checkGraph" class="btn btn-outline-success navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Check Graph for Errors" data-bind="click: showGraphErrors, visible: graphErrors().length === 0" data-intro="Check the graph for common issues and missing information.">
-                <i class="material-icons md-18">done_all</i>
-            </button>
-            <button id="checkGraph" class="btn btn-outline-danger navbar-btn" type="button" data-toggle="tooltip" data-placement="bottom" title="Check Graph for Errors" style="display: none;" data-bind="click: showGraphErrors, visible: graphErrors().length > 0" data-intro="Check the graph for common issues and missing information.">
-                <span class="badge badge-danger" data-bind="text: graphErrors().length"></span>
-            </button>
-        </ul>
-
-        <ul class="nav navbar-nav ml-auto">
+        <ul class="nav navbar-nav ms-auto">
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownGraph" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle ms-auto" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Graph
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownGraph">
@@ -98,7 +97,7 @@
             </li>
             <!-- ko if: allowPaletteEditing() -->
             <li class="nav-item dropdown" data-intro='Create new palettes and logical graphs.'>
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPalette" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPalette" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Palette
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPalette">
@@ -127,7 +126,7 @@
             </li>
              <!-- /ko -->
             <li class="nav-item dropdown" data-intro='Additional usage information and introductions to EAGLE features.'>
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Help
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownHelp">
@@ -139,7 +138,7 @@
                     <a class="dropdown-item" id="keyboardShortcuts" href="#" data-bind="click: openShortcuts">Keyboard Shortcuts</a>
                 </div>
             </li>
-            <a class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Settings" id="settings" href="#" data-bind="click: openSettings"><img src="/static/assets/img/settings_white_24dp.svg" alt=""></a>
+            <a class="nav-link" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Settings" id="settings" href="#" data-bind="click: openSettings"><img src="/static/assets/img/settings_white_24dp.svg" alt=""></a>
         </ul>
 
     </div>
