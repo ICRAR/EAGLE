@@ -120,15 +120,15 @@ Start Server
 
 Simply start it using in the main directory:
 
-$ eagleServer -t /tmp
+    $ eagleServer -t /tmp
 
 Tools
 -----
 
 The repository also contains a tool to update old format graphs into new format files. It is IMPORTANT to run this "updateGraph" tool from within the tools subdirectory:
 
-$ cd tools
+    $ cd tools
 
 then
 
-$ ts-node updateGraph.ts <input_file> <output_file>
+    $ ts-node updateGraph.ts <input_file> <output_file>
