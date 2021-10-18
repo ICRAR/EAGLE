@@ -3712,6 +3712,16 @@ export class Eagle {
         }
     }
 
+    mouseWheel = (that: Eagle, event: JQueryEventObject) : void => {
+        const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
+
+        console.log("mouseWheel wheelEvent", wheelEvent, wheelEvent.deltaY);
+
+        this.globalScale(this.globalScale() + wheelEvent.deltaY/1000);
+        console.log("globalScale", this.globalScale());
+
+    }
+
     startDrag = (node: Node) : void => {
         //console.log("startDrag", node ? node.getName() : node)
         this.isDragging(true);

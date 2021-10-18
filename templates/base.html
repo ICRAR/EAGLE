@@ -70,7 +70,7 @@
                 </div>
             </div>
 
-            <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDropLogicalGraph, mousemove: mouseMove, mousedown: function(){startDrag(null);}, mouseup: function(){endDrag(null);} }">
+            <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDropLogicalGraph, mousemove: mouseMove, mousedown: function(){startDrag(null);}, mouseup: function(){endDrag(null);}, wheel: mouseWheel }">
                 <div id="logicalGraphD3Div">
                     <!-- ko if: $root.logicalGraph() !== null -->
                     <!-- ko foreach: $root.logicalGraph().getNodes() -->
