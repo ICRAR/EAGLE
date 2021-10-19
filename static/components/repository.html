@@ -24,9 +24,11 @@
                 <span data-bind="text: name + ' (' + branch + ')'"></span>
             </a>
         </div>
-            <div class="col col-1">
-                <i class="material-icons md-18 interactive" data-bind="click: remove">eject</i>
-            </div>
+        <!-- ko ifnot: isBuiltIn -->
+        <div class="col col-1">
+            <i class="material-icons md-18 interactive" data-bind="click: remove">eject</i>
+        </div>  
+        <!-- /ko -->
         <!-- ko if: expanded -->
         <ul class="folders" data-bind="foreach: folders">
             <li>
