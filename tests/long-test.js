@@ -80,7 +80,7 @@ test('Graph creation', async t =>{
     // open output ports section of inspector
     await t.click("h5.card-header[data-section-name='Outputs']");
 
-    await page.addNodePort("spead2", false);
+    await page.addNodePort("spead2", "SPEAD2", false);
 
     // move the inner Python App
     await page.moveNode('#node1', 160, 250);
@@ -92,8 +92,8 @@ test('Graph creation', async t =>{
     // open input ports section of inspector
     await t.click("h5.card-header[data-section-name='Inputs']");
 
-    await page.addNodePort("spead2", true);
-    await page.addNodePort("spead2", false);
+    await page.addNodePort("spead2", "SPEAD2", true);
+    await page.addNodePort("spead2", "SPEAD2", false);
 
     // move the outer Python App (NOTE: this is node 1!)
     await page.moveNode('#node1', 470, 250);
@@ -111,8 +111,8 @@ test('Graph creation', async t =>{
 
     await t.click('#nodeInspectorInspectInputApplication');
 
-    await page.addNodePort("spead2", true);
-    await page.addNodePort("event", false);
+    await page.addNodePort("spead2", "SPEAD2", true);
+    await page.addNodePort("event", "Event", false);
 
     // move the gather (NOTE: this is now node 1!)
     await page.moveNode('#node1', 740, 200);
@@ -135,7 +135,7 @@ test('Graph creation', async t =>{
     // select type of end node
     await page.selectOption("File");
 
-    await page.addNodePort("event", true);
+    await page.addNodePort("event", "Event", true);
 
     // move the end node (NOTE: this is now node 2!)
     await page.moveNode('#node2', 740, 450);

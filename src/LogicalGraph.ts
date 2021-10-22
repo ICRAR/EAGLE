@@ -715,10 +715,10 @@ export class LogicalGraph {
 
                 // add input port and output port for dataType (if they don't exist)
                 if (!newNode.hasPortWithName(dataType, true, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, srcPort.getType(),""), true);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, dataType, false, srcPort.getType(),""), true);
                 }
                 if (!newNode.hasPortWithName(dataType, false, false)){
-                    newNode.addPort(new Port(Utils.uuidv4(), dataType, false, destPort.getType(),""), false);
+                    newNode.addPort(new Port(Utils.uuidv4(), dataType, dataType, false, destPort.getType(),""), false);
                 }
 
                 // set the parent of the new node

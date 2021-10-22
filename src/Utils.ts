@@ -727,10 +727,11 @@ export class Utils {
             // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
             const id = "dummy-id";
             const name: string = <string>$('#editPortModalNameInput').val();
+            const text: string = <string>$('#editPortModalTextInput').val();
             const type: string = <string>$('#editPortModalTypeInput').val();
             const description: string = <string>$('#editPortModalDescriptionInput').val();
 
-            const newPort = new Port(id, name, false, type, description);
+            const newPort = new Port(id, name, text, false, type, description);
 
             callback(true, newPort);
         });
@@ -1195,6 +1196,7 @@ export class Utils {
 
         // populate UI with current port data
         $('#editPortModalNameInput').val(port.getName());
+        $('#editPortModalTextInput').val(port.getText());
         $('#editPortModalTypeInput').val(port.getType());
         $('#editPortModalDescriptionInput').val(port.getDescription());
 
