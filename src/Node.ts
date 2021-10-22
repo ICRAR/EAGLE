@@ -69,6 +69,9 @@ export class Node {
 
     private readonly : ko.Observable<boolean>;
 
+    private gitUrl : ko.Observable<string>;
+    private gitHash : ko.Observable<string>;
+
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 72;
     public static readonly MINIMUM_WIDTH : number = 200;
@@ -123,8 +126,10 @@ export class Node {
         this.subject = ko.observable(null);
 
         this.expanded = ko.observable(false); // indicates whether the node is shown expanded in the hierarchy display
-
         this.readonly = ko.observable(readonly);
+
+        this.gitUrl = ko.observable("");
+        this.gitHash = ko.observable("");
     }
 
     getId = () : string => {
@@ -642,6 +647,9 @@ export class Node {
 
         this.expanded(false);
         this.readonly(true);
+
+        this.gitUrl("");
+        this.gitHash("");
     }
 
     getDisplayWidth = () : number => {
@@ -700,6 +708,20 @@ export class Node {
 
         return Math.max(leftHeight, rightHeight);
     }
+
+    getGitHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        let url = "Unknown";
+        let hash = "Unknown";
+
+        if (this.gitUrl() !== ""){
+            url = this.gitUrl();
+        }
+        if (this.gitHash() !== ""){
+            hash = this.gitHash();
+        }
+
+        return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
+    }, this);
 
     addPort = (port : Port, input : boolean) : void => {
         port.setNodeKey(this.key());
@@ -984,6 +1006,10 @@ export class Node {
         }
 
         result.expanded(this.expanded());
+        result.readonly(this.readonly());
+
+        result.gitUrl(this.gitUrl());
+        result.gitHash(this.gitHash());
 
         return result;
     }
@@ -1522,6 +1548,14 @@ export class Node {
             }
         }
 
+        // add git url and hash
+        if (typeof nodeData.git_url !== 'undefined'){
+            node.gitUrl(nodeData.git_url);
+        }
+        if (typeof nodeData.sha !== 'undefined'){
+            node.gitHash(nodeData.sha);
+        }
+
         return node;
     }
 
@@ -1624,6 +1658,8 @@ export class Node {
         result.subject = node.subject();
         result.expanded = node.expanded();
         result.readonly = node.readonly();
+        result.git_url = node.gitUrl();
+        result.sha = node.gitHash();
 
         if (node.parentKey() !== null){
             result.group = node.parentKey();
@@ -1773,6 +1809,8 @@ export class Node {
         result.subject = node.subject();
         result.expanded = node.expanded();
         result.readonly = node.readonly();
+        result.git_url = node.gitUrl();
+        result.sha = node.gitHash();
 
         result.parentKey = node.parentKey();
         result.embedKey = node.embedKey();
@@ -1821,6 +1859,9 @@ export class Node {
         node.precious(nodeData.precious);
         node.subject(nodeData.subject);
         node.expanded(nodeData.expanded);
+        node.readonly(nodeData.readonly);
+        node.gitUrl(nodeData.git_url);
+        node.gitHash(nodeData.sha);
         node.parentKey(nodeData.parentKey);
         node.embedKey(nodeData.embedKey);
 
@@ -1861,6 +1902,8 @@ export class Node {
 
         result.expanded = node.expanded();
         result.readonly = node.readonly();
+        result.gitUrl = node.gitUrl();
+        result.gitHash = node.gitHash();
 
         return result;
     }
@@ -1880,6 +1923,9 @@ export class Node {
         result.flipPorts(nodeData.flipPorts);
 
         result.expanded(nodeData.expanded);
+        result.readonly(nodeData.readonly);
+        result.gitUrl(nodeData.gitUrl);
+        result.gitHash(nodeData.gitHash);
 
         return result;
     }

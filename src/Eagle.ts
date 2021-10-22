@@ -1432,6 +1432,8 @@ export class Eagle {
                     palette.fileInfo().clear();
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
+                    palette.fileInfo().gitUrl = paletteList[index].filename;
+                    palette.fileInfo().sha = "master";
                     results[index] = palette;
                 }
 
