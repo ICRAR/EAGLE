@@ -42,6 +42,14 @@ export class Port {
         this.name(name);
     }
 
+    getText = () : string => {
+        return this.text();
+    }
+
+    setText = (text : string) : void => {
+        this.text(text);
+    }
+
     getDescription = () : string => {
         return this.description();
     }
