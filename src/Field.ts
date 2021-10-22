@@ -3,8 +3,8 @@ import * as ko from "knockout";
 import {Eagle} from './Eagle';
 
 export class Field {
-    private text : ko.Observable<string>;
-    private name : ko.Observable<string>;
+    private text : ko.Observable<string>; // external user-facing name
+    private name : ko.Observable<string>; // internal no-whitespace name
     private value : ko.Observable<string>;
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;

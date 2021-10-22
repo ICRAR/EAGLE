@@ -4,7 +4,8 @@ import {Eagle} from './Eagle';
 
 export class Port {
     private _id : ko.Observable<string>;
-    private name : ko.Observable<string>;
+    private text : ko.Observable<string>; // external user-facing name
+    private name : ko.Observable<string>; // internal no-whitespace name
     private nodeKey : ko.Observable<number>;
     private local : ko.Observable<boolean>;
     private event : ko.Observable<boolean>;
@@ -14,8 +15,9 @@ export class Port {
     public static readonly DEFAULT_ID : string = "<default>";
     public static readonly DEFAULT_EVENT_PORT_NAME = "event";
 
-    constructor(id : string, name : string, event : boolean, type: string, description: string){
+    constructor(id : string, name : string, text : string, event : boolean, type: string, description: string){
         this._id = ko.observable(id);
+        this.text = ko.observable(text);
         this.name = ko.observable(name);
         this.nodeKey = ko.observable(0);
         this.local = ko.observable(false);
@@ -42,7 +44,7 @@ export class Port {
 
     getDescription = () : string => {
         return this.description();
-    } 
+    }
 
     setDescription = (description : string) : void => {
         this.description(description);
@@ -58,6 +60,7 @@ export class Port {
 
     clear = () : void => {
         this._id("");
+        this.text("");
         this.name("");
         this.nodeKey(0);
         this.local(false);
@@ -75,7 +78,6 @@ export class Port {
     }
 
     toggleEvent = () : void => {
-        console.log("toggleEvent()", this._id(), !this.event());
         this.event(!this.event());
     }
 
@@ -84,17 +86,18 @@ export class Port {
     }
 
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
-        return this.name() + " (" + this.type() + ') | Description:"' +this.description()+'"';
+        return this.name() + " " + this.text() + " (" + this.type() + ') | Description:"' +this.description()+'"';
     }, this);
 
     clone = () : Port => {
-        const port = new Port(this._id(), this.name(), this.event(), this.type(), this.description());
+        const port = new Port(this._id(), this.name(), this.text(), this.event(), this.type(), this.description());
         port.local(this.local());
         return port;
     }
 
     copy = (src: Port) : void => {
         this.name(src.name());
+        this.text(src.text());
         this.nodeKey(src.nodeKey());
         this.local(src.local());
         this.event(src.event());
@@ -105,6 +108,7 @@ export class Port {
     copyWithKeyAndId = (src: Port, nodeKey: number, id: string) : void => {
         this._id(id);
         this.name(src.name());
+        this.text(src.text());
         this.nodeKey(nodeKey);
         this.local(src.local());
         this.event(src.event());
@@ -116,6 +120,7 @@ export class Port {
         return {
             Id:port._id(),
             IdText:port.name(),
+            text:port.text(),
             event:port.event(),
             type:port.type(),
             description:port.description()
@@ -125,6 +130,7 @@ export class Port {
     static toV3Json = (port : Port) : object => {
         return {
             name:port.name(),
+            text:port.text(),
             event:port.event(),
             type:port.type(),
             description:port.description()
@@ -132,9 +138,12 @@ export class Port {
     }
 
     static fromOJSJson = (data : any) : Port => {
+        let text: string = "";
         let event: boolean = false;
         let type: string = "";
         let description: string = ""
+        if (typeof data.text !== 'undefined')
+            text = data.text;
         if (typeof data.event !== 'undefined')
             event = data.event;
         if (typeof data.type !== 'undefined')
@@ -142,7 +151,7 @@ export class Port {
         if (typeof data.description !== 'undefined')
             description = data.description;
 
-        return new Port(data.Id, data.IdText, event, type, description);
+        return new Port(data.Id, data.IdText, text, event, type, description);
     }
 
     public static sortFunc = (a: Port, b: Port) : number => {
