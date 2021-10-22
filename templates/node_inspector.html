@@ -48,14 +48,18 @@
 
     <div class="card pt-2" id="nodeInspectorInfoCard">
         <div class="row">
-            <div class="col-8">
+            <div class="col-7">
                 <h4 class="nodeInspectorSubTitle">Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
             </div>
-            <div class="col-4">
+            <div class="col-3">
                 <!-- ko if: displayNodeKeys() -->
                 <h4 class="nodeInspectorSubTitle">Key: <span data-bind="text: selectedNode().getKey()"></span></h4>
                 <!-- /ko -->
             </div>
+            <div class="col-2 text-right">
+                <i class="material-icons interactive me-2" data-bs-toggle="tooltip" data-bs-placement="left" data-html="true" data-bind="attr:{title: selectedNode().getGitHTML() }">info</i>
+            </div>
+
         </div>
     </div>
 
