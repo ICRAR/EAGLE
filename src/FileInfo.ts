@@ -202,7 +202,7 @@ export class FileInfo {
 
     getSummaryHTML = () : string => {
         if (this._repositoryService() === Eagle.RepositoryService.Unknown){
-            return "- Location -</br>Url:&nbsp;" + this._gitUrl() + "</br>Hash:&nbsp;" + this._sha() + "</br>Name:&nbsp;" + this._name();
+            return "- Location -</br>Url:&nbsp;" + this._gitUrl() + "</br>Hash:&nbsp;" + this._sha();
         }
 
         return "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
