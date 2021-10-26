@@ -2628,14 +2628,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
-            if (node.isFlipPorts()){
-                return node.getPosition().x + getIconLocationX(node);
-            } else {
-                return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
-            }
-        }
-
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
 
@@ -2651,6 +2643,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
             return findNodePortPosition(containingConstruct, edge.getSrcPortId(), true).x;
+        }
+
+        if (!node.isGroup() && !node.isShowPorts()){
+            if (node.isFlipPorts()){
+                return node.getPosition().x + getIconLocationX(node);
+            } else {
+                return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
+            }
         }
 
         return findNodePortPosition(node, edge.getSrcPortId(), true).x;
@@ -2673,11 +2673,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y;
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
-            return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
-        }
-
-
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
 
@@ -2695,6 +2690,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
             return findNodePortPosition(containingConstruct, edge.getSrcPortId(), true).y - PORT_ICON_HEIGHT;
+        }
+
+        if (!node.isGroup() && !node.isShowPorts()){
+            return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
         return findNodePortPosition(node, edge.getSrcPortId(), true).y - PORT_ICON_HEIGHT;
@@ -2721,14 +2720,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
-            if (node.isFlipPorts()){
-                return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
-            } else {
-                return node.getPosition().x + getIconLocationX(node);
-            }
-        }
-
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getDestPortId());
             const numPorts = node.getInputPorts().length;
@@ -2740,6 +2731,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
             return findNodePortPosition(containingConstruct, edge.getDestPortId(), false).x;
+        }
+
+        if (!node.isGroup() && !node.isShowPorts()){
+            if (node.isFlipPorts()){
+                return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
+            } else {
+                return node.getPosition().x + getIconLocationX(node);
+            }
         }
 
         return findNodePortPosition(node, edge.getDestPortId(), false).x;
@@ -2762,10 +2761,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y;
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
-            return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
-        }
-
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getDestPortId());
             const numPorts = node.getInputPorts().length;
@@ -2777,6 +2772,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
             return findNodePortPosition(containingConstruct, edge.getDestPortId(), false).y - PORT_ICON_HEIGHT;
+        }
+
+        if (!node.isGroup() && !node.isShowPorts()){
+            return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
         return findNodePortPosition(node, edge.getDestPortId(), false).y - PORT_ICON_HEIGHT;
