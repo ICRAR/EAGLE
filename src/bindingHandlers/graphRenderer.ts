@@ -292,13 +292,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             // check if this is a double click
             if (elapsedTime < DOUBLE_CLICK_DURATION){
-                // if (node.isData()){
-                //     node.toggleShowPorts();
-                //     eagle.logicalGraph.valueHasMutated();
-                // }
                 if (node.isGroup()){
                     node.toggleCollapsed();
-                }else{
+                } else {
                     node.toggleShowPorts();
                     eagle.logicalGraph.valueHasMutated();
                 }
@@ -512,17 +508,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("height", Node.DATA_COMPONENT_HEIGHT)
         .attr("x", function(node:Node){return getIconLocationX(node);})
         .attr("y", function(node:Node){return getIconLocationY(node);})
-        .style("display", getIconDisplay)
-        // .append('foreignObject')
-        // .attr("width", Node.DATA_COMPONENT_WIDTH)
-        // .attr("height", Node.DATA_COMPONENT_HEIGHT)
-        // .attr("x", function(node:Node){return getIconLocationX(node);})
-        // .attr("y", function(node:Node){return getIconLocationY(node);})
-        // .append('xhtml:span')
-        // .attr("style", "font-size: 45px")
-        // .attr("class", "material-icons")
-        // // .attr("html", function(node:Node){return node.getIcon();})
-        // .html(function(node:Node){return node.getIcon();})
+        .style("display", getIconDisplay);
 
     // add the resize controls
     nodes
