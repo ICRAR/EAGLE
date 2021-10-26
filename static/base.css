@@ -375,21 +375,21 @@
 #paletteList .input-group {
     height: 40px;
 }
-#paletteList .input-group-prepend {
+#paletteList .input-group-prepend{
     height: 100%;
+    width: 52px;
 }
 
-#paletteList button {
+#paletteList button, #paletteList span {
     height: 100%;
-}
-
-#paletteList span {
-    height: 100%;
+    width: 100%;
 }
 
 #paletteList img {
     height: 100%;
     filter: invert(1);
+    margin-left:50%;
+    transform: translateX(-50%);
 }
 
 .savePaletteBtn{
