@@ -1165,9 +1165,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .call(wrap, true);
 
         rootContainer
-            .selectAll("image")
+            .selectAll("img")
             .data(nodeData)
-            .attr("href", getDataIcon)
+            .attr("src", getDataIcon)
             .attr("width", Node.DATA_COMPONENT_HEIGHT)
             .attr("height", Node.DATA_COMPONENT_HEIGHT)
             .attr("x", function(node:Node){return getIconLocationX(node);})

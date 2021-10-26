@@ -372,6 +372,26 @@
     font-size: 16px;
 }
 
+#paletteList .input-group {
+    height: 40px;
+}
+#paletteList .input-group-prepend {
+    height: 100%;
+}
+
+#paletteList button {
+    height: 100%;
+}
+
+#paletteList span {
+    height: 100%;
+}
+
+#paletteList img {
+    height: 100%;
+    filter: invert(1);
+}
+
 .savePaletteBtn{
     margin:0px;
     border-radius: 0px;
