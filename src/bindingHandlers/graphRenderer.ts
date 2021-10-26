@@ -1676,7 +1676,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT - HEADER_INSET*2;
         }
 
-        if (!node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
@@ -1835,7 +1835,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT;
         }
 
-        if (!node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
