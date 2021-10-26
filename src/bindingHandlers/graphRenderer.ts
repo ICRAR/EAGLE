@@ -507,11 +507,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add the svg icon
     nodes
         .append("svg:image")
-        .attr("href", getDataIcon)
+        .attr("href", nodeGetIcon)
         .attr("width", Node.DATA_COMPONENT_WIDTH)
         .attr("height", Node.DATA_COMPONENT_HEIGHT)
         .attr("x", function(node:Node){return getIconLocationX(node);})
         .attr("y", function(node:Node){return getIconLocationY(node);})
+        .style("display", getIconDisplay)
         // .append('foreignObject')
         // .attr("width", Node.DATA_COMPONENT_WIDTH)
         // .attr("height", Node.DATA_COMPONENT_HEIGHT)
@@ -1167,11 +1168,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         rootContainer
             .selectAll("img")
             .data(nodeData)
-            .attr("src", getDataIcon)
+            .attr("src", nodeGetIcon)
             .attr("width", Node.DATA_COMPONENT_HEIGHT)
             .attr("height", Node.DATA_COMPONENT_HEIGHT)
             .attr("x", function(node:Node){return getIconLocationX(node);})
-            .attr("y", function(node:Node){return getIconLocationY(node);});
+            .attr("y", function(node:Node){return getIconLocationY(node);})
+            .style("display", getIconDisplay);
 
         rootContainer
             .selectAll("g.node rect.resize-control")
@@ -2431,28 +2433,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getDataIcon(node : Node) : string {
-        if (!node.isGroup() && !node.isShowPorts()){
-            switch (node.getCategory()){
-                case Eagle.Category.File:
-                    return "/static/assets/svg/hard-drive.svg";
-                case Eagle.Category.Memory:
-                    return "/static/assets/svg/memory.svg";
-                case Eagle.Category.S3:
-                    return "/static/assets/svg/s3_bucket.svg";
-                case Eagle.Category.NGAS:
-                    return "/static/assets/svg/ngas.svg";
-                case Eagle.Category.Plasma:
-                    return "/static/assets/svg/plasma.svg";
-                case Eagle.Category.PlasmaFlight:
-                    return "/static/assets/svg/plasmaflight.svg";
-                default:
-                    console.warn("No icon available for node category", node.getCategory());
-                    return "";
-            }
-        }
+    function nodeGetIcon(node : Node) : string {
+        return node.getIcon();
+    }
 
-        return "";
+    function getIconDisplay(node : Node) : string {
+        if (!node.isGroup() && !node.isShowPorts()){
+            return "inline";
+        } else {
+            return "none";
+        }
     }
 
     function nodeGetColor(node : Node) : string {
