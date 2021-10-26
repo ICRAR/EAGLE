@@ -506,22 +506,22 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // add the svg icon
     nodes
-        // .append("svg:image")
-        // .attr("href", getDataIcon)
-        // .attr("width", Node.DATA_COMPONENT_WIDTH)
-        // .attr("height", Node.DATA_COMPONENT_HEIGHT)
-        // .attr("x", function(node:Node){return getIconLocationX(node);})
-        // .attr("y", function(node:Node){return getIconLocationY(node);})
-        .append('foreignObject')
+        .append("svg:image")
+        .attr("href", getDataIcon)
         .attr("width", Node.DATA_COMPONENT_WIDTH)
         .attr("height", Node.DATA_COMPONENT_HEIGHT)
         .attr("x", function(node:Node){return getIconLocationX(node);})
         .attr("y", function(node:Node){return getIconLocationY(node);})
-        .append('xhtml:span')
-        .attr("style", "font-size: 45px")
-        .attr("class", "material-icons")
-        // .attr("html", function(node:Node){return node.getIcon();})
-        .html(function(node:Node){return node.getIcon();})
+        // .append('foreignObject')
+        // .attr("width", Node.DATA_COMPONENT_WIDTH)
+        // .attr("height", Node.DATA_COMPONENT_HEIGHT)
+        // .attr("x", function(node:Node){return getIconLocationX(node);})
+        // .attr("y", function(node:Node){return getIconLocationY(node);})
+        // .append('xhtml:span')
+        // .attr("style", "font-size: 45px")
+        // .attr("class", "material-icons")
+        // // .attr("html", function(node:Node){return node.getIcon();})
+        // .html(function(node:Node){return node.getIcon();})
 
     // add the resize controls
     nodes

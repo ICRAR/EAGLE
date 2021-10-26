@@ -387,6 +387,7 @@
 
 #paletteList img {
     height: 100%;
+    max-width: 100%;
     filter: invert(1);
     margin-left:50%;
     transform: translateX(-50%);
