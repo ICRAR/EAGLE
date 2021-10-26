@@ -781,6 +781,12 @@ div.rightWindow h5.card-header {
     border-radius: 0px;
 }
 
+#nodeInspector .input-group-text img{
+    height: 25px;
+    max-width: 100%;
+    filter: invert();
+}
+
 #translationMenu .accordion button{
     padding: 9px 20px;
 }
