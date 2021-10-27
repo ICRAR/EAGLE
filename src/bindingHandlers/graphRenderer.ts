@@ -92,20 +92,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const RESIZE_BUTTON_LABEL_FONT_SIZE : number = 24;
     const HEADER_BUTTON_LABEL_FONT_SIZE : number = 12;
 
-
     const SHRINK_BUTTONS_ENABLED : boolean = true;
 
     const HEADER_OFFSET_Y_MEMORY : number = 16;
-    const SUBHEADER_OFFSET_Y_MEMORY : number = -6;
     const HEADER_OFFSET_Y_FILE : number = 4;
-    const SUBHEADER_OFFSET_Y_FILE : number = 8;
     const HEADER_OFFSET_Y_S3 : number = 4;
-    const SUBHEADER_OFFSET_Y_S3 : number = 8;
     const HEADER_OFFSET_Y_NGAS : number = 4;
-    const SUBHEADER_OFFSET_Y_NGAS : number = 8;
     const HEADER_OFFSET_Y_PLASMA : number = 4;
-    const SUBHEADER_OFFSET_Y_PLASMA : number = 8;
-
 
     //console.log("pre-sort", printDrawOrder(graph.getNodes()));
     //console.log("render()", printDrawOrder(nodeData));
@@ -430,17 +423,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("display", getHeaderDisplay)
         .text(getHeaderText)
         .call(wrap, false);
-
-    // add subheader text
-    nodes
-        .append("text")
-        .attr("class", "subheader")
-        .attr("x", function(node:Node){return getHeaderPositionX(node);})
-        .attr("y", function(node:Node){return getSubHeaderPositionY(node);})
-        .style("fill", getHeaderFill)
-        .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
-        .style("display", getSubHeaderDisplay)
-        .text(getSubHeaderText);
 
     // add a app names background to each node
     nodes
@@ -1087,16 +1069,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("display", getHeaderDisplay)
             .text(getHeaderText)
             .call(wrap, false);
-
-        rootContainer
-            .selectAll("g.node text.subheader")
-            .data(nodeData)
-            .attr("x", function(node:Node){return getHeaderPositionX(node);})
-            .attr("y", function(node:Node){return getSubHeaderPositionY(node);})
-            .style("fill", getHeaderFill)
-            .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
-            .style("display", getSubHeaderDisplay)
-            .text(getSubHeaderText);
 
         rootContainer
             .selectAll("g.node rect.apps-background")
@@ -1750,54 +1722,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return "normal";
-    }
-
-    function getSubHeaderDisplay(node : Node) : string {
-        // don't show header background for comment and description nodes
-        if (!node.isGroup() && !node.isShowPorts()){
-            return "inline";
-        } else {
-            return "none";
-        }
-    }
-
-    function getSubHeaderText(data : Node) : string {
-        return "";
-    }
-
-    function getSubHeaderPositionY(node : Node) : number {
-        if (node.isGroup() && node.isCollapsed()){
-            return Node.COLLAPSED_HEIGHT / 2;
-        }
-
-        if (!node.isShowPorts()){
-            let y = (3 * Node.DATA_COMPONENT_HEIGHT / 2);
-
-            switch (node.getCategory()){
-                case Eagle.Category.Memory:
-                    y += SUBHEADER_OFFSET_Y_MEMORY;
-                    break;
-                case Eagle.Category.File:
-                    y +=  SUBHEADER_OFFSET_Y_FILE;
-                    break;
-                case Eagle.Category.S3:
-                    y += SUBHEADER_OFFSET_Y_S3;
-                    break;
-                case Eagle.Category.NGAS:
-                    y += SUBHEADER_OFFSET_Y_NGAS;
-                    break;
-                case Eagle.Category.Plasma:
-                    y += SUBHEADER_OFFSET_Y_PLASMA;
-                    break;
-                case Eagle.Category.PlasmaFlight:
-                    y += SUBHEADER_OFFSET_Y_PLASMA;
-                    break;
-            }
-
-            return y;
-        }
-
-        return 20;
     }
 
     function getAppsBackgroundDisplay(node : Node) : string {
