@@ -2072,7 +2072,7 @@ export class Eagle {
         let numCollapsed: number = 0;
         let numExpanded: number = 0;
         for (const node of this.logicalGraph().getNodes()){
-            if (!node.isGroup()){
+            if (!node.isGroup() && !node.isData()){
                 if (node.isShowPorts()){
                     numCollapsed += 1;
                 } else {
@@ -2085,7 +2085,7 @@ export class Eagle {
         // now loop through and collapse or expand all group nodes
         for (const node of this.logicalGraph().getNodes()){
             if (!node.isGroup()){
-                node.setShowPorts(collapse);
+                node.setShowPorts(!node.isData() && collapse);
             }
         }
 
