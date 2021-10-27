@@ -2336,7 +2336,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getContentDisplay(node : Node) : string {
         // only show content for comment and description nodes
-        if (node.getCategory() === Eagle.Category.Comment || node.getCategory() === Eagle.Category.Description){
+        if ((node.getCategory() === Eagle.Category.Comment || node.getCategory() === Eagle.Category.Description) && node.isShowPorts()){
             return "inline";
         } else {
             return "none";
@@ -3136,7 +3136,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getResizeControlDisplay(node : Node) : string {
-        if (node.isCollapsed()){
+        if (node.isCollapsed() || !node.isShowPorts()){
             return "none";
         }
 
