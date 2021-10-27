@@ -2498,6 +2498,9 @@ export class Eagle {
             this.setSelection(Eagle.RightWindowMode.Inspector, newNode, Eagle.FileType.Graph);
             Eagle.nodeDropLocation = {x:0, y:0};
 
+            // expand the new node, so the user can start connecting it to other nodes
+            newNode.setShowPorts(true);
+
             this.checkGraph();
             this.logicalGraph.valueHasMutated();
         });
