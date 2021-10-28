@@ -391,6 +391,7 @@
     filter: invert(1);
     margin-left:50%;
     transform: translateX(-50%);
+    pointer-events: none;
 }
 
 .savePaletteBtn{
