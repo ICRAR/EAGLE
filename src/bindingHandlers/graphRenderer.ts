@@ -94,12 +94,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const SHRINK_BUTTONS_ENABLED : boolean = true;
 
-    const HEADER_OFFSET_Y_MEMORY : number = 16;
-    const HEADER_OFFSET_Y_FILE : number = 4;
-    const HEADER_OFFSET_Y_S3 : number = 4;
-    const HEADER_OFFSET_Y_NGAS : number = 4;
-    const HEADER_OFFSET_Y_PLASMA : number = 4;
-
     //console.log("pre-sort", printDrawOrder(graph.getNodes()));
     //console.log("render()", printDrawOrder(nodeData));
 
@@ -1674,30 +1668,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 return Node.COLLAPSED_HEIGHT / 3;
             }
 
-
             return Node.COLLAPSED_HEIGHT / 2;
         }
 
-        //WIP
-        if (!node.isShowPorts()){
-            switch(node.getCategory()){
-                case Eagle.Category.Memory:
-                    return HEADER_OFFSET_Y_MEMORY;
-                case Eagle.Category.File:
-                    return HEADER_OFFSET_Y_FILE;
-                case Eagle.Category.S3:
-                    return HEADER_OFFSET_Y_S3;
-                case Eagle.Category.NGAS:
-                    return HEADER_OFFSET_Y_NGAS;
-                case Eagle.Category.Plasma:
-                    return HEADER_OFFSET_Y_PLASMA;
-                case Eagle.Category.PlasmaFlight:
-                    return HEADER_OFFSET_Y_PLASMA;
-            }
+        if (node.getCategory() === Eagle.Category.Branch){
+            return Eagle.getCategoryData(Eagle.Category.Branch).headerOffsetY;
         }
 
-        if (node.getCategory() === Eagle.Category.Branch){
-            return 54;
+        if (!node.isShowPorts()){
+            return Eagle.getCategoryData(node.getCategory()).headerOffsetY;
         }
 
         return 20;
