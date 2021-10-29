@@ -483,6 +483,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
        .attr("height", Node.DATA_COMPONENT_HEIGHT)
        .attr("x", function(node:Node){return getIconLocationX(node);})
        .attr("y", function(node:Node){return getIconLocationY(node);})
+       .style("display", getIconDisplay)
        .append('xhtml:span')
        .attr("style", function(node:Node){return node.getGraphIconAttr();})
        .attr("class", function(node:Node){return node.getIcon();})
