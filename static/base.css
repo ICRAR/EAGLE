@@ -1008,6 +1008,14 @@ nav.navbar .introjs-helperLayer {
     color: #6c757d;
 }
 
+#nodeInspectorInfoCard .col-3{
+    padding: 0px;
+}
+
+#nodeInspectorInfoCard .text-right{
+    transform:translateY(-2px)
+}
+
 .breakLine{
     border-top: solid 1px grey;
     margin-bottom: 5px;
