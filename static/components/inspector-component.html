@@ -10,8 +10,8 @@
             <!-- ko ifnot: $data.node() === null -->
                 <div class="input-group-prepend" data-bind="attr: {title: $data.node().getHelpHTML()}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
                     <span class="input-group-text" data-bind="style: {'background-color': $data.node().color}">
-                        <!-- <i class="material-icons" data-bind="text: $data.node().getIcon()"></i> -->
-                        <img data-bind="attr:{'src':$data.node().getIcon()}"></img>
+                        <i data-bind="class: $data.node().getIcon()"></i>
+                        <!-- <img data-bind="attr:{'src':$data.node().getIcon()}"></img> -->
                     </span>
                 </div>
 
