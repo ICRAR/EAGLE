@@ -1721,6 +1721,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
+        // if a service is not showing ports, hide
+        if (node.isService() && !node.isShowPorts()){
+            return "none";
+        }
+
         // if node has input or output apps, return 'inline' else 'none'
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) ){
             return "inline";
