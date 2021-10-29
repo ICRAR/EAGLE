@@ -68,13 +68,13 @@
 
 /*Animation must have unfilled path strokes to work*/
 .path{
-	fill: none; 
+    fill: none;
     stroke: #6f8193;
     stroke-width: 1px;
     stroke-linecap: round;
-	animation: dash 6s linear;
-	animation-fill-mode: forwards; 
-	animation-iteration-count: 1;
+    animation: dash 6s linear;
+    animation-fill-mode: forwards;
+    animation-iteration-count: 1;
 }
 
 #eagleIconAnimation{
@@ -94,37 +94,37 @@
     transform: translate(-50%, -50%) scale(1.5);
 }
 
-#eagleIconAnimation .path{ 
+#eagleIconAnimation .path{
     transform: scale(2);
 }
 
-#eagleIconAnimation svg:hover path{ 
+#eagleIconAnimation svg:hover path{
     d: path("m 88.7232 109.1043 c -6.2691 -1.6632 -26.731 -5.386 -31.0001 -11.7159 l 16.8586 0.0669 c -0.5447 -0.1061 -11.1871 -2.6822 -17.0225 -13.6649 l 6.7586 0.1379 c -1.0884 -0.4796 -7.072 -5.9689 -6.3529 -13.7203 c 0.3917 -4.2224 5.4263 -10.9429 12.2758 -18.0688 c -5.5193 -7.1373 -4.2617 -9.2962 -13.1033 -9.5172 c 5.6468 -3.4265 8.3106 -6.0962 16.8217 -6.3685 l -3.671 -3.9861 c 3.2787 0.3189 6.6579 1.1277 12.3664 3.1822 c 3.096 0.5296 12.7233 2.4709 12.6896 -1.6552 c 2.2008 0.9655 3.8226 2.6328 7.1723 2.8965 c 2.3107 0.1819 2.176 -1.6986 2.4827 -2.7586 c 2.3145 3.1212 5.1918 6.0548 11.862 7.7241 c 4.134 1.0312 11.3286 2.7925 13.3653 7.054 c 4.6415 9.7113 -8.2416 17.6887 -15.9607 16.7172 c 5.2723 -2.1145 5.3209 -4.7385 1.7677 -7.5527 c -3.8402 -3.128 -15.1404 -2.67 -22.7584 -4.0808 c -8.7782 -1.9345 -10.5894 -5.8043 -12.9654 -9.5172 m -10.0689 7.862 c 13.0789 7.1182 32.8962 9.6508 45.7927 5.7359 m -11.0344 -23.9427 C 101.216 27.6927 96.9339 21.7131 91.206 17.3809 C 83.3495 11.4388 73.8471 7.4012 64.2109 5.3573 C 56.5522 3.7328 45.583 4.1997 40.7236 5.3809 m 12.8275 2.7586 c -8.0108 -0.0702 -16.1934 0.2032 -25.655 3.0345 m 17.1033 1.3793 c -9.5789 0.7338 -19.5361 4.309 -27.8619 6.8965 m 19.5861 -0.8276 c -19.8989 5.2288 -18.3857 9.3692 -25.517 10.8965 m 19.1723 -4 c -11.3603 4.2387 -16.5782 12.0547 -22.4826 14.4826 m 80.8269 69.1029 c -43.3449 2.9566 -77.6593 -6.9245 -83.7235 -56.9651 c 10.1815 -5.0716 8.4964 -13.5592 18.2068 -16.8275 m 72.1374 -1.5172 c -0.351 -2.7003 -1.3148 -3.7853 -2.7586 -4.6896 c -4.6408 -2.9066 -10.8214 -3.4718 -14.7585 -7.1724 m 12.1732 11.0676 c 1 -2 -6 -4 -8.337 -3.2238 z");
 }
 
 /*Animation rules, offset: 0  means it will fully draw each stroke*/
 @keyframes dash{
-	to{
-		stroke-dashoffset: 0;
-	}
+    to{
+        stroke-dashoffset: 0;
+    }
 }
 
 /*Stroke values are set as per console.log report (so that each line is full drawn)*/
 #path1{
-	stroke-dasharray: 727.5789794921875;
-	stroke-dashoffset: 727.5789794921875;
+    stroke-dasharray: 727.5789794921875;
+    stroke-dashoffset: 727.5789794921875;
 }
 
 /*Stroke values are set as per console.log report (so that each line is full drawn)*/
 #pathE1{
-	stroke-dasharray: 176.09375;
-	stroke-dashoffset: 176.09375;
+    stroke-dasharray: 176.09375;
+    stroke-dashoffset: 176.09375;
 }
 
 /*Stroke values are set as per console.log report (so that each line is full drawn)*/
 #pathA1{
-	stroke-dasharray: 173.44000244140625;
-	stroke-dashoffset: 173.44000244140625;
+    stroke-dasharray: 173.44000244140625;
+    stroke-dashoffset: 173.44000244140625;
 }
 
 #nodeInspectorKOWrapper{
@@ -368,8 +368,29 @@
 }
 
 #paletteList .accordion-item .btn-close{
-    margin-right:10px; 
+    margin-right:10px;
     font-size: 16px;
+}
+
+#paletteList palette-component .input-group {
+    height: 40px;
+}
+#paletteList palette-component .input-group-prepend{
+    height: 100%;
+    width: 52px;
+}
+
+#paletteList palette-component button, #paletteList palette-component span {
+    height: 100%;
+    width: 100%;
+}
+
+#paletteList palette-component i {
+    margin-left:50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    color:white;
+    font-size: 24px;
 }
 
 .savePaletteBtn{
@@ -440,7 +461,7 @@
     border-right: solid 1px grey;
 }
 
-.leftWindow .card-header button.btn-close{    
+.leftWindow .card-header button.btn-close{
     right: 15px;
     top: 13px;
     position: absolute;
@@ -760,6 +781,12 @@ div.rightWindow h5.card-header {
     border-radius: 0px;
 }
 
+#nodeInspector .input-group-text img{
+    height: 25px;
+    max-width: 100%;
+    filter: invert();
+}
+
 #translationMenu .accordion button{
     padding: 9px 20px;
 }
@@ -979,6 +1006,14 @@ nav.navbar .introjs-helperLayer {
     font-size: 1rem;
     font-weight: 400;
     color: #6c757d;
+}
+
+#nodeInspectorInfoCard .col-3{
+    padding: 0px;
+}
+
+#nodeInspectorInfoCard .text-right{
+    transform:translateY(-2px)
 }
 
 .breakLine{

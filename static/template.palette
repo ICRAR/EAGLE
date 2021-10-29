@@ -36,6 +36,60 @@
             "readonly": true
         },
         {
+            "category": "Branch",
+            "text": "Branch",
+            "description": "A conditional branch to control flow.",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [
+                {
+                    "Id": "6ac20e14-6c34-4560-8671-ae6bce75b6e4",
+                    "IdText": "Y",
+                    "event": false,
+                    "type": "String"
+                },
+                {
+                    "Id": "e848c50b-928d-4502-8d22-56e543299744",
+                    "IdText": "N",
+                    "event": false,
+                    "type": "String"
+                }
+            ],
+            "key": -23,
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float"
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer"
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean"
+            }, {
+                "text": "Appclass",
+                "name": "appclass",
+                "value": "dlg.apps.simple.SimpleBranch",
+                "description": "The python class that implements this branch construct",
+                "readonly": false,
+                "type": "String"
+            }],
+            "categoryType": "Control",
+            "readonly": true
+        },
+        {
             "category": "BashShellApp",
             "outputPorts": [],
             "fields": [{
@@ -396,6 +450,19 @@
             "readonly": true
         },
         {
+            "category": "Service",
+            "text": "Service",
+            "description": "An external service (e.g. a database)",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -20,
+            "fields": [],
+            "categoryType": "Service",
+            "readonly": true
+        },
+        {
             "category": "Memory",
             "outputPorts": [],
             "fields": [{
@@ -665,6 +732,19 @@
             "readonly": true
         },
         {
+            "category": "Variables",
+            "text": "Variables",
+            "description": "A node that contains variables for use in the graph. Often used to specify global variables.",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -22,
+            "fields": [],
+            "categoryType": "Other",
+            "readonly": true
+        },
+        {
             "category": "GroupBy",
             "text": "Group By",
             "description": "A construct that runs an application on a number of inputs and groups the outputs by results",
@@ -800,16 +880,29 @@
             "readonly": true
         },
         {
-            "category": "Service",
-            "text": "Service",
-            "description": "An external service (e.g. a database)",
+            "category": "ExclusiveForceNode",
+            "text": "Exclusive Force Node",
+            "description": "A group that completely specifies the computation on a single node. All child components must be deployed to a single node, and no other components can be deployed to the same node.",
             "inputApplication": null,
             "inputPorts": [],
             "outputApplication": null,
             "outputPorts": [],
-            "key": -20,
+            "key": -19,
             "fields": [],
-            "categoryType": "Service",
+            "categoryType": "Control",
+            "readonly": true
+        },
+        {
+            "category": "SubGraph",
+            "text": "SubGraph",
+            "description": "A subsection of a complete graph. Can enclose logical parts of a graph and be collapsed to save space in the graph display.",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -25,
+            "fields": [],
+            "categoryType": "Group",
             "readonly": true
         },
         {
@@ -846,99 +939,6 @@
             "description": "A node that places a description in the graph. The description should be used to communicate the purpose of the graph",
             "categoryType": "Other",
             "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "ExclusiveForceNode",
-            "text": "Exclusive Force Node",
-            "description": "A group that completely specifies the computation on a single node. All child components must be deployed to a single node, and no other components can be deployed to the same node.",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -19,
-            "fields": [],
-            "categoryType": "Control",
-            "readonly": true
-        },
-        {
-            "category": "Variables",
-            "text": "Variables",
-            "description": "A node that contains variables for use in the graph. Often used to specify global variables.",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -22,
-            "fields": [],
-            "categoryType": "Other",
-            "readonly": true
-        },
-        {
-            "category": "Branch",
-            "text": "Branch",
-            "description": "A conditional branch to control flow.",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [
-                {
-                    "Id": "6ac20e14-6c34-4560-8671-ae6bce75b6e4",
-                    "IdText": "Y",
-                    "event": false,
-                    "type": "String"
-                },
-                {
-                    "Id": "e848c50b-928d-4502-8d22-56e543299744",
-                    "IdText": "N",
-                    "event": false,
-                    "type": "String"
-                }
-            ],
-            "key": -23,
-            "fields": [{
-                "text": "Execution time",
-                "name": "execution_time",
-                "value": 5,
-                "description": "Estimate of execution time (in seconds) for this application.",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Num CPUs",
-                "name": "num_cpus",
-                "value": 1,
-                "description": "Number of CPUs used for this application.",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "Group start",
-                "name": "group_start",
-                "value": false,
-                "description": "Is this node the start of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Appclass",
-                "name": "appclass",
-                "value": "dlg.apps.simple.SimpleBranch",
-                "description": "The python class that implements this branch construct",
-                "readonly": false,
-                "type": "String"
-            }],
-            "categoryType": "Control",
-            "readonly": true
-        },
-        {
-            "category": "SubGraph",
-            "text": "SubGraph",
-            "description": "A subsection of a complete graph. Can enclose logical parts of a graph and be collapsed to save space in the graph display.",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -25,
-            "fields": [],
-            "categoryType": "Group",
             "readonly": true
         }
     ],

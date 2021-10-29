@@ -1019,6 +1019,12 @@ export class Node {
         return Eagle.getCategoryData(this.category()).icon;
     }
 
+    //get icon color
+    getGraphIconAttr = () : string => {
+        var attr = "font-size: 45px; color:" + Eagle.getCategoryData(this.category()).color
+        return attr
+    }
+
     getInputMultiplicity = () : number => {
         if (this.isMKN()){
             const m : Field = this.getFieldByName("m");
@@ -1305,12 +1311,7 @@ export class Node {
             node.expanded(nodeData.expanded);
         }
 
-        // color
-        if (typeof nodeData.color !== 'undefined'){
-            node.color(nodeData.color);
-        } else {
-            node.color(Utils.getColorForNode(category));
-        }
+        // NOTE: use color from Eagle CategoryData instead of from the input file
 
         // drawOrderHint
         if (typeof nodeData.drawOrderHint !== 'undefined'){
