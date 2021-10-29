@@ -1311,12 +1311,7 @@ export class Node {
             node.expanded(nodeData.expanded);
         }
 
-        // color
-        if (typeof nodeData.color !== 'undefined'){
-            node.color(nodeData.color);
-        } else {
-            node.color(Utils.getColorForNode(category));
-        }
+        // NOTE: use color from Eagle CategoryData instead of from the input file
 
         // drawOrderHint
         if (typeof nodeData.drawOrderHint !== 'undefined'){
