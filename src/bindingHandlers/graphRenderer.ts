@@ -1671,6 +1671,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT / 2;
         }
 
+
+        if (node.isShowPorts()){
+            return Eagle.getCategoryData(node.getCategory()).expandedHeaderOffsetY;
+        } else {
+            return Eagle.getCategoryData(node.getCategory()).collapsedHeaderOffsetY;
+        }
+
+        /*
         if (node.getCategory() === Eagle.Category.Branch){
             return Eagle.getCategoryData(Eagle.Category.Branch).headerOffsetY;
         }
@@ -1678,8 +1686,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (!node.isShowPorts()){
             return Eagle.getCategoryData(node.getCategory()).headerOffsetY;
         }
+        */
 
-        return 20;
+        //return 20;
     }
 
     function getHeaderFill(node : Node) : string {
@@ -2327,7 +2336,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getIconDisplay(node : Node) : string {
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isBranch()){
             return "inline";
         } else {
             return "none";
@@ -2514,7 +2523,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 return node.getPosition().x + node.getWidth()/2;
             }
             if (portIndex === 1){
-                return node.getPosition().x + node.getWidth();
+                if (node.isShowPorts()){
+                    return node.getPosition().x + node.getWidth();
+                } else {
+                    return node.getPosition().x + node.getWidth()*3/4;
+                }
             }
         }
 
@@ -2556,8 +2569,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
 
             if (portIndex === 0){
-                // TODO: magic number
-                return node.getPosition().y + 100;
+                if (node.isShowPorts()){
+                    // TODO: magic number
+                    return node.getPosition().y + 100;
+                } else {
+                    return node.getPosition().y + node.getHeight();
+                }
             }
             if (portIndex === 1){
                 // TODO: magic number
@@ -2603,7 +2620,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const portIndex = findNodePortIndex(node, edge.getDestPortId());
             const numPorts = node.getInputPorts().length;
 
-            return node.getPosition().x + node.getWidth()/2 - node.getWidth()/2 * portIndexRatio(portIndex, numPorts);
+            if (node.isShowPorts()){
+                return node.getPosition().x + node.getWidth()/2 - node.getWidth()/2 * portIndexRatio(portIndex, numPorts);
+            } else {
+                return node.getPosition().x + node.getWidth()/2 - node.getWidth()/4 * portIndexRatio(portIndex, numPorts);
+            }
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -2644,7 +2665,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const portIndex = findNodePortIndex(node, edge.getDestPortId());
             const numPorts = node.getInputPorts().length;
 
-            return node.getPosition().y + 50 * portIndexRatio(portIndex, numPorts);
+            if (node.isShowPorts()){
+                return node.getPosition().y + 50 * portIndexRatio(portIndex, numPorts);
+            } else {
+                return node.getPosition().y + 25 + 25 * portIndexRatio(portIndex, numPorts);
+            }
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
@@ -3105,10 +3130,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function getNodeCustomShapePoints(node: Node): string {
         switch(node.getCategory()){
             case Eagle.Category.Branch:
-                const half_width = 200 / 2;
-                const half_height = 100 / 2;
+                let half_width = 200 / 2;
+                let half_height = 100 / 2;
+                let offsetX = 0;
+                let offsetY = 0;
 
-                return half_width + ", " + 0 + " " + half_width*2 + ", " + half_height + " " + half_width + ", " + half_height*2 + " " + 0 + ", " + half_height;
+                // if branch is collapsed, reduce to half size
+                if (!node.isShowPorts()){
+                    half_width = 50;
+                    half_height = 25;
+                    offsetX = 50;
+                    offsetY = 25;
+                }
+
+                return (half_width+offsetX) + ", " + offsetY + " " + ((half_width*2)+offsetX) + ", " + (half_height+offsetY) + " " + (half_width+offsetX) + ", " + ((half_height*2)+offsetY) + " " + offsetX + ", " + (half_height+offsetY);
             default:
                 return "";
         }
