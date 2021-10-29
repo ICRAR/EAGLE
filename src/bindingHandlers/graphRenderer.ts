@@ -476,15 +476,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .text(getContentText)
         .call(wrap, true);
 
-    // add the svg icon
-    nodes
-        .append("svg:image")
-        .attr("href", nodeGetIcon)
-        .attr("width", Node.DATA_COMPONENT_WIDTH)
-        .attr("height", Node.DATA_COMPONENT_HEIGHT)
-        .attr("x", function(node:Node){return getIconLocationX(node);})
-        .attr("y", function(node:Node){return getIconLocationY(node);})
-        .style("display", getIconDisplay);
+       // add the svg icon
+       nodes
+       .append('foreignObject')
+       .attr("width", Node.DATA_COMPONENT_WIDTH)
+       .attr("height", Node.DATA_COMPONENT_HEIGHT)
+       .attr("x", function(node:Node){return getIconLocationX(node);})
+       .attr("y", function(node:Node){return getIconLocationY(node);})
+       .append('xhtml:span')
+       .attr("style", function(node:Node){return node.getGraphIconAttr();})
+       .attr("class", function(node:Node){return node.getIcon();})
+
 
     // add the resize controls
     nodes

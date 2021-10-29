@@ -385,13 +385,12 @@
     width: 100%;
 }
 
-#paletteList palette-component img {
-    height: 100%;
-    max-width: 100%;
-    filter: invert(1);
+#paletteList palette-component i {
     margin-left:50%;
     transform: translateX(-50%);
     pointer-events: none;
+    color:white;
+    font-size: 24px;
 }
 
 .savePaletteBtn{

@@ -1019,6 +1019,12 @@ export class Node {
         return Eagle.getCategoryData(this.category()).icon;
     }
 
+    //get icon color
+    getGraphIconAttr = () : string => {
+        var attr = "font-size: 45px; color:" + Eagle.getCategoryData(this.category()).color
+        return attr
+    }
+
     getInputMultiplicity = () : number => {
         if (this.isMKN()){
             const m : Field = this.getFieldByName("m");

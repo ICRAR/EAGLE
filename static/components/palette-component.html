@@ -4,7 +4,8 @@
             <div class="input-group-prepend">
                 <button class="nodeBtn" type="button" data-bind="click: function(){$root.addNodeToLogicalGraph($data)}, clickBubble: false, attr: {id: 'addPaletteNode' + $data.getNoWhiteSpaceName()}">
                     <span class="input-group-text" data-bind="style: {'background-color': $data.color}">
-                        <img data-bind="attr:{'src':$data.getIcon()}"></img>
+                        <i data-bind="class: $data.getIcon()"></i>
+                        <!-- <img data-bind="attr:{'src':$data.getIcon()}"></img> -->
                     </span>
                 </button>
             </div>
