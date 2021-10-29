@@ -1680,18 +1680,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         } else {
             return Eagle.getCategoryData(node.getCategory()).collapsedHeaderOffsetY;
         }
-
-        /*
-        if (node.getCategory() === Eagle.Category.Branch){
-            return Eagle.getCategoryData(Eagle.Category.Branch).headerOffsetY;
-        }
-
-        if (!node.isShowPorts()){
-            return Eagle.getCategoryData(node.getCategory()).headerOffsetY;
-        }
-        */
-
-        //return 20;
     }
 
     function getHeaderFill(node : Node) : string {
