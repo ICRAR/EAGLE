@@ -758,6 +758,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 //console.log("drag from port", data.Id);
                                 mousePosition.x = d3.mouse(svgContainer.node())[0];
                                 mousePosition.y = d3.mouse(svgContainer.node())[1];
+
+                                // check for nearby nodes
+                                let nearbyNodes =
+
                                 tick();
                             })
                             .on("end", function(port : Port){
@@ -3257,6 +3261,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (srcFound && destFound){
                 result.push(edge);
             }
+        }
+
+        return result;
+    }
+
+    function findNodesInRange(positionX: number, positionY: number, range: number): Node[]{
+        let result: Node[] = [];
+
+        for (let i = 0; i < nodeData.length; i++){
+            
         }
 
         return result;
