@@ -123,7 +123,7 @@ g.node g.inputLocalPorts text.event, g.node g.outputLocalPorts text.event, g.nod
     fill: cornflowerblue;
 }
 
-line.link, line.draggingLink, path.link, path.draggingLink {
+line.link, line.draggingLink, line.autoCompleteLink, path.link, path.draggingLink, path.autoCompleteLink {
     stroke-width: 2;
 }
 
