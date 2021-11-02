@@ -94,6 +94,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const SHRINK_BUTTONS_ENABLED : boolean = true;
 
+    const MIN_AUTO_COMPLETE_EDGE_RANGE : number = 100;
+
     //console.log("pre-sort", printDrawOrder(graph.getNodes()));
     //console.log("render()", printDrawOrder(nodeData));
 
@@ -759,8 +761,27 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 mousePosition.x = d3.mouse(svgContainer.node())[0];
                                 mousePosition.y = d3.mouse(svgContainer.node())[1];
 
+                                // convert mouse position to graph coordinates
+                                const mouseX = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
+                                const mouseY = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
+
                                 // check for nearby nodes
-                                let nearbyNodes =
+                                let nearbyNodes = findNodesInRange(mouseX, mouseY, MIN_AUTO_COMPLETE_EDGE_RANGE, sourceNodeKey, sourcePortId, sourceDataType);
+
+                                // debug
+                                let s: string = "(" + nearbyNodes.length + ") ";
+                                for (const node of nearbyNodes){
+                                    s += node.getName() + ", ";
+                                }
+                                //console.log("nearbyNodes", s);
+
+                                // peek at nearby nodes
+                                for (const node of nodeData){
+                                    node.setPeekPorts(false);
+                                }
+                                for (const node of nearbyNodes){
+                                    node.setPeekPorts(true);
+                                }
 
                                 tick();
                             })
@@ -1625,7 +1646,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        return !node.isGroup() && !node.isShowPorts() ? "none" : "inline";
+        return !node.isGroup() && !node.isShowPorts() && !node.isPeekPorts() ? "none" : "inline";
     }
 
     function getHeaderBackgroundWidth(node : Node) : number {
@@ -1637,7 +1658,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT - HEADER_INSET*2;
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
@@ -1660,7 +1681,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeaderPositionX(node : Node) : number {
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return node.getWidth()/2;
         }
 
@@ -1679,7 +1700,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
 
-        if (node.isShowPorts()){
+        if (node.isShowPorts() || node.isPeekPorts()){
             return Eagle.getCategoryData(node.getCategory()).expandedHeaderOffsetY;
         } else {
             return Eagle.getCategoryData(node.getCategory()).collapsedHeaderOffsetY;
@@ -1687,7 +1708,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getHeaderFill(node : Node) : string {
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return "black";
         }
 
@@ -2336,7 +2357,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getIconDisplay(node : Node) : string {
-        if (!node.isGroup() && !node.isShowPorts() && !node.isBranch()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts() && !node.isBranch()){
             return "inline";
         } else {
             return "none";
@@ -3175,7 +3196,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return "none";
         }
 
@@ -3266,11 +3287,25 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return result;
     }
 
-    function findNodesInRange(positionX: number, positionY: number, range: number): Node[]{
+    function findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number, sourcePortId: string, sourceDataType: string): Node[]{
         let result: Node[] = [];
 
         for (let i = 0; i < nodeData.length; i++){
-            
+            // skip the source node
+            if (nodeData[i].getKey() === sourceNodeKey){
+                continue;
+            }
+
+            // determine center of node
+            const nodeCenterX = nodeData[i].getPosition().x + nodeData[i].getWidth() / 2;
+            const nodeCenterY = nodeData[i].getPosition().y + nodeData[i].getHeight() / 2;
+
+            const distance = Math.sqrt( Math.pow(nodeCenterX - positionX, 2) + Math.pow(nodeCenterY - positionY, 2) );
+
+            if (distance <= range){
+                //console.log("distance to", nodeData[i].getName(), "=", distance);
+                result.push(nodeData[i]);
+            }
         }
 
         return result;
