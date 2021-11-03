@@ -308,19 +308,29 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             // get distance the mouse was moved
+            let movementSource = 0;
             let movementX = d3.event.sourceEvent.movementX;
             let movementY = d3.event.sourceEvent.movementY;
 
             // in testcafe, d3.event.sourceEvent.movementX and Y are always zero, use the d3.event.dx and dy instead
             if (movementX === 0 && movementY === 0){
+                movementSource = 1;
                 movementX = d3.event.dx;
                 movementY = d3.event.dy;
+
+                // avoid drag event 1 all together, it is too prone to huge movements
+                if (dragEventCount === 1){
+                    movementX = 0;
+                    movementY = 0;
+                }
 
                 // NOTE: the second drag event on any drag will be offset in Y by a large amount, don't know why, it is some mistake with the way I use d3
                 if (dragEventCount === 2){
                     movementY -= 80;
                 }
             }
+
+            //console.log(d3.event.sourceEvent.target.tagName, "dragEventCount", dragEventCount, "movementSource", movementSource, "movementX", movementX, "movementY", movementY);
 
             // transform change in x,y position using current scale factor
             const dx = DISPLAY_TO_REAL_SCALE(movementX);
