@@ -230,9 +230,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             eagle.globalOffsetX = d3.event.sourceEvent.clientX - xs * eagle.globalScale;
             eagle.globalOffsetY = d3.event.sourceEvent.clientY - ys * eagle.globalScale;
 
-            // limit scaling
-            eagle.globalScale = Math.max(Math.min(eagle.globalScale, 3.0), 0.5);
-
             tick();
         });
 
