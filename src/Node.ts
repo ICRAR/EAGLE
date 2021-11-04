@@ -46,11 +46,12 @@ export class Node {
 
     private parentKey : ko.Observable<number>;
     private embedKey : ko.Observable<number>;
-    private collapsed : ko.Observable<boolean>;
+    private collapsed : ko.Observable<boolean>;    // indicates whether the node is shown collapsed in the graph display
+    private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
+
     private streaming : ko.Observable<boolean>;
     private precious : ko.Observable<boolean>;
-    private showPorts : boolean;
-    private peekPorts : boolean;                  // true if we are temporarily showing the ports based on the users mouse position
+    private peek : boolean;                        // true if we are temporarily showing the ports based on the users mouse position
     private flipPorts : ko.Observable<boolean>;
 
     private inputApplication : ko.Observable<Node>;
@@ -64,9 +65,7 @@ export class Node {
 
     private category : ko.Observable<Eagle.Category>;
 
-    private subject : ko.Observable<number>; // the key of another node that is the subject of this node. used by comment nodes only.
-
-    private expanded : ko.Observable<boolean>; // true, if the node has been expanded in the hierarchy tab in EAGLE
+    private subject : ko.Observable<number>;       // the key of another node that is the subject of this node. used by comment nodes only.
 
     private readonly : ko.Observable<boolean>;
 
@@ -107,11 +106,10 @@ export class Node {
 
         this.parentKey = ko.observable(null);
         this.embedKey = ko.observable(null);
-        this.collapsed = ko.observable(false); // indicates whether the node is shown collapsed in the graph display
+        this.collapsed = ko.observable(false);
         this.streaming = ko.observable(false);
         this.precious = ko.observable(false);
-        this.showPorts = false;
-        this.peekPorts = false;
+        this.peek = false;
         this.flipPorts = ko.observable(false);
 
         this.inputApplication = ko.observable(null);
@@ -318,24 +316,12 @@ export class Node {
         this.precious(!this.precious());
     }
 
-    isShowPorts = () : boolean => {
-        return this.showPorts;
+    isPeek = () : boolean => {
+        return this.peek;
     }
 
-    setShowPorts = (value : boolean) : void => {
-        this.showPorts = value;
-    }
-
-    toggleShowPorts = () : void => {
-        this.showPorts = !this.showPorts;
-    }
-
-    isPeekPorts = () : boolean => {
-        return this.peekPorts;
-    }
-
-    setPeekPorts = (value : boolean) : void => {
-        this.peekPorts = value;
+    setPeek = (value : boolean) : void => {
+        this.peek = value;
     }
 
     isFlipPorts = () : boolean => {
@@ -667,11 +653,7 @@ export class Node {
             return Node.COLLAPSED_WIDTH;
         }
 
-        if (!this.isGroup() && this.isCollapsed()){
-            return this.width;
-        }
-
-        if (this.isData() && !this.isShowPorts() && !this.isPeekPorts()){
+        if (this.isData() && !this.isCollapsed() && !this.isPeek()){
             return Node.DATA_COMPONENT_WIDTH;
         }
 
