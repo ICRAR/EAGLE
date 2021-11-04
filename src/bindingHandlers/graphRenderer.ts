@@ -40,7 +40,8 @@ const LINK_COLORS:{[key:string]:string} = {
     LINK_INVALID_SELECTED_COLOR: 'firebrick',
     LINK_VALID_COLOR: 'limegreen',
     LINK_EVENT_COLOR: 'rgb(128,128,255)',
-    LINK_EVENT_SELECTED_COLOR: 'blue'
+    LINK_EVENT_SELECTED_COLOR: 'blue',
+    LINK_AUTO_COMPLETE_COLOR: 'purple'
 }
 
 function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
@@ -59,6 +60,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     let sourceDataType : string | null = null;
     let destinationPortId : string | null = null;
     let destinationNodeKey : number | null = null;
+    let suggestedPortId : string | null = null;
+    let suggestedNodeKey : number | null = null;
     let isDraggingPort : boolean = false;
     let isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
     let isDraggingWithAlt : boolean = false;
@@ -93,6 +96,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const HEADER_BUTTON_LABEL_FONT_SIZE : number = 12;
 
     const SHRINK_BUTTONS_ENABLED : boolean = true;
+
+    const MIN_AUTO_COMPLETE_EDGE_RANGE : number = 150;
 
     //console.log("pre-sort", printDrawOrder(graph.getNodes()));
     //console.log("render()", printDrawOrder(nodeData));
@@ -768,28 +773,70 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 //console.log("drag from port", data.Id);
                                 mousePosition.x = d3.mouse(svgContainer.node())[0];
                                 mousePosition.y = d3.mouse(svgContainer.node())[1];
+
+                                // convert mouse position to graph coordinates
+                                const mouseX = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
+                                const mouseY = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
+
+                                // check for nearby nodes
+                                const nearbyNodes = findNodesInRange(mouseX, mouseY, MIN_AUTO_COMPLETE_EDGE_RANGE, sourceNodeKey, sourcePortId, sourceDataType);
+
+                                // check for nearest matching port in the nearby nodes
+                                const matchingPort: Port = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourceDataType);
+
+                                if (matchingPort !== null){
+                                    suggestedNodeKey = matchingPort.getNodeKey();
+                                    suggestedPortId = matchingPort.getId();
+                                } else {
+                                    suggestedNodeKey = null;
+                                    suggestedPortId = null;
+                                }
+
+                                // peek at nearby nodes (only if they contain a port that matches the source port)
+                                for (const node of nodeData){
+                                    node.setPeekPorts(false);
+                                }
+                                for (const node of nearbyNodes){
+                                    // TODO: should probably match on type, not name!
+                                    if (node.findPortByName(sourceDataType, true, false) !== null){
+                                        node.setPeekPorts(true);
+                                    }
+                                }
+
                                 tick();
                             })
                             .on("end", function(port : Port){
                                 //console.log("drag end", port.getId());
                                 isDraggingPort = false;
 
-                                if (destinationPortId !== null){
+                                if (destinationPortId !== null || suggestedPortId !== null){
                                     const srcNode = findNodeWithKey(sourceNodeKey, nodeData);
-                                    const destNode = findNodeWithKey(destinationNodeKey, nodeData);
+                                    const srcPort = srcNode.findPortById(sourcePortId);
                                     const srcPortType = srcNode.findPortTypeById(sourcePortId);
-                                    const destPortType = destNode.findPortTypeById(destinationPortId);
+
+                                    let destNode;
+                                    let destPort;
+                                    let destPortType;
+
+                                    if (destinationPortId !== null){
+                                        destNode = findNodeWithKey(destinationNodeKey, nodeData);
+                                        destPort = destNode.findPortById(destinationPortId);
+                                        destPortType = destNode.findPortTypeById(destinationPortId);
+                                    } else {
+                                        destNode = findNodeWithKey(suggestedNodeKey, nodeData);
+                                        destPort = destNode.findPortById(suggestedPortId);
+                                        destPortType = destNode.findPortTypeById(suggestedPortId);
+                                    }
 
                                     // check if edge is back-to-front (input-to-output), if so, swap the source and destination
-                                    if ((srcPortType === "input" || srcPortType === "outputLocal") && (destPortType === "output" || destPortType === "inputLocal")){
-                                        const tempNodeKey = sourceNodeKey;
-                                        const tempPortId = sourcePortId;
-                                        sourceNodeKey = destinationNodeKey;
-                                        sourcePortId = destinationPortId;
-                                        destinationNodeKey = tempNodeKey;
-                                        destinationPortId = tempPortId;
+                                    const backToFront : boolean = (srcPortType === "input" || srcPortType === "outputLocal") && (destPortType === "output" || destPortType === "inputLocal");
+                                    sourceNodeKey      = backToFront ? destNode.getKey() : srcNode.getKey();
+                                    sourcePortId       = backToFront ? destPort.getId()  : srcPort.getId();
+                                    destinationNodeKey = backToFront ? srcNode.getKey()  : destNode.getKey();
+                                    destinationPortId  = backToFront ? srcPort.getId()   : destPort.getId();
 
-                                        // notify user
+                                    // notify user
+                                    if (backToFront){
                                         Utils.showNotification("Automatically reversed edge direction", "The edge began at an input port and ended at an output port, so the direction was reversed.", "info");
                                     }
 
@@ -810,11 +857,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         console.warn("link not valid, result", linkValid);
                                     }
                                 } else {
-                                    console.warn("destination port is null!", destinationPortId);
+                                    // no destination, don't draw an edge
+                                    //console.warn("destination port is null!", destinationPortId);
+                                }
+
+                                // stop peeking at any nodes
+                                for (const node of nodeData){
+                                    node.setPeekPorts(false);
                                 }
 
                                 clearEdgeVars();
-                                tick();
+                                eagle.logicalGraph.valueHasMutated();
                             });
 
     portDragHandler(inputCircles);
@@ -882,6 +935,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x2", 0)
         .attr("y2", 0)
         .attr("stroke", draggingEdgeGetStrokeColor);
+
+    // create one link that is only used during the creation of a new link
+    // this new link suggests to the user the edge suggested by the auto-complete function
+    const autoCompleteLink = rootContainer
+        .append("line")
+        .attr("class", "autoCompleteLink")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", 0)
+        .attr("y2", 0)
+        .attr("stroke", LINK_COLORS["LINK_AUTO_COMPLETE_COLOR"]);
 
     const selectionRegion = rootContainer
         .append("rect")
@@ -1131,14 +1195,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .call(wrap, true);
 
         rootContainer
-            .selectAll("img")
+            .selectAll("foreignObject")
             .data(nodeData)
-            .attr("src", nodeGetIcon)
             .attr("width", Node.DATA_COMPONENT_HEIGHT)
             .attr("height", Node.DATA_COMPONENT_HEIGHT)
             .attr("x", function(node:Node){return getIconLocationX(node);})
             .attr("y", function(node:Node){return getIconLocationY(node);})
             .style("display", getIconDisplay);
+            // TODO: possibly missing changes to the <xhtml:span> child of the foreignObject
 
         rootContainer
             .selectAll("g.node rect.resize-control")
@@ -1513,28 +1577,33 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("display", getCommentLinkDisplay);
 
         // dragging link
+        let draggingX1 : number;
+        let draggingY1 : number;
+        let draggingX2 : number;
+        let draggingY2 : number;
+
         if (isDraggingPort){
             const tempEdge: Edge = new Edge(sourceNodeKey, sourcePortId, 0, "", "", false);
-            const x1 : number = edgeGetX1(tempEdge);
-            const y1 : number = edgeGetY1(tempEdge);
-            let x2 : number = DISPLAY_TO_REAL_POSITION_X(mousePosition.x); //d2r?
-            let y2 : number = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
+            draggingX1 = edgeGetX1(tempEdge);
+            draggingY1 = edgeGetY1(tempEdge);
+            draggingX2 = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
+            draggingY2 = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
 
             // offset x2/y2 so that the draggingLink is not right underneath the cursor (interfering with mouseenter/mouseleave events)
-            if (x1 > x2)
-                x2 += 4;
+            if (draggingX1 > draggingX2)
+                draggingX2 += 4;
             else
-                x2 -= 4;
-            if (y1 > y2)
-                y2 += 4;
+                draggingX2 -= 4;
+            if (draggingY1 > draggingY2)
+                draggingY2 += 4;
             else
-                y2 -= 4;
+                draggingY2 -= 4;
 
             // TODO: this is kind of hacky, creating a single-use edge just so that we can determine it's starting position
-            draggingLink.attr("x1", x1)
-                        .attr("y1", y1)
-                        .attr("x2", x2)
-                        .attr("y2", y2)
+            draggingLink.attr("x1", draggingX1)
+                        .attr("y1", draggingY1)
+                        .attr("x2", draggingX2)
+                        .attr("y2", draggingY2)
                         .attr("stroke", draggingEdgeGetStrokeColor);
         } else {
             draggingLink.attr("x1", 0)
@@ -1542,6 +1611,25 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                         .attr("x2", 0)
                         .attr("y2", 0)
                         .attr("stroke", "none");
+        }
+
+        // autocomplete link
+        if (isDraggingPort && suggestedNodeKey !== null){
+            const tempEdge: Edge = new Edge(sourceNodeKey, sourcePortId, suggestedNodeKey, suggestedPortId, "", false);
+            const x2 : number = edgeGetX2(tempEdge);
+            const y2 : number = edgeGetY2(tempEdge);
+
+            autoCompleteLink.attr("x1", draggingX2)
+                            .attr("y1", draggingY2)
+                            .attr("x2", x2)
+                            .attr("y2", y2)
+                            .attr("stroke", LINK_COLORS["LINK_AUTO_COMPLETE_COLOR"]);
+        } else {
+            autoCompleteLink.attr("x1", 0)
+                            .attr("y1", 0)
+                            .attr("x2", 0)
+                            .attr("y2", 0)
+                            .attr("stroke", "none");
         }
 
         // selection region
@@ -1631,7 +1719,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        return !node.isGroup() && !node.isShowPorts() ? "none" : "inline";
+        return !node.isGroup() && !node.isShowPorts() && !node.isPeekPorts() ? "none" : "inline";
     }
 
     function getHeaderBackgroundWidth(node : Node) : number {
@@ -1643,7 +1731,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT - HEADER_INSET*2;
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
@@ -1666,7 +1754,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeaderPositionX(node : Node) : number {
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return node.getWidth()/2;
         }
 
@@ -1685,7 +1773,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
 
-        if (node.isShowPorts()){
+        if (node.isShowPorts() || node.isPeekPorts()){
             return Eagle.getCategoryData(node.getCategory()).expandedHeaderOffsetY;
         } else {
             return Eagle.getCategoryData(node.getCategory()).collapsedHeaderOffsetY;
@@ -1693,7 +1781,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getHeaderFill(node : Node) : string {
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return "black";
         }
 
@@ -1705,7 +1793,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getHeaderFontWeight(node : Node) : string {
-        //if (node.isData() && !node.isShowPorts() &&  eagle.objectIsSelected(node)){
+        //if (node.isData() && !node.isShowPorts() && !node.isPeekPorts() && eagle.objectIsSelected(node)){
         if (eagle.objectIsSelected(node)){
             return "bold";
         }
@@ -1720,7 +1808,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // if a service is not showing ports, hide
-        if (node.isService() && !node.isShowPorts()){
+        if (node.isService() && !node.isShowPorts() && !node.isPeekPorts()){
             return "none";
         }
 
@@ -1741,7 +1829,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.COLLAPSED_HEIGHT;
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
@@ -2310,10 +2398,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return -8;
     }
 
-
-
-
-
     function getContentPositionX(node : Node) : number {
         // left justified
         return 8;
@@ -2330,7 +2414,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getContentDisplay(node : Node) : string {
         // only show content for comment and description nodes
-        if ((node.getCategory() === Eagle.Category.Comment || node.getCategory() === Eagle.Category.Description) && node.isShowPorts()){
+        if ((node.getCategory() === Eagle.Category.Comment || node.getCategory() === Eagle.Category.Description) && (node.isShowPorts() || node.isPeekPorts())){
             return "inline";
         } else {
             return "none";
@@ -2342,8 +2426,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getIconDisplay(node : Node) : string {
-        if (!node.isGroup() && !node.isShowPorts() && !node.isBranch()){
-            return "inline";
+        if (!node.isGroup() && !(node.isShowPorts() || node.isPeekPorts()) && !node.isBranch()){
+            return "inline"
         } else {
             return "none";
         }
@@ -2356,7 +2440,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function nodeGetFill(node : Node) : string {
         //console.log("nodeGetFill() category", node.getCategory());
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return "none";
         }
 
@@ -2369,7 +2453,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function nodeGetStroke(node : Node) : string {
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return "none";
         }
 
@@ -2529,7 +2613,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 return node.getPosition().x + node.getWidth()/2;
             }
             if (portIndex === 1){
-                if (node.isShowPorts()){
+                if (node.isShowPorts() || node.isPeekPorts()){
                     return node.getPosition().x + node.getWidth();
                 } else {
                     return node.getPosition().x + node.getWidth()*3/4;
@@ -2543,7 +2627,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return findNodePortPosition(containingConstruct, edge.getSrcPortId(), true).x;
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             if (node.isFlipPorts()){
                 return node.getPosition().x + getIconLocationX(node);
             } else {
@@ -2575,7 +2659,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
 
             if (portIndex === 0){
-                if (node.isShowPorts()){
+                if (node.isShowPorts() || node.isPeekPorts()){
                     // TODO: magic number
                     return node.getPosition().y + 100;
                 } else {
@@ -2594,7 +2678,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return findNodePortPosition(containingConstruct, edge.getSrcPortId(), true).y - PORT_ICON_HEIGHT;
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
@@ -2626,7 +2710,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const portIndex = findNodePortIndex(node, edge.getDestPortId());
             const numPorts = node.getInputPorts().length;
 
-            if (node.isShowPorts()){
+            if (node.isShowPorts() || node.isPeekPorts()){
                 return node.getPosition().x + node.getWidth()/2 - node.getWidth()/2 * portIndexRatio(portIndex, numPorts);
             } else {
                 return node.getPosition().x + node.getWidth()/2 - node.getWidth()/4 * portIndexRatio(portIndex, numPorts);
@@ -2639,7 +2723,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return findNodePortPosition(containingConstruct, edge.getDestPortId(), false).x;
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             if (node.isFlipPorts()){
                 return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
             } else {
@@ -2671,7 +2755,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const portIndex = findNodePortIndex(node, edge.getDestPortId());
             const numPorts = node.getInputPorts().length;
 
-            if (node.isShowPorts()){
+            if (node.isShowPorts() || node.isPeekPorts()){
                 return node.getPosition().y + 50 * portIndexRatio(portIndex, numPorts);
             } else {
                 return node.getPosition().y + 25 + 25 * portIndexRatio(portIndex, numPorts);
@@ -2684,7 +2768,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return findNodePortPosition(containingConstruct, edge.getDestPortId(), false).y - PORT_ICON_HEIGHT;
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
@@ -2925,6 +3009,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         sourceDataType = null;
         destinationPortId = null;
         destinationNodeKey = null;
+        suggestedPortId = null;
+        suggestedNodeKey = null;
     }
 
     function edgeOnClick(edge : Edge, index : number){
@@ -2964,7 +3050,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             y2 = subjectNode.getPosition().y;
         }
 
-        if (!subjectNode.isGroup() && !subjectNode.isShowPorts()){
+        if (!subjectNode.isGroup() && !subjectNode.isShowPorts() && !subjectNode.isPeekPorts()){
             if (node.isFlipPorts()){
                 x2 = subjectNode.getPosition().x + getIconLocationX(subjectNode) + Node.DATA_COMPONENT_WIDTH;
                 y2 = subjectNode.getPosition().y + getIconLocationY(subjectNode) + Node.DATA_COMPONENT_HEIGHT/2;
@@ -3142,7 +3228,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 let offsetY = 0;
 
                 // if branch is collapsed, reduce to half size
-                if (!node.isShowPorts()){
+                if (!node.isShowPorts() && !node.isPeekPorts()){
                     half_width = 50;
                     half_height = 25;
                     offsetX = 50;
@@ -3156,7 +3242,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getResizeControlDisplay(node : Node) : string {
-        if (node.isCollapsed() || !node.isShowPorts()){
+        if (node.isCollapsed() || !(node.isShowPorts() || node.isShowPorts()) ){
             return "none";
         }
 
@@ -3181,7 +3267,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "none";
         }
 
-        if (!node.isGroup() && !node.isShowPorts()){
+        if (!node.isGroup() && !node.isShowPorts() && !node.isPeekPorts()){
             return "none";
         }
 
@@ -3270,6 +3356,59 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return result;
+    }
+
+    function findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number, sourcePortId: string, sourceDataType: string): Node[]{
+        let result: Node[] = [];
+
+        for (let i = 0; i < nodeData.length; i++){
+            // skip the source node
+            if (nodeData[i].getKey() === sourceNodeKey){
+                continue;
+            }
+
+            // determine center of node
+            const nodeCenterX = nodeData[i].getPosition().x + nodeData[i].getWidth() / 2;
+            const nodeCenterY = nodeData[i].getPosition().y + nodeData[i].getHeight() / 2;
+
+            const distance = Math.sqrt( Math.pow(nodeCenterX - positionX, 2) + Math.pow(nodeCenterY - positionY, 2) );
+
+            if (distance <= range){
+                //console.log("distance to", nodeData[i].getName(), "=", distance);
+                result.push(nodeData[i]);
+            }
+        }
+
+        return result;
+    }
+
+    function findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourceDataType: string) : Port {
+        let minDistance = Number.MAX_SAFE_INTEGER;
+        let minPort = null;
+
+        for (const node of nearbyNodes){
+            for (const port of node.getInputPorts()){
+                // TODO: should probably match on type, not name!
+                if (port.getName() !== sourceDataType){
+                    continue;
+                }
+
+                // get position of port
+                const portX = node.getPosition().x;
+                const portY = node.getPosition().y;
+
+                // get distance to port
+                const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
+
+                // remember this port if it the best so far
+                if (distance < minDistance){
+                    minPort = port;
+                    minDistance = distance;
+                }
+            }
+        }
+
+        return minPort;
     }
 
     function mouseEnterPort(port : Port) : void {
