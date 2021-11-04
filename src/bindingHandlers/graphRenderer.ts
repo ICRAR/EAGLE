@@ -782,12 +782,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     suggestedPortId = null;
                                 }
 
-                                // peek at nearby nodes
+                                // peek at nearby nodes (only if they contain a port that matches the source port)
                                 for (const node of nodeData){
                                     node.setPeekPorts(false);
                                 }
                                 for (const node of nearbyNodes){
-                                    node.setPeekPorts(true);
+                                    // TODO: should probably match on type, not name!
+                                    if (node.findPortByName(sourceDataType, true, false) !== null){
+                                        node.setPeekPorts(true);
+                                    }
                                 }
 
                                 tick();
@@ -844,17 +847,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         console.warn("link not valid, result", linkValid);
                                     }
                                 } else {
-                                    console.warn("destination port is null!", destinationPortId);
+                                    // no destination, don't draw an edge
+                                    //console.warn("destination port is null!", destinationPortId);
                                 }
 
                                 // stop peeking at any nodes
-                                console.log("Stop peeking");
                                 for (const node of nodeData){
                                     node.setPeekPorts(false);
                                 }
 
                                 clearEdgeVars();
-                                //tick();
                                 eagle.logicalGraph.valueHasMutated();
                             });
 
@@ -1013,7 +1015,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function tick(){
-        console.log("tick()");
         const startTime = performance.now();
         eagle.rendererFrameCountTick = eagle.rendererFrameCountTick + 1;
 
@@ -3376,9 +3377,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let minPort = null;
 
         for (const node of nearbyNodes){
-            console.log("check nearby", node.getName());
             for (const port of node.getInputPorts()){
-                console.log("port", port.getName(), "sourceType", sourceDataType);
                 // TODO: should probably match on type, not name!
                 if (port.getName() !== sourceDataType){
                     continue;
