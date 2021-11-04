@@ -419,7 +419,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("display", "inline")
         .style("font-size", '20px')
         .style("color", "white")
-        .style("padding", "2px 0px 0px 5px")
+        .attr("x", "5px")
+        .attr("y", "2px")
         .append("xhtml:span")
         .attr("class", function(node:Node){
             if (node.isGroup()){ 
@@ -1147,7 +1148,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("display", "inline")
             .style("font-size", '20px')
             .style("color", "white")
-            .style("padding", "2px 0px 0px 5px")
+            .attr("x", "5px")
+            .attr("y", "2px")
 
         rootContainer
             .selectAll("g.node text.header")
