@@ -94,9 +94,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const SHRINK_BUTTONS_ENABLED : boolean = true;
 
-    //console.log("pre-sort", printDrawOrder(graph.getNodes()));
-    //console.log("render()", printDrawOrder(nodeData));
-
     const svgContainer = d3
         .select("#" + elementId)
         .append("svg");
@@ -104,9 +101,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add a root node to the SVG, we'll scale this root node
     const rootContainer = svgContainer
         .append("g")
-        .attr("transform", rootScaleTranslation)
         .attr("class", "root")
-        .attr("id", "root");
+        .attr("id", "root")
+        .attr("transform", rootScaleTranslation);
 
     // add def for markers
     const defs = rootContainer.append("defs");
@@ -215,16 +212,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .scaleExtent([0.5, 3.0])
         .translateExtent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
         .extent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
-        .on("zoom", function(){
+        .on("zoom", function(e:any){
             // TODO: Try to centre the zoom on mouse position rather than upper left corner.
             // Somehow only the eagle.globalScale does something...
-            //const tx = d3.mouse(svgContainer.node())[0];
-            //const ty = d3.mouse(svgContainer.node())[1];
             const wheelDelta = d3.event.sourceEvent.deltaY;
             const zoomDivisor = Eagle.findSettingValue(Utils.GRAPH_ZOOM_DIVISOR);
 
-            //eagle.globalScale = d3.event.transform.k;
+            var xs = (d3.event.sourceEvent.clientX - eagle.globalOffsetX) / eagle.globalScale,
+            ys = (d3.event.sourceEvent.clientY - eagle.globalOffsetY) / eagle.globalScale,
+            delta = (d3.event.sourceEvent.deltaY < 0 ? d3.event.sourceEvent.deltaY > 0 : -d3.event.sourceEvent.deltaY);
             eagle.globalScale -= wheelDelta/zoomDivisor;
+            eagle.globalOffsetX = d3.event.sourceEvent.clientX - xs * eagle.globalScale;
+            eagle.globalOffsetY = d3.event.sourceEvent.clientY - ys * eagle.globalScale;
 
             // limit scaling
             eagle.globalScale = Math.max(Math.min(eagle.globalScale, 3.0), 0.5);
@@ -1578,7 +1577,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return data.getCustomData();
     }
 
-    function rootScaleTranslation(data : Node) : string {
+    function rootScaleTranslation(data : Node, e : any) : string {
         //console.log("rootScaleTranslation()", eagle.globalOffsetX, eagle.globalOffsetY, eagle.globalScale);
         return "translate(" + eagle.globalOffsetX + "," + eagle.globalOffsetY + ")scale(" + eagle.globalScale + ")";
     }
