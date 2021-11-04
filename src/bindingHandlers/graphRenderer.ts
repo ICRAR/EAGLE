@@ -323,18 +323,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 movementY = d3.event.dy;
 
                 // avoid drag event 1 all together, it is too prone to huge movements
-                if (dragEventCount === 1){
+                if (dragEventCount <=2){
                     movementX = 0;
                     movementY = 0;
                 }
-
-                // NOTE: the second drag event on any drag will be offset in Y by a large amount, don't know why, it is some mistake with the way I use d3
-                if (dragEventCount === 2){
-                    movementY -= 80;
-                }
             }
 
-            //console.log(d3.event.sourceEvent.target.tagName, "dragEventCount", dragEventCount, "movementSource", movementSource, "movementX", movementX, "movementY", movementY);
+            console.log(d3.event.sourceEvent.target.tagName, "dragEventCount", dragEventCount, "movementSource", movementSource, "movementX", movementX, "movementY", movementY);
 
             // transform change in x,y position using current scale factor
             const dx = DISPLAY_TO_REAL_SCALE(movementX);
