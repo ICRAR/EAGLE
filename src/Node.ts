@@ -78,8 +78,8 @@ export class Node {
     public static readonly MINIMUM_HEIGHT : number = 72;
     public static readonly DEFAULT_COLOR : string = "ffffff";
 
-    public static readonly COLLAPSED_WIDTH : number = 128;
-    public static readonly COLLAPSED_HEIGHT : number = 128;
+    public static readonly GROUP_COLLAPSED_WIDTH : number = 128;
+    public static readonly GROUP_COLLAPSED_HEIGHT : number = 128;
     public static readonly DATA_COMPONENT_WIDTH : number = 48;
     public static readonly DATA_COMPONENT_HEIGHT : number = 48;
 
@@ -650,7 +650,11 @@ export class Node {
 
     getDisplayWidth = () : number => {
         if (this.isGroup() && this.isCollapsed()){
-            return Node.COLLAPSED_WIDTH;
+            return Node.GROUP_COLLAPSED_WIDTH;
+        }
+
+        if (!this.isGroup() && !this.isCollapsed()){
+            return this.width;
         }
 
         if (this.isData() && !this.isCollapsed() && !this.isPeek()){
@@ -663,7 +667,7 @@ export class Node {
     getDisplayHeight = () : number => {
         if (this.isResizable()){
             if (this.isCollapsed()){
-                return Node.COLLAPSED_HEIGHT;
+                return Node.GROUP_COLLAPSED_HEIGHT;
             } else {
                 return this.height;
             }
@@ -673,7 +677,7 @@ export class Node {
             return 32;
         }
 
-        if (this.isData() && !this.isShowPorts() && !this.isPeekPorts()){
+        if (this.isData() && this.isCollapsed() && !this.isPeek()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
@@ -960,10 +964,11 @@ export class Node {
         result.embedKey(this.embedKey());
 
         result.collapsed(this.collapsed());
+        result.expanded(this.expanded());
         result.streaming(this.streaming());
         result.precious(this.precious());
-        result.showPorts = this.showPorts;
-        result.peekPorts = this.peekPorts;
+
+        result.peek = this.peek;
         result.flipPorts(this.flipPorts());
 
         // copy input,output and exit applications
@@ -998,7 +1003,6 @@ export class Node {
             result.fields.push(field.clone());
         }
 
-        result.expanded(this.expanded());
         result.readonly(this.readonly());
 
         result.gitUrl(this.gitUrl());
@@ -1285,11 +1289,6 @@ export class Node {
         if (!Eagle.getCategoryData(node.getCategory()).isResizable){
             node.width = Node.DEFAULT_WIDTH;
             node.height = Node.DEFAULT_HEIGHT;
-        }
-
-        // showPorts
-        if (typeof nodeData.showPorts !== 'undefined'){
-            node.showPorts = nodeData.showPorts;
         }
 
         // flipPorts
@@ -1645,7 +1644,6 @@ export class Node {
         result.width = node.width;
         result.height = node.height;
         result.collapsed = node.collapsed();
-        result.showPorts = node.showPorts;
         result.flipPorts = node.flipPorts();
         result.streaming = node.streaming();
         result.precious = node.precious();
@@ -1796,7 +1794,6 @@ export class Node {
         result.width = node.width;
         result.height = node.height;
         result.collapsed = node.collapsed();
-        result.showPorts = node.showPorts;
         result.flipPorts = node.flipPorts();
         result.streaming = node.streaming();
         result.precious = node.precious();
@@ -1847,7 +1844,6 @@ export class Node {
         node.width = nodeData.width;
         node.height = nodeData.height;
         node.collapsed(nodeData.collapsed);
-        node.showPorts = nodeData.showPorts;
         node.flipPorts(nodeData.flipPorts);
         node.streaming(nodeData.streaming);
         node.precious(nodeData.precious);
@@ -1891,7 +1887,6 @@ export class Node {
         result.width = node.width;
         result.height = node.height;
         result.collapsed = node.collapsed();
-        result.showPorts = node.showPorts;
         result.flipPorts = node.flipPorts();
 
         result.expanded = node.expanded();
@@ -1913,7 +1908,6 @@ export class Node {
         result.width = nodeData.width;
         result.height = nodeData.height;
         result.collapsed(nodeData.collapsed);
-        result.showPorts = nodeData.showPorts;
         result.flipPorts(nodeData.flipPorts);
 
         result.expanded(nodeData.expanded);
