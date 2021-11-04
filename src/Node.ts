@@ -50,6 +50,7 @@ export class Node {
     private streaming : ko.Observable<boolean>;
     private precious : ko.Observable<boolean>;
     private showPorts : boolean;
+    private peekPorts : boolean;                  // true if we are temporarily showing the ports based on the users mouse position
     private flipPorts : ko.Observable<boolean>;
 
     private inputApplication : ko.Observable<Node>;
@@ -110,6 +111,7 @@ export class Node {
         this.streaming = ko.observable(false);
         this.precious = ko.observable(false);
         this.showPorts = false;
+        this.peekPorts = false;
         this.flipPorts = ko.observable(false);
 
         this.inputApplication = ko.observable(null);
@@ -326,6 +328,14 @@ export class Node {
 
     toggleShowPorts = () : void => {
         this.showPorts = !this.showPorts;
+    }
+
+    isPeekPorts = () : boolean => {
+        return this.peekPorts;
+    }
+
+    setPeekPorts = (value : boolean) : void => {
+        this.peekPorts = value;
     }
 
     isFlipPorts = () : boolean => {
@@ -661,7 +671,7 @@ export class Node {
             return this.width;
         }
 
-        if (this.isData() && !this.isShowPorts()){
+        if (this.isData() && !this.isShowPorts() && !this.isPeekPorts()){
             return Node.DATA_COMPONENT_WIDTH;
         }
 
@@ -681,7 +691,7 @@ export class Node {
             return 32;
         }
 
-        if (this.isData() && !this.isShowPorts()){
+        if (this.isData() && !this.isShowPorts() && !this.isPeekPorts()){
             return Node.DATA_COMPONENT_HEIGHT;
         }
 
@@ -971,6 +981,7 @@ export class Node {
         result.streaming(this.streaming());
         result.precious(this.precious());
         result.showPorts = this.showPorts;
+        result.peekPorts = this.peekPorts;
         result.flipPorts(this.flipPorts());
 
         // copy input,output and exit applications
