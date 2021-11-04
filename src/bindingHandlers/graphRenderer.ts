@@ -412,6 +412,25 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // add a text header to each node
     nodes
+        .append("foreignObject")
+        .attr("class", "header-icon")
+        .style("width", "40px")
+        .style("height", "40px")
+        .style("display", "inline")
+        .style("font-size", '20px')
+        .style("color", "white")
+        .style("padding", "2px 0px 0px 5px")
+        .append("xhtml:span")
+        .attr("class", function(node:Node){
+            if (node.isGroup()){ 
+                return node.getIcon()
+            }else{
+                return ""
+            }      
+        })
+
+    // add a text header to each node
+    nodes
         .append("text")
         .attr("class", "header")
         .attr("x", function(node:Node){return getHeaderPositionX(node);})
@@ -485,6 +504,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
        // add the svg icon
        nodes
        .append('foreignObject')
+       .attr("class","nodeIcon")
        .attr("width", Node.DATA_COMPONENT_WIDTH)
        .attr("height", Node.DATA_COMPONENT_HEIGHT)
        .attr("x", function(node:Node){return getIconLocationX(node);})
@@ -1120,6 +1140,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("display", getHeaderBackgroundDisplay);
 
         rootContainer
+            .selectAll("g.node foreignObject.header-icon")
+            .data(nodeData)
+            .style("width", "40px")
+            .style("height", "40px")
+            .style("display", "inline")
+            .style("font-size", '20px')
+            .style("color", "white")
+            .style("padding", "2px 0px 0px 5px")
+
+        rootContainer
             .selectAll("g.node text.header")
             .data(nodeData)
             .attr("x", function(node:Node){return getHeaderPositionX(node);})
@@ -1186,7 +1216,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .call(wrap, true);
 
         rootContainer
-            .selectAll("foreignObject")
+            .selectAll("g.node foreignObject.nodeIcon")
             .data(nodeData)
             .attr("width", Node.DATA_COMPONENT_HEIGHT)
             .attr("height", Node.DATA_COMPONENT_HEIGHT)
