@@ -962,6 +962,7 @@ nav.navbar .introjs-helperLayer {
 .nodeBtn{
     border:none;
     padding:0;
+    background-color: transparent;
 }
 
 .nodeTitle{
