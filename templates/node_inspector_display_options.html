@@ -82,11 +82,11 @@
             <!-- /ko -->
 
             <div class="input-group mb-1">
-                <input type="text" class="form-control" id="nodeShowPortsValue" placeholder="" aria-label="Show Ports" aria-describedby="node-show-ports" value="Show Ports" readonly>
+                <input type="text" class="form-control" id="nodeCollapsedValue" placeholder="" aria-label="Collapsed" aria-describedby="node-collapsed" value="Collapsed" readonly>
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleShowPorts" type="button" data-bind="click: function(){selectedNode().toggleShowPorts();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
-                        <i class="material-icons md-18" data-bind="visible: selectedNode().isShowPorts()">radio_button_checked</i>
-                        <i class="material-icons md-18" data-bind="hidden: selectedNode().isShowPorts()">radio_button_unchecked</i>
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleCollapsed" type="button" data-bind="click: function(){selectedNode().toggleCollapsed();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
+                        <i class="material-icons md-18" data-bind="visible: selectedNode().isCollapsed()">radio_button_checked</i>
+                        <i class="material-icons md-18" data-bind="hidden: selectedNode().isCollapsed()">radio_button_unchecked</i>
                     </button>
                 </div>
             </div>

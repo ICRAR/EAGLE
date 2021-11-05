@@ -87,9 +87,6 @@
                     "collapsed": {
                         "type": "boolean"
                     },
-                    "showPorts": {
-                        "type": "boolean"
-                    },
                     "streaming": {
                         "type": "boolean"
                     },
@@ -297,7 +294,6 @@
                     "outputApplicationType",
                     "outputLocalPorts",
                     "outputPorts",
-                    "showPorts",
                     "streaming",
                     "subject",
                     "text",

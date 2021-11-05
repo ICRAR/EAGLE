@@ -276,7 +276,7 @@ test('Hello World graph', async t =>{
 	await t.click(Selector('#addPaletteNodeFile i').withText('description'));
     await page.selectNode("#node2");
     await page.moveNode('#node2', 800, 500);
-		
+
     // Note
     var rect = await page.getRect("#node2 image");
     await showNoteBox('This is a File node, representing a Data Component for saving data to disk', rect, 'above', 1.3);
@@ -291,16 +291,16 @@ test('Hello World graph', async t =>{
 	await t.click(Selector('#nodeInspectorInputPortDropDownKO a').withText('hello (Unknown)'));
 
     // testcafe fails to select file icon using either a single as well as double click
-    // the workaround is selecting Show Ports in the component's Display Options 
+    // the workaround is selecting Show Ports in the component's Display Options
 	await t.click(Selector('#nodeInspector i').withText('keyboard_arrow_down').nth(2));
-	await t.click('#nodeInspectorToggleShowPorts');
+	await t.click('#nodeInspectorToggleCollapsed');
     //	await t.click('#node2 image');
     //	await t.doubleClick('#node2 image');
 
     //Note
 //    var rect = await page.getRect(page.displayOptions);
-    var rect = await page.getRect('#nodeInspectorToggleShowPorts');
-    await showNoteBox('Toggle Show Ports on. It switches the selected node from Icon view to Component view. This is needed before connecting ports in the last step.', rect, 'left', 2.0);
+    var rect = await page.getRect('#nodeInspectorToggleCollapsed');
+    await showNoteBox('Toggle Collapsed off. It switches the selected node from Icon view to Component view. This is needed before connecting ports in the last step.', rect, 'left', 2.0);
 	await t.wait(2000);
 
     // Note

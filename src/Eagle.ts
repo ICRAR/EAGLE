@@ -861,8 +861,17 @@ export class Eagle {
                 continue;
             }
 
+            // check if parent of original node was also mapped to a new node
+            let mappedParentKey = keyMap.get(node.getParentKey());
+
             // make sure parent is set correctly
-            insertedNode.setParentKey(keyMap.get(node.getParentKey()));
+            // if no mapping is available for the parent, then use the original parent as the parent for the new node
+            // if a mapping is available, then use the mapped node as the parent for the new node
+            if (typeof mappedParentKey === 'undefined'){
+                insertedNode.setParentKey(node.getParentKey());
+            } else {
+                insertedNode.setParentKey(mappedParentKey);
+            }
         }
 
         // insert edges from lg into the existing logicalGraph
@@ -2073,7 +2082,7 @@ export class Eagle {
         let numExpanded: number = 0;
         for (const node of this.logicalGraph().getNodes()){
             if (!node.isGroup() && !node.isData()){
-                if (node.isShowPorts()){
+                if (node.isCollapsed()){
                     numCollapsed += 1;
                 } else {
                     numExpanded += 1;
@@ -2084,8 +2093,12 @@ export class Eagle {
 
         // now loop through and collapse or expand all group nodes
         for (const node of this.logicalGraph().getNodes()){
-            if (!node.isGroup()){
-                node.setShowPorts(!node.isData() && collapse);
+            if (node.isData()){
+                node.setCollapsed(true);
+            }
+
+            if (!node.isGroup() && !node.isData()){
+                node.setCollapsed(collapse);
             }
         }
 
@@ -2499,7 +2512,7 @@ export class Eagle {
             Eagle.nodeDropLocation = {x:0, y:0};
 
             // expand the new node, so the user can start connecting it to other nodes
-            newNode.setShowPorts(true);
+            newNode.setCollapsed(false);
 
             this.checkGraph();
             this.logicalGraph.valueHasMutated();
@@ -3716,7 +3729,7 @@ export class Eagle {
         Gather             : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "icon-merge_type", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20},
         MKN                : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "icon-many-to-many", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
         GroupBy            : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveExitApplication: false, canHaveParameters: true, icon: "icon-group", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Loop               : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true, icon: "icon-loop", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20},
+        Loop               : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveExitApplication: true, canHaveParameters: true, icon: "icon-loop", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
 
         PythonApp          : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "icon-python", color: Eagle.appIconColor, collapsedHeaderOffsetY: 10, expandedHeaderOffsetY: 20},
         BashShellApp       : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "icon-bash", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
