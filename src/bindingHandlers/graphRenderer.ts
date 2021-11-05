@@ -10,6 +10,7 @@ import {Node} from '../Node';
 import {Edge} from '../Edge';
 import {Port} from '../Port';
 import {Utils} from '../Utils';
+import { Console } from "console";
 
 ko.bindingHandlers.graphRenderer = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -43,6 +44,23 @@ const LINK_COLORS:{[key:string]:string} = {
     LINK_EVENT_SELECTED_COLOR: 'blue',
     LINK_AUTO_COMPLETE_COLOR: 'purple'
 }
+
+//function to allow the user to drag select within groups
+window.addEventListener("keydown",
+    function(e) {
+        if (e.shiftKey || e.altKey) {
+            $("g.node").css("pointer-events", "none")
+        }
+    },false
+);
+
+window.addEventListener("keyup",
+    function(e) {
+        if (e.shiftKey || e.altKey) {
+            $("g.node").css("pointer-events", "auto")
+        }
+    },false
+);  
 
 function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const startTime: number = performance.now();
@@ -144,7 +162,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         hasDraggedBackground = false;
         draggingInGraph = true;
             if (e.shiftKey || e.altKey){
-                console.log("ah")
                 isDraggingSelectionRegion = true;
                 selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(e.originalEvent.x);
                 selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-57.78-26);
@@ -246,7 +263,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             tick();
         });
-        
+
     let nodes : any = rootContainer
         .selectAll("g.node")
         .data(nodeData)
@@ -353,7 +370,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     }
                 }
             }
-
             // trigger updates
             eagle.flagActiveFileModified();
             eagle.logicalGraph.valueHasMutated();
@@ -407,7 +423,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             //tick();
         });
 
-    nodeDragHandler(rootContainer.selectAll("g.node"));
+    nodeDragHandler(rootContainer.selectAll("g.node"));             
 
     // add a header background to each node
     nodes
