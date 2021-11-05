@@ -54,6 +54,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     let hasDraggedBackground : boolean = false;
     let isDraggingNode : boolean = false;
+    let draggingInGraph : boolean = false;
     let isDraggingSelectionRegion : boolean = false;
     let sourcePortId : string | null = null;
     let sourceNodeKey : number | null = null;
@@ -138,26 +139,56 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .append("rect")
         .attr("class", "background");
 
-    const backgroundDragHandler = d3
-        .drag()
-        .on("start", function (node : Node) {
-            hasDraggedBackground = false;
-
-            if (d3.event.sourceEvent.shiftKey || d3.event.sourceEvent.altKey){
+    $("#logicalGraphD3Div svg").mousedown(function(e:any){
+        e.preventDefault()
+        hasDraggedBackground = false;
+        draggingInGraph = true;
+            if (e.shiftKey || e.altKey){
+                console.log("ah")
                 isDraggingSelectionRegion = true;
-                selectionRegionStart.x = d3.event.x;
-                selectionRegionStart.y = d3.event.y;
+                selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(e.originalEvent.x);
+                selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-57.78-26);
             }
 
-            if (d3.event.sourceEvent.altKey){
+            if (e.altKey){
                 isDraggingWithAlt = true;
             } else {
                 isDraggingWithAlt = false;
             }
-        })
-        .on("end", function(){
-            const hadPreviousSelection: boolean = eagle.selectedObjects().length > 0;
+    });
 
+    $("#logicalGraphD3Div svg").mousemove(function(e){
+        e.preventDefault()
+        if (!draggingInGraph){
+            return
+        }
+
+        if (isDraggingSelectionRegion){
+            selectionRegionEnd.x =  DISPLAY_TO_REAL_POSITION_X(e.originalEvent.x);
+            selectionRegionEnd.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-57.78-26);
+        } else {
+            // move background
+            eagle.globalOffsetX += e.originalEvent.movementX;
+            eagle.globalOffsetY += e.originalEvent.movementY;
+            hasDraggedBackground = true;
+        }
+
+        tick();
+    })
+
+
+    $("#logicalGraphD3Div svg").mouseup(function(e:any){
+        finishDragging()
+     })
+
+    $("#logicalGraphD3Div svg").mouseleave(function(e:any){
+        finishDragging()
+        
+    })
+
+    function finishDragging(){
+        const hadPreviousSelection: boolean = eagle.selectedObjects().length > 0;
+        draggingInGraph = false;
             // if we just clicked on a node
             if (!hasDraggedBackground && !isDraggingSelectionRegion){
                 eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null, Eagle.FileType.Unknown);
@@ -197,45 +228,25 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 // necessary to make uncollapsed nodes show up
                 eagle.logicalGraph.valueHasMutated();
             }
-        })
-        .on("drag", function(){
-            if (isDraggingSelectionRegion){
-                selectionRegionEnd.x = d3.event.x;
-                selectionRegionEnd.y = d3.event.y;
-            } else {
-                // move background
-                eagle.globalOffsetX += d3.event.sourceEvent.movementX;
-                eagle.globalOffsetY += d3.event.sourceEvent.movementY;
-                hasDraggedBackground = true;
-            }
-
-            tick();
-        });
-
-    const backgroundZoomHandler = d3
-        .zoom()
-        .scaleExtent([0.5, 3.0])
-        .translateExtent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
-        .extent([[0, 0], [$('#logicalGraphD3Div').width(), $('#logicalGraphD3Div').height()]])
-        .on("zoom", function(e:any){
+    }
+      
+    $("#logicalGraphD3Div svg").on("wheel", function(e:any){
+            e.preventDefault()
             // TODO: Try to centre the zoom on mouse position rather than upper left corner.
             // Somehow only the eagle.globalScale does something...
-            const wheelDelta = d3.event.sourceEvent.deltaY;
+            const wheelDelta = e.originalEvent.deltaY;
             const zoomDivisor = Eagle.findSettingValue(Utils.GRAPH_ZOOM_DIVISOR);
 
-            var xs = (d3.event.sourceEvent.clientX - eagle.globalOffsetX) / eagle.globalScale,
-            ys = (d3.event.sourceEvent.clientY - eagle.globalOffsetY) / eagle.globalScale,
-            delta = (d3.event.sourceEvent.deltaY < 0 ? d3.event.sourceEvent.deltaY > 0 : -d3.event.sourceEvent.deltaY);
-            eagle.globalScale -= wheelDelta/zoomDivisor;
-            eagle.globalOffsetX = d3.event.sourceEvent.clientX - xs * eagle.globalScale;
-            eagle.globalOffsetY = d3.event.sourceEvent.clientY - ys * eagle.globalScale;
+            var xs = (e.clientX - eagle.globalOffsetX) / eagle.globalScale,
+            ys = (e.clientY - eagle.globalOffsetY) / eagle.globalScale,
+            delta = (e.originalEvent.deltaY < 0 ? e.originalEvent.deltaY > 0 : -e.originalEvent.deltaY);
+            eagle.globalScale *= (1-(wheelDelta/zoomDivisor));
+            eagle.globalOffsetX = e.clientX - xs * eagle.globalScale;
+            eagle.globalOffsetY = e.clientY - ys * eagle.globalScale;
 
             tick();
         });
-
-    backgroundDragHandler(rootContainer.selectAll("rect.background"));
-    backgroundZoomHandler(rootContainer.selectAll("rect.background"));
-
+        
     let nodes : any = rootContainer
         .selectAll("g.node")
         .data(nodeData)
