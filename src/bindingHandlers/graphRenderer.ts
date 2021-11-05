@@ -10,7 +10,6 @@ import {Node} from '../Node';
 import {Edge} from '../Edge';
 import {Port} from '../Port';
 import {Utils} from '../Utils';
-import { Console } from "console";
 
 ko.bindingHandlers.graphRenderer = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -89,6 +88,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const mousePosition = {x:0, y:0};
     const selectionRegionStart = {x:0, y:0};
     const selectionRegionEnd = {x:0, y:0};
+    const headerHeight = 57.78 + 26
 
     const DOUBLE_CLICK_DURATION : number = 200;
 
@@ -164,7 +164,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (e.shiftKey || e.altKey){
                 isDraggingSelectionRegion = true;
                 selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(e.originalEvent.x);
-                selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-57.78-26);
+                selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-headerHeight);
             }
 
             if (e.altKey){
@@ -182,7 +182,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (isDraggingSelectionRegion){
             selectionRegionEnd.x =  DISPLAY_TO_REAL_POSITION_X(e.originalEvent.x);
-            selectionRegionEnd.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-57.78-26);
+            selectionRegionEnd.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-headerHeight);
         } else {
             // move background
             eagle.globalOffsetX += e.originalEvent.movementX;
@@ -249,7 +249,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
       
     $("#logicalGraphD3Div svg").on("wheel", function(e:any){
             e.preventDefault()
-            // TODO: Try to centre the zoom on mouse position rather than upper left corner.
             // Somehow only the eagle.globalScale does something...
             const wheelDelta = e.originalEvent.deltaY;
             const zoomDivisor = Eagle.findSettingValue(Utils.GRAPH_ZOOM_DIVISOR);
