@@ -3680,7 +3680,19 @@ export class Eagle {
 
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
-            Utils.showUserMessage("Check graph", this.graphWarnings().join('<br/>') + this.graphErrors().join('<br/>'));
+            let message = "";
+
+            if (this.graphWarnings().length > 0){
+                message += "<h5>Warnings</h5>" + this.graphWarnings().join('<br/>');
+            }
+            if (this.graphWarnings().length > 0 && this.graphErrors().length > 0){
+                message += "<br/><br/>";
+            }
+            if (this.graphErrors().length > 0){
+                message += "<h5>Errors</h5>" + this.graphErrors().join('<br/>')
+            }
+
+            Utils.showUserMessage("Check graph", message);
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
