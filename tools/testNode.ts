@@ -7,6 +7,7 @@ const KEY : number = -9;
 const NAME : string = "Test Node";
 const DESCRIPTION : string = "Test description";
 const CATEGORY : Eagle.Category = Eagle.Category.Loop;
+const READONLY : boolean = true;
 const X : number = 234;
 const Y : number = 567;
 
@@ -19,8 +20,6 @@ const DRAW_ORDER_HINT : number = 10;
 const PARENT_KEY : number = -10;
 const COLLAPSED : boolean = true;
 const STREAMING : boolean = true;
-const SHOW_PORTS : boolean = true;
-const SELECTED : boolean = true;
 const INPUT_APPLICATION_CATEGORY : Eagle.Category = Eagle.Category.BashShellApp;
 const EXIT_APPLICATION_CATEGORY : Eagle.Category = Eagle.Category.Docker;
 const INPUT_APPLICATION_NAME : string = "Input App";
@@ -32,18 +31,22 @@ const EXPANDED : boolean = true;
 
 const INPUT_PORT_ID : string = "input_port";
 const INPUT_PORT_NAME : string = "Input Port";
+const INPUT_PORT_TYPE : string = "Number";
+const INPUT_PORT_DESCRIPTION : string = "Input Description";
 const EXIT_PORT_ID : string = "exit_port";
 const EXIT_PORT_NAME : string = "Exit Port";
+const EXIT_PORT_TYPE : string = "Boolean";
+const EXIT_PORT_DESCRIPTION : string = "Exit Description";
 
-const FIELD : Field = new Field("Field Text", "Field Name", "Field Value", "Field Desc", true, "String");
-const INPUT_APP_FIELD : Field = new Field("Input App Field Text", "Input App Field Name", "Input App Field Value", "Input App Field Desc", false, "Number");
-const EXIT_APP_FIELD : Field = new Field("Exit App Field Text", "Exit App Field Name", "Exit App Field Value", "Exit App Field Desc", false, "Boolean");
+const FIELD : Field = new Field("Field Text", "Field Name", "Field Value", "Field Desc", true, Eagle.DataType.String);
+const INPUT_APP_FIELD : Field = new Field("Input App Field Text", "Input App Field Name", "Input App Field Value", "Input App Field Desc", false, Eagle.DataType.Integer);
+const EXIT_APP_FIELD : Field = new Field("Exit App Field Text", "Exit App Field Name", "Exit App Field Value", "Exit App Field Desc", false, Eagle.DataType.Boolean);
 
 // create table to contain results
 var table : any[] = [];
 
 // create a node
-var primaryNode : Node = new Node(KEY, NAME, DESCRIPTION, CATEGORY, CATEGORY_TYPE);
+var primaryNode : Node = new Node(KEY, NAME, DESCRIPTION, CATEGORY, READONLY);
 
 // set values for node
 primaryNode.setPosition(X, Y);
@@ -55,19 +58,17 @@ primaryNode.setDrawOrderHint(DRAW_ORDER_HINT);
 primaryNode.setParentKey(PARENT_KEY);
 primaryNode.setCollapsed(COLLAPSED);
 primaryNode.setStreaming(STREAMING);
-primaryNode.setShowPorts(SHOW_PORTS);
-primaryNode.setSelected(SELECTED);
 primaryNode.setExpanded(EXPANDED);
 
 // input app
-let inputApplication = Node.createEmbeddedApplicationNode(INPUT_APPLICATION_NAME, INPUT_APPLICATION_CATEGORY, INPUT_APPLICATION_KEY);
+let inputApplication = Node.createEmbeddedApplicationNode(INPUT_APPLICATION_KEY, INPUT_APPLICATION_NAME, INPUT_APPLICATION_CATEGORY, primaryNode.getKey(), true);
 inputApplication.addField(INPUT_APP_FIELD.clone());
-inputApplication.addPort(new Port(INPUT_PORT_ID, INPUT_PORT_NAME, true), true);
+inputApplication.addPort(new Port(INPUT_PORT_ID, INPUT_PORT_NAME, INPUT_PORT_NAME, true, INPUT_PORT_TYPE, INPUT_PORT_DESCRIPTION), true);
 
 // exit app
-let exitApplication = Node.createEmbeddedApplicationNode(EXIT_APPLICATION_NAME, EXIT_APPLICATION_CATEGORY, EXIT_APPLICATION_KEY);
+let exitApplication = Node.createEmbeddedApplicationNode(EXIT_APPLICATION_KEY, EXIT_APPLICATION_NAME, EXIT_APPLICATION_CATEGORY, primaryNode.getKey(), true);
 exitApplication.addField(EXIT_APP_FIELD.clone());
-exitApplication.addPort(new Port(EXIT_PORT_ID, EXIT_PORT_NAME, false), false);
+exitApplication.addPort(new Port(EXIT_PORT_ID, EXIT_PORT_NAME, EXIT_PORT_NAME, false, EXIT_PORT_TYPE, EXIT_PORT_DESCRIPTION), false);
 
 primaryNode.setInputApplication(inputApplication);
 primaryNode.setExitApplication(exitApplication);
@@ -80,7 +81,8 @@ var json : object = Node.toOJSJson(primaryNode);
 console.log(json);
 
 // read the node back from JSON
-var secondaryNode : Node = Node.fromOJSJson(json);
+let errors: string[] = [];
+var secondaryNode : Node = Node.fromOJSJson(json, errors, function(){return -1;});
 
 console.log("secondaryNode has:");
 console.log("inputPorts", secondaryNode.getInputPorts().length);
@@ -125,8 +127,6 @@ function checkNode(n0 : Node, n1 : Node, displayTable : boolean){
     checkNumber("Parent Key", n0.getParentKey(), n1.getParentKey(), PARENT_KEY);
     checkBoolean("Collapsed", n0.isCollapsed(), n1.isCollapsed(), COLLAPSED);
     checkBoolean("Streaming", n0.isStreaming(), n1.isStreaming(), STREAMING);
-    checkBoolean("Show Ports", n0.isShowPorts(), n1.isShowPorts(), SHOW_PORTS);
-    checkBoolean("Selected", n0.getSelected(), n1.getSelected(), SELECTED);
     checkBoolean("Expanded", n0.getExpanded(), n1.getExpanded(), EXPANDED);
 
     checkString("Input Application Type",  n0.getInputApplication().getCategory(),  n1.getInputApplication().getCategory(),  INPUT_APPLICATION_CATEGORY );

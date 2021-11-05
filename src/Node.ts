@@ -106,7 +106,7 @@ export class Node {
 
         this.parentKey = ko.observable(null);
         this.embedKey = ko.observable(null);
-        this.collapsed = ko.observable(false);
+        this.collapsed = ko.observable(true);
         this.streaming = ko.observable(false);
         this.precious = ko.observable(false);
         this.peek = false;
@@ -624,7 +624,7 @@ export class Node {
 
         this.parentKey(null);
         this.embedKey(null);
-        this.collapsed(false);
+        this.collapsed(true);
         this.streaming(false);
         this.precious(false);
 
@@ -1296,8 +1296,6 @@ export class Node {
             node.flipPorts(nodeData.flipPorts);
         }
 
-        // NOTE: skip the 'selected' boolean on the input data, don't remember the user's selection
-
         // expanded
         if (typeof nodeData.expanded !== 'undefined'){
             node.expanded(nodeData.expanded);
@@ -1432,7 +1430,7 @@ export class Node {
         if (typeof nodeData.collapsed !== 'undefined'){
             node.collapsed(nodeData.collapsed);
         } else {
-            node.collapsed(false);
+            node.collapsed(true);
         }
 
         // streaming
