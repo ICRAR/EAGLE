@@ -861,8 +861,17 @@ export class Eagle {
                 continue;
             }
 
+            // check if parent of original node was also mapped to a new node
+            let mappedParentKey = keyMap.get(node.getParentKey());
+
             // make sure parent is set correctly
-            insertedNode.setParentKey(keyMap.get(node.getParentKey()));
+            // if no mapping is available for the parent, then use the original parent as the parent for the new node
+            // if a mapping is available, then use the mapped node as the parent for the new node
+            if (typeof mappedParentKey === 'undefined'){
+                insertedNode.setParentKey(node.getParentKey());
+            } else {
+                insertedNode.setParentKey(mappedParentKey);
+            }
         }
 
         // insert edges from lg into the existing logicalGraph
