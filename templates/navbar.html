@@ -53,10 +53,11 @@
                 </button>
             </div>
             <ul class="nav navbar-nav ms-4">
-                <button id="checkGraph" class="btn btn-outline-success navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Check Graph for Errors" data-bind="click: showGraphErrors, visible: graphErrors().length === 0" data-intro="Check the graph for common issues and missing information.">
+                <button id="checkGraph" class="btn btn-outline-success navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Check Graph for Errors" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0" data-intro="Check the graph for common issues and missing information.">
                     <i class="material-icons md-18">done_all</i>
                 </button>
-                <button id="checkGraph" class="btn btn-outline-danger navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Check Graph for Errors" style="display: none;" data-bind="click: showGraphErrors, visible: graphErrors().length > 0" data-intro="Check the graph for common issues and missing information.">
+                <button id="checkGraph" class="btn btn-outline-danger navbar-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Check Graph for Errors" style="display: none;" data-bind="click: showGraphErrors, visible: graphWarnings().length > 0 || graphErrors().length > 0" data-intro="Check the graph for common issues and missing information.">
+                    <span class="badge bg-warning" data-bind="text: graphWarnings().length"></span>
                     <span class="badge bg-danger" data-bind="text: graphErrors().length"></span>
                 </button>
             </ul>

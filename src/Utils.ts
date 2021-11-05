@@ -1742,55 +1742,56 @@ export class Utils {
         return results;
     }
 
-    static checkGraph(graph: LogicalGraph): string[] {
-        const results: string[] = [];
+    static checkGraph(graph: LogicalGraph): {warnings: string[], errors: string[]} {
+        const warnings: string[] = [];
+        const errors: string[] = [];
 
         // check that all port dataTypes have been defined
         for (const node of graph.getNodes()){
             for (const port of node.getInputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getName() + ") whose type is not specified");
                 }
             }
             for (const port of node.getOutputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationInputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationOutputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationInputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationOutputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getExitApplicationInputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getExitApplicationOutputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
         }
@@ -1804,16 +1805,16 @@ export class Utils {
             const maxOutputs = cData.maxOutputs;
 
             if (node.getInputPorts().length < minInputs){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too few input ports. Should have at least " + minInputs);
+                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + minInputs);
             }
             if (node.getInputPorts().length > maxInputs){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs);
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs);
             }
             if (node.getOutputPorts().length < minOutputs){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too few output ports. Should have at least " + minOutputs);
+                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + minOutputs);
             }
             if (node.getOutputPorts().length > maxOutputs){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many output ports. Should have at most " + maxOutputs);
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + maxOutputs);
             }
 
             // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
@@ -1827,23 +1828,23 @@ export class Utils {
 
             // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
             if (!isConnected && !(maxInputs === 0 && maxOutputs === 0)){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
             }
 
             // check embedded application categories are not 'None'
             if (node.hasInputApplication() && node.getInputApplication().getCategory() === Eagle.Category.None){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.");
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.");
             }
             if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Eagle.Category.None){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.");
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.");
             }
             if (node.hasExitApplication() && node.getExitApplication().getCategory() === Eagle.Category.None){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application with category 'None'.");
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application with category 'None'.");
             }
 
             // check that Service nodes have inputApplications with no output ports!
             if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
             }
         }
 
@@ -1851,11 +1852,11 @@ export class Utils {
             const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
 
             if (linkValid === Eagle.LinkValid.Invalid){
-                results.push("Edge (" + edge.getId() + ") is invalid.");
+                errors.push("Edge (" + edge.getId() + ") is invalid.");
             }
         }
 
-        return results;
+        return {warnings: warnings, errors: errors};
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
