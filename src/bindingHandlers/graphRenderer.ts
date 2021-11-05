@@ -2592,14 +2592,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (node.isBranch()){
                 return node.getPosition().x + node.getWidth()/2;
             }
-
-            /*
-            if (node.isFlipPorts()){
-                return node.getPosition().x;
-            } else {
-                return node.getPosition().x + node.getWidth();
-            }
-            */
         }
 
         if (node.isBranch()){
@@ -2647,8 +2639,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (node.isBranch()){
                 return node.getPosition().y + 100;
             }
-
-            /* return node.getPosition().y; */
         }
 
         if (node.isBranch()){
@@ -2694,14 +2684,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (node.isBranch()){
                 return node.getPosition().x + node.getWidth()/2;
             }
-
-            /*
-            if (node.isFlipPorts()){
-                return node.getPosition().x + node.getWidth();
-            } else {
-                return node.getPosition().x;
-            }
-            */
         }
 
         if (node.isCollapsed() && node.isGroup()){
@@ -2749,8 +2731,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (node.isBranch()){
                 return node.getPosition().y;
             }
-
-            /* return node.getPosition().y; */
         }
 
         if (node.isBranch()){
@@ -3190,7 +3170,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                 // if node is non-null, but collapsed, return "none"
                 if (n.isCollapsed()){
-                    //console.log("findAncestorCollapsedNode() for node", node.getKey(), "found", n.getKey());
                     return n;
                 }
             }
