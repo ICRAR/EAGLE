@@ -1824,8 +1824,9 @@ export class Utils {
                     break;
                 }
             }
-            // NOTE: if more types than just Description are exempted from this test, consider adding a "canBeDisconnected" attribute to CategoryData
-            if (!isConnected && node.getCategory() !== Eagle.Category.Description){
+
+            // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
+            if (!isConnected && !(maxInputs === 0 && maxOutputs === 0)){
                 results.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
             }
 
