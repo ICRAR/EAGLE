@@ -199,7 +199,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
      })
 
     $("#logicalGraphD3Div svg").mouseleave(function(e:any){
-        finishDragging()
+        if( draggingInGraph === true){
+            finishDragging()
+        }
         
     })
 
