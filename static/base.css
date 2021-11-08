@@ -351,30 +351,52 @@
     position: absolute;
 }
 
+.headerIcons{
+    height:100%;
+    display: flex;
+    position: absolute;
+    padding:0px 5px;
+}
+
+.paletteHeaderIcon{
+    width:20px;
+    position: relative;
+    display:inline-block;
+    height: 100%;
+}
+
+.paletteHeaderIcon button, .paletteHeaderIcon i{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 15px;
+    margin: 0px;
+    padding:0px;
+}
+
+.paletteHeaderIcon i{
+    font-size: 18px;
+}
+
+
 #paletteList .accordion-item{
     margin-bottom: 5px;
     border:1px solid #052349 !important;
     background-color: rgba(214, 219, 239, 0.95);
 }
 
+#paletteList .accordion-body{
+    padding: 0.6rem 1rem;
+}
+
 #paletteList .accordion-item h5{
     margin:0px;
-    font-size: 20px;
+    margin-left:70px;
+    font-size: 18px;
     font-weight: 400;
 }
 
-#paletteList .accordion-button i {
-    font-size: 22px;
-}
-
-#paletteList .accordion-item .btn-close{
-    margin-right:10px;
-    font-size: 16px;
-}
-
-#paletteList palette-component .input-group {
-    height: 40px;
-}
 #paletteList palette-component .input-group-prepend{
     height: 100%;
     width: 52px;
@@ -424,7 +446,7 @@
 
 #paletteList .accordion-button{
     background-color: #c2c8dc !important;
-    padding: 10px 20px;
+    padding: 10px 10px 10px 0px;
 }
 
 #paletteList .accordion-button{
@@ -967,6 +989,7 @@ nav.navbar .introjs-helperLayer {
 
 .nodeTitle{
     pointer-events:none;
+    padding:0px 5px;
 }
 
 .closedIcon{
