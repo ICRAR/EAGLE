@@ -210,6 +210,29 @@
     cursor: col-resize;
 }
 
+.rightWindow #ComponentParamsSearchBar{
+    width:100%;
+    text-align: center;
+    padding: 5px;
+    border:solid 1px #ced4da;
+    border-radius: 5px;
+}
+
+.searchBarIcon{
+    position: absolute;
+    font-size: 24px !important;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 5px;
+    color: #aeaeae;
+}
+
+.searchBarContainer{
+    position: relative;
+    margin-bottom: 15px;
+}
+
+
 .leftWindow {
     background-color: #002e5f;
     z-index: 100;

@@ -6,14 +6,19 @@
     </h5>
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse9">
         <div class="card-body" >
+            <div class="searchBarContainer">
+                <i class="material-icons md-18 searchBarIcon">search</i>
+                <input id="ComponentParamsSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], event:{'keyup':$root.getComponentSearchResults($element.value)}"></input>
+            </div>
             <!-- ko foreach: selectedNode().getFields() -->
-                <!-- ko ifnot: $data.isDaliugeField -->
-                    <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
-                <!-- /ko -->
-            <!-- /ko -->
-            <!-- ko foreach: selectedNode().getFields() -->
-                <!-- ko if: $data.isDaliugeField -->
-                    <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+            <div data-bind="text: console.log($data)"></div>
+                <!-- ko if: $root.fitsSearchQuery($data.text()) -->
+                    <!-- ko ifnot: $data.isDaliugeField -->
+                        <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+                    <!-- /ko -->
+                    <!-- ko if: $data.isDaliugeField -->
+                        <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+                    <!-- /ko -->
                 <!-- /ko -->
             <!-- /ko -->
 

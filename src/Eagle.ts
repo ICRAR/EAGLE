@@ -81,6 +81,8 @@ export class Eagle {
 
     graphErrors : ko.ObservableArray<string>;
 
+    componentParamsSearchString : string = "time";
+
     static settings : {[category:string] : Setting[]}
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
 
@@ -283,6 +285,26 @@ export class Eagle {
         console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
     };
+
+    getComponentSearchResults = (value:any, data:any, event:any) : void  => {
+        this.componentParamsSearchString = value
+        console.log(value)
+    }
+
+    fitsSearchQuery = (name:string) : boolean => {
+        console.log(this.componentParamsSearchString)
+        if(this.componentParamsSearchString === ""){
+            console.log("empty")
+            return true
+        }else if(name.indexOf(this.componentParamsSearchString)>=0){
+            console.log("search")
+            return true
+        }else{
+            console.log("false")
+            return false
+        }
+        console.log(name)
+    }
 
     zoomIn = () : void => {
         this.globalScale += 0.05;
