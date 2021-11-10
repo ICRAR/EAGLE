@@ -1433,6 +1433,14 @@ export class Node {
             node.collapsed(true);
         }
 
+        // HACK! use old 'showPorts' attribute (if found) and overwrite the 'collapsed' value
+        if (typeof nodeData.showPorts !== 'undefined'){
+            console.log(nodeData.text, nodeData.showPorts);
+            if (nodeData.showPorts === false){
+                node.setCollapsed(true);
+            }
+        }
+
         // streaming
         if (typeof nodeData.streaming !== 'undefined'){
             node.streaming(nodeData.streaming);
