@@ -62,6 +62,7 @@ export class Node {
     private outputPorts : ko.ObservableArray<Port>;
 
     private fields : ko.ObservableArray<Field>;
+    private applicationParams : ko.ObservableArray<Field>;
 
     private category : ko.Observable<Eagle.Category>;
 
@@ -120,6 +121,7 @@ export class Node {
         this.outputPorts = ko.observableArray([]);
 
         this.fields = ko.observableArray([]);
+        this.applicationParams = ko.observableArray([]);
 
         this.category = ko.observable(category);
 
@@ -444,12 +446,70 @@ export class Node {
         return null;
     }
 
+    hasFieldWithName = (name : string) : boolean => {
+        for (const field of this.fields()){
+            if (field.getName() === name){
+                return true;
+            }
+        }
+        return false;
+    }
+
     getFields = () : Field[] => {
         return this.fields();
     }
 
     getNumFields = () : number => {
         return this.fields().length;
+    }
+
+    getFieldReadonly = (index: number) : boolean => {
+        console.assert(index < this.fields().length);
+
+        const field: Field = this.fields()[index];
+
+        // modify using settings and node readonly
+        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
+
+        return (field.isReadonly() || this.readonly()) && !allowParam;
+    }
+
+    getApplicationParamByName = (name : string) : Field | null => {
+        for (const param of this.applicationParams()){
+            if (param.getName() === name){
+                return param;
+            }
+        }
+
+        return null;
+    }
+
+    hasApplicationParamWithName = (name : string) : boolean => {
+        for (const param of this.applicationParams()){
+            if (param.getName() === name){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    getApplicationParams = () : Field[] => {
+        return this.applicationParams();
+    }
+
+    getNumApplicationParams = () : number => {
+        return this.applicationParams().length;
+    }
+
+    getApplicationParamReadonly = (index: number) : boolean => {
+        console.assert(index < this.applicationParams().length);
+
+        const param: Field = this.applicationParams()[index];
+
+        // modify using settings and node readonly
+        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
+
+        return (param.isReadonly() || this.readonly()) && !allowParam;
     }
 
     getCategory = () : Eagle.Category => {
@@ -523,17 +583,6 @@ export class Node {
 
     canHaveParameters = () : boolean => {
         return Eagle.getCategoryData(this.category()).canHaveParameters;
-    }
-
-    getFieldReadonly = (index: number) : boolean => {
-        console.assert(index < this.fields().length);
-
-        const field: Field = this.fields()[index];
-
-        // modify using settings and node readonly
-        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
-
-        return (field.isReadonly() || this.readonly()) && !allowParam;
     }
 
     getHelpHTML : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -636,6 +685,7 @@ export class Node {
         this.outputPorts([]);
 
         this.fields([]);
+        this.applicationParams([]);
 
         this.category(Eagle.Category.Unknown);
 
@@ -902,15 +952,6 @@ export class Node {
         return this.findPortByName(name, input, local) !== null;
     }
 
-    hasFieldWithName = (name : string) : boolean => {
-        for (const field of this.fields()){
-            if (field.getName() === name){
-                return true;
-            }
-        }
-        return false;
-    }
-
     // WARN: dangerous! removes a port without considering if the port is in use by an edge
     removePortByIndex = (index : number, input : boolean) : void => {
         if (input){
@@ -947,6 +988,10 @@ export class Node {
         }
 
         return result;
+    }
+
+    addApplicationParam = (param : Field) : void => {
+        this.applicationParams.push(param);
     }
 
     clone = () : Node => {
@@ -1515,6 +1560,13 @@ export class Node {
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
                 node.addField(Field.fromOJSJson(fieldData));
+            }
+        }
+
+        // add application params
+        if (typeof nodeData.applicationParams !== 'undefined'){
+            for (const paramData of nodeData.applicationParams){
+                node.addApplicationParam(Field.fromOJSJson(paramData));
             }
         }
 
