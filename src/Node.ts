@@ -994,6 +994,10 @@ export class Node {
         this.applicationParams.push(param);
     }
 
+    removeApplicationParamByIndex = (index : number) : void => {
+        this.applicationParams.splice(index, 1);
+    }
+
     clone = () : Node => {
         const result : Node = new Node(this.key(), this.name(), this.description(), this.category(), this.readonly());
 
@@ -1046,6 +1050,11 @@ export class Node {
         // clone fields
         for (const field of this.fields()){
             result.fields.push(field.clone());
+        }
+
+        // clone applicationParams
+        for (const param of this.applicationParams()){
+            result.applicationParams.push(param.clone());
         }
 
         result.readonly(this.readonly());
@@ -1763,6 +1772,12 @@ export class Node {
             result.fields.push(Field.toOJSJson(field));
         }
 
+        // add applicationParams
+        result.applicationParams = [];
+        for (const param of node.applicationParams()){
+            result.applicationParams.push(Field.toOJSJson(param));
+        }
+
         // add fields from inputApplication
         result.inputAppFields = [];
         if (node.hasInputApplication()){
@@ -1870,6 +1885,12 @@ export class Node {
             result.fields.push(Field.toOJSJson(field));
         }
 
+        // add applicationParams
+        result.applicationParams = [];
+        for (const param of node.applicationParams()){
+            result.applicationParams.push(Field.toOJSJson(param));
+        }
+
         // write application names and types
         if (node.hasInputApplication()){
             result.inputApplicationRef = "not set";
@@ -1918,6 +1939,11 @@ export class Node {
         node.fields([]);
         for (const field of nodeData.fields){
             node.addField(Field.fromOJSJson(field));
+        }
+
+        node.applicationParams([]);
+        for (const param of nodeData.applicationParams){
+            node.addApplicationParam(Field.fromOJSJson(param));
         }
 
         return node;
@@ -2005,11 +2031,18 @@ export class Node {
             result.outputPorts[outputPort.getId()] = Port.toV3Json(outputPort);
         }
 
-        // add parameters
-        result.parameters = {};
+        // add component parameters
+        result.componentParameters = {};
         for (let i = 0 ; i < node.fields().length ; i++){
             const field = node.fields()[i];
-            result.parameters[i] = Field.toV3Json(field);
+            result.componentParameters[i] = Field.toV3Json(field);
+        }
+
+        // add application parameters
+        result.applicationParameters = {};
+        for (let i = 0 ; i < node.applicationParams().length ; i++){
+            const field = node.applicationParams()[i];
+            result.applicationParameters[i] = Field.toV3Json(field);
         }
 
         return result;
