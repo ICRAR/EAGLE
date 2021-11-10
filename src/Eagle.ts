@@ -395,6 +395,7 @@ export class Eagle {
         } else {
             this.selectedObjects([selection]);
         }
+
         this.selectedLocation(selectedLocation);
         this.rightWindow().mode(rightWindowMode);
 
