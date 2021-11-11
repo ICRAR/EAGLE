@@ -2208,7 +2208,7 @@ export class Eagle {
         }
     }
 
-    // TODO: seems to simple to be required
+    // TODO: seems too simple to be required
     fieldIsBoolean = (type:string) : boolean => {
         if (type === "Boolean"){
             return true
