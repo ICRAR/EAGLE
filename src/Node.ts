@@ -584,17 +584,6 @@ export class Node {
     canHaveParameters = () : boolean => {
         return Eagle.getCategoryData(this.category()).canHaveParameters;
     }
-    
-    getFieldReadonly = (index: number) : boolean => {
-        console.assert(index < this.fields().length);
-
-        const field: Field = this.fields()[index];
-
-        // modify using settings and node readonly
-        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
-
-        return (field.isReadonly() || this.readonly()) && !allowParam;
-    }
 
     fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.paletteComponentSearchString() === ""){
