@@ -82,7 +82,7 @@ export class Eagle {
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
 
-    componentParamsSearchString : string = "time";
+    static componentParamsSearchString : ko.Observable<string>;
 
     static settings : {[category:string] : Setting[]}
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
@@ -107,6 +107,8 @@ export class Eagle {
         this.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.translator = ko.observable(new Translator());
+
+        Eagle.componentParamsSearchString =ko.observable("");
 
         Eagle.settings = {
             "User Feedback" : [
@@ -289,23 +291,8 @@ export class Eagle {
     };
 
     getComponentSearchResults = (value:any, data:any, event:any) : void  => {
-        this.componentParamsSearchString = value
+        Eagle.componentParamsSearchString(value)
         console.log(value)
-    }
-
-    fitsSearchQuery = (name:string) : boolean => {
-        console.log(this.componentParamsSearchString)
-        if(this.componentParamsSearchString === ""){
-            console.log("empty")
-            return true
-        }else if(name.indexOf(this.componentParamsSearchString)>=0){
-            console.log("search")
-            return true
-        }else{
-            console.log("false")
-            return false
-        }
-        console.log(name)
     }
 
     zoomIn = () : void => {

@@ -12,7 +12,7 @@
             </div>
             <!-- ko foreach: selectedNode().getFields() -->
             <div data-bind="text: console.log($data)"></div>
-                <!-- ko if: $root.fitsSearchQuery($data.text()) -->
+                <!-- ko if: $data.fitsSearchQuery() -->
                     <!-- ko ifnot: $data.isDaliugeField -->
                         <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
                     <!-- /ko -->
