@@ -1,5 +1,7 @@
 import * as ko from "knockout";
 
+import {Eagle} from './Eagle';
+
 ko.components.register('repository-file', {
     viewModel: function(params : {data : any}){
         return params.data;
@@ -37,9 +39,10 @@ ko.components.register('repository', {
 
 // custom component for a field
 ko.components.register('field', {
-    viewModel: function(params : {data : any, ro: boolean}){
+    viewModel: function(params : {data : any, ro: boolean, fieldType: Eagle.FieldType}){
         const vm = params.data;
         vm.ro = params.ro;
+        vm.fieldType = params.fieldType;
         return vm;
     },
     template: { require: "text!static/components/field.html" }

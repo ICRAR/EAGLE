@@ -1,0 +1,29 @@
+<div class="card">
+    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse11" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Parameters">
+        <i class="material-icons interactive nodeMenuIndicator" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:inspectorState().parameters}">keyboard_arrow_down</i>
+        <i class="material-icons">settings_applications</i>
+        <span class="nodeInspectorSubsectionTitle">Application Parameters</span>
+    </h5>
+    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse11">
+        <div class="card-body" >
+            <!-- ko foreach: selectedNode().getApplicationParams() -->
+                <field params="data: $data, ro: $parent.selectedNode().getApplicationParamReadonly($index()), fieldType: Eagle.FieldType.ApplicationParam"></field>
+            <!-- /ko -->
+
+            <!-- ko ifnot: selectedNode().isLocked()-->
+                <button class="btn btn-secondary btn-block nodeInspectorDropDown btn_wide" id="nodeInspectorAddApplicationParam" type="button" data-bind="click: $root.addApplicationParamHTML, attr:{title:'Add application parameter'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
+                    <i class="material-icons md-18">add</i>
+                </button>
+                <div id="nodeInspectorAddApplicationParamDiv" class="nodeInspectorDropdownDiv">
+                    <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:function(){hideDropDown('nodeInspectorAddApplicationParamDiv')}}">
+                        <div id="nodeInspectorApplicationParamDropDownKO">
+                            <a href="#" data-bind="click:nodeInspectorDropdownClick">hi</a>
+                            <a href="#">hi2</a>
+                            <a href="#">hi3</a>
+                        </div>
+                    </div>
+                </div>
+            <!-- /ko -->
+        </div>
+    </div>
+</div>
