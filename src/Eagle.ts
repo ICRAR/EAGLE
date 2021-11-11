@@ -79,6 +79,7 @@ export class Eagle {
 
     explorePalettes : ko.ObservableArray<PaletteInfo>;
 
+    graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
 
     componentParamsSearchString : string = "time";
@@ -171,6 +172,7 @@ export class Eagle {
 
         this.explorePalettes = ko.observableArray([]);
 
+        this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
     }
 
@@ -417,6 +419,7 @@ export class Eagle {
         } else {
             this.selectedObjects([selection]);
         }
+
         this.selectedLocation(selectedLocation);
         this.rightWindow().mode(rightWindowMode);
 
@@ -3692,12 +3695,27 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        this.graphErrors(Utils.checkGraph(this.logicalGraph()));
+        const checkResult = Utils.checkGraph(this.logicalGraph());
+
+        this.graphWarnings(checkResult.warnings);
+        this.graphErrors(checkResult.errors);
     };
 
     showGraphErrors = (): void => {
-        if (this.graphErrors().length > 0){
-            Utils.showUserMessage("Check graph", this.graphErrors().join('<br/>'))
+        if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
+            let message = "";
+
+            if (this.graphWarnings().length > 0){
+                message += "<h5>Warnings</h5>" + this.graphWarnings().join('<br/>');
+            }
+            if (this.graphWarnings().length > 0 && this.graphErrors().length > 0){
+                message += "<br/><br/>";
+            }
+            if (this.graphErrors().length > 0){
+                message += "<h5>Errors</h5>" + this.graphErrors().join('<br/>')
+            }
+
+            Utils.showUserMessage("Check graph", message);
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
