@@ -536,6 +536,16 @@ export class Node {
         return (field.isReadonly() || this.readonly()) && !allowParam;
     }
 
+    fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        if(Eagle.paletteComponentSearchString() === ""){
+            return true
+        }else if(this.name().toLowerCase().indexOf(Eagle.paletteComponentSearchString().toLowerCase())>=0){
+            return true
+        }else{
+            return false
+        }
+    },this)
+
     getHelpHTML : ko.PureComputed<string> = ko.pureComputed(() => {
         // handle error if name is undefined
         if (typeof this.name() === 'undefined'){

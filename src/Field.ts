@@ -101,18 +101,13 @@ export class Field {
     }
 
     fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        console.log(Eagle.componentParamsSearchString())
         if(Eagle.componentParamsSearchString() === ""){
-            console.log("empty")
             return true
         }else if(this.text().toLowerCase().indexOf(Eagle.componentParamsSearchString().toLowerCase())>=0){
-            console.log("search")
             return true
         }else{
-            console.log("false")
             return false
         }
-        console.log(this.text())
     },this)
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {

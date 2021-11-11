@@ -82,6 +82,7 @@ export class Eagle {
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
 
+    static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
 
     static settings : {[category:string] : Setting[]}
@@ -108,7 +109,8 @@ export class Eagle {
 
         this.translator = ko.observable(new Translator());
 
-        Eagle.componentParamsSearchString =ko.observable("");
+        Eagle.componentParamsSearchString = ko.observable("");
+        Eagle.paletteComponentSearchString = ko.observable("")
 
         Eagle.settings = {
             "User Feedback" : [
@@ -292,7 +294,10 @@ export class Eagle {
 
     getComponentSearchResults = (value:any, data:any, event:any) : void  => {
         Eagle.componentParamsSearchString(value)
-        console.log(value)
+    }
+
+    getPaletteComponentSearchResults = (value:any, data:any, event:any) : void  => {
+        Eagle.paletteComponentSearchString(value)
     }
 
     zoomIn = () : void => {

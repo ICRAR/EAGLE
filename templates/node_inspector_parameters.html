@@ -8,10 +8,9 @@
         <div class="card-body" >
             <div class="searchBarContainer">
                 <i class="material-icons md-18 searchBarIcon">search</i>
-                <input id="ComponentParamsSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], event:{'keyup':$root.getComponentSearchResults($element.value)}"></input>
+                <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], event:{'keyup':$root.getComponentSearchResults($element.value)}"></input>
             </div>
             <!-- ko foreach: selectedNode().getFields() -->
-            <div data-bind="text: console.log($data)"></div>
                 <!-- ko if: $data.fitsSearchQuery() -->
                     <!-- ko ifnot: $data.isDaliugeField -->
                         <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>

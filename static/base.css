@@ -210,7 +210,7 @@
     cursor: col-resize;
 }
 
-.rightWindow #ComponentParamsSearchBar{
+.componentSearchBar{
     width:100%;
     text-align: center;
     padding: 5px;
@@ -229,7 +229,14 @@
 
 .searchBarContainer{
     position: relative;
+}
+
+.rightWindow .searchBarContainer{
     margin-bottom: 15px;
+}
+
+.leftWindow .searchBarContainer{
+    margin-top: 10px;
 }
 
 
