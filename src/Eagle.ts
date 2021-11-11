@@ -2177,6 +2177,8 @@ export class Eagle {
         return null;
     }
 
+    // TODO: maybe move to Field.ts
+    // TODO: add comments
     getFieldType = (type:string, id:string, value:string) : string => {
         if (type === "Float" || type === "Integer"){
             return "number"
@@ -2195,6 +2197,7 @@ export class Eagle {
         }
     }
 
+    // TODO: seems to simple to be required
     fieldIsBoolean = (type:string) : boolean => {
         if (type === "Boolean"){
             return true
@@ -3831,6 +3834,11 @@ export namespace Eagle
     export enum ModalType {
         Add = "Add",
         Edit = "Edit"
+    }
+
+    export enum FieldType {
+        Field = "Field",
+        ApplicationParam = "ApplicationParam"
     }
 
     export enum RepositoryService {

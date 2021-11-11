@@ -68,11 +68,7 @@ export class Field {
     }
 
     valIsTrue = (val:string) : boolean => {
-        if (val === 'true'){
-            return true;
-        }else{
-            return false;
-        }
+        return val === 'true';
     }
 
     setType = (type: Eagle.DataType) : void => {
