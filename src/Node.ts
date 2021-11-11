@@ -1434,9 +1434,12 @@ export class Node {
         }
 
         // HACK! use old 'showPorts' attribute (if found) and overwrite the 'collapsed' value
+        // never collapse groups
         if (typeof nodeData.showPorts !== 'undefined'){
             if (nodeData.showPorts === false){
-                node.setCollapsed(true);
+                if (!node.isGroup()){
+                    node.setCollapsed(true);
+                }
             }
         }
 
