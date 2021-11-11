@@ -8,7 +8,10 @@
         <div class="card-body" >
             <div class="searchBarContainer">
                 <i class="material-icons md-18 searchBarIcon">search</i>
-                <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], event:{'keyup':$root.getComponentSearchResults($element.value)}"></input>
+                <a href="#" data-bind="click:function(event){$root.emptySearchBar(Eagle.componentParamsSearchString)}">
+                    <i class="material-icons md-18 searchBarIconClose">close</i>
+                </a>
+                <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.componentParamsSearchString"></input>
             </div>
             <!-- ko foreach: selectedNode().getFields() -->
                 <!-- ko if: $data.fitsSearchQuery() -->

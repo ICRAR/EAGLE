@@ -292,12 +292,8 @@ export class Eagle {
         return null;
     };
 
-    getComponentSearchResults = (value:any, data:any, event:any) : void  => {
-        Eagle.componentParamsSearchString(value)
-    }
-
-    getPaletteComponentSearchResults = (value:any, data:any, event:any) : void  => {
-        Eagle.paletteComponentSearchString(value)
+    emptySearchBar = (target : ko.Observable) => {
+        target("")
     }
 
     zoomIn = () : void => {

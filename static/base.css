@@ -227,6 +227,15 @@
     color: #aeaeae;
 }
 
+.searchBarIconClose{
+    position: absolute;
+    font-size: 24px !important;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 5px;
+    color: #aeaeae;
+}
+
 .searchBarContainer{
     position: relative;
 }
