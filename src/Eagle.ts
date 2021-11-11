@@ -84,6 +84,8 @@ export class Eagle {
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
+    static applicationParamsSearchString : ko.Observable<string>;
+    
 
     static settings : {[category:string] : Setting[]}
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
@@ -111,6 +113,7 @@ export class Eagle {
 
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("")
+        Eagle.applicationParamsSearchString = ko.observable("")
 
         Eagle.settings = {
             "User Feedback" : [

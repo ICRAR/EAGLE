@@ -96,10 +96,20 @@ export class Field {
         return tooltipText;
     }
 
-    fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
+    fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.componentParamsSearchString() === ""){
             return true
         }else if(this.text().toLowerCase().indexOf(Eagle.componentParamsSearchString().toLowerCase())>=0){
+            return true
+        }else{
+            return false
+        }
+    },this)
+
+    fitsAppliactionSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        if(Eagle.applicationParamsSearchString() === ""){
+            return true
+        }else if(this.text().toLowerCase().indexOf(Eagle.applicationParamsSearchString().toLowerCase())>=0){
             return true
         }else{
             return false

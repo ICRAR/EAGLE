@@ -14,7 +14,7 @@
                 <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.componentParamsSearchString"></input>
             </div>
             <!-- ko foreach: selectedNode().getFields() -->
-                <!-- ko if: $data.fitsSearchQuery() -->
+                <!-- ko if: $data.fitsComponentSearchQuery() -->
                     <!-- ko ifnot: $data.isDaliugeField -->
                         <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index()), fieldType: Eagle.FieldType.Field"></field>
                     <!-- /ko -->
