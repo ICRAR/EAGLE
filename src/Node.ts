@@ -1433,6 +1433,16 @@ export class Node {
             node.collapsed(true);
         }
 
+        // HACK! use old 'showPorts' attribute (if found) and overwrite the 'collapsed' value
+        // never collapse groups
+        if (typeof nodeData.showPorts !== 'undefined'){
+            if (nodeData.showPorts === false){
+                if (!node.isGroup()){
+                    node.setCollapsed(true);
+                }
+            }
+        }
+
         // streaming
         if (typeof nodeData.streaming !== 'undefined'){
             node.streaming(nodeData.streaming);

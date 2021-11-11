@@ -59,7 +59,7 @@ window.addEventListener("keyup",
             $("g.node").css("pointer-events", "auto")
         }
     },false
-);  
+);
 
 function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const startTime: number = performance.now();
@@ -195,75 +195,74 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
 
     $("#logicalGraphD3Div svg").mouseup(function(e:any){
-        finishDragging()
-     })
+        finishDragging();
+    })
 
     $("#logicalGraphD3Div svg").mouseleave(function(e:any){
         if( draggingInGraph === true){
-            finishDragging()
+            finishDragging();
         }
-        
     })
 
     function finishDragging(){
         const hadPreviousSelection: boolean = eagle.selectedObjects().length > 0;
         draggingInGraph = false;
-            // if we just clicked on a node
-            if (!hasDraggedBackground && !isDraggingSelectionRegion){
-                eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null, Eagle.FileType.Unknown);
-                hasDraggedBackground = false;
 
-                if (hadPreviousSelection){
-                    eagle.rightWindow().mode(Eagle.RightWindowMode.Hierarchy);
+        // if we just clicked on a node
+        if (!hasDraggedBackground && !isDraggingSelectionRegion){
+            eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null, Eagle.FileType.Unknown);
+            hasDraggedBackground = false;
+            if (hadPreviousSelection){
+                eagle.rightWindow().mode(Eagle.RightWindowMode.Hierarchy);
+            }
+        }
+
+        // if we dragged a selection region
+        if (isDraggingSelectionRegion){
+            const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
+
+            const edges: Edge[] = findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
+            console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
+            const objects: (Node | Edge)[] = [];
+
+            objects.push(...nodes);
+            objects.push(...edges);
+
+            eagle.selectedObjects(objects);
+            eagle.selectedLocation(Eagle.FileType.Graph);
+            eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector);
+
+            if (isDraggingWithAlt){
+                for (const node of nodes){
+                    node.setCollapsed(false);
                 }
             }
 
-            // if we dragged a selection region
-            if (isDraggingSelectionRegion){
-                const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
+            selectionRegionStart.x = 0;
+            selectionRegionStart.y = 0;
+            selectionRegionEnd.x = 0;
+            selectionRegionEnd.y = 0;
 
-                const edges: Edge[] = findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
-                console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
-                const objects: (Node | Edge)[] = [];
-
-                objects.push(...nodes);
-                objects.push(...edges);
-
-                eagle.selectedObjects(objects);
-                eagle.selectedLocation(Eagle.FileType.Graph);
-                eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector);
-
-                if (isDraggingWithAlt){
-                    for (const node of nodes){
-                        node.setCollapsed(false);
-                    }
-                }
-
-                selectionRegionStart.x = 0;
-                selectionRegionStart.y = 0;
-                selectionRegionEnd.x = 0;
-                selectionRegionEnd.y = 0;
-
-                // necessary to make uncollapsed nodes show up
-                eagle.logicalGraph.valueHasMutated();
-            }
+            // necessary to make uncollapsed nodes show up
+            eagle.logicalGraph.valueHasMutated();
+        }
     }
-      
+
     $("#logicalGraphD3Div svg").on("wheel", function(e:any){
-            e.preventDefault()
-            // Somehow only the eagle.globalScale does something...
-            const wheelDelta = e.originalEvent.deltaY;
-            const zoomDivisor = Eagle.findSettingValue(Utils.GRAPH_ZOOM_DIVISOR);
+        e.preventDefault()
+        // Somehow only the eagle.globalScale does something...
+        const wheelDelta = e.originalEvent.deltaY;
+        const zoomDivisor = Eagle.findSettingValue(Utils.GRAPH_ZOOM_DIVISOR);
 
-            var xs = (e.clientX - eagle.globalOffsetX) / eagle.globalScale,
-            ys = (e.clientY - eagle.globalOffsetY) / eagle.globalScale,
-            delta = (e.originalEvent.deltaY < 0 ? e.originalEvent.deltaY > 0 : -e.originalEvent.deltaY);
-            eagle.globalScale *= (1-(wheelDelta/zoomDivisor));
-            eagle.globalOffsetX = e.clientX - xs * eagle.globalScale;
-            eagle.globalOffsetY = e.clientY - ys * eagle.globalScale;
+        var xs = (e.clientX - eagle.globalOffsetX) / eagle.globalScale,
+        ys = (e.clientY - eagle.globalOffsetY) / eagle.globalScale,
+        delta = (e.originalEvent.deltaY < 0 ? e.originalEvent.deltaY > 0 : -e.originalEvent.deltaY);
+        eagle.globalScale *= (1-(wheelDelta/zoomDivisor));
+        eagle.globalOffsetX = e.clientX - xs * eagle.globalScale;
+        eagle.globalOffsetY = e.clientY - ys * eagle.globalScale;
 
-            tick();
-        });
+        tick();
+    });
 
     let nodes : any = rootContainer
         .selectAll("g.node")
@@ -419,8 +418,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             //tick();
         });
 
-    nodeDragHandler(rootContainer.selectAll("g.node"));             
-
+    nodeDragHandler(rootContainer.selectAll("g.node"));
+    
     // add a header background to each node
     nodes
         .append("rect")
@@ -446,11 +445,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("y", "2px")
         .append("xhtml:span")
         .attr("class", function(node:Node){
-            if (node.isGroup()){ 
+            if (node.isGroup()){
                 return node.getIcon()
             }else{
                 return ""
-            }      
+            }
         })
 
     // add a text header to each node
@@ -925,7 +924,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("stroke-width", "10px")
         .attr("fill", "transparent")
         .style("display", getEdgeDisplay)
-        .on("click", edgeOnClick);
 
     // draw links
     // TODO: ideally we would not use the 'any' type here
@@ -943,7 +941,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("fill", "transparent")
         .attr("marker-end", edgeGetArrowheadUrl)
         .style("display", getEdgeDisplay)
-        .on("click", edgeOnClick);
+
+
+    const edgeDragHandler = d3
+    .drag()
+    .on("start", function(edge : Edge){
+        selectEdge(edge, d3.event.shiftKey);
+        tick();
+    })
+
+    edgeDragHandler(rootContainer.selectAll("path.link, path.linkExtra"));
+    
 
     // draw comment links
     let commentLinks : any = rootContainer
@@ -1085,13 +1093,28 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // enter any new links
         rootContainer
+            .selectAll("path.linkExtra")
+            .data(linkData)
+            .enter()
+            .insert("path")
+            .attr("class", "linkExtra")
+            .style("display", getEdgeDisplay)
+
+        // exit any old links.
+        rootContainer
+            .selectAll("path.linkExtra")
+            .data(linkData)
+            .exit()
+            .remove();
+
+        // enter any new links
+        rootContainer
             .selectAll("path.link")
             .data(linkData)
             .enter()
             .insert("path")
             .attr("class", "link")
             .style("display", getEdgeDisplay)
-            .on("click", edgeOnClick);
 
         // exit any old links.
         rootContainer
@@ -3044,11 +3067,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         destinationNodeKey = null;
         suggestedPortId = null;
         suggestedNodeKey = null;
-    }
-
-    function edgeOnClick(edge : Edge, index : number){
-        selectEdge(edge, d3.event.shiftKey);
-        tick();
     }
 
     function createCommentLink(node : Node){
