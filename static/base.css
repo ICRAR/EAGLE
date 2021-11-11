@@ -628,7 +628,7 @@
     list-style-type: none;
 }
 
-#nodeInspectorAddField{
+#nodeInspectorAddField, #nodeInspectorAddApplicationParam{
     padding:0px;
 }
 

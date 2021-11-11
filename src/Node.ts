@@ -969,8 +969,12 @@ export class Node {
         this.fields.splice(i, 0, field);
     }
 
-    removeFieldByIndex = (index : number) : void => {
-        this.fields.splice(index, 1);
+    removeFieldByIndex = (fieldType: Eagle.FieldType, index : number) : void => {
+        if (fieldType === Eagle.FieldType.Field){
+            this.fields.splice(index, 1);
+        } else {
+            this.applicationParams.splice(index, 1);
+        }
     }
 
     removeAllFields = () : void => {

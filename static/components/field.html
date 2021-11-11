@@ -19,7 +19,7 @@
 
     <!-- ko ifnot: $data.ro -->
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Open Field Value Wizard'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Open Field Value Wizard'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
             <i class="material-icons md-18">link</i>
         </button>
     </div>
@@ -27,7 +27,7 @@
 
     <!-- ko ifnot: $data.ro -->
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField(null, 'Edit', $index(), $data._type, $data.input);}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Edit'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField(null, 'Edit', $data.fieldType, $index());}, attr: {id: 'nodeInspectorEditField' + $index(), title: 'Edit'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
             <i class="material-icons md-18">edit</i>
         </button>
     </div>
@@ -35,7 +35,7 @@
 
     <!-- ko ifnot: $root.selectedNode().isLocked() -->
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index(), title:'Remove parameter'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeFieldByIndex($data.fieldType, $index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index(), title:'Remove parameter'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
             <i class="material-icons md-18">delete</i>
         </button>
     </div>
