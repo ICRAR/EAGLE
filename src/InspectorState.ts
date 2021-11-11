@@ -16,7 +16,8 @@ export class InspectorState {
     outputApplication: ko.Observable<boolean>;
     outputPorts: ko.Observable<boolean>;
     exitApplication: ko.Observable<boolean>;
-    parameters: ko.Observable<boolean>;
+    componentParameters: ko.Observable<boolean>;
+    applicationParameters: ko.Observable<boolean>;
 
     constructor(){
         this.description = ko.observable(true);
@@ -28,7 +29,8 @@ export class InspectorState {
         this.outputApplication = ko.observable(true);
         this.outputPorts = ko.observable(true);
         this.exitApplication = ko.observable(true);
-        this.parameters = ko.observable(true);
+        this.componentParameters = ko.observable(true);
+        this.applicationParameters = ko.observable(true);
     }
 
     setAll(value:boolean): void {
@@ -41,7 +43,8 @@ export class InspectorState {
         this.outputApplication(value);
         this.outputPorts(value);
         this.exitApplication(value);
-        this.parameters(value);
+        this.componentParameters(value);
+        this.applicationParameters(value);
     }
 
     set(sectionName: string, value: boolean): void {
@@ -77,9 +80,10 @@ export class InspectorState {
                 return this.outputPorts;
             case "Exit Application":
                 return this.exitApplication;
-            case "Parameters":
-                return this.parameters;
-
+            case "Component Parameters":
+                return this.componentParameters;
+            case "Application Parameters":
+                return this.applicationParameters;
             default:
                 console.warn("Unknown inspector section", sectionName);
                 return null;
@@ -87,7 +91,7 @@ export class InspectorState {
     }
 
     all : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return this.description() && this.displayOptions() && this.graphComment() && this.graphDescription() && this.inputApplication() && this.inputPorts() && this.outputApplication() && this.outputPorts() && this.exitApplication() && this.parameters();
+        return this.description() && this.displayOptions() && this.graphComment() && this.graphDescription() && this.inputApplication() && this.inputPorts() && this.outputApplication() && this.outputPorts() && this.exitApplication() && this.componentParameters() && this.applicationParameters();
     }, this);
 
     toggleAll = (item: any, e:JQueryEventObject): void => {
@@ -96,7 +100,7 @@ export class InspectorState {
         if(!allCollapseRunning){
             allCollapseRunning = true
             this.setAll(!allCollapsed);
-    
+
             // actually ask bootstrap to collapse all the sections
             $(".nodeInspectorCollapseAll").collapse(allCollapsed ? "show" : "hide");
             setTimeout(function(){
@@ -111,7 +115,7 @@ export class InspectorState {
         var that = this
         // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
         const collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
-       
+
         //timer equals the time it takes for bootstrap to finish collapsing. it is required to keep them in sync.
         if(!collapseRunning){
             collapseRunning = true
