@@ -1000,11 +1000,14 @@ export class Utils {
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         let dropDownKO;
+        let divID;
 
         if (fieldType === Eagle.FieldType.Field){
             dropDownKO = $("#nodeInspectorFieldDropDownKO");
+            divID = "nodeInspectorAddFieldDiv";
         } else {
             dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
+            divID = "nodeInspectorAddApplicationParamDiv";
         }
 
 
@@ -1021,7 +1024,7 @@ export class Utils {
             dropDownKO.append($('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'" + divID + "')}",
                 value: -1,
                 text: ""
             }));
@@ -1035,7 +1038,7 @@ export class Utils {
                 dropDownKO.append($('<a>', {
                     href: "#",
                     class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'" + divID + "')}",
                     value: i,
                     text: choices[i]
                 }));
@@ -1049,7 +1052,7 @@ export class Utils {
             dropDownKO.append($('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'" + divID + "')}",
                 value: choices.length,
                 text: "Custom"
             }));
