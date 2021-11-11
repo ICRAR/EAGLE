@@ -196,7 +196,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     $("#logicalGraphD3Div svg").mouseup(function(e:any){
         finishDragging();
-     })
+    })
 
     $("#logicalGraphD3Div svg").mouseleave(function(e:any){
         if( draggingInGraph === true){
@@ -212,7 +212,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (!hasDraggedBackground && !isDraggingSelectionRegion){
             eagle.setSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), null, Eagle.FileType.Unknown);
             hasDraggedBackground = false;
-
             if (hadPreviousSelection){
                 eagle.rightWindow().mode(Eagle.RightWindowMode.Hierarchy);
             }
@@ -420,7 +419,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         });
 
     nodeDragHandler(rootContainer.selectAll("g.node"));
-
+    
     // add a header background to each node
     nodes
         .append("rect")
@@ -925,7 +924,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("stroke-width", "10px")
         .attr("fill", "transparent")
         .style("display", getEdgeDisplay)
-        .on("click", edgeOnClick);
 
     // draw links
     // TODO: ideally we would not use the 'any' type here
@@ -943,7 +941,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("fill", "transparent")
         .attr("marker-end", edgeGetArrowheadUrl)
         .style("display", getEdgeDisplay)
-        .on("click", edgeOnClick);
+
+
+    const edgeDragHandler = d3
+    .drag()
+    .on("start", function(edge : Edge){
+        selectEdge(edge, d3.event.shiftKey);
+        tick();
+    })
+
+    edgeDragHandler(rootContainer.selectAll("path.link, path.linkExtra"));
+    
 
     // draw comment links
     let commentLinks : any = rootContainer
@@ -1091,7 +1099,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .insert("path")
             .attr("class", "linkExtra")
             .style("display", getEdgeDisplay)
-            .on("click", edgeOnClick);
 
         // exit any old links.
         rootContainer
@@ -1108,7 +1115,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .insert("path")
             .attr("class", "link")
             .style("display", getEdgeDisplay)
-            .on("click", edgeOnClick);
 
         // exit any old links.
         rootContainer
@@ -3061,11 +3067,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         destinationNodeKey = null;
         suggestedPortId = null;
         suggestedNodeKey = null;
-    }
-
-    function edgeOnClick(edge : Edge, index : number){
-        selectEdge(edge, d3.event.shiftKey);
-        tick();
     }
 
     function createCommentLink(node : Node){
