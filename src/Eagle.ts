@@ -82,6 +82,11 @@ export class Eagle {
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
 
+    static paletteComponentSearchString : ko.Observable<string>;
+    static componentParamsSearchString : ko.Observable<string>;
+    static applicationParamsSearchString : ko.Observable<string>;
+    
+
     static settings : {[category:string] : Setting[]}
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
 
@@ -105,6 +110,10 @@ export class Eagle {
         this.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.translator = ko.observable(new Translator());
+
+        Eagle.componentParamsSearchString = ko.observable("");
+        Eagle.paletteComponentSearchString = ko.observable("")
+        Eagle.applicationParamsSearchString = ko.observable("")
 
         Eagle.settings = {
             "User Feedback" : [
@@ -285,6 +294,10 @@ export class Eagle {
         console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
     };
+
+    emptySearchBar = (target : ko.Observable) => {
+        target("")
+    }
 
     zoomIn = () : void => {
         this.globalScale += 0.05;
@@ -2178,6 +2191,8 @@ export class Eagle {
         return null;
     }
 
+    // TODO: maybe move to Field.ts
+    // TODO: add comments
     getFieldType = (type:string, id:string, value:string) : string => {
         if (type === "Float" || type === "Integer"){
             return "number"
@@ -2196,6 +2211,7 @@ export class Eagle {
         }
     }
 
+    // TODO: seems too simple to be required
     fieldIsBoolean = (type:string) : boolean => {
         if (type === "Boolean"){
             return true
@@ -2761,11 +2777,29 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.Field, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
         $("#nodeInspectorAddFieldDiv").show();
+    }
+
+    /**
+     * Adds an application param to the selected node via HTML.
+     */
+    addApplicationParamHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add application param when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ApplicationParam, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddApplicationParamDiv").show();
     }
 
     hideDropDown = (divID:string) : void => {
@@ -2794,7 +2828,7 @@ export class Eagle {
         let modalID;
         let submitBtnID;
 
-        if(divID==="nodeInspectorAddFieldDiv"){
+        if(divID==="nodeInspectorAddFieldDiv" || divID==="nodeInspectorAddApplicationParamDiv"){
             selectSectionID = "fieldModalSelect"
             modalID = "editFieldModal"
             submitBtnID = "editFieldModalAffirmativeButton"
@@ -3257,26 +3291,37 @@ export class Eagle {
         this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getExitApplication(), Eagle.FileType.Graph);
     }
 
-    editField = (node:Node, modalType: Eagle.ModalType, fieldIndex: number) : void => {
+    editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
         // get field names list from the logical graph
-        const allFields: Field[] = Utils.getUniqueFieldsList(this.logicalGraph());
-        allFields.sort(Field.sortFunc);
+        let allFields: Field[];
+        let allFieldNames: string[] = [];
 
-        const allFieldNames: string[] = [];
+        if (fieldType === Eagle.FieldType.Field){
+            allFields = Utils.getUniqueFieldsList(this.logicalGraph());
+        } else {
+            allFields = Utils.getUniqueApplicationParamsList(this.logicalGraph());
+        }
+
+        // once done, sort fields and then collect names into the allFieldNames list
+        allFields.sort(Field.sortFunc);
         for (const field of allFields){
             allFieldNames.push(field.getName() + " (" + field.getType() + ")");
         }
 
         //if creating a new field component parameter
         if (modalType === Eagle.ModalType.Add) {
-            $("#editFieldModalTitle").html("Add Parameter")
+            if (fieldType == Eagle.FieldType.Field){
+                $("#editFieldModalTitle").html("Add Component Parameter")
+            } else {
+                $("#editFieldModalTitle").html("Add Application Parameter")
+            }
             $("#addParameterWrapper").show();
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field("", "", "", "", false, Eagle.DataType.Integer);
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Add, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
 
 
                 // abort if the user aborted
@@ -3296,21 +3341,36 @@ export class Eagle {
                 // hide the custom text input unless the last option in the select is chosen
                 if (choice === choices.length){
                    //create field from user input in modal
-                   node.addField(newField);
+                   if (fieldType === Eagle.FieldType.Field){
+                       node.addField(newField);
+                   } else {
+                       node.addApplicationParam(newField);
+                   }
                 } else {
                    const clone : Field = allFields[choice].clone();
-                   node.addField(clone);
+                   if (fieldType === Eagle.FieldType.Field){
+                       node.addField(clone);
+                   } else {
+                       node.addApplicationParam(clone);
+                   }
                 }
             });
 
         } else {
             //if editing an existing field
-            const field: Field = this.selectedNode().getFields()[fieldIndex];
-            $("#editFieldModalTitle").html("Edit Parameter");
+            let field: Field;
+
+            if (fieldType == Eagle.FieldType.Field){
+                $("#editFieldModalTitle").html("Edit Component Parameter");
+                field = this.selectedNode().getFields()[fieldIndex];
+            } else {
+                $("#editFieldModalTitle").html("Edit Application Parameter");
+                field = this.selectedNode().getApplicationParams()[fieldIndex];
+            }
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Edit, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Edit, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -3832,6 +3892,11 @@ export namespace Eagle
     export enum ModalType {
         Add = "Add",
         Edit = "Edit"
+    }
+
+    export enum FieldType {
+        Field = "Field",
+        ApplicationParam = "ApplicationParam"
     }
 
     export enum RepositoryService {

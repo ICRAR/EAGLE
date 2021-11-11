@@ -998,22 +998,33 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+        let dropDownKO;
+        let divID;
+
+        if (fieldType === Eagle.FieldType.Field){
+            dropDownKO = $("#nodeInspectorFieldDropDownKO");
+            divID = "nodeInspectorAddFieldDiv";
+        } else {
+            dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
+            divID = "nodeInspectorAddApplicationParamDiv";
+        }
+
 
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#fieldModalSelect').empty();
-            $("#nodeInspectorDropDownKO").empty();
+            dropDownKO.empty();
 
             // add empty choice
             $('#fieldModalSelect').append($('<option>', {
                 value: -1,
                 text: ""
             }));
-            $("#nodeInspectorDropDownKO").append($('<a>', {
+            dropDownKO.append($('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'" + divID + "')}",
                 value: -1,
                 text: ""
             }));
@@ -1024,10 +1035,10 @@ export class Utils {
                     value: i,
                     text: choices[i]
                 }));
-                $("#nodeInspectorDropDownKO").append($('<a>', {
+                dropDownKO.append($('<a>', {
                     href: "#",
                     class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'" + divID + "')}",
                     value: i,
                     text: choices[i]
                 }));
@@ -1038,16 +1049,17 @@ export class Utils {
                 value: choices.length,
                 text: "Custom (enter below)"
             }));
-            $("#nodeInspectorDropDownKO").append($('<a>', {
+            dropDownKO.append($('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'" + divID + "')}",
                 value: choices.length,
                 text: "Custom"
             }));
-            //applying knockout bindings for the new buttonsgenerated above
-            ko.cleanNode(document.getElementById("nodeInspectorDropDownKO"));
-            ko.applyBindings(eagle, document.getElementById("nodeInspectorDropDownKO"));
+
+            //applying knockout bindings for the new buttons generated above
+            ko.cleanNode(dropDownKO[0]);
+            ko.applyBindings(eagle, dropDownKO[0]);
 
         }
 
@@ -1553,6 +1565,22 @@ export class Utils {
         }
 
         return uniqueFields;
+    }
+
+    /**
+     * Returns a list of all fields in the given palette or logical graph
+     */
+    static getUniqueApplicationParamsList = (diagram : Palette | LogicalGraph) : Field[] => {
+        const uniqueApplicationParams : Field[] = [];
+
+        // build a list from all nodes, add fields into the list
+        for (const node of diagram.getNodes()) {
+            for (const param of node.getApplicationParams()) {
+                Utils._addFieldIfUnique(uniqueApplicationParams, param.clone());
+            }
+        }
+
+        return uniqueApplicationParams;
     }
 
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
