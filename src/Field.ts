@@ -96,6 +96,16 @@ export class Field {
         return tooltipText;
     }
 
+    fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        if(Eagle.componentParamsSearchString() === ""){
+            return true
+        }else if(this.text().toLowerCase().indexOf(Eagle.componentParamsSearchString().toLowerCase())>=0){
+            return true
+        }else{
+            return false
+        }
+    },this)
+
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume";
     }, this);

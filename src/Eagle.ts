@@ -82,6 +82,9 @@ export class Eagle {
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
 
+    static paletteComponentSearchString : ko.Observable<string>;
+    static componentParamsSearchString : ko.Observable<string>;
+
     static settings : {[category:string] : Setting[]}
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
 
@@ -105,6 +108,9 @@ export class Eagle {
         this.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.translator = ko.observable(new Translator());
+
+        Eagle.componentParamsSearchString = ko.observable("");
+        Eagle.paletteComponentSearchString = ko.observable("")
 
         Eagle.settings = {
             "User Feedback" : [
@@ -286,6 +292,10 @@ export class Eagle {
         return null;
     };
 
+    emptySearchBar = (target : ko.Observable) => {
+        target("")
+    }
+
     zoomIn = () : void => {
         this.globalScale += 0.05;
         this.logicalGraph.valueHasMutated();
@@ -397,6 +407,7 @@ export class Eagle {
         } else {
             this.selectedObjects([selection]);
         }
+
         this.selectedLocation(selectedLocation);
         this.rightWindow().mode(rightWindowMode);
 

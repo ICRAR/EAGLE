@@ -584,6 +584,27 @@ export class Node {
     canHaveParameters = () : boolean => {
         return Eagle.getCategoryData(this.category()).canHaveParameters;
     }
+    
+    getFieldReadonly = (index: number) : boolean => {
+        console.assert(index < this.fields().length);
+
+        const field: Field = this.fields()[index];
+
+        // modify using settings and node readonly
+        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
+
+        return (field.isReadonly() || this.readonly()) && !allowParam;
+    }
+
+    fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        if(Eagle.paletteComponentSearchString() === ""){
+            return true
+        }else if(this.name().toLowerCase().indexOf(Eagle.paletteComponentSearchString().toLowerCase())>=0){
+            return true
+        }else{
+            return false
+        }
+    },this)
 
     getHelpHTML : ko.PureComputed<string> = ko.pureComputed(() => {
         // handle error if name is undefined
@@ -1489,6 +1510,16 @@ export class Node {
             node.collapsed(nodeData.collapsed);
         } else {
             node.collapsed(true);
+        }
+
+        // HACK! use old 'showPorts' attribute (if found) and overwrite the 'collapsed' value
+        // never collapse groups
+        if (typeof nodeData.showPorts !== 'undefined'){
+            if (nodeData.showPorts === false){
+                if (!node.isGroup()){
+                    node.setCollapsed(true);
+                }
+            }
         }
 
         // streaming
