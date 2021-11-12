@@ -5,18 +5,22 @@ import {Eagle} from './Eagle';
 export class Field {
     private text : ko.Observable<string>; // external user-facing name
     private name : ko.Observable<string>; // internal no-whitespace name
-    private value : ko.Observable<string>;
+    private value : ko.Observable<string>; // the current value
+    private defaultValue : ko.Observable<string>;  // default value
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
     private type : ko.Observable<Eagle.DataType>;
+    private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
 
-    constructor(text: string, name: string, value: string, description: string, readonly: boolean, type: Eagle.DataType){
+    constructor(text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean){
         this.text = ko.observable(text);
         this.name = ko.observable(name);
         this.value = ko.observable(value);
+        this.defaultValue = ko.observable(defaultValue);
         this.description = ko.observable(description);
         this.readonly = ko.observable(readonly);
         this.type = ko.observable(type);
+        this.precious = ko.observable(precious);
     }
 
     getText = () : string => {
@@ -41,6 +45,18 @@ export class Field {
 
     setValue = (value: string): void => {
         this.value(value);
+    }
+
+    getDefaultValue = () : string => {
+        return this.defaultValue();
+    }
+
+    setDefaultValue = (value: string): void => {
+        this.defaultValue(value);
+    }
+
+    hasDefaultValue = () : boolean => {
+        return this.value() === this.defaultValue();
     }
 
     getDescription = () : string => {
@@ -75,17 +91,27 @@ export class Field {
         this.type(type);
     }
 
+    setPrecious = (precious: boolean) : void => {
+        this.precious(precious);
+    }
+
+    isPrecious = () : boolean => {
+        return this.precious();
+    }
+
     clear = () : void => {
         this.text("");
         this.name("");
         this.value("");
+        this.defaultValue("");
         this.description("");
         this.readonly(false);
         this.type(Eagle.DataType.Unknown);
+        this.precious(false);
     }
 
     clone = () : Field => {
-        return new Field(this.text(), this.name(), this.value(), this.description(), this.readonly(), this.type());
+        return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious());
     }
 
     getFieldValue = () : string => {
@@ -106,7 +132,7 @@ export class Field {
         }
     },this)
 
-    fitsAppliactionSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
+    fitsApplicationSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.applicationParamsSearchString() === ""){
             return true
         }else if(this.text().toLowerCase().indexOf(Eagle.applicationParamsSearchString().toLowerCase())>=0){
@@ -140,9 +166,11 @@ export class Field {
             text:field.text(),
             name:field.name(),
             value:Field.string2Type(field.value(), field.type()),
+            defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
-            type:field.type()
+            type:field.type(),
+            precious:field.precious()
         };
     }
 
@@ -151,9 +179,11 @@ export class Field {
             text:field.text(),
             name:field.name(),
             value:Field.string2Type(field.value(), field.type()),
+            defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
-            type:field.type()
+            type:field.type(),
+            precious:field.precious()
         };
     }
 
@@ -161,7 +191,9 @@ export class Field {
         let description: string = "";
         let readonly: boolean = false;
         let type: Eagle.DataType = Eagle.DataType.Unknown;
-        let value: string = ""
+        let value: string = "";
+        let defaultValue: string = "";
+        let precious: boolean = false;
 
         if (typeof data.description !== 'undefined')
             description = data.description;
@@ -171,8 +203,12 @@ export class Field {
             type = data.type;
         if (typeof data.value !== 'undefined' && data.value !== null)
             value = data.value.toString();
+        if (typeof data.default !== 'undefined' && data.default !== null)
+            defaultValue = data.default.toString();
+        if (typeof data.precious !== 'undefined')
+            precious = data.precious;
 
-        return new Field(data.text, data.name, value, description, readonly, type);
+        return new Field(data.text, data.name, value, defaultValue, description, readonly, type, precious);
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
