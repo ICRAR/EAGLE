@@ -1,14 +1,12 @@
 svg {
     width: 100%;
     height: 100%;
-    /*border: 1px solid black;*/
 }
 
 rect.background {
     width: 100%;
     height: 100%;
-    /*fill: #494949;*/
-    fill: #FFFFFF;
+    fill: transparent;
 }
 
 g.node rect {
