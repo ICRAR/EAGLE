@@ -5,8 +5,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="messageModalTitle">Title</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <span id="messageModalMessage">Message</span>
@@ -25,8 +23,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="inputModalTitle">Title</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -56,8 +52,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="inputTextModalTitle">Title</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -87,8 +81,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="choiceModalTitle">Title</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -129,8 +121,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="confirmModalTitle">Title</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -154,8 +144,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="gitCommitModalTitle">Git Commit</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -228,8 +216,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="gitCustomRepositoryModalTitle">Add Custom Git Repository</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -285,8 +271,6 @@
                 <span>&nbsp;&nbsp;</span>
                 <h5 class="modal-title" id="aboutModalTitle">About EAGLE</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <h5>Editor for the Advanced Graph Language Environment</h5>
@@ -307,8 +291,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="settingsModalTitle">Settings</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <form>
@@ -391,8 +373,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="shortcutsModalTitle">Keyboard Shortcuts</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <table class="table table-striped">
@@ -426,8 +406,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="editFieldModalTitle">Edit Parameter</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container" id="addParameterWrapper">
@@ -478,6 +456,18 @@
                     </div>
                     <div class="row">
                         <div class="col-3">
+                            <p>Default Value:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="editFieldModalDefaultValueInputText">
+                                <input type="checkbox" class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox">
+                                <div id="editFieldModalDefaultValueFeedback" class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
                             <p>Description:</p>
                         </div>
                         <div class="col">
@@ -508,6 +498,16 @@
                                 <select class="form-control" id="editFieldModalTypeSelect">
                                     <!-- options are added dynamically -->
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Precious:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="checkbox" class="form-control form-check-input" id="editFieldModalPreciousInputCheckbox">
                             </div>
                         </div>
                     </div>
@@ -599,8 +599,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="editEdgeModalTitle">Edit Edge</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -684,8 +682,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="explorePalettesModalTitle">Explore Palettes</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body" style="min-height: 640px; max-height: 640px; overflow: scroll;">
                 <!-- ko if: explorePalettes().length === 0 -->
