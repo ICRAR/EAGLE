@@ -326,7 +326,7 @@
     margin-top:0px;
 }
 
-.form-control{
+select.form-control{
     appearance: revert;
 }
 

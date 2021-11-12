@@ -684,6 +684,16 @@ export class Utils {
         $('#editFieldModal').on('show.bs.modal', function(){
             Utils.validateFieldValue();
             Utils.validateFieldDefaultValue();
+
+            const value = $('#editFieldModalTypeSelect').val();
+
+            if(value === Eagle.DataType.Float || value === Eagle.DataType.Integer){
+                $('#editFieldModalDefaultValueInputText').attr("type", "number")
+                $('#editFieldModalValueInputText').attr("type", "number")
+            }else{
+                $('#editFieldModalDefaultValueInputText').attr("type", "text")
+                $('#editFieldModalValueInputText').attr("type", "text")
+            }
         });
         $('#editFieldModalValueInputText').on('keyup', function(){
             Utils.validateFieldValue();
@@ -700,6 +710,14 @@ export class Utils {
             $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
             $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType.Boolean);
             $('#editFieldModalDefaultValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
+
+            if(value === Eagle.DataType.Float || value === Eagle.DataType.Integer){
+                $('#editFieldModalDefaultValueInputText').attr("type", "number")
+                $('#editFieldModalValueInputText').attr("type", "number")
+            }else{
+                $('#editFieldModalDefaultValueInputText').attr("type", "text")
+                $('#editFieldModalValueInputText').attr("type", "text")
+            }
         });
 
         // #editPortModal - requestUserEditPort()
