@@ -85,7 +85,7 @@ export class Eagle {
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
     static applicationParamsSearchString : ko.Observable<string>;
-    
+
 
     static settings : {[category:string] : Setting[]}
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
@@ -3319,11 +3319,9 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field("", "", "", "", false, Eagle.DataType.Integer);
+            const field: Field = new Field("", "", "", "", "", false, Eagle.DataType.Integer, false);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
-
-
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -3380,9 +3378,11 @@ export class Eagle {
                 field.setText(newField.getText());
                 field.setName(newField.getName());
                 field.setValue(newField.getValue());
+                field.setDefaultValue(newField.getDefaultValue());
                 field.setDescription(newField.getDescription());
                 field.setReadonly(newField.isReadonly());
                 field.setType(newField.getType());
+                field.setPrecious(newField.isPrecious());
             });
         }
 
