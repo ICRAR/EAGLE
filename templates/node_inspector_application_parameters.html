@@ -14,7 +14,7 @@
                 <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.applicationParamsSearchString"></input>
             </div>
             <!-- ko foreach: selectedNode().getApplicationParams() -->
-                <!-- ko if: $data.fitsAppliactionSearchQuery() -->
+                <!-- ko if: $data.fitsApplicationSearchQuery() -->
                     <field params="data: $data, ro: $parent.selectedNode().getApplicationParamReadonly($index()), fieldType: Eagle.FieldType.ApplicationParam"></field>
                 <!-- /ko -->
             <!-- /ko -->

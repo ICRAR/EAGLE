@@ -660,9 +660,12 @@ export class Utils {
             const name : string = <string>$('#editFieldModalNameInput').val();
             const valueText : string = <string>$('#editFieldModalValueInputText').val();
             const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
+            const defaultValueText : string = <string>$('#editFieldModalDefaultValueInputText').val();
+            const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
             const description: string = <string>$('#editFieldModalDescriptionInput').val();
             const access: string = <string>$('#editFieldModalAccessSelect').val();
             const type: string = <string>$('#editFieldModalTypeSelect').val();
+            const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
 
             // translate access and type
             const readonly: boolean = access === 'readonly';
@@ -670,24 +673,33 @@ export class Utils {
             let newField;
 
             if (realType === Eagle.DataType.Boolean){
-                newField = new Field(text, name, valueCheckbox.toString(), description, readonly, realType);
+                newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious);
             } else {
-                newField = new Field(text, name, valueText, description, readonly, realType);
+                newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious);
             }
 
             callback(true, newField);
         });
 
-        $('#editFieldModal').on('show.bs.modal', Utils.validateFieldValue);
-        $('#editFieldModalValueInputText').on('keyup', Utils.validateFieldValue);
+        $('#editFieldModal').on('show.bs.modal', function(){
+            Utils.validateFieldValue();
+            Utils.validateFieldDefaultValue();
+        });
+        $('#editFieldModalValueInputText').on('keyup', function(){
+            Utils.validateFieldValue();
+            Utils.validateFieldDefaultValue();
+        });
         $('#editFieldModalTypeSelect').on('change', function(){
             Utils.validateFieldValue();
+            Utils.validateFieldDefaultValue();
 
             // show the correct entry field based on the field type
             const value = $('#editFieldModalTypeSelect').val();
-            console.log("editFieldModalTypeSelect change", value);
+
             $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean);
             $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
+            $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType.Boolean);
+            $('#editFieldModalDefaultValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
         });
 
         // #editPortModal - requestUserEditPort()
@@ -1068,6 +1080,8 @@ export class Utils {
         $('#editFieldModalNameInput').val(field.getName());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
+        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.string2Type(field.getDefaultValue(), Eagle.DataType.Boolean));
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
         $('#editFieldModalAccessSelect').empty();
@@ -1075,6 +1089,8 @@ export class Utils {
         // show the correct entry field based on the field type
         $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
         $('#editFieldModalValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
+        $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
+        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
 
         // add options to the access select tag
         $('#editFieldModalAccessSelect').append($('<option>', {
@@ -1120,6 +1136,8 @@ export class Utils {
             text: "Unknown",
             selected: field.getType() === Eagle.DataType.Unknown
         }));
+
+        $('#editFieldModalPreciousInputCheckbox').prop('checked', field.isPrecious());
 
         $('#editFieldModal').data('completed', false);
         $('#editFieldModal').data('callback', callback);
@@ -1824,6 +1842,24 @@ export class Utils {
             }
         }
 
+        // check that all fields have default values
+        for (const node of graph.getNodes()){
+            for (const field of node.getFields()){
+                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getName() + ") whose default value is not specified");
+                }
+            }
+        }
+
+        // check that all application params have default values
+        for (const node of graph.getNodes()){
+            for (const field of node.getApplicationParams()){
+                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getName() + ") whose default value is not specified");
+                }
+            }
+        }
+
         // check that all nodes have correct numbers of inputs and outputs
         for (const node of graph.getNodes()){
             const cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
@@ -1876,6 +1912,7 @@ export class Utils {
             }
         }
 
+        // check all edges are valid
         for (const edge of graph.getEdges()){
             const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
 
@@ -1948,16 +1985,7 @@ export class Utils {
         const type: string = <string>$('#editFieldModalTypeSelect').val();
         const realType: Eagle.DataType = Utils.translateStringToDataType(type);
 
-        let isValid: boolean = true;
-
-        switch (realType){
-            case Eagle.DataType.Float:
-                isValid = valueText.match(/^-?\d*(\.\d+)?$/) && !isNaN(parseFloat(valueText));
-                break;
-            case Eagle.DataType.Integer:
-                isValid = valueText.match(/^-?\d*$/) && true;
-                break;
-        }
+        let isValid: boolean = Utils._validate(valueText, realType);
 
         if (isValid){
             $('#editFieldModalValueInputText').addClass('is-valid');
@@ -1968,6 +1996,40 @@ export class Utils {
             $('#editFieldModalValueInputText').addClass('is-invalid');
             $('#editFieldModalValueFeedback').text('Invalid value for ' + type + ' type.');
         }
+    }
+
+    static validateFieldDefaultValue() : void {
+        const valueText : string = <string>$('#editFieldModalDefaultValueInputText').val();
+
+        const type: string = <string>$('#editFieldModalTypeSelect').val();
+        const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+
+        let isValid: boolean = Utils._validate(valueText, realType);
+
+        if (isValid){
+            $('#editFieldModalDefaultValueInputText').addClass('is-valid');
+            $('#editFieldModalDefaultValueInputText').removeClass('is-invalid');
+            $('#editFieldModalDefaultValueFeedback').text('');
+        } else {
+            $('#editFieldModalDefaultValueInputText').removeClass('is-valid');
+            $('#editFieldModalDefaultValueInputText').addClass('is-invalid');
+            $('#editFieldModalDefaultValueFeedback').text('Invalid value for ' + type + ' type.');
+        }
+    }
+
+    private static _validate(valueText: string, type: Eagle.DataType) : boolean {
+        let isValid: boolean = true;
+
+        switch (type){
+            case Eagle.DataType.Float:
+                isValid = valueText.match(/^-?\d*(\.\d+)?$/) && !isNaN(parseFloat(valueText));
+                break;
+            case Eagle.DataType.Integer:
+                isValid = valueText.match(/^-?\d*$/) && true;
+                break;
+        }
+
+        return isValid;
     }
 
     static downloadFile(error : string, data : string, fileName : string) : void {
