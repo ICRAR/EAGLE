@@ -733,7 +733,7 @@ export class Node {
             }
         }
 
-        if (!this.isGroup() && this.isCollapsed()){
+        if (!this.isGroup() && this.isCollapsed() && !this.isPeek()){
             return 32;
         }
 

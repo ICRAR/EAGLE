@@ -419,7 +419,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         });
 
     nodeDragHandler(rootContainer.selectAll("g.node"));
-    
+
     // add a header background to each node
     nodes
         .append("rect")
@@ -951,7 +951,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     })
 
     edgeDragHandler(rootContainer.selectAll("path.link, path.linkExtra"));
-    
+
 
     // draw comment links
     let commentLinks : any = rootContainer
@@ -3314,7 +3314,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // whether or not an object in the graph should be rendered or not
     function getPortsDisplay(node : Node) : string {
-        if (node.isCollapsed()){
+        if (node.isCollapsed() && !node.isPeek()){
             return "none";
         }
 
