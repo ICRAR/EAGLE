@@ -96,12 +96,12 @@
                     </span>
                 </div>
             </li>
-            <!-- ko if: allowPaletteEditing() -->
             <li class="nav-item dropdown" data-intro='Create new palettes and logical graphs.'>
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPalette" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Palette
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPalette">
+                <!-- ko if: allowPaletteEditing() -->
                     <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
                             <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette</a>
@@ -123,9 +123,12 @@
                     </span>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: addGraphNodesToPalette">Save Node To Palette</a>
+                <!-- /ko -->
+                <!-- ko if: !allowPaletteEditing() -->
+                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Local Palette</a>
+                <!-- /ko -->
                 </div>
             </li>
-             <!-- /ko -->
             <li class="nav-item dropdown" data-intro='Additional usage information and introductions to EAGLE features.'>
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Help
