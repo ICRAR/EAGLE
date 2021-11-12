@@ -682,17 +682,17 @@ export class Utils {
         });
 
         $('#editFieldModal').on('show.bs.modal', function(){
-            Utils.validateFieldValue();
-            Utils.validateFieldDefaultValue();
-        });
-        $('#editFieldModalValueInputText').on('keyup', function(){
-            Utils.validateFieldValue();
-            Utils.validateFieldDefaultValue();
+            const value = $('#editFieldModalTypeSelect').val();
+
+            if(value === Eagle.DataType.Float || value === Eagle.DataType.Integer){
+                $('#editFieldModalDefaultValueInputText').attr("type", "number")
+                $('#editFieldModalValueInputText').attr("type", "number")
+            }else{
+                $('#editFieldModalDefaultValueInputText').attr("type", "text")
+                $('#editFieldModalValueInputText').attr("type", "text")
+            }
         });
         $('#editFieldModalTypeSelect').on('change', function(){
-            Utils.validateFieldValue();
-            Utils.validateFieldDefaultValue();
-
             // show the correct entry field based on the field type
             const value = $('#editFieldModalTypeSelect').val();
 
@@ -700,6 +700,14 @@ export class Utils {
             $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
             $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType.Boolean);
             $('#editFieldModalDefaultValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
+
+            if(value === Eagle.DataType.Float || value === Eagle.DataType.Integer){
+                $('#editFieldModalDefaultValueInputText').attr("type", "number")
+                $('#editFieldModalValueInputText').attr("type", "number")
+            }else{
+                $('#editFieldModalDefaultValueInputText').attr("type", "text")
+                $('#editFieldModalValueInputText').attr("type", "text")
+            }
         });
 
         // #editPortModal - requestUserEditPort()
@@ -1977,59 +1985,6 @@ export class Utils {
         }
 
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
-    }
-
-    static validateFieldValue() : void {
-        const valueText : string = <string>$('#editFieldModalValueInputText').val();
-
-        const type: string = <string>$('#editFieldModalTypeSelect').val();
-        const realType: Eagle.DataType = Utils.translateStringToDataType(type);
-
-        let isValid: boolean = Utils._validate(valueText, realType);
-
-        if (isValid){
-            $('#editFieldModalValueInputText').addClass('is-valid');
-            $('#editFieldModalValueInputText').removeClass('is-invalid');
-            $('#editFieldModalValueFeedback').text('');
-        } else {
-            $('#editFieldModalValueInputText').removeClass('is-valid');
-            $('#editFieldModalValueInputText').addClass('is-invalid');
-            $('#editFieldModalValueFeedback').text('Invalid value for ' + type + ' type.');
-        }
-    }
-
-    static validateFieldDefaultValue() : void {
-        const valueText : string = <string>$('#editFieldModalDefaultValueInputText').val();
-
-        const type: string = <string>$('#editFieldModalTypeSelect').val();
-        const realType: Eagle.DataType = Utils.translateStringToDataType(type);
-
-        let isValid: boolean = Utils._validate(valueText, realType);
-
-        if (isValid){
-            $('#editFieldModalDefaultValueInputText').addClass('is-valid');
-            $('#editFieldModalDefaultValueInputText').removeClass('is-invalid');
-            $('#editFieldModalDefaultValueFeedback').text('');
-        } else {
-            $('#editFieldModalDefaultValueInputText').removeClass('is-valid');
-            $('#editFieldModalDefaultValueInputText').addClass('is-invalid');
-            $('#editFieldModalDefaultValueFeedback').text('Invalid value for ' + type + ' type.');
-        }
-    }
-
-    private static _validate(valueText: string, type: Eagle.DataType) : boolean {
-        let isValid: boolean = true;
-
-        switch (type){
-            case Eagle.DataType.Float:
-                isValid = valueText.match(/^-?\d*(\.\d+)?$/) && !isNaN(parseFloat(valueText));
-                break;
-            case Eagle.DataType.Integer:
-                isValid = valueText.match(/^-?\d*$/) && true;
-                break;
-        }
-
-        return isValid;
     }
 
     static downloadFile(error : string, data : string, fileName : string) : void {

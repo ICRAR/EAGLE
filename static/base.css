@@ -326,6 +326,18 @@
     margin-top:0px;
 }
 
+select.form-control{
+    appearance: revert;
+}
+
+#editEdgeModalValueInputCheckbox{
+    flex: none;
+    padding: 19px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    margin-top:0px;
+}
+
 .modal-body{
     background-color: aliceblue;
 }
@@ -433,6 +445,7 @@
     margin-left:70px;
     font-size: 18px;
     font-weight: 400;
+    overflow: hidden;
 }
 
 #paletteList palette-component .input-group-prepend{
@@ -841,6 +854,20 @@ div.rightWindow h5.card-header {
     border-radius: 0px;
 }
 
+#edgeInspectorToggleLoopAware{
+    height:100%;
+}
+
+#edgeInspectorIcons{
+    position: absolute;
+    right:12px;
+    top:0px;
+}
+
+#edgeInspectorIcons button{
+    padding:0px;
+}
+
 #nodeInspector .input-group-text img{
     height: 25px;
     max-width: 100%;
@@ -947,7 +974,7 @@ div.rightWindow h5.card-header {
 
 #rightWindowTabs .btn-secondary.active{
     border: 0px;
-    background-color: rgba(214, 219, 239, 0.8);
+    background-color: rgb(216, 221, 240);
     color: #00244a;
     z-index: 0;
 }
