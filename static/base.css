@@ -445,6 +445,7 @@ select.form-control{
     margin-left:70px;
     font-size: 18px;
     font-weight: 400;
+    overflow: hidden;
 }
 
 #paletteList palette-component .input-group-prepend{
