@@ -627,9 +627,23 @@ export class Utils {
         $('#editFieldModalAffirmativeButton').on('click', function(){
             $('#editFieldModal').data('completed', true);
         });
-        $('#editFieldModalNegativeButton').on('click', function(){
-            $('#editFieldModal').data('completed', false);
+        $('#editFieldModalResetToDefaultButton').on('click', function(){
+            const valueText : string = <string>$('#editFieldModalValueInputText').val();
+            const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
+            const defaultValueText : string = <string>$('#editFieldModalDefaultValueInputText').val();
+            const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
+            const type: string = <string>$('#editFieldModalTypeSelect').val();
+
+            // translate type
+            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+
+            if (realType === Eagle.DataType.Boolean){
+                $('#editFieldModalValueInputCheckbox').prop('checked', defaultValueCheckbox);
+            } else {
+                $('#editFieldModalValueInputText').val(defaultValueText);
+            }
         });
+
         $('#editFieldModal').on('shown.bs.modal', function(){
             $('#editFieldModalAffirmativeButton').focus();
         });
