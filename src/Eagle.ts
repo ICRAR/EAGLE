@@ -3264,6 +3264,59 @@ export class Eagle {
         console.table(tableData);
     }
 
+    printLogicalGraphsTable = () : void => {
+        // check that all repos have been fetched
+        let foundUnfetched = false;
+        for (const repo of this.repositories()){
+            if (!repo.fetched()){
+                foundUnfetched = true;
+                console.warn("Unfetched repo:" + repo.getNameAndBranch());
+            }
+        }
+        if (foundUnfetched){
+            return;
+        }
+
+        const tableData : any[] = [];
+
+        // add logical graph nodes to table
+        for (const repo of this.repositories()){
+            for (const folder of repo.folders()){
+                for (const file of folder.files()){
+                    if (file.name.endsWith(".graph")){
+                        tableData.push({
+                            "name":repo.name,
+                            "branch":repo.branch,
+                            "folder":folder.name,
+                            "file":file.name
+                        });
+                    }
+                }
+            }
+
+            for (const file of repo.files()){
+                if (file.name.endsWith(".graph")){
+                    tableData.push({
+                        "name":repo.name,
+                        "branch":repo.branch,
+                        "folder":"",
+                        "file":file.name
+                    });
+                }
+            }
+        }
+
+        console.table(tableData);
+    }
+
+    fetchAllRepositories = () : void => {
+        for (const repo of this.repositories()){
+            if (!repo.fetched()){
+                this.selectRepository(repo);
+            }
+        }
+    }
+
     // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
     selectNodeInHierarchy = (nodeViewModel : any) : void => {
         const node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key());
