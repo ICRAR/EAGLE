@@ -76,6 +76,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     let sourcePortId : string | null = null;
     let sourceNodeKey : number | null = null;
     let sourceDataType : string | null = null;
+    let sourcePortIsInput : boolean;
     let destinationPortId : string | null = null;
     let destinationNodeKey : number | null = null;
     let suggestedPortId : string | null = null;
@@ -802,6 +803,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 sourceNodeKey = port.getNodeKey();
                                 sourcePortId = port.getId();
                                 sourceDataType = port.getName();
+                                const sourceNode = graph.findNodeByKey(sourceNodeKey);
+                                sourcePortIsInput = sourceNode.findPortIsInputById(sourcePortId)
                             })
                             .on("drag", function () {
                                 //console.log("drag from port", data.Id);
@@ -816,7 +819,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 const nearbyNodes = findNodesInRange(mouseX, mouseY, MIN_AUTO_COMPLETE_EDGE_RANGE, sourceNodeKey, sourcePortId, sourceDataType);
 
                                 // check for nearest matching port in the nearby nodes
-                                const matchingPort: Port = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourceDataType);
+                                const matchingPort: Port = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourceDataType, sourcePortIsInput);
 
                                 if (matchingPort !== null){
                                     suggestedNodeKey = matchingPort.getNodeKey();
@@ -832,7 +835,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 }
                                 for (const node of nearbyNodes){
                                     // TODO: should probably match on type, not name!
-                                    if (node.findPortByName(sourceDataType, true, false) !== null){
+                                    if (node.findPortByName(sourceDataType, !sourcePortIsInput, false) !== null){
                                         node.setPeek(true);
                                     }
                                 }
@@ -3063,6 +3066,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         sourcePortId = null;
         sourceNodeKey = null;
         sourceDataType = null;
+        sourcePortIsInput = false;
         destinationPortId = null;
         destinationNodeKey = null;
         suggestedPortId = null;
@@ -3433,12 +3437,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return result;
     }
 
-    function findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourceDataType: string) : Port {
+    function findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourceDataType: string, sourcePortIsInput: boolean) : Port {
         let minDistance = Number.MAX_SAFE_INTEGER;
         let minPort = null;
 
         for (const node of nearbyNodes){
-            for (const port of node.getInputPorts()){
+            // if sourcePortIsInput, we should search for output ports, and vice versa
+            let portList: Port[];
+            if (sourcePortIsInput){
+                portList = node.getOutputPorts();
+            } else {
+                portList = node.getInputPorts();
+            }
+
+            for (const port of portList){
                 // TODO: should probably match on type, not name!
                 if (port.getName() !== sourceDataType){
                     continue;
