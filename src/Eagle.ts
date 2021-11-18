@@ -1023,23 +1023,6 @@ export class Eagle {
             p.fileInfo().modified = true;
             p.fileInfo().readonly = false;
 
-            // NOTE: we can construct all these new nodes with key=0, since they will be assigned correct keys when added to the palette
-            const startNode : Node = new Node(0, "Start", "", Eagle.Category.Start, false);
-            startNode.setColor(Utils.getColorForNode(Eagle.Category.Start));
-            p.addNode(startNode, true);
-
-            const endNode : Node = new Node(0, "End", "", Eagle.Category.End, false);
-            endNode.setColor(Utils.getColorForNode(Eagle.Category.End));
-            p.addNode(endNode, true);
-
-            const commentNode : Node = new Node(0, "Comment", "", Eagle.Category.Comment, false);
-            commentNode.setColor(Utils.getColorForNode(Eagle.Category.Comment));
-            p.addNode(commentNode, true);
-
-            const descriptionNode : Node = new Node(0, "Description", "", Eagle.Category.Description, false);
-            descriptionNode.setColor(Utils.getColorForNode(Eagle.Category.Description));
-            p.addNode(descriptionNode, true);
-
             // add to palettes
             this.palettes.unshift(p);
         });
