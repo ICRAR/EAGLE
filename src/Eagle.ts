@@ -3264,7 +3264,7 @@ export class Eagle {
         console.table(tableData);
     }
 
-    printLogicalGraphsTable = () : void => {
+    generateLogicalGraphsTable = () : any[] => {
         // check that all repos have been fetched
         let foundUnfetched = false;
         for (const repo of this.repositories()){
@@ -3274,7 +3274,7 @@ export class Eagle {
             }
         }
         if (foundUnfetched){
-            return;
+            return [];
         }
 
         const tableData : any[] = [];
@@ -3282,31 +3282,52 @@ export class Eagle {
         // add logical graph nodes to table
         for (const repo of this.repositories()){
             for (const folder of repo.folders()){
-                for (const file of folder.files()){
-                    if (file.name.endsWith(".graph")){
-                        tableData.push({
-                            "name":repo.name,
-                            "branch":repo.branch,
-                            "folder":folder.name,
-                            "file":file.name
-                        });
-                    }
-                }
+                this._addGraphs(repo, folder, "/", tableData);
             }
 
             for (const file of repo.files()){
                 if (file.name.endsWith(".graph")){
                     tableData.push({
+                        "service":repo.service,
                         "name":repo.name,
                         "branch":repo.branch,
                         "folder":"",
-                        "file":file.name
+                        "file":file.name,
+                        "lastModified":"",
+                        "lastModifiedBy":"",
+                        "loadedSuccessfully":"",
+                        "numWarnings":"",
+                        "numErrors":""
                     });
                 }
             }
         }
 
-        console.table(tableData);
+        return tableData;
+    }
+
+    // recursive traversal through the folder structure to find all graph files
+    _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
+        for (const subfolder of folder.folders()){
+            this._addGraphs(repository, subfolder, path + subfolder.name + "/", data);
+        }
+
+        for (const file of folder.files()){
+            if (file.name.endsWith(".graph")){
+                data.push({
+                    "service": repository.service,
+                    "name":repository.name,
+                    "branch":repository.branch,
+                    "folder":path,
+                    "file":file.name,
+                    "lastModified":"",
+                    "lastModifiedBy":"",
+                    "loadedSuccessfully":"",
+                    "numWarnings":"",
+                    "numErrors":""
+                });
+            }
+        }
     }
 
     fetchAllRepositories = () : void => {

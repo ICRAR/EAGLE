@@ -2044,4 +2044,21 @@ export class Utils {
 
         return true;
     }
+
+    static table2CSV(table: any[]) : string {
+        let s = "";
+
+        // if table empty, return
+        if (table.length === 0){
+            return s;
+        }
+
+        // write the header row
+        s += Object.keys(table[0]).join(",") + "\n";
+
+        for (const row of table){
+            s += Object.values(row).join(",") + "\n";
+        }
+        return s;
+    }
 }
