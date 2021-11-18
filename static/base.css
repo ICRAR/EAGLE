@@ -831,6 +831,18 @@ div.rightWindow h5.card-header {
     color: white;
 }
 
+#edgeInspector{
+    margin: top 1px;
+}
+
+#edgeEditBtn{
+    color:rgb(0, 89, 165);
+}
+
+#edgeDeleteBtn{
+    color: red;;
+}
+
 #nodeInspector .input-group-prepend, #edgeInspector .input-group-prepend, #translationMenu .input-group-prepend {
     width:40%;
 }
