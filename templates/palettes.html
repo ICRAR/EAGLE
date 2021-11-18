@@ -13,7 +13,7 @@
     </div>
     <div class="accordion">
         <div data-bind="foreach: palettes">
-            <div class="accordion-item" data-bind="event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
+            <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
                 <div class="accordion-header">
                     <div class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
                         <div class="headerIcons">

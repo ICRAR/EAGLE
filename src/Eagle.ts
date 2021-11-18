@@ -3048,7 +3048,7 @@ export class Eagle {
         const sourceComponent : Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
 
         // determine destination palette
-        const destinationPaletteIndex : number = parseInt($(e.currentTarget).find('palette-component').find('.col')[0].getAttribute('data-palette-index'), 10);
+        const destinationPaletteIndex : number = parseInt($(e.currentTarget)[0].getAttribute('data-palette-index'), 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
         // check user can write to destination palette
