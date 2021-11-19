@@ -385,7 +385,7 @@ export class Utils {
                 if (typeof xhr.responseJSON === 'undefined'){
                     callback(error, null);
                 } else {
-                    callback(error, xhr.responseJSON.error);
+                    callback(xhr.responseJSON.error, null);
                 }
             }
         });

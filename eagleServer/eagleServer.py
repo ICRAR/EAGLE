@@ -657,6 +657,10 @@ def open_git_hub_file():
 
     # replace some data in the header (modelData) of the file with info from git
     graph = json.loads(raw_data)
+
+    if isinstance(graph, list):
+        return app.response_class(response=json.dumps({"error":"File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), status=404, mimetype="application/json")
+
     if not "modelData" in graph:
         graph["modelData"] = {}
 
@@ -708,7 +712,7 @@ def open_git_lab_file():
         f = project.files.get(file_path=filename, ref=repo_branch)
     except gitlab.exceptions.GitlabGetError as gle:
         print("GitLabGetError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
-        return app.response_class(response=str(gle), status=404, mimetype="application/json")
+        return app.response_class(response=json.dumps({"error":str(gle)}), status=404, mimetype="application/json")
 
     # get the decoded content
     raw_data = f.decode().decode("utf-8")

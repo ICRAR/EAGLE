@@ -1711,7 +1711,7 @@ export class Eagle {
 
             // display error if one occurred
             if (error != null){
-                Utils.showUserMessage("Error", "Failed to load a file!");
+                Utils.showUserMessage("Error", error);
                 console.error(error);
                 return;
             }
