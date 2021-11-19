@@ -514,9 +514,9 @@ def save_git_hub_file():
     # Clean the GitHub file reference.
     graph["modelData"]["sha"] = ""
     graph["modelData"]["gitUrl"] = ""
-    graph["modelData"]["creatorName"] = ""
-    graph["modelData"]["creatorEmail"] = ""
-    graph["modelData"]["creationDatetime"] = ""
+    graph["modelData"]["lastModifiedName"] = ""
+    graph["modelData"]["lastModifiedEmail"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = ""
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -549,7 +549,7 @@ def save_git_hub_file():
 
     return "ok"
 
-# TODO: update for gitlab
+
 @app.route("/saveFileToRemoteGitlab", methods=["POST"])
 def save_git_lab_file():
     """
@@ -584,9 +584,9 @@ def save_git_lab_file():
     # Clean the GitHub file reference.
     graph["modelData"]["sha"] = ""
     graph["modelData"]["gitUrl"] = ""
-    graph["modelData"]["creatorName"] = ""
-    graph["modelData"]["creatorEmail"] = ""
-    graph["modelData"]["creationDatetime"] = ""
+    graph["modelData"]["lastModifiedName"] = ""
+    graph["modelData"]["lastModifiedEmail"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = ""
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -654,6 +654,7 @@ def open_git_hub_file():
     # get the file from this commit
     f = repo.get_contents(filename, ref=most_recent_commit.sha)
     raw_data = f.decoded_content
+    print("raw_data:" + str(raw_data))
 
     # replace some data in the header (modelData) of the file with info from git
     graph = json.loads(raw_data)
@@ -662,9 +663,9 @@ def open_git_hub_file():
 
     graph["modelData"]["sha"] = most_recent_commit.sha
     graph["modelData"]["gitUrl"] = f.download_url
-    graph["modelData"]["creatorName"] = most_recent_commit.commit.committer.name
-    graph["modelData"]["creatorEmail"] = most_recent_commit.commit.committer.email
-    graph["modelData"]["creationDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+    graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
+    graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
+    graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
 
     json_data = json.dumps(graph, indent=4)
 
@@ -713,13 +714,13 @@ def open_git_lab_file():
     # get the decoded content
     raw_data = f.decode().decode("utf-8")
 
-    # TODO: Add the GitHub file reference.
+    # TODO: Add the GitLab file information
     #graph = json.loads(raw_data)
     #graph["modelData"]["sha"] = f.sha
     #graph["modelData"]["gitUrl"] = f.git_url
-    #graph["modelData"]["creatorName"] = most_recent_commit.commit.committer.name
-    #graph["modelData"]["creatorEmail"] = most_recent_commit.commit.committer.email
-    #graph["modelData"]["creationDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+    #graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
+    #graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
+    #graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
 
     #json_data = json.dumps(graph, indent=4)
 

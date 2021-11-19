@@ -3365,19 +3365,18 @@ export class Eagle {
                         row.numLoadErrors = errors.length;
 
                         // use git-related info within file
-                        row.lastModifiedBy = lg.fileInfo().creatorName;
+                        row.lastModifiedBy = lg.fileInfo().lastModifiedName;
                         row.sha = lg.fileInfo().sha;
                         row.gitUrl = lg.fileInfo().gitUrl;
 
                         // convert date from timestamp to date string
-                        const date = new Date(lg.fileInfo().creationDatetime * 1000);
+                        const date = new Date(lg.fileInfo().lastModifiedDatetime * 1000);
                         row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
 
                         // check the graph once loaded
                         const results = Utils.checkGraph(lg);
                         row.numCheckWarnings = results.warnings.length;
                         row.numCheckErrors = results.errors.length;
-
                     }
 
                     resolve();

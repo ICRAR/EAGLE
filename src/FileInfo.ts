@@ -18,9 +18,9 @@ export class FileInfo {
 
     private _sha : ko.Observable<string>;
     private _gitUrl : ko.Observable<string>;
-    private _creatorName : ko.Observable<string>;
-    private _creatorEmail : ko.Observable<string>;
-    private _creationDatetime : ko.Observable<number>;
+    private _lastModifiedName : ko.Observable<string>;
+    private _lastModifiedEmail : ko.Observable<string>;
+    private _lastModifiedDatetime : ko.Observable<number>;
 
     constructor(){
         this._name = ko.observable("");
@@ -37,9 +37,9 @@ export class FileInfo {
 
         this._sha = ko.observable("");
         this._gitUrl = ko.observable("");
-        this._creatorName = ko.observable("");
-        this._creatorEmail = ko.observable("");
-        this._creationDatetime = ko.observable(0);
+        this._lastModifiedName = ko.observable("");
+        this._lastModifiedEmail = ko.observable("");
+        this._lastModifiedDatetime = ko.observable(0);
     }
 
     get name() : string{
@@ -146,28 +146,28 @@ export class FileInfo {
         this._gitUrl(gitUrl);
     }
 
-    get creatorName() : string{
-        return this._creatorName();
+    get lastModifiedName() : string{
+        return this._lastModifiedName();
     }
 
-    set creatorName(name : string){
-        this._creatorName(name);
+    set lastModifiedName(name : string){
+        this._lastModifiedName(name);
     }
 
-    get creatorEmail() : string{
-        return this._creatorEmail();
+    get lastModifiedEmail() : string{
+        return this._lastModifiedEmail();
     }
 
-    set creatorEmail(email : string){
-        this._creatorEmail(email);
+    set lastModifiedEmail(email : string){
+        this._lastModifiedEmail(email);
     }
 
-    get creationDatetime() : number{
-        return this._creationDatetime();
+    get lastModifiedDatetime() : number{
+        return this._lastModifiedDatetime();
     }
 
-    set creationDatetime(datetime : number){
-        this._creationDatetime(datetime);
+    set lastModifiedDatetime(datetime : number){
+        this._lastModifiedDatetime(datetime);
     }
 
     clear = () : void => {
@@ -185,9 +185,9 @@ export class FileInfo {
 
         this._sha("");
         this._gitUrl("");
-        this._creatorName("");
-        this._creatorEmail("");
-        this._creationDatetime(0);
+        this._lastModifiedName("");
+        this._lastModifiedEmail("");
+        this._lastModifiedDatetime(0);
     }
 
     clone = () : FileInfo => {
@@ -207,9 +207,9 @@ export class FileInfo {
 
         result.sha = this._sha();
         result.gitUrl = this._gitUrl();
-        result.creatorName = this._creatorName();
-        result.creatorEmail = this._creatorEmail();
-        result.creationDatetime = this._creationDatetime();
+        result.lastModifiedName = this._lastModifiedName();
+        result.lastModifiedEmail = this._lastModifiedEmail();
+        result.lastModifiedDatetime = this._lastModifiedDatetime();
 
         return result;
     }
@@ -229,9 +229,9 @@ export class FileInfo {
         this._path("");
         this._sha("");
         this._gitUrl("");
-        this._creatorName("");
-        this._creatorEmail("");
-        this._creationDatetime(0);
+        this._lastModifiedName("");
+        this._lastModifiedEmail("");
+        this._lastModifiedDatetime(0);
     }
 
     updateEagleInfo = () : void => {
@@ -280,9 +280,9 @@ export class FileInfo {
 
         s += " SHA:" + this._sha();
         s += " Git URL:" + this._gitUrl();
-        s += " Creator Name:" + this._creatorName();
-        s += " Creator Email:" + this._creatorEmail();
-        s += " Creation Date:" + this._creationDatetime();
+        s += " Last Modified Name:" + this._lastModifiedName();
+        s += " Last Modified Email:" + this._lastModifiedEmail();
+        s += " Last Modified Date:" + this._lastModifiedDatetime();
 
         return s;
     }
@@ -301,9 +301,9 @@ export class FileInfo {
 
             sha: fileInfo.sha,
             gitUrl: fileInfo.gitUrl,
-            creatorName: fileInfo.creatorName,
-            creatorEmail: fileInfo.creatorEmail,
-            creationDatetime: fileInfo.creationDatetime
+            lastModifiedName: fileInfo.lastModifiedName,
+            lastModifiedEmail: fileInfo.lastModifiedEmail,
+            lastModifiedDatetime: fileInfo.lastModifiedDatetime
         };
     }
 
@@ -328,9 +328,9 @@ export class FileInfo {
 
         result.sha = modelData.sha == undefined ? "" : modelData.sha;
         result.gitUrl = modelData.gitUrl == undefined ? "" : modelData.gitUrl;
-        result.creatorName = modelData.creatorName == undefined ? "" : modelData.creatorName;
-        result.creatorEmail = modelData.creatorEmail == undefined ? "" : modelData.creatorEmail;
-        result.creationDatetime = modelData.creationDatetime == undefined ? "" : modelData.creationDatetime;
+        result.lastModifiedName = modelData.lastModifiedName == undefined ? "" : modelData.lastModifiedName;
+        result.lastModifiedEmail = modelData.lastModifiedEmail == undefined ? "" : modelData.lastModifiedEmail;
+        result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? "" : modelData.lastModifiedDatetime;
 
         return result;
     }
