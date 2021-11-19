@@ -139,7 +139,6 @@ export class LogicalGraph {
             // abort if source node not found
             if (srcNode === null){
                 const error : string = "Unable to find node with key " + linkData.from + " used as source node in link " + i + ". Discarding link!";
-                console.warn(error);
                 errors.push(error);
                 continue;
             }
@@ -152,10 +151,9 @@ export class LogicalGraph {
             if (srcPort === null){
                 const found: {key: number, port: Port} = srcNode.findPortInApplicationsById(linkData.fromPort);
                 if (found.port !== null){
-                    const error: string = "Updated edge " + i + " source node from construct " + linkData.from + " to embedded application node " + found.key;
+                    const error: string = "Updated edge " + i + " source node from construct " + linkData.from + " to embedded application node " + found.key+ " and port " + found.port.getId();
                     srcPort = found.port;
                     linkData.from = found.key;
-                    console.warn(error);
                     errors.push(error);
                 }
             }
@@ -163,7 +161,6 @@ export class LogicalGraph {
             // abort if source port not found
             if (srcPort === null){
                 const error : string = "Unable to find port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i;
-                console.warn(error);
                 errors.push(error);
                 continue;
             }
@@ -174,7 +171,6 @@ export class LogicalGraph {
             // abort if dest node not found
             if (destNode === null){
                 const error : string = "Unable to find node with key " + linkData.to + " used as destination node in link " + i + ". Discarding link!";
-                console.warn(error);
                 errors.push(error);
                 continue;
             }
@@ -187,10 +183,9 @@ export class LogicalGraph {
             if (destPort === null){
                 const found: {key: number, port: Port} = destNode.findPortInApplicationsById(linkData.toPort);
                 if (found.port !== null){
-                    const error: string = "Updated edge " + i + " destination node from construct " + linkData.to + " to embedded application node " + found.key;
+                    const error: string = "Updated edge " + i + " destination node from construct " + linkData.to + " to embedded application node " + found.key + " and port " + found.port.getId();
                     destPort = found.port;
                     linkData.to = found.key;
-                    console.warn(error);
                     errors.push(error);
                 }
             }
@@ -198,7 +193,6 @@ export class LogicalGraph {
             // abort if dest port not found
             if (destPort === null){
                 const error : string = "Unable to find port " + linkData.toPort + " on node " + linkData.to + " used in link " + i;
-                console.warn(error);
                 errors.push(error);
                 continue;
             }
@@ -215,16 +209,13 @@ export class LogicalGraph {
         // check for missing name
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            console.warn(error);
             errors.push(error);
 
             result.fileInfo().name = file.name;
         }
 
-        const hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(result);
-        if (hadNegativePositions){
-            console.log("Adjusting position of all nodes to move to positive quadrant.");
-        }
+        // move all the nodes into the
+        //const hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(result);
 
         return result;
     }

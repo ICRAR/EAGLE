@@ -3282,7 +3282,7 @@ export class Eagle {
         // add logical graph nodes to table
         for (const repo of this.repositories()){
             for (const folder of repo.folders()){
-                this._addGraphs(repo, folder, "/", tableData);
+                this._addGraphs(repo, folder, folder.name, tableData);
             }
 
             for (const file of repo.files()){
@@ -3293,11 +3293,13 @@ export class Eagle {
                         "branch":repo.branch,
                         "folder":"",
                         "file":file.name,
+                        "sha":"",
+                        "gitUrl":"",
                         "lastModified":"",
                         "lastModifiedBy":"",
-                        "loadedSuccessfully":"",
-                        "numWarnings":"",
-                        "numErrors":""
+                        "numLoadErrors":"",
+                        "numCheckWarnings":"",
+                        "numCheckErrors":""
                     });
                 }
             }
@@ -3309,7 +3311,7 @@ export class Eagle {
     // recursive traversal through the folder structure to find all graph files
     _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
         for (const subfolder of folder.folders()){
-            this._addGraphs(repository, subfolder, path + subfolder.name + "/", data);
+            this._addGraphs(repository, subfolder, path + "/" + subfolder.name, data);
         }
 
         for (const file of folder.files()){
@@ -3320,11 +3322,13 @@ export class Eagle {
                     "branch":repository.branch,
                     "folder":path,
                     "file":file.name,
+                    "sha":"",
+                    "gitUrl":"",
                     "lastModified":"",
                     "lastModifiedBy":"",
-                    "loadedSuccessfully":"",
-                    "numWarnings":"",
-                    "numErrors":""
+                    "numLoadErrors":"",
+                    "numCheckWarnings":"",
+                    "numCheckErrors":""
                 });
             }
         }
@@ -3337,6 +3341,51 @@ export class Eagle {
             }
         }
     }
+
+    attemptLoadLogicalGraphTable = async(data: any[]) : Promise<void> => {
+        for (const row of data){
+            // determine the correct function to load the file
+            let openRemoteFileFunc: any;
+            if (row.service === Eagle.RepositoryService.GitHub){
+                openRemoteFileFunc = GitHub.openRemoteFile;
+            } else {
+                openRemoteFileFunc = GitLab.openRemoteFile;
+            }
+
+            // try to load the file
+            await new Promise<void>((resolve, reject) => {
+                openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
+                    // if file fetched successfully
+                    if (error === null){
+                        const errors: string[] = [];
+                        const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
+                        const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errors);
+
+                        // record number of errors
+                        row.numLoadErrors = errors.length;
+
+                        // use git-related info within file
+                        row.lastModifiedBy = lg.fileInfo().creatorName;
+                        row.sha = lg.fileInfo().sha;
+                        row.gitUrl = lg.fileInfo().gitUrl;
+
+                        // convert date from timestamp to date string
+                        const date = new Date(lg.fileInfo().creationDatetime * 1000);
+                        row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
+
+                        // check the graph once loaded
+                        const results = Utils.checkGraph(lg);
+                        row.numCheckWarnings = results.warnings.length;
+                        row.numCheckErrors = results.errors.length;
+
+                    }
+
+                    resolve();
+                });
+            });
+        }
+    }
+
 
     // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
     selectNodeInHierarchy = (nodeViewModel : any) : void => {
@@ -3906,7 +3955,8 @@ export class Eagle {
         SubGraph           : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "icon-subgraph", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
 
         Unknown            : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        None               : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "icon-none", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20}
+        None               : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "icon-none", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
+        UnknownApplication : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
     };
 }
 
@@ -4013,6 +4063,7 @@ export namespace Eagle
 
         Unknown = "Unknown",
         None = "None",
+        UnknownApplication = "UnknownApplication", // when we know the component is an application, but know wlmost nothing else about it
 
         Component = "Component" // legacy only
     }

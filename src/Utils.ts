@@ -191,7 +191,6 @@ export class Utils {
                     const newKey = Utils.findNewKey(usedKeys);
                     node.getInputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "input app key", newKey);
                 }
             }
 
@@ -201,7 +200,6 @@ export class Utils {
                     const newKey = Utils.findNewKey(usedKeys);
                     node.getOutputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "output app key", newKey);
                 }
             }
 
@@ -211,7 +209,6 @@ export class Utils {
                     const newKey = Utils.findNewKey(usedKeys);
                     node.getExitApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "exit app key", newKey);
                 }
             }
         }
@@ -291,6 +288,11 @@ export class Utils {
     }
 
     static translateStringToFileType(fileType : string) : Eagle.FileType {
+        // check input parameter is a string
+        if (typeof fileType !== 'string'){
+            return Eagle.FileType.Unknown;
+        }
+
         if (fileType.toLowerCase() === "graph")
             return Eagle.FileType.Graph;
         if (fileType.toLowerCase() === "palette")
