@@ -654,7 +654,6 @@ def open_git_hub_file():
     # get the file from this commit
     f = repo.get_contents(filename, ref=most_recent_commit.sha)
     raw_data = f.decoded_content
-    print("raw_data:" + str(raw_data))
 
     # replace some data in the header (modelData) of the file with info from git
     graph = json.loads(raw_data)
