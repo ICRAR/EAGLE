@@ -200,12 +200,16 @@ export class FileInfo {
         return this._name() + (this._modified() ? "*" : "");
     }, this);
 
-    getSummaryHTML = () : string => {
+    getSummaryHTML = (title : string) : string => {
+        var text
         if (this._repositoryService() === Eagle.RepositoryService.Unknown){
-            return "- Location -</br>Url:&nbsp;" + this._gitUrl() + "</br>Hash:&nbsp;" + this._sha();
+            text = "- Location -</br>Url:&nbsp;" + this._gitUrl() + "</br>Hash:&nbsp;" + this._sha();
+        }else{
+            text = "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";   
         }
 
-        return "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
+        
+        return "<p><h5>" + title + "<h5><p><p>" + text + "</p>";
     }
 
     getText = () : string => {

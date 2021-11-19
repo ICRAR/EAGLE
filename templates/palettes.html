@@ -18,23 +18,17 @@
                     <div class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
                         <div class="headerIcons">
                             <div class="paletteHeaderIcon">
-                                <button type="button" class="btn-close" aria-label="Close" data-bind="click: $root.closePalette, clickBubble: false, attr:{title:'Close'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
-                                </button>
-                            </div>  
-                            <div class="paletteHeaderIcon">
-                                <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="right" data-html="true" data-bind="attr:{title:fileInfo().getSummaryHTML()}">info</i>
-                            </div>  
-                            <div class="paletteHeaderIcon">
                                 <!-- ko if: $data.fileInfo().readonly -->
                                 <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
                                 <!-- /ko -->
                                 <!-- ko ifnot: $data.fileInfo().readonly -->
                                 <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
                                 <!-- /ko -->
+                                <button type="button" class="material-icons md-18" aria-label="Close">more_vert</button>
                             </div>   
                         </div>   
                         <span>&nbsp;</span>
-                        <h5 class="template-title" data-bind="text: fileInfo().nameAndModifiedIndicator()"></h5>
+                        <h5 class="template-title" data-bs-toggle="tooltip" data-bs-placement="right" data-html="true" data-bind="text: fileInfo().nameAndModifiedIndicator(), attr:{title:fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())}"></h5>
                     </div>
                     <!-- ko if: $data.fileInfo().modified -->
                     <div class="row">

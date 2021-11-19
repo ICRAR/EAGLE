@@ -922,6 +922,8 @@ export class Eagle {
 
             this._loadPaletteJSON(data, showErrors, fileFullPath);
         });
+        setTimeout(Eagle.reloadTooltips, 500);
+
     }
 
     private _loadPaletteJSON = (data: string, showErrors: boolean, fileFullPath: string) => {
@@ -1025,6 +1027,8 @@ export class Eagle {
 
             // add to palettes
             this.palettes.unshift(p);
+            setTimeout(Eagle.reloadTooltips, 100);
+
         });
     }
 
@@ -1041,6 +1045,7 @@ export class Eagle {
             const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             this._loadPaletteJSON(userText, showErrors, "");
+            setTimeout(Eagle.reloadTooltips, 100);
         });
     }
 

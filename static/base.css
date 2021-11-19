@@ -402,33 +402,40 @@ select.form-control{
 }
 
 .headerIcons{
-    height:100%;
+    height: 100%;
     display: flex;
     position: absolute;
-    padding:0px 10px;
+    padding: 0px 10px;
+    width: 100%;
+    pointer-events: none;
 }
 
 .paletteHeaderIcon{
-    width:20px;
-    position: relative;
-    display:inline-block;
+    display: inline-block;
     height: 100%;
+    position: absolute;
+    right: 15px;
+    top: 50%;
 }
 
 .paletteHeaderIcon button, .paletteHeaderIcon i{
-    position: absolute;
-    left: 50%;
+    right: -50%;
     top: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(50%, -50%);
     font-size: 15px;
     margin: 0px;
     padding:0px;
+    background: none;
+    border: none;
+}
+
+.paletteHeaderIcon button{
+    right:15px;
 }
 
 .paletteHeaderIcon i{
     font-size: 18px;
 }
-
 
 #paletteList .accordion-item{
     margin-bottom: 5px;
@@ -442,10 +449,11 @@ select.form-control{
 
 #paletteList .accordion-item h5{
     margin:0px;
-    margin-left:70px;
+    margin-left: 40px;
     font-size: 18px;
     font-weight: 400;
     overflow: hidden;
+    width: 70%;
 }
 
 #paletteList palette-component .input-group-prepend{
@@ -491,8 +499,10 @@ select.form-control{
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }
 
-#paletteList .btn-close{
+.accordion-button::after{
     opacity: 100%;
+    position: absolute;
+    left: 15px;
 }
 
 #paletteList .accordion-button{
