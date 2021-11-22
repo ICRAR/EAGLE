@@ -3293,6 +3293,7 @@ export class Eagle {
                         "branch":repo.branch,
                         "folder":"",
                         "file":file.name,
+                        "eagleVersion":"",
                         "sha":"",
                         "gitUrl":"",
                         "lastModified":"",
@@ -3322,6 +3323,7 @@ export class Eagle {
                     "branch":repository.branch,
                     "folder":path,
                     "file":file.name,
+                    "eagleVersion":"",
                     "sha":"",
                     "gitUrl":"",
                     "lastModified":"",
@@ -3365,6 +3367,7 @@ export class Eagle {
                         row.numLoadErrors = errors.length;
 
                         // use git-related info within file
+                        row.eagleVersion = lg.fileInfo().eagleVersion;
                         row.lastModifiedBy = lg.fileInfo().lastModifiedName;
                         row.sha = lg.fileInfo().sha;
                         row.gitUrl = lg.fileInfo().gitUrl;
