@@ -648,7 +648,7 @@ def open_git_hub_file():
     repo = g.get_repo(repo_name)
 
     # get commits
-    commits = repo.get_commits(path=filename)
+    commits = repo.get_commits(sha=repo_branch, path=filename)
     most_recent_commit = commits[0]
 
     # get the file from this commit
