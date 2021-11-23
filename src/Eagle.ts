@@ -1355,7 +1355,10 @@ export class Eagle {
 
         let json : object;
         if (fileType === Eagle.FileType.Graph){
-            json = LogicalGraph.toOJSJson(this.logicalGraph());
+            // clone the logical graph
+            const lg_clone : LogicalGraph = this.logicalGraph().clone();
+            lg_clone.fileInfo().updateEagleInfo();
+            json = LogicalGraph.toOJSJson(lg_clone);
         } else {
             /*
             json = Palette.toOJSJson(this.editorPalette());
@@ -2039,7 +2042,10 @@ export class Eagle {
 
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
-            const json = Palette.toOJSJson(palette);
+            // clone the palette
+            const p_clone : Palette = palette.clone();
+            p_clone.fileInfo().updateEagleInfo();
+            const json = Palette.toOJSJson(p_clone);
 
             const jsonData : object = {
                 jsonData: json,
@@ -2050,6 +2056,7 @@ export class Eagle {
                 filename: fullFileName,
                 commitMessage: commitMessage
             };
+
 
             this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, jsonData);
         });
