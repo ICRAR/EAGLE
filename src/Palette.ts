@@ -43,20 +43,20 @@ export class Palette {
         this.nodes = ko.observableArray([]);
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, errors : string[]) : Palette => {
+    static fromOJSJson = (data : string, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : Palette => {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
 
         // add nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             const nodeData = dataObject.nodeDataArray[i];
 
             // read node
-            const newNode : Node = Node.fromOJSJson(nodeData, errors, (): number => {
+            const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, (): number => {
                 return Utils.newKey(result.nodes());
             });
 
@@ -64,7 +64,7 @@ export class Palette {
             if (newNode.getParentKey() !== null){
                 const error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
                 console.warn(error);
-                errors.push(error);
+                errorsWarnings.errors.push(error);
 
                 newNode.setParentKey(null);
             }
@@ -73,7 +73,7 @@ export class Palette {
             if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
                 const error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
                 console.warn(error);
-                errors.push(error);
+                errorsWarnings.errors.push(error);
 
                 newNode.setPosition(0, 0);
             }
@@ -86,13 +86,13 @@ export class Palette {
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
             console.warn(error);
-            errors.push(error);
+            errorsWarnings.errors.push(error);
 
             result.fileInfo().name = file.name;
         }
 
         // check palette, and then add any resulting errors to the end of the errors list
-        errors.push(...Utils.checkPalette(result));
+        errorsWarnings.errors.push(...Utils.checkPalette(result));
 
         return result;
     }

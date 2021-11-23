@@ -309,7 +309,7 @@ export class FileInfo {
 
     // TODO: use errors array if attributes cannot be found
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    static fromOJSJson = (modelData : any, errors: string[]) : FileInfo => {
+    static fromOJSJson = (modelData : any, errorsWarnings: Eagle.ErrorsWarnings) : FileInfo => {
         const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);

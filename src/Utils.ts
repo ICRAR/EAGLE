@@ -1812,7 +1812,7 @@ export class Utils {
         return results;
     }
 
-    static checkGraph(graph: LogicalGraph): {warnings: string[], errors: string[]} {
+    static checkGraph(graph: LogicalGraph): Eagle.ErrorsWarnings {
         const warnings: string[] = [];
         const errors: string[] = [];
 
