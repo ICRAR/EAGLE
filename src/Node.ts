@@ -1693,7 +1693,7 @@ export class Node {
             }
             node.inputApplication().addPort(port, true);
             port.setNodeKey(node.inputApplication().getKey());
-            errorsWarnings.warnings.push("Moved input port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getKey() + ")");
+            errorsWarnings.warnings.push("Moved input port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")");
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
             if (node.canHaveOutputApplication() && !node.canHaveExitApplication()){
@@ -1708,7 +1708,7 @@ export class Node {
                 }
                 node.outputApplication().addPort(port, false);
                 port.setNodeKey(node.outputApplication().getKey());
-                errorsWarnings.warnings.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getKey() + ")");
+                errorsWarnings.warnings.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")");
             }
             if (!node.canHaveOutputApplication() && node.canHaveExitApplication()){
                 if (!node.hasExitApplication()){
@@ -1721,7 +1721,7 @@ export class Node {
                 }
                 node.exitApplication().addPort(port, false);
                 port.setNodeKey(node.exitApplication().getKey());
-                errorsWarnings.warnings.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded exit application");
+                errorsWarnings.warnings.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to an embedded exit application (" + node.exitApplication().getName() + ", " + node.exitApplication().getKey() + ")");
             }
 
             if (!node.canHaveOutputApplication() && !node.canHaveExitApplication()){
@@ -1868,7 +1868,7 @@ export class Node {
         if (node.hasInputApplication()){
             result.inputApplicationName = node.inputApplication().name();
             result.inputApplicationType = node.inputApplication().category();
-            result.inputApplicationKey  = node.inputApplication().key;
+            result.inputApplicationKey  = node.inputApplication().key();
         } else {
             result.inputApplicationName = "";
             result.inputApplicationType = Eagle.Category.None;
@@ -1877,7 +1877,7 @@ export class Node {
         if (node.hasOutputApplication()){
             result.outputApplicationName = node.outputApplication().name();
             result.outputApplicationType = node.outputApplication().category();
-            result.outputApplicationKey  = node.outputApplication().key;
+            result.outputApplicationKey  = node.outputApplication().key();
         } else {
             result.outputApplicationName = "";
             result.outputApplicationType = Eagle.Category.None;
@@ -1886,7 +1886,7 @@ export class Node {
         if (node.hasExitApplication()){
             result.exitApplicationName = node.exitApplication().name();
             result.exitApplicationType = node.exitApplication().category();
-            result.exitApplicationKey  = node.exitApplication().key;
+            result.exitApplicationKey  = node.exitApplication().key();
         } else {
             result.exitApplicationName = "";
             result.exitApplicationType = Eagle.Category.None;

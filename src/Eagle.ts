@@ -1761,6 +1761,11 @@ export class Eagle {
                         Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ". " + errorsWarnings.warnings.length + " warnings.", "success");
                     }
 
+                    // print warnings in console
+                    for (const warning of errorsWarnings.warnings){
+                        console.warn(warning);
+                    }
+
                     // center graph
                     this.centerGraph();
 
@@ -3298,6 +3303,7 @@ export class Eagle {
                         "gitUrl":"",
                         "lastModified":"",
                         "lastModifiedBy":"",
+                        "numLoadWarnings":"",
                         "numLoadErrors":"",
                         "numCheckWarnings":"",
                         "numCheckErrors":""
@@ -3328,6 +3334,7 @@ export class Eagle {
                     "gitUrl":"",
                     "lastModified":"",
                     "lastModifiedBy":"",
+                    "numLoadWarnings":"",
                     "numLoadErrors":"",
                     "numCheckWarnings":"",
                     "numCheckErrors":""
@@ -3364,6 +3371,7 @@ export class Eagle {
                         const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errorsWarnings);
 
                         // record number of errors
+                        row.numLoadWarnings = errorsWarnings.warnings.length;
                         row.numLoadErrors = errorsWarnings.errors.length;
 
                         // use git-related info within file
