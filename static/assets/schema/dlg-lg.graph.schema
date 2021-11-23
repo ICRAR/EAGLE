@@ -23,14 +23,14 @@
                 "sha": {
                     "type": "string"
                 },
-                "git_url": {
+                "gitUrl": {
                     "type": "string"
                 }
             },
             "required": [
                 "filePath",
                 "fileType",
-                "git_url",
+                "gitUrl",
                 "repo",
                 "repoBranch",
                 "repoService",

@@ -87,18 +87,18 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
+    static fromOJSJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
 
         // add nodes
         for (const nodeData of dataObject.nodeDataArray){
             const extraUsedKeys: number[] = [];
 
-                const newNode = Node.fromOJSJson(nodeData, errors, (): number => {
+            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, (): number => {
                 const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                 const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
                 const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
@@ -139,8 +139,7 @@ export class LogicalGraph {
             // abort if source node not found
             if (srcNode === null){
                 const error : string = "Unable to find node with key " + linkData.from + " used as source node in link " + i + ". Discarding link!";
-                console.warn(error);
-                errors.push(error);
+                errorsWarnings.errors.push(error);
                 continue;
             }
 
@@ -152,19 +151,17 @@ export class LogicalGraph {
             if (srcPort === null){
                 const found: {key: number, port: Port} = srcNode.findPortInApplicationsById(linkData.fromPort);
                 if (found.port !== null){
-                    const error: string = "Updated edge " + i + " source node from construct " + linkData.from + " to embedded application node " + found.key;
+                    const message: string = "Updated edge " + i + " source node from construct " + linkData.from + " to embedded application node " + found.key+ " and port " + found.port.getId();
                     srcPort = found.port;
                     linkData.from = found.key;
-                    console.warn(error);
-                    errors.push(error);
+                    errorsWarnings.warnings.push(message);
                 }
             }
 
             // abort if source port not found
             if (srcPort === null){
                 const error : string = "Unable to find port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i;
-                console.warn(error);
-                errors.push(error);
+                errorsWarnings.errors.push(error);
                 continue;
             }
 
@@ -174,8 +171,7 @@ export class LogicalGraph {
             // abort if dest node not found
             if (destNode === null){
                 const error : string = "Unable to find node with key " + linkData.to + " used as destination node in link " + i + ". Discarding link!";
-                console.warn(error);
-                errors.push(error);
+                errorsWarnings.errors.push(error);
                 continue;
             }
 
@@ -187,19 +183,17 @@ export class LogicalGraph {
             if (destPort === null){
                 const found: {key: number, port: Port} = destNode.findPortInApplicationsById(linkData.toPort);
                 if (found.port !== null){
-                    const error: string = "Updated edge " + i + " destination node from construct " + linkData.to + " to embedded application node " + found.key;
+                    const message: string = "Updated edge " + i + " destination node from construct " + linkData.to + " to embedded application node " + found.key + " and port " + found.port.getId();
                     destPort = found.port;
                     linkData.to = found.key;
-                    console.warn(error);
-                    errors.push(error);
+                    errorsWarnings.warnings.push(message);
                 }
             }
 
             // abort if dest port not found
             if (destPort === null){
                 const error : string = "Unable to find port " + linkData.toPort + " on node " + linkData.to + " used in link " + i;
-                console.warn(error);
-                errors.push(error);
+                errorsWarnings.errors.push(error);
                 continue;
             }
 
@@ -215,16 +209,13 @@ export class LogicalGraph {
         // check for missing name
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            console.warn(error);
-            errors.push(error);
+            errorsWarnings.errors.push(error);
 
             result.fileInfo().name = file.name;
         }
 
-        const hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(result);
-        if (hadNegativePositions){
-            console.log("Adjusting position of all nodes to move to positive quadrant.");
-        }
+        // move all the nodes into the
+        //const hadNegativePositions : boolean = GraphUpdater.correctOJSNegativePositions(result);
 
         return result;
     }
@@ -272,7 +263,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromV3Json = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
+    static fromV3Json = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
         const result: LogicalGraph = new LogicalGraph();
         const dlgg = dataObject.DALiuGEGraph;
 
@@ -286,15 +277,15 @@ export class LogicalGraph {
         result.fileInfo().path = dlgg.repositoryPath;
 
         for (const key in dlgg.nodeData){
-            const node = Node.fromV3NodeJson(dlgg.nodeData[key], key, errors);
+            const node = Node.fromV3NodeJson(dlgg.nodeData[key], key, errorsWarnings);
 
-            Node.fromV3ComponentJson(dlgg.componentData[key], node, errors);
+            Node.fromV3ComponentJson(dlgg.componentData[key], node, errorsWarnings);
 
             result.nodes.push(node);
         }
 
         for (const key in dlgg.linkData){
-            const edge = Edge.fromV3Json(dlgg.linkData[key], errors);
+            const edge = Edge.fromV3Json(dlgg.linkData[key], errorsWarnings);
             result.edges.push(edge);
         }
 
@@ -358,12 +349,12 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromAppRefJson = (dataObject : any, file : RepositoryFile, errors : string[]) : LogicalGraph => {
+    static fromAppRefJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
 
         // add nodes
         for (const nodeData of dataObject.nodeDataArray){
@@ -371,7 +362,7 @@ export class LogicalGraph {
 
             // check if node is an embedded node, if so, don't push to nodes array
             if (nodeData.embedKey === null){
-                node = Node.fromAppRefJson(nodeData, errors);
+                node = Node.fromAppRefJson(nodeData, errorsWarnings);
             } else {
                 // skip node
                 continue;
@@ -380,17 +371,17 @@ export class LogicalGraph {
             // check if this node has an embedded input application, if so, find and copy it now
             if (typeof nodeData.inputApplicationRef !== 'undefined'){
                 const inputAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.inputApplicationRef);
-                node.setInputApplication(Node.fromAppRefJson(inputAppNodeData, errors));
+                node.setInputApplication(Node.fromAppRefJson(inputAppNodeData, errorsWarnings));
             }
             // check if this node has an embedded output application, if so, find and copy it now
             if (typeof nodeData.outputApplicationRef !== 'undefined'){
                 const outputAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.outputApplicationRef);
-                node.setOutputApplication(Node.fromAppRefJson(outputAppNodeData, errors));
+                node.setOutputApplication(Node.fromAppRefJson(outputAppNodeData, errorsWarnings));
             }
             // check if this node has an embedded exit application, if so, find and copy it now
             if (typeof nodeData.exitApplicationRef !== 'undefined'){
                  const exitAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.exitApplicationRef);
-                node.setExitApplication(Node.fromAppRefJson(exitAppNodeData, errors));
+                node.setExitApplication(Node.fromAppRefJson(exitAppNodeData, errorsWarnings));
             }
 
             result.nodes.push(node);
@@ -398,14 +389,14 @@ export class LogicalGraph {
 
         // add edges
         for (const linkData of dataObject.linkDataArray){
-            result.edges.push(Edge.fromAppRefJson(linkData, errors));
+            result.edges.push(Edge.fromAppRefJson(linkData, errorsWarnings));
         }
 
         // check for missing name
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
             console.warn(error);
-            errors.push(error);
+            errorsWarnings.errors.push(error);
 
             result.fileInfo().name = file.name;
         }

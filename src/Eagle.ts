@@ -670,28 +670,28 @@ export class Eagle {
         // attempt to determine schema version from FileInfo
         const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-        const errors: string[] = [];
+        const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
             case Eagle.DALiuGESchemaVersion.AppRef:
-                loadFunc(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errors));
+                loadFunc(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errorsWarnings));
                 break;
             case Eagle.DALiuGESchemaVersion.V3:
                 Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                loadFunc(LogicalGraph.fromV3Json(dataObject, dummyFile, errors));
+                loadFunc(LogicalGraph.fromV3Json(dataObject, dummyFile, errorsWarnings));
                 break;
             case Eagle.DALiuGESchemaVersion.OJS:
             case Eagle.DALiuGESchemaVersion.Unknown:
-                loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
+                loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
                 break;
         }
 
         // show errors (if found)
-        if (errors.length > 0){
+        if (errorsWarnings.errors.length > 0){
             if (showErrors){
-                Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+                Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
             }
         } else {
             Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
@@ -945,12 +945,12 @@ export class Eagle {
             return;
         }
 
-        const errors: string[] = [];
-        const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errors);
+        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
-        if (errors.length > 0 && showErrors){
-            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+        if (errorsWarnings.errors.length > 0 && showErrors){
+            Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
         }
 
         // add new palette to the START of the palettes array
@@ -1338,7 +1338,10 @@ export class Eagle {
 
         let json : object;
         if (fileType === Eagle.FileType.Graph){
-            json = LogicalGraph.toOJSJson(this.logicalGraph());
+            // clone the logical graph
+            const lg_clone : LogicalGraph = this.logicalGraph().clone();
+            lg_clone.fileInfo().updateEagleInfo();
+            json = LogicalGraph.toOJSJson(lg_clone);
         } else {
             /*
             json = Palette.toOJSJson(this.editorPalette());
@@ -1422,7 +1425,7 @@ export class Eagle {
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
-        const errors: string[] = [];
+        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         for (let i = 0 ; i < paletteList.length ; i++){
             results.push(null);
@@ -1434,9 +1437,9 @@ export class Eagle {
 
                 if  (error !== null){
                     console.error(error);
-                    errors.push(error);
+                    errorsWarnings.errors.push(error);
                 } else {
-                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errors);
+                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
                     palette.fileInfo().clear();
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
@@ -1694,7 +1697,7 @@ export class Eagle {
 
             // display error if one occurred
             if (error != null){
-                Utils.showUserMessage("Error", "Failed to load a file!");
+                Utils.showUserMessage("Error", error);
                 console.error(error);
                 return;
             }
@@ -1719,29 +1722,34 @@ export class Eagle {
                     // attempt to determine schema version from FileInfo
                     const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-                    const errors: string[] = [];
+                    const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // use the correct parsing function based on schema version
                     switch (schemaVersion){
                         case Eagle.DALiuGESchemaVersion.AppRef:
-                            this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errors));
+                            this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings));
                             break;
                         case Eagle.DALiuGESchemaVersion.V3:
                             Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                            this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errors));
+                            this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errorsWarnings));
                             break;
                         case Eagle.DALiuGESchemaVersion.OJS:
                         case Eagle.DALiuGESchemaVersion.Unknown:
-                            this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
+                            this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
                             break;
                     }
 
-                    if (errors.length > 0){
+                    if (errorsWarnings.errors.length > 0){
                         if (showErrors){
-                            Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+                            Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
                         }
                     } else {
-                        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+                        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ". " + errorsWarnings.warnings.length + " warnings.", "success");
+                    }
+
+                    // print warnings in console
+                    for (const warning of errorsWarnings.warnings){
+                        console.warn(warning);
                     }
 
                     // center graph
@@ -1820,21 +1828,21 @@ export class Eagle {
             // attempt to determine schema version from FileInfo
             const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-            const errors: string[] = [];
+            const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // use the correct parsing function based on schema version
             let lg: LogicalGraph;
             switch (schemaVersion){
                 case Eagle.DALiuGESchemaVersion.AppRef:
-                    lg = LogicalGraph.fromAppRefJson(dataObject, file, errors);
+                    lg = LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings);
                     break;
                 case Eagle.DALiuGESchemaVersion.V3:
                     Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                    lg = LogicalGraph.fromV3Json(dataObject, file, errors);
+                    lg = LogicalGraph.fromV3Json(dataObject, file, errorsWarnings);
                     break;
                 case Eagle.DALiuGESchemaVersion.OJS:
                 case Eagle.DALiuGESchemaVersion.Unknown:
-                    lg = LogicalGraph.fromOJSJson(dataObject, file, errors);
+                    lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
                     break;
             }
 
@@ -1848,9 +1856,9 @@ export class Eagle {
             this.logicalGraph.valueHasMutated();
             this.checkGraph();
 
-            if (errors.length > 0){
+            if (errorsWarnings.errors.length > 0){
                 if (showErrors){
-                    Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+                    Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
                 }
             } else {
                 Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
@@ -1885,12 +1893,12 @@ export class Eagle {
         }
 
         // load the new palette
-        const errors: string[] = [];
-        this.palettes.unshift(Palette.fromOJSJson(data, file, errors));
+        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        this.palettes.unshift(Palette.fromOJSJson(data, file, errorsWarnings));
 
-        if (errors.length > 0){
+        if (errorsWarnings.errors.length > 0){
             if (showErrors){
-                Utils.showUserMessage("Errors during loading", errors.join('<br/>'));
+                Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
             }
         } else {
             Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
@@ -2017,7 +2025,10 @@ export class Eagle {
 
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
-            const json = Palette.toOJSJson(palette);
+            // clone the palette
+            const p_clone : Palette = palette.clone();
+            p_clone.fileInfo().updateEagleInfo();
+            const json = Palette.toOJSJson(p_clone);
 
             const jsonData : object = {
                 jsonData: json,
@@ -2028,6 +2039,7 @@ export class Eagle {
                 filename: fullFileName,
                 commitMessage: commitMessage
             };
+
 
             this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, jsonData);
         });
@@ -3247,6 +3259,134 @@ export class Eagle {
         console.table(tableData);
     }
 
+    generateLogicalGraphsTable = () : any[] => {
+        // check that all repos have been fetched
+        let foundUnfetched = false;
+        for (const repo of this.repositories()){
+            if (!repo.fetched()){
+                foundUnfetched = true;
+                console.warn("Unfetched repo:" + repo.getNameAndBranch());
+            }
+        }
+        if (foundUnfetched){
+            return [];
+        }
+
+        const tableData : any[] = [];
+
+        // add logical graph nodes to table
+        for (const repo of this.repositories()){
+            for (const folder of repo.folders()){
+                this._addGraphs(repo, folder, folder.name, tableData);
+            }
+
+            for (const file of repo.files()){
+                if (file.name.endsWith(".graph")){
+                    tableData.push({
+                        "service":repo.service,
+                        "name":repo.name,
+                        "branch":repo.branch,
+                        "folder":"",
+                        "file":file.name,
+                        "eagleVersion":"",
+                        "sha":"",
+                        "gitUrl":"",
+                        "lastModified":"",
+                        "lastModifiedBy":"",
+                        "numLoadWarnings":"",
+                        "numLoadErrors":"",
+                        "numCheckWarnings":"",
+                        "numCheckErrors":""
+                    });
+                }
+            }
+        }
+
+        return tableData;
+    }
+
+    // recursive traversal through the folder structure to find all graph files
+    _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
+        for (const subfolder of folder.folders()){
+            this._addGraphs(repository, subfolder, path + "/" + subfolder.name, data);
+        }
+
+        for (const file of folder.files()){
+            if (file.name.endsWith(".graph")){
+                data.push({
+                    "service": repository.service,
+                    "name":repository.name,
+                    "branch":repository.branch,
+                    "folder":path,
+                    "file":file.name,
+                    "eagleVersion":"",
+                    "sha":"",
+                    "gitUrl":"",
+                    "lastModified":"",
+                    "lastModifiedBy":"",
+                    "numLoadWarnings":"",
+                    "numLoadErrors":"",
+                    "numCheckWarnings":"",
+                    "numCheckErrors":""
+                });
+            }
+        }
+    }
+
+    fetchAllRepositories = () : void => {
+        for (const repo of this.repositories()){
+            if (!repo.fetched()){
+                this.selectRepository(repo);
+            }
+        }
+    }
+
+    attemptLoadLogicalGraphTable = async(data: any[]) : Promise<void> => {
+        for (const row of data){
+            // determine the correct function to load the file
+            let openRemoteFileFunc: any;
+            if (row.service === Eagle.RepositoryService.GitHub){
+                openRemoteFileFunc = GitHub.openRemoteFile;
+            } else {
+                openRemoteFileFunc = GitLab.openRemoteFile;
+            }
+
+            // try to load the file
+            await new Promise<void>((resolve, reject) => {
+                openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
+                    // if file fetched successfully
+                    if (error === null){
+                        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+                        const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
+                        const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errorsWarnings);
+
+                        // record number of errors
+                        row.numLoadWarnings = errorsWarnings.warnings.length;
+                        row.numLoadErrors = errorsWarnings.errors.length;
+
+                        // use git-related info within file
+                        row.eagleVersion = lg.fileInfo().eagleVersion;
+                        row.lastModifiedBy = lg.fileInfo().lastModifiedName;
+                        row.sha = lg.fileInfo().sha;
+                        row.gitUrl = lg.fileInfo().gitUrl;
+
+                        // convert date from timestamp to date string
+                        const date = new Date(lg.fileInfo().lastModifiedDatetime * 1000);
+                        row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
+
+                        // check the graph once loaded
+                        const results: Eagle.ErrorsWarnings = Utils.checkGraph(lg);
+                        row.numCheckWarnings = results.warnings.length;
+                        row.numCheckErrors = results.errors.length;
+                    }
+
+                    resolve();
+                });
+            });
+        }
+    }
+
+
     // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
     selectNodeInHierarchy = (nodeViewModel : any) : void => {
         const node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key());
@@ -3815,7 +3955,8 @@ export class Eagle {
         SubGraph           : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "icon-subgraph", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
 
         Unknown            : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        None               : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "icon-none", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20}
+        None               : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: false, icon: "icon-none", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
+        UnknownApplication : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveExitApplication: false, canHaveParameters: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
     };
 }
 
@@ -3922,6 +4063,7 @@ export namespace Eagle
 
         Unknown = "Unknown",
         None = "None",
+        UnknownApplication = "UnknownApplication", // when we know the component is an application, but know wlmost nothing else about it
 
         Component = "Component" // legacy only
     }
@@ -3934,6 +4076,7 @@ export namespace Eagle
     }
 
     export type CategoryData = {isData: boolean, isApplication: boolean, isGroup:boolean, isResizable:boolean, minInputs: number, maxInputs: number, minOutputs: number, maxOutputs: number, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveExitApplication: boolean, canHaveParameters: boolean, icon: string, color: string, collapsedHeaderOffsetY: number, expandedHeaderOffsetY: number};
+    export type ErrorsWarnings = {warnings: string[], errors: string[]};
 }
 
 
