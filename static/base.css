@@ -404,18 +404,18 @@ select.form-control{
 .headerIcons{
     height: 100%;
     display: flex;
-    position: absolute;
+    position: relative;
     padding: 0px 10px;
     width: 100%;
     pointer-events: none;
+    z-index: 5;
 }
 
 .paletteHeaderIcon{
     display: inline-block;
-    height: 100%;
     position: absolute;
     right: 15px;
-    top: 50%;
+    top: 22px;
 }
 
 .paletteHeaderIcon button, .paletteHeaderIcon i{
@@ -431,6 +431,11 @@ select.form-control{
 
 .paletteHeaderIcon button{
     right:15px;
+    pointer-events: auto;
+}
+
+.paletteHeaderIcon button:after{
+    display: none;
 }
 
 .paletteHeaderIcon i{
@@ -441,6 +446,34 @@ select.form-control{
     margin-bottom: 5px;
     border:1px solid #052349 !important;
     background-color: rgba(214, 219, 239, 0.95);
+}
+
+#paletteList .dropdown-menu{
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    z-index: 3;
+    background-color: #0059a5;
+    border: black solid 1px;
+    border-radius: 6px;
+    pointer-events: auto;
+}
+
+#paletteList .dropdown-menu a{
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+}
+
+#paletteList .dropdown-menu span{
+    display: block;
+    width: 100%;
+    padding:0px 10px;
+}
+
+#paletteList .dropdown-menu span:hover{
+    background-color: #001d3b;
+    color: white;
 }
 
 #paletteList .accordion-body{
@@ -508,9 +541,6 @@ select.form-control{
 #paletteList .accordion-button{
     background-color: #c2c8dc !important;
     padding: 10px 10px 10px 0px;
-}
-
-#paletteList .accordion-button{
     color:#212529 !important;
 }
 
