@@ -1758,7 +1758,7 @@ export class Eagle {
                             Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
                         }
                     } else {
-                        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
+                        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ". " + errorsWarnings.warnings.length + " warnings.", "success");
                     }
 
                     // center graph
