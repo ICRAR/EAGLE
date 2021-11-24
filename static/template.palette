@@ -63,28 +63,32 @@
                 "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
                 "value": 1,
                 "description": "Number of CPUs used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "Group start",
                 "name": "group_start",
                 "value": false,
                 "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Appclass",
                 "name": "appclass",
                 "value": "dlg.apps.simple.SimpleBranch",
                 "description": "The python class that implements this branch construct",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "dlg.apps.simple.SimpleBranch"
             }],
             "categoryType": "Control",
             "readonly": true
@@ -98,49 +102,56 @@
                 "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
                 "value": 1,
                 "description": "Number of CPUs used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "Group start",
                 "name": "group_start",
                 "value": false,
                 "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             },{
                 "text": "Command",
                 "name": "command",
                 "value": "",
                 "description": "The command to be executed",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             },{
                 "text": "Input Redirection",
                 "name": "input_redirection",
                 "value": "",
                 "description": "The command line argument that specifies the input into this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             },{
                 "text": "Output Redirection",
                 "name": "output_redirection",
                 "value": "",
                 "description": "The command line argument that specifies the output from this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             },{
                 "text": "Command Line Arguments",
                 "name": "command_line_arguments",
                 "value": "",
                 "description": "Additional arguments to be added to the command line to be executed",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -3,
             "text": "Bash Shell App",
