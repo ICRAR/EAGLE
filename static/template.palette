@@ -20,7 +20,6 @@
             "key": -1,
             "text": "Start",
             "description": "The starting point for workflow execution",
-            "categoryType": "Control",
             "inputPorts": [],
             "readonly": true
         },
@@ -31,7 +30,6 @@
             "key": -10,
             "text": "End",
             "description": "The end of workflow execution",
-            "categoryType": "Control",
             "inputPorts": [],
             "readonly": true
         },
@@ -90,7 +88,6 @@
                 "type": "String",
                 "default": "dlg.apps.simple.SimpleBranch"
             }],
-            "categoryType": "Control",
             "readonly": true
         },
         {
@@ -156,7 +153,6 @@
             "key": -3,
             "text": "Bash Shell App",
             "description": "An application component run within the Bash Shell",
-            "categoryType": "Application",
             "inputPorts": [],
             "readonly": true
         },
@@ -199,7 +195,6 @@
             "key": -13,
             "text": "Dynlib App",
             "description": "An application component run from a dynamic library",
-            "categoryType": "Application",
             "inputPorts": [],
             "readonly": true
         },
@@ -242,7 +237,6 @@
             "key": -9,
             "text": "MPI",
             "description":"An application component using the Message Passing Interface (MPI)",
-            "categoryType": "Application",
             "inputPorts": [],
             "readonly": true
         },
@@ -349,7 +343,6 @@
             "key": -8,
             "text": "Docker",
             "description":"An application component run from a Docker image",
-            "categoryType": "Application",
             "inputPorts": [],
             "readonly": true
         },
@@ -448,7 +441,6 @@
             "key": -11,
             "text": "Singularity",
             "description":"An application component run from a Singularity image (not currently supported by DALiuGE)",
-            "categoryType": "Application",
             "inputPorts": [],
             "readonly": true
         },
@@ -491,7 +483,6 @@
                 "type": "String",
                 "default": "test.graphsRepository"
             }],
-            "categoryType": "Application",
             "inputPorts": [],
             "readonly": true
         },
@@ -505,7 +496,6 @@
             "outputPorts": [],
             "key": -20,
             "fields": [],
-            "categoryType": "Service",
             "readonly": true
         },
         {
@@ -531,7 +521,6 @@
             "key": -4,
             "text": "Memory",
             "description": "In-memory storage of intermediate data products",
-            "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
         },
@@ -582,7 +571,6 @@
             "key": -5,
             "text": "File",
             "description": "A standard file on a filesystem mounted to the deployment machine",
-            "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
         },
@@ -633,7 +621,6 @@
             "key": -6,
             "text": "S3",
             "description": "A 'bucket' object available on Amazon's Simple Storage Service (S3)",
-            "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
         },
@@ -708,7 +695,6 @@
             "key": -7,
             "text": "NGAS",
             "description": "An archive on the Next Generation Archive System (NGAS).",
-            "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
         },
@@ -751,7 +737,6 @@
             "key": -24,
             "text": "Plasma",
             "description": "An object in a Apache Arrow Plasma in-memory object store",
-            "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
         },
@@ -802,7 +787,6 @@
             "key": -29,
             "text": "PlasmaFlight",
             "description": "An Apache Arrow Flight server providing distributed access to a Plasma in-memory object store",
-            "categoryType": "Data",
             "inputPorts": [],
             "readonly": true
         },
@@ -816,7 +800,6 @@
             "outputPorts": [],
             "key": -22,
             "fields": [],
-            "categoryType": "Other",
             "readonly": true
         },
         {
@@ -845,7 +828,6 @@
                 "type": "String",
                 "default": "frequency"
             }],
-            "categoryType": "Group",
             "readonly": true
         },
         {
@@ -874,7 +856,6 @@
                 "type": "String",
                 "default": "frequency"
             }],
-            "categoryType": "Group",
             "readonly": true
         },
         {
@@ -903,7 +884,6 @@
                 "type": "String",
                 "default": "time"
             }],
-            "categoryType": "Group",
             "readonly": true
         },
         {
@@ -940,7 +920,6 @@
                 "type": "Integer",
                 "default": 1
             }],
-            "categoryType": "Group",
             "readonly": true
         },
         {
@@ -961,7 +940,6 @@
                 "type": "Integer",
                 "default": 5
             }],
-            "categoryType": "Group",
             "readonly": true
         },
         {
@@ -974,7 +952,6 @@
             "outputPorts": [],
             "key": -19,
             "fields": [],
-            "categoryType": "Control",
             "readonly": true
         },
         {
@@ -987,7 +964,6 @@
             "outputPorts": [],
             "key": -25,
             "fields": [],
-            "categoryType": "Group",
             "readonly": true
         },
         {
@@ -1005,7 +981,6 @@
             "key": -12,
             "text": "Comment",
             "description": "A node that places a comment in the graph. The comment can be used to communicate important information or intention",
-            "categoryType": "Other",
             "inputPorts": [],
             "readonly": true
         },
@@ -1024,7 +999,6 @@
             "key": -21,
             "text": "Description",
             "description": "A node that places a description in the graph. The description should be used to communicate the purpose of the graph",
-            "categoryType": "Other",
             "inputPorts": [],
             "readonly": true
         }
