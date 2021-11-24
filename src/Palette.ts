@@ -105,7 +105,7 @@ export class Palette {
         // add nodes
         result.nodeDataArray = [];
         for (const node of palette.nodes()){
-            result.nodeDataArray.push(Node.toOJSJson(node));
+            result.nodeDataArray.push(Node.toOJSPaletteJson(node));
         }
 
         // add links

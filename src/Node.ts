@@ -1745,7 +1745,148 @@ export class Node {
         }
     }
 
-    static toOJSJson = (node : Node) : object => {
+    static toOJSPaletteJson = (node : Node) : object => {
+        const result : any = {};
+        const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
+
+        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.isData = node.isData();
+        result.isGroup = node.isGroup();
+        result.canHaveInputs = node.canHaveInputs();
+        result.canHaveOutputs = node.canHaveOutputs();
+
+        result.key = node.key();
+        result.text = node.name();
+        result.description = node.description();
+        result.streaming = node.streaming();
+        result.precious = node.precious();
+
+        result.git_url = node.gitUrl();
+        result.sha = node.gitHash();
+
+        if (node.parentKey() !== null){
+            result.group = node.parentKey();
+        }
+
+        if (node.embedKey() !== null){
+            result.embedKey = node.embedKey();
+        }
+
+        // add input ports
+        result.inputPorts = [];
+        if (node.hasInputApplication()){
+            Node.copyPorts(node.inputApplication().inputPorts(), result.inputPorts);
+        } else {
+            Node.copyPorts(node.inputPorts(), result.inputPorts);
+        }
+
+        // add output ports
+        result.outputPorts = [];
+        if (node.hasOutputApplication()){
+            // add outputApp output ports here
+            Node.copyPorts(node.outputApplication().outputPorts(), result.outputPorts);
+        }
+        // add exitApp output ports here
+        if (node.hasExitApplication()){
+            Node.copyPorts(node.exitApplication().outputPorts(), result.outputPorts);
+        }
+        if (!node.hasOutputApplication() && !node.hasExitApplication()){
+            Node.copyPorts(node.outputPorts(), result.outputPorts);
+        }
+
+        // add input ports from the inputApplication
+        // ! should be inputApp output ports - i think !
+        result.inputLocalPorts = [];
+        if (node.hasInputApplication()){
+            for (const outputPort of node.inputApplication().outputPorts()){
+                result.inputLocalPorts.push(Port.toOJSJson(outputPort));
+            }
+        }
+
+        // add input ports from the outputApplication
+        // ! should be outputApp input ports - i think !
+        // ! AND       exitApp input ports - i think !
+        result.outputLocalPorts = [];
+        if (node.hasOutputApplication()){
+            for (const inputPort of node.outputApplication().inputPorts()){
+                result.outputLocalPorts.push(Port.toOJSJson(inputPort));
+            }
+        }
+        if (node.hasExitApplication()){
+            for (const inputPort of node.exitApplication().inputPorts()){
+                result.outputLocalPorts.push(Port.toOJSJson(inputPort));
+            }
+        }
+
+        // add fields
+        result.fields = [];
+        for (const field of node.fields()){
+            result.fields.push(Field.toOJSJson(field));
+        }
+
+        // add applicationParams
+        result.applicationParams = [];
+        for (const param of node.applicationParams()){
+            result.applicationParams.push(Field.toOJSJson(param));
+        }
+
+        // add fields from inputApplication
+        result.inputAppFields = [];
+        if (node.hasInputApplication()){
+            for (const field of node.inputApplication().fields()){
+                result.inputAppFields.push(Field.toOJSJson(field));
+            }
+        }
+
+        // add fields from outputApplication
+        result.outputAppFields = [];
+        if (node.hasOutputApplication()){
+            for (const field of node.outputApplication().fields()){
+                result.outputAppFields.push(Field.toOJSJson(field));
+            }
+        }
+
+        // add fields from exitApplication
+        result.exitAppFields = [];
+        if (node.hasExitApplication()){
+            for (const field of node.exitApplication().fields()){
+                result.exitAppFields.push(Field.toOJSJson(field));
+            }
+        }
+
+        // write application names and types
+        if (node.hasInputApplication()){
+            result.inputApplicationName = node.inputApplication().name();
+            result.inputApplicationType = node.inputApplication().category();
+            result.inputApplicationKey  = node.inputApplication().key();
+        } else {
+            result.inputApplicationName = "";
+            result.inputApplicationType = Eagle.Category.None;
+            result.inputApplicationKey  = null;
+        }
+        if (node.hasOutputApplication()){
+            result.outputApplicationName = node.outputApplication().name();
+            result.outputApplicationType = node.outputApplication().category();
+            result.outputApplicationKey  = node.outputApplication().key();
+        } else {
+            result.outputApplicationName = "";
+            result.outputApplicationType = Eagle.Category.None;
+            result.outputApplicationKey  = null;
+        }
+        if (node.hasExitApplication()){
+            result.exitApplicationName = node.exitApplication().name();
+            result.exitApplicationType = node.exitApplication().category();
+            result.exitApplicationKey  = node.exitApplication().key();
+        } else {
+            result.exitApplicationName = "";
+            result.exitApplicationType = Eagle.Category.None;
+            result.exitApplicationKey  = null;
+        }
+
+        return result;
+    }
+
+    static toOJSGraphJson = (node : Node) : object => {
         const result : any = {};
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 

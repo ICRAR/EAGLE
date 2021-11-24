@@ -55,7 +55,7 @@ export class LogicalGraph {
         // add nodes
         result.nodeDataArray = [];
         for (const node of graph.getNodes()){
-            const nodeData : any = Node.toOJSJson(node);
+            const nodeData : any = Node.toOJSGraphJson(node);
             result.nodeDataArray.push(nodeData);
         }
 
