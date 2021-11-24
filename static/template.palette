@@ -63,28 +63,32 @@
                 "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
                 "value": 1,
                 "description": "Number of CPUs used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "Group start",
                 "name": "group_start",
                 "value": false,
                 "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Appclass",
                 "name": "appclass",
                 "value": "dlg.apps.simple.SimpleBranch",
                 "description": "The python class that implements this branch construct",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "dlg.apps.simple.SimpleBranch"
             }],
             "categoryType": "Control",
             "readonly": true
@@ -98,49 +102,56 @@
                 "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
                 "value": 1,
                 "description": "Number of CPUs used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "Group start",
                 "name": "group_start",
                 "value": false,
                 "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             },{
                 "text": "Command",
                 "name": "command",
                 "value": "",
                 "description": "The command to be executed",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             },{
                 "text": "Input Redirection",
                 "name": "input_redirection",
                 "value": "",
                 "description": "The command line argument that specifies the input into this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             },{
                 "text": "Output Redirection",
                 "name": "output_redirection",
                 "value": "",
                 "description": "The command line argument that specifies the output from this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             },{
                 "text": "Command Line Arguments",
                 "name": "command_line_arguments",
                 "value": "",
                 "description": "Additional arguments to be added to the command line to be executed",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -3,
             "text": "Bash Shell App",
@@ -158,28 +169,32 @@
                 "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
                 "value": 1,
                 "description": "Number of CPUs used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "Group start",
                 "name": "group_start",
                 "value": false,
                 "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Library path",
                 "name": "libpath",
                 "value": "",
                 "description": "The location of the shared object/DLL that implements this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -13,
             "text": "Dynlib App",
@@ -197,28 +212,32 @@
                 "value": false,
                 "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Execution time",
                 "name": "execution_time",
                 "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
                 "value": 1,
                 "description": "Number of CPUs used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "Num procs",
                 "name": "num_of_procs",
                 "value": "4",
                 "description": "Number of processes used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 4
             }],
             "key": -9,
             "text": "MPI",
@@ -236,84 +255,96 @@
                 "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
                 "value": 1,
                 "description": "Number of CPUs used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "Group start",
                 "name": "group_start",
                 "value": false,
                 "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Image",
                 "name": "image",
                 "value": "icrar/",
                 "description": "The name of the docker image to be used for this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "icrar/"
             }, {
                 "text": "Tag",
                 "name": "tag",
                 "value": "1.0",
                 "description": "The tag of the docker image to be used for this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "1.0"
             }, {
                 "text": "Digest",
                 "name": "digest",
                 "value": "",
                 "description": "The hexadecimal hash (long version) of the docker image to be used for this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Command",
                 "name": "command",
                 "value": "",
                 "description": "The command line to run within the docker instance. The specified command will be executed in a bash shell. That means that images will need a bash shell.",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "User",
                 "name": "user",
                 "value": "",
                 "description": "Username of the user who will run the application within the docker image",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Ensure User And Switch",
                 "name": "ensureUserAndSwitch",
                 "value": false,
                 "description":"Make sure the user specified in the User parameter exists and then run the docker container as that user",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Remove Container",
                 "name": "removeContainer",
                 "value": true,
                 "description":"Instruct Docker engine to delete the container after execution is complete",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": true
             }, {
                 "text": "Additional Bindings",
                 "name": "additionalBindings",
                 "value": "",
                 "description":"Directories which will be visible inside the container during run-time. Format is srcdir_on_host:trgtdir_on_container. Multiple entries can be separated by commas.",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Port Mappings",
                 "name": "portMappings",
                 "value": "",
                 "description": "Port mappings on the host machine",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -8,
             "text": "Docker",
@@ -331,77 +362,88 @@
                 "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
                 "value": 1,
                 "description": "Number of CPUs used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "Group start",
                 "name": "group_start",
                 "value": false,
                 "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Image",
                 "name": "image",
                 "value": "icrar/",
                 "description": "The name of the singularity image to be used for this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "icrar/"
             }, {
                 "text": "Tag",
                 "name": "tag",
                 "value": "1.0",
                 "description": "The tag of the singularity image to be used for this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "1.0"
             }, {
                 "text": "Digest",
                 "name": "digest",
                 "value": "",
                 "description": "The hexadecimal hash (long version) of the singularity image to be used for this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Command",
                 "name": "command",
                 "value": "",
                 "description": "The command line to run within the singularity instance. The specified command will be executed in a bash shell. That means that images will need a bash shell.",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "User",
                 "name": "user",
                 "value": "",
                 "description": "Username of the user who will run the application within the singularity image",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Ensure User And Switch",
                 "name": "ensureUserAndSwitch",
                 "value": false,
                 "description":"Make sure the user specified in the User parameter exists and then run the singularity container as that user",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Remove Container",
                 "name": "removeContainer",
                 "value": true,
                 "description":"Instruct Singularity engine to delete the container after execution is complete",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": true
             }, {
                 "text": "Additional Bindings",
                 "name": "additionalBindings",
                 "value": "",
                 "description":"Directories which will be visible inside the container during run-time. Format is srcdir_on_host:trgtdir_on_container. Multiple entries can be separated by commas.",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -11,
             "text": "Singularity",
@@ -422,28 +464,32 @@
                 "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
                 "value": 1,
                 "description": "Number of CPUs used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "Group start",
                 "name": "group_start",
                 "value": false,
                 "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Appclass",
                 "name": "appclass",
                 "value": "test.graphsRepository",
                 "description": "The python class that implements this application",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "test.graphsRepository"
             }],
             "categoryType": "Application",
             "inputPorts": [],
@@ -471,14 +517,16 @@
                 "value": 5,
                 "description": "Estimated size of the data contained in this node",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Group end",
                 "name": "group_end",
                 "value": false,
                 "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }],
             "key": -4,
             "text": "Memory",
@@ -496,35 +544,40 @@
                 "value": 5,
                 "description": "Estimated size of the data contained in this node",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Group end",
                 "name": "group_end",
                 "value": false,
                 "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Check file path exists",
                 "name": "check_filepath_exists",
                 "value": true,
                 "description": "Perform a check to make sure the file path exists before proceeding with the application",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": true
             }, {
                 "text": "File path",
                 "name": "filepath",
                 "value": "",
                 "description": "Path to the file for this node",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Directory name",
                 "name": "dirname",
                 "value": "",
                 "description": "Name of the directory containing the file for this node",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -5,
             "text": "File",
@@ -542,35 +595,40 @@
                 "value": 5,
                 "description": "Estimated size of the data contained in this node",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Group end",
                 "name": "group_end",
                 "value": false,
                 "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Bucket",
                 "name": "bucket",
                 "value": "",
                 "description": "The S3 Bucket",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Object Name",
                 "name": "object_name",
                 "value": "",
                 "description": "The S3 Object",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Profile Name",
                 "name": "profile_name",
                 "value": "",
                 "description": "The S3 Profile",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -6,
             "text": "S3",
@@ -588,56 +646,64 @@
                 "value": 5,
                 "description": "Estimated size of the data contained in this node",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Group end",
                 "name": "group_end",
                 "value": false,
                 "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "NGAS Server",
                 "name": "ngasSrv",
                 "value": "localhost",
                 "description": "The URL of the NGAS Server",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "localhost"
             }, {
                 "text": "NGAS Port",
                 "name": "ngasPort",
                 "value": 7777,
                 "description": "The port of the NGAS Server",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 7777
             }, {
                 "text": "File ID",
                 "name": "ngasFileId",
                 "value": "",
                 "description": "File ID on NGAS (for retrieval only)",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Connection timeout",
                 "name": "ngasConnectTimeout",
                 "value": 2,
                 "description": "Timeout for connecting to the NGAS server",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 2
             }, {
                 "text": "NGAS mime-type",
                 "name": "ngasMime",
                 "value": "text/ascii",
                 "description": "Mime-type to be used for archiving",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "text/ascii"
             }, {
                 "text": "NGAS timeout",
                 "name": "ngasTimeout",
                 "value": 2,
                 "description": "Timeout for receiving responses for NGAS",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 2
             }],
             "key": -7,
             "text": "NGAS",
@@ -655,28 +721,32 @@
                 "value": 5,
                 "description": "Estimated size of the data contained in this node",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Group end",
                 "name": "group_end",
                 "value": false,
                 "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Plasma Path",
                 "name": "plasma_path",
                 "value": "",
                 "description": "Path to the local plasma store",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Object Id",
                 "name": "object_id",
                 "value": "",
                 "description": "Id of the object for all compute nodes",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -24,
             "text": "Plasma",
@@ -694,35 +764,40 @@
                 "value": 5,
                 "description": "Estimated size of the data contained in this node",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Group end",
                 "name": "group_end",
                 "value": false,
                 "description": "Is this node the end of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Plasma Path",
                 "name": "plasma_path",
                 "value": "",
                 "description": "Path to the local plasma store",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Object Id",
                 "name": "object_id",
                 "value": "",
                 "description": "Id of the object for all compute nodes",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }, {
                 "text": "Flight Path",
                 "name": "flight_path",
                 "value": "",
                 "description": "IP and flight port of the drop owner",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -29,
             "text": "PlasmaFlight",
@@ -759,14 +834,16 @@
                 "value": "None",
                 "description": "",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "None"
             }, {
                 "text": "Group axis",
                 "name": "group_axis",
                 "value": "frequency",
                 "description": "The axis by which to group the inputs together",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "frequency"
             }],
             "categoryType": "Group",
             "readonly": true
@@ -786,14 +863,16 @@
                 "value": 2,
                 "description": "The Gather “width”, stating how many partitions each Gather instance will handle",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 2
             }, {
                 "text": "Gather axis",
                 "name": "gather_axis",
                 "value": "frequency",
                 "description": "The axis by which to gather the inputs together",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "frequency"
             }],
             "categoryType": "Group",
             "readonly": true
@@ -813,14 +892,16 @@
                 "value": 4,
                 "description": "The number of outputs generated by this construct",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 4
             }, {
                 "text": "Scatter axis",
                 "name": "scatter_axis",
                 "value": "time",
                 "description": "The axis used to split the input into multiple outputs",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "time"
             }],
             "categoryType": "Group",
             "readonly": true
@@ -840,21 +921,24 @@
                 "value": 1,
                 "description": "The input-side multiplicity of this construct",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "K",
                 "name": "k",
                 "value": 1,
                 "description": "The internal multiplicity of this construct",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "N",
                 "name": "n",
                 "value": 1,
                 "description": "The output-side multiplicity of this construct",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }],
             "categoryType": "Group",
             "readonly": true
@@ -874,7 +958,8 @@
                 "value": 5,
                 "description": "The number of iterations performed by this loop construct",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 5
             }],
             "categoryType": "Group",
             "readonly": true
@@ -914,7 +999,8 @@
                 "value": "",
                 "description": "The text value of the comment",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -12,
             "text": "Comment",
@@ -932,7 +1018,8 @@
                 "value": "",
                 "description": "The text value of the description",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": ""
             }],
             "key": -21,
             "text": "Description",

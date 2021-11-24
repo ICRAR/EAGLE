@@ -1916,7 +1916,7 @@ export class Utils {
 
             // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
             if (!isConnected && !(maxInputs === 0 && maxOutputs === 0)){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
+                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
             }
 
             // check embedded application categories are not 'None'
