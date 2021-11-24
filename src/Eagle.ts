@@ -129,6 +129,7 @@ export class Eagle {
                 new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Utils.ALLOW_PALETTE_EDITING, false),
                 new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
                 new Setting("Allow Readonly Parameter Editing", "Allow the user to edit values of readonly parameters in components.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PARAMETER_EDITING, false),
+                new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PALETTE_EDITING, false),
                 new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, false),
                 new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, true),
                 new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
@@ -3046,14 +3047,17 @@ export class Eagle {
         const destinationPaletteIndex : number = parseInt($(e.currentTarget)[0].getAttribute('data-palette-index'), 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
+        const allowReadonlyPaletteEditing = Eagle.findSetting(Utils.ALLOW_READONLY_PALETTE_EDITING).value();
+
         // check user can write to destination palette
-        if (destinationPalette.fileInfo().readonly){
+        if (destinationPalette.fileInfo().readonly && !allowReadonlyPaletteEditing){
             Utils.showUserMessage("Error", "Unable to copy component to readonly palette.");
             return;
         }
 
         // add to destination palette
         destinationPalette.addNode(sourceComponent, true);
+        destinationPalette.fileInfo().modified = true;
     }
 
     getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number} => {
