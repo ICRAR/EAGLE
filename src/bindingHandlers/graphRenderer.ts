@@ -3297,7 +3297,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getResizeControlDisplay(node : Node) : string {
-        if (node.isCollapsed() || !node.isPeek()){
+        if (node.isCollapsed()){
             return "none";
         }
 
