@@ -15,6 +15,7 @@ require.config({
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
         "bindingHandlers/graphRenderer":"./static/built/bindingHandlers/graphRenderer",
         "bindingHandlers/nodeDataProperty":"./static/built/bindingHandlers/nodeDataProperty",
+        "bindingHandlers/eagleTooltip":"./static/built/bindingHandlers/eagleTooltip",
         "components":"./static/built/components",
         "main":"./static/built/main",
         "Config": "./static/built/Config",

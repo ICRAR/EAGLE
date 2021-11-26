@@ -165,8 +165,6 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("Create subgraph from selection", ["["], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("Create construct from selection", ["]"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
 
-        this.selectedObjects.subscribe(this.updateInspectorTooltips);
-
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
@@ -1491,18 +1489,6 @@ export class Eagle {
         GitLab.loadRepoList(this);
     };
 
-    static reloadTooltips = () : void => {
-        // destroy orphaned tooltips and initializing tooltip on document ready.
-        $('.tooltip[role="tooltip"]').remove();
-        $('[data-bs-toggle="tooltip"]').tooltip({
-            html : true,
-            boundary: document.body,
-            trigger : 'hover',
-            delay: { "show": 800, "hide": 100 }
-        });
-    }
-
-
     // TODO: move to Repository class?
     selectRepository = (repository : Repository) : void => {
         console.log("selectRepository(" + repository.name + ")");
@@ -1906,9 +1892,6 @@ export class Eagle {
         }
 
         this.leftWindow().shown(true);
-
-        // HACK to update the tooltips once the new palette has been rendered
-        setTimeout(Eagle.reloadTooltips, 100);
     }
 
     private updateLogicalGraphFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
@@ -3210,37 +3193,6 @@ export class Eagle {
         return true;
     }
 
-    // NOTE: enabling the tooltips must be delayed slightly to make sure the html has been generated (hence the setTimeout)
-    // NOTE: now needs a timeout longer that 1ms! UGLY HACK TODO
-    updateInspectorTooltips = () : void => {
-        const selectedNode = this.selectedNode();
-
-        setTimeout(function(){
-            // destroy orphaned tooltips
-            Eagle.reloadTooltips();
-
-            // update title on all right window component buttons
-            if (selectedNode !== null){
-                if (selectedNode.getInputApplication() !== null)
-                    $('.rightWindowDisplay .input-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getInputApplication().getHelpHTML());
-                if (selectedNode.getOutputApplication() !== null)
-                    $('.rightWindowDisplay .output-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getOutputApplication().getHelpHTML());
-                if (selectedNode.getExitApplication() !== null)
-                    $('.rightWindowDisplay .exit-application inspector-component .input-group-prepend').attr('data-bs-original-title', selectedNode.getExitApplication().getHelpHTML());
-            }
-        }, 150);
-    }
-
-    updatePaletteComponentTooltip = (nodes: any) : void => {
-        const node = $(nodes[1]);
-        node.tooltip({
-            html : true,
-            boundary: document.body,
-            trigger : 'hover',
-            delay: { "show": 800, "hide": 100 }
-        });
-    }
-
     paletteComponentClick = (node: Node, event:JQueryEventObject) : void => {
         if (event.shiftKey)
             this.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
@@ -3622,7 +3574,6 @@ export class Eagle {
                }
 
                this.checkGraph();
-               this.updateInspectorTooltips();
             });
         } else {
             $("#editPortModalTitle").html("Edit Port");
@@ -3649,7 +3600,6 @@ export class Eagle {
                 port.copyWithKeyAndId(newPort, nodeKey, portId);
 
                 this.checkGraph();
-                this.updateInspectorTooltips();
             });
         }
     }
@@ -3750,7 +3700,6 @@ export class Eagle {
             if (userChoiceIndex === applicationNames.length - 1){
                 console.log("User selected no application");
                 callback(null);
-                this.updateInspectorTooltips();
                 return;
             }
 
@@ -3764,7 +3713,6 @@ export class Eagle {
             clone.setKey(newKey);
 
             callback(clone);
-            this.updateInspectorTooltips();
         });
     }
 

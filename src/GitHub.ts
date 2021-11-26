@@ -152,7 +152,6 @@ export class GitHub {
 
                 repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
             }
-            Eagle.reloadTooltips();
         });
     }
 

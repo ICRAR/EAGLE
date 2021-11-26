@@ -17,6 +17,7 @@
         "./src/bindingHandlers/disabled.ts",
         "./src/bindingHandlers/graphRenderer.ts",
         "./src/bindingHandlers/nodeDataProperty.ts",
+        "./src/bindingHandlers/eagleTooltip.ts",
         "./src/components.ts",
         "./src/main.ts",
         "./src/Config.ts",
