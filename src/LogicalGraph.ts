@@ -863,8 +863,10 @@ export class LogicalGraph {
         return result;
     }
 
-    // TODO: so that it doesn't just find the first overlap, but actually finds all overlap, and returns the most-leaf node
     checkForNodeAt = (x: number, y: number, width: number, height: number, ignoreKey: number, groupsOnly: boolean = false) : Node => {
+        const overlaps : Node[] = [];
+
+        // find all the overlapping nodes
         for (const node of this.nodes){
             // abort if checking for self!
             if (node.getKey() === ignoreKey){
@@ -877,10 +879,37 @@ export class LogicalGraph {
             }
 
             if (Utils.nodesOverlap(x, y, width, height, node.getPosition().x, node.getPosition().y, node.getWidth(), node.getHeight())){
-                return node;
+                overlaps.push(node);
             }
         }
-        return null;
+
+        // once found all the overlaps, we return the most-leaf (highest depth) node
+        let maxDepth: number = -1;
+        let maxDepthOverlap: Node = null;
+
+        for (const overlap of overlaps){
+            const depth = this.findDepthByKey(overlap.getKey());
+
+            if (depth > maxDepth){
+                maxDepth = depth;
+                maxDepthOverlap = overlap;
+            }
+        }
+
+        return maxDepthOverlap;
+    }
+
+    findDepthByKey = (key: number) : number => {
+        let depth = 0;
+        let node = this.findNodeByKey(key);
+        let parentKey = node.getParentKey();
+
+        while (parentKey !== null){
+            depth += 1;
+            parentKey = this.findNodeByKey(parentKey).getParentKey();
+        }
+
+        return depth;
     }
 
     static normaliseNodes = (nodes: Node[]) : {x: number, y: number} => {
