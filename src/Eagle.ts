@@ -3055,6 +3055,12 @@ export class Eagle {
             return;
         }
 
+        // check that the destination palette does not already contain this exact node
+        if (destinationPalette.findNodeById(sourceComponent.getId()) !== null){
+            Utils.showUserMessage("Error", "Palette already contains an identical component.");
+            return;
+        }
+
         // add to destination palette
         destinationPalette.addNode(sourceComponent, true);
         destinationPalette.fileInfo().modified = true;
