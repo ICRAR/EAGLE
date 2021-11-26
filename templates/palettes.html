@@ -13,6 +13,12 @@
     </div>
     <div class="accordion">
         <div data-bind="foreach: palettes">
+            <button type="button" class="material-icons md-18 dropdown-toggle paletteTrippleDot" aria-label="Close" data-bs-toggle="dropdown" >more_vert</button>
+            <div class="dropdown-menu">
+                <a href="#" data-bind="click: $root.closePalette, clickBubble: false, attr:{title:'Close'}" data-html="true"><span>Remove Palette</span></a>
+                <span><a href="#" data-bind="click: function(palette, event){$root.savePaletteToDisk(palette);event.stopPropagation()}, attr:{title:'Save to Disk'}"data-html="true">Save Locally</a></span>
+                <span><a href="#" data-bind="click: function(palette, event){$root.savePaletteToGit(palette);event.stopPropagation()}, attr:{title:'Save to Git'}"data-html="true">Save To Git</a></span>
+            </div>
             <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
                 <div class="accordion-header">
                     <div class="headerIcons">
@@ -23,28 +29,12 @@
                             <!-- ko ifnot: $data.fileInfo().readonly -->
                             <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
                             <!-- /ko -->
-                            <button type="button" class="material-icons md-18 dropdown-toggle" aria-label="Close" data-bs-toggle="dropdown" >more_vert</button>
-                            <div class="dropdown-menu" data-bind="event:{mouseout: function(data,e){e.target}}">
-                                <span><a href="#">Remove Palette</a></span>
-                                <span><a href="#">Save Locally</a></span>
-                                <span><a href="#">Save To Git</a></span>
-                            </div>
                         </div>   
                     </div>   
                     <div class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
                         <span>&nbsp;</span>
                         <h5 class="template-title" data-bs-toggle="tooltip" data-bs-placement="right" data-html="true" data-bind="text: fileInfo().nameAndModifiedIndicator(), attr:{title:fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())}"></h5>
                     </div>
-                    <!-- ko if: $data.fileInfo().modified -->
-                    <div class="row">
-                        <button type="button" class="btn col-6 savePaletteBtn save-to-git" aria-label="Save to Git" data-bind="click: function(palette, event){$root.savePaletteToGit(palette);event.stopPropagation()}, attr:{title:'Save to Git'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
-                            <i class="material-icons">cloud_upload</i>
-                        </button>
-                        <button type="button" class="btn col-6 savePaletteBtn save-to-disk" aria-label="Save to Disk" data-bind="click: function(palette, event){$root.savePaletteToDisk(palette);event.stopPropagation()}, attr:{title:'Save to Disk'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
-                            <i class="material-icons">save</i>
-                        </button>
-                    </div>
-                <!-- /ko -->
                 </div>
                 <div class="collapse show accordion-collapse" aria-labelledby="headingOne" data-bind="attr:{id:'collapse' + $index()}">
                     <div class="accordion-body">

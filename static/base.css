@@ -408,7 +408,7 @@ select.form-control{
     padding: 0px 10px;
     width: 100%;
     pointer-events: none;
-    z-index: 5;
+    z-index: 3;
 }
 
 .paletteHeaderIcon{
@@ -416,6 +416,19 @@ select.form-control{
     position: absolute;
     right: 15px;
     top: 22px;
+}
+
+#paletteList .dropdown-menu a{
+    width:100%;
+}
+
+.paletteTrippleDot{
+    position: absolute;
+    right: 35px;
+    margin-top: 13px;
+    background: none;
+    border: none;
+    z-index: 3;
 }
 
 .paletteHeaderIcon button, .paletteHeaderIcon i{
@@ -434,7 +447,7 @@ select.form-control{
     pointer-events: auto;
 }
 
-.paletteHeaderIcon button:after{
+.paletteTrippleDot:after{
     display: none;
 }
 
@@ -452,7 +465,7 @@ select.form-control{
     position: absolute;
     right: 0px;
     top: 0px;
-    z-index: 3;
+    z-index: 4;
     background-color: #0059a5;
     border: black solid 1px;
     border-radius: 6px;
