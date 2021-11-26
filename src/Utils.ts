@@ -62,6 +62,7 @@ export class Utils {
     static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PARAMETER_EDITING : string = "AllowReadonlyParameterEditing";
+    static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
@@ -191,7 +192,6 @@ export class Utils {
                     const newKey = Utils.findNewKey(usedKeys);
                     node.getInputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "input app key", newKey);
                 }
             }
 
@@ -201,7 +201,6 @@ export class Utils {
                     const newKey = Utils.findNewKey(usedKeys);
                     node.getOutputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "output app key", newKey);
                 }
             }
 
@@ -211,7 +210,6 @@ export class Utils {
                     const newKey = Utils.findNewKey(usedKeys);
                     node.getExitApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "exit app key", newKey);
                 }
             }
         }
@@ -291,6 +289,11 @@ export class Utils {
     }
 
     static translateStringToFileType(fileType : string) : Eagle.FileType {
+        // check input parameter is a string
+        if (typeof fileType !== 'string'){
+            return Eagle.FileType.Unknown;
+        }
+
         if (fileType.toLowerCase() === "graph")
             return Eagle.FileType.Graph;
         if (fileType.toLowerCase() === "palette")
@@ -383,7 +386,7 @@ export class Utils {
                 if (typeof xhr.responseJSON === 'undefined'){
                     callback(error, null);
                 } else {
-                    callback(error, xhr.responseJSON.error);
+                    callback(xhr.responseJSON.error, null);
                 }
             }
         });
@@ -1810,7 +1813,7 @@ export class Utils {
         return results;
     }
 
-    static checkGraph(graph: LogicalGraph): {warnings: string[], errors: string[]} {
+    static checkGraph(graph: LogicalGraph): Eagle.ErrorsWarnings {
         const warnings: string[] = [];
         const errors: string[] = [];
 
@@ -1914,7 +1917,7 @@ export class Utils {
 
             // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
             if (!isConnected && !(maxInputs === 0 && maxOutputs === 0)){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
+                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
             }
 
             // check embedded application categories are not 'None'
@@ -2043,5 +2046,22 @@ export class Utils {
         //console.log("compares HIT");
 
         return true;
+    }
+
+    static table2CSV(table: any[]) : string {
+        let s = "";
+
+        // if table empty, return
+        if (table.length === 0){
+            return s;
+        }
+
+        // write the header row
+        s += Object.keys(table[0]).join(",") + "\n";
+
+        for (const row of table){
+            s += Object.values(row).join(",") + "\n";
+        }
+        return s;
     }
 }

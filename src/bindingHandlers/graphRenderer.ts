@@ -378,13 +378,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 isDraggingNode = false;
             }
 
-            // find location of mouse realtive to top-left of logicalGraphParent (translate to real coord system)
-            const offset = $("#logicalGraphParent").offset();
-            const x = DISPLAY_TO_REAL_POSITION_X(d3.event.sourceEvent.x - offset.left);
-            const y = DISPLAY_TO_REAL_POSITION_Y(d3.event.sourceEvent.y - offset.top);
-
-            // check for nodes underneath the top left corner of the node we dropped
-            const parent : Node = checkForNodeAt(node, x, y);
+            // check for nodes underneath the node we dropped
+            const parent : Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getWidth(), node.getHeight(), node.getKey(), true);
 
             // if a parent was found, update
             if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
@@ -406,7 +401,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     const child : Node = nodeData[i];
 
                     if (child.getParentKey() === node.getKey()){
-                        const parent : Node = checkForNodeAt(child, child.getPosition().x, child.getPosition().y);
+                        const parent : Node = eagle.logicalGraph().checkForNodeAt(child.getPosition().x, child.getPosition().y, child.getWidth(), child.getHeight(), child.getKey(), true);
 
                         // un-parent the child if no longer contained within the node we are dragging
                         if (parent === null || parent.getKey() !== node.getKey()){
@@ -2560,6 +2555,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let nodeKey : number;
         let nodeParentKey : number = node.getParentKey();
 
+        // follow the chain of parents
         while (nodeParentKey != null){
             depth += 1;
             depth += node.getDrawOrderHint() / 10;
@@ -2576,9 +2572,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 console.error("Node", nodeKey, "has parentKey", nodeParentKey, "but call to findNodeWithKey(", nodeParentKey, ") returned null");
                 return depth;
             }
+
+            // if parent is selected, add more depth, so that it will appear on top
+            if (eagle.objectIsSelected(node)){
+                depth += 10;
+            }
         }
 
         depth += node.getDrawOrderHint() / 10;
+
+        // if node is selected, add more depth, so that it will appear on top
+        if (eagle.objectIsSelected(node)){
+            depth += 10;
+        }
+
 
         return depth;
     }
@@ -3304,7 +3311,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getResizeControlDisplay(node : Node) : string {
-        if (node.isCollapsed() || !node.isPeek()){
+        if (node.isCollapsed()){
             return "none";
         }
 
@@ -3334,35 +3341,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         return "inline";
-    }
-
-    // TODO: try to use LogicalGraph.checkForNodeAt() instead
-    function checkForNodeAt(child: Node, x: number, y: number) : Node {
-        for (let i = nodeData.length - 1; i >= 0 ; i--){
-            const node : Node = nodeData[i];
-
-            // abort if checking for self!
-            if (node.getKey() === child.getKey()){
-                continue;
-            }
-
-            // abort if node is not a group
-            if (!node.isGroup()){
-                continue;
-            }
-
-            // find bounds of possible parent
-            const left: number = node.getPosition().x;
-            const right: number = node.getPosition().x + getWidth(node);
-            const top: number = node.getPosition().y;
-            const bottom: number = node.getPosition().y + getHeight(node);
-
-            // check if node is within bounds of possible parent
-            if (x >= left && right >= x && y >= top && bottom >= y){
-                return node;
-            }
-        }
-        return null;
     }
 
     function findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
