@@ -830,7 +830,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 }
                                 for (const node of nearbyNodes){
                                     // TODO: should probably match on type, not name!
-                                    if (node.findPortByName(sourceDataType, !sourcePortIsInput, false) !== null){
+                                    if (node.findPortById(suggestedPortId) !== null){
                                         node.setPeek(true);
                                     }
                                 }
@@ -3400,11 +3400,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 continue;
             }
 
-            // determine center of node
-            const nodeCenterX = nodeData[i].getPosition().x + nodeData[i].getWidth() / 2;
-            const nodeCenterY = nodeData[i].getPosition().y + nodeData[i].getHeight() / 2;
-
-            const distance = Math.sqrt( Math.pow(nodeCenterX - positionX, 2) + Math.pow(nodeCenterY - positionY, 2) );
+            // determine distance from position to this node
+            const distance = Utils.positionToNodeDistance(positionX, positionY, nodeData[i]);
 
             if (distance <= range){
                 //console.log("distance to", nodeData[i].getName(), "=", distance);
@@ -3420,12 +3417,34 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let minPort = null;
 
         for (const node of nearbyNodes){
+            let portList: Port[] = [];
+
             // if sourcePortIsInput, we should search for output ports, and vice versa
-            let portList: Port[];
             if (sourcePortIsInput){
-                portList = node.getOutputPorts();
+                portList = portList.concat(node.getOutputPorts());
             } else {
-                portList = node.getInputPorts();
+                portList = portList.concat(node.getInputPorts());
+            }
+
+            // get inputApplication ports
+            if (sourcePortIsInput){
+                portList = portList.concat(node.getInputApplicationOutputPorts());
+            } else {
+                portList = portList.concat(node.getInputApplicationInputPorts());
+            }
+
+            // get outputApplication ports
+            if (sourcePortIsInput){
+                portList = portList.concat(node.getOutputApplicationOutputPorts());
+            } else {
+                portList = portList.concat(node.getOutputApplicationInputPorts());
+            }
+
+            // get exitApplication ports
+            if (sourcePortIsInput){
+                portList = portList.concat(node.getExitApplicationOutputPorts());
+            } else {
+                portList = portList.concat(node.getExitApplicationInputPorts());
             }
 
             for (const port of portList){

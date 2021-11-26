@@ -2064,4 +2064,16 @@ export class Utils {
         }
         return s;
     }
+
+    // https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
+    static positionToNodeDistance(positionX: number, positionY: number, node: Node): number {
+        const rectMinX = node.getPosition().x;
+        const rectMaxX = node.getPosition().x + node.getWidth();
+        const rectMinY = node.getPosition().y;
+        const rectMaxY = node.getPosition().y + node.getHeight();
+
+        const dx = Math.max(rectMinX - positionX, 0, positionX - rectMaxX);
+        const dy = Math.max(rectMinY - positionY, 0, positionY - rectMaxY);
+        return Math.sqrt(dx*dx + dy*dy);
+    }
 }
