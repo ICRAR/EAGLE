@@ -3037,7 +3037,7 @@ export class Eagle {
         const sourceComponents : Node[] = [];
 
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
-        if (this.selectedLocation() === Eagle.FileType.Graph){
+        if (this.selectedLocation() === Eagle.FileType.Graph || this.selectedLocation() === Eagle.FileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
             sourceComponents.push(component);
         }
@@ -3061,7 +3061,7 @@ export class Eagle {
         const sourceComponents : Node[] = [];
 
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
-        if (this.selectedLocation() === Eagle.FileType.Graph){
+        if (this.selectedLocation() === Eagle.FileType.Graph || this.selectedLocation() === Eagle.FileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
             sourceComponents.push(component);
         }
