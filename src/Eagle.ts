@@ -3034,14 +3034,46 @@ export class Eagle {
         Eagle.nodeDropLocation = this.getNodeDropLocation(e);
 
         // determine dropped node
-        const sourceComponent : Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
+        const sourceComponents : Node[] = [];
 
-        this.addNodeToLogicalGraph(sourceComponent);
+        // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
+        if (this.selectedLocation() === Eagle.FileType.Graph){
+            const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
+            sourceComponents.push(component);
+        }
+
+        // if a node or nodes in the palette are selected, then assume those are being moved to the destination
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            for (const object of this.selectedObjects()){
+                if (object instanceof Node){
+                    sourceComponents.push(object);
+                }
+            }
+        }
+
+        // add each of the nodes we are moving
+        for (const sourceComponent of sourceComponents){
+            this.addNodeToLogicalGraph(sourceComponent);
+        }
     }
 
     nodeDropPalette = (eagle: Eagle, e: JQueryEventObject) : void => {
-        // determine dropped node
-        const sourceComponent : Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
+        const sourceComponents : Node[] = [];
+
+        // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
+        if (this.selectedLocation() === Eagle.FileType.Graph){
+            const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
+            sourceComponents.push(component);
+        }
+
+        // if a node or nodes in the palette are selected, then assume those are being moved to the destination
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+            for (const object of this.selectedObjects()){
+                if (object instanceof Node){
+                    sourceComponents.push(object);
+                }
+            }
+        }
 
         // determine destination palette
         const destinationPaletteIndex : number = parseInt($(e.currentTarget)[0].getAttribute('data-palette-index'), 10);
@@ -3051,19 +3083,22 @@ export class Eagle {
 
         // check user can write to destination palette
         if (destinationPalette.fileInfo().readonly && !allowReadonlyPaletteEditing){
-            Utils.showUserMessage("Error", "Unable to copy component to readonly palette.");
+            Utils.showUserMessage("Error", "Unable to copy component(s) to readonly palette.");
             return;
         }
 
-        // check that the destination palette does not already contain this exact node
-        if (destinationPalette.findNodeById(sourceComponent.getId()) !== null){
-            Utils.showUserMessage("Error", "Palette already contains an identical component.");
-            return;
-        }
+        // copy all nodes that we are moving
+        for (const sourceComponent of sourceComponents){
+            // check that the destination palette does not already contain this exact node
+            if (destinationPalette.findNodeById(sourceComponent.getId()) !== null){
+                Utils.showUserMessage("Error", "Palette already contains an identical component.");
+                return;
+            }
 
-        // add to destination palette
-        destinationPalette.addNode(sourceComponent, true);
-        destinationPalette.fileInfo().modified = true;
+            // add to destination palette
+            destinationPalette.addNode(sourceComponent, true);
+            destinationPalette.fileInfo().modified = true;
+        }
     }
 
     getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number} => {
