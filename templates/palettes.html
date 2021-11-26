@@ -16,8 +16,8 @@
             <button type="button" class="material-icons md-18 dropdown-toggle paletteTrippleDot" aria-label="Close" data-bs-toggle="dropdown" >more_vert</button>
             <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closePaletteMenus}">
                 <a href="#" data-bind="click: $root.closePalette, clickBubble: false" data-html="true"><span>Remove Palette</span></a>
-                <a href="#" data-bind="click: function(palette, event){$root.savePaletteToDisk(palette);event.stopPropagation()}"data-html="true"><span>Save Locally</span></a>
-                <a href="#" data-bind="click: function(palette, event){$root.savePaletteToGit(palette);event.stopPropagation()}"data-html="true"><span>Save To Git</span></a>
+                <a href="#" data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>
+                <a href="#" data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>
             </div>
             <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
                 <div class="accordion-header">
@@ -29,8 +29,8 @@
                             <!-- ko ifnot: $data.fileInfo().readonly -->
                             <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
                             <!-- /ko -->
-                        </div>   
-                    </div>   
+                        </div>
+                    </div>
                     <div class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
                         <span>&nbsp;</span>
                         <h5 class="template-title" data-bs-toggle="tooltip" data-bs-placement="right" data-html="true" data-bind="text: fileInfo().nameAndModifiedIndicator(), attr:{title:fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())}"></h5>

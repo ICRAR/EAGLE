@@ -1447,6 +1447,7 @@ export class Eagle {
                     palette.fileInfo().readonly = paletteList[index].readonly;
                     palette.fileInfo().gitUrl = paletteList[index].filename;
                     palette.fileInfo().sha = "master";
+                    palette.fileInfo().type = Eagle.FileType.Palette;
                     results[index] = palette;
                 }
 
@@ -1962,7 +1963,7 @@ export class Eagle {
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
     savePaletteToDisk = (palette : Palette) : void => {
-        console.log("savePaletteToDisk()", palette.fileInfo().name);
+        console.log("savePaletteToDisk()", palette.fileInfo().name, palette.fileInfo().type);
 
         const fileName = palette.fileInfo().name;
 
@@ -1987,7 +1988,7 @@ export class Eagle {
     }
 
     savePaletteToGit = (palette: Palette): void => {
-        console.log("savePaletteToGit()", palette.fileInfo().name);
+        console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
         const defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
 
