@@ -813,13 +813,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 // check for nearby nodes
                                 const nearbyNodes = findNodesInRange(mouseX, mouseY, MIN_AUTO_COMPLETE_EDGE_RANGE, sourceNodeKey, sourcePortId, sourceDataType);
 
-                                // debug
-                                let s = "nearbyNodes " + nearbyNodes.length + ":";
-                                for (let node of nearbyNodes){
-                                    s += node.getName() + " ";
-                                }
-                                console.log(s);
-
                                 // check for nearest matching port in the nearby nodes
                                 const matchingPort: Port = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourceDataType, sourcePortIsInput);
 
@@ -837,7 +830,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 }
                                 for (const node of nearbyNodes){
                                     // TODO: should probably match on type, not name!
-                                    if (node.findPortByName(sourceDataType, !sourcePortIsInput, false) !== null){
+                                    if (node.findPortById(suggestedPortId) !== null){
                                         node.setPeek(true);
                                     }
                                 }
@@ -3407,11 +3400,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 continue;
             }
 
-            // determine center of node
-            const nodeCenterX = nodeData[i].getPosition().x + nodeData[i].getWidth() / 2;
-            const nodeCenterY = nodeData[i].getPosition().y + nodeData[i].getHeight() / 2;
-
-            const distance = Math.sqrt( Math.pow(nodeCenterX - positionX, 2) + Math.pow(nodeCenterY - positionY, 2) );
+            // determine distance from position to this node
+            const distance = Utils.positionToNodeDistance(positionX, positionY, nodeData[i]);
 
             if (distance <= range){
                 //console.log("distance to", nodeData[i].getName(), "=", distance);
