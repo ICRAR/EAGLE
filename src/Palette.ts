@@ -189,6 +189,15 @@ export class Palette {
         }
     }
 
+    findNodeById = (id : string) : Node => {
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getId() === id){
+                return this.nodes()[i];
+            }
+        }
+        return null;
+    }
+
     removeNodeById = (id : string) : void => {
         for (let i = this.nodes().length - 1; i >= 0 ; i--){
             if (this.nodes()[i].getId() === id){
