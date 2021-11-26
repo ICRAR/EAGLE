@@ -2553,6 +2553,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let nodeKey : number;
         let nodeParentKey : number = node.getParentKey();
 
+        // follow the chain of parents
         while (nodeParentKey != null){
             depth += 1;
             depth += node.getDrawOrderHint() / 10;
@@ -2569,9 +2570,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 console.error("Node", nodeKey, "has parentKey", nodeParentKey, "but call to findNodeWithKey(", nodeParentKey, ") returned null");
                 return depth;
             }
+
+            // if parent is selected, add more depth, so that it will appear on top
+            if (eagle.objectIsSelected(node)){
+                depth += 10;
+            }
         }
 
         depth += node.getDrawOrderHint() / 10;
+
+        // if node is selected, add more depth, so that it will appear on top
+        if (eagle.objectIsSelected(node)){
+            depth += 10;
+        }
+
 
         return depth;
     }
