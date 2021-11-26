@@ -470,6 +470,7 @@ select.form-control{
     border: black solid 1px;
     border-radius: 6px;
     pointer-events: auto;
+    width:min-content;
 }
 
 #paletteList .dropdown-menu a{

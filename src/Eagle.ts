@@ -1932,6 +1932,12 @@ export class Eagle {
         return null;
     }
 
+    closePaletteMenus=() : void => {
+        console.log("blop")
+        $("#paletteList .dropdown-toggle").removeClass("show")
+        $("#paletteList .dropdown-menu").removeClass("show")
+    }
+
     closePalette = (palette : Palette) : void => {
         for (let i = 0 ; i < this.palettes().length ; i++){
             const p = this.palettes()[i];
