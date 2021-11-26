@@ -2513,21 +2513,31 @@ export class Eagle {
         // get new position for node
         if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
             pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
-        } else if (Eagle.nodeDropLocation){
-            pos = Eagle.nodeDropLocation;
         } else {
-            //if this is fired something has gone terribly wrong
-            pos = {x:0, y:0};
-            Utils.showNotification("Error", "Unexpected error occurred", "warning");
+            pos = Eagle.nodeDropLocation;
         }
 
         this.logicalGraph().addNode(node, pos.x, pos.y, (newNode: Node) => {
             // make sure the new node is selected
             this.setSelection(Eagle.RightWindowMode.Inspector, newNode, Eagle.FileType.Graph);
-            Eagle.nodeDropLocation = {x:0, y:0};
 
             // expand the new node, so the user can start connecting it to other nodes
             newNode.setCollapsed(false);
+
+            // set parent (if the node was dropped on something)
+            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getWidth(), newNode.getHeight(), newNode.getKey(), true);
+
+            // if a parent was found, update
+            if (parent !== null && newNode.getParentKey() !== parent.getKey() && newNode.getKey() !== parent.getKey()){
+                //console.log("set parent", parent.getKey());
+                newNode.setParentKey(parent.getKey());
+            }
+
+            // if no parent found, update
+            if (parent === null && newNode.getParentKey() !== null){
+                //console.log("set parent", null);
+                newNode.setParentKey(null);
+            }
 
             this.checkGraph();
             this.logicalGraph.valueHasMutated();
@@ -3054,7 +3064,14 @@ export class Eagle {
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
             this.addNodeToLogicalGraph(sourceComponent);
+
+            // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
+            Eagle.nodeDropLocation.x += 20;
+            Eagle.nodeDropLocation.y += 20;
         }
+
+        // then reset the nodeDropLocation after all have been placed
+        Eagle.nodeDropLocation = {x:0, y:0};
     }
 
     nodeDropPalette = (eagle: Eagle, e: JQueryEventObject) : void => {

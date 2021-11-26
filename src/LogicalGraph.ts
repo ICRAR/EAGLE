@@ -863,10 +863,16 @@ export class LogicalGraph {
         return result;
     }
 
-    checkForNodeAt = (x: number, y: number, width: number, height: number, ignoreKey: number) : Node => {
+    // TODO: so that it doesn't just find the first overlap, but actually finds all overlap, and returns the most-leaf node
+    checkForNodeAt = (x: number, y: number, width: number, height: number, ignoreKey: number, groupsOnly: boolean = false) : Node => {
         for (const node of this.nodes){
             // abort if checking for self!
             if (node.getKey() === ignoreKey){
+                continue;
+            }
+
+            // abort if node is not a group
+            if (groupsOnly && !node.isGroup()){
                 continue;
             }
 
