@@ -1445,13 +1445,18 @@ export class Eagle {
 
             Utils.ojsGraphSchema = JSON.parse(data);
 
-            // NOTE: in the short-term we'll just use the graph schema for palettes
-            //       both file formats are base on the OJS format, so they are similar
-            Utils.ojsPaletteSchema = JSON.parse(data);
-
             // NOTE: we don't have a schema for the V3 or appRef versions
             Utils.v3GraphSchema = JSON.parse(data);
             Utils.appRefGraphSchema = JSON.parse(data);
+        });
+
+        Utils.httpGet("./static/" + Config.paletteSchemaFileName, (error : string, data : string) => {
+            if (error !== null){
+                console.error(error);
+                return;
+            }
+
+            Utils.ojsPaletteSchema = JSON.parse(data);
         });
     }
 
