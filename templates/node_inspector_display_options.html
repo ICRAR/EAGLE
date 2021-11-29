@@ -10,7 +10,7 @@
             <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" id="node-name">Name</span>
+                            <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Name</span>
                         </div>
                         <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().name, readonly: selectedNode().isLocked()">
                     </div>
@@ -18,7 +18,7 @@
 
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
-                    <span class="input-group-text" id="node-parent">Parent</span>
+                    <span class="input-group-text" id="node-parent" data-bind="eagleTooltip:'The key of the parent component of this component'" data-bs-placement="left">Parent</span>
                 </div>
                 <input type="text" class="form-control" id="nodeParentValue" placeholder="" aria-label="Name" aria-describedby="node-parent" data-bind="value: selectedNode().getParentKey()" readonly>
                 <div class="input-group-append">
@@ -30,7 +30,7 @@
 
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
-                    <span class="input-group-text" id="node-draw-order-hint">Draw Order Hint</span>
+                    <span class="input-group-text" id="node-draw-order-hint" data-bind="eagleTooltip:'A user-specified hint to influence the depth of this component in the graph display. Greater values will move the component towards the front.'" data-bs-placement="left">Draw Order Hint</span>
                 </div>
                 <input type="text" class="form-control" id="nodeDrawOrderHintValue" placeholder="" aria-label="Name" aria-describedby="node-draw-order-hint" data-bind="value: selectedNode().drawOrderHint" readonly>
                 <div class="input-group-append">
@@ -48,7 +48,7 @@
             <!-- ko if: selectedNode().getCategory() === Eagle.Category.Comment -->
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
-                    <span class="input-group-text" id="node-subject">Subject</span>
+                    <span class="input-group-text" id="node-subject" data-bind="eagleTooltip:'The subject of the comment text specified by this component'" data-bs-placement="left">Subject</span>
                 </div>
                 <input type="text" class="form-control" id="nodeSubjectValue" placeholder="" aria-label="Name" aria-describedby="node-subject" data-bind="value: selectedNode().getSubjectKey()" readonly>
                 <div class="input-group-append">
@@ -61,7 +61,7 @@
 
             <!-- ko if: selectedNode().isData() -->
             <div class="input-group mb-1">
-                <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly>
+                <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly data-bind="eagleTooltip:'Specifies whether this data component streams input and output data'" data-bs-placement="left">
                 <div class="input-group-append">
                     <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleStreaming" type="button" data-bind="click: function(){selectedNode().toggleStreaming();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
                         <i class="material-icons md-18" data-bind="visible: selectedNode().isStreaming()">radio_button_checked</i>
@@ -71,7 +71,7 @@
             </div>
 
             <div class="input-group mb-1">
-                <input type="text" class="form-control" id="nodePreciousValue" placeholder="" aria-label="Precious" aria-describedby="node-precious" value="Precious" readonly>
+                <input type="text" class="form-control" id="nodePreciousValue" placeholder="" aria-label="Precious" aria-describedby="node-precious" value="Precious" readonly data-bind="eagleTooltip:'Specifies whether this data component contains precious data. Precious data will not be deleted at the conclusion of a workflow'" data-bs-placement="left">
                 <div class="input-group-append">
                     <button class="btn btn-secondary btn-sm" id="nodeInspectorTogglePrecious" type="button" data-bind="click: function(){selectedNode().togglePrecious();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
                         <i class="material-icons md-18" data-bind="visible: selectedNode().isPrecious()">radio_button_checked</i>
@@ -82,7 +82,7 @@
             <!-- /ko -->
 
             <div class="input-group mb-1">
-                <input type="text" class="form-control" id="nodeCollapsedValue" placeholder="" aria-label="Collapsed" aria-describedby="node-collapsed" value="Collapsed" readonly>
+                <input type="text" class="form-control" id="nodeCollapsedValue" placeholder="" aria-label="Collapsed" aria-describedby="node-collapsed" value="Collapsed" readonly data-bind="eagleTooltip:'Specifies whether this component will be displayed collapsed or expanded in the graph display'" data-bs-placement="left">
                 <div class="input-group-append">
                     <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleCollapsed" type="button" data-bind="click: function(){selectedNode().toggleCollapsed();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
                         <i class="material-icons md-18" data-bind="visible: selectedNode().isCollapsed()">radio_button_checked</i>
@@ -93,7 +93,7 @@
 
             <!-- ko ifnot: selectedNode().isGroup() || selectedNode().isBranch() || selectedNode().isService() -->
             <div class="input-group mb-1">
-                <input type="text" class="form-control" id="nodeFlipPortsValue" placeholder="" aria-label="Flip Ports" aria-describedby="node-flip-ports" value="Flip Ports" readonly>
+                <input type="text" class="form-control" id="nodeFlipPortsValue" placeholder="" aria-label="Flip Ports" aria-describedby="node-flip-ports" value="Flip Ports" readonly data-bind="eagleTooltip:'Specifies whether this component will be rendered horizontally flipped in the graph display, with the inputs on the right, and outputs on the left'" data-bs-placement="left">
                 <div class="input-group-append">
                     <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleFlipPorts" type="button" data-bind="click: function(){selectedNode().toggleFlipPorts();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
                         <i class="material-icons md-18" data-bind="visible: selectedNode().isFlipPorts()">radio_button_checked</i>
