@@ -4166,4 +4166,9 @@ $( document ).ready(function() {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
     });
 
+    //removes focus from searchbars when using the canvas
+    $("#logicalGraphParent").on("mousedown", function(){
+        $(".componentSearchBar").blur();
+    });
+
 });
