@@ -921,6 +921,8 @@ export class Eagle {
 
             this._loadPaletteJSON(data, showErrors, fileFullPath);
         });
+        setTimeout(Eagle.reloadTooltips, 500);
+
     }
 
     private _loadPaletteJSON = (data: string, showErrors: boolean, fileFullPath: string) => {
@@ -1024,6 +1026,8 @@ export class Eagle {
 
             // add to palettes
             this.palettes.unshift(p);
+            setTimeout(Eagle.reloadTooltips, 100);
+
         });
     }
 
@@ -1040,6 +1044,7 @@ export class Eagle {
             const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
             this._loadPaletteJSON(userText, showErrors, "");
+            setTimeout(Eagle.reloadTooltips, 100);
         });
     }
 
@@ -1444,6 +1449,7 @@ export class Eagle {
                     palette.fileInfo().readonly = paletteList[index].readonly;
                     palette.fileInfo().gitUrl = paletteList[index].filename;
                     palette.fileInfo().sha = "master";
+                    palette.fileInfo().type = Eagle.FileType.Palette;
                     results[index] = palette;
                 }
 
@@ -1919,6 +1925,11 @@ export class Eagle {
         return null;
     }
 
+    closePaletteMenus=() : void => {
+        $("#paletteList .dropdown-toggle").removeClass("show")
+        $("#paletteList .dropdown-menu").removeClass("show")
+    }
+
     closePalette = (palette : Palette) : void => {
         for (let i = 0 ; i < this.palettes().length ; i++){
             const p = this.palettes()[i];
@@ -1943,7 +1954,7 @@ export class Eagle {
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
     savePaletteToDisk = (palette : Palette) : void => {
-        console.log("savePaletteToDisk()", palette.fileInfo().name);
+        console.log("savePaletteToDisk()", palette.fileInfo().name, palette.fileInfo().type);
 
         const fileName = palette.fileInfo().name;
 
@@ -1968,7 +1979,7 @@ export class Eagle {
     }
 
     savePaletteToGit = (palette: Palette): void => {
-        console.log("savePaletteToGit()", palette.fileInfo().name);
+        console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
         const defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
 

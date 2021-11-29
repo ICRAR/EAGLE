@@ -402,38 +402,92 @@ select.form-control{
 }
 
 .headerIcons{
-    height:100%;
+    height: 100%;
     display: flex;
-    position: absolute;
-    padding:0px 10px;
+    position: relative;
+    padding: 0px 10px;
+    width: 100%;
+    pointer-events: none;
+    z-index: 3;
 }
 
 .paletteHeaderIcon{
-    width:20px;
-    position: relative;
-    display:inline-block;
-    height: 100%;
+    display: inline-block;
+    position: absolute;
+    right: 15px;
+    top: 22px;
+}
+
+#paletteList .dropdown-menu a{
+    width:100%;
+}
+
+.paletteTrippleDot{
+    position: absolute;
+    right: 35px;
+    margin-top: 13px;
+    background: none;
+    border: none;
+    z-index: 3;
 }
 
 .paletteHeaderIcon button, .paletteHeaderIcon i{
-    position: absolute;
-    left: 50%;
+    right: -50%;
     top: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(50%, -50%);
     font-size: 15px;
     margin: 0px;
     padding:0px;
+    background: none;
+    border: none;
+}
+
+.paletteHeaderIcon button{
+    right:15px;
+    pointer-events: auto;
+}
+
+.paletteTrippleDot:after{
+    display: none;
 }
 
 .paletteHeaderIcon i{
     font-size: 18px;
 }
 
-
 #paletteList .accordion-item{
     margin-bottom: 5px;
     border:1px solid #052349 !important;
     background-color: rgba(214, 219, 239, 0.95);
+}
+
+#paletteList .dropdown-menu{
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    z-index: 4;
+    background-color: #0059a5;
+    border: black solid 1px;
+    border-radius: 6px;
+    pointer-events: auto;
+    width:min-content;
+}
+
+#paletteList .dropdown-menu a{
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+}
+
+#paletteList .dropdown-menu span{
+    display: block;
+    width: 100%;
+    padding:0px 10px;
+}
+
+#paletteList .dropdown-menu span:hover{
+    background-color: #001d3b;
+    color: white;
 }
 
 #paletteList .accordion-body{
@@ -442,10 +496,11 @@ select.form-control{
 
 #paletteList .accordion-item h5{
     margin:0px;
-    margin-left:70px;
+    margin-left: 40px;
     font-size: 18px;
     font-weight: 400;
     overflow: hidden;
+    width: 70%;
 }
 
 #paletteList palette-component .input-group-prepend{
@@ -491,16 +546,15 @@ select.form-control{
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }
 
-#paletteList .btn-close{
+.accordion-button::after{
     opacity: 100%;
+    position: absolute;
+    left: 15px;
 }
 
 #paletteList .accordion-button{
     background-color: #c2c8dc !important;
     padding: 10px 10px 10px 0px;
-}
-
-#paletteList .accordion-button{
     color:#212529 !important;
 }
 
