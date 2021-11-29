@@ -1,7 +1,7 @@
 <div id="paletteList">
     <div class="card">
         <div class="card-body">
-            <button class="btn btn-primary btn-block btn_wide" data-bind="click: showExplorePalettes, attr:{title: 'Retrieve information on all palettes in ' + Config.DEFAULT_PALETTE_REPOSITORY}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="bottom">Explore Palettes</button>
+            <button class="btn btn-primary btn-block btn_wide" data-bind="click: showExplorePalettes, eagleTooltip: 'Retrieve information on all palettes in ' + Config.DEFAULT_PALETTE_REPOSITORY" data-bs-placement="bottom">Explore Palettes</button>
             <div class="searchBarContainer">
                 <i class="material-icons md-18 searchBarIcon">search</i>
                 <a href="#" data-bind="click:function(event){$root.emptySearchBar(Eagle.paletteComponentSearchString)}">
@@ -24,16 +24,16 @@
                     <div class="headerIcons">
                         <div class="paletteHeaderIcon">
                             <!-- ko if: $data.fileInfo().readonly -->
-                            <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
+                            <i class="material-icons interactive" data-bs-placement="top" data-bind="eagleTooltip:'readonly'">lock</i>
                             <!-- /ko -->
                             <!-- ko ifnot: $data.fileInfo().readonly -->
-                            <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
+                            <i class="material-icons interactive" data-bs-placement="top" data-bind="eagleTooltip:'readwrite'">lock_open</i>
                             <!-- /ko -->
                         </div>
                     </div>
                     <div class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
                         <span>&nbsp;</span>
-                        <h5 class="template-title" data-bs-toggle="tooltip" data-bs-placement="right" data-html="true" data-bind="text: fileInfo().nameAndModifiedIndicator(), attr:{title:fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())}"></h5>
+                        <h5 class="template-title" data-bs-placement="right" data-bind="text: fileInfo().nameAndModifiedIndicator(), eagleTooltip: fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())"></h5>
                     </div>
                 </div>
                 <div class="collapse show accordion-collapse" aria-labelledby="headingOne" data-bind="attr:{id:'collapse' + $index()}">

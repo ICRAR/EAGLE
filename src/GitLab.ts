@@ -140,7 +140,6 @@ export class GitLab {
 
                 repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
             }
-            Eagle.reloadTooltips();
         });
     }
 

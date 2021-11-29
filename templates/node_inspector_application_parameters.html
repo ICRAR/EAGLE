@@ -1,6 +1,6 @@
 <div class="card">
     <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse11" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Application Parameters">
-        <i class="material-icons interactive nodeMenuIndicator" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:inspectorState().applicationParameters}">keyboard_arrow_down</i>
+        <i class="material-icons interactive nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().applicationParameters}">keyboard_arrow_down</i>
         <i class="material-icons">settings_applications</i>
         <span class="nodeInspectorSubsectionTitle">Application Parameters</span>
     </h5>
@@ -20,7 +20,7 @@
             <!-- /ko -->
 
             <!-- ko ifnot: selectedNode().isLocked()-->
-                <button class="btn btn-secondary btn-block nodeInspectorDropDown btn_wide" id="nodeInspectorAddApplicationParam" type="button" data-bind="click: $root.addApplicationParamHTML, attr:{title:'Add application parameter'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
+                <button class="btn btn-secondary btn-block nodeInspectorDropDown btn_wide" id="nodeInspectorAddApplicationParam" type="button" data-bind="click: $root.addApplicationParamHTML, eagleTooltip:'Add application parameter'" data-bs-placement="left">
                     <i class="material-icons md-18">add</i>
                 </button>
                 <div id="nodeInspectorAddApplicationParamDiv" class="nodeInspectorDropdownDiv">

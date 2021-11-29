@@ -27,6 +27,7 @@
             require(["bindingHandlers/disabled"]);
             require(["bindingHandlers/graphRenderer"]);
             require(["bindingHandlers/nodeDataProperty"]);
+            require(["bindingHandlers/eagleTooltip"]);
             require(["components"]);
             require(["main"]);
 
@@ -114,13 +115,13 @@
                     <div id="nodeInspectorKOWrapper" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Inspector">
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() === null && selectedObjects().length > 1">
                             Select a single node or edge
-                        </div> 
+                        </div>
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() !== null">
                             {% include 'node_inspector.html' %}
-                        </div> 
+                        </div>
                         <div class="rightWindowDisplay edgeInspector" data-bind="visible: selectedEdge() !== null">
                             {% include 'edge_inspector.html' %}
-                        </div>  
+                        </div>
                     </div>
                     <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
                         {% include 'translation_menu.html' %}
