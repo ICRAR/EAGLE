@@ -1072,7 +1072,7 @@ export class Eagle {
 
         // TODO: missing code here
         if (fileType !== Eagle.FileType.Graph){
-            Utils.showUserMessage("Not implemented", "Not sure which palette is the right one to commit to git");
+            Utils.showUserMessage("Not implemented", "Not sure which palette is the right one to commit to save locally");
             return;
         }
         fileInfo = this.logicalGraph().fileInfo;
