@@ -6,7 +6,12 @@ ko.bindingHandlers.eagleTooltip = {
 
         jQueryElement.attr("data-bs-toggle", "tooltip");
         jQueryElement.attr("data-html", "true");
-        jQueryElement.attr("data-bs-placement", "right");
+
+        // optionally set data-bs-placement attribute to 'right', if not already set for this element
+        const placement = jQueryElement.attr("data-bs-placement");
+        if (typeof placement === 'undefined'){
+            jQueryElement.attr("data-bs-placement", "right");
+        }
     },
     update: function (element, valueAccessor) {
         const jQueryElement = $(element);
