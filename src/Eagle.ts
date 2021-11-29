@@ -1068,69 +1068,41 @@ export class Eagle {
      * Saves the file to a local download folder.
      */
     saveFileToLocal = (fileType : Eagle.FileType) : void => {
-        let fileInfo : ko.Observable<FileInfo>;
+        switch (fileType){
+            case Eagle.FileType.Graph:
+                this.saveGraphToDisk(this.logicalGraph());
+                break;
+            case Eagle.FileType.Palette:
+                // request user to select palette
+                // build a list of palette names
+                const paletteNames: string[] = this.buildReadablePaletteNamesList();
 
-        // TODO: missing code here
-        if (fileType !== Eagle.FileType.Graph){
-            Utils.showUserMessage("Not implemented", "Not sure which palette is the right one to commit to save locally");
-            return;
+                // ask user to select the destination node
+                Utils.requestUserChoice("Destination Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
+                    // abort if the user aborted
+                    if (!completed){
+                        return;
+                    }
+
+                    // get user choice of palette names
+                    const userString: string = paletteNames[userChoiceIndex];
+
+                    // get reference to palette (based on userString)
+                    const destinationPalette = this.findPalette(userString, false);
+
+                    // check that a palette was found
+                    if (destinationPalette === null){
+                        Utils.showUserMessage("Error", "Unable to find selected palette!");
+                        return;
+                    }
+
+                    this.savePaletteToDisk(destinationPalette);
+                });
+                break;
+            default:
+                Utils.showUserMessage("Not implemented", "Not sure which fileType right one to commit to save locally :" + fileType);
+                break;
         }
-        fileInfo = this.logicalGraph().fileInfo;
-
-        // check that the fileType has been set for the logicalGraph
-        if (typeof fileInfo().type === 'undefined'){
-            Utils.showUserMessage("Error", "Graph fileType has not been set. Could not save file.");
-            return;
-        }
-
-        let fileName = fileInfo().name;
-        if (fileName === "") {
-            fileName = "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
-            fileInfo().name = fileName;
-        }
-
-        // clone the logical graph and remove github info ready for local save
-        const lg_clone : LogicalGraph = this.logicalGraph().clone();
-        lg_clone.fileInfo().removeGitInfo();
-        lg_clone.fileInfo().updateEagleInfo();
-        const json : object = LogicalGraph.toOJSJson(lg_clone);
-
-        // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
-
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
-            if (error != null){
-                Utils.showUserMessage("Error", "Error saving the file!");
-                console.error(error);
-                return;
-            }
-
-            // NOTE: this stuff is a hacky way of saving a file locally
-            const blob = new Blob([data]);
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-
-            // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
-            // clear the modified flag
-
-            this.logicalGraph().fileInfo().modified = false;
-            this.logicalGraph().fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
-            this.logicalGraph().fileInfo().repositoryName = "";
-            this.logicalGraph().fileInfo().gitUrl = "";
-            this.logicalGraph().fileInfo().sha = "";
-            this.logicalGraph().fileInfo.valueHasMutated();
-        });
     }
 
     /**
@@ -1959,7 +1931,24 @@ export class Eagle {
         p_clone.fileInfo().updateEagleInfo();
         const json = Palette.toOJSJson(p_clone);
 
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Palette);
+            if (!validatorResult.valid){
+                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+                console.error(message, validatorResult.errors);
+                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+                //return;
+            }
+        }
+
         Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+            if (error != null){
+                Utils.showUserMessage("Error", "Error saving the file!");
+                console.error(error);
+                return;
+            }
+
             Utils.downloadFile(error, data, fileName);
 
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
@@ -1970,6 +1959,63 @@ export class Eagle {
             palette.fileInfo().gitUrl = "";
             palette.fileInfo().sha = "";
             palette.fileInfo.valueHasMutated();
+        });
+    }
+
+    /**
+     * Saves the file to a local download folder.
+     */
+    saveGraphToDisk = (graph : LogicalGraph) : void => {
+        console.log("saveGraphToDisk()", graph.fileInfo().name, graph.fileInfo().type);
+
+        // check that the fileType has been set for the logicalGraph
+        if (graph.fileInfo().type !== Eagle.FileType.Graph){
+            Utils.showUserMessage("Error", "Graph fileType not set correctly. Could not save file.");
+            return;
+        }
+
+        let fileName = graph.fileInfo().name;
+
+        // generate filename if necessary
+        if (fileName === "") {
+            fileName = "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
+            graph.fileInfo().name = fileName;
+        }
+
+        // clone the logical graph and remove github info ready for local save
+        const lg_clone : LogicalGraph = this.logicalGraph().clone();
+        lg_clone.fileInfo().removeGitInfo();
+        lg_clone.fileInfo().updateEagleInfo();
+        const json : object = LogicalGraph.toOJSJson(lg_clone);
+
+        // validate json
+        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
+            if (!validatorResult.valid){
+                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+                console.error(message, validatorResult.errors);
+                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+                //return;
+            }
+        }
+
+        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+            if (error != null){
+                Utils.showUserMessage("Error", "Error saving the file!");
+                console.error(error);
+                return;
+            }
+
+            Utils.downloadFile(error, data, fileName);
+
+            // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
+            // clear the modified flag
+            graph.fileInfo().modified = false;
+            graph.fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
+            graph.fileInfo().repositoryName = "";
+            graph.fileInfo().gitUrl = "";
+            graph.fileInfo().sha = "";
+            graph.fileInfo.valueHasMutated();
         });
     }
 
@@ -2603,6 +2649,15 @@ export class Eagle {
                 continue;
             }
 
+            paletteNames.push(palette.fileInfo().name);
+        }
+
+        return paletteNames;
+    }
+
+    private buildReadablePaletteNamesList = () : string[] => {
+        const paletteNames : string[] = [];
+        for (const palette of this.palettes()){
             paletteNames.push(palette.fileInfo().name);
         }
 
