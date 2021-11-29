@@ -1934,7 +1934,6 @@ export class Eagle {
     }
 
     closePaletteMenus=() : void => {
-        console.log("blop")
         $("#paletteList .dropdown-toggle").removeClass("show")
         $("#paletteList .dropdown-menu").removeClass("show")
     }
