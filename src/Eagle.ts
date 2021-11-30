@@ -2797,6 +2797,11 @@ export class Eagle {
         $("#nodeInspectorAddApplicationParamDiv").show();
     }
 
+    getInspectorHeadingTooltip = (title:string, category:any, description:any) : string => {
+        var tooltipText = "<h5>"+title+":</h5>"+category+"<br>"+description;
+        return tooltipText;
+    }
+
     hideDropDown = (divID:string) : void => {
         if (divID === "nodeInspectorAddFieldDiv"){
             //hides the dropdown node inspector elements when stopping hovering over the element
