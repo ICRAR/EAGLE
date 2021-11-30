@@ -1085,7 +1085,6 @@ export class Eagle {
 
                 // check that a palette was found
                 if (destinationPalette === null){
-                    Utils.showUserMessage("Error", "Unable to find selected palette!");
                     return;
                 }
 
@@ -1189,7 +1188,6 @@ export class Eagle {
                 const paletteName = await Utils.userChoosePalette(paletteNames);
                 const palette = this.findPalette(paletteName, false);
                 if (palette === null){
-                    // TODO: message
                     return;
                 }
                 fileInfo = palette.fileInfo;
@@ -1238,7 +1236,6 @@ export class Eagle {
                 const paletteName = await Utils.userChoosePalette(paletteNames);
                 const palette = this.findPalette(paletteName, false);
                 if (palette === null){
-                    // TODO: user message
                     return;
                 }
 
@@ -1269,7 +1266,6 @@ export class Eagle {
         // request commit message from the user, abort if none entered
         const commitMessage = await Utils.userEnterCommitMessage("Enter a commit message for this " + fileType);
         if (commitMessage === null){
-            // TODO: user message
             return;
         }
 
