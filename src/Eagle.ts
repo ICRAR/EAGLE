@@ -1694,7 +1694,6 @@ export class Eagle {
             }
             catch(err){
                 Utils.showUserMessage("Error parsing file JSON", err.message);
-                console.log("data", typeof data, data);
                 return;
             }
 
