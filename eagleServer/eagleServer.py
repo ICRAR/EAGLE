@@ -655,7 +655,7 @@ def open_git_hub_file():
     f = repo.get_contents(filename, ref=most_recent_commit.sha)
     raw_data = f.decoded_content
 
-    # replace some data in the header (modelData) of the file with info from git
+    # parse JSON
     graph = json.loads(raw_data)
 
     if isinstance(graph, list):
@@ -663,6 +663,12 @@ def open_git_hub_file():
 
     if not "modelData" in graph:
         graph["modelData"] = {}
+
+    # replace some data in the header (modelData) of the file with info from git
+    graph["modelData"]["repo"] = repo_name
+    graph["modelData"]["repoBranch"] = repo_branch
+    graph["modelData"]["repoService"] = "GitHub"
+    graph["modelData"]["filePath"] = filename
 
     graph["modelData"]["sha"] = most_recent_commit.sha
     graph["modelData"]["gitUrl"] = f.download_url
@@ -717,18 +723,29 @@ def open_git_lab_file():
     # get the decoded content
     raw_data = f.decode().decode("utf-8")
 
-    # TODO: Add the GitLab file information
-    #graph = json.loads(raw_data)
-    #graph["modelData"]["sha"] = f.sha
-    #graph["modelData"]["gitUrl"] = f.git_url
-    #graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
-    #graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
-    #graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+    # parse JSON
+    graph = json.loads(raw_data)
 
-    #json_data = json.dumps(graph, indent=4)
+    if not "modelData" in graph:
+        graph["modelData"] = {}
+
+    # add the repository information
+    graph["modelData"]["repo"] = repo_name
+    graph["modelData"]["repoBranch"] = repo_branch
+    graph["modelData"]["repoService"] = "GitLab"
+    graph["modelData"]["filePath"] = filename
+
+    # TODO: Add the GitLab file information
+    graph["modelData"]["sha"] = f.commit_id
+    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["lastModifiedName"] = ""
+    graph["modelData"]["lastModifiedEmail"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = ""
+
+    json_data = json.dumps(graph, indent=4)
 
     response = app.response_class(
-        response=json.dumps(raw_data), status=200, mimetype="application/json"
+        response=json.dumps(json_data), status=200, mimetype="application/json"
     )
     return response
 

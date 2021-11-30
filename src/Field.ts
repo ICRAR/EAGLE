@@ -188,6 +188,8 @@ export class Field {
     }
 
     static fromOJSJson = (data : any) : Field => {
+        let text: string = "";
+        let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
         let type: Eagle.DataType = Eagle.DataType.Unknown;
@@ -195,6 +197,10 @@ export class Field {
         let defaultValue: string = "";
         let precious: boolean = false;
 
+        if (typeof data.text !== 'undefined')
+            text = data.text;
+        if (typeof data.name !== 'undefined')
+            name = data.name;
         if (typeof data.description !== 'undefined')
             description = data.description;
         if (typeof data.readonly !== 'undefined')
@@ -208,7 +214,7 @@ export class Field {
         if (typeof data.precious !== 'undefined')
             precious = data.precious;
 
-        return new Field(data.text, data.name, value, defaultValue, description, readonly, type, precious);
+        return new Field(text, name, value, defaultValue, description, readonly, type, precious);
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
