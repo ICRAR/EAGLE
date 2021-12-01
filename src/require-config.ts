@@ -23,6 +23,7 @@ require.config({
         "GitLab": "./static/built/GitLab",
         "Eagle": "./static/built/Eagle",
         "Utils": "./static/built/Utils",
+        "Modals": "./static/built/Modals",
         "GraphUpdater": "./static/built/GraphUpdater",
         "Repository": "./static/built/Repository",
         "RepositoryFolder": "./static/built/RepositoryFolder",

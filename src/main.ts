@@ -30,6 +30,7 @@ import * as bootstrap from 'bootstrap';
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
+import {Modals} from './Modals';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
 
@@ -87,7 +88,7 @@ $(function(){
     var bsCollapse = new bootstrap.Collapse('.collapse', {});
 
     // initialise all the modal dialogs. event handlers etc
-    Utils.initModals(eagle);
+    Modals.init(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
     window.onbeforeunload = () => (eagle.areAnyFilesModified() && Eagle.findSettingValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;

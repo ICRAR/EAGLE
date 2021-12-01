@@ -29,6 +29,7 @@
         "./src/RepositoryFolder.ts",
         "./src/Translator.ts",
         "./src/Utils.ts",
+        "./src/Modals.ts",
         "./src/GraphUpdater.ts",
         "./src/LogicalGraph.ts",
         "./src/Palette.ts",
