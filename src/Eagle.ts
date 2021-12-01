@@ -4121,33 +4121,33 @@ export class Eagle {
                     newNode.removePortByIndex(0, true);
 
                     // flag that the logical graph has been modified
-                    this.fileInfo().modified = true;
-                    this.fileInfo.valueHasMutated();
+                    this.logicalGraph().fileInfo().modified = true;
+                    this.logicalGraph().fileInfo.valueHasMutated();
 
                     if (callback !== null) callback(newNode);
                 }
             });
         } else {
-            this.nodes.push(newNode);
+            this.logicalGraph().addNodeComplete(newNode);
 
             // set new ids for any ports in this node
             Utils.giveNodePortsNewIds(newNode);
 
             // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
             if (newNode.hasInputApplication()){
-                newNode.getInputApplication().setKey(Utils.newKey(this.getNodes()));
+                newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
                 newNode.getInputApplication().setEmbedKey(newNode.getKey());
 
                 Utils.giveNodePortsNewIds(newNode.getInputApplication());
             }
             if (newNode.hasOutputApplication()){
-                newNode.getOutputApplication().setKey(Utils.newKey(this.getNodes()));
+                newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
                 newNode.getOutputApplication().setEmbedKey(newNode.getKey());
 
                 Utils.giveNodePortsNewIds(newNode.getOutputApplication());
             }
             if (newNode.hasExitApplication()){
-                newNode.getExitApplication().setKey(Utils.newKey(this.getNodes()));
+                newNode.getExitApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
                 newNode.getExitApplication().setEmbedKey(newNode.getKey());
 
                 Utils.giveNodePortsNewIds(newNode.getExitApplication());
