@@ -3055,14 +3055,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function addEdge(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean) : void {
-        console.log("addLink()", "port", srcPortId, "on node", srcNodeKey, "to port", destPortId, "on node", destNodeKey, "loopAware", loopAware);
+        //console.log("addEdge()", "port", srcPortId, "on node", srcNodeKey, "to port", destPortId, "on node", destNodeKey, "loopAware", loopAware);
 
         if (srcPortId === destPortId){
             console.warn("Abort addLink() from port to itself!");
             return;
         }
 
-        graph.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, (edge : Edge) : void =>{
+        eagle.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, (edge : Edge) : void => {
             eagle.checkGraph();
             eagle.logicalGraph.valueHasMutated();
             clearEdgeVars();

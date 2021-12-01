@@ -955,6 +955,25 @@ export class Node {
         return null;
     }
 
+    findPortByType = (type: string, input: boolean) : Port => {
+        if (input){
+            // check input ports
+            for (const inputPort of this.inputPorts()){
+                if (inputPort.getType() === type){
+                    return inputPort;
+                }
+            }
+        } else {
+            // check output ports
+            for (const outputPort of this.outputPorts()){
+                if (outputPort.getType() === type){
+                    return outputPort;
+                }
+            }
+        }
+        return null;
+    }
+
     hasPortWithName = (name : string, input : boolean, local : boolean) : boolean => {
         return this.findPortByName(name, input, local) !== null;
     }

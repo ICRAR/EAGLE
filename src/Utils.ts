@@ -1169,6 +1169,32 @@ export class Utils {
         return uniquePorts;
     }
 
+    static getDataComponentsWithPortTypeList(palettes: Palette[], portType: string){
+        const result: Node[] = [];
+
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (!node.isData()){
+                    continue;
+                }
+
+                // skip nodes that don't have an input port with the required type
+                if (node.findPortByType(portType, true) === null){
+                    continue;
+                }
+
+                // skip nodes that don't have an output port with the required type
+                if (node.findPortByType(portType, false) === null){
+                    continue;
+                }
+
+                result.push(node);
+            }
+        }
+        return result;
+    }
+
     private static _addPortIfUnique = (ports : Port[], port: Port) : void => {
 
         // check if the new port matches an existing port (by name and type), if so, abort
