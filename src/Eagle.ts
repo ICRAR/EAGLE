@@ -1073,14 +1073,13 @@ export class Eagle {
                 this.saveGraphToDisk(this.logicalGraph());
                 break;
             case Eagle.FileType.Palette:
-                // request user to select palette
                 // build a list of palette names
                 const paletteNames: string[] = this.buildReadablePaletteNamesList();
 
                 // ask user to select the palette
                 const paletteName = await Utils.userChoosePalette(paletteNames);
 
-                // get reference to palette (based on userString)
+                // get reference to palette (based on paletteName)
                 const destinationPalette = this.findPalette(paletteName, false);
 
                 // check that a palette was found
@@ -1091,7 +1090,7 @@ export class Eagle {
                 this.savePaletteToDisk(destinationPalette);
                 break;
             default:
-                Utils.showUserMessage("Not implemented", "Not sure which fileType right one to commit to save locally :" + fileType);
+                Utils.showUserMessage("Not implemented", "Not sure which fileType right one to save locally :" + fileType);
                 break;
         }
     }
@@ -1193,6 +1192,9 @@ export class Eagle {
                 fileInfo = palette.fileInfo;
                 obj = palette;
                 break;
+            default:
+                Utils.showUserMessage("Not implemented", "Not sure which fileType right one to commit :" + fileType);
+                break;
         }
 
 
@@ -1241,6 +1243,9 @@ export class Eagle {
 
                 fileInfo = palette.fileInfo;
                 obj = palette;
+                break;
+            default:
+                Utils.showUserMessage("Not implemented", "Not sure which fileType right one to commit :" + fileType);
                 break;
         }
 
