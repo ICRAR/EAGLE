@@ -1950,7 +1950,7 @@ export class Utils {
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        console.log("validateJSON(): version:", version, " fileType:", fileType, " json:", json);
+        console.log("validateJSON(): version:", version, " fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;
