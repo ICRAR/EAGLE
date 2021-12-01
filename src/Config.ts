@@ -29,6 +29,7 @@ export class Config {
 
     // schemas
     static readonly graphSchemaFileName : string = "assets/schema/dlg-lg.graph.schema";
+    static readonly paletteSchemaFileName : string = "assets/schema/dlg-lg.palette.schema";
 
     // Dimensions.
     static readonly paletteNodeHeight : number = 22;

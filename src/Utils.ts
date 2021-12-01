@@ -1950,7 +1950,7 @@ export class Utils {
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        console.log("validateJSON(): version:", version, "fileType:", fileType);
+        console.log("validateJSON(): version:", version, " fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;
@@ -2075,5 +2075,35 @@ export class Utils {
         const dx = Math.max(rectMinX - positionX, 0, positionX - rectMaxX);
         const dy = Math.max(rectMinY - positionY, 0, positionY - rectMaxY);
         return Math.sqrt(dx*dx + dy*dy);
+    }
+
+
+    static async userChoosePalette(paletteNames : string[]) : Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+
+            // ask user to select the destination node
+            Utils.requestUserChoice("Choose Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
+                // reject if the user aborted
+                if (!completed){
+                    resolve(null);
+                }
+
+                // resolve with chosen palette name
+                resolve(paletteNames[userChoiceIndex]);
+            });
+        });
+    }
+
+    static async userEnterCommitMessage(modalMessage: string) : Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            // request commit message from the user
+            Utils.requestUserString("Commit Message", modalMessage, "", false, (completed : boolean, userString : string) : void => {
+                if (!completed){
+                    resolve(null);
+                }
+
+                resolve(userString);
+            });
+        });
     }
 }
