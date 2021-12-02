@@ -1170,6 +1170,8 @@ export class Utils {
     }
 
     static getDataComponentsWithPortTypeList(palettes: Palette[], portName: string, portType: string, ineligibleCategories: Eagle.Category[]){
+        console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
+
         const result: Node[] = [];
 
         // add non-template that match type
@@ -1184,7 +1186,14 @@ export class Utils {
                     continue;
                 }
 
-                if (node.getCategory() in ineligibleCategories){
+                let ineligible = false;
+                for (const ic of ineligibleCategories){
+                    if (node.getCategory() === ic){
+                        ineligible = true;
+                        break;
+                    }
+                }
+                if (ineligible){
                     continue;
                 }
 
@@ -1210,7 +1219,14 @@ export class Utils {
                     continue;
                 }
 
-                if (node.getCategory() in ineligibleCategories){
+                let ineligible = false;
+                for (const ic of ineligibleCategories){
+                    if (node.getCategory() === ic){
+                        ineligible = true;
+                        break;
+                    }
+                }
+                if (ineligible){
                     continue;
                 }
 
