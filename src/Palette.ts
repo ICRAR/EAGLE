@@ -126,7 +126,6 @@ export class Palette {
     }
 
     setSearchExclude = (value : boolean) : void => {
-        console.log("set called")
         this.searchExclude(value);
     }
 
