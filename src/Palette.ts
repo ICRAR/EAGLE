@@ -33,6 +33,7 @@ import {RepositoryFile} from './RepositoryFile';
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.ObservableArray<Node>;
+    private searchExclude : ko.Observable<boolean>;
 
     public static readonly DYNAMIC_PALETTE_NAME: string = "Raw Components";
     public static readonly BUILTIN_PALETTE_NAME: string = "Built-in Palette";
@@ -41,6 +42,7 @@ export class Palette {
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Palette;
         this.nodes = ko.observableArray([]);
+        this.searchExclude = ko.observable(false);
     }
 
     static fromOJSJson = (data : string, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : Palette => {
@@ -116,6 +118,16 @@ export class Palette {
 
     getNodes = () : Node[] => {
         return this.nodes();
+    }
+
+    getSearchExclude = () : boolean => {
+        console.log(this.searchExclude())
+        return this.searchExclude();
+    }
+
+    setSearchExclude = (value : boolean) : void => {
+        console.log("set called")
+        this.searchExclude(value);
     }
 
     getCollapseIcon = () : string => {

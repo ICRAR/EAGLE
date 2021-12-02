@@ -19,6 +19,12 @@
                     <a href="#" data-bind="click: $root.closePalette, clickBubble: false" data-html="true"><span>Remove Palette</span></a>
                     <a href="#" data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>
                     <a href="#" data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>
+                    <!-- ko if: $data.searchExclude() -->
+                    <a href="#" data-bind="click: function(){$data.setSearchExclude(false)}"><span>Include In Search</span></a>
+                    <!-- /ko -->
+                    <!-- ko ifnot: $data.searchExclude() -->
+                    <a href="#" data-bind="click: function(){$data.setSearchExclude(true)}"><span>Exclude From Search</span></a>
+                    <!-- /ko -->
                 </div>
                 <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
                     <div class="accordion-header">
@@ -36,6 +42,18 @@
                             <span>&nbsp;</span>
                             <h5 class="template-title" data-bs-placement="right" data-bind="text: fileInfo().nameAndModifiedIndicator(), eagleTooltip: fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())"></h5>
                         </div>
+                        <!-- ko ifnot: Eagle.paletteComponentSearchString() === "" -->
+                            <!-- ko if: $data.searchExclude() -->
+                                <div class="searchExcludeTrue" data-bind="click: function(){$data.setSearchExclude(false)}">
+                                    <i class="material-icons">close</i>
+                                </div>
+                            <!-- /ko -->
+                            <!-- ko ifnot: $data.searchExclude() -->
+                                <div class="searchExcludeFalse" data-bind="click: function(){$data.setSearchExclude(true)}">
+                                    <i class="material-icons">check</i>
+                                </div>                           
+                            <!-- /ko -->
+                        <!-- /ko -->
                     </div>
                     <div class="collapse show accordion-collapse" aria-labelledby="headingOne" data-bind="attr:{id:'collapse' + $index()}">
                         <div class="accordion-body">
