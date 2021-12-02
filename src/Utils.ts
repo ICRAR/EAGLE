@@ -1169,6 +1169,76 @@ export class Utils {
         return uniquePorts;
     }
 
+    static getDataComponentsWithPortTypeList(palettes: Palette[], portName: string, portType: string, ineligibleCategories: Eagle.Category[]){
+        console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
+
+        const result: Node[] = [];
+
+        // add non-template that match type
+        /*
+        for (const palette of palettes){
+            if (palette.fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
+                continue;
+            }
+
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (!node.isData()){
+                    continue;
+                }
+
+                let ineligible = false;
+                for (const ic of ineligibleCategories){
+                    if (node.getCategory() === ic){
+                        ineligible = true;
+                        break;
+                    }
+                }
+                if (ineligible){
+                    continue;
+                }
+
+                // skip nodes that don't have an input port with the required type
+                if (node.findPortByType(portType, true) === null){
+                    continue;
+                }
+
+                // skip nodes that don't have an output port with the required type
+                if (node.findPortByType(portType, false) === null){
+                    continue;
+                }
+
+                result.push(node);
+            }
+        }
+        */
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (!node.isData()){
+                    continue;
+                }
+
+                let ineligible = false;
+                for (const ic of ineligibleCategories){
+                    if (node.getCategory() === ic){
+                        ineligible = true;
+                        break;
+                    }
+                }
+                if (ineligible){
+                    continue;
+                }
+
+                result.push(node);
+            }
+        }
+
+        return result;
+    }
+
     private static _addPortIfUnique = (ports : Port[], port: Port) : void => {
 
         // check if the new port matches an existing port (by name and type), if so, abort
