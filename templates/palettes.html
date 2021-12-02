@@ -13,32 +13,34 @@
     </div>
     <div class="accordion">
         <div data-bind="foreach: palettes">
-            <button type="button" class="material-icons md-18 dropdown-toggle paletteTrippleDot" aria-label="Close" data-bs-toggle="dropdown" >more_vert</button>
-            <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closePaletteMenus}">
-                <a href="#" data-bind="click: $root.closePalette, clickBubble: false" data-html="true"><span>Remove Palette</span></a>
-                <a href="#" data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>
-                <a href="#" data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>
-            </div>
-            <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
-                <div class="accordion-header">
-                    <div class="headerIcons">
-                        <div class="paletteHeaderIcon">
-                            <!-- ko if: $data.fileInfo().readonly -->
-                            <i class="material-icons interactive" data-bs-placement="top" data-bind="eagleTooltip:'readonly'">lock</i>
-                            <!-- /ko -->
-                            <!-- ko ifnot: $data.fileInfo().readonly -->
-                            <i class="material-icons interactive" data-bs-placement="top" data-bind="eagleTooltip:'readwrite'">lock_open</i>
-                            <!-- /ko -->
+            <div class="paletteCardWrapper">
+                <button type="button" class="material-icons md-18 dropdown-toggle paletteTrippleDot" aria-label="Close" data-bs-toggle="dropdown" >more_vert</button>
+                <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closePaletteMenus}">
+                    <a href="#" data-bind="click: $root.closePalette, clickBubble: false" data-html="true"><span>Remove Palette</span></a>
+                    <a href="#" data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>
+                    <a href="#" data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>
+                </div>
+                <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
+                    <div class="accordion-header">
+                        <div class="headerIcons">
+                            <div class="paletteHeaderIcon">
+                                <!-- ko if: $data.fileInfo().readonly -->
+                                <i class="material-icons interactive" data-bs-placement="top" data-bind="eagleTooltip:'readonly'">lock</i>
+                                <!-- /ko -->
+                                <!-- ko ifnot: $data.fileInfo().readonly -->
+                                <i class="material-icons interactive" data-bs-placement="top" data-bind="eagleTooltip:'readwrite'">lock_open</i>
+                                <!-- /ko -->
+                            </div>
+                        </div>
+                        <div class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
+                            <span>&nbsp;</span>
+                            <h5 class="template-title" data-bs-placement="right" data-bind="text: fileInfo().nameAndModifiedIndicator(), eagleTooltip: fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())"></h5>
                         </div>
                     </div>
-                    <div class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
-                        <span>&nbsp;</span>
-                        <h5 class="template-title" data-bs-placement="right" data-bind="text: fileInfo().nameAndModifiedIndicator(), eagleTooltip: fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())"></h5>
-                    </div>
-                </div>
-                <div class="collapse show accordion-collapse" aria-labelledby="headingOne" data-bind="attr:{id:'collapse' + $index()}">
-                    <div class="accordion-body">
-                        {% include 'palette.html' %}
+                    <div class="collapse show accordion-collapse" aria-labelledby="headingOne" data-bind="attr:{id:'collapse' + $index()}">
+                        <div class="accordion-body">
+                            {% include 'palette.html' %}
+                        </div>
                     </div>
                 </div>
             </div>
