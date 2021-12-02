@@ -891,7 +891,8 @@ export class Eagle {
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
-            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.getDataType(), edge.isLoopAware(), this.palettes(), null);
+            // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
+            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), "", edge.getDataType(), edge.isLoopAware(), null);
         }
     }
 
@@ -2328,7 +2329,7 @@ export class Eagle {
             }
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), this.palettes(), () => {
+            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
                 this.checkGraph();
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
@@ -2362,7 +2363,7 @@ export class Eagle {
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
-            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), this.palettes(), () => {
+            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
                 this.checkGraph();
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
@@ -3989,7 +3990,7 @@ export class Eagle {
         return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
     }, this);
 
-    addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean, palettes: Palette[], callback : (edge: Edge) => void) : void => {
+    addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName: string, portType : string, loopAware: boolean, callback : (edge: Edge) => void) : void => {
         // check if edge is connecting two application components, if so, we should insert a data component (of type chosen by user)
         const srcNode : Node = this.logicalGraph().findNodeByKey(srcNodeKey);
         const destNode : Node = this.logicalGraph().findNodeByKey(destNodeKey);
@@ -4005,7 +4006,7 @@ export class Eagle {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware);
+            const edge : Edge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, portType, loopAware);
             this.logicalGraph().addEdgeComplete(edge);
             if (callback !== null) callback(edge);
             return;
@@ -4035,7 +4036,7 @@ export class Eagle {
             ineligibleCategories.push(Eagle.Category.Memory);
         }
 
-        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), dataType, ineligibleCategories);
+        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), portName, portType, ineligibleCategories);
         console.log("eligibleComponents", eligibleComponents);
 
         // if edge DOES connect two applications, insert data component (of type chosen by user except ineligibleTypes)
@@ -4049,15 +4050,15 @@ export class Eagle {
             const newNodeKey : number = newNode.getKey();
 
             // set name of new node
-            newNode.setName(dataType);
+            newNode.setName(portName);
 
             // add input port and output port for dataType (if they don't exist)
             // TODO: check by type, not name
-            if (!newNode.hasPortWithName(dataType, true, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), dataType, dataType, false, srcPort.getType(),""), true);
+            if (!newNode.hasPortWithName(portName, true, false)){
+                newNode.addPort(new Port(Utils.uuidv4(), portName, portName, false, portType, ""), true);
             }
-            if (!newNode.hasPortWithName(dataType, false, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), dataType, dataType, false, destPort.getType(),""), false);
+            if (!newNode.hasPortWithName(portName, false, false)){
+                newNode.addPort(new Port(Utils.uuidv4(), portName, portName, false, portType, ""), false);
             }
 
             // set the parent of the new node
@@ -4075,12 +4076,12 @@ export class Eagle {
             }
 
             // get references to input port and output port
-            const newInputPortId : string = newNode.findPortByName(dataType, true, false).getId();
-            const newOutputPortId : string = newNode.findPortByName(dataType, false, false).getId();
+            const newInputPortId : string = newNode.findPortByName(portName, true, false).getId();
+            const newOutputPortId : string = newNode.findPortByName(portName, false, false).getId();
 
             // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNodeKey, srcPortId, newNodeKey, newInputPortId, dataType, loopAware);
-            const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNodeKey, destPortId, dataType, loopAware);
+            const firstEdge : Edge = new Edge(srcNodeKey, srcPortId, newNodeKey, newInputPortId, portType, loopAware);
+            const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNodeKey, destPortId, portType, loopAware);
 
             this.logicalGraph().addEdgeComplete(firstEdge);
             this.logicalGraph().addEdgeComplete(secondEdge);
@@ -4108,7 +4109,7 @@ export class Eagle {
             const nodePosition = newNode.getPosition();
 
             // build a list of ineligible types
-            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), null, [Eagle.Category.Memory]);
+            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), null, null, [Eagle.Category.Memory]);
 
             // ask the user which data type should be added
             this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {

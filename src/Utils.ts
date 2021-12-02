@@ -1169,10 +1169,15 @@ export class Utils {
         return uniquePorts;
     }
 
-    static getDataComponentsWithPortTypeList(palettes: Palette[], portType: string, ineligibleCategories: Eagle.Category[]){
+    static getDataComponentsWithPortTypeList(palettes: Palette[], portName: string, portType: string, ineligibleCategories: Eagle.Category[]){
         const result: Node[] = [];
 
+        // add non-template that match type
         for (const palette of palettes){
+            if (palette.fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
+                continue;
+            }
+
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
                 if (!node.isData()){
@@ -1196,6 +1201,23 @@ export class Utils {
                 result.push(node);
             }
         }
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (!node.isData()){
+                    continue;
+                }
+
+                if (node.getCategory() in ineligibleCategories){
+                    continue;
+                }
+
+                result.push(node);
+            }
+        }
+
         return result;
     }
 
