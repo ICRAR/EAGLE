@@ -3062,7 +3062,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return;
         }
 
-        eagle.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, eagle.palettes(), (edge : Edge) : void => {
+        eagle.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, "", dataType, loopAware, (edge : Edge) : void => {
             eagle.checkGraph();
             eagle.logicalGraph.valueHasMutated();
             clearEdgeVars();
