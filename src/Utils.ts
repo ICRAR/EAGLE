@@ -1169,13 +1169,17 @@ export class Utils {
         return uniquePorts;
     }
 
-    static getDataComponentsWithPortTypeList(palettes: Palette[], portType: string){
+    static getDataComponentsWithPortTypeList(palettes: Palette[], portType: string, ineligibleCategories: Eagle.Category[]){
         const result: Node[] = [];
 
         for (const palette of palettes){
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
                 if (!node.isData()){
+                    continue;
+                }
+
+                if (node.getCategory() in ineligibleCategories){
                     continue;
                 }
 

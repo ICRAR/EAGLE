@@ -501,13 +501,9 @@ export class LogicalGraph {
     /**
      * Adds data component to the graph
      */
-    addDataComponentToGraph = (category: Eagle.Category, location : {x: number, y:number}) : Node => {
+    addDataComponentToGraph = (node: Node, location : {x: number, y:number}) : Node => {
         // clone the template node, set position and add to logicalGraph
-        //const newNode: Node = new Node(Utils.newKey(this.getNodes()), category, "", category, false);
-        let newNode: Node;
-
-
-
+        let newNode: Node = node.clone();
         newNode.setPosition(location.x, location.y);
         this.nodes.push(newNode);
 
