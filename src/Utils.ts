@@ -1175,6 +1175,7 @@ export class Utils {
         const result: Node[] = [];
 
         // add non-template that match type
+        /*
         for (const palette of palettes){
             if (palette.fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
                 continue;
@@ -1210,6 +1211,7 @@ export class Utils {
                 result.push(node);
             }
         }
+        */
 
         // add all data components (except ineligible)
         for (const palette of palettes){

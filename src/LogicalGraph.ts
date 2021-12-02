@@ -503,7 +503,7 @@ export class LogicalGraph {
      */
     addDataComponentToGraph = (node: Node, location : {x: number, y:number}) : Node => {
         // clone the template node, set position and add to logicalGraph
-        let newNode: Node = node.clone();
+        const newNode: Node = node.clone();
         newNode.setPosition(location.x, location.y);
         this.nodes.push(newNode);
 
