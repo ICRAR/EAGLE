@@ -45,18 +45,6 @@
                     "category": {
                         "type": "string"
                     },
-                    "isData": {
-                        "type": "boolean"
-                    },
-                    "isGroup": {
-                        "type": "boolean"
-                    },
-                    "canHaveInputs": {
-                        "type": "boolean"
-                    },
-                    "canHaveOutputs": {
-                        "type": "boolean"
-                    },
                     "color": {
                         "type": "string"
                     },
@@ -102,16 +90,10 @@
                     "outputApplicationName": {
                         "type": "string"
                     },
-                    "exitApplicationName": {
-                        "type": "string"
-                    },
                     "inputApplicationType": {
                         "type": "string"
                     },
                     "outputApplicationType": {
-                        "type": "string"
-                    },
-                    "exitApplicationType": {
                         "type": "string"
                     },
                     "inputPorts": {
@@ -269,15 +251,11 @@
                     }
                 },
                 "required": [
-                    "canHaveInputs",
-                    "canHaveOutputs",
                     "category",
                     "collapsed",
                     "color",
                     "description",
                     "drawOrderHint",
-                    "exitApplicationName",
-                    "exitApplicationType",
                     "expanded",
                     "fields",
                     "height",
@@ -286,8 +264,6 @@
                     "inputApplicationType",
                     "inputLocalPorts",
                     "inputPorts",
-                    "isData",
-                    "isGroup",
                     "key",
                     "outputAppFields",
                     "outputApplicationName",
@@ -328,7 +304,8 @@
                     "from",
                     "fromPort",
                     "to",
-                    "toPort"
+                    "toPort",
+                    "loop_aware"
                 ]
             }
         }
