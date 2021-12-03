@@ -7,7 +7,7 @@
                 <a href="#" data-bind="click:function(event){$root.emptySearchBar(Eagle.paletteComponentSearchString)}">
                     <i class="material-icons md-18 searchBarIconClose">close</i>
                 </a>
-                <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.paletteComponentSearchString"></input>
+                <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.paletteComponentSearchString, eagleTooltip: 'Search for components in all palettes'"></input>
             </div>
         </div>
     </div>
@@ -44,12 +44,12 @@
                         </div>
                         <!-- ko ifnot: Eagle.paletteComponentSearchString() === "" -->
                             <!-- ko if: $data.searchExclude() -->
-                                <div class="searchExcludeTrue" data-bind="click: function(){$data.setSearchExclude(false)}">
+                                <div class="searchExcludeTrue" data-bind="click: function(){$data.setSearchExclude(false); $('.tooltip').remove();}, eagleTooltip:'Excluded from search: Click to include'">
                                     <i class="material-icons">close</i>
                                 </div>
                             <!-- /ko -->
                             <!-- ko ifnot: $data.searchExclude() -->
-                                <div class="searchExcludeFalse" data-bind="click: function(){$data.setSearchExclude(true)}">
+                                <div class="searchExcludeFalse" data-bind="click: function(){$data.setSearchExclude(true); $('.tooltip').remove();}, eagleTooltip: 'Included in search: Click to exclude'">
                                     <i class="material-icons">check</i>
                                 </div>                           
                             <!-- /ko -->
