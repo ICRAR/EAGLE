@@ -3625,7 +3625,7 @@ export class Eagle {
     };
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
-        const allPorts: Port[] = Utils.getUniquePortsList(this.logicalGraph());
+        const allPorts: Port[] = Utils.getUniquePortsList(this.palettes(), this.logicalGraph());
         allPorts.sort(Port.sortFunc);
 
         const allPortNames: string[] = [];
@@ -4037,7 +4037,6 @@ export class Eagle {
         }
 
         const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), portName, portType, ineligibleCategories);
-        console.log("eligibleComponents", eligibleComponents);
 
         // if edge DOES connect two applications, insert data component (of type chosen by user except ineligibleTypes)
         this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
@@ -4047,7 +4046,8 @@ export class Eagle {
 
             // Add a data component to the graph.
             const newNode : Node = this.logicalGraph().addDataComponentToGraph(node, dataComponentPosition);
-            const newNodeKey : number = newNode.getKey();
+            const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
+            newNode.setKey(newNodeKey);
 
             // set name of new node
             newNode.setName(portName);
