@@ -85,11 +85,6 @@
         {% include 'node_inspector_output_application.html' %}
         <!-- /ko -->
 
-        <!-- exit application type -->
-        <!-- ko if: selectedNode().canHaveExitApplication() -->
-        {% include 'node_inspector_exit_application.html' %}
-        <!-- /ko -->
-
         <!-- input ports area -->
         <!-- ko if: selectedNode().canHaveInputs() -->
         {% include 'node_inspector_inputs.html' %}

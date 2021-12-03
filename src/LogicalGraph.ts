@@ -328,16 +328,6 @@ export class LogicalGraph {
                 // add child to nodeDataArray
                 result.nodeDataArray.push(nodeData);
             }
-
-            if (node.hasExitApplication()){
-                const nodeData : any = Node.toAppRefJson(node.getExitApplication());
-
-                // update ref in parent
-                result.nodeDataArray[i].exitApplicationRef = nodeData.key;
-
-                // add child to nodeDataArray
-                result.nodeDataArray.push(nodeData);
-            }
         }
 
         // add links
@@ -377,11 +367,6 @@ export class LogicalGraph {
             if (typeof nodeData.outputApplicationRef !== 'undefined'){
                 const outputAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.outputApplicationRef);
                 node.setOutputApplication(Node.fromAppRefJson(outputAppNodeData, errorsWarnings));
-            }
-            // check if this node has an embedded exit application, if so, find and copy it now
-            if (typeof nodeData.exitApplicationRef !== 'undefined'){
-                 const exitAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.exitApplicationRef);
-                node.setExitApplication(Node.fromAppRefJson(exitAppNodeData, errorsWarnings));
             }
 
             result.nodes.push(node);
@@ -531,13 +516,6 @@ export class LogicalGraph {
                     return this.nodes[i].getOutputApplication();
                 }
             }
-
-            // check if the node's exitApp has a matching key
-            if (this.nodes[i].hasExitApplication()){
-                if (this.nodes[i].getExitApplication().getKey() === key){
-                    return this.nodes[i].getExitApplication();
-                }
-            }
         }
 
         console.warn("findNodeByKey(): could not find node with key (", key, ")");
@@ -556,9 +534,6 @@ export class LogicalGraph {
         }
         if (node.hasOutputApplication()){
             this.removeEdgesByKey(node.getOutputApplication().getKey());
-        }
-        if (node.hasExitApplication()){
-            this.removeEdgesByKey(node.getExitApplication().getKey());
         }
 
         // delete the node

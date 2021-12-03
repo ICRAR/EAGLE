@@ -496,17 +496,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("display", getAppsBackgroundDisplay)
         .text(getOutputAppText);
 
-    // add the exit name text
-    nodes
-        .append("text")
-        .attr("class", "exitAppName")
-        .attr("x", function(node:Node){return getExitAppPositionX(node);})
-        .attr("y", function(node:Node){return getExitAppPositionY(node);})
-        .style("fill", getHeaderFill)
-        .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
-        .style("display", getAppsBackgroundDisplay)
-        .text(getExitAppText);
-
     // add the content text
     nodes
         .append("text")
@@ -728,68 +717,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("data-node-key", function(port : Port){return port.getNodeKey();})
         .on("mouseenter", mouseEnterPort)
         .on("mouseleave", mouseLeavePort);
-
-    // add the exit ports
-    const exitPortGroups = nodes
-        .append("g")
-        .attr("class", getExitPortGroupClass)
-        .attr("transform", getExitPortGroupTransform)
-        .style("display", getPortsDisplay);
-
-    exitPortGroups
-        .selectAll("g")
-        .data(function(node : Node, index : number){return node.getExitApplicationOutputPorts();})
-        .enter()
-        .append("text")
-        .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-        .attr("x", getExitPortPositionX)
-        .attr("y", getExitPortPositionY)
-        .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getName();});
-
-    exitPortGroups
-        .selectAll("g")
-        .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-        .enter()
-        .append("circle")
-        .attr("data-id", function(port : Port){return port.getId();})
-        .attr("cx", getExitPortCirclePositionX)
-        .attr("cy", getExitPortCirclePositionY)
-        .attr("r", 6)
-        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-        .on("mouseenter", mouseEnterPort)
-        .on("mouseleave", mouseLeavePort);
-
-    // add the exit local ports
-    const exitLocalPortGroups = nodes.append("g")
-                                .attr("class", getExitLocalPortGroupClass)
-                                .attr("transform", getExitLocalPortGroupTransform)
-                                .style("display", getPortsDisplay);
-
-    exitLocalPortGroups
-        .selectAll("g")
-        .data(function(node : Node){return node.getExitApplicationInputPorts();})
-        .enter()
-        .append("text")
-        .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-        .attr("x", getExitLocalPortPositionX)
-        .attr("y", getExitLocalPortPositionY)
-        .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getName();});
-
-    exitLocalPortGroups
-        .selectAll("g")
-        .data(function(node : Node){return node.getExitApplicationInputPorts();})
-        .enter()
-        .append("circle")
-        .attr("data-id", function(port : Port){return port.getId();})
-        .attr("cx", getExitLocalPortCirclePositionX)
-        .attr("cy", getExitLocalPortCirclePositionY)
-        .attr("r", 6)
-        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-        .on("mouseenter", mouseEnterPort)
-        .on("mouseleave", mouseLeavePort);
-
 
     const portDragHandler = d3.drag()
                             .on("start", function (port : Port) {
@@ -1240,16 +1167,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .text(getOutputAppText);
 
         rootContainer
-            .selectAll("g.node text.exitAppName")
-            .data(nodeData)
-            .attr("x", function(node:Node){return getExitAppPositionX(node);})
-            .attr("y", function(node:Node){return getExitAppPositionY(node);})
-            .style("fill", getHeaderFill)
-            .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
-            .style("display", getAppsBackgroundDisplay)
-            .text(getExitAppText);
-
-        rootContainer
             .selectAll("g.node text.content")
             .data(nodeData)
             .attr("x", function(node:Node){return getContentPositionX(node);})
@@ -1508,112 +1425,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("data-node-key", function(port : Port){return port.getNodeKey();})
             .on("mouseenter", mouseEnterPort)
             .on("mouseleave", mouseLeavePort);
-
-        // exitPorts
-        nodes
-            .selectAll("g.exitPorts")
-            .attr("transform", getExitPortGroupTransform)
-            .style("display", getPortsDisplay);
-
-        nodes
-            .selectAll("g.exitPorts text")
-            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-            .enter()
-            .select("g.exitPorts")
-            .insert("text");
-
-        nodes
-            .selectAll("g.exitPorts text")
-            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-            .exit()
-            .remove();
-
-        nodes
-            .selectAll("g.exitPorts text")
-            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-            .attr("x", getExitPortPositionX)
-            .attr("y", getExitPortPositionY)
-            .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getName()});
-
-        nodes
-            .selectAll("g.exitPorts circle")
-            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-            .enter()
-            .select("g.exitPorts")
-            .insert("circle");
-
-        nodes
-            .selectAll("g.exitPorts circle")
-            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-            .exit()
-            .remove();
-
-        nodes
-            .selectAll("g.exitPorts circle")
-            .data(function(node : Node){return node.getExitApplicationOutputPorts();})
-            .attr("data-id", function(port : Port){return port.getId();})
-            .attr("cx", getExitPortCirclePositionX)
-            .attr("cy", getExitPortCirclePositionY)
-            .attr("r", 6)
-            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-            .on("mouseenter", mouseEnterPort)
-            .on("mouseleave", mouseLeavePort);
-
-
-        // exitLocalPorts
-        nodes
-            .selectAll("g.exitLocalPorts")
-            .attr("transform", getExitLocalPortGroupTransform)
-            .style("display", getPortsDisplay);
-
-        nodes
-            .selectAll("g.exitLocalPorts text")
-            .data(function(node : Node){return node.getExitApplicationInputPorts();})
-            .enter()
-            .select("g.exitLocalPorts")
-            .insert("text");
-
-        nodes
-            .selectAll("g.exitLocalPorts text")
-            .data(function(node : Node){return node.getExitApplicationInputPorts();})
-            .exit()
-            .remove();
-
-        nodes
-            .selectAll("g.exitLocalPorts text")
-            .data(function(node : Node){return node.getExitApplicationInputPorts();})
-            .attr("class", function(port : Port){return port.isEvent() ? "event" : ""})
-            .attr("x", getExitLocalPortPositionX)
-            .attr("y", getExitLocalPortPositionY)
-            .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getName();});
-
-        nodes
-            .selectAll("g.exitLocalPorts circle")
-            .data(function(node : Node){return node.getExitApplicationInputPorts();})
-            .enter()
-            .select("g.exitLocalPorts")
-            .insert("circle");
-
-        nodes
-            .selectAll("g.exitLocalPorts circle")
-            .data(function(node : Node){return node.getExitApplicationInputPorts();})
-            .exit()
-            .remove();
-
-        nodes
-            .selectAll("g.exitLocalPorts circle")
-            .data(function(node : Node){return node.getExitApplicationInputPorts();})
-            .attr("data-id", function(port : Port){return port.getId();})
-            .attr("cx", getExitLocalPortCirclePositionX)
-            .attr("cy", getExitLocalPortCirclePositionY)
-            .attr("r", 6)
-            .attr("data-node-key", function(port : Port){return port.getNodeKey();})
-            .on("mouseenter", mouseEnterPort)
-            .on("mouseleave", mouseLeavePort);
-
 
         // update attributes of all links
         linkExtras
@@ -1947,28 +1758,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return getHeaderBackgroundHeight(node) + 20;
     }
 
-    function getExitAppText(node:Node) : string {
-        if (!Node.canHaveExitApp(node)){
-            return "";
-        }
-
-        const exitApplication : Node = node.getExitApplication();
-
-        if (typeof exitApplication === "undefined" || exitApplication === null){
-            return Node.NO_APP_STRING;
-        }
-
-        return exitApplication.getName();
-    }
-
-    function getExitAppPositionX(node : Node) : number {
-        return node.getWidth() - 8;
-    }
-
-    function getExitAppPositionY(node : Node) : number {
-        return getHeaderBackgroundHeight(node) + 20;
-    }
-
     function getInputPortGroupClass(node : Node) : string {
         if (node.isFlipPorts()){
             return "inputPorts flipped";
@@ -1985,14 +1774,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getExitPortGroupClass(node : Node) : string {
-        if (node.isFlipPorts()){
-            return "exitPorts flipped";
-        } else {
-            return "exitPorts no-flip";
-        }
-    }
-
     function getInputLocalPortGroupClass(node : Node) : string {
         if (node.isFlipPorts()){
             return "inputLocalPorts flipped";
@@ -2006,14 +1787,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "outputLocalPorts flipped";
         } else {
             return "outputLocalPorts no-flip";
-        }
-    }
-
-    function getExitLocalPortGroupClass(node : Node) : string {
-        if (node.isFlipPorts()){
-            return "exitLocalPorts flipped";
-        } else {
-            return "exitLocalPorts no-flip";
         }
     }
 
@@ -2060,14 +1833,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getExitPortGroupTransform(node : Node) : string {
-        if (node.isFlipPorts()){
-            return getLeftSidePortGroupTransform(node);
-        } else {
-            return getRightSidePortGroupTransform(node);
-        }
-    }
-
     function getInputLocalPortGroupTransform(node : Node) : string {
         if (node.isFlipPorts()){
             return getRightSideLocalPortGroupTransform(node);
@@ -2084,16 +1849,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function getExitLocalPortGroupTransform(node : Node) : string {
-        if (node.isFlipPorts()){
-            return getLeftSideLocalPortGroupTransform(node);
-        } else {
-            return getRightSideLocalPortGroupTransform(node);
-        }
-    }
-
     function getLeftSidePortGroupTransform(node : Node) : string {
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
             return buildTranslation(PORT_OFFSET_X, getHeaderBackgroundHeight(node) + APPS_HEIGHT);
         } else {
             return buildTranslation(PORT_OFFSET_X, getHeaderBackgroundHeight(node));
@@ -2101,7 +1858,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getRightSidePortGroupTransform(node : Node) : string {
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
             return buildTranslation(getWidth(node)-PORT_OFFSET_X, getHeaderBackgroundHeight(node) + APPS_HEIGHT);
         } else {
             return buildTranslation(getWidth(node)-PORT_OFFSET_X, getHeaderBackgroundHeight(node));
@@ -2109,7 +1866,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getLeftSideLocalPortGroupTransform(node : Node) : string {
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
             return buildTranslation(PORT_OFFSET_X, getHeaderBackgroundHeight(node) + APPS_HEIGHT + node.getInputApplicationInputPorts().length * PORT_HEIGHT);
         } else {
             return buildTranslation(PORT_OFFSET_X, getHeaderBackgroundHeight(node) + node.getInputPorts().length * PORT_HEIGHT);
@@ -2117,8 +1874,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getRightSideLocalPortGroupTransform(node : Node) : string {
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
-            return buildTranslation(getWidth(node)-PORT_OFFSET_X, getHeaderBackgroundHeight(node) + APPS_HEIGHT + (node.getOutputApplicationOutputPorts().length + node.getExitApplicationOutputPorts().length) * PORT_HEIGHT);
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
+            return buildTranslation(getWidth(node)-PORT_OFFSET_X, getHeaderBackgroundHeight(node) + APPS_HEIGHT + (node.getOutputApplicationOutputPorts().length) * PORT_HEIGHT);
         } else {
             return buildTranslation(getWidth(node)-PORT_OFFSET_X, getHeaderBackgroundHeight(node) + node.getOutputPorts().length * PORT_HEIGHT);
         }
@@ -2202,25 +1959,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        return getPortPositionY(port, index);
-    }
-
-    function getExitPortPositionX(port : Port, index : number) : number {
-        const node: Node = findNodeWithKey(port.getNodeKey(), nodeData);
-
-        if (node === null){
-            console.warn("Unable to find node from port's node key", port.getNodeKey());
-            return getRightSidePortPositionX(port, index);
-        }
-
-        if (node.isFlipPorts()){
-            return getLeftSidePortPositionX(port, index);
-        } else {
-            return getRightSidePortPositionX(port, index);
-        }
-    }
-
-    function getExitPortPositionY(port : Port, index : number) : number {
         return getPortPositionY(port, index);
     }
 
@@ -2630,13 +2368,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     return node.getOutputApplication();
                 }
             }
-
-            // check if the node's exitApp has a matching key
-            if (node.hasExitApplication()){
-                if (node.getExitApplication().getKey() === key){
-                    return node.getExitApplication();
-                }
-            }
         }
 
         console.warn("Cannot find node with key", key);
@@ -2912,27 +2643,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        // check exit application ports
-        for (let i = 0 ; i < node.getExitApplicationInputPorts().length ; i++){
-            const port : Port = node.getExitApplicationInputPorts()[i];
-            if (port.getId() === portId){
-                local = true;
-                input = false;
-                index = i + node.getExitApplicationOutputPorts().length;
-            }
-        }
-        for (let i = 0 ; i < node.getExitApplicationOutputPorts().length ; i++){
-            const port : Port = node.getExitApplicationOutputPorts()[i];
-            if (port.getId() === portId){
-                local = false;
-                input = false;
-                index = i;
-            }
-        }
-
         // determine whether we need to move down an extra amount to clear the apps display title row
         let appsOffset : number = 0;
-        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node) || Node.canHaveExitApp(node)){
+        if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
             appsOffset = APPS_HEIGHT;
         }
 
@@ -3370,15 +3083,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             for (const node of nodes){
                 if ((node.getKey() === srcKey) ||
                     (node.hasInputApplication() && node.getInputApplication().getKey() === srcKey) ||
-                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === srcKey) ||
-                    (node.hasExitApplication() && node.getExitApplication().getKey() === srcKey)){
+                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === srcKey)){
                     srcFound = true;
                 }
 
                 if ((node.getKey() === destKey) ||
                     (node.hasInputApplication() && node.getInputApplication().getKey() === destKey) ||
-                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === destKey) ||
-                    (node.hasExitApplication() && node.getExitApplication().getKey() === destKey)){
+                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === destKey)){
                     destFound = true;
                 }
             }
@@ -3438,13 +3149,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 portList = portList.concat(node.getOutputApplicationOutputPorts());
             } else {
                 portList = portList.concat(node.getOutputApplicationInputPorts());
-            }
-
-            // get exitApplication ports
-            if (sourcePortIsInput){
-                portList = portList.concat(node.getExitApplicationOutputPorts());
-            } else {
-                portList = portList.concat(node.getExitApplicationInputPorts());
             }
 
             for (const port of portList){

@@ -151,11 +151,6 @@ export class Utils {
             if (node.hasOutputApplication()){
                 usedKeys.push(node.getOutputApplication().getKey());
             }
-
-            // if this node has exitApp, add the exitApp key
-            if (node.hasExitApplication()){
-                usedKeys.push(node.getExitApplication().getKey());
-            }
         }
 
         return usedKeys;
@@ -199,15 +194,6 @@ export class Utils {
                 if (node.getOutputApplication().getKey() === null){
                     const newKey = Utils.findNewKey(usedKeys);
                     node.getOutputApplication().setKey(newKey);
-                    usedKeys.push(newKey);
-                }
-            }
-
-            // if this node has exitApp, add the exitApp key
-            if (node.hasExitApplication()){
-                if (node.getExitApplication().getKey() === null){
-                    const newKey = Utils.findNewKey(usedKeys);
-                    node.getExitApplication().setKey(newKey);
                     usedKeys.push(newKey);
                 }
             }
@@ -983,17 +969,6 @@ export class Utils {
                     selected: edge.getSrcNodeKey() === outputApp.getKey()
                 }));
             }
-
-            // add exit applicaiton node, if present
-            if (node.hasExitApplication()){
-                const exitApp = node.getExitApplication();
-
-                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: exitApp.getKey(),
-                    text: exitApp.getName(),
-                    selected: edge.getSrcNodeKey() === exitApp.getKey()
-                }));
-            }
         }
 
         // make sure srcNode reflects what is actually selected in the UI
@@ -1050,17 +1025,6 @@ export class Utils {
                     value: outputApp.getKey(),
                     text: outputApp.getName(),
                     selected: edge.getDestNodeKey() === outputApp.getKey()
-                }));
-            }
-
-            // exit application node, if present
-            if (node.hasExitApplication()){
-                const exitApp = node.getExitApplication();
-
-                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: exitApp.getKey(),
-                    text: exitApp.getName(),
-                    selected: edge.getDestNodeKey() === exitApp.getKey()
                 }));
             }
         }
@@ -1166,23 +1130,6 @@ export class Utils {
                     }
                 }
             }
-
-            // add exit application input and output ports
-            if (node.hasExitApplication()){
-                // input ports
-                for (const port of node.getExitApplication().getInputPorts()) {
-                    if (!port.isEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
-                    }
-                }
-
-                // output ports
-                for (const port of node.getExitApplication().getOutputPorts()) {
-                    if (!port.isEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
-                    }
-                }
-            }
         }
 
         return uniquePorts;
@@ -1193,45 +1140,6 @@ export class Utils {
 
         const result: Node[] = [];
 
-        // add non-template that match type
-        /*
-        for (const palette of palettes){
-            if (palette.fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
-                continue;
-            }
-
-            for (const node of palette.getNodes()){
-                // skip nodes that are not data components
-                if (!node.isData()){
-                    continue;
-                }
-
-                let ineligible = false;
-                for (const ic of ineligibleCategories){
-                    if (node.getCategory() === ic){
-                        ineligible = true;
-                        break;
-                    }
-                }
-                if (ineligible){
-                    continue;
-                }
-
-                // skip nodes that don't have an input port with the required type
-                if (node.findPortByType(portType, true) === null){
-                    continue;
-                }
-
-                // skip nodes that don't have an output port with the required type
-                if (node.findPortByType(portType, false) === null){
-                    continue;
-                }
-
-                result.push(node);
-            }
-        }
-        */
-
         // add all data components (except ineligible)
         for (const palette of palettes){
             for (const node of palette.getNodes()){
@@ -1240,6 +1148,7 @@ export class Utils {
                     continue;
                 }
 
+                // skip nodes whose category in in the ineligible categories list
                 let ineligible = false;
                 for (const ic of ineligibleCategories){
                     if (node.getCategory() === ic){
@@ -1530,18 +1439,6 @@ export class Utils {
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
-
-            for (const port of node.getExitApplicationInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
-                }
-            }
-
-            for (const port of node.getExitApplicationOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
-                }
-            }
         }
 
         // check that all fields have default values
@@ -1603,9 +1500,6 @@ export class Utils {
             }
             if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Eagle.Category.None){
                 errors.push("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.");
-            }
-            if (node.hasExitApplication() && node.getExitApplication().getCategory() === Eagle.Category.None){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application with category 'None'.");
             }
 
             // check that Service nodes have inputApplications with no output ports!
