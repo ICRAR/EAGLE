@@ -1095,11 +1095,30 @@ export class Utils {
     /**
      * Returns a list of unique port names (except event ports)
      */
-    static getUniquePortsList = (diagram : Palette | LogicalGraph) : Port[] => {
+    static getUniquePortsList = (palettes : Palette[], graph: LogicalGraph) : Port[] => {
         const uniquePorts : Port[] = [];
 
+        // build a list from all palettes
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // add input port names into the list
+                for (const port of node.getInputPorts()) {
+                    if (!port.isEvent()){
+                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                    }
+                }
+
+                // add output port names into the list
+                for (const port of node.getOutputPorts()) {
+                    if (!port.isEvent()) {
+                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                    }
+                }
+            }
+        }
+
         // build a list from all nodes
-        for (const node of diagram.getNodes()) {
+        for (const node of graph.getNodes()) {
             // add input port names into the list
             for (const port of node.getInputPorts()) {
                 if (!port.isEvent()){
