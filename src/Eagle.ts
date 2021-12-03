@@ -361,6 +361,31 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
+    getSelectedText = () : string => {
+        var text
+        var nodeCount = 0
+        var edgeCount = 0
+        this.selectedObjects().forEach(function(element){
+            if(element instanceof Node){
+                nodeCount++
+            }else if (element instanceof Edge){
+                edgeCount++
+            }
+        })
+
+        text = nodeCount + " nodes and " + edgeCount + " edges selected."
+        
+        return text
+    }
+
+    isTypeNode = (object : any) : boolean => {
+        if (object instanceof Node){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     /**
      * This function is repeatedly called throughout the EAGLE operation.
      * It resets al fields in the editor menu.
