@@ -4404,6 +4404,7 @@ $( document ).ready(function() {
         $("textarea").blur();
     });
 
+    //expand palettes when using searchbar and return to prior collapsed state on completion.
     $("#paletteList .componentSearchBar").on("keyup",function(){
         if ($("#paletteList .componentSearchBar").val() !== ""){
             $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
