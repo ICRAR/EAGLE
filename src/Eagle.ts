@@ -4404,4 +4404,16 @@ $( document ).ready(function() {
         $("textarea").blur();
     });
 
+    //expand palettes when using searchbar and return to prior collapsed state on completion.
+    $("#paletteList .componentSearchBar").on("keyup",function(){
+        if ($("#paletteList .componentSearchBar").val() !== ""){
+            $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
+            $("#paletteList .accordion-button.collapsed").click()
+        }else{
+            $("#paletteList .accordion-button.wasCollapsed").click()
+            $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
+        }
+    })
+   
+
 });
