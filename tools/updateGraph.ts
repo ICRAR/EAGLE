@@ -84,7 +84,7 @@ function readFileInfo(modelData : any, inputFilename : string) : FileInfo {
         result.path = Utils.getFilePathFromFullPath(inputFilename);
         result.name = Utils.getFileNameFromFullPath(inputFilename);
         result.type = Eagle.FileType.Graph;
-        logMessage("Input graph FileInfo undefined. Building from scratch. Path:" + result.path + " Name:" + result.name + " Type:" + Utils.translateFileTypeToString(result.type));
+        logMessage("Input graph FileInfo undefined. Building from scratch. Path:" + result.path + " Name:" + result.name + " Type:" + result.type);
 
         return result;
     }
@@ -118,7 +118,6 @@ function readNode(nodeData : any, index : number) : Node {
 
     // translate categories if required
     let category : Eagle.Category = GraphUpdater.translateOldCategory(nodeData.category);
-    const categoryType : Eagle.CategoryType = GraphUpdater.translateOldCategoryType(nodeData.categoryType, category);
 
     if (category === Eagle.Category.Unknown){
         logError("Unable to translate category '" + nodeData.category + "' of node " + index);
@@ -133,16 +132,8 @@ function readNode(nodeData : any, index : number) : Node {
         category = Eagle.Category.Unknown;
     }
 
-    if (categoryType === Eagle.CategoryType.Unknown){
-        logError("Unable to translate categoryType '" + nodeData.categoryType + "' of node " + index + " with category '" + category + "'");
-    } else {
-        if (categoryType !== nodeData.categoryType){
-            logMessage("Translated old categoryType: '" + nodeData.categoryType + "' into '" + categoryType + "' for node " + index);
-        }
-    }
-
     // create new node
-    const node : Node = new Node(nodeData.key, nodeData.text, "", category, categoryType, false);
+    const node : Node = new Node(nodeData.key, nodeData.text, "", category, false);
     node.setPosition(x, y);
 
     // get description (if exists)
@@ -352,15 +343,15 @@ function readNode(nodeData : any, index : number) : Node {
     // make sure MKN nodes have 'm', 'k', and 'n' fields
     if (node.getCategory() === Eagle.Category.MKN){
         if (node.getFieldByName('m') === null){
-            node.addField(new Field("M", "m", "1", "", false, Eagle.DataType.Integer));
+            node.addField(new Field("M", "m", "1", "1", "", false, Eagle.DataType.Integer, false));
             logMessage("Added missing 'm' field to MKN node " + index);
         }
         if (node.getFieldByName('k') === null){
-            node.addField(new Field("K", "k", "1", "", false, Eagle.DataType.Integer));
+            node.addField(new Field("K", "k", "1", "1", "", false, Eagle.DataType.Integer, false));
             logMessage("Added missing 'k' field to MKN node " + index);
         }
         if (node.getFieldByName('n') === null){
-            node.addField(new Field("N", "n", "1", "", false, Eagle.DataType.Integer));
+            node.addField(new Field("N", "n", "1", "1", "", false, Eagle.DataType.Integer, false));
             logMessage("Added missing 'n' field to MKN node " + index);
         }
     }
@@ -368,7 +359,7 @@ function readNode(nodeData : any, index : number) : Node {
     // make sure comment nodes have appropriate fields
     if (node.getCategory() === Eagle.Category.Comment){
         if (node.getFieldByName('comment') === null){
-            node.addField(new Field("Comment", "comment", node.getName(), "The text value of the comment", false, Eagle.DataType.String));
+            node.addField(new Field("Comment", "comment", node.getName(), node.getName(), "The text value of the comment", false, Eagle.DataType.String, false));
             node.setName("");
             logMessage("Added missing 'comment' field to Comment node " + index);
         }
@@ -377,7 +368,7 @@ function readNode(nodeData : any, index : number) : Node {
     // make sure description nodes have appropriate fields
     if (node.getCategory() === Eagle.Category.Description){
         if (node.getFieldByName('description') === null){
-            node.addField(new Field("Description", "description", "", "The text value of the description", false, Eagle.DataType.String));
+            node.addField(new Field("Description", "description", "", "", "The text value of the description", false, Eagle.DataType.String, false));
             logMessage("Added missing 'description' field to Description node " + index);
         }
     }
@@ -385,7 +376,7 @@ function readNode(nodeData : any, index : number) : Node {
     // make sure "file" nodes that were created from old "Data" nodes have appropriate fields
     if (node.getCategory() === Eagle.Category.File && nodeData.category === "Data"){
         if (node.getFieldByName('filepath') === null){
-            node.addField(new Field("File path", "filepath", nodeData.text, "", false, Eagle.DataType.String));
+            node.addField(new Field("File path", "file_path", nodeData.text, nodeData.text, "", false, Eagle.DataType.String, false));
             logMessage("Copied old 'text' value (" + nodeData.text + ") as filepath field for old Data node translated to File node " + index);
         }
     }
@@ -444,7 +435,7 @@ function readEdge(linkData : any) : Edge {
     // add it if source port not found
     if (srcPort === null){
         const srcPortName : string = linkData.fromPort + "-" + linkData.toPort;
-        srcPort = new Port(Utils.uuidv4(), srcPortName, false, Eagle.DataType.Unknown);
+        srcPort = new Port(Utils.uuidv4(), srcPortName, srcPortName, false, "", "");
         srcNode.addPort(srcPort, false);
 
         logMessage("Added a new src port " + srcPort.getName() + " to node " + srcNode.getKey() + " in link " + linkData.id + " since port (" + oldFromPortId + ") is missing.");
@@ -453,7 +444,7 @@ function readEdge(linkData : any) : Edge {
     // add it if dest port not found
     if (destPort === null){
         const destPortName : string = linkData.fromPort + "-" + linkData.toPort;
-        destPort = new Port(Utils.uuidv4(), destPortName, false, Eagle.DataType.Unknown);
+        destPort = new Port(Utils.uuidv4(), destPortName, destPortName, false, "", "");
         destNode.addPort(destPort, true);
 
         logMessage("Added a new dst port " + destPort.getName() + " to node " + destNode.getKey() + " in link " + linkData.id + " since port (" + oldToPortId + ") is missing.");

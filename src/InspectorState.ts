@@ -15,7 +15,6 @@ export class InspectorState {
     inputPorts: ko.Observable<boolean>;
     outputApplication: ko.Observable<boolean>;
     outputPorts: ko.Observable<boolean>;
-    exitApplication: ko.Observable<boolean>;
     componentParameters: ko.Observable<boolean>;
     applicationParameters: ko.Observable<boolean>;
 
@@ -28,7 +27,6 @@ export class InspectorState {
         this.inputPorts = ko.observable(true);
         this.outputApplication = ko.observable(true);
         this.outputPorts = ko.observable(true);
-        this.exitApplication = ko.observable(true);
         this.componentParameters = ko.observable(true);
         this.applicationParameters = ko.observable(true);
     }
@@ -42,7 +40,6 @@ export class InspectorState {
         this.inputPorts(value);
         this.outputApplication(value);
         this.outputPorts(value);
-        this.exitApplication(value);
         this.componentParameters(value);
         this.applicationParameters(value);
     }
@@ -78,8 +75,6 @@ export class InspectorState {
                 return this.outputApplication;
             case "Outputs":
                 return this.outputPorts;
-            case "Exit Application":
-                return this.exitApplication;
             case "Component Parameters":
                 return this.componentParameters;
             case "Application Parameters":
@@ -91,7 +86,7 @@ export class InspectorState {
     }
 
     all : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return this.description() && this.displayOptions() && this.graphComment() && this.graphDescription() && this.inputApplication() && this.inputPorts() && this.outputApplication() && this.outputPorts() && this.exitApplication() && this.componentParameters() && this.applicationParameters();
+        return this.description() && this.displayOptions() && this.graphComment() && this.graphDescription() && this.inputApplication() && this.inputPorts() && this.outputApplication() && this.outputPorts() && this.componentParameters() && this.applicationParameters();
     }, this);
 
     toggleAll = (item: any, e:JQueryEventObject): void => {
