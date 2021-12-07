@@ -1708,6 +1708,7 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.isGroup = node.isGroup();
         result.color = node.color();
         result.drawOrderHint = node.drawOrderHint();
 

@@ -45,6 +45,9 @@
                     "category": {
                         "type": "string"
                     },
+                    "isGroup": {
+                       "type": "boolean"
+                    },
                     "color": {
                         "type": "string"
                     },
@@ -264,6 +267,7 @@
                     "inputApplicationType",
                     "inputLocalPorts",
                     "inputPorts",
+                    "isGroup",
                     "key",
                     "outputAppFields",
                     "outputApplicationName",
