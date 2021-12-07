@@ -4183,6 +4183,7 @@ export class Eagle {
     static readonly descriptionIconColor : string = "rgb(157 43 96)"
     static readonly errorIconColor : string = "#FF66CC"
     static readonly controlIconColor : string = "rgb(88 167 94)"
+    static readonly selectionColor : string = "rgb(47 22 213)"
 
     static readonly cData : {[category:string] : Eagle.CategoryData} = {
         Start              : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-play_arrow", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},

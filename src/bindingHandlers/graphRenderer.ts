@@ -33,14 +33,14 @@ ko.bindingHandlers.graphRenderer = {
 
 const LINK_COLORS:{[key:string]:string} = {
     LINK_DEFAULT_COLOR: 'dimgrey',
-    LINK_DEFAULT_SELECTED_COLOR: 'black',
+    LINK_DEFAULT_SELECTED_COLOR: 'rgb(47 22 213)',
     LINK_WARNING_COLOR: 'orange',
-    LINK_WARNING_SELECTED_COLOR: 'tomato',
+    LINK_WARNING_SELECTED_COLOR: 'rgb(47 22 213)',
     LINK_INVALID_COLOR: 'red',
-    LINK_INVALID_SELECTED_COLOR: 'firebrick',
+    LINK_INVALID_SELECTED_COLOR: 'rgb(47 22 213)',
     LINK_VALID_COLOR: 'limegreen',
     LINK_EVENT_COLOR: 'rgb(128,128,255)',
-    LINK_EVENT_SELECTED_COLOR: 'blue',
+    LINK_EVENT_SELECTED_COLOR: 'rgb(47 22 213)',
     LINK_AUTO_COMPLETE_COLOR: 'purple'
 }
 
@@ -509,19 +509,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .text(getContentText)
         .call(wrap, true);
 
-       // add the svg icon
-       nodes
+    // add the svg icon
+    nodes
        .append('foreignObject')
        .attr("class","nodeIcon")
-       .attr("width", Node.DATA_COMPONENT_WIDTH)
-       .attr("height", Node.DATA_COMPONENT_HEIGHT)
+       .attr("width", Node.DATA_COMPONENT_WIDTH+4)
+       .attr("height", Node.DATA_COMPONENT_HEIGHT+4)
        .attr("x", function(node:Node){return getIconLocationX(node);})
        .attr("y", function(node:Node){return getIconLocationY(node);})
        .style("display", getIconDisplay)
+       .append('xhtml:div')
+       .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Eagle.selectionColor+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"};})
        .append('xhtml:span')
-       .attr("style", function(node:Node){return node.getGraphIconAttr();})
-       .attr("class", function(node:Node){return node.getIcon();})
-
+       .attr("style", function(node:Node){ return node.getGraphIconAttr()})
+       .attr("class", function(node:Node){return node.getIcon();});
 
     // add the resize controls
     nodes
@@ -1181,11 +1182,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         rootContainer
             .selectAll("g.node foreignObject.nodeIcon")
             .data(nodeData)
-            .attr("width", Node.DATA_COMPONENT_HEIGHT)
-            .attr("height", Node.DATA_COMPONENT_HEIGHT)
+            .attr("width", Node.DATA_COMPONENT_HEIGHT+4)
+            .attr("height", Node.DATA_COMPONENT_HEIGHT+4)
             .attr("x", function(node:Node){return getIconLocationX(node);})
             .attr("y", function(node:Node){return getIconLocationY(node);})
-            .style("display", getIconDisplay);
+            .style("display", getIconDisplay)
+            .append('xhtml:div')
+            .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Eagle.selectionColor+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"};})
+            .append('xhtml:span')
+            .attr("style", function(node:Node){ return node.getGraphIconAttr()})
+            .attr("class", function(node:Node){return node.getIcon();});
             // TODO: possibly missing changes to the <xhtml:span> child of the foreignObject
 
         rootContainer
@@ -1659,6 +1665,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getHeaderFill(node : Node) : string {
+        if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){
+            return Eagle.selectionColor
+        }
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
             return "black";
         }
