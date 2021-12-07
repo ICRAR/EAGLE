@@ -1102,7 +1102,7 @@ export class Node {
 
     //get icon color
     getGraphIconAttr = () : string => {
-        var attr = "font-size: 45px; color:" + Eagle.getCategoryData(this.category()).color
+        var attr = "font-size: 44px; color:" + Eagle.getCategoryData(this.category()).color
         return attr
     }
 

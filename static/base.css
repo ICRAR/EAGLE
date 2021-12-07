@@ -569,6 +569,11 @@ select.form-control{
     padding: 10px;
 }
 
+#root span:after{
+    height: 2px;
+    background-color: tomato;
+}
+
 .inspectorSelectionSummaryItem {
     margin-top: 8px;
     background-color: #e9ecef;
