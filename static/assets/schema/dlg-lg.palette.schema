@@ -219,6 +219,32 @@
                             ]
                         }
                     },
+                    "applicationParams": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "text": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": ["string","boolean","number"]
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "description",
+                                "name",
+                                "text",
+                                "value"
+                            ]
+                        }
+                    },
                     "group": {
                         "type": "integer"
                     }
@@ -227,6 +253,7 @@
                     "category",
                     "description",
                     "fields",
+                    "applicationParams",
                     "inputAppFields",
                     "inputApplicationName",
                     "inputApplicationType",
