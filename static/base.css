@@ -419,6 +419,7 @@ select.form-control{
 
 #paletteList{
     height:90%;
+    height: calc(100% - 118px);
     overflow-y: scroll;
 }
 
