@@ -15,25 +15,8 @@
                         <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPaletteFromJson">Create New Palette From Json</a>
                     </div>
                 </span>
-                <div class="dropdown-divider"></div>
-                <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
-                    <div class="dropDropDown">
-                        <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Palette)}">Save Palette</a>
-                        <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Palette)}">Save Palette As</a>
-                    </div>
-                </span>
-                <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
-                    <div class="dropDropDown">
-                        <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Palette</a>
-                        <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save Palette</a>
-                    </div>
-                </span>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: addGraphNodesToPalette">Save Node To Palette</a>
             <!-- /ko -->
-            <!-- ko if: !allowPaletteEditing() -->
                 <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Local Palette</a>
-            <!-- /ko -->
             </div>
         </span>
         <div class="searchBarContainer">

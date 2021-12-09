@@ -596,6 +596,7 @@ select.form-control{
 
 #paletteWindowdropdownWrapper .dropdown-item{
     color:white;
+    padding: 4px 16px;
 }
 
 #paletteWindowdropdownWrapper .dropDropDown{
