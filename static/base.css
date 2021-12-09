@@ -297,7 +297,6 @@
 
 .leftWindowDisplay {
     height: 100%;
-    overflow-y: auto;
 }
 
 .leftWindow .card{
@@ -414,8 +413,13 @@ select.form-control{
 .paletteHeaderIcon{
     display: inline-block;
     position: absolute;
-    right: 15px;
+    right: 20px;
     top: 22px;
+}
+
+#paletteList{
+    height:90%;
+    overflow-y: scroll;
 }
 
 #paletteList .dropdown-menu a{
@@ -429,6 +433,7 @@ select.form-control{
     background: none;
     border: none;
     z-index: 3;
+    padding:1px;
 }
 
 .paletteHeaderIcon button, .paletteHeaderIcon i{
@@ -567,6 +572,35 @@ select.form-control{
 
 #inspectorSelectionSummary{
     padding: 10px;
+}
+
+#eplorePalettesWrapper{
+    width: 90%;
+    display: inline-block;
+}
+
+#paletteWindowdropdownWrapper{
+    position: absolute;
+    right: 5px;
+}
+
+#paletteWindowdropdownWrapper a:after{
+    display: none;
+}
+
+#paletteWindowdropdownWrapper a{
+    text-decoration: none;
+    color: black;
+    padding:7px;
+}
+
+#paletteWindowdropdownWrapper .dropdown-item{
+    color:white;
+}
+
+#paletteWindowdropdownWrapper .dropDropDown{
+    left:100%;
+    right: unset;
 }
 
 #root span:after{
