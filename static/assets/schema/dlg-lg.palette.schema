@@ -14,6 +14,9 @@
                 "repoBranch": {
                     "type": "string"
                 },
+                "readonly": {
+                    "type": "boolean"
+                },
                 "repo": {
                     "type": "string"
                 },
@@ -25,16 +28,41 @@
                 },
                 "gitUrl": {
                     "type": "string"
+                },
+                "eagleVersion": {
+                    "type": "string"
+                },
+                "eagleCommitHash": {
+                    "type": "string"
+                },
+                "schemaVersion": {
+                    "type": "string"
+                },
+                "lastModifiedName": {
+                    "type": "string"
+                },
+                "lastModifiedEmail": {
+                    "type": "string"
+                },
+                "lastModifiedDatetime": {
+                    "type": "integer"
                 }
             },
             "required": [
                 "filePath",
                 "fileType",
                 "gitUrl",
+                "readonly",
                 "repo",
                 "repoBranch",
                 "repoService",
-                "sha"
+                "sha",
+                "eagleVersion",
+                "eagleCommitHash",
+                "schemaVersion",
+                "lastModifiedName",
+                "lastModifiedEmail",
+                "lastModifiedDatetime"
             ]
         },
         "nodeDataArray": {
@@ -219,6 +247,32 @@
                             ]
                         }
                     },
+                    "applicationParams": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "text": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": ["string","boolean","number"]
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "description",
+                                "name",
+                                "text",
+                                "value"
+                            ]
+                        }
+                    },
                     "group": {
                         "type": "integer"
                     }
@@ -227,6 +281,7 @@
                     "category",
                     "description",
                     "fields",
+                    "applicationParams",
                     "inputAppFields",
                     "inputApplicationName",
                     "inputApplicationType",
