@@ -2251,7 +2251,19 @@ export class Eagle {
     }
 
     openSettings = () : void => {
+        if(!$(".settingCategoryActive").length){
+            console.log("blam")
+            $("#settingsCategory0").click()
+        }
         Utils.showSettingsModal();
+    }
+
+    toggleSettingsTab = (btn:any, target:any) :void => {
+        $(".settingsModalButton").removeClass("settingCategoryBtnActive");
+        $(".settingsModalCategoryWrapper").removeClass("settingCategoryActive");
+
+        $("#"+btn).addClass("settingCategoryBtnActive");
+        $("#"+target).addClass("settingCategoryActive");
     }
 
     openShortcuts = () : void => {
