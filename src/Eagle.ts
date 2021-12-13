@@ -2252,7 +2252,6 @@ export class Eagle {
 
     openSettings = () : void => {
         if(!$(".settingCategoryActive").length){
-            console.log("blam")
             $("#settingsCategory0").click()
         }
         Utils.showSettingsModal();
