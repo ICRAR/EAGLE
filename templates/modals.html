@@ -302,50 +302,50 @@
                     <!-- ko foreach: Object.keys(Eagle.settings) -->
                         <div class="settingsModalCategoryWrapper" data-bind="attr:{id:'settingsCategory'+$index()+'Content'}">
                             <div class="row">
-                                        <!-- ko foreach: Eagle.settings[$data] -->
-                                            <!-- ko if: $data.getType() === 0 -->
-                                                <div class="input-group mb-1">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
-                                                    </div>
-                                                    <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
+                                <!-- ko foreach: Eagle.settings[$data] -->
+                                    <!-- ko if: $data.getType() === 0 -->
+                                        <div class="input-group mb-1">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
+                                            </div>
+                                            <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
+                                        </div>
+                                    <!-- /ko -->
+                                    <!-- ko if: $data.getType() === 1 -->
+                                        <div class="input-group mb-1">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
+                                            </div>
+                                            <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
+                                        </div>
+                                    <!-- /ko -->
+                                    <!-- ko if: $data.getType() === 2 -->
+                                        <div class="settingSm col-6">
+                                            <div class="input-group mb-1">
+                                                <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.toggle, attr:{id:'setting'+$data.getKey()+'Button'}">
+                                                        <i class="material-icons md-18" data-bind="visible: $data.value">radio_button_checked</i>
+                                                        <i class="material-icons md-18" data-bind="hidden: $data.value">radio_button_unchecked</i>
+                                                    </button>
                                                 </div>
-                                            <!-- /ko -->
-                                            <!-- ko if: $data.getType() === 1 -->
-                                                <div class="input-group mb-1">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
-                                                    </div>
-                                                    <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
-                                                </div>
-                                            <!-- /ko -->
-                                            <!-- ko if: $data.getType() === 2 -->
-                                                <div class="settingSm col-6">
-                                                    <div class="input-group mb-1">
-                                                        <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.toggle, attr:{id:'setting'+$data.getKey()+'Button'}">
-                                                                <i class="material-icons md-18" data-bind="visible: $data.value">radio_button_checked</i>
-                                                                <i class="material-icons md-18" data-bind="hidden: $data.value">radio_button_unchecked</i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <!-- /ko -->
-                                            <!-- ko if: $data.getType() === 3 -->
-                                                <div class="input-group mb-1">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip:$data.getDescription()" data-bs-placement="left"></span>
-                                                    </div>
-                                                    <input type="password" autocomplete="off" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
-                                                    <div class="input-group-append">
-                                                        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.copy, attr:{id:'setting'+$data.getKey()+'Copy'}">
-                                                            <i class="material-icons md-18">content_copy</i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            <!-- /ko -->
-                                        <!-- /ko -->
+                                            </div>
+                                        </div>
+                                    <!-- /ko -->
+                                    <!-- ko if: $data.getType() === 3 -->
+                                        <div class="input-group mb-1">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip:$data.getDescription()" data-bs-placement="left"></span>
+                                            </div>
+                                            <input type="password" autocomplete="off" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.copy, attr:{id:'setting'+$data.getKey()+'Copy'}">
+                                                    <i class="material-icons md-18">content_copy</i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <!-- /ko -->
+                                <!-- /ko -->
                             </div>
                         </div>
                     <!-- /ko -->

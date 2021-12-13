@@ -2251,21 +2251,25 @@ export class Eagle {
     }
 
     openSettings = () : void => {
+        //if no tab is selected yet, default to the first tab
         if(!$(".settingCategoryActive").length){
             $(".settingsModalButton").first().click()
         }
         Utils.showSettingsModal();
     }
 
+    //used by the settings modal html to generate an id from the title
     getSettingCategoryId = (title:string) : string => {
         title = title.split(' ').join('')
         return 'settingCategory' + title;
     }
 
     toggleSettingsTab = (btn:any, target:any) :void => {
+        //deselect and deactivate current tab content and buttons
         $(".settingsModalButton").removeClass("settingCategoryBtnActive");
         $(".settingsModalCategoryWrapper").removeClass("settingCategoryActive");
 
+        //activate selected tab content and button
         $("#"+btn).addClass("settingCategoryBtnActive");
         $("#"+target).addClass("settingCategoryActive");
     }
