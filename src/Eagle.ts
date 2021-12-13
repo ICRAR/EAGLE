@@ -51,7 +51,6 @@ import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {PaletteInfo} from './PaletteInfo';
 import { treemapSquarify } from "d3";
-import { stringify } from "querystring";
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
