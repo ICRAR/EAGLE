@@ -205,9 +205,6 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // disable the 'confirm discard changes' setting
             .click('#settingConfirmDiscardChangesButton')
 
-            //switch to advanced editing settings tab
-            .click("#settingCategoryAdvancedEditing")
-
             // disable the 'spawn translation tab' setting
             .click('#settingSpawnTranslationTabButton')
 
