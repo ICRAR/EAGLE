@@ -21,7 +21,7 @@ test('Edit node parameter', async t =>{
         .click('#settings')
 
         // switch to advanced editing tab in settings
-        .click('#settingsCategory1')
+        .click('#settingCategoryAdvancedEditing')
 
         // enable 'allow palette editing'
         .click('#settingAllowPaletteEditingButton')

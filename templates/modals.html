@@ -295,7 +295,7 @@
             <div class="modal-body">
                 <div id="settingsModalHeader">
                     <!-- ko foreach: Object.keys(Eagle.settings) -->
-                        <button class="settingsModalButton" data-bind="attr:{id:'settingsCategory'+$index()}, text: $data, click: $root.toggleSettingsTab('settingsCategory'+$index(), 'settingsCategory'+$index()+'Content')"></button>
+                        <button class="settingsModalButton" data-bind="attr:{id: $root.getSettingCategoryId($data)}, text: $data, click: $root.toggleSettingsTab($root.getSettingCategoryId($data), 'settingsCategory'+$index()+'Content')"></button>
                     <!-- /ko -->
                 </div>
                 <form>

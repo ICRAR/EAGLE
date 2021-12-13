@@ -51,6 +51,7 @@ import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {PaletteInfo} from './PaletteInfo';
 import { treemapSquarify } from "d3";
+import { stringify } from "querystring";
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -2252,9 +2253,14 @@ export class Eagle {
 
     openSettings = () : void => {
         if(!$(".settingCategoryActive").length){
-            $("#settingsCategory0").click()
+            $(".settingsModalButton").first().click()
         }
         Utils.showSettingsModal();
+    }
+
+    getSettingCategoryId = (title:string) : string => {
+        title = title.split(' ').join('')
+        return 'settingCategory' + title;
     }
 
     toggleSettingsTab = (btn:any, target:any) :void => {

@@ -19,6 +19,7 @@ test('Set token', async t =>{
         // click the settings button
         .click('#navbarDropdownHelp')
         .click("#settings")
+        .click("#settingCategoryExternalServices")
 
         // enter the github access token
         .typeText(Selector('#settingGitHubAccessTokenValue'), EAGLE_GITHUB_ACCESS_TOKEN)
