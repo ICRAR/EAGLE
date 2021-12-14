@@ -165,6 +165,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("create_subgraph_from_selection", "Create subgraph from selection", ["["], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
 
+        Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keyup", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}));
+
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
@@ -374,7 +376,7 @@ export class Eagle {
         })
 
         text = nodeCount + " nodes and " + edgeCount + " edges selected."
-        
+
         return text
     }
 
@@ -4392,6 +4394,6 @@ $( document ).ready(function() {
             $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
         }
     })
-   
+
 
 });

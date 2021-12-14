@@ -95,6 +95,7 @@ $(function(){
 
     // keyboard shortcut event listener
     document.onkeydown = KeyboardShortcut.processKey;
+    document.onkeyup = KeyboardShortcut.processKey;
 
     // HACK: without this global wheel event handler, d3 does not receive zoom events
     //       not sure why, this wasn't always the case
