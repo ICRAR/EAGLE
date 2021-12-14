@@ -1286,8 +1286,9 @@ export class Eagle {
         console.log("fileInfo().repositoryName", fileInfo().repositoryName);
 
         if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown || fileInfo().repositoryName === null) {
-            Utils.showUserMessage("Error", "There is no git repository or filename defined for this file. Please use 'save as' instead!");
-            console.log("No repository selected!");
+            // Utils.showUserMessage("Error", "There is no git repository or filename defined for this file. Please use 'save as' instead!");
+            // console.log("No repository selected!");
+            this.commitToGitAs(fileType);
             return;
         }
 
@@ -1318,7 +1319,6 @@ export class Eagle {
     _commit = (repository: Repository, fileType: Eagle.FileType, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
         // check that repository was found
         if (repository === null){
-            console.log("forward")
             this.commitToGitAs(fileType);
             return;
         }
