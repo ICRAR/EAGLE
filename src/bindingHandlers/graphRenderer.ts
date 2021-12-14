@@ -382,7 +382,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const parent : Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getWidth(), node.getHeight(), node.getKey(), true);
 
             // if a parent was found, update
-            if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey()){
+            if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && parent.getParentKey() !== node.getKey()){
                 //console.log("set parent", parent.getKey());
                 node.setParentKey(parent.getKey());
             }
@@ -2294,9 +2294,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let node : Node = nodes[index];
         let nodeKey : number;
         let nodeParentKey : number = node.getParentKey();
+        let iterations = 0;
 
         // follow the chain of parents
         while (nodeParentKey != null){
+            if (iterations > 10){
+                console.error("too many iterations in findDepthOfNode()");
+                break;
+            }
+
+            iterations += 1;
             depth += 1;
             depth += node.getDrawOrderHint() / 10;
             nodeKey = node.getKey();
