@@ -57,7 +57,7 @@ export class KeyboardShortcut {
         }
 
         // check if a modal is shown, if so abort
-        if ($(".modal.show").length > 0){
+        if ($(".modal.show:not(#shortcutsModal)").length > 0){
             return;
         }
 
@@ -78,28 +78,27 @@ export class KeyboardShortcut {
                     }
                     break;
                 case KeyboardShortcut.Modifier.Alt:
-                    if (!e.altKey){
+                    if (!e.altKey || e.shiftKey || e.metaKey || e.ctrlKey){
                         continue;
                     }
                     break;
                 case KeyboardShortcut.Modifier.Ctrl:
-                    if (!e.ctrlKey){
+                    if (!e.ctrlKey || e.metaKey || e.altKey || e.shiftKey){
                         continue;
                     }
                     break;
                 case KeyboardShortcut.Modifier.Meta:
-                    if (!e.metaKey){
+                    if (!e.metaKey || e.altKey || e.shiftKey || e.ctrlKey){
                         continue;
                     }
                     break;
                 case KeyboardShortcut.Modifier.Shift:
-                    if (!e.shiftKey){
+                    if (!e.shiftKey || e.altKey || e.metaKey || e.ctrlKey){
                         continue;
                     }
                     break;
-                case KeyboardShortcut.Modifier.CtrlShift:
-                if (!e.shiftKey || !e.metaKey){
-                    console.log(e.shiftKey, e.metaKey)
+                case KeyboardShortcut.Modifier.MetaShift:
+                if (!e.shiftKey || !e.metaKey || e.ctrlKey || e.altKey){
                     continue;
                 }
                 break;
@@ -109,6 +108,7 @@ export class KeyboardShortcut {
                 if (key === e.key){
                     if (shortcut.canRun(eagle)){
                         shortcut.run(eagle);
+                        e.preventDefault();
                     }
                 }
             }
@@ -123,6 +123,6 @@ export namespace KeyboardShortcut{
         Meta = "meta",
         Shift = "shift",
         None = "none",
-        CtrlShift = "CtrlShift"
+        MetaShift = "MetaShift"
     }
 }

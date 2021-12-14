@@ -96,6 +96,7 @@ export class Eagle {
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
     static nodeDragComponentIndex : number;
+    static shortcutModalCooldown : number;
 
     constructor(){
         this.palettes = ko.observableArray();
@@ -165,8 +166,11 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("create_subgraph_from_selection", "Create subgraph from selection", ["["], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
 
-        Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keyup", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save As Graph", ["s"], "keyup", KeyboardShortcut.Modifier.CtrlShift, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.Meta, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save As Graph", ["s"], "keydown", KeyboardShortcut.Modifier.MetaShift, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}));
+
+        Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.openShortcuts();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.openShortcuts();}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -1314,6 +1318,7 @@ export class Eagle {
     _commit = (repository: Repository, fileType: Eagle.FileType, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
         // check that repository was found
         if (repository === null){
+            console.log("forward")
             this.commitToGitAs(fileType);
             return;
         }
@@ -2277,7 +2282,11 @@ export class Eagle {
     }
 
     openShortcuts = () : void => {
-        Utils.showShortcutsModal();
+        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
+            Eagle.shortcutModalCooldown = Date.now()
+            Utils.showShortcutsModal();
+        }
+        return
     }
 
     private static findSetting = (key : string) : Setting => {

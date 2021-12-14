@@ -313,6 +313,10 @@
     width:100%;
 }
 
+#shortcutsModal{
+    transition: none;
+}
+
 #settingsModal .modal-header{
     border: none;
     background-color:#002349;
@@ -390,7 +394,7 @@ select.form-control{
 
 .modal-body{
     background-color: aliceblue;
-    height: 70vh;
+    max-height: 70vh;
     overflow-y: scroll;
 }
 
