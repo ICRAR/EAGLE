@@ -1311,8 +1311,7 @@ export class Eagle {
     _commit = (repository: Repository, fileType: Eagle.FileType, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
         // check that repository was found
         if (repository === null){
-            Utils.showUserMessage("Error", "Unable to get find correct repository from the information from the active file.<br/>Service:" +
-             fileInfo().repositoryService + "<br/>Name:" + fileInfo().repositoryName + "<br/>Branch:" + fileInfo().repositoryBranch);
+            this.commitToGitAs(fileType);
             return;
         }
 
