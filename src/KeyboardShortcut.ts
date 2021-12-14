@@ -46,8 +46,6 @@ export class KeyboardShortcut {
     }
 
     static processKey = (e:KeyboardEvent) => {
-        console.log("event", e);
-
         // check if a Textbox or Input field is focused, if so abort
         if($("input,textarea").is(":focus")){
             return;
@@ -68,8 +66,6 @@ export class KeyboardShortcut {
 
         // loop through all the keyboard shortcuts here
         for (const shortcut of Eagle.shortcuts()){
-            console.log(shortcut.eventType, e.type, shortcut.modifier);
-
             // check that the event is of the correct type
             if (e.type !== shortcut.eventType){
                 continue;
@@ -77,7 +73,6 @@ export class KeyboardShortcut {
 
             switch(shortcut.modifier){
                 case KeyboardShortcut.Modifier.None:
-                    console.log(e.altKey, e.ctrlKey, e.metaKey, e.shiftKey);
                     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey){
                         continue;
                     }
@@ -110,12 +105,8 @@ export class KeyboardShortcut {
                 break;
             }
 
-            console.log("process!");
-
             for (const key of shortcut.keys){
-                console.log("key A", key);
                 if (key === e.key){
-                    console.log("key", key);
                     if (shortcut.canRun(eagle)){
                         shortcut.run(eagle);
                     }

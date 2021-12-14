@@ -1677,4 +1677,14 @@ export class Utils {
             });
         });
     }
+
+    static getKeyboardShortcutTextByKey = (key: string) : string => {
+        for (const shortcut of Eagle.shortcuts()){
+            if (shortcut.key === key){
+                return "[" + shortcut.keys.join(",") + "]";
+            }
+        }
+
+        return "";
+    }
 }
