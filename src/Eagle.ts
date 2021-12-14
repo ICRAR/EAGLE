@@ -2347,7 +2347,16 @@ export class Eagle {
     }
 
     getShortcuts = () : KeyboardShortcut[] => {
+        var displayShorcuts : {description:string, shortcut : string} []
+
+        for(const object of Eagle.shortcuts()){
+            var description = object.name
+            var shortcut = object.key
+            displayShorcuts.push({description : description , shortcut : shortcut})
+        }
         return Eagle.shortcuts();
+
+        
     }
 
     resetSettingsDefaults = () : void => {
