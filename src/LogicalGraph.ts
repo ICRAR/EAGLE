@@ -717,8 +717,15 @@ export class LogicalGraph {
         let depth = 0;
         let node = this.findNodeByKey(key);
         let parentKey = node.getParentKey();
+        let iterations = 0;
 
         while (parentKey !== null){
+            if (iterations > 10){
+                console.error("too many iterations in findDepthByKey()");
+                break;
+            }
+
+            iterations += 1;
             depth += 1;
             parentKey = this.findNodeByKey(parentKey).getParentKey();
         }
