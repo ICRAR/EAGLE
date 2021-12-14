@@ -1235,10 +1235,31 @@ export class Eagle {
         let defaultRepository: Repository;
 
         if (this.logicalGraph()){
-            defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
+            // if the repository service is unknown, probably because the graph hasn't been saved before, then
+            // just use any existing repo
+            if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown){
+                const gitHubRepoList : Repository[] = this.getRepositoryList(Eagle.RepositoryService.GitHub);
+                const gitLabRepoList : Repository[] = this.getRepositoryList(Eagle.RepositoryService.GitLab);
+
+                // use first gitlab repo as second preference
+                if (gitLabRepoList.length > 0){
+                    defaultRepository = new Repository(Eagle.RepositoryService.GitLab, gitLabRepoList[0].name, gitLabRepoList[0].branch, false);
+                }
+
+                // overwrite with first github repo as first preference
+                if (gitHubRepoList.length > 0){
+                    defaultRepository = new Repository(Eagle.RepositoryService.GitHub, gitHubRepoList[0].name, gitHubRepoList[0].branch, false);
+                }
+
+                if (gitHubRepoList.length === 0 && gitLabRepoList.length === 0){
+                    defaultRepository = new Repository(Eagle.RepositoryService.GitHub, "", "", false);
+                }
+            } else {
+                defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
+            }
         }
 
-        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(fileInfo().repositoryService),  fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(defaultRepository.service), fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
