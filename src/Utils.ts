@@ -1687,10 +1687,10 @@ export class Utils {
                     if (shortcut.modifier === KeyboardShortcut.Modifier.None){
                         ks.push(k);
                     } else {
-                        ks.push(shortcut.modifier + "-" + k);
+                        ks.push(shortcut.modifier + " + " + k);
                     }
                 }
-                return "[" + ks.join(",") + "]";
+                return ks.join(",");
             }
         }
 

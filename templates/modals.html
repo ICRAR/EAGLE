@@ -377,10 +377,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- ko foreach: getShortcuts() -->
+                        <!-- ko foreach: getShortcutDisplay() -->
                         <tr>
-                            <td data-bind="text: $data.name"></td>
-                            <td data-bind="text: $data.keys"></td>
+                            <td data-bind="text: $data.description"></td>
+                            <td data-bind="text: $data.shortcut"></td>
                         </tr>
                         <!-- /ko -->
                     </tbody>

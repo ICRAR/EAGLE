@@ -123,6 +123,6 @@ export namespace KeyboardShortcut{
         Meta = "Meta",
         Shift = "Shift",
         None = "none",
-        MetaShift = "Meta-Shift"
+        MetaShift = "Meta + Shift"
     }
 }
