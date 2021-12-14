@@ -118,11 +118,11 @@ export class KeyboardShortcut {
 
 export namespace KeyboardShortcut{
     export enum Modifier {
-        Alt = "alt",
-        Ctrl = "ctrl",
-        Meta = "meta",
-        Shift = "shift",
+        Alt = "Alt",
+        Ctrl = "Ctrl",
+        Meta = "Meta",
+        Shift = "Shift",
         None = "none",
-        MetaShift = "MetaShift"
+        MetaShift = "Meta-Shift"
     }
 }

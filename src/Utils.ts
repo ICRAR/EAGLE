@@ -36,6 +36,7 @@ import {Port} from './Port';
 import {Field} from './Field';
 import {Repository} from './Repository';
 import {PaletteInfo} from './PaletteInfo';
+import {KeyboardShortcut} from './KeyboardShortcut';
 
 export class Utils {
     // Allowed file extenstions.
@@ -1681,7 +1682,15 @@ export class Utils {
     static getKeyboardShortcutTextByKey = (key: string) : string => {
         for (const shortcut of Eagle.shortcuts()){
             if (shortcut.key === key){
-                return "[" + shortcut.keys.join(",") + "]";
+                let ks = [];
+                for (const k of shortcut.keys){
+                    if (shortcut.modifier === KeyboardShortcut.Modifier.None){
+                        ks.push(k);
+                    } else {
+                        ks.push(shortcut.modifier + "-" + k);
+                    }
+                }
+                return "[" + ks.join(",") + "]";
             }
         }
 
