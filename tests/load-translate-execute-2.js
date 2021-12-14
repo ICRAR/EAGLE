@@ -208,11 +208,14 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // disable the 'spawn translation tab' setting
             .click('#settingSpawnTranslationTabButton')
 
-            // enter the translator url
-            .typeText(Selector('#settingTranslatorURLValue'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
-
             // use the complex translator options
             .click('#settingUseSimplifiedTranslatorOptionsButton')
+
+            //switch to external services tab
+            .click("#settingCategoryExternalServices")
+
+            // enter the translator url
+            .typeText(Selector('#settingTranslatorURLValue'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
 
             // close settings modal
             .click('#settingsModalAffirmativeButton')
