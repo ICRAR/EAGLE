@@ -358,12 +358,14 @@
 
 #settingsModal form{
     padding:30px 20px 30px 20px;
-    height: 50vh;
+    height: 70vh;
     overflow-y: scroll;
 }
 
 #settingsModal .modal-body{
     padding: 0px;
+    height: unset;
+    overflow-y: unset;
 }
 
 #editFieldModalValueInputCheckbox, #editFieldModalDefaultValueInputCheckbox, #editFieldModalPreciousInputCheckbox {
@@ -388,6 +390,8 @@ select.form-control{
 
 .modal-body{
     background-color: aliceblue;
+    height: 70vh;
+    overflow-y: scroll;
 }
 
 .modal-body li{

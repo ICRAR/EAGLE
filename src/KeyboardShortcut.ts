@@ -102,6 +102,12 @@ export class KeyboardShortcut {
                         continue;
                     }
                     break;
+                case KeyboardShortcut.Modifier.CtrlShift:
+                if (!e.shiftKey || !e.metaKey){
+                    console.log(e.shiftKey, e.metaKey)
+                    continue;
+                }
+                break;
             }
 
             console.log("process!");
@@ -126,5 +132,6 @@ export namespace KeyboardShortcut{
         Meta = "meta",
         Shift = "shift",
         None = "none",
+        CtrlShift = "CtrlShift"
     }
 }

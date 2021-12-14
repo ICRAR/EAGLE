@@ -166,6 +166,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
 
         Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keyup", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save As Graph", ["s"], "keyup", KeyboardShortcut.Modifier.CtrlShift, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
