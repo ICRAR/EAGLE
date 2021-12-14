@@ -169,8 +169,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.Meta, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}));
         Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save As Graph", ["s"], "keydown", KeyboardShortcut.Modifier.MetaShift, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}));
 
-        Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.openShortcuts();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -2379,7 +2379,7 @@ export class Eagle {
         }
         return displayShorcuts;
 
-        
+
     }
 
     resetSettingsDefaults = () : void => {
