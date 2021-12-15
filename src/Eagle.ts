@@ -374,7 +374,7 @@ export class Eagle {
         })
 
         text = nodeCount + " nodes and " + edgeCount + " edges selected."
-        
+
         return text
     }
 
@@ -1976,7 +1976,12 @@ export class Eagle {
     savePaletteToDisk = (palette : Palette) : void => {
         console.log("savePaletteToDisk()", palette.fileInfo().name, palette.fileInfo().type);
 
-        const fileName = palette.fileInfo().name;
+        let fileName = palette.fileInfo().name;
+
+        // Adding file extension to the title if it does not have it.
+        if (!Utils.verifyFileExtension(fileName)) {
+            fileName = fileName + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+        }
 
         // clone the palette and remove github info ready for local save
         const p_clone : Palette = palette.clone();
@@ -4393,6 +4398,6 @@ $( document ).ready(function() {
             $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
         }
     })
-   
+
 
 });
