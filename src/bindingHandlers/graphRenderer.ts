@@ -381,8 +381,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // check for nodes underneath the node we dropped
             const parent : Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getWidth(), node.getHeight(), node.getKey(), true);
 
+            // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
+            const ancestorOfParent = isAncestor(parent, node);
+
             // if a parent was found, update
-            if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && parent.getParentKey() !== node.getKey()){
+            if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent){
                 //console.log("set parent", parent.getKey());
                 node.setParentKey(parent.getKey());
             }
@@ -2984,6 +2987,35 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             // otherwise continue while loop
+        }
+    }
+
+    function isAncestor(node : Node, possibleAncestor : Node) : boolean {
+        let n : Node = node;
+        let iterations = 0;
+
+        while (true){
+            if (iterations > 32){
+                console.error("too many iterations in isDescendent()");
+                return null;
+            }
+
+            iterations += 1;
+
+            // check if found
+            if (n.getKey() === possibleAncestor.getKey()){
+                return true;
+            }
+
+            // otherwise keep traversing upwards
+            const newKey = n.getParentKey();
+
+            // if we reach a null parent, we are done looking
+            if (newKey === null){
+                return false;
+            }
+
+            n = findNodeWithKey(newKey, nodeData);
         }
     }
 
