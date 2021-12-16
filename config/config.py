@@ -33,7 +33,6 @@ SERVER_PORT = 8888
 WTF_CSRF_ENABLED = True
 
 GITHUB_DEFAULT_REPO_LIST = [
-    {"repository":"ICRAR/EAGLE_test_repo", "branch":"master"},
     {"repository":"ICRAR/EAGLE-graph-repo", "branch":"master"},
 ]
 

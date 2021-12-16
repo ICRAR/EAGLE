@@ -10,18 +10,18 @@
     <!-- /ko -->
 
     <!-- ko if: selectedNode() != null -->
-    <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: selectedNode().color}, click: inspectorState().toggleAll">
+    <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: selectedNode().color}, click: inspectorState().toggleAll, eagleTooltip: getInspectorHeadingTooltip(selectedNode().getName(), selectedNode().getCategory(),selectedNode().description())">
         <div class="col-8 headerBtns">
-            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: inspectorState().toggleAll" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Expand/Collapse All">
+            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: inspectorState().toggleAll, eagleTooltip: 'Expand/Collapse All'">
                 <i class="material-icons md-24" data-bind="css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
             </button>
             <!-- ko if: selectedNode().isLocked() -->
-            <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="readonly">
+            <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'readonly'">
                 <i class="material-icons md-24">lock</i>
             </button>
             <!-- /ko -->
             <!-- ko ifnot: selectedNode().isLocked() -->
-            <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="readwrite">
+            <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'readwrite'">
                 <i class="material-icons md-24">lock_open</i>
             </button>
             <!-- /ko -->
@@ -29,17 +29,17 @@
         </div>
         <div class="col-4 text-right headerBtns">
             <!-- ko if: selectedLocation() == Eagle.FileType.Graph || allowPaletteEditing() -->
-            <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Duplicate Selection [d]">
+            <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false, eagleTooltip: 'Duplicate Selection [d]'" data-bs-placement="left">
                 <i  class="material-icons md-24">content_copy</i>
             </button>
             <!-- /ko -->
             <!-- ko if: allowPaletteEditing() -->
-            <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodeToPalette, clickBubble: false" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Add Selected Node To Palette">
+            <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodeToPalette, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
                 <i  class="material-icons md-24">library_add</i>
             </button>
             <!-- /ko -->
             <!-- ko if: selectedLocation() == Eagle.FileType.Graph || allowPaletteEditing() -->
-            <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Delete Selected Node [backspace]">
+            <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node [backspace]'" data-bs-placement="left">
                 <i class="material-icons md-24">delete</i>
             </button>
             <!-- /ko -->
@@ -48,14 +48,18 @@
 
     <div class="card pt-2" id="nodeInspectorInfoCard">
         <div class="row">
-            <div class="col-8">
+            <div class="col-7">
                 <h4 class="nodeInspectorSubTitle">Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
             </div>
-            <div class="col-4">
+            <div class="col-3">
                 <!-- ko if: displayNodeKeys() -->
                 <h4 class="nodeInspectorSubTitle">Key: <span data-bind="text: selectedNode().getKey()"></span></h4>
                 <!-- /ko -->
             </div>
+            <div class="col-2 text-right">
+                <i class="material-icons interactive me-2" data-bs-placement="left" data-bind="eagleTooltip: selectedNode().getGitHTML()">info</i>
+            </div>
+
         </div>
     </div>
 
@@ -68,6 +72,7 @@
         <!-- node component parameters list -->
         <!-- ko if: selectedNode().canHaveParameters() -->
         {% include 'node_inspector_parameters.html' %}
+        {% include 'node_inspector_application_parameters.html' %}
         <!-- /ko -->
 
         <!-- input application type -->
@@ -78,11 +83,6 @@
         <!-- output application type -->
         <!-- ko if: selectedNode().canHaveOutputApplication() -->
         {% include 'node_inspector_output_application.html' %}
-        <!-- /ko -->
-
-        <!-- exit application type -->
-        <!-- ko if: selectedNode().canHaveExitApplication() -->
-        {% include 'node_inspector_exit_application.html' %}
         <!-- /ko -->
 
         <!-- input ports area -->

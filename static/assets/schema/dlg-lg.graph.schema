@@ -14,6 +14,9 @@
                 "repoBranch": {
                     "type": "string"
                 },
+                "readonly": {
+                    "type": "boolean"
+                },
                 "repo": {
                     "type": "string"
                 },
@@ -23,18 +26,43 @@
                 "sha": {
                     "type": "string"
                 },
-                "git_url": {
+                "gitUrl": {
                     "type": "string"
+                },
+                "eagleVersion": {
+                    "type": "string"
+                },
+                "eagleCommitHash": {
+                    "type": "string"
+                },
+                "schemaVersion": {
+                    "type": "string"
+                },
+                "lastModifiedName": {
+                    "type": "string"
+                },
+                "lastModifiedEmail": {
+                    "type": "string"
+                },
+                "lastModifiedDatetime": {
+                    "type": "integer"
                 }
             },
             "required": [
                 "filePath",
                 "fileType",
-                "git_url",
+                "gitUrl",
+                "readonly",
                 "repo",
                 "repoBranch",
                 "repoService",
-                "sha"
+                "sha",
+                "eagleVersion",
+                "eagleCommitHash",
+                "schemaVersion",
+                "lastModifiedName",
+                "lastModifiedEmail",
+                "lastModifiedDatetime"
             ]
         },
         "nodeDataArray": {
@@ -45,17 +73,8 @@
                     "category": {
                         "type": "string"
                     },
-                    "isData": {
-                        "type": "boolean"
-                    },
                     "isGroup": {
-                        "type": "boolean"
-                    },
-                    "canHaveInputs": {
-                        "type": "boolean"
-                    },
-                    "canHaveOutputs": {
-                        "type": "boolean"
+                       "type": "boolean"
                     },
                     "color": {
                         "type": "string"
@@ -87,9 +106,6 @@
                     "collapsed": {
                         "type": "boolean"
                     },
-                    "showPorts": {
-                        "type": "boolean"
-                    },
                     "streaming": {
                         "type": "boolean"
                     },
@@ -105,16 +121,10 @@
                     "outputApplicationName": {
                         "type": "string"
                     },
-                    "exitApplicationName": {
-                        "type": "string"
-                    },
                     "inputApplicationType": {
                         "type": "string"
                     },
                     "outputApplicationType": {
-                        "type": "string"
-                    },
-                    "exitApplicationType": {
                         "type": "string"
                     },
                     "inputPorts": {
@@ -267,29 +277,51 @@
                             ]
                         }
                     },
+                    "applicationParams": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "text": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": ["string","boolean","number"]
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "description",
+                                "name",
+                                "text",
+                                "value"
+                            ]
+                        }
+                    },
                     "group": {
                         "type": "integer"
                     }
                 },
                 "required": [
-                    "canHaveInputs",
-                    "canHaveOutputs",
                     "category",
                     "collapsed",
                     "color",
                     "description",
                     "drawOrderHint",
-                    "exitApplicationName",
-                    "exitApplicationType",
                     "expanded",
                     "fields",
+                    "applicationParams",
                     "height",
                     "inputAppFields",
                     "inputApplicationName",
                     "inputApplicationType",
                     "inputLocalPorts",
                     "inputPorts",
-                    "isData",
                     "isGroup",
                     "key",
                     "outputAppFields",
@@ -297,7 +329,6 @@
                     "outputApplicationType",
                     "outputLocalPorts",
                     "outputPorts",
-                    "showPorts",
                     "streaming",
                     "subject",
                     "text",
@@ -332,7 +363,8 @@
                     "from",
                     "fromPort",
                     "to",
-                    "toPort"
+                    "toPort",
+                    "loop_aware"
                 ]
             }
         }

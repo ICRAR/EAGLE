@@ -20,7 +20,6 @@
             "key": -1,
             "text": "Start",
             "description": "The starting point for workflow execution",
-            "categoryType": "Control",
             "inputPorts": [],
             "readonly": true
         },
@@ -31,847 +30,7 @@
             "key": -10,
             "text": "End",
             "description": "The end of workflow execution",
-            "categoryType": "Control",
             "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "BashShellApp",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Execution time",
-                "name": "execution_time",
-                "value": 5,
-                "description": "Estimate of execution time (in seconds) for this application.",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Num CPUs",
-                "name": "num_cpus",
-                "value": 1,
-                "description": "Number of CPUs used for this application.",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "Group start",
-                "name": "group_start",
-                "value": false,
-                "description": "Is this node the start of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            },{
-                "text": "Command",
-                "name": "command",
-                "value": "",
-                "description": "The command to be executed",
-                "readonly": false,
-                "type": "String"
-            },{
-                "text": "Input Redirection",
-                "name": "input_redirection",
-                "value": "",
-                "description": "The command line argument that specifies the input into this application",
-                "readonly": false,
-                "type": "String"
-            },{
-                "text": "Output Redirection",
-                "name": "output_redirection",
-                "value": "",
-                "description": "The command line argument that specifies the output from this application",
-                "readonly": false,
-                "type": "String"
-            },{
-                "text": "Command Line Arguments",
-                "name": "command_line_arguments",
-                "value": "",
-                "description": "Additional arguments to be added to the command line to be executed",
-                "readonly": false,
-                "type": "String"
-            }],
-            "key": -3,
-            "text": "Bash Shell App",
-            "description": "An application component run within the Bash Shell",
-            "categoryType": "Application",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "DynlibApp",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Execution time",
-                "name": "execution_time",
-                "value": 5,
-                "description": "Estimate of execution time (in seconds) for this application.",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Num CPUs",
-                "name": "num_cpus",
-                "value": 1,
-                "description": "Number of CPUs used for this application.",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "Group start",
-                "name": "group_start",
-                "value": false,
-                "description": "Is this node the start of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Library path",
-                "name": "libpath",
-                "value": "",
-                "description": "The location of the shared object/DLL that implements this application",
-                "readonly": false,
-                "type": "String"
-            }],
-            "key": -13,
-            "text": "Dynlib App",
-            "description": "An application component run from a dynamic library",
-            "categoryType": "Application",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "Mpi",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Group end",
-                "name": "group_end",
-                "value": false,
-                "description": "Is this node the end of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Execution time",
-                "name": "execution_time",
-                "value": 5,
-                "description": "Estimate of execution time (in seconds) for this application.",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Num CPUs",
-                "name": "num_cpus",
-                "value": 1,
-                "description": "Number of CPUs used for this application.",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "Num procs",
-                "name": "num_of_procs",
-                "value": "4",
-                "description": "Number of processes used for this application.",
-                "readonly": false,
-                "type": "Integer"
-            }],
-            "key": -9,
-            "text": "MPI",
-            "description":"An application component using the Message Passing Interface (MPI)",
-            "categoryType": "Application",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "Docker",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Execution time",
-                "name": "execution_time",
-                "value": 5,
-                "description": "Estimate of execution time (in seconds) for this application.",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Num CPUs",
-                "name": "num_cpus",
-                "value": 1,
-                "description": "Number of CPUs used for this application.",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "Group start",
-                "name": "group_start",
-                "value": false,
-                "description": "Is this node the start of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Image",
-                "name": "image",
-                "value": "icrar/",
-                "description": "The name of the docker image to be used for this application",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Tag",
-                "name": "tag",
-                "value": "1.0",
-                "description": "The tag of the docker image to be used for this application",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Digest",
-                "name": "digest",
-                "value": "",
-                "description": "The hexadecimal hash (long version) of the docker image to be used for this application",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Command",
-                "name": "command",
-                "value": "",
-                "description": "The command line to run within the docker instance. The specified command will be executed in a bash shell. That means that images will need a bash shell.",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "User",
-                "name": "user",
-                "value": "",
-                "description": "Username of the user who will run the application within the docker image",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Ensure User And Switch",
-                "name": "ensureUserAndSwitch",
-                "value": false,
-                "description":"Make sure the user specified in the User parameter exists and then run the docker container as that user",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Remove Container",
-                "name": "removeContainer",
-                "value": true,
-                "description":"Instruct Docker engine to delete the container after execution is complete",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Additional Bindings",
-                "name": "additionalBindings",
-                "value": "",
-                "description":"Directories which will be visible inside the container during run-time. Format is srcdir_on_host:trgtdir_on_container. Multiple entries can be separated by commas.",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Port Mappings",
-                "name": "portMappings",
-                "value": "",
-                "description": "Port mappings on the host machine",
-                "readonly": false,
-                "type": "String"
-            }],
-            "key": -8,
-            "text": "Docker",
-            "description":"An application component run from a Docker image",
-            "categoryType": "Application",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "Singularity",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Execution time",
-                "name": "execution_time",
-                "value": 5,
-                "description": "Estimate of execution time (in seconds) for this application.",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Num CPUs",
-                "name": "num_cpus",
-                "value": 1,
-                "description": "Number of CPUs used for this application.",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "Group start",
-                "name": "group_start",
-                "value": false,
-                "description": "Is this node the start of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Image",
-                "name": "image",
-                "value": "icrar/",
-                "description": "The name of the singularity image to be used for this application",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Tag",
-                "name": "tag",
-                "value": "1.0",
-                "description": "The tag of the singularity image to be used for this application",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Digest",
-                "name": "digest",
-                "value": "",
-                "description": "The hexadecimal hash (long version) of the singularity image to be used for this application",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Command",
-                "name": "command",
-                "value": "",
-                "description": "The command line to run within the singularity instance. The specified command will be executed in a bash shell. That means that images will need a bash shell.",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "User",
-                "name": "user",
-                "value": "",
-                "description": "Username of the user who will run the application within the singularity image",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Ensure User And Switch",
-                "name": "ensureUserAndSwitch",
-                "value": false,
-                "description":"Make sure the user specified in the User parameter exists and then run the singularity container as that user",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Remove Container",
-                "name": "removeContainer",
-                "value": true,
-                "description":"Instruct Singularity engine to delete the container after execution is complete",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Additional Bindings",
-                "name": "additionalBindings",
-                "value": "",
-                "description":"Directories which will be visible inside the container during run-time. Format is srcdir_on_host:trgtdir_on_container. Multiple entries can be separated by commas.",
-                "readonly": false,
-                "type": "String"
-            }],
-            "key": -11,
-            "text": "Singularity",
-            "description":"An application component run from a Singularity image (not currently supported by DALiuGE)",
-            "categoryType": "Application",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "PythonApp",
-            "outputPorts": [],
-            "text": "Python App",
-            "description": "An application component in the form of a Python app",
-            "key": -2,
-            "fields": [{
-                "text": "Execution time",
-                "name": "execution_time",
-                "value": 5,
-                "description": "Estimate of execution time (in seconds) for this application.",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Num CPUs",
-                "name": "num_cpus",
-                "value": 1,
-                "description": "Number of CPUs used for this application.",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "Group start",
-                "name": "group_start",
-                "value": false,
-                "description": "Is this node the start of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Appclass",
-                "name": "appclass",
-                "value": "test.graphsRepository",
-                "description": "The python class that implements this application",
-                "readonly": false,
-                "type": "String"
-            }],
-            "categoryType": "Application",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "Memory",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Data volume",
-                "name": "data_volume",
-                "value": 5,
-                "description": "Estimated size of the data contained in this node",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Group end",
-                "name": "group_end",
-                "value": false,
-                "description": "Is this node the end of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }],
-            "key": -4,
-            "text": "Memory",
-            "description": "In-memory storage of intermediate data products",
-            "categoryType": "Data",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "File",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Data volume",
-                "name": "data_volume",
-                "value": 5,
-                "description": "Estimated size of the data contained in this node",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Group end",
-                "name": "group_end",
-                "value": false,
-                "description": "Is this node the end of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Check file path exists",
-                "name": "check_filepath_exists",
-                "value": true,
-                "description": "Perform a check to make sure the file path exists before proceeding with the application",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "File path",
-                "name": "filepath",
-                "value": "",
-                "description": "Path to the file for this node",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Directory name",
-                "name": "dirname",
-                "value": "",
-                "description": "Name of the directory containing the file for this node",
-                "readonly": false,
-                "type": "String"
-            }],
-            "key": -5,
-            "text": "File",
-            "description": "A standard file on a filesystem mounted to the deployment machine",
-            "categoryType": "Data",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "S3",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Data volume",
-                "name": "data_volume",
-                "value": 5,
-                "description": "Estimated size of the data contained in this node",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Group end",
-                "name": "group_end",
-                "value": false,
-                "description": "Is this node the end of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Bucket",
-                "name": "bucket",
-                "value": "",
-                "description": "The S3 Bucket",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Object Name",
-                "name": "object_name",
-                "value": "",
-                "description": "The S3 Object",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Profile Name",
-                "name": "profile_name",
-                "value": "",
-                "description": "The S3 Profile",
-                "readonly": false,
-                "type": "String"
-            }],
-            "key": -6,
-            "text": "S3",
-            "description": "A 'bucket' object available on Amazon's Simple Storage Service (S3)",
-            "categoryType": "Data",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "NGAS",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Data volume",
-                "name": "data_volume",
-                "value": 5,
-                "description": "Estimated size of the data contained in this node",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Group end",
-                "name": "group_end",
-                "value": false,
-                "description": "Is this node the end of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "NGAS Server",
-                "name": "ngasSrv",
-                "value": "localhost",
-                "description": "The URL of the NGAS Server",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "NGAS Port",
-                "name": "ngasPort",
-                "value": 7777,
-                "description": "The port of the NGAS Server",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "File ID",
-                "name": "ngasFileId",
-                "value": "",
-                "description": "File ID on NGAS (for retrieval only)",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Connection timeout",
-                "name": "ngasConnectTimeout",
-                "value": 2,
-                "description": "Timeout for connecting to the NGAS server",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "NGAS mime-type",
-                "name": "ngasMime",
-                "value": "text/ascii",
-                "description": "Mime-type to be used for archiving",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "NGAS timeout",
-                "name": "ngasTimeout",
-                "value": 2,
-                "description": "Timeout for receiving responses for NGAS",
-                "readonly": false,
-                "type": "Integer"
-            }],
-            "key": -7,
-            "text": "NGAS",
-            "description": "An archive on the Next Generation Archive System (NGAS).",
-            "categoryType": "Data",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "Plasma",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Data volume",
-                "name": "data_volume",
-                "value": 5,
-                "description": "Estimated size of the data contained in this node",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Group end",
-                "name": "group_end",
-                "value": false,
-                "description": "Is this node the end of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Plasma Path",
-                "name": "plasma_path",
-                "value": "",
-                "description": "Path to the local plasma store",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Object Id",
-                "name": "object_id",
-                "value": "",
-                "description": "Id of the object for all compute nodes",
-                "readonly": false,
-                "type": "String"
-            }],
-            "key": -24,
-            "text": "Plasma",
-            "description": "An object in a Apache Arrow Plasma in-memory object store",
-            "categoryType": "Data",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "PlasmaFlight",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Data volume",
-                "name": "data_volume",
-                "value": 5,
-                "description": "Estimated size of the data contained in this node",
-                "readonly": false,
-                "type": "Float"
-            }, {
-                "text": "Group end",
-                "name": "group_end",
-                "value": false,
-                "description": "Is this node the end of a group?",
-                "readonly": false,
-                "type": "Boolean"
-            }, {
-                "text": "Plasma Path",
-                "name": "plasma_path",
-                "value": "",
-                "description": "Path to the local plasma store",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Object Id",
-                "name": "object_id",
-                "value": "",
-                "description": "Id of the object for all compute nodes",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Flight Path",
-                "name": "flight_path",
-                "value": "",
-                "description": "IP and flight port of the drop owner",
-                "readonly": false,
-                "type": "String"
-            }],
-            "key": -29,
-            "text": "PlasmaFlight",
-            "description": "An Apache Arrow Flight server providing distributed access to a Plasma in-memory object store",
-            "categoryType": "Data",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "GroupBy",
-            "text": "Group By",
-            "description": "A construct that runs an application on a number of inputs and groups the outputs by results",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -16,
-            "fields": [{
-                "text": "Group key",
-                "name": "group_key",
-                "value": "None",
-                "description": "",
-                "readonly": false,
-                "type": "String"
-            }, {
-                "text": "Group axis",
-                "name": "group_axis",
-                "value": "frequency",
-                "description": "The axis by which to group the inputs together",
-                "readonly": false,
-                "type": "String"
-            }],
-            "categoryType": "Group",
-            "readonly": true
-        },
-        {
-            "category": "Gather",
-            "text": "Gather",
-            "description": "A construct that gathers together multiple inputs and processes them using a specified number of instances",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -15,
-            "fields": [{
-                "text": "Number of inputs",
-                "name": "num_of_inputs",
-                "value": 2,
-                "description": "The Gather “width”, stating how many partitions each Gather instance will handle",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "Gather axis",
-                "name": "gather_axis",
-                "value": "frequency",
-                "description": "The axis by which to gather the inputs together",
-                "readonly": false,
-                "type": "String"
-            }],
-            "categoryType": "Group",
-            "readonly": true
-        },
-        {
-            "category": "Scatter",
-            "text": "Scatter",
-            "description": "A construct that splits inputs into multiple parallel processing instances",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -14,
-            "fields": [{
-                "text": "Number of copies",
-                "name": "num_of_copies",
-                "value": 4,
-                "description": "The number of outputs generated by this construct",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "Scatter axis",
-                "name": "scatter_axis",
-                "value": "time",
-                "description": "The axis used to split the input into multiple outputs",
-                "readonly": false,
-                "type": "String"
-            }],
-            "categoryType": "Group",
-            "readonly": true
-        },
-        {
-            "category": "MKN",
-            "text": "MKN",
-            "description": "A generalised Scatter and Gather node. MKN stands for a multiplicity of M on the input side of the construct, K internal and N on the output side.",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -18,
-            "fields": [{
-                "text": "M",
-                "name": "m",
-                "value": 1,
-                "description": "The input-side multiplicity of this construct",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "K",
-                "name": "k",
-                "value": 1,
-                "description": "The internal multiplicity of this construct",
-                "readonly": false,
-                "type": "Integer"
-            }, {
-                "text": "N",
-                "name": "n",
-                "value": 1,
-                "description": "The output-side multiplicity of this construct",
-                "readonly": false,
-                "type": "Integer"
-            }],
-            "categoryType": "Group",
-            "readonly": true
-        },
-        {
-            "category": "Loop",
-            "text": "Loop",
-            "description": "Components inside a Loop will be repeatedly executed for a fixed number of times",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -17,
-            "fields": [{
-                "text": "Number loops",
-                "name": "num_of_iter",
-                "value": 5,
-                "description": "The number of iterations performed by this loop construct",
-                "readonly": false,
-                "type": "Integer"
-            }],
-            "categoryType": "Group",
-            "readonly": true
-        },
-        {
-            "category": "Service",
-            "text": "Service",
-            "description": "An external service (e.g. a database)",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -20,
-            "fields": [],
-            "categoryType": "Service",
-            "readonly": true
-        },
-        {
-            "category": "Comment",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Comment",
-                "name": "comment",
-                "value": "",
-                "description": "The text value of the comment",
-                "readonly": false,
-                "type": "String"
-            }],
-            "key": -12,
-            "text": "Comment",
-            "description": "A node that places a comment in the graph. The comment can be used to communicate important information or intention",
-            "categoryType": "Other",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "Description",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Description",
-                "name": "description",
-                "value": "",
-                "description": "The text value of the description",
-                "readonly": false,
-                "type": "String"
-            }],
-            "key": -21,
-            "text": "Description",
-            "description": "A node that places a description in the graph. The description should be used to communicate the purpose of the graph",
-            "categoryType": "Other",
-            "inputPorts": [],
-            "readonly": true
-        },
-        {
-            "category": "ExclusiveForceNode",
-            "text": "Exclusive Force Node",
-            "description": "A group that completely specifies the computation on a single node. All child components must be deployed to a single node, and no other components can be deployed to the same node.",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -19,
-            "fields": [],
-            "categoryType": "Control",
-            "readonly": true
-        },
-        {
-            "category": "Variables",
-            "text": "Variables",
-            "description": "A node that contains variables for use in the graph. Often used to specify global variables.",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -22,
-            "fields": [],
-            "categoryType": "Other",
             "readonly": true
         },
         {
@@ -902,30 +61,897 @@
                 "value": 5,
                 "description": "Estimate of execution time (in seconds) for this application.",
                 "readonly": false,
-                "type": "Float"
+                "type": "Float",
+                "default": 5
             }, {
                 "text": "Num CPUs",
                 "name": "num_cpus",
                 "value": 1,
                 "description": "Number of CPUs used for this application.",
                 "readonly": false,
-                "type": "Integer"
+                "type": "Integer",
+                "default": 1
             }, {
                 "text": "Group start",
                 "name": "group_start",
                 "value": false,
                 "description": "Is this node the start of a group?",
                 "readonly": false,
-                "type": "Boolean"
+                "type": "Boolean",
+                "default": false
             }, {
                 "text": "Appclass",
                 "name": "appclass",
                 "value": "dlg.apps.simple.SimpleBranch",
                 "description": "The python class that implements this branch construct",
                 "readonly": false,
-                "type": "String"
+                "type": "String",
+                "default": "dlg.apps.simple.SimpleBranch"
             }],
-            "categoryType": "Control",
+            "readonly": true
+        },
+        {
+            "category": "BashShellApp",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer",
+                "default": 1
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            },{
+                "text": "Command",
+                "name": "command",
+                "value": "",
+                "description": "The command to be executed",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            },{
+                "text": "Input Redirection",
+                "name": "input_redirection",
+                "value": "",
+                "description": "The command line argument that specifies the input into this application",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            },{
+                "text": "Output Redirection",
+                "name": "output_redirection",
+                "value": "",
+                "description": "The command line argument that specifies the output from this application",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            },{
+                "text": "Command Line Arguments",
+                "name": "command_line_arguments",
+                "value": "",
+                "description": "Additional arguments to be added to the command line to be executed",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }],
+            "key": -3,
+            "text": "Bash Shell App",
+            "description": "An application component run within the Bash Shell",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "DynlibApp",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer",
+                "default": 1
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Library path",
+                "name": "libpath",
+                "value": "",
+                "description": "The location of the shared object/DLL that implements this application",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }],
+            "key": -13,
+            "text": "Dynlib App",
+            "description": "An application component run from a dynamic library",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "Mpi",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Group end",
+                "name": "group_end",
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer",
+                "default": 1
+            }, {
+                "text": "Num procs",
+                "name": "num_of_procs",
+                "value": "4",
+                "description": "Number of processes used for this application.",
+                "readonly": false,
+                "type": "Integer",
+                "default": 4
+            }],
+            "key": -9,
+            "text": "MPI",
+            "description":"An application component using the Message Passing Interface (MPI)",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "Docker",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer",
+                "default": 1
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Image",
+                "name": "image",
+                "value": "icrar/",
+                "description": "The name of the docker image to be used for this application",
+                "readonly": false,
+                "type": "String",
+                "default": "icrar/"
+            }, {
+                "text": "Tag",
+                "name": "tag",
+                "value": "1.0",
+                "description": "The tag of the docker image to be used for this application",
+                "readonly": false,
+                "type": "String",
+                "default": "1.0"
+            }, {
+                "text": "Digest",
+                "name": "digest",
+                "value": "",
+                "description": "The hexadecimal hash (long version) of the docker image to be used for this application",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Command",
+                "name": "command",
+                "value": "",
+                "description": "The command line to run within the docker instance. The specified command will be executed in a bash shell. That means that images will need a bash shell.",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "User",
+                "name": "user",
+                "value": "",
+                "description": "Username of the user who will run the application within the docker image",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Ensure User And Switch",
+                "name": "ensureUserAndSwitch",
+                "value": false,
+                "description":"Make sure the user specified in the User parameter exists and then run the docker container as that user",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Remove Container",
+                "name": "removeContainer",
+                "value": true,
+                "description":"Instruct Docker engine to delete the container after execution is complete",
+                "readonly": false,
+                "type": "Boolean",
+                "default": true
+            }, {
+                "text": "Additional Bindings",
+                "name": "additionalBindings",
+                "value": "",
+                "description":"Directories which will be visible inside the container during run-time. Format is srcdir_on_host:trgtdir_on_container. Multiple entries can be separated by commas.",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Port Mappings",
+                "name": "portMappings",
+                "value": "",
+                "description": "Port mappings on the host machine",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }],
+            "key": -8,
+            "text": "Docker",
+            "description":"An application component run from a Docker image",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "Singularity",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer",
+                "default": 1
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Image",
+                "name": "image",
+                "value": "icrar/",
+                "description": "The name of the singularity image to be used for this application",
+                "readonly": false,
+                "type": "String",
+                "default": "icrar/"
+            }, {
+                "text": "Tag",
+                "name": "tag",
+                "value": "1.0",
+                "description": "The tag of the singularity image to be used for this application",
+                "readonly": false,
+                "type": "String",
+                "default": "1.0"
+            }, {
+                "text": "Digest",
+                "name": "digest",
+                "value": "",
+                "description": "The hexadecimal hash (long version) of the singularity image to be used for this application",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Command",
+                "name": "command",
+                "value": "",
+                "description": "The command line to run within the singularity instance. The specified command will be executed in a bash shell. That means that images will need a bash shell.",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "User",
+                "name": "user",
+                "value": "",
+                "description": "Username of the user who will run the application within the singularity image",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Ensure User And Switch",
+                "name": "ensureUserAndSwitch",
+                "value": false,
+                "description":"Make sure the user specified in the User parameter exists and then run the singularity container as that user",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Remove Container",
+                "name": "removeContainer",
+                "value": true,
+                "description":"Instruct Singularity engine to delete the container after execution is complete",
+                "readonly": false,
+                "type": "Boolean",
+                "default": true
+            }, {
+                "text": "Additional Bindings",
+                "name": "additionalBindings",
+                "value": "",
+                "description":"Directories which will be visible inside the container during run-time. Format is srcdir_on_host:trgtdir_on_container. Multiple entries can be separated by commas.",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }],
+            "key": -11,
+            "text": "Singularity",
+            "description":"An application component run from a Singularity image (not currently supported by DALiuGE)",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "PythonApp",
+            "outputPorts": [],
+            "text": "Python App",
+            "description": "An application component in the form of a Python app",
+            "key": -2,
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer",
+                "default": 1
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Appclass",
+                "name": "appclass",
+                "value": "test.graphsRepository",
+                "description": "The python class that implements this application",
+                "readonly": false,
+                "type": "String",
+                "default": "test.graphsRepository"
+            }],
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "Service",
+            "text": "Service",
+            "description": "An external service (e.g. a database)",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -20,
+            "fields": [],
+            "readonly": true
+        },
+        {
+            "category": "Memory",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }],
+            "key": -4,
+            "text": "Memory",
+            "description": "In-memory storage of intermediate data products",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "File",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Check file path exists",
+                "name": "check_filepath_exists",
+                "value": true,
+                "description": "Perform a check to make sure the file path exists before proceeding with the application",
+                "readonly": false,
+                "type": "Boolean",
+                "default": true
+            }, {
+                "text": "File path",
+                "name": "filepath",
+                "value": "",
+                "description": "Path to the file for this node",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Directory name",
+                "name": "dirname",
+                "value": "",
+                "description": "Name of the directory containing the file for this node",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }],
+            "key": -5,
+            "text": "File",
+            "description": "A standard file on a filesystem mounted to the deployment machine",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "S3",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Bucket",
+                "name": "bucket",
+                "value": "",
+                "description": "The S3 Bucket",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Object Name",
+                "name": "object_name",
+                "value": "",
+                "description": "The S3 Object",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Profile Name",
+                "name": "profile_name",
+                "value": "",
+                "description": "The S3 Profile",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }],
+            "key": -6,
+            "text": "S3",
+            "description": "A 'bucket' object available on Amazon's Simple Storage Service (S3)",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "NGAS",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "NGAS Server",
+                "name": "ngasSrv",
+                "value": "localhost",
+                "description": "The URL of the NGAS Server",
+                "readonly": false,
+                "type": "String",
+                "default": "localhost"
+            }, {
+                "text": "NGAS Port",
+                "name": "ngasPort",
+                "value": 7777,
+                "description": "The port of the NGAS Server",
+                "readonly": false,
+                "type": "Integer",
+                "default": 7777
+            }, {
+                "text": "File ID",
+                "name": "ngasFileId",
+                "value": "",
+                "description": "File ID on NGAS (for retrieval only)",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Connection timeout",
+                "name": "ngasConnectTimeout",
+                "value": 2,
+                "description": "Timeout for connecting to the NGAS server",
+                "readonly": false,
+                "type": "Integer",
+                "default": 2
+            }, {
+                "text": "NGAS mime-type",
+                "name": "ngasMime",
+                "value": "text/ascii",
+                "description": "Mime-type to be used for archiving",
+                "readonly": false,
+                "type": "String",
+                "default": "text/ascii"
+            }, {
+                "text": "NGAS timeout",
+                "name": "ngasTimeout",
+                "value": 2,
+                "description": "Timeout for receiving responses for NGAS",
+                "readonly": false,
+                "type": "Integer",
+                "default": 2
+            }],
+            "key": -7,
+            "text": "NGAS",
+            "description": "An archive on the Next Generation Archive System (NGAS).",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "Plasma",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Plasma Path",
+                "name": "plasma_path",
+                "value": "",
+                "description": "Path to the local plasma store",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Object Id",
+                "name": "object_id",
+                "value": "",
+                "description": "Id of the object for all compute nodes",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }],
+            "key": -24,
+            "text": "Plasma",
+            "description": "An object in a Apache Arrow Plasma in-memory object store",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "PlasmaFlight",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Plasma Path",
+                "name": "plasma_path",
+                "value": "",
+                "description": "Path to the local plasma store",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Object Id",
+                "name": "object_id",
+                "value": "",
+                "description": "Id of the object for all compute nodes",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Flight Path",
+                "name": "flight_path",
+                "value": "",
+                "description": "IP and flight port of the drop owner",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }],
+            "key": -29,
+            "text": "PlasmaFlight",
+            "description": "An Apache Arrow Flight server providing distributed access to a Plasma in-memory object store",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "Variables",
+            "text": "Variables",
+            "description": "A node that contains variables for use in the graph. Often used to specify global variables.",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -22,
+            "fields": [],
+            "readonly": true
+        },
+        {
+            "category": "GroupBy",
+            "text": "Group By",
+            "description": "A construct that runs an application on a number of inputs and groups the outputs by results",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -16,
+            "fields": [{
+                "text": "Group key",
+                "name": "group_key",
+                "value": "None",
+                "description": "",
+                "readonly": false,
+                "type": "String",
+                "default": "None"
+            }, {
+                "text": "Group axis",
+                "name": "group_axis",
+                "value": "frequency",
+                "description": "The axis by which to group the inputs together",
+                "readonly": false,
+                "type": "String",
+                "default": "frequency"
+            }],
+            "readonly": true
+        },
+        {
+            "category": "Gather",
+            "text": "Gather",
+            "description": "A construct that gathers together multiple inputs and processes them using a specified number of instances",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -15,
+            "fields": [{
+                "text": "Number of inputs",
+                "name": "num_of_inputs",
+                "value": 2,
+                "description": "The Gather “width”, stating how many partitions each Gather instance will handle",
+                "readonly": false,
+                "type": "Integer",
+                "default": 2
+            }, {
+                "text": "Gather axis",
+                "name": "gather_axis",
+                "value": "frequency",
+                "description": "The axis by which to gather the inputs together",
+                "readonly": false,
+                "type": "String",
+                "default": "frequency"
+            }],
+            "readonly": true
+        },
+        {
+            "category": "Scatter",
+            "text": "Scatter",
+            "description": "A construct that splits inputs into multiple parallel processing instances",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -14,
+            "fields": [{
+                "text": "Number of copies",
+                "name": "num_of_copies",
+                "value": 4,
+                "description": "The number of outputs generated by this construct",
+                "readonly": false,
+                "type": "Integer",
+                "default": 4
+            }, {
+                "text": "Scatter axis",
+                "name": "scatter_axis",
+                "value": "time",
+                "description": "The axis used to split the input into multiple outputs",
+                "readonly": false,
+                "type": "String",
+                "default": "time"
+            }],
+            "readonly": true
+        },
+        {
+            "category": "MKN",
+            "text": "MKN",
+            "description": "A generalised Scatter and Gather node. MKN stands for a multiplicity of M on the input side of the construct, K internal and N on the output side.",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -18,
+            "fields": [{
+                "text": "M",
+                "name": "m",
+                "value": 1,
+                "description": "The input-side multiplicity of this construct",
+                "readonly": false,
+                "type": "Integer",
+                "default": 1
+            }, {
+                "text": "K",
+                "name": "k",
+                "value": 1,
+                "description": "The internal multiplicity of this construct",
+                "readonly": false,
+                "type": "Integer",
+                "default": 1
+            }, {
+                "text": "N",
+                "name": "n",
+                "value": 1,
+                "description": "The output-side multiplicity of this construct",
+                "readonly": false,
+                "type": "Integer",
+                "default": 1
+            }],
+            "readonly": true
+        },
+        {
+            "category": "Loop",
+            "text": "Loop",
+            "description": "Components inside a Loop will be repeatedly executed for a fixed number of times",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -17,
+            "fields": [{
+                "text": "Number loops",
+                "name": "num_of_iter",
+                "value": 5,
+                "description": "The number of iterations performed by this loop construct",
+                "readonly": false,
+                "type": "Integer",
+                "default": 5
+            }],
+            "readonly": true
+        },
+        {
+            "category": "ExclusiveForceNode",
+            "text": "Exclusive Force Node",
+            "description": "A group that completely specifies the computation on a single node. All child components must be deployed to a single node, and no other components can be deployed to the same node.",
+            "inputApplication": null,
+            "inputPorts": [],
+            "outputApplication": null,
+            "outputPorts": [],
+            "key": -19,
+            "fields": [],
             "readonly": true
         },
         {
@@ -938,7 +964,42 @@
             "outputPorts": [],
             "key": -25,
             "fields": [],
-            "categoryType": "Group",
+            "readonly": true
+        },
+        {
+            "category": "Comment",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Comment",
+                "name": "comment",
+                "value": "",
+                "description": "The text value of the comment",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }],
+            "key": -12,
+            "text": "Comment",
+            "description": "A node that places a comment in the graph. The comment can be used to communicate important information or intention",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
+            "category": "Description",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Description",
+                "name": "description",
+                "value": "",
+                "description": "The text value of the description",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }],
+            "key": -21,
+            "text": "Description",
+            "description": "A node that places a description in the graph. The description should be used to communicate the purpose of the graph",
+            "inputPorts": [],
             "readonly": true
         }
     ],

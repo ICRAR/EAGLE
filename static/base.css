@@ -68,13 +68,13 @@
 
 /*Animation must have unfilled path strokes to work*/
 .path{
-	fill: none; 
+    fill: none;
     stroke: #6f8193;
     stroke-width: 1px;
     stroke-linecap: round;
-	animation: dash 6s linear;
-	animation-fill-mode: forwards; 
-	animation-iteration-count: 1;
+    animation: dash 6s linear;
+    animation-fill-mode: forwards;
+    animation-iteration-count: 1;
 }
 
 #eagleIconAnimation{
@@ -94,37 +94,37 @@
     transform: translate(-50%, -50%) scale(1.5);
 }
 
-#eagleIconAnimation .path{ 
+#eagleIconAnimation .path{
     transform: scale(2);
 }
 
-#eagleIconAnimation svg:hover path{ 
-    d: path("m 88.7232 109.1043 c -6.2691 -1.6632 -26.731 -5.386 -31.0001 -11.7159 l 16.8586 0.0669 c -0.5447 -0.1061 -11.1871 -2.6822 -17.0225 -13.6649 l 6.7586 0.1379 c -1.0884 -0.4796 -7.072 -5.9689 -6.3529 -13.7203 c 0.3917 -4.2224 5.4263 -10.9429 12.2758 -18.0688 c -5.5193 -7.1373 -4.2617 -9.2962 -13.1033 -9.5172 c 5.6468 -3.4265 8.3106 -6.0962 16.8217 -6.3685 l -3.671 -3.9861 c 3.2787 0.3189 6.6579 1.1277 12.3664 3.1822 c 3.096 0.5296 12.7233 2.4709 12.6896 -1.6552 c 2.2008 0.9655 3.8226 2.6328 7.1723 2.8965 c 2.3107 0.1819 2.176 -1.6986 2.4827 -2.7586 c 2.3145 3.1212 5.1918 6.0548 11.862 7.7241 c 4.134 1.0312 11.3286 2.7925 13.3653 7.054 c 4.6415 9.7113 -8.2416 17.6887 -15.9607 16.7172 c 5.2723 -2.1145 5.3209 -4.7385 1.7677 -7.5527 c -3.8402 -3.128 -15.1404 -2.67 -22.7584 -4.0808 c -8.7782 -1.9345 -10.5894 -5.8043 -12.9654 -9.5172 m -10.0689 7.862 c 13.0789 7.1182 32.8962 9.6508 45.7927 5.7359 m -11.0344 -23.9427 C 101.216 27.6927 96.9339 21.7131 91.206 17.3809 C 83.3495 11.4388 73.8471 7.4012 64.2109 5.3573 C 56.5522 3.7328 45.583 4.1997 40.7236 5.3809 m 12.8275 2.7586 c -8.0108 -0.0702 -16.1934 0.2032 -25.655 3.0345 m 17.1033 1.3793 c -9.5789 0.7338 -19.5361 4.309 -27.8619 6.8965 m 19.5861 -0.8276 c -19.8989 5.2288 -18.3857 9.3692 -25.517 10.8965 m 19.1723 -4 c -11.3603 4.2387 -16.5782 12.0547 -22.4826 14.4826 m 80.8269 69.1029 c -43.3449 2.9566 -77.6593 -6.9245 -83.7235 -56.9651 c 10.1815 -5.0716 8.4964 -13.5592 18.2068 -16.8275 m 72.1374 -1.5172 c -0.351 -2.7003 -1.3148 -3.7853 -2.7586 -4.6896 c -4.6408 -2.9066 -10.8214 -3.4718 -14.7585 -7.1724 m 12.1732 11.0676 c 1 -2 -6 -4 -8.337 -3.2238 z")
+#eagleIconAnimation svg:hover path{
+    d: path("m 88.7232 109.1043 c -6.2691 -1.6632 -26.731 -5.386 -31.0001 -11.7159 l 16.8586 0.0669 c -0.5447 -0.1061 -11.1871 -2.6822 -17.0225 -13.6649 l 6.7586 0.1379 c -1.0884 -0.4796 -7.072 -5.9689 -6.3529 -13.7203 c 0.3917 -4.2224 5.4263 -10.9429 12.2758 -18.0688 c -5.5193 -7.1373 -4.2617 -9.2962 -13.1033 -9.5172 c 5.6468 -3.4265 8.3106 -6.0962 16.8217 -6.3685 l -3.671 -3.9861 c 3.2787 0.3189 6.6579 1.1277 12.3664 3.1822 c 3.096 0.5296 12.7233 2.4709 12.6896 -1.6552 c 2.2008 0.9655 3.8226 2.6328 7.1723 2.8965 c 2.3107 0.1819 2.176 -1.6986 2.4827 -2.7586 c 2.3145 3.1212 5.1918 6.0548 11.862 7.7241 c 4.134 1.0312 11.3286 2.7925 13.3653 7.054 c 4.6415 9.7113 -8.2416 17.6887 -15.9607 16.7172 c 5.2723 -2.1145 5.3209 -4.7385 1.7677 -7.5527 c -3.8402 -3.128 -15.1404 -2.67 -22.7584 -4.0808 c -8.7782 -1.9345 -10.5894 -5.8043 -12.9654 -9.5172 m -10.0689 7.862 c 13.0789 7.1182 32.8962 9.6508 45.7927 5.7359 m -11.0344 -23.9427 C 101.216 27.6927 96.9339 21.7131 91.206 17.3809 C 83.3495 11.4388 73.8471 7.4012 64.2109 5.3573 C 56.5522 3.7328 45.583 4.1997 40.7236 5.3809 m 12.8275 2.7586 c -8.0108 -0.0702 -16.1934 0.2032 -25.655 3.0345 m 17.1033 1.3793 c -9.5789 0.7338 -19.5361 4.309 -27.8619 6.8965 m 19.5861 -0.8276 c -19.8989 5.2288 -18.3857 9.3692 -25.517 10.8965 m 19.1723 -4 c -11.3603 4.2387 -16.5782 12.0547 -22.4826 14.4826 m 80.8269 69.1029 c -43.3449 2.9566 -77.6593 -6.9245 -83.7235 -56.9651 c 10.1815 -5.0716 8.4964 -13.5592 18.2068 -16.8275 m 72.1374 -1.5172 c -0.351 -2.7003 -1.3148 -3.7853 -2.7586 -4.6896 c -4.6408 -2.9066 -10.8214 -3.4718 -14.7585 -7.1724 m 12.1732 11.0676 c 1 -2 -6 -4 -8.337 -3.2238 z");
 }
 
 /*Animation rules, offset: 0  means it will fully draw each stroke*/
 @keyframes dash{
-	to{
-		stroke-dashoffset: 0;
-	}
+    to{
+        stroke-dashoffset: 0;
+    }
 }
 
 /*Stroke values are set as per console.log report (so that each line is full drawn)*/
 #path1{
-	stroke-dasharray: 727.5789794921875;
-	stroke-dashoffset: 727.5789794921875;
+    stroke-dasharray: 727.5789794921875;
+    stroke-dashoffset: 727.5789794921875;
 }
 
 /*Stroke values are set as per console.log report (so that each line is full drawn)*/
 #pathE1{
-	stroke-dasharray: 176.09375;
-	stroke-dashoffset: 176.09375;
+    stroke-dasharray: 176.09375;
+    stroke-dashoffset: 176.09375;
 }
 
 /*Stroke values are set as per console.log report (so that each line is full drawn)*/
 #pathA1{
-	stroke-dasharray: 173.44000244140625;
-	stroke-dashoffset: 173.44000244140625;
+    stroke-dasharray: 173.44000244140625;
+    stroke-dashoffset: 173.44000244140625;
 }
 
 #nodeInspectorKOWrapper{
@@ -210,6 +210,45 @@
     cursor: col-resize;
 }
 
+.componentSearchBar{
+    width:100%;
+    text-align: center;
+    padding: 5px;
+    border:solid 1px #ced4da;
+    border-radius: 5px;
+}
+
+.searchBarIcon{
+    position: absolute;
+    font-size: 24px !important;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 5px;
+    color: #aeaeae;
+}
+
+.searchBarIconClose{
+    position: absolute;
+    font-size: 24px !important;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 5px;
+    color: #aeaeae;
+}
+
+.searchBarContainer{
+    position: relative;
+}
+
+.rightWindow .searchBarContainer{
+    margin-bottom: 15px;
+}
+
+.leftWindow .searchBarContainer{
+    margin-top: 10px;
+}
+
+
 .leftWindow {
     background-color: #002e5f;
     z-index: 100;
@@ -258,7 +297,6 @@
 
 .leftWindowDisplay {
     height: 100%;
-    overflow-y: auto;
 }
 
 .leftWindow .card{
@@ -275,17 +313,77 @@
     width:100%;
 }
 
+#settingsModal .modal-header{
+    border: none;
+    background-color:#002349;
+}
+
+.settingsModalCategoryWrapper{
+    display: none;
+}
+
+.settingsModalButton{
+    background-color: #002e5f;
+    padding: 8px 3px;
+    width: inherit;
+    display: inline-block;
+    border: 0px;
+    color:white;
+}
+
+.settingsModalButton:hover{
+    background-color: rgb(0,64,133);
+    color: white;
+}
+
+#settingsModalHeader{
+    width: 100%;
+    display: flex;
+    color: white;
+}
+
+.settingCategoryActive{
+    display: inline-block;
+}
+
+.settingCategoryBtnActive{
+    background-color: #f0f8ff;
+    color:#002e5f;
+
+}
+
 #settingsModal .btn-secondary{
     height:100%;
 }
 
-#editFieldModal #editFieldModalValueInputCheckbox {
+#settingsModal form{
+    padding:30px 20px 30px 20px;
+    height: 50vh;
+    overflow-y: scroll;
+}
+
+#settingsModal .modal-body{
+    padding: 0px;
+}
+
+#editFieldModalValueInputCheckbox, #editFieldModalDefaultValueInputCheckbox, #editFieldModalPreciousInputCheckbox {
     flex: none;
     padding: 19px;
     margin-left: 50%;
     transform: translateX(-50%);
     margin-top:0px;
+}
 
+select.form-control{
+    appearance: revert;
+}
+
+#editEdgeModalValueInputCheckbox{
+    flex: none;
+    padding: 19px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    margin-top:0px;
 }
 
 .modal-body{
@@ -351,25 +449,158 @@
     position: absolute;
 }
 
+.headerIcons{
+    height: 100%;
+    display: flex;
+    position: relative;
+    padding: 0px 10px;
+    width: 100%;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.paletteHeaderIcon{
+    display: inline-block;
+    position: absolute;
+    right: 20px;
+    top: 22px;
+}
+
+#paletteList{
+    height:90%;
+    height: calc(100% - 118px);
+    overflow-y: scroll;
+}
+
+#paletteList .dropdown-menu a{
+    width:100%;
+}
+
+.paletteTrippleDot{
+    position: absolute;
+    right: 35px;
+    margin-top: 13px;
+    background: none;
+    border: none;
+    z-index: 3;
+    padding:1px;
+}
+
+.paletteHeaderIcon button, .paletteHeaderIcon i{
+    right: -50%;
+    top: 50%;
+    transform: translate(50%, -50%);
+    font-size: 15px;
+    margin: 0px;
+    padding:0px;
+    background: none;
+    border: none;
+}
+
+.paletteHeaderIcon button{
+    right:15px;
+    pointer-events: auto;
+}
+
+.paletteTrippleDot:after{
+    display: none;
+}
+
+.paletteHeaderIcon i{
+    font-size: 18px;
+}
+
 #paletteList .accordion-item{
     margin-bottom: 5px;
     border:1px solid #052349 !important;
     background-color: rgba(214, 219, 239, 0.95);
 }
 
+#paletteList .dropdown-menu{
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    z-index: 4;
+    background-color: #0059a5;
+    border: black solid 1px;
+    border-radius: 6px;
+    pointer-events: auto;
+    width:min-content;
+}
+
+#paletteList .dropdown-menu a{
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+}
+
+#paletteList .dropdown-menu span{
+    display: block;
+    width: 100%;
+    padding:0px 10px;
+    white-space: nowrap;
+}
+
+#paletteList .searchExcludeTrue{
+    width: 100%;
+    height: 18px;
+    background-color: tomato;
+    text-align: center;
+    color: white;
+}
+
+#paletteList .searchExcludeFalse{
+    width: 100%;
+    height: 18px;
+    background-color:yellowgreen;
+    text-align: center;
+    color: white;
+}
+
+#paletteList .dropdown-menu span:hover{
+    background-color: #001d3b;
+    color: white;
+}
+
+#paletteList .searchExcludeFalse i{
+    font-size: 18px;
+    pointer-events: none;
+}
+
+#paletteList .searchExcludeTrue i{
+    font-size: 18px;
+    pointer-events: none;
+}
+
+#paletteList .accordion-body{
+    padding: 0.6rem 1rem;
+}
+
 #paletteList .accordion-item h5{
     margin:0px;
-    font-size: 20px;
+    margin-left: 40px;
+    font-size: 18px;
     font-weight: 400;
+    overflow: hidden;
+    width: 70%;
 }
 
-#paletteList .accordion-button i {
-    font-size: 22px;
+#paletteList palette-component .input-group-prepend{
+    height: 100%;
+    width: 52px;
 }
 
-#paletteList .accordion-item .btn-close{
-    margin-right:10px; 
-    font-size: 16px;
+#paletteList palette-component button, #paletteList palette-component span {
+    height: 100%;
+    width: 100%;
+}
+
+#paletteList palette-component i {
+    margin-left:50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    color:white;
+    font-size: 24px;
 }
 
 .savePaletteBtn{
@@ -389,6 +620,69 @@
     padding-right:4px;
 }
 
+#inspectorSelectionSummary{
+    padding: 10px;
+}
+
+#eplorePalettesWrapper{
+    width: 90%;
+    display: inline-block;
+}
+
+#paletteWindowdropdownWrapper{
+    position: absolute;
+    right: 5px;
+}
+
+#paletteWindowdropdownWrapper a:after{
+    display: none;
+}
+
+#paletteWindowdropdownWrapper a{
+    text-decoration: none;
+    color: black;
+    padding:7px;
+}
+
+#paletteWindowdropdownWrapper .dropdown-item{
+    color:white;
+    padding: 4px 16px;
+}
+
+#paletteWindowdropdownWrapper .dropDropDown{
+    left:100%;
+    right: unset;
+}
+
+#root span:after{
+    height: 2px;
+    background-color: tomato;
+}
+
+.inspectorSelectionSummaryItem {
+    margin-top: 8px;
+    background-color: #e9ecef;
+    padding: 5px 15px;
+    border-radius: 5px;
+}
+
+.inspectorSelectionSummaryItem h5{
+    margin-bottom: 0px;
+    font-size: 18px;
+}
+
+.inspectorSelectionSummaryItem span{
+    font-size:16px;
+}
+
+#inspectorSelectionSummaryNodes {
+    margin-top: 8px;
+    background-color: #c2c8dc;
+    padding: 5px 15px;
+    border-radius: 5px;
+    display: block;
+}
+
 .accordion-button.collapsed::after {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }
@@ -397,16 +691,19 @@
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }
 
-#paletteList .btn-close{
+.paletteCardWrapper{
+    position: relative;
+}
+
+#paletteList .accordion-button::after{
     opacity: 100%;
+    position: absolute;
+    left: 15px;
 }
 
 #paletteList .accordion-button{
     background-color: #c2c8dc !important;
-    padding: 10px 20px;
-}
-
-#paletteList .accordion-button{
+    padding: 10px 10px 10px 0px;
     color:#212529 !important;
 }
 
@@ -440,7 +737,7 @@
     border-right: solid 1px grey;
 }
 
-.leftWindow .card-header button.btn-close{    
+.leftWindow .card-header button.btn-close{
     right: 15px;
     top: 13px;
     position: absolute;
@@ -585,7 +882,7 @@
     list-style-type: none;
 }
 
-#nodeInspectorAddField{
+#nodeInspectorAddField, #nodeInspectorAddApplicationParam{
     padding:0px;
 }
 
@@ -737,6 +1034,18 @@ div.rightWindow h5.card-header {
     color: white;
 }
 
+#edgeInspector{
+    margin: top 1px;
+}
+
+#edgeEditBtn{
+    color:rgb(0, 89, 165);
+}
+
+#edgeDeleteBtn{
+    color: red;;
+}
+
 #nodeInspector .input-group-prepend, #edgeInspector .input-group-prepend, #translationMenu .input-group-prepend {
     width:40%;
 }
@@ -758,6 +1067,26 @@ div.rightWindow h5.card-header {
     text-align: left;
     white-space: normal;
     border-radius: 0px;
+}
+
+#edgeInspectorToggleLoopAware{
+    height:100%;
+}
+
+#edgeInspectorIcons{
+    position: absolute;
+    right:12px;
+    top:0px;
+}
+
+#edgeInspectorIcons button{
+    padding:0px;
+}
+
+#nodeInspector .input-group-text img{
+    height: 25px;
+    max-width: 100%;
+    filter: invert();
 }
 
 #translationMenu .accordion button{
@@ -860,7 +1189,7 @@ div.rightWindow h5.card-header {
 
 #rightWindowTabs .btn-secondary.active{
     border: 0px;
-    background-color: rgba(214, 219, 239, 0.8);
+    background-color: rgb(216, 221, 240);
     color: #00244a;
     z-index: 0;
 }
@@ -935,10 +1264,12 @@ nav.navbar .introjs-helperLayer {
 .nodeBtn{
     border:none;
     padding:0;
+    background-color: transparent;
 }
 
 .nodeTitle{
     pointer-events:none;
+    padding:0px 5px;
 }
 
 .closedIcon{
@@ -979,6 +1310,14 @@ nav.navbar .introjs-helperLayer {
     font-size: 1rem;
     font-weight: 400;
     color: #6c757d;
+}
+
+#nodeInspectorInfoCard .col-3{
+    padding: 0px;
+}
+
+#nodeInspectorInfoCard .text-right{
+    transform:translateY(-2px)
 }
 
 .breakLine{

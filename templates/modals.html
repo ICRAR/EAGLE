@@ -1,12 +1,10 @@
 <!-- Message Modal -->
 <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="messageModalTitle">Title</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <span id="messageModalMessage">Message</span>
@@ -25,8 +23,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="inputModalTitle">Title</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -56,8 +52,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="inputTextModalTitle">Title</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -87,8 +81,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="choiceModalTitle">Title</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -129,8 +121,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="confirmModalTitle">Title</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -154,8 +144,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="gitCommitModalTitle">Git Commit</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -228,8 +216,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="gitCustomRepositoryModalTitle">Add Custom Git Repository</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -285,8 +271,6 @@
                 <span>&nbsp;&nbsp;</span>
                 <h5 class="modal-title" id="aboutModalTitle">About EAGLE</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <h5>Editor for the Advanced Graph Language Environment</h5>
@@ -307,72 +291,64 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="settingsModalTitle">Settings</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
+                <div id="settingsModalHeader">
+                    <!-- ko foreach: Object.keys(Eagle.settings) -->
+                        <button class="settingsModalButton" data-bind="attr:{id: $root.getSettingCategoryId($data)}, text: $data, click: $root.toggleSettingsTab($root.getSettingCategoryId($data), 'settingsCategory'+$index()+'Content')"></button>
+                    <!-- /ko -->
+                </div>
                 <form>
-                    <div class="accordion" id="settingsCategoriesAccordion">
-                        <!-- ko foreach: Object.keys(Eagle.settings) -->
-                            <div class="accordion-item mb-2">
-                                <h2 class="accordion-header" data-bind="attr:{id:'settingsCategory'+$index()}">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="text: $data, attr:{'aria-controls':'settingsCollapse'+$index(), 'data-bs-target':'#settingsCollapse'+$index()}">
-                                    </button>
-                                </h2>
-                                <div class="accordion-collapse collapse show" data-bind="attr:{'aria-labelledby':'settingsCategory'+$index(), id:'settingsCollapse'+$index()}">
-                                    <div class="accordion-body">
-                                        <div class="row">
-
-                                            <!-- ko foreach: Eagle.settings[$data] -->
-                                                <!-- ko if: $data.getType() === 0 -->
-                                                    <div class="input-group mb-1">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey(),title:$data.getDescription()},text:$data.getName()" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left"></span>
-                                                        </div>
-                                                        <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
-                                                    </div>
-                                                <!-- /ko -->
-                                                <!-- ko if: $data.getType() === 1 -->
-                                                    <div class="input-group mb-1">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey(),title:$data.getDescription()},text:$data.getName()" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left"></span>
-                                                        </div>
-                                                        <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
-                                                    </div>
-                                                <!-- /ko -->
-                                                <!-- ko if: $data.getType() === 2 -->
-                                                    <div class="settingSm col-6">
-                                                        <div class="input-group mb-1">
-                                                            <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName(),title:$data.getDescription()}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left" readonly>
-                                                            <div class="input-group-append">
-                                                                <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.toggle, attr:{id:'setting'+$data.getKey()+'Button'}">
-                                                                    <i class="material-icons md-18" data-bind="visible: $data.value">radio_button_checked</i>
-                                                                    <i class="material-icons md-18" data-bind="hidden: $data.value">radio_button_unchecked</i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                <!-- /ko -->
-                                                <!-- ko if: $data.getType() === 3 -->
-                                                    <div class="input-group mb-1">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey(),title:$data.getDescription()},text:$data.getName()" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left"></span>
-                                                        </div>
-                                                        <input type="password" autocomplete="off" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.copy, attr:{id:'setting'+$data.getKey()+'Copy'}">
-                                                                <i class="material-icons md-18">content_copy</i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                <!-- /ko -->
-                                            <!-- /ko -->
+                    <!-- ko foreach: Object.keys(Eagle.settings) -->
+                        <div class="settingsModalCategoryWrapper" data-bind="attr:{id:'settingsCategory'+$index()+'Content'}">
+                            <div class="row">
+                                <!-- ko foreach: Eagle.settings[$data] -->
+                                    <!-- ko if: $data.getType() === 0 -->
+                                        <div class="input-group mb-1">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
+                                            </div>
+                                            <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
                                         </div>
-                                    </div>
-                                </div>
+                                    <!-- /ko -->
+                                    <!-- ko if: $data.getType() === 1 -->
+                                        <div class="input-group mb-1">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
+                                            </div>
+                                            <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
+                                        </div>
+                                    <!-- /ko -->
+                                    <!-- ko if: $data.getType() === 2 -->
+                                        <div class="settingSm col-6">
+                                            <div class="input-group mb-1">
+                                                <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.toggle, attr:{id:'setting'+$data.getKey()+'Button'}">
+                                                        <i class="material-icons md-18" data-bind="visible: $data.value">radio_button_checked</i>
+                                                        <i class="material-icons md-18" data-bind="hidden: $data.value">radio_button_unchecked</i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <!-- /ko -->
+                                    <!-- ko if: $data.getType() === 3 -->
+                                        <div class="input-group mb-1">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip:$data.getDescription()" data-bs-placement="left"></span>
+                                            </div>
+                                            <input type="password" autocomplete="off" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.copy, attr:{id:'setting'+$data.getKey()+'Copy'}">
+                                                    <i class="material-icons md-18">content_copy</i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <!-- /ko -->
+                                <!-- /ko -->
                             </div>
-                        <!-- /ko -->
-                    </div>
+                        </div>
+                    <!-- /ko -->
                 </form>
             </div>
             <div class="modal-footer">
@@ -391,8 +367,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="shortcutsModalTitle">Keyboard Shortcuts</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <table class="table table-striped">
@@ -426,8 +400,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="editFieldModalTitle">Edit Parameter</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container" id="addParameterWrapper">
@@ -472,7 +444,17 @@
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control" id="editFieldModalValueInputText">
                                 <input type="checkbox" class="form-control form-check-input" id="editFieldModalValueInputCheckbox">
-                                <div id="editFieldModalValueFeedback" class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Default Value:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="editFieldModalDefaultValueInputText">
+                                <input type="checkbox" class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox">
                             </div>
                         </div>
                     </div>
@@ -511,9 +493,20 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Precious:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="checkbox" class="form-control form-check-input" id="editFieldModalPreciousInputCheckbox">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="justify-content:space-between;">
+                <button type="button" class="btn btn-secondary" id="editFieldModalResetToDefaultButton"><span>Reset to Default</span></button>
                 <button type="button" class="btn btn-primary" id="editFieldModalAffirmativeButton" data-bs-dismiss="modal"><span id="editFieldModalAffirmativeAnswer">OK</span></button>
             </div>
         </div>
@@ -527,8 +520,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="editPortModalTitle">Edit Port</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container" id="addPortWrapper">
@@ -552,6 +543,16 @@
                         <div class="col">
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control" id="editPortModalNameInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Text:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="editPortModalTextInput">
                             </div>
                         </div>
                     </div>
@@ -591,8 +592,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="editEdgeModalTitle">Edit Edge</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -676,8 +675,6 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="explorePalettesModalTitle">Explore Palettes</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </button>
             </div>
             <div class="modal-body" style="min-height: 640px; max-height: 640px; overflow: scroll;">
                 <!-- ko if: explorePalettes().length === 0 -->

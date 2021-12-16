@@ -1,29 +1,36 @@
 <div class="card">
-    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse9" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Parameters">
-        <i class="material-icons interactive nodeMenuIndicator" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:inspectorState().parameters}">keyboard_arrow_down</i>
+    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse9" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Component Parameters">
+        <i class="material-icons interactive nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().componentParameters}">keyboard_arrow_down</i>
         <i class="material-icons">archive</i>
-        <span class="nodeInspectorSubsectionTitle">Component Parameters</span>
+        <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Wrapper parameters describing this component for the DALiuGE system.'">Component Parameters</span>
     </h5>
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse9">
         <div class="card-body" >
+            <div class="searchBarContainer">
+                <i class="material-icons md-18 searchBarIcon">search</i>
+                <a href="#" data-bind="click:function(event){$root.emptySearchBar(Eagle.componentParamsSearchString)}">
+                    <i class="material-icons md-18 searchBarIconClose">close</i>
+                </a>
+                <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.componentParamsSearchString"></input>
+            </div>
             <!-- ko foreach: selectedNode().getFields() -->
-                <!-- ko ifnot: $data.isDaliugeField -->
-                    <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
-                <!-- /ko -->
-            <!-- /ko -->
-            <!-- ko foreach: selectedNode().getFields() -->
-                <!-- ko if: $data.isDaliugeField -->
-                    <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+                <!-- ko if: $data.fitsComponentSearchQuery() -->
+                    <!-- ko ifnot: $data.isDaliugeField -->
+                        <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index()), fieldType: Eagle.FieldType.Field"></field>
+                    <!-- /ko -->
+                    <!-- ko if: $data.isDaliugeField -->
+                        <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index()), fieldType: Eagle.FieldType.Field"></field>
+                    <!-- /ko -->
                 <!-- /ko -->
             <!-- /ko -->
 
             <!-- ko ifnot: selectedNode().isLocked()-->
-                <button class="btn btn-secondary btn-block nodeInspectorDropDown btn_wide" id="nodeInspectorAddField" type="button" data-bind="click: $root.addFieldHTML, attr:{title:'Add parameter'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
+                <button class="btn btn-secondary btn-block nodeInspectorDropDown btn_wide" id="nodeInspectorAddField" type="button" data-bind="click: $root.addFieldHTML, eagleTooltip:'Add parameter'" data-bs-placement="left">
                     <i class="material-icons md-18">add</i>
                 </button>
                 <div id="nodeInspectorAddFieldDiv" class="nodeInspectorDropdownDiv">
                     <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:function(){hideDropDown('nodeInspectorAddFieldDiv')}}">
-                        <div id="nodeInspectorDropDownKO">
+                        <div id="nodeInspectorFieldDropDownKO">
                             <a href="#" data-bind="click:nodeInspectorDropdownClick">hi</a>
                             <a href="#">hi2</a>
                             <a href="#">hi3</a>
@@ -31,7 +38,7 @@
                     </div>
                 </div>
                 <!-- ko if: selectedNode().category() === Eagle.Category.Docker -->
-                    <button class="btn btn-secondary btn-block mt-1 btn_wide" id="nodeInspectorFetchDocker" type="button" data-bind="click: $root.fetchDockerHTML, attr:{title:'Fetch docker image data from Docker Hub'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">Fetch from Docker Hub</button>
+                    <button class="btn btn-secondary btn-block mt-1 btn_wide" id="nodeInspectorFetchDocker" type="button" data-bind="click: $root.fetchDockerHTML, eagleTooltip:'Fetch docker image data from Docker Hub'" data-bs-placement="left">Fetch from Docker Hub</button>
                 <!-- /ko -->
             <!-- /ko -->
         </div>

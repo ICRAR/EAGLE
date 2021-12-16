@@ -513,7 +513,11 @@ def save_git_hub_file():
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
     graph["modelData"]["sha"] = ""
-    graph["modelData"]["git_url"] = ""
+    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["lastModifiedName"] = ""
+    graph["modelData"]["lastModifiedEmail"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = ""
+
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
 
@@ -545,7 +549,7 @@ def save_git_hub_file():
 
     return "ok"
 
-# TODO: update for gitlab
+
 @app.route("/saveFileToRemoteGitlab", methods=["POST"])
 def save_git_lab_file():
     """
@@ -579,7 +583,11 @@ def save_git_lab_file():
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
     graph["modelData"]["sha"] = ""
-    graph["modelData"]["git_url"] = ""
+    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["lastModifiedName"] = ""
+    graph["modelData"]["lastModifiedEmail"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = ""
+
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
 
@@ -639,15 +647,35 @@ def open_git_hub_file():
     g = github.Github(repo_token)
     repo = g.get_repo(repo_name)
 
-    f = repo.get_contents(filename, ref=repo_branch)
+    # get commits
+    commits = repo.get_commits(sha=repo_branch, path=filename)
+    most_recent_commit = commits[0]
+
+    # get the file from this commit
+    f = repo.get_contents(filename, ref=most_recent_commit.sha)
     raw_data = f.decoded_content
 
-    # Add the GitHub file reference.
+    # parse JSON
     graph = json.loads(raw_data)
+
+    if isinstance(graph, list):
+        return app.response_class(response=json.dumps({"error":"File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), status=404, mimetype="application/json")
+
     if not "modelData" in graph:
         graph["modelData"] = {}
-    graph["modelData"]["sha"] = f.sha
-    graph["modelData"]["git_url"] = f.git_url
+
+    # replace some data in the header (modelData) of the file with info from git
+    graph["modelData"]["repo"] = repo_name
+    graph["modelData"]["repoBranch"] = repo_branch
+    graph["modelData"]["repoService"] = "GitHub"
+    graph["modelData"]["filePath"] = filename
+
+    graph["modelData"]["sha"] = most_recent_commit.sha
+    graph["modelData"]["gitUrl"] = f.download_url
+    graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
+    graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
+    graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+
     json_data = json.dumps(graph, indent=4)
 
     response = app.response_class(
@@ -690,19 +718,34 @@ def open_git_lab_file():
         f = project.files.get(file_path=filename, ref=repo_branch)
     except gitlab.exceptions.GitlabGetError as gle:
         print("GitLabGetError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
-        return app.response_class(response=str(gle), status=404, mimetype="application/json")
+        return app.response_class(response=json.dumps({"error":str(gle)}), status=404, mimetype="application/json")
 
     # get the decoded content
     raw_data = f.decode().decode("utf-8")
 
-    # Add the GitHub file reference.
-    #graph = json.loads(raw_data)
-    #graph["modelData"]["sha"] = f.sha
-    #graph["modelData"]["git_url"] = f.git_url
-    #json_data = json.dumps(graph, indent=4)
+    # parse JSON
+    graph = json.loads(raw_data)
+
+    if not "modelData" in graph:
+        graph["modelData"] = {}
+
+    # add the repository information
+    graph["modelData"]["repo"] = repo_name
+    graph["modelData"]["repoBranch"] = repo_branch
+    graph["modelData"]["repoService"] = "GitLab"
+    graph["modelData"]["filePath"] = filename
+
+    # TODO: Add the GitLab file information
+    graph["modelData"]["sha"] = f.commit_id
+    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["lastModifiedName"] = ""
+    graph["modelData"]["lastModifiedEmail"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = ""
+
+    json_data = json.dumps(graph, indent=4)
 
     response = app.response_class(
-        response=json.dumps(raw_data), status=200, mimetype="application/json"
+        response=json.dumps(json_data), status=200, mimetype="application/json"
     )
     return response
 

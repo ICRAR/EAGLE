@@ -1,41 +1,84 @@
-<div id="paletteList">
-    <div class="card">
-        <div class="card-body">
-            <button class="btn btn-primary btn-block btn_wide" data-bind="click: showExplorePalettes, attr:{title: 'Retrieve information on all palettes in ' + Config.DEFAULT_PALETTE_REPOSITORY}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="bottom">Explore Palettes</button>
+<div class="card">
+    <div class="card-body">
+        <span id="eplorePalettesWrapper">
+            <button class="btn btn-primary btn-block btn_wide" data-bind="click: showExplorePalettes, eagleTooltip: 'Retrieve information on all palettes in ' + Config.DEFAULT_PALETTE_REPOSITORY" data-bs-placement="bottom">Explore Palettes</button>
+        </span>
+        <span id="paletteWindowdropdownWrapper" class="dropdown" data-intro='Create new palettes and logical graphs.'>
+            <a class="dropdown-toggle material-icons" href="#" id="paletteWindowdropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                more_vert
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="paletteWindowdropdown">
+            <!-- ko if: allowPaletteEditing() -->
+                <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                    <div class="dropDropDown">
+                        <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette</a>
+                        <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPaletteFromJson">Create New Palette From Json</a>
+                    </div>
+                </span>
+            <!-- /ko -->
+                <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Local Palette</a>
+            </div>
+        </span>
+        <div class="searchBarContainer">
+            <i class="material-icons md-18 searchBarIcon">search</i>
+            <a href="#" data-bind="click:function(event){$root.emptySearchBar(Eagle.paletteComponentSearchString)}">
+                <i class="material-icons md-18 searchBarIconClose">close</i>
+            </a>
+            <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.paletteComponentSearchString, eagleTooltip: 'Search for components in all palettes'"></input>
         </div>
     </div>
+</div>
+<div id="paletteList">
     <div class="accordion">
         <div data-bind="foreach: palettes">
-            <div class="accordion-item" data-bind="event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
-                <div class="accordion-header">
-                    <div class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
-                        <button type="button" class="btn-close" aria-label="Close" data-bind="click: $root.closePalette, clickBubble: false, attr:{title:'Close'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
-                        </button>
-                        <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="right" data-html="true" data-bind="attr:{title:fileInfo().getSummaryHTML()}">info</i>
-                        <!-- ko if: $data.fileInfo().readonly -->
-                        <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'readonly'}">lock</i>
-                        <!-- /ko -->
-                        <!-- ko ifnot: $data.fileInfo().readonly -->
-                        <i class="material-icons interactive" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'readwrite'}">lock_open</i>
-                        <!-- /ko -->
-                        <span>&nbsp;</span>
-                        <h5 class="template-title" data-bind="text: fileInfo().nameAndModifiedIndicator()"></h5>
-
-                    </div>
-                    <!-- ko if: $data.fileInfo().modified -->
-                    <div class="row">
-                        <button type="button" class="btn col-6 savePaletteBtn save-to-git" aria-label="Save to Git" data-bind="click: function(palette, event){$root.savePaletteToGit(palette);event.stopPropagation()}, attr:{title:'Save to Git'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
-                            <i class="material-icons">cloud_upload</i>
-                        </button>
-                        <button type="button" class="btn col-6 savePaletteBtn save-to-disk" aria-label="Save to Disk" data-bind="click: function(palette, event){$root.savePaletteToDisk(palette);event.stopPropagation()}, attr:{title:'Save to Disk'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="top">
-                            <i class="material-icons">save</i>
-                        </button>
-                    </div>
-                <!-- /ko -->
+            <div class="paletteCardWrapper">
+                <button type="button" class="material-icons md-18 dropdown-toggle paletteTrippleDot" aria-label="Close" data-bs-toggle="dropdown" >more_vert</button>
+                <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closePaletteMenus}">
+                    <a href="#" data-bind="click: $root.closePalette, clickBubble: false" data-html="true"><span>Remove Palette</span></a>
+                    <!-- ko if: $root.allowPaletteEditing() -->
+                        <a href="#" data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>
+                        <a href="#" data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>
+                    <!-- /ko -->
+                    <!-- ko if: $data.searchExclude() -->
+                    <a href="#" data-bind="click: function(){$data.setSearchExclude(false)}"><span>Include In Search</span></a>
+                    <!-- /ko -->
+                    <!-- ko ifnot: $data.searchExclude() -->
+                    <a href="#" data-bind="click: function(){$data.setSearchExclude(true)}"><span>Exclude From Search</span></a>
+                    <!-- /ko -->
                 </div>
-                <div class="collapse show accordion-collapse" aria-labelledby="headingOne" data-bind="attr:{id:'collapse' + $index()}">
-                    <div class="accordion-body">
-                        {% include 'palette.html' %}
+                <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
+                    <div class="accordion-header">
+                        <div class="headerIcons">
+                            <div class="paletteHeaderIcon">
+                                <!-- ko if: $data.fileInfo().readonly -->
+                                <i class="material-icons interactive" data-bs-placement="top" data-bind="eagleTooltip:'readonly'">lock</i>
+                                <!-- /ko -->
+                                <!-- ko ifnot: $data.fileInfo().readonly -->
+                                <i class="material-icons interactive" data-bs-placement="top" data-bind="eagleTooltip:'readwrite'">lock_open</i>
+                                <!-- /ko -->
+                            </div>
+                        </div>
+                        <div class="accordion-button" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
+                            <span>&nbsp;</span>
+                            <h5 class="template-title" data-bs-placement="right" data-bind="text: fileInfo().nameAndModifiedIndicator(), eagleTooltip: fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())"></h5>
+                        </div>
+                        <!-- ko ifnot: Eagle.paletteComponentSearchString() === "" -->
+                            <!-- ko if: $data.searchExclude() -->
+                                <div class="searchExcludeTrue" data-bind="click: function(){$data.setSearchExclude(false); $('.tooltip').remove();}, eagleTooltip:'Excluded from search: Click to include'">
+                                    <i class="material-icons">close</i>
+                                </div>
+                            <!-- /ko -->
+                            <!-- ko ifnot: $data.searchExclude() -->
+                                <div class="searchExcludeFalse" data-bind="click: function(){$data.setSearchExclude(true); $('.tooltip').remove();}, eagleTooltip: 'Included in search: Click to exclude'">
+                                    <i class="material-icons">check</i>
+                                </div>                           
+                            <!-- /ko -->
+                        <!-- /ko -->
+                    </div>
+                    <div class="collapse show accordion-collapse" aria-labelledby="headingOne" data-bind="attr:{id:'collapse' + $index()}">
+                        <div class="accordion-body">
+                            {% include 'palette.html' %}
+                        </div>
                     </div>
                 </div>
             </div>

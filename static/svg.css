@@ -1,14 +1,12 @@
 svg {
     width: 100%;
     height: 100%;
-    /*border: 1px solid black;*/
 }
 
 rect.background {
     width: 100%;
     height: 100%;
-    /*fill: #494949;*/
-    fill: #FFFFFF;
+    fill: transparent;
 }
 
 g.node rect {
@@ -123,7 +121,7 @@ g.node g.inputLocalPorts text.event, g.node g.outputLocalPorts text.event, g.nod
     fill: cornflowerblue;
 }
 
-line.link, line.draggingLink, path.link, path.draggingLink {
+line.link, line.draggingLink, line.autoCompleteLink, path.link, path.draggingLink, path.autoCompleteLink {
     stroke-width: 2;
 }
 

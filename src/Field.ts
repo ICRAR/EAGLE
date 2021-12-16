@@ -3,20 +3,24 @@ import * as ko from "knockout";
 import {Eagle} from './Eagle';
 
 export class Field {
-    private text : ko.Observable<string>;
-    private name : ko.Observable<string>;
-    private value : ko.Observable<string>;
+    private text : ko.Observable<string>; // external user-facing name
+    private name : ko.Observable<string>; // internal no-whitespace name
+    private value : ko.Observable<string>; // the current value
+    private defaultValue : ko.Observable<string>;  // default value
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
     private type : ko.Observable<Eagle.DataType>;
+    private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
 
-    constructor(text: string, name: string, value: string, description: string, readonly: boolean, type: Eagle.DataType){
+    constructor(text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean){
         this.text = ko.observable(text);
         this.name = ko.observable(name);
         this.value = ko.observable(value);
+        this.defaultValue = ko.observable(defaultValue);
         this.description = ko.observable(description);
         this.readonly = ko.observable(readonly);
         this.type = ko.observable(type);
+        this.precious = ko.observable(precious);
     }
 
     getText = () : string => {
@@ -43,6 +47,18 @@ export class Field {
         this.value(value);
     }
 
+    getDefaultValue = () : string => {
+        return this.defaultValue();
+    }
+
+    setDefaultValue = (value: string): void => {
+        this.defaultValue(value);
+    }
+
+    hasDefaultValue = () : boolean => {
+        return this.value() === this.defaultValue();
+    }
+
     getDescription = () : string => {
         return this.description();
     }
@@ -52,7 +68,7 @@ export class Field {
     }
 
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
-        return this.description() == "" ? "No description available" + " (" + this.type() + ")" : this.description() + " (" + this.type() + ")";
+        return this.description() == "" ? "No description available" + " (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
     }, this);
 
     isReadonly = () : boolean => {
@@ -68,28 +84,34 @@ export class Field {
     }
 
     valIsTrue = (val:string) : boolean => {
-        if (val === 'true'){
-            return true;
-        }else{
-            return false;
-        }
+        return val === 'true';
     }
 
     setType = (type: Eagle.DataType) : void => {
         this.type(type);
     }
 
+    setPrecious = (precious: boolean) : void => {
+        this.precious(precious);
+    }
+
+    isPrecious = () : boolean => {
+        return this.precious();
+    }
+
     clear = () : void => {
         this.text("");
         this.name("");
         this.value("");
+        this.defaultValue("");
         this.description("");
         this.readonly(false);
         this.type(Eagle.DataType.Unknown);
+        this.precious(false);
     }
 
     clone = () : Field => {
-        return new Field(this.text(), this.name(), this.value(), this.description(), this.readonly(), this.type());
+        return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious());
     }
 
     getFieldValue = () : string => {
@@ -99,6 +121,26 @@ export class Field {
         }
         return tooltipText;
     }
+
+    fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        if(Eagle.componentParamsSearchString() === ""){
+            return true
+        }else if(this.text().toLowerCase().indexOf(Eagle.componentParamsSearchString().toLowerCase())>=0){
+            return true
+        }else{
+            return false
+        }
+    },this)
+
+    fitsApplicationSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        if(Eagle.applicationParamsSearchString() === ""){
+            return true
+        }else if(this.text().toLowerCase().indexOf(Eagle.applicationParamsSearchString().toLowerCase())>=0){
+            return true
+        }else{
+            return false
+        }
+    },this)
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume";
@@ -124,9 +166,11 @@ export class Field {
             text:field.text(),
             name:field.name(),
             value:Field.string2Type(field.value(), field.type()),
+            defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
-            type:field.type()
+            type:field.type(),
+            precious:field.precious()
         };
     }
 
@@ -135,18 +179,28 @@ export class Field {
             text:field.text(),
             name:field.name(),
             value:Field.string2Type(field.value(), field.type()),
+            defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
-            type:field.type()
+            type:field.type(),
+            precious:field.precious()
         };
     }
 
     static fromOJSJson = (data : any) : Field => {
+        let text: string = "";
+        let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
         let type: Eagle.DataType = Eagle.DataType.Unknown;
-        let value: string = ""
+        let value: string = "";
+        let defaultValue: string = "";
+        let precious: boolean = false;
 
+        if (typeof data.text !== 'undefined')
+            text = data.text;
+        if (typeof data.name !== 'undefined')
+            name = data.name;
         if (typeof data.description !== 'undefined')
             description = data.description;
         if (typeof data.readonly !== 'undefined')
@@ -155,8 +209,12 @@ export class Field {
             type = data.type;
         if (typeof data.value !== 'undefined' && data.value !== null)
             value = data.value.toString();
+        if (typeof data.default !== 'undefined' && data.default !== null)
+            defaultValue = data.default.toString();
+        if (typeof data.precious !== 'undefined')
+            precious = data.precious;
 
-        return new Field(data.text, data.name, value, description, readonly, type);
+        return new Field(text, name, value, defaultValue, description, readonly, type, precious);
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {

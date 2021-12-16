@@ -2,28 +2,28 @@
     <div class="col">
         <div class="input-group mb-1">
             <!-- ko if: $data.node() === null -->
-                <button class="btn btn-secondary btn-block btn_wide" type="button" data-bind="click: $data.selectCallback, attr:{title:'Select application', id:$data.selectId}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left" >
+                <button class="btn btn-secondary btn-block btn_wide" type="button" data-bind="click: $data.selectCallback, attr:{id:$data.selectId}, eagleTooltip:'Select application'" data-bs-placement="left" >
                     <i class="material-icons md-18">add</i>
                 </button>
             <!-- /ko -->
 
             <!-- ko ifnot: $data.node() === null -->
-                <div class="input-group-prepend" data-bind="attr: {title: $data.node().getHelpHTML()}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
+                <div class="input-group-prepend" data-bind="eagleTooltip: $data.node().getHelpHTML()" data-bs-placement="left">
                     <span class="input-group-text" data-bind="style: {'background-color': $data.node().color}">
-                        <i class="material-icons" data-bind="text: $data.node().getIcon()"></i>
+                        <i data-bind="class: $data.node().getIcon()"></i>
                     </span>
                 </div>
 
                 <input type="text" class="form-control" readonly data-bind="value: $data.node().getDisplayName()">
 
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.selectCallback, attr: {title: 'Change application', id:$data.changeId}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
+                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.selectCallback, attr: {id:$data.changeId}, eagleTooltip: 'Change application'" data-bs-placement="left">
                         <i class="material-icons md-18">edit</i>
                     </button>
                 </div>
 
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.inspectCallback, attr: {title: 'Inspect application', id:$data.inspectId}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
+                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.inspectCallback, attr: {id:$data.inspectId}, eagleTooltip: 'Inspect application'" data-bs-placement="left">
                         <i class="material-icons md-18">search</i>
                     </button>
                 </div>

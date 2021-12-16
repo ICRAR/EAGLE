@@ -29,6 +29,7 @@ export class Config {
 
     // schemas
     static readonly graphSchemaFileName : string = "assets/schema/dlg-lg.graph.schema";
+    static readonly paletteSchemaFileName : string = "assets/schema/dlg-lg.palette.schema";
 
     // Dimensions.
     static readonly paletteNodeHeight : number = 22;
@@ -48,4 +49,5 @@ export class Config {
     static readonly defaultLeftWindowWidth : number = 310;
 
     static readonly DEFAULT_PALETTE_REPOSITORY : string = "ICRAR/EAGLE_test_repo";
+    static readonly DALIUGE_PALETTE_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette";
 }

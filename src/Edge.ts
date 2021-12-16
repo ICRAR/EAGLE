@@ -139,7 +139,7 @@ export class Edge {
         }
     }
 
-    static fromV3Json = (edgeData: any, errors: string[]): Edge => {
+    static fromV3Json = (edgeData: any, errorsWarnings: Eagle.ErrorsWarnings): Edge => {
         return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, "", edgeData.loop_aware === "1");
     }
 
@@ -168,7 +168,7 @@ export class Edge {
         return result;
     }
 
-    static fromAppRefJson = (edgeData: any, errors: string[]): Edge => {
+    static fromAppRefJson = (edgeData: any, errorsWarnings: Eagle.ErrorsWarnings): Edge => {
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware);
     }
 

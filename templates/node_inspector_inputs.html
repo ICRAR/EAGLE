@@ -1,8 +1,8 @@
 <div class="card">
     <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse6" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Inputs">
-        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bind="attr:{title:'Expand/Collapse'}, css:{closedIcon:inspectorState().inputPorts}">keyboard_arrow_down</i>
+        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().inputPorts}">keyboard_arrow_down</i>
         <i class="material-icons">arrow_back</i>
-        <span class="nodeInspectorSubsectionTitle">Input Ports</span>
+        <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Definition of incoming edges for this component.'">Input Ports</span>
     </h5>
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse6">
         <div class="card-body">
@@ -12,7 +12,7 @@
             <!-- /ko -->
 
             <!-- ko ifnot: selectedNode().isLocked() -->
-            <button class="btn btn-secondary btn-block btn_wide" id="nodeInspectorAddInputPort" type="button" data-bind="click: $root.addInputPortHTML, attr:{title:'Add port'}" data-bs-toggle="tooltip" data-html="true" data-bs-placement="left">
+            <button class="btn btn-secondary btn-block btn_wide" id="nodeInspectorAddInputPort" type="button" data-bind="click: $root.addInputPortHTML, eagleTooltip:'Add port'" data-bs-placement="left">
                 <i class="material-icons md-18">add</i>
             </button>
             <div id="nodeInspectorAddInputPortDiv" class="nodeInspectorDropdownDiv">

@@ -28,6 +28,7 @@
             require(["bindingHandlers/disabled"]);
             require(["bindingHandlers/graphRenderer"]);
             require(["bindingHandlers/nodeDataProperty"]);
+            require(["bindingHandlers/eagleTooltip"]);
             require(["components"]);
             require(["main"]);
 
@@ -124,7 +125,23 @@
                     </div>
                     <div id="nodeInspectorKOWrapper" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Inspector">
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() === null && selectedObjects().length > 1">
+<<<<<<< HEAD
                             Select a single node or edge
+=======
+                            <div id="inspectorSelectionSummary">
+                                <h5>Selection Summary</h5>
+                                <span data-bind="text: $root.getSelectedText()"></span>
+                                <span id="inspectorSelectionSummaryNodes">Selected Nodes:</span>
+                                <!-- ko foreach: $root.selectedObjects -->
+                                    <!-- ko if: $root.isTypeNode($data) -->
+                                        <div class="inspectorSelectionSummaryItem">
+                                            <h5 data-bind="text: $data.getName()"></h5>
+                                            <span data-bind="text: $data.getCategory()"></span>
+                                        </div>
+                                    <!-- /ko -->
+                                <!-- /ko -->
+                            </div>
+>>>>>>> master
                         </div>
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() !== null">
                             {% include 'node_inspector.html' %}

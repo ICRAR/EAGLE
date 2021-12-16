@@ -30,6 +30,7 @@ import * as bootstrap from 'bootstrap';
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
+import {Modals} from './Modals';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
 import {GraphRenderer} from './GraphRenderer';
@@ -70,7 +71,7 @@ $(function(){
     // load the default palette
     if (Eagle.findSettingValue(Utils.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
-            {name:Palette.BUILTIN_PALETTE_NAME, filename:"./static/" + Config.builtinPaletteFileName, readonly:true},
+            {name:"DALiuGE Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:"./static/" + Config.templatePaletteFileName, readonly:true}
         ], (palettes: Palette[]):void => {
             for (const palette of palettes){
@@ -79,24 +80,17 @@ $(function(){
                 }
             }
             eagle.leftWindow().shown(true);
-
-            // destroy orphaned tooltips and initializing tooltip on document ready.
-            Eagle.reloadTooltips();
         });
     }
-
-    // load template palette (only used for Eagle.PaletteEditor)
-    eagle.loadTemplatePalette();
 
     // load schemas
     eagle.loadSchemas();
 
     // enable bootstrap accordion collapse
-    var bsCollapse = new bootstrap.Collapse('.collapse', {
-      })
+    var bsCollapse = new bootstrap.Collapse('.collapse', {});
 
     // initialise all the modal dialogs. event handlers etc
-    Utils.initModals(eagle);
+    Modals.init(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
     window.onbeforeunload = () => (eagle.areAnyFilesModified() && Eagle.findSettingValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;

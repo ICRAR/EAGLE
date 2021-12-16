@@ -35,7 +35,6 @@ import {Edge} from './Edge';
 import {Port} from './Port';
 import {Field} from './Field';
 import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
 import {PaletteInfo} from './PaletteInfo';
 
 export class Utils {
@@ -62,6 +61,7 @@ export class Utils {
     static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PARAMETER_EDITING : string = "AllowReadonlyParameterEditing";
+    static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
@@ -151,11 +151,6 @@ export class Utils {
             if (node.hasOutputApplication()){
                 usedKeys.push(node.getOutputApplication().getKey());
             }
-
-            // if this node has exitApp, add the exitApp key
-            if (node.hasExitApplication()){
-                usedKeys.push(node.getExitApplication().getKey());
-            }
         }
 
         return usedKeys;
@@ -191,7 +186,6 @@ export class Utils {
                     const newKey = Utils.findNewKey(usedKeys);
                     node.getInputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "input app key", newKey);
                 }
             }
 
@@ -201,17 +195,6 @@ export class Utils {
                     const newKey = Utils.findNewKey(usedKeys);
                     node.getOutputApplication().setKey(newKey);
                     usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "output app key", newKey);
-                }
-            }
-
-            // if this node has exitApp, add the exitApp key
-            if (node.hasExitApplication()){
-                if (node.getExitApplication().getKey() === null){
-                    const newKey = Utils.findNewKey(usedKeys);
-                    node.getExitApplication().setKey(newKey);
-                    usedKeys.push(newKey);
-                    console.warn("setEmbeddedApplicationNodeKeys(): set node", node.getKey(), "exit app key", newKey);
                 }
             }
         }
@@ -291,6 +274,11 @@ export class Utils {
     }
 
     static translateStringToFileType(fileType : string) : Eagle.FileType {
+        // check input parameter is a string
+        if (typeof fileType !== 'string'){
+            return Eagle.FileType.Unknown;
+        }
+
         if (fileType.toLowerCase() === "graph")
             return Eagle.FileType.Graph;
         if (fileType.toLowerCase() === "palette")
@@ -383,7 +371,7 @@ export class Utils {
                 if (typeof xhr.responseJSON === 'undefined'){
                     callback(error, null);
                 } else {
-                    callback(error, xhr.responseJSON.error);
+                    callback(xhr.responseJSON.error, null);
                 }
             }
         });
@@ -438,382 +426,6 @@ export class Utils {
         }
 
         return fullFileName;
-    }
-
-    static initModals(eagle : Eagle) : void {
-        // #inputModal - requestUserInput()
-        $('#inputModal .modal-footer button').on('click', function(){
-            $('#inputModal').data('completed', true);
-        });
-        $('#inputModal').on('hidden.bs.modal', function(){
-            const returnType = $('#inputModal').data('returnType');
-
-            switch (returnType){
-                case "string":
-                    const stringCallback : (completed : boolean, userString : string) => void = $('#inputModal').data('callback');
-                    stringCallback($('#inputModal').data('completed'), <string>$('#inputModalInput').val());
-                    break;
-                case "number":
-                    const numberCallback : (completed : boolean, userNumber : number) => void = $('#inputModal').data('callback');
-                    numberCallback($('#inputModal').data('completed'), parseInt(<string>$('#inputModalInput').val(), 10));
-                    break;
-                default:
-                    console.error("Unknown return type for inputModal!");
-            }
-        });
-        $('#inputModal').on('shown.bs.modal', function(){
-            $('#inputModalInput').focus();
-        });
-        $('#inputModalInput').on('keypress', function(e){
-            if (e.which === 13){
-                $('#inputModal').data('completed', true);
-                $('#inputModal').modal('hide');
-            }
-        });
-
-        // #inputTextModal - requestUserText()
-        $('#inputTextModal .modal-footer button').on('click', function(){
-            $('#inputTextModal').data('completed', true);
-        });
-        $('#inputTextModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, userString : string) => void = $('#inputTextModal').data('callback');
-            callback($('#inputTextModal').data('completed'), <string>$('#inputTextModalInput').val());
-        });
-        $('#inputTextModal').on('shown.bs.modal', function(){
-            $('#inputTextModalInput').focus();
-        });
-        $('#inputTextModalInput').on('keypress', function(e){
-            if (e.which === 13){
-                $('#inputTextModal').data('completed', true);
-                $('#inputTextModal').modal('hide');
-            }
-        });
-
-        // #choiceModal - requestUserChoice()
-        $('#choiceModal .modal-footer button').on('click', function(){
-            $('#choiceModal').data('completed', true);
-        });
-        $('#choiceModal').on('shown.bs.modal', function(){
-            $('#choiceModalAffirmativeButton').focus();
-        });
-        $('#choiceModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => void = $('#choiceModal').data('callback');
-            const completed : boolean = $('#choiceModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                callback(false, -1, "");
-                return;
-            }
-
-            // check selected option in select tag
-            const choices : string[] = $('#choiceModal').data('choices');
-            const choice : number = parseInt(<string>$('#choiceModalSelect').val(), 10);
-
-            // if the last item in the select was selected, then return the custom value,
-            // otherwise return the selected choice
-            if (choice === choices.length){
-                callback(true, choices.length, <string>$('#choiceModalString').val());
-            }
-            else {
-                callback(true, choice, choices[choice]);
-            }
-        });
-        $('#choiceModalString').on('keypress', function(e){
-            if (e.which === 13){
-                $('#choiceModal').data('completed', true);
-                $('#choiceModal').modal('hide');
-            }
-        });
-
-        $('#choiceModalSelect').on('change', function(){
-            // check selected option in select tag
-            const choices : string[] = $('#choiceModal').data('choices');
-            const choice : number = parseInt(<string>$('#choiceModalSelect').val(), 10);
-
-            // hide the custom text input unless the last option in the select is chosen
-            $('#choiceModalStringRow').toggle(choice === choices.length);
-        })
-
-        // #confirmModal - requestUserConfirm()
-        $('#confirmModalAffirmativeButton').on('click', function(){
-            const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
-            callback(true);
-        });
-        $('#confirmModalNegativeButton').on('click', function(){
-            const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
-            callback(false);
-        });
-        $('#confirmModal').on('shown.bs.modal', function(){
-            $('#confirmModalAffirmativeButton').focus();
-        });
-
-        // #gitCommitModal - requestUserGitCommit()
-        $('#gitCommitModalAffirmativeButton').on('click', function(){
-            $('#gitCommitModal').data('completed', true);
-        });
-        $('#gitCommitModalNegativeButton').on('click', function(){
-            $('#gitCommitModal').data('completed', false);
-        });
-        $('#gitCommitModal').on('shown.bs.modal', function(){
-            $('#gitCommitModalAffirmativeButton').focus();
-        });
-        $('#gitCommitModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
-            const completed : boolean = $('#gitCommitModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                callback(false, Eagle.RepositoryService.Unknown, "", "", "", "", "");
-                return;
-            }
-
-            // check selected option in select tag
-            const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
-            const repositories : Repository[] = $('#gitCommitModal').data('repositories');
-            const repositoryNameChoice : number = parseInt(<string>$('#gitCommitModalRepositoryNameSelect').val(), 10);
-
-            // split repository text (with form: "name (branch)") into name and branch strings
-            const repositoryName : string = repositories[repositoryNameChoice].name;
-            const repositoryBranch : string = repositories[repositoryNameChoice].branch;
-
-            const filePath : string = <string>$('#gitCommitModalFilePathInput').val();
-            const fileName : string = <string>$('#gitCommitModalFileNameInput').val();
-            const commitMessage : string = <string>$('#gitCommitModalCommitMessageInput').val();
-
-            callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
-        });
-        $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
-            const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
-            const repositories: Repository[] = eagle.getRepositoryList(repositoryService);
-            $('#gitCommitModal').data('repositories', repositories);
-            Utils.updateGitCommitRepositoriesList(repositories, null);
-        });
-
-        // #gitCustomRepositoryModal - requestUserAddCustomRepository()
-        $('#gitCustomRepositoryModalAffirmativeButton').on('click', function(){
-            $('#gitCustomRepositoryModal').data('completed', true);
-        });
-        $('#gitCustomRepositoryModalNegativeButton').on('click', function(){
-            $('#gitCustomRepositoryModal').data('completed', false);
-        });
-        $('#gitCustomRepositoryModal').on('shown.bs.modal', function(){
-            $('#gitCustomRepositoryModalAffirmativeButton').focus();
-        });
-        $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
-            const completed : boolean = $('#gitCustomRepositoryModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                callback(false, "", "", "");
-                return;
-            }
-
-            // check selected option in select tag
-            const repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
-            const repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
-            const repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
-
-            callback(true, repositoryService, repositoryName, repositoryBranch);
-        });
-
-        // #settingsModal - showSettingsModal()
-        $('#settingsModal').on('shown.bs.modal', function(){
-            $('#settingsModalAffirmativeButton').focus();
-        });
-
-        // #editFieldModal - requestUserEditField()
-        $('#editFieldModalAffirmativeButton').on('click', function(){
-            $('#editFieldModal').data('completed', true);
-        });
-        $('#editFieldModalNegativeButton').on('click', function(){
-            $('#editFieldModal').data('completed', false);
-        });
-        $('#editFieldModal').on('shown.bs.modal', function(){
-            $('#editFieldModalAffirmativeButton').focus();
-        });
-        $('#fieldModalSelect').on('change', function(){
-            // check selected option in select tag
-            const choices : string[] = $('#editFieldModal').data('choices');
-            const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
-
-            // hide the custom text input unless the last option in the select is chosen
-            if (choice === choices.length){
-                $('#customParameterOptionsWrapper').slideDown();
-            } else {
-                $('#customParameterOptionsWrapper').slideUp();
-            }
-        });
-        $('#editFieldModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
-            const completed : boolean = $('#editFieldModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                callback(false, null);
-                return;
-            }
-
-            // extract field data from HTML elements
-            const text : string = <string>$('#editFieldModalTextInput').val();
-            const name : string = <string>$('#editFieldModalNameInput').val();
-            const valueText : string = <string>$('#editFieldModalValueInputText').val();
-            const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
-            const description: string = <string>$('#editFieldModalDescriptionInput').val();
-            const access: string = <string>$('#editFieldModalAccessSelect').val();
-            const type: string = <string>$('#editFieldModalTypeSelect').val();
-
-            // translate access and type
-            const readonly: boolean = access === 'readonly';
-            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
-            let newField;
-
-            if (realType === Eagle.DataType.Boolean){
-                newField = new Field(text, name, valueCheckbox.toString(), description, readonly, realType);
-            } else {
-                newField = new Field(text, name, valueText, description, readonly, realType);
-            }
-
-            callback(true, newField);
-        });
-
-        $('#editFieldModal').on('show.bs.modal', Utils.validateFieldValue);
-        $('#editFieldModalValueInputText').on('keyup', Utils.validateFieldValue);
-        $('#editFieldModalTypeSelect').on('change', function(){
-            Utils.validateFieldValue();
-
-            // show the correct entry field based on the field type
-            const value = $('#editFieldModalTypeSelect').val();
-            console.log("editFieldModalTypeSelect change", value);
-            $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean);
-            $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
-        });
-
-        // #editPortModal - requestUserEditPort()
-        $('#editPortModalAffirmativeButton').on('click', function(){
-            $('#editPortModal').data('completed', true);
-        });
-        $('#editPortModalNegativeButton').on('click', function(){
-            $('#editPortModal').data('completed', false);
-        });
-        $('#editPortModal').on('shown.bs.modal', function(){
-            $('#editPortModalAffirmativeButton').focus();
-        });
-        $('#portModalSelect').on('change', function(){
-            // check selected option in select tag
-            const choices : string[] = $('#editPortModal').data('choices');
-            const choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
-
-            // hide the custom text input unless the last option in the select is chosen
-            if (choice === choices.length){
-                $('#customPortOptionsWrapper').slideDown();
-            } else {
-                $('#customPortOptionsWrapper').slideUp();
-            }
-        });
-
-        $('#editPortModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
-            const completed : boolean = $('#editPortModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                callback(false, null);
-                return;
-            }
-
-            // extract field data from HTML elements
-            // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
-            const id = "dummy-id";
-            const name: string = <string>$('#editPortModalNameInput').val();
-            const type: string = <string>$('#editPortModalTypeInput').val();
-            const description: string = <string>$('#editPortModalDescriptionInput').val();
-
-            const newPort = new Port(id, name, false, type, description);
-
-            callback(true, newPort);
-        });
-
-        // #editEdgeModal - requestUserEditEdge()
-        $('#editEdgeModalAffirmativeButton').on('click', function(){
-            $('#editEdgeModal').data('completed', true);
-        });
-        $('#editEdgeModalNegativeButton').on('click', function(){
-            $('#editEdgeModal').data('completed', false);
-        });
-        $('#editEdgeModal').on('shown.bs.modal', function(){
-            $('#editEdgeModalAffirmativeButton').focus();
-        });
-        $('#editEdgeModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
-            const completed : boolean = $('#editEdgeModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                callback(false, null);
-                return;
-            }
-
-            // extract field data from HTML elements
-            const srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
-            const srcPortId : string = <string>$('#editEdgeModalSrcPortIdSelect').val();
-            const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
-            const destPortId: string = <string>$('#editEdgeModalDestPortIdSelect').val();
-            const dataType: string = <string>$('#editEdgeModalDataTypeInput').val();
-            const loopAware: boolean = $('#editEdgeModalValueInputCheckbox').prop('checked');
-            //console.log("srcNodeKey", srcNodeKey, "srcPortId", srcPortId, "destNodeKey", destNodeKey, "destPortId", destPortId, "dataType", dataType);
-
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware);
-
-            callback(true, newEdge);
-        });
-        $('#editEdgeModalSrcNodeKeySelect').on('change', function(){
-            const edge: Edge = $('#editEdgeModal').data('edge');
-            const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
-
-            const srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
-            edge.setSrcNodeKey(srcNodeKey);
-
-            Utils.updateEditEdgeModal(edge, logicalGraph);
-        });
-        $('#editEdgeModalDestNodeKeySelect').on('change', function(){
-            const edge: Edge = $('#editEdgeModal').data('edge');
-            const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
-
-            const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
-            edge.setDestNodeKey(destNodeKey);
-
-            Utils.updateEditEdgeModal(edge, logicalGraph);
-        });
-
-        // #messageModal - showUserMessage()
-        $('#messageModal').on('shown.bs.modal', function(){
-            $('#messageModal .modal-footer button').focus();
-        });
-
-        $('#explorePalettesModal').on('shown.bs.modal', function(){
-            $('#explorePalettesModal .modal-footer button').focus();
-        });
-        $('#explorePalettesModalAffirmativeButton').on('click', function(){
-            $('#explorePalettesModal').data('completed', true);
-        });
-        $('#explorePalettesModal').on('hidden.bs.modal', function(){
-            const completed : boolean = $('#explorePalettesModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                return;
-            }
-
-            // loop through the explorePalettes, find any selected and load them
-            for (const ep of eagle.explorePalettes()){
-                if (ep.isSelected()){
-                    eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
-                }
-            }
-
-        });
     }
 
     static showUserMessage (title : string, message : string) : void {
@@ -997,22 +609,33 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+        let dropDownKO;
+        let divID;
+
+        if (fieldType === Eagle.FieldType.Field){
+            dropDownKO = $("#nodeInspectorFieldDropDownKO");
+            divID = "nodeInspectorAddFieldDiv";
+        } else {
+            dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
+            divID = "nodeInspectorAddApplicationParamDiv";
+        }
+
 
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#fieldModalSelect').empty();
-            $("#nodeInspectorDropDownKO").empty();
+            dropDownKO.empty();
 
             // add empty choice
             $('#fieldModalSelect').append($('<option>', {
                 value: -1,
                 text: ""
             }));
-            $("#nodeInspectorDropDownKO").append($('<a>', {
+            dropDownKO.append($('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'" + divID + "')}",
                 value: -1,
                 text: ""
             }));
@@ -1023,10 +646,10 @@ export class Utils {
                     value: i,
                     text: choices[i]
                 }));
-                $("#nodeInspectorDropDownKO").append($('<a>', {
+                dropDownKO.append($('<a>', {
                     href: "#",
                     class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'" + divID + "')}",
                     value: i,
                     text: choices[i]
                 }));
@@ -1037,16 +660,17 @@ export class Utils {
                 value: choices.length,
                 text: "Custom (enter below)"
             }));
-            $("#nodeInspectorDropDownKO").append($('<a>', {
+            dropDownKO.append($('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddFieldDiv')}",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'" + divID + "')}",
                 value: choices.length,
                 text: "Custom"
             }));
-            //applying knockout bindings for the new buttonsgenerated above
-            ko.cleanNode(document.getElementById("nodeInspectorDropDownKO"));
-            ko.applyBindings(eagle, document.getElementById("nodeInspectorDropDownKO"));
+
+            //applying knockout bindings for the new buttons generated above
+            ko.cleanNode(dropDownKO[0]);
+            ko.applyBindings(eagle, dropDownKO[0]);
 
         }
 
@@ -1055,6 +679,8 @@ export class Utils {
         $('#editFieldModalNameInput').val(field.getName());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
+        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.string2Type(field.getDefaultValue(), Eagle.DataType.Boolean));
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
         $('#editFieldModalAccessSelect').empty();
@@ -1062,6 +688,8 @@ export class Utils {
         // show the correct entry field based on the field type
         $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
         $('#editFieldModalValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
+        $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
+        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
 
         // add options to the access select tag
         $('#editFieldModalAccessSelect').append($('<option>', {
@@ -1107,6 +735,8 @@ export class Utils {
             text: "Unknown",
             selected: field.getType() === Eagle.DataType.Unknown
         }));
+
+        $('#editFieldModalPreciousInputCheckbox').prop('checked', field.isPrecious());
 
         $('#editFieldModal').data('completed', false);
         $('#editFieldModal').data('callback', callback);
@@ -1195,6 +825,7 @@ export class Utils {
 
         // populate UI with current port data
         $('#editPortModalNameInput').val(port.getName());
+        $('#editPortModalTextInput').val(port.getText());
         $('#editPortModalTypeInput').val(port.getType());
         $('#editPortModalDescriptionInput').val(port.getDescription());
 
@@ -1338,17 +969,6 @@ export class Utils {
                     selected: edge.getSrcNodeKey() === outputApp.getKey()
                 }));
             }
-
-            // add exit applicaiton node, if present
-            if (node.hasExitApplication()){
-                const exitApp = node.getExitApplication();
-
-                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: exitApp.getKey(),
-                    text: exitApp.getName(),
-                    selected: edge.getSrcNodeKey() === exitApp.getKey()
-                }));
-            }
         }
 
         // make sure srcNode reflects what is actually selected in the UI
@@ -1407,17 +1027,6 @@ export class Utils {
                     selected: edge.getDestNodeKey() === outputApp.getKey()
                 }));
             }
-
-            // exit application node, if present
-            if (node.hasExitApplication()){
-                const exitApp = node.getExitApplication();
-
-                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: exitApp.getKey(),
-                    text: exitApp.getName(),
-                    selected: edge.getDestNodeKey() === exitApp.getKey()
-                }));
-            }
         }
 
         // make sure srcNode reflects what is actually selected in the UI
@@ -1450,11 +1059,30 @@ export class Utils {
     /**
      * Returns a list of unique port names (except event ports)
      */
-    static getUniquePortsList = (diagram : Palette | LogicalGraph) : Port[] => {
+    static getUniquePortsList = (palettes : Palette[], graph: LogicalGraph) : Port[] => {
         const uniquePorts : Port[] = [];
 
+        // build a list from all palettes
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // add input port names into the list
+                for (const port of node.getInputPorts()) {
+                    if (!port.isEvent()){
+                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                    }
+                }
+
+                // add output port names into the list
+                for (const port of node.getOutputPorts()) {
+                    if (!port.isEvent()) {
+                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                    }
+                }
+            }
+        }
+
         // build a list from all nodes
-        for (const node of diagram.getNodes()) {
+        for (const node of graph.getNodes()) {
             // add input port names into the list
             for (const port of node.getInputPorts()) {
                 if (!port.isEvent()){
@@ -1502,26 +1130,41 @@ export class Utils {
                     }
                 }
             }
-
-            // add exit application input and output ports
-            if (node.hasExitApplication()){
-                // input ports
-                for (const port of node.getExitApplication().getInputPorts()) {
-                    if (!port.isEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
-                    }
-                }
-
-                // output ports
-                for (const port of node.getExitApplication().getOutputPorts()) {
-                    if (!port.isEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
-                    }
-                }
-            }
         }
 
         return uniquePorts;
+    }
+
+    static getDataComponentsWithPortTypeList(palettes: Palette[], portName: string, portType: string, ineligibleCategories: Eagle.Category[]){
+        console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
+
+        const result: Node[] = [];
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (!node.isData()){
+                    continue;
+                }
+
+                // skip nodes whose category in in the ineligible categories list
+                let ineligible = false;
+                for (const ic of ineligibleCategories){
+                    if (node.getCategory() === ic){
+                        ineligible = true;
+                        break;
+                    }
+                }
+                if (ineligible){
+                    continue;
+                }
+
+                result.push(node);
+            }
+        }
+
+        return result;
     }
 
     private static _addPortIfUnique = (ports : Port[], port: Port) : void => {
@@ -1551,6 +1194,22 @@ export class Utils {
         }
 
         return uniqueFields;
+    }
+
+    /**
+     * Returns a list of all fields in the given palette or logical graph
+     */
+    static getUniqueApplicationParamsList = (diagram : Palette | LogicalGraph) : Field[] => {
+        const uniqueApplicationParams : Field[] = [];
+
+        // build a list from all nodes, add fields into the list
+        for (const node of diagram.getNodes()) {
+            for (const param of node.getApplicationParams()) {
+                Utils._addFieldIfUnique(uniqueApplicationParams, param.clone());
+            }
+        }
+
+        return uniqueApplicationParams;
     }
 
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
@@ -1740,55 +1399,62 @@ export class Utils {
         return results;
     }
 
-    static checkGraph(graph: LogicalGraph): string[] {
-        const results: string[] = [];
+    static checkGraph(graph: LogicalGraph): Eagle.ErrorsWarnings {
+        const warnings: string[] = [];
+        const errors: string[] = [];
 
         // check that all port dataTypes have been defined
         for (const node of graph.getNodes()){
             for (const port of node.getInputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getName() + ") whose type is not specified");
                 }
             }
             for (const port of node.getOutputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationInputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationOutputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationInputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationOutputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
                 }
             }
+        }
 
-            for (const port of node.getExitApplicationInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
+        // check that all fields have default values
+        for (const node of graph.getNodes()){
+            for (const field of node.getFields()){
+                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getName() + ") whose default value is not specified");
                 }
             }
+        }
 
-            for (const port of node.getExitApplicationOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application (" + node.getExitApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
+        // check that all application params have default values
+        for (const node of graph.getNodes()){
+            for (const field of node.getApplicationParams()){
+                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getName() + ") whose default value is not specified");
                 }
             }
         }
@@ -1802,16 +1468,16 @@ export class Utils {
             const maxOutputs = cData.maxOutputs;
 
             if (node.getInputPorts().length < minInputs){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too few input ports. Should have at least " + minInputs);
+                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + minInputs);
             }
             if (node.getInputPorts().length > maxInputs){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs);
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs);
             }
             if (node.getOutputPorts().length < minOutputs){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too few output ports. Should have at least " + minOutputs);
+                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + minOutputs);
             }
             if (node.getOutputPorts().length > maxOutputs){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has too many output ports. Should have at most " + maxOutputs);
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + maxOutputs);
             }
 
             // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
@@ -1822,41 +1488,40 @@ export class Utils {
                     break;
                 }
             }
-            // NOTE: if more types than just Description are exempted from this test, consider adding a "canBeDisconnected" attribute to CategoryData
-            if (!isConnected && node.getCategory() !== Eagle.Category.Description){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
+
+            // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
+            if (!isConnected && !(maxInputs === 0 && maxOutputs === 0)){
+                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
             }
 
             // check embedded application categories are not 'None'
             if (node.hasInputApplication() && node.getInputApplication().getCategory() === Eagle.Category.None){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.");
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.");
             }
             if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Eagle.Category.None){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.");
-            }
-            if (node.hasExitApplication() && node.getExitApplication().getCategory() === Eagle.Category.None){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") has exit application with category 'None'.");
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.");
             }
 
             // check that Service nodes have inputApplications with no output ports!
             if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
-                results.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
+                errors.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
             }
         }
 
+        // check all edges are valid
         for (const edge of graph.getEdges()){
             const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
 
             if (linkValid === Eagle.LinkValid.Invalid){
-                results.push("Edge (" + edge.getId() + ") is invalid.");
+                errors.push("Edge (" + edge.getId() + ") is invalid.");
             }
         }
 
-        return results;
+        return {warnings: warnings, errors: errors};
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        console.log("validateJSON(): version:", version, "fileType:", fileType);
+        console.log("validateJSON(): version:", version, " fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;
@@ -1910,34 +1575,6 @@ export class Utils {
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
     }
 
-    static validateFieldValue() : void {
-        const valueText : string = <string>$('#editFieldModalValueInputText').val();
-
-        const type: string = <string>$('#editFieldModalTypeSelect').val();
-        const realType: Eagle.DataType = Utils.translateStringToDataType(type);
-
-        let isValid: boolean = true;
-
-        switch (realType){
-            case Eagle.DataType.Float:
-                isValid = valueText.match(/^-?\d*(\.\d+)?$/) && !isNaN(parseFloat(valueText));
-                break;
-            case Eagle.DataType.Integer:
-                isValid = valueText.match(/^-?\d*$/) && true;
-                break;
-        }
-
-        if (isValid){
-            $('#editFieldModalValueInputText').addClass('is-valid');
-            $('#editFieldModalValueInputText').removeClass('is-invalid');
-            $('#editFieldModalValueFeedback').text('');
-        } else {
-            $('#editFieldModalValueInputText').removeClass('is-valid');
-            $('#editFieldModalValueInputText').addClass('is-invalid');
-            $('#editFieldModalValueFeedback').text('Invalid value for ' + type + ' type.');
-        }
-    }
-
     static downloadFile(error : string, data : string, fileName : string) : void {
         if (error != null){
             Utils.showUserMessage("Error", "Error saving the file!");
@@ -1980,5 +1617,64 @@ export class Utils {
         //console.log("compares HIT");
 
         return true;
+    }
+
+    static table2CSV(table: any[]) : string {
+        let s = "";
+
+        // if table empty, return
+        if (table.length === 0){
+            return s;
+        }
+
+        // write the header row
+        s += Object.keys(table[0]).join(",") + "\n";
+
+        for (const row of table){
+            s += Object.values(row).join(",") + "\n";
+        }
+        return s;
+    }
+
+    // https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
+    static positionToNodeDistance(positionX: number, positionY: number, node: Node): number {
+        const rectMinX = node.getPosition().x;
+        const rectMaxX = node.getPosition().x + node.getWidth();
+        const rectMinY = node.getPosition().y;
+        const rectMaxY = node.getPosition().y + node.getHeight();
+
+        const dx = Math.max(rectMinX - positionX, 0, positionX - rectMaxX);
+        const dy = Math.max(rectMinY - positionY, 0, positionY - rectMaxY);
+        return Math.sqrt(dx*dx + dy*dy);
+    }
+
+
+    static async userChoosePalette(paletteNames : string[]) : Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+
+            // ask user to select the destination node
+            Utils.requestUserChoice("Choose Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
+                // reject if the user aborted
+                if (!completed){
+                    resolve(null);
+                }
+
+                // resolve with chosen palette name
+                resolve(paletteNames[userChoiceIndex]);
+            });
+        });
+    }
+
+    static async userEnterCommitMessage(modalMessage: string) : Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            // request commit message from the user
+            Utils.requestUserString("Commit Message", modalMessage, "", false, (completed : boolean, userString : string) : void => {
+                if (!completed){
+                    resolve(null);
+                }
+
+                resolve(userString);
+            });
+        });
     }
 }
