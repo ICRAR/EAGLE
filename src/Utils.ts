@@ -1679,15 +1679,23 @@ export class Utils {
         });
     }
 
-    static getKeyboardShortcutTextByKey = (key: string) : string => {
+    static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
         for (const shortcut of Eagle.shortcuts()){
             if (shortcut.key === key){
                 let ks = [];
                 for (const k of shortcut.keys){
                     if (shortcut.modifier === KeyboardShortcut.Modifier.None){
-                        ks.push(k);
+                        if(addBrackets){
+                        ks.push("["+k+"]");
+                        }else{
+                            ks.push(k);
+                        }
                     } else {
+                        if(addBrackets){
+                            ks.push("["+shortcut.modifier + " + " + k+"]");
+                        }else{
                         ks.push(shortcut.modifier + " + " + k);
+                        }
                     }
                 }
                 return ks.join(",");

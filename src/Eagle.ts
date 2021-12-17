@@ -158,6 +158,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("change_selected_node_subject", "Change Selected Node Subject", ["s"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.commentNodeIsSelected, (eagle): void => {eagle.changeNodeSubject();}));
         Eagle.shortcuts.push(new KeyboardShortcut("toggle_left_window", "Toggle left window", ["1"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
         Eagle.shortcuts.push(new KeyboardShortcut("toggle_right_window", "Toggle right window", ["2"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("toggle_both_window", "Toggle Both Windows", ["3"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.toggleWindows();}));
         Eagle.shortcuts.push(new KeyboardShortcut("center_graph", "Center graph", ["c"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
         Eagle.shortcuts.push(new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.None, this.allowPaletteEditing, (eagle): void => {eagle.newPalette();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_palette_from_local_disk", "Open palette from local disk", ["p"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
@@ -300,6 +301,11 @@ export class Eagle {
         console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
     };
+
+    toggleWindows = () : void  => {
+        this.rightWindow().toggleShown()
+        this.leftWindow().toggleShown()
+    }
 
     emptySearchBar = (target : ko.Observable) => {
         target("")
@@ -2372,7 +2378,7 @@ export class Eagle {
         for(const object of Eagle.shortcuts()){
             if(object.eventType === "keydown"){
                 var description = object.name
-                var shortcut = Utils.getKeyboardShortcutTextByKey(object.key)
+                var shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false)
                 displayShorcuts.push({description : description , shortcut : shortcut})
             }
         }

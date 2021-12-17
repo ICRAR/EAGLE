@@ -195,6 +195,14 @@
     text-align: left;
 }
 
+.dropdown-item img{
+    float:right;
+}
+.dropdown-item span{
+    font-weight: 300;
+    color: lightgrey;
+}
+
 .rightWindow .rightWindowHandle span i {
     position: relative;
     top: 5px;

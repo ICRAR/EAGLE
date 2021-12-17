@@ -16,11 +16,11 @@
                 <span>Edge Attributes</span>
                 <div id="edgeInspectorIcons">
                     <!-- ko if: allowEdgeEditing() -->
-                        <button type="button" id="edgeEditBtn" class="btn" data-bind="click: editSelectedEdge">
+                        <button type="button" id="edgeEditBtn" class="btn" data-bind="click: editSelectedEdge, eagleTooltip: 'Edit Selected Edge ' + Utils.getKeyboardShortcutTextByKey('modify_selected_edge', true)">
                             <i class="material-icons md-24">edit</i>
                         </button>
                     <!-- /ko -->
-                    <button  type="button" id="edgeDeleteBtn" class="btn" data-bind="click: function(){deleteSelection(false);}">
+                    <button  type="button" id="edgeDeleteBtn" class="btn" data-bind="click: function(){deleteSelection(false);}, eagleTooltip: 'Delete Selected Edge ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)">
                         <i class="material-icons md-24">delete</i>
                     </button>
                 </div>
