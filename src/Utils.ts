@@ -36,6 +36,7 @@ import {Port} from './Port';
 import {Field} from './Field';
 import {Repository} from './Repository';
 import {PaletteInfo} from './PaletteInfo';
+import {KeyboardShortcut} from './KeyboardShortcut';
 
 export class Utils {
     // Allowed file extenstions.
@@ -1676,5 +1677,34 @@ export class Utils {
                 resolve(userString);
             });
         });
+    }
+
+    static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
+        for (const shortcut of Eagle.shortcuts()){
+            if (shortcut.key === key){
+                let ks = [];
+                for (const k of shortcut.keys){
+                    if (shortcut.modifier === KeyboardShortcut.Modifier.None){
+                        //some processing of the return
+                        //if the return should have brackets they are added here
+                        //the first letter of the string returned is also capitalised
+                        if(addBrackets){
+                            ks.push("["+k.charAt(0).toUpperCase() + k.slice(1)+"]");
+                        }else{
+                            ks.push(k.charAt(0).toUpperCase() + k.slice(1));
+                        }
+                    } else {
+                        if(addBrackets){
+                            ks.push("["+shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1)+"]");
+                        }else{
+                        ks.push(shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1));
+                        }
+                    }
+                }
+                return ks.join(",");
+            }
+        }
+
+        return "";
     }
 }

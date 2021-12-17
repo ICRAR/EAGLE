@@ -195,6 +195,14 @@
     text-align: left;
 }
 
+.dropdown-item img{
+    float:right;
+}
+.dropdown-item span{
+    font-weight: 300;
+    color: lightgrey;
+}
+
 .rightWindow .rightWindowHandle span i {
     position: relative;
     top: 5px;
@@ -313,6 +321,10 @@
     width:100%;
 }
 
+#shortcutsModal{
+    transition: none;
+}
+
 #settingsModal .modal-header{
     border: none;
     background-color:#002349;
@@ -358,12 +370,16 @@
 
 #settingsModal form{
     padding:30px 20px 30px 20px;
-    height: 50vh;
+    min-height: 40vh;
+    max-height: 70vh;
     overflow-y: scroll;
 }
 
 #settingsModal .modal-body{
     padding: 0px;
+    height: unset;
+    max-height: unset;
+    overflow-y: unset;
 }
 
 #editFieldModalValueInputCheckbox, #editFieldModalDefaultValueInputCheckbox, #editFieldModalPreciousInputCheckbox {
@@ -388,6 +404,8 @@ select.form-control{
 
 .modal-body{
     background-color: aliceblue;
+    max-height: 70vh;
+    overflow-y: scroll;
 }
 
 .modal-body li{

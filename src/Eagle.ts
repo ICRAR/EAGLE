@@ -96,6 +96,7 @@ export class Eagle {
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
     static nodeDragComponentIndex : number;
+    static shortcutModalCooldown : number;
 
     constructor(){
         this.palettes = ko.observableArray();
@@ -149,21 +150,28 @@ export class Eagle {
         };
 
         Eagle.shortcuts = ko.observableArray();
-        Eagle.shortcuts.push(new KeyboardShortcut("Add Edge", ["e"], KeyboardShortcut.true, (eagle): void => {eagle.addEdgeToLogicalGraph();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Modify Selected Edge", ["m"], KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.editSelectedEdge();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Delete Selection", ["Backspace", "Delete"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Duplicate Selection", ["d"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Parent", ["h"], KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Subject", ["s"], KeyboardShortcut.commentNodeIsSelected, (eagle): void => {eagle.changeNodeSubject();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Toggle left window", ["1"], KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Toggle right window", ["2"], KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Center graph", ["c"], KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("New palette", ["n"], this.allowPaletteEditing, (eagle): void => {eagle.newPalette();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Open palette from local disk", ["p"], KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", ["g"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Insert graph from local disk", ["i"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToInsert();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Create subgraph from selection", ["["], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Create construct from selection", ["]"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("add_edge","Add Edge", ["e"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.addEdgeToLogicalGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("modify_selected_edge","Modify Selected Edge", ["m"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.editSelectedEdge();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection", "Delete Selection", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("duplicate_selection", "Duplicate Selection", ["d"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("change_selected_node_parent", "Change Selected Node Parent", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("change_selected_node_subject", "Change Selected Node Subject", ["s"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.commentNodeIsSelected, (eagle): void => {eagle.changeNodeSubject();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("toggle_left_window", "Toggle left window", ["l"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("toggle_right_window", "Toggle right window", ["r"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("toggle_both_window", "Toggle Both Windows", ["b"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.toggleWindows();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("center_graph", "Center graph", ["c"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.None, this.allowPaletteEditing, (eagle): void => {eagle.newPalette();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_palette_from_local_disk", "Open palette from local disk", ["p"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_graph_from_local_disk", "Open graph from local disk", ["g"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("insert_graph_from_local_disk", "Insert graph from local disk", ["i"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToInsert();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("create_subgraph_from_selection", "Create subgraph from selection", ["["], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
+
+        Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.Meta, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save Graph As", ["s"], "keydown", KeyboardShortcut.Modifier.MetaShift, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}));
+
+        Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -293,6 +301,11 @@ export class Eagle {
         console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
     };
+
+    toggleWindows = () : void  => {
+        this.rightWindow().toggleShown()
+        this.leftWindow().toggleShown()
+    }
 
     emptySearchBar = (target : ko.Observable) => {
         target("")
@@ -1228,10 +1241,31 @@ export class Eagle {
         let defaultRepository: Repository;
 
         if (this.logicalGraph()){
-            defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
+            // if the repository service is unknown, probably because the graph hasn't been saved before, then
+            // just use any existing repo
+            if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown){
+                const gitHubRepoList : Repository[] = this.getRepositoryList(Eagle.RepositoryService.GitHub);
+                const gitLabRepoList : Repository[] = this.getRepositoryList(Eagle.RepositoryService.GitLab);
+
+                // use first gitlab repo as second preference
+                if (gitLabRepoList.length > 0){
+                    defaultRepository = new Repository(Eagle.RepositoryService.GitLab, gitLabRepoList[0].name, gitLabRepoList[0].branch, false);
+                }
+
+                // overwrite with first github repo as first preference
+                if (gitHubRepoList.length > 0){
+                    defaultRepository = new Repository(Eagle.RepositoryService.GitHub, gitHubRepoList[0].name, gitHubRepoList[0].branch, false);
+                }
+
+                if (gitHubRepoList.length === 0 && gitLabRepoList.length === 0){
+                    defaultRepository = new Repository(Eagle.RepositoryService.GitHub, "", "", false);
+                }
+            } else {
+                defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
+            }
         }
 
-        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(fileInfo().repositoryService),  fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(defaultRepository.service), fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -1278,9 +1312,9 @@ export class Eagle {
         console.log("fileInfo().repositoryService", fileInfo().repositoryService);
         console.log("fileInfo().repositoryName", fileInfo().repositoryName);
 
+        // if there is no git repository or filename defined for this file. Please use 'save as' instead!
         if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown || fileInfo().repositoryName === null) {
-            Utils.showUserMessage("Error", "There is no git repository or filename defined for this file. Please use 'save as' instead!");
-            console.log("No repository selected!");
+            this.commitToGitAs(fileType);
             return;
         }
 
@@ -1309,10 +1343,9 @@ export class Eagle {
     };
 
     _commit = (repository: Repository, fileType: Eagle.FileType, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
-        // check that repository was found
+        // check that repository was found, if not try "save as"!
         if (repository === null){
-            Utils.showUserMessage("Error", "Unable to get find correct repository from the information from the active file.<br/>Service:" +
-             fileInfo().repositoryService + "<br/>Name:" + fileInfo().repositoryName + "<br/>Branch:" + fileInfo().repositoryBranch);
+            this.commitToGitAs(fileType);
             return;
         }
 
@@ -2280,7 +2313,11 @@ export class Eagle {
     }
 
     openShortcuts = () : void => {
-        Utils.showShortcutsModal();
+        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
+            Eagle.shortcutModalCooldown = Date.now()
+            Utils.showShortcutsModal();
+        }
+        return
     }
 
     private static findSetting = (key : string) : Setting => {
@@ -2340,8 +2377,18 @@ export class Eagle {
         return setting.value();
     }
 
-    getShortcuts = () : KeyboardShortcut[] => {
-        return Eagle.shortcuts();
+    getShortcutDisplay = () : {description:string, shortcut : string}[] => {
+        var displayShorcuts : {description:string, shortcut : string} []=[];
+
+        for(const object of Eagle.shortcuts()){
+            if(object.eventType === "keydown"){
+                var description = object.name
+                var shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false)
+                displayShorcuts.push({description : description , shortcut : shortcut})
+            }
+        }
+        
+        return displayShorcuts;
     }
 
     resetSettingsDefaults = () : void => {
