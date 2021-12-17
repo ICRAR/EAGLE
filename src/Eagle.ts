@@ -156,9 +156,9 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("duplicate_selection", "Duplicate Selection", ["d"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("change_selected_node_parent", "Change Selected Node Parent", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
         Eagle.shortcuts.push(new KeyboardShortcut("change_selected_node_subject", "Change Selected Node Subject", ["s"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.commentNodeIsSelected, (eagle): void => {eagle.changeNodeSubject();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("toggle_left_window", "Toggle left window", ["1"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("toggle_right_window", "Toggle right window", ["2"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("toggle_both_window", "Toggle Both Windows", ["3"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.toggleWindows();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("toggle_left_window", "Toggle left window", ["l"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("toggle_right_window", "Toggle right window", ["r"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("toggle_both_window", "Toggle Both Windows", ["b"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.toggleWindows();}));
         Eagle.shortcuts.push(new KeyboardShortcut("center_graph", "Center graph", ["c"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
         Eagle.shortcuts.push(new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.None, this.allowPaletteEditing, (eagle): void => {eagle.newPalette();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_palette_from_local_disk", "Open palette from local disk", ["p"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
@@ -168,7 +168,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
 
         Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.Meta, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save As Graph", ["s"], "keydown", KeyboardShortcut.Modifier.MetaShift, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save Graph As", ["s"], "keydown", KeyboardShortcut.Modifier.MetaShift, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}));
 
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));

@@ -1685,16 +1685,19 @@ export class Utils {
                 let ks = [];
                 for (const k of shortcut.keys){
                     if (shortcut.modifier === KeyboardShortcut.Modifier.None){
+                        //some processing of the return
+                        //if the return should have brackets they are added here
+                        //the first letter of the string returned is also capitalised
                         if(addBrackets){
-                        ks.push("["+k+"]");
+                            ks.push("["+k.charAt(0).toUpperCase() + k.slice(1)+"]");
                         }else{
-                            ks.push(k);
+                            ks.push(k.charAt(0).toUpperCase() + k.slice(1));
                         }
                     } else {
                         if(addBrackets){
-                            ks.push("["+shortcut.modifier + " + " + k+"]");
+                            ks.push("["+shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1)+"]");
                         }else{
-                        ks.push(shortcut.modifier + " + " + k);
+                        ks.push(shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1));
                         }
                     }
                 }
