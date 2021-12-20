@@ -57,7 +57,7 @@ export class KeyboardShortcut {
         }
 
         // check if a modal is shown, if so abort
-        if ($(".modal.show:not(#shortcutsModal)").length > 0){
+        if ($(".modal.show:not(#shortcutsModal, #settingsModal)").length > 0){
             return;
         }
 
