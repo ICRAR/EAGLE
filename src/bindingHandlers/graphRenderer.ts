@@ -2994,6 +2994,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let n : Node = node;
         let iterations = 0;
 
+        if (n === null){
+            return false;
+        }
+
         while (true){
             if (iterations > 32){
                 console.error("too many iterations in isDescendent()");
