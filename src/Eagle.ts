@@ -642,7 +642,7 @@ export class Eagle {
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
-                    this.updateLogicalGraphFileInfo(Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+                    this.updateLogicalGraphFileInfo(Eagle.RepositoryService.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
                 }
             });
         });
@@ -2387,7 +2387,7 @@ export class Eagle {
                 displayShorcuts.push({description : description , shortcut : shortcut})
             }
         }
-        
+
         return displayShorcuts;
     }
 
@@ -4362,6 +4362,7 @@ export namespace Eagle
     export enum RepositoryService {
         GitHub = "GitHub",
         GitLab = "GitLab",
+        File = "File",
         Unknown = "Unknown"
     }
 
