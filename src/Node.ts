@@ -437,6 +437,12 @@ export class Node {
         return this.fields().length;
     }
 
+    getDescriptionReadonly = () : boolean => {
+        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
+
+        return !allowParam;
+    }
+
     getFieldReadonly = (index: number) : boolean => {
         console.assert(index < this.fields().length);
 
