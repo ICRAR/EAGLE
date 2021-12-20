@@ -167,8 +167,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("create_subgraph_from_selection", "Create subgraph from selection", ["["], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
 
-        Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.Meta, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save Graph As", ["s"], "keydown", KeyboardShortcut.Modifier.MetaShift, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.Meta, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save Graph As", ["s"], "keydown", KeyboardShortcut.Modifier.MetaShift, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraphAs()}));
 
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
@@ -959,6 +959,9 @@ export class Eagle {
             }
 
             this._loadPaletteJSON(data, showErrors, fileFullPath);
+
+            this.palettes()[0].fileInfo().repositoryService = Eagle.RepositoryService.File;
+            this.palettes()[0].fileInfo.valueHasMutated();
         });
     }
 
@@ -1103,6 +1106,31 @@ export class Eagle {
         });
     }
 
+    saveGraph = () : void => {
+        if (this.logicalGraph().fileInfo().repositoryService === Eagle.RepositoryService.File){
+            this.saveFileToLocal(Eagle.FileType.Graph);
+        } else {
+            this.commitToGit(Eagle.FileType.Graph);
+        }
+    }
+
+    saveGraphAs = () : void => {
+        const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Eagle.RepositoryService.File;
+
+        Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "", (completed: boolean, userChoiceIndex: number) => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+
+            if (userChoiceIndex === 0){
+                this.saveFileToLocal(Eagle.FileType.Graph);
+            } else {
+                this.commitToGitAs(Eagle.FileType.Graph);
+            }
+        });
+    }
+
     /**
      * Saves the file to a local download folder.
      */
@@ -1241,9 +1269,9 @@ export class Eagle {
         let defaultRepository: Repository;
 
         if (this.logicalGraph()){
-            // if the repository service is unknown, probably because the graph hasn't been saved before, then
+            // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
             // just use any existing repo
-            if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown){
+            if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown || fileInfo().repositoryService === Eagle.RepositoryService.File){
                 const gitHubRepoList : Repository[] = this.getRepositoryList(Eagle.RepositoryService.GitHub);
                 const gitLabRepoList : Repository[] = this.getRepositoryList(Eagle.RepositoryService.GitLab);
 
@@ -1275,7 +1303,7 @@ export class Eagle {
             // check repository name
             const repository : Repository = this.getRepository(repositoryService, repositoryName, repositoryBranch);
 
-            this._commit(repository, fileType, fileInfo, commitMessage, obj);
+            this._commit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
         });
     };
 
@@ -1339,17 +1367,17 @@ export class Eagle {
 
         const repository = this.getRepository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
 
-        this._commit(repository, fileType, fileInfo, commitMessage, obj);
+        this._commit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
     };
 
-    _commit = (repository: Repository, fileType: Eagle.FileType, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
+    _commit = (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
         // check that repository was found, if not try "save as"!
         if (repository === null){
             this.commitToGitAs(fileType);
             return;
         }
 
-        this.saveDiagramToGit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
+        this.saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
     }
 
     /**
@@ -2102,7 +2130,7 @@ export class Eagle {
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
             graph.fileInfo().modified = false;
-            graph.fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
+            graph.fileInfo().repositoryService = Eagle.RepositoryService.File;
             graph.fileInfo().repositoryName = "";
             graph.fileInfo().gitUrl = "";
             graph.fileInfo().sha = "";
