@@ -70,7 +70,6 @@ export class KeyboardShortcut {
             if (e.type !== shortcut.eventType){
                 continue;
             }
-
             switch(shortcut.modifier){
                 case KeyboardShortcut.Modifier.None:
                     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey){
@@ -105,7 +104,7 @@ export class KeyboardShortcut {
             }
 
             for (const key of shortcut.keys){
-                if (key === e.key){
+                if (key === e.key.toLowerCase()){
                     if (shortcut.canRun(eagle)){
                         shortcut.run(eagle);
                         e.preventDefault();
