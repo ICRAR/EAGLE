@@ -4281,6 +4281,7 @@ export class Eagle {
         S3                 : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-s3_bucket", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
         Plasma             : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-plasma", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
         PlasmaFlight       : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-plasmaflight", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
+        ParameterSet       : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
 
         Service            : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-build", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
         ExclusiveForceNode : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-force_node", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
@@ -4388,6 +4389,7 @@ export namespace Eagle
         File = "File",
         Plasma = "Plasma",
         PlasmaFlight = "PlasmaFlight",
+        ParameterSet = "ParameterSet",
 
         Service = "Service",
         ExclusiveForceNode = "ExclusiveForceNode",
