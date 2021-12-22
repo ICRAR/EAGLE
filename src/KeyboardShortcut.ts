@@ -57,7 +57,7 @@ export class KeyboardShortcut {
         }
 
         // check if a modal is shown, if so abort
-        if ($(".modal.show:not(#shortcutsModal)").length > 0){
+        if ($(".modal.show:not(#shortcutsModal, #settingsModal)").length > 0){
             return;
         }
 
@@ -70,7 +70,6 @@ export class KeyboardShortcut {
             if (e.type !== shortcut.eventType){
                 continue;
             }
-
             switch(shortcut.modifier){
                 case KeyboardShortcut.Modifier.None:
                     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey){
@@ -105,7 +104,7 @@ export class KeyboardShortcut {
             }
 
             for (const key of shortcut.keys){
-                if (key === e.key){
+                if (key === e.key.toLowerCase()){
                     if (shortcut.canRun(eagle)){
                         shortcut.run(eagle);
                         e.preventDefault();
