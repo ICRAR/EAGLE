@@ -4206,7 +4206,7 @@ export class Eagle {
             const nodePosition = newNode.getPosition();
 
             // build a list of ineligible types
-            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), null, null, [Eagle.Category.Memory]);
+            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), null, null, [Eagle.Category.Memory, Eagle.Category.SharedMemory]);
 
             // ask the user which data type should be added
             this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
