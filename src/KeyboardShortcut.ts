@@ -104,7 +104,7 @@ export class KeyboardShortcut {
             }
 
             for (const key of shortcut.keys){
-                if (key === e.key.toLowerCase()){
+                if (key.toLowerCase() === e.key.toLowerCase()){
                     if (shortcut.canRun(eagle)){
                         shortcut.run(eagle);
                         e.preventDefault();
