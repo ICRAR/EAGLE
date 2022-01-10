@@ -339,6 +339,15 @@
                 "readonly": false,
                 "type": "String",
                 "default": ""
+            },
+            {
+                "text": "Shared Memory Size",
+                "name": "shmSize",
+                "value": "",
+                "description": "",
+                "readonly": false,
+                "type": "String",
+                "default": "1G"
             }],
             "key": -8,
             "text": "Docker",
