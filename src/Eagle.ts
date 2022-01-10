@@ -3647,12 +3647,6 @@ export class Eagle {
                 field.setPrecious(newField.isPrecious());
             });
         }
-
-    // modal draggables
-    //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
-    (<any>$('.modal-dialog')).draggable({
-        handle: ".modal-header"
-      });
     };
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
@@ -4376,6 +4370,14 @@ $( document ).ready(function() {
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
     });
+
+    $('.modal').on('shown.bs.modal',function(){
+        // modal draggables
+        //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
+        (<any>$('.modal-dialog')).draggable({
+            handle: ".modal-header"
+        });
+    })
 
     //removes focus from input and textareas when using the canvas
     $("#logicalGraphParent").on("mousedown", function(){
