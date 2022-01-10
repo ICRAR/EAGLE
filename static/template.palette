@@ -344,7 +344,7 @@
                 "text": "Shared Memory Size",
                 "name": "shmSize",
                 "value": "",
-                "description": "",
+                "description": "The amount of shared memory at at /dev/shm to reserve with the docker host machine",
                 "readonly": false,
                 "type": "String",
                 "default": "1G"
