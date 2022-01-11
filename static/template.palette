@@ -534,6 +534,32 @@
             "readonly": true
         },
         {
+            "category": "SharedMemory",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }],
+            "key": -4,
+            "text": "Shared Memory",
+            "description": "Shared memory storage of intermediate data products. Implemented using shmem.",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
             "category": "File",
             "outputPorts": [],
             "fields": [{
