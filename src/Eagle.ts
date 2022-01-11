@@ -4461,6 +4461,7 @@ $( document ).ready(function() {
 
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
+        $("#editFieldModal textarea").attr('style','')
     });
 
     $('.modal').on('shown.bs.modal',function(){
