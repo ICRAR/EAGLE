@@ -66,7 +66,7 @@
     background-color: #b6c3cf;
 }
 
-/*Animation must have unfilled path strokes to work*/
+/*Animation must have unfill path strokes to work*/
 .path{
     fill: none;
     stroke: #6f8193;
@@ -388,6 +388,14 @@
     margin-left: 50%;
     transform: translateX(-50%);
     margin-top:0px;
+}
+
+#editFieldModal textarea{
+    height:0px;
+}
+
+#editFieldModal textarea:focus{
+    height:86px;
 }
 
 select.form-control{
