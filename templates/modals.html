@@ -369,22 +369,17 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th>Keys</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- ko foreach: getShortcutDisplay() -->
-                        <tr>
-                            <td data-bind="text: $data.description"></td>
-                            <td data-bind="text: $data.shortcut"></td>
-                        </tr>
-                        <!-- /ko -->
-                    </tbody>
-                </table>
+                
+                <div class="row">
+                    <!-- ko foreach: getShortcutDisplay() -->
+                        <div class="col-6">
+                            <div class="shortCutsModalItem">
+                                <span data-bind="text: $data.description"></span>
+                                <span class="shortCutsModalItemRight" data-bind="text: $data.shortcut"></span>
+                            </div>
+                        </div>
+                    <!-- /ko -->
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="shortcutsModalAffirmativeButton" data-bs-dismiss="modal"><span id="shortcutsModalAffirmativeAnswer">OK</span></button>
