@@ -826,18 +826,6 @@
             "readonly": true
         },
         {
-            "category": "Variables",
-            "text": "Variables",
-            "description": "A node that contains variables for use in the graph. Often used to specify global variables.",
-            "inputApplication": null,
-            "inputPorts": [],
-            "outputApplication": null,
-            "outputPorts": [],
-            "key": -22,
-            "fields": [],
-            "readonly": true
-        },
-        {
             "category": "GroupBy",
             "text": "Group By",
             "description": "A construct that runs an application on a number of inputs and groups the outputs by results",

@@ -297,25 +297,6 @@ function readNode(nodeData : any, index : number) : Node {
         }
     }
 
-    // read column data from nodes with the Variables category
-    if (typeof nodeData.var_list !== 'undefined'){
-        for (const v of nodeData.var_list){
-            let name = "";
-            let value = "";
-
-            for (const column of v.columns){
-                if (column.attr === "name"){
-                    name = column.text;
-                }
-                if (column.attr === "value"){
-                    value = column.text;
-                }
-            }
-            logMessage("Moved var_list variable '" + name + "' (" + value + ") to new field in node " + index);
-            node.addField(new Field(name, name, value, "", false, Eagle.DataType.Unknown));
-        }
-    }
-
     // make sure scatter nodes have a 'num_of_copies' field
     if (node.getCategory() === Eagle.Category.Scatter){
         if (node.getFieldByName('num_of_copies') === null){
