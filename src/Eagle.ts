@@ -4377,7 +4377,8 @@ export namespace Eagle
         Integer = "Integer",
         Float = "Float",
         Complex = "Complex",
-        Boolean = "Boolean"
+        Boolean = "Boolean",
+        Select = "Select"
     }
 
     export enum ModalType {
