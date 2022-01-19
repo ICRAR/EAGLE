@@ -2387,6 +2387,8 @@ export class Eagle {
                 $("#"+id).html("Check")
             }
             return "checkbox"
+        }else if(type === "Select"){
+            return "select";
         }else{
             return "text"
         }
