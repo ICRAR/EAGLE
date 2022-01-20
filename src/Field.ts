@@ -11,8 +11,9 @@ export class Field {
     private readonly : ko.Observable<boolean>;
     private type : ko.Observable<Eagle.DataType>;
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
+    private options : ko.ObservableArray<string>;
 
-    constructor(text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean){
+    constructor(text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[]){
         this.text = ko.observable(text);
         this.name = ko.observable(name);
         this.value = ko.observable(value);
@@ -21,6 +22,7 @@ export class Field {
         this.readonly = ko.observable(readonly);
         this.type = ko.observable(type);
         this.precious = ko.observable(precious);
+        this.options = ko.observableArray(options);
     }
 
     getText = () : string => {
@@ -108,10 +110,11 @@ export class Field {
         this.readonly(false);
         this.type(Eagle.DataType.Unknown);
         this.precious(false);
+        this.options([]);
     }
 
     clone = () : Field => {
-        return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious());
+        return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options());
     }
 
     getFieldValue = () : string => {
@@ -170,7 +173,8 @@ export class Field {
             description:field.description(),
             readonly:field.readonly(),
             type:field.type(),
-            precious:field.precious()
+            precious:field.precious(),
+            options:field.options()
         };
     }
 
@@ -183,7 +187,8 @@ export class Field {
             description:field.description(),
             readonly:field.readonly(),
             type:field.type(),
-            precious:field.precious()
+            precious:field.precious(),
+            options:field.options()
         };
     }
 
@@ -196,6 +201,7 @@ export class Field {
         let value: string = "";
         let defaultValue: string = "";
         let precious: boolean = false;
+        let options: string[] = [];
 
         if (typeof data.text !== 'undefined')
             text = data.text;
@@ -213,8 +219,10 @@ export class Field {
             defaultValue = data.default.toString();
         if (typeof data.precious !== 'undefined')
             precious = data.precious;
+        if (typeof data.options !== 'undefined')
+            options = data.options;
 
-        return new Field(text, name, value, defaultValue, description, readonly, type, precious);
+        return new Field(text, name, value, defaultValue, description, readonly, type, precious, options);
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
