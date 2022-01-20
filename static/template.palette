@@ -850,7 +850,7 @@
             "description": "An immutable key-value store visible to all drops via component parameters with a '$StoreName.key' syntax",
             "inputPorts": [],
             "readonly": true
-        }
+        },
         {
             "category": "GroupBy",
             "text": "Group By",
