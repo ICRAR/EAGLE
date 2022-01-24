@@ -3670,7 +3670,7 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field("", "", "", "", "", false, Eagle.DataType.Integer, false);
+            const field: Field = new Field("", "", "", "", "", false, Eagle.DataType.Integer, false, []);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted

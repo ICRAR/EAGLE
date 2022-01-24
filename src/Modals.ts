@@ -250,15 +250,18 @@ export class Modals {
             const type: string = <string>$('#editFieldModalTypeSelect').val();
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
 
+            // NOTE: currently no way to edit options in the "select"-type fields
+            const options: string[] = [];
+
             // translate access and type
             const readonly: boolean = access === 'readonly';
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
             let newField;
 
             if (realType === Eagle.DataType.Boolean){
-                newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious);
+                newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options);
             } else {
-                newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious);
+                newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious, options);
             }
 
             callback(true, newField);
