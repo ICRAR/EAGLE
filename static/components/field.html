@@ -17,11 +17,7 @@
 
     <!-- ko if: getType() === Eagle.DataType.Select -->
     <div class="form-control">
-        <select class="form-select" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="readonly: $data.ro, attr: {type: $root.getFieldType(getType(), 'nodeInspectorFieldValue' + $index(), $data.value()), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue()">
-
-            <!-- ko foreach: $data.options -->
-                <option data-bind="text: $data">default</option>
-            <!-- /ko -->
+        <select class="form-select" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="readonly: $data.ro, attr: {type: $root.getFieldType(getType(), 'nodeInspectorFieldValue' + $index(), $data.value()), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue(), options: $data.options, value: $data.value">
         </select>
     </div>
     <!-- /ko -->
