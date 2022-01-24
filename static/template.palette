@@ -1024,30 +1024,6 @@
             "description": "A node that places a description in the graph. The description should be used to communicate the purpose of the graph",
             "inputPorts": [],
             "readonly": true
-        },
-        {
-            "category": "Loop",
-            "outputPorts": [],
-            "fields": [{
-                "text": "Select",
-                "name": "select",
-                "value": "Option1",
-                "description": "A test select parameter",
-                "readonly": false,
-                "type": "Select",
-                "default": "Option2",
-                "options": [
-                    "Option0",
-                    "Option1",
-                    "Option2",
-                    "Option3"
-                ]
-            }],
-            "key": -22,
-            "text": "SelectTest",
-            "description": "Temp test of select param",
-            "inputPorts": [],
-            "readonly": true
         }
     ],
     "linkDataArray": []
