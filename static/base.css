@@ -382,6 +382,35 @@
     overflow-y: unset;
 }
 
+#shortcutsModal .modal-dialog{
+    transform:none!important;
+}
+
+#shortcutsModal .modal-content{
+    width: 1000px;
+    position: absolute;
+    transform: translateX(-50%);
+}
+
+.shortCutsModalItem{    
+    padding: 10px 20px;
+    background-color: rgb(216, 221, 240);
+    border: solid 1px #001225;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.shortCutsModalItem span{
+    font-weight: 400;
+}
+
+.shortCutsModalItem .shortCutsModalItemRight{
+    font-weight: 700;
+    position: absolute;
+    right: 20px;
+}
+
 #editFieldModalValueInputCheckbox, #editFieldModalDefaultValueInputCheckbox, #editFieldModalPreciousInputCheckbox {
     flex: none;
     padding: 19px;
