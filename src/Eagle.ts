@@ -1102,6 +1102,10 @@ export class Eagle {
             {   // Cancelling action.
                 return;
             }
+            if (userString === ""){
+            Utils.showNotification("Input Error", "Enter A Valid Name", "warning");
+                return;
+            }
 
             // Adding file extension to the title if it does not have it.
             if (!Utils.verifyFileExtension(userString)) {
