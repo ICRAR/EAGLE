@@ -1093,6 +1093,14 @@ export class Eagle {
     }
 
     /**
+     * Reloads a previaously loaded palette.
+     */
+     reloadPalette = () : void => {
+         console.log("reloading")
+    }
+
+
+    /**
      * Create a new diagram (graph or palette).
      */
     newDiagram = (fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void => {

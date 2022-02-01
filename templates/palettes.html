@@ -39,6 +39,7 @@
                 <button type="button" class="material-icons md-18 dropdown-toggle paletteTrippleDot" aria-label="Close" data-bs-toggle="dropdown" >more_vert</button>
                 <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closePaletteMenus}">
                     <a href="#" data-bind="click: $root.closePalette, clickBubble: false" data-html="true"><span>Remove Palette</span></a>
+                    <a href="#" data-bind="click: $root.reloadPalette, clickBubble: false" data-html="true"><span>Reload Palette</span></a>
                     <!-- ko if: $root.allowPaletteEditing() -->
                         <a href="#" data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>
                         <a href="#" data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>
