@@ -121,7 +121,7 @@
                                     </div>
                                     <div class="col-4 text-right headerBtns">
                                         <!-- ko if: selectedLocation() == Eagle.FileType.Graph || allowPaletteEditing() -->
-                                        <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                                        <button type="button" id="duplicateSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
                                             <i  class="material-icons md-24">content_copy</i>
                                         </button>
                                         <!-- /ko -->
@@ -131,7 +131,7 @@
                                         </button>
                                         <!-- /ko -->
                                         <!-- ko if: selectedLocation() == Eagle.FileType.Graph || allowPaletteEditing() -->
-                                        <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
+                                        <button type="button" id="deleteSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
                                             <i class="material-icons md-24">delete</i>
                                         </button>
                                         <!-- /ko -->

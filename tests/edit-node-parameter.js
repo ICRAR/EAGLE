@@ -33,7 +33,7 @@ test('Edit node parameter', async t =>{
         .click("#selectPaletteNodePythonApp")
 
         // add selected node to palette
-        .click("#addSelectedNodesToPalette")
+        .click("#addSelectedNodeToPalette")
 
         .wait(1000)
 
