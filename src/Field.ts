@@ -101,6 +101,10 @@ export class Field {
         return this.precious();
     }
 
+    getOptions = () : string[] => {
+        return this.options();
+    }
+
     clear = () : void => {
         this.text("");
         this.name("");
