@@ -1093,14 +1093,6 @@ div.rightWindow h5.card-header {
     margin: top 1px;
 }
 
-#edgeEditBtn{
-    color:rgb(0, 89, 165);
-}
-
-#edgeDeleteBtn{
-    color: red;;
-}
-
 #nodeInspector .input-group-prepend, #edgeInspector .input-group-prepend, #translationMenu .input-group-prepend {
     width:40%;
 }
@@ -1136,6 +1128,11 @@ div.rightWindow h5.card-header {
 
 #edgeInspectorIcons button{
     padding:0px;
+    color:#095cb4;
+}
+
+#edgeInspectorIcons button:hover{
+    color:#00162e;
 }
 
 #nodeInspector .input-group-text img{
@@ -1434,6 +1431,16 @@ nav.navbar .introjs-helperLayer {
 
 .headerBtns button.btn:focus {
     box-shadow: none;
+    background-color:transparent;
+    border:none;
+}
+
+#multiSelectionHeader .headerBtns button{
+    color:#095cb4;
+}
+
+#multiSelectionHeader .headerBtns button:hover{
+    color:#00162e;
 }
 
 .nodeInspectorSubsectionTitle{
