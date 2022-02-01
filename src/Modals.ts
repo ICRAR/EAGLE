@@ -241,24 +241,42 @@ export class Modals {
             // extract field data from HTML elements
             const text : string = <string>$('#editFieldModalTextInput').val();
             const name : string = <string>$('#editFieldModalNameInput').val();
+
+            // only one of these three ui elements contains the "real" value,
+            // but we get all three and then choose correctly based on field type
             const valueText : string = <string>$('#editFieldModalValueInputText').val();
             const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
+            const valueSelect : string = <string>$('#editFieldModalValueInputSelect').val();
+
+            // only one of these three ui elements contains the "real" default value,
+            // but we get all three and then choose correctly based on field type
             const defaultValueText : string = <string>$('#editFieldModalDefaultValueInputText').val();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
+            const defaultValueSelect : string = <string>$('#editFieldModalDefaultValueInputSelect').val();
+
             const description: string = <string>$('#editFieldModalDescriptionInput').val();
             const access: string = <string>$('#editFieldModalAccessSelect').val();
             const type: string = <string>$('#editFieldModalTypeSelect').val();
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
+
+            // NOTE: currently no way to edit options in the "select"-type fields
+            const options: string[] = [];
 
             // translate access and type
             const readonly: boolean = access === 'readonly';
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
             let newField;
 
-            if (realType === Eagle.DataType.Boolean){
-                newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious);
-            } else {
-                newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious);
+            switch(realType){
+                case Eagle.DataType.Boolean:
+                    newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options);
+                    break;
+                case Eagle.DataType.Select:
+                    newField = new Field(text, name, valueSelect, defaultValueSelect, description, readonly, realType, precious, options);
+                    break;
+                default:
+                    newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious, options);
+                    break;
             }
 
             callback(true, newField);
@@ -279,10 +297,13 @@ export class Modals {
             // show the correct entry field based on the field type
             const value = $('#editFieldModalTypeSelect').val();
 
-            $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean);
+            $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean && value !== Eagle.DataType.Select);
             $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
-            $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType.Boolean);
+            $('#editFieldModalValueInputSelect').toggle(value === Eagle.DataType.Select);
+
+            $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType.Boolean && value !== Eagle.DataType.Select);
             $('#editFieldModalDefaultValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
+            $('#editFieldModalDefaultValueInputSelect').toggle(value === Eagle.DataType.Select);
 
             if(value === Eagle.DataType.Float || value === Eagle.DataType.Integer){
                 $('#editFieldModalDefaultValueInputText').attr("type", "number")

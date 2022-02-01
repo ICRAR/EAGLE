@@ -4,10 +4,9 @@
         <span class="input-group-text" id="group-addon" data-bind="text: $data.text, eagleTooltip: $data.getDescriptionText()" data-bs-placement="left"></span>
     </div>
 
-    <!-- ko if: getType() !== Eagle.DataType.Boolean -->
+    <!-- ko if: getType() !== Eagle.DataType.Boolean && getType() !== Eagle.DataType.Select -->
     <input class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: $data.ro, attr: {type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()), id: $data.fieldType + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue()">
     <!-- /ko -->
-
 
     <!-- ko if: getType() === Eagle.DataType.Boolean -->
     <div class="form-control checkboxParent">
@@ -16,6 +15,12 @@
     </div>
     <!-- /ko -->
 
+    <!-- ko if: getType() === Eagle.DataType.Select -->
+    <div class="form-control">
+        <select class="form-select" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="readonly: $data.ro, attr: {type: $root.getFieldType(getType(), 'nodeInspectorFieldValue' + $index(), $data.value()), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue(), options: $data.options, value: $data.value">
+        </select>
+    </div>
+    <!-- /ko -->
 
     <!-- ko ifnot: $data.ro -->
     <div class="input-group-append">

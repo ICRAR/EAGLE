@@ -1138,7 +1138,7 @@ export class Node {
 
         // if no fields exist, create at least one, to store the custom data
         if (this.fields().length === 0){
-            this.addField(new Field("", "", "", "", "", false, Eagle.DataType.Unknown, false));
+            this.addField(new Field("", "", "", "", "", false, Eagle.DataType.Unknown, false, []));
         }
 
         this.fields()[0].setValue(e.value);

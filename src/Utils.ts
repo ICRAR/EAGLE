@@ -291,23 +291,11 @@ export class Utils {
     }
 
     static translateStringToDataType(dataType: string): Eagle.DataType {
-        if (dataType === "Boolean"){
-            return Eagle.DataType.Boolean;
-        }
-        if (dataType === "Float"){
-            return Eagle.DataType.Float;
-        }
-        if (dataType === "Integer"){
-            return Eagle.DataType.Integer;
-        }
-        if (dataType === "String"){
-            return Eagle.DataType.String;
-        }
-        if (dataType === "Complex"){
-            return Eagle.DataType.Complex;
-        }
-        if (dataType === "Unknown"){
-            return Eagle.DataType.Unknown;
+
+        for (let dt of Object.values(Eagle.DataType)){
+            if (dt.toLowerCase() === dataType.toLowerCase()){
+                return dt;
+            }
         }
 
         console.warn("Unknown DataType", dataType);
@@ -680,19 +668,39 @@ export class Utils {
         $('#editFieldModalNameInput').val(field.getName());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalValueInputSelect').empty();
+        for (let option of field.getOptions()){
+            $('#editFieldModalValueInputSelect').append($('<option>', {
+                value: option,
+                text: option,
+                selected: field.getValue() === option
+            }));
+        }
+
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
         $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.string2Type(field.getDefaultValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalDefaultValueInputSelect').empty();
+        for (let option of field.getOptions()){
+            $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
+                value: option,
+                text: option,
+                selected: field.getDefaultValue() === option
+            }));
+        }
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
-        $('#editFieldModalAccessSelect').empty();
 
         // show the correct entry field based on the field type
-        $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
+        $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
         $('#editFieldModalValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
-        $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
-        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
+        $('#editFieldModalValueInputSelect').toggle(field.getType() === Eagle.DataType.Select);
 
-        // add options to the access select tag
+        $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
+        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
+        $('#editFieldModalDefaultValueInputSelect').toggle(field.getType() === Eagle.DataType.Select);
+
+        // delete all, then add options to the access select tag
+        $('#editFieldModalAccessSelect').empty();
         $('#editFieldModalAccessSelect').append($('<option>', {
             value: "readonly",
             text: "readonly",
@@ -704,38 +712,15 @@ export class Utils {
             selected: !field.isReadonly()
         }));
 
+        // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();
-        // TODO: we should iterate through the values in the Eagle.DataType enum, rather than hard-code each type
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Integer",
-            text: "Integer",
-            selected: field.getType() === Eagle.DataType.Integer
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Float",
-            text: "Float",
-            selected: field.getType() === Eagle.DataType.Float
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "String",
-            text: "String",
-            selected: field.getType() === Eagle.DataType.String
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Boolean",
-            text: "Boolean",
-            selected: field.getType() === Eagle.DataType.Boolean
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Complex",
-            text: "Complex",
-            selected: field.getType() === Eagle.DataType.Complex
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Unknown",
-            text: "Unknown",
-            selected: field.getType() === Eagle.DataType.Unknown
-        }));
+        for (let dataType of Object.values(Eagle.DataType)){
+            $('#editFieldModalTypeSelect').append($('<option>', {
+                value: dataType,
+                text: dataType,
+                selected: field.getType() === dataType
+            }));
+        }
 
         $('#editFieldModalPreciousInputCheckbox').prop('checked', field.isPrecious());
 
