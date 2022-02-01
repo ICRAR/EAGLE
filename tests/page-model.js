@@ -93,7 +93,7 @@ class Page {
 
     this.componentParameters = Selector('.card-header').withText("Component Parameters");
     this.outputPorts = Selector('span').withText("Output Ports");
-    this.changeGreet = Selector('#nodeInspectorFieldValue0');
+    this.changeGreet = Selector('#Field0');
 
     this.addInputPort = Selector('#nodeInspectorAddInputPort');
     this.addOutputPort = Selector('#nodeInspectorAddOutputPort');

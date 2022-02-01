@@ -89,7 +89,7 @@ test('Create palette', async t =>{
         .click(Selector('#inputApplicationTypeSelect').find('option').withText('Component'))
 
         // set data parameters of the new scatter
-        .typeText(Selector('#nodeInspectorFieldValue0'), "4608", {replace:true})
+        .typeText(Selector('#Field0'), "4608", {replace:true})
         .typeText(Selector('#nodeInspectorFieldValue1'), "Config", {replace:true})
 
         // create an output port on the scatter
@@ -123,7 +123,7 @@ test('Create palette', async t =>{
         .click(Selector('#inputApplicationTypeSelect').find('option').withText('Component'))
 
         // set data parameters of the new gather
-        .typeText(Selector('#nodeInspectorFieldValue0'), "6", {replace:true})
+        .typeText(Selector('#Field0'), "6", {replace:true})
         .typeText(Selector('#nodeInspectorFieldValue1'), "frequency", {replace:true})
 
         // add input app field
@@ -353,7 +353,7 @@ test('Create palette', async t =>{
             offsetX: 150,
             offsetY: 40
         })
-        .typeText(Selector('#nodeInspectorFieldValue0'), "15", {replace:true})
+        .typeText(Selector('#Field0'), "15", {replace:true})
 
         // change parent of the 'memory' data component
         .click('#nodeInspectorChangeParent')

@@ -1102,6 +1102,10 @@ export class Eagle {
             {   // Cancelling action.
                 return;
             }
+            if (userString === ""){
+            Utils.showNotification("Input Error", "Enter A Valid Name", "warning");
+                return;
+            }
 
             // Adding file extension to the title if it does not have it.
             if (!Utils.verifyFileExtension(userString)) {
@@ -2613,14 +2617,21 @@ export class Eagle {
         });
     }
 
-    addSelectedNodeToPalette = () : void => {
-        const selectedNode = this.selectedNode();
+    addSelectedNodesToPalette = () : void => {
+        const nodes = []
 
-        if (selectedNode === null){
+        for(const object of this.selectedObjects()){
+            if ((object instanceof Node)){
+                nodes.push(object)
+            }
+        }
+
+        if (nodes.length === 0){
             console.error("Attempt to add selected node to palette when no node selected");
             return;
         }
-        this.addNodesToPalette([selectedNode]);
+
+        this.addNodesToPalette(nodes);
     }
 
     deleteSelection = (suppressUserConfirmationRequest: boolean) : void => {
