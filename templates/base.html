@@ -115,7 +115,28 @@
                     <div id="nodeInspectorKOWrapper" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Inspector">
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() === null && selectedObjects().length > 1">
                             <div id="inspectorSelectionSummary">
-                                <h5>Selection Summary</h5>
+                                <div class="row" id="multiSelectionHeader">
+                                    <div class="col-8">
+                                        <h5>Selection Summary</h5>
+                                    </div>
+                                    <div class="col-4 text-right headerBtns">
+                                        <!-- ko if: selectedLocation() == Eagle.FileType.Graph || allowPaletteEditing() -->
+                                        <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                                            <i  class="material-icons md-24">content_copy</i>
+                                        </button>
+                                        <!-- /ko -->
+                                        <!-- ko if: allowPaletteEditing() -->
+                                        <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodesToPalette, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
+                                            <i  class="material-icons md-24">library_add</i>
+                                        </button>
+                                        <!-- /ko -->
+                                        <!-- ko if: selectedLocation() == Eagle.FileType.Graph || allowPaletteEditing() -->
+                                        <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
+                                            <i class="material-icons md-24">delete</i>
+                                        </button>
+                                        <!-- /ko -->
+                                    </div>
+                                </div>
                                 <span data-bind="text: $root.getSelectedText()"></span>
                                 <span id="inspectorSelectionSummaryNodes">Selected Nodes:</span>
                                 <!-- ko foreach: $root.selectedObjects -->
