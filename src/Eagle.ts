@@ -1093,12 +1093,21 @@ export class Eagle {
     }
 
     /**
-     * Reloads a previaously loaded palette.
+     * Reloads a previously loaded palette.
      */
-     reloadPalette = () : void => {
-         console.log("reloading")
-    }
+     reloadPalette = (palette: Palette) : void => {
+         const fileInfo : FileInfo = palette.fileInfo();
 
+         // remove palette
+         this.closePalette(palette);
+
+         if (fileInfo.repositoryService === Eagle.RepositoryService.File){
+             // load palette
+             this.getPaletteFileToLoad();
+         } else { // GitHub or Gitlab
+             this.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
+         }
+    }
 
     /**
      * Create a new diagram (graph or palette).
