@@ -334,7 +334,7 @@ export class FileInfo {
         result.gitUrl = modelData.gitUrl == undefined ? "" : modelData.gitUrl;
         result.lastModifiedName = modelData.lastModifiedName == undefined ? "" : modelData.lastModifiedName;
         result.lastModifiedEmail = modelData.lastModifiedEmail == undefined ? "" : modelData.lastModifiedEmail;
-        result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? "" : modelData.lastModifiedDatetime;
+        result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? 0 : modelData.lastModifiedDatetime;
 
         return result;
     }
