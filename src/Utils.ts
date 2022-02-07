@@ -1185,17 +1185,17 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph
      */
-    static getUniqueApplicationParamsList = (diagram : Palette | LogicalGraph) : Field[] => {
-        const uniqueApplicationParams : Field[] = [];
+    static getUniqueapplicationArgsList = (diagram : Palette | LogicalGraph) : Field[] => {
+        const uniqueapplicationArgs : Field[] = [];
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
-            for (const param of node.getApplicationParams()) {
-                Utils._addFieldIfUnique(uniqueApplicationParams, param.clone());
+            for (const param of node.getapplicationArgs()) {
+                Utils._addFieldIfUnique(uniqueapplicationArgs, param.clone());
             }
         }
 
-        return uniqueApplicationParams;
+        return uniqueapplicationArgs;
     }
 
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
@@ -1438,7 +1438,7 @@ export class Utils {
 
         // check that all application params have default values
         for (const node of graph.getNodes()){
-            for (const field of node.getApplicationParams()){
+            for (const field of node.getapplicationArgs()){
                 if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getName() + ") whose default value is not specified");
                 }

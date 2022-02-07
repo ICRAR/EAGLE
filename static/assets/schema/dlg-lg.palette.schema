@@ -247,7 +247,7 @@
                             ]
                         }
                     },
-                    "applicationParams": {
+                    "applicationArgs": {
                         "type": "array",
                         "items": {
                             "type": "object",
@@ -281,7 +281,7 @@
                     "category",
                     "description",
                     "fields",
-                    "applicationParams",
+                    "applicationArgs",
                     "inputAppFields",
                     "inputApplicationName",
                     "inputApplicationType",
