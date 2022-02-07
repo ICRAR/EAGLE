@@ -3108,14 +3108,12 @@ export class Eagle {
         const nodeList : string[] = [];
         let selectedChoiceIndex = 0;
 
+        //this is needed for the selected choice index as the index of the function will not work because many entries a skipped, the selected choice index was generally higher than the amount of legitimate choices available
+        var validChoiceIndex = -1
+
         // build list of nodes that are candidates to be the parent
         for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
             const node : Node = this.logicalGraph().getNodes()[i];
-
-            // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
-            if (node.getKey() === selectedNode.getParentKey()){
-                selectedChoiceIndex = i;
-            }
 
             // a node can't be its own parent
             if (node.getKey() === selectedNode.getKey()){
@@ -3125,6 +3123,14 @@ export class Eagle {
             // only group (construct) nodes can be parents
             if (!node.isGroup()){
                 continue;
+            }
+
+            //this index only counts up if the above doesnt filter out the choice
+            validChoiceIndex++
+
+            // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
+            if (node.getKey() === selectedNode.getParentKey()){
+                selectedChoiceIndex = validChoiceIndex;
             }
 
             nodeList.push(node.getName() + " : " + node.getKey());
