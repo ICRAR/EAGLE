@@ -3133,7 +3133,7 @@ export class Eagle {
                 selectedChoiceIndex = validChoiceIndex;
             }
 
-            nodeList.push(node.getName() + " [" + node.getKey()+"]");
+            nodeList.push(node.getName() + " : " + node.getKey());
         }
 
         // add "None" to the list of possible parents
