@@ -220,4 +220,24 @@ export class Palette {
     replaceNode = (index : number, newNode : Node) : void => {
         this.nodes.splice(index, 1, newNode);
     }
+
+    sort = () : void => {
+
+        const sortFunc = function(a:Node, b:Node) : number {
+            const aCData : Eagle.CategoryData = Eagle.getCategoryData(a.getCategory());
+            const bCData : Eagle.CategoryData = Eagle.getCategoryData(b.getCategory());
+
+            if (aCData.sortOrder < bCData.sortOrder) {
+                return -1;
+            }
+            if (aCData.sortOrder > bCData.sortOrder) {
+                return 1;
+            }
+
+            // a must be equal to b
+            return a.getName() > b.getName() ? 1 : -1;
+        }
+
+        this.nodes.sort(sortFunc);
+    }
 }
