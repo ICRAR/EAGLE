@@ -140,9 +140,9 @@ export class Field {
     },this)
 
     fitsApplicationSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        if(Eagle.applicationParamsSearchString() === ""){
+        if(Eagle.applicationArgsSearchString() === ""){
             return true
-        }else if(this.text().toLowerCase().indexOf(Eagle.applicationParamsSearchString().toLowerCase())>=0){
+        }else if(this.text().toLowerCase().indexOf(Eagle.applicationArgsSearchString().toLowerCase())>=0){
             return true
         }else{
             return false

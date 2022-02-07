@@ -84,7 +84,7 @@ export class Eagle {
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
-    static applicationParamsSearchString : ko.Observable<string>;
+    static applicationArgsSearchString : ko.Observable<string>;
 
 
     static settings : {[category:string] : Setting[]}
@@ -114,7 +114,7 @@ export class Eagle {
 
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("")
-        Eagle.applicationParamsSearchString = ko.observable("")
+        Eagle.applicationArgsSearchString = ko.observable("")
 
         Eagle.settings = {
             "User Options" : [
@@ -3678,7 +3678,7 @@ export class Eagle {
         if (fieldType === Eagle.FieldType.Field){
             allFields = Utils.getUniqueFieldsList(this.logicalGraph());
         } else {
-            allFields = Utils.getUniqueApplicationParamsList(this.logicalGraph());
+            allFields = Utils.getUniqueapplicationArgsList(this.logicalGraph());
         }
 
         // once done, sort fields and then collect names into the allFieldNames list
@@ -3742,7 +3742,7 @@ export class Eagle {
                 field = this.selectedNode().getFields()[fieldIndex];
             } else {
                 $("#editFieldModalTitle").html("Edit Application Parameter");
-                field = this.selectedNode().getApplicationParams()[fieldIndex];
+                field = this.selectedNode().getapplicationArgs()[fieldIndex];
             }
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();

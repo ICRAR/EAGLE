@@ -77,7 +77,7 @@ export class InspectorState {
                 return this.outputPorts;
             case "Component Parameters":
                 return this.componentParameters;
-            case "Application Parameters":
+            case "Application Arguments":
                 return this.applicationParameters;
             default:
                 console.warn("Unknown inspector section", sectionName);

@@ -277,7 +277,7 @@
                             ]
                         }
                     },
-                    "applicationParams": {
+                    "applicationArgs": {
                         "type": "array",
                         "items": {
                             "type": "object",
@@ -315,7 +315,7 @@
                     "drawOrderHint",
                     "expanded",
                     "fields",
-                    "applicationParams",
+                    "applicationArgs",
                     "height",
                     "inputAppFields",
                     "inputApplicationName",

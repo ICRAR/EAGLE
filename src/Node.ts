@@ -61,7 +61,7 @@ export class Node {
     private outputPorts : ko.ObservableArray<Port>;
 
     private fields : ko.ObservableArray<Field>;
-    private applicationParams : ko.ObservableArray<Field>;
+    private applicationArgs : ko.ObservableArray<Field>;
 
     private category : ko.Observable<Eagle.Category>;
 
@@ -119,7 +119,7 @@ export class Node {
         this.outputPorts = ko.observableArray([]);
 
         this.fields = ko.observableArray([]);
-        this.applicationParams = ko.observableArray([]);
+        this.applicationArgs = ko.observableArray([]);
 
         this.category = ko.observable(category);
 
@@ -455,7 +455,7 @@ export class Node {
     }
 
     getApplicationParamByName = (name : string) : Field | null => {
-        for (const param of this.applicationParams()){
+        for (const param of this.applicationArgs()){
             if (param.getName() === name){
                 return param;
             }
@@ -465,7 +465,7 @@ export class Node {
     }
 
     hasApplicationParamWithName = (name : string) : boolean => {
-        for (const param of this.applicationParams()){
+        for (const param of this.applicationArgs()){
             if (param.getName() === name){
                 return true;
             }
@@ -473,18 +473,18 @@ export class Node {
         return false;
     }
 
-    getApplicationParams = () : Field[] => {
-        return this.applicationParams();
+    getapplicationArgs = () : Field[] => {
+        return this.applicationArgs();
     }
 
-    getNumApplicationParams = () : number => {
-        return this.applicationParams().length;
+    getNumapplicationArgs = () : number => {
+        return this.applicationArgs().length;
     }
 
     getApplicationParamReadonly = (index: number) : boolean => {
-        console.assert(index < this.applicationParams().length);
+        console.assert(index < this.applicationArgs().length);
 
-        const param: Field = this.applicationParams()[index];
+        const param: Field = this.applicationArgs()[index];
 
         // modify using settings and node readonly
         const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
@@ -653,7 +653,7 @@ export class Node {
         this.outputPorts([]);
 
         this.fields([]);
-        this.applicationParams([]);
+        this.applicationArgs([]);
 
         this.category(Eagle.Category.Unknown);
 
@@ -927,7 +927,7 @@ export class Node {
         if (fieldType === Eagle.FieldType.Field){
             this.fields.splice(index, 1);
         } else {
-            this.applicationParams.splice(index, 1);
+            this.applicationArgs.splice(index, 1);
         }
     }
 
@@ -949,11 +949,11 @@ export class Node {
     }
 
     addApplicationParam = (param : Field) : void => {
-        this.applicationParams.push(param);
+        this.applicationArgs.push(param);
     }
 
     removeApplicationParamByIndex = (index : number) : void => {
-        this.applicationParams.splice(index, 1);
+        this.applicationArgs.splice(index, 1);
     }
 
     clone = () : Node => {
@@ -1005,9 +1005,9 @@ export class Node {
             result.fields.push(field.clone());
         }
 
-        // clone applicationParams
-        for (const param of this.applicationParams()){
-            result.applicationParams.push(param.clone());
+        // clone applicationArgs
+        for (const param of this.applicationArgs()){
+            result.applicationArgs.push(param.clone());
         }
 
         result.readonly(this.readonly());
@@ -1503,8 +1503,8 @@ export class Node {
         }
 
         // add application params
-        if (typeof nodeData.applicationParams !== 'undefined'){
-            for (const paramData of nodeData.applicationParams){
+        if (typeof nodeData.applicationArgs !== 'undefined'){
+            for (const paramData of nodeData.applicationArgs){
                 node.addApplicationParam(Field.fromOJSJson(paramData));
             }
         }
@@ -1664,10 +1664,10 @@ export class Node {
             result.fields.push(Field.toOJSJson(field));
         }
 
-        // add applicationParams
-        result.applicationParams = [];
-        for (const param of node.applicationParams()){
-            result.applicationParams.push(Field.toOJSJson(param));
+        // add applicationArgs
+        result.applicationArgs = [];
+        for (const param of node.applicationArgs()){
+            result.applicationArgs.push(Field.toOJSJson(param));
         }
 
         // add fields from inputApplication
@@ -1783,10 +1783,10 @@ export class Node {
             result.fields.push(Field.toOJSJson(field));
         }
 
-        // add applicationParams
-        result.applicationParams = [];
-        for (const param of node.applicationParams()){
-            result.applicationParams.push(Field.toOJSJson(param));
+        // add applicationArgs
+        result.applicationArgs = [];
+        for (const param of node.applicationArgs()){
+            result.applicationArgs.push(Field.toOJSJson(param));
         }
 
         // add fields from inputApplication
@@ -1875,10 +1875,10 @@ export class Node {
             result.fields.push(Field.toOJSJson(field));
         }
 
-        // add applicationParams
-        result.applicationParams = [];
-        for (const param of node.applicationParams()){
-            result.applicationParams.push(Field.toOJSJson(param));
+        // add applicationArgs
+        result.applicationArgs = [];
+        for (const param of node.applicationArgs()){
+            result.applicationArgs.push(Field.toOJSJson(param));
         }
 
         // write application names and types
@@ -1928,8 +1928,8 @@ export class Node {
             node.addField(Field.fromOJSJson(field));
         }
 
-        node.applicationParams([]);
-        for (const param of nodeData.applicationParams){
+        node.applicationArgs([]);
+        for (const param of nodeData.applicationArgs){
             node.addApplicationParam(Field.fromOJSJson(param));
         }
 
@@ -2022,10 +2022,10 @@ export class Node {
             result.componentParameters[i] = Field.toV3Json(field);
         }
 
-        // add application parameters
+        // add Application Arguments
         result.applicationParameters = {};
-        for (let i = 0 ; i < node.applicationParams().length ; i++){
-            const field = node.applicationParams()[i];
+        for (let i = 0 ; i < node.applicationArgs().length ; i++){
+            const field = node.applicationArgs()[i];
             result.applicationParameters[i] = Field.toV3Json(field);
         }
 

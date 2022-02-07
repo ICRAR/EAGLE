@@ -1,19 +1,19 @@
 <div class="card">
-    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse11" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Application Parameters">
+    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse11" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Application Arguments">
         <i class="material-icons interactive nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().applicationParameters}">keyboard_arrow_down</i>
         <i class="material-icons">settings_applications</i>
-        <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Parameters which are passed on to the payload application of this component at runtime.'">Application Parameters</span>
+        <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Parameters which are passed on to the payload application of this component at runtime.'">Application Arguments</span>
     </h5>
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse11">
         <div class="card-body" >
             <div class="searchBarContainer">
                 <i class="material-icons md-18 searchBarIcon">search</i>
-                <a href="#" data-bind="click:function(event){$root.emptySearchBar(Eagle.applicationParamsSearchString)}">
+                <a href="#" data-bind="click:function(event){$root.emptySearchBar(Eagle.applicationArgsSearchString)}">
                     <i class="material-icons md-18 searchBarIconClose">close</i>
                 </a>
-                <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.applicationParamsSearchString"></input>
+                <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.applicationArgsSearchString"></input>
             </div>
-            <!-- ko foreach: selectedNode().getApplicationParams() -->
+            <!-- ko foreach: selectedNode().getapplicationArgs() -->
                 <!-- ko if: $data.fitsApplicationSearchQuery() -->
                     <field params="data: $data, ro: $parent.selectedNode().getApplicationParamReadonly($index()), fieldType: Eagle.FieldType.ApplicationParam"></field>
                 <!-- /ko -->
