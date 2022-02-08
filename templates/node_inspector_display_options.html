@@ -20,7 +20,7 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="node-parent" data-bind="eagleTooltip:'The key of the parent component of this component'" data-bs-placement="left">Parent</span>
                 </div>
-                <input type="text" class="form-control" id="nodeParentValue" placeholder="" aria-label="Name" aria-describedby="node-parent" data-bind="value: selectedNode().getName()+' | Key: '+selectedNode().getParentKey()" readonly>
+                <input type="text" class="form-control" id="nodeParentValue" placeholder="" aria-label="Name" aria-describedby="node-parent" data-bind="value: function(){return $root.getParentNameAndKey(selectedNode().getParentKey());}(), eagleTooltip: function(){return $root.getParentNameAndKey(selectedNode().getParentKey());}()" readonly>
                 <div class="input-group-append">
                     <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeParent" type="button" data-bind="click: $root.changeNodeParent, eagleTooltip: 'Change Parent ' + Utils.getKeyboardShortcutTextByKey('change_selected_node_parent', true)">
                         <i class="material-icons md-18">edit</i>
