@@ -2065,7 +2065,6 @@ export class Eagle {
     }
 
     getParentNameAndKey = (parentKey:number) : string => {
-
         if(parentKey === null){
             return ""
         }
@@ -4558,6 +4557,10 @@ $( document ).ready(function() {
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });
+    })
+
+    $(".componentCheckbox").on("click",function(){
+        $(event.target).find("input").click()
     })
 
     //removes focus from input and textareas when using the canvas

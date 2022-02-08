@@ -411,7 +411,7 @@
     right: 20px;
 }
 
-#editFieldModalValueInputCheckbox, #editFieldModalDefaultValueInputCheckbox, #editFieldModalPreciousInputCheckbox {
+#editFieldModalValueInputCheckbox, #editFieldModalDefaultValueInputCheckbox {
     flex: none;
     padding: 19px;
     margin-left: 50%;
@@ -425,6 +425,39 @@
 
 #editFieldModal textarea:focus{
     height:86px;
+}
+
+.componentCheckbox{
+    background-color: white;
+    height: 34px;
+    border-radius: 4px;
+    border: solid 1px #ced4da;
+    overflow: hidden;
+}
+
+.componentCheckbox span{
+    padding-top: 4px;
+    margin-left: 15px;
+    color: black;
+    pointer-events: none;
+}
+
+.componentCheckbox input{
+    position: absolute !important;
+    height: 100%;
+    width: 34px !important;
+    top: 0px;
+    right: 0px;
+    margin: 0px;
+    transform: none;
+    border: none;
+    border-left: 1px solid #ced4da;
+    border-radius: 0px !important;
+}
+
+.componentCheckbox input:focus{
+    box-shadow: transparent;
+
 }
 
 select.form-control{
