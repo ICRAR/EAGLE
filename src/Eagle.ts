@@ -2064,6 +2064,17 @@ export class Eagle {
         }
     }
 
+    getParentNameAndKey = (parentKey:number) : string => {
+
+        if(parentKey === null){
+            return ""
+        }
+
+        var parentText = this.logicalGraph().findNodeByKey(parentKey).getName() + ' | Key: ' + parentKey;
+
+        return parentText
+    }
+
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
     savePaletteToDisk = (palette : Palette) : void => {
         console.log("savePaletteToDisk()", palette.fileInfo().name, palette.fileInfo().type);
@@ -3112,7 +3123,7 @@ export class Eagle {
         let selectedChoiceIndex = 0;
 
         //this is needed for the selected choice index as the index of the function will not work because many entries a skipped, the selected choice index was generally higher than the amount of legitimate choices available
-        var validChoiceIndex = -1
+        var validChoiceIndex = 0
 
         // build list of nodes that are candidates to be the parent
         for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
@@ -3140,7 +3151,7 @@ export class Eagle {
         }
 
         // add "None" to the list of possible parents
-        nodeList.push("None : 0");
+        nodeList.unshift("None : 0");
 
         // ask user to choose a parent
         Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number) => {
