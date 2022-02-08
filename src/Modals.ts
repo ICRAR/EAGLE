@@ -255,15 +255,14 @@ export class Modals {
             const defaultValueSelect : string = <string>$('#editFieldModalDefaultValueInputSelect').val();
 
             const description: string = <string>$('#editFieldModalDescriptionInput').val();
-            const access: string = <string>$('#editFieldModalAccessSelect').val();
             const type: string = <string>$('#editFieldModalTypeSelect').val();
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
 
             // NOTE: currently no way to edit options in the "select"-type fields
             const options: string[] = [];
 
-            // translate access and type
-            const readonly: boolean = access === 'readonly';
+            // translate access and type here!
+            const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
             let newField;
 
@@ -296,6 +295,12 @@ export class Modals {
         $('#editFieldModalTypeSelect').on('change', function(){
             // show the correct entry field based on the field type
             const value = $('#editFieldModalTypeSelect').val();
+
+            if(value === Eagle.DataType.Boolean){
+                $("#editFieldModalDefaultValue").hide()
+            }else{
+                $("#editFieldModalDefaultValue").show()
+            }
 
             $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean && value !== Eagle.DataType.Select);
             $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
