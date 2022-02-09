@@ -688,8 +688,11 @@ export class Utils {
             }));
         }
 
-        //set accessability state checkbox 
+        // set accessibility state checkbox
         $('#editFieldModalAccessInputCheckbox').prop('checked', field.isReadonly());
+
+        // set positional argument checkbox
+        $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
         if(field.getType() === Eagle.DataType.Boolean){
@@ -698,7 +701,6 @@ export class Utils {
             $("#editFieldModalDefaultValue").show()
         }
 
-                
         // show the correct entry field based on the field type
         $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
         $('#editFieldModalValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);

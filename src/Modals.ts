@@ -261,20 +261,22 @@ export class Modals {
             // NOTE: currently no way to edit options in the "select"-type fields
             const options: string[] = [];
 
-            // translate access and type here!
             const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
+            const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
+
+            // translate type
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
             let newField;
 
             switch(realType){
                 case Eagle.DataType.Boolean:
-                    newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options);
+                    newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
                     break;
                 case Eagle.DataType.Select:
-                    newField = new Field(text, name, valueSelect, defaultValueSelect, description, readonly, realType, precious, options);
+                    newField = new Field(text, name, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
                     break;
                 default:
-                    newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious, options);
+                    newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
                     break;
             }
 
