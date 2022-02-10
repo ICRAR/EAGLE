@@ -1001,6 +1001,9 @@ export class Eagle {
             Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
         }
 
+        // sort the palette
+        p.sort();
+
         // add new palette to the START of the palettes array
         this.palettes.unshift(p);
 
