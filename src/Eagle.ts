@@ -4560,7 +4560,7 @@ $( document ).ready(function() {
         });
 
         //settings modal make headings also toggle the checkbox button
-        $(".settingsModalCategoryWrapper input").on("click", function(){
+        $(".settingsModalCategoryWrapper .checkSettingLabel input").on("click", function(){
             $(event.target).parent().find("button").click()
         })
     })
