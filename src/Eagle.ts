@@ -4558,6 +4558,12 @@ $( document ).ready(function() {
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });
+
+
+        $(".settingsModalCategoryWrapper input").on("click", function(){
+            console.log("blam")
+            $(event.target).parent().find("button").click()
+        })
     })
 
     $(".componentCheckbox").on("click",function(){

@@ -563,6 +563,14 @@ select.form-control{
     position: absolute;
 }
 
+.checkSettingLabel input{
+    cursor: default;
+}
+
+.checkSettingLabel input:focus{
+    box-shadow: none;
+}
+
 .headerIcons{
     height: 100%;
     display: flex;
