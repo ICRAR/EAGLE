@@ -688,7 +688,18 @@ export class Utils {
             }));
         }
 
+        // set accessibility state checkbox
+        $('#editFieldModalAccessInputCheckbox').prop('checked', field.isReadonly());
+
+        // set positional argument checkbox
+        $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
+
         $('#editFieldModalDescriptionInput').val(field.getDescription());
+        if(field.getType() === Eagle.DataType.Boolean){
+            $("#editFieldModalDefaultValue").hide()
+        }else{
+            $("#editFieldModalDefaultValue").show()
+        }
 
         // show the correct entry field based on the field type
         $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
@@ -698,19 +709,6 @@ export class Utils {
         $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
         $('#editFieldModalDefaultValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
         $('#editFieldModalDefaultValueInputSelect').toggle(field.getType() === Eagle.DataType.Select);
-
-        // delete all, then add options to the access select tag
-        $('#editFieldModalAccessSelect').empty();
-        $('#editFieldModalAccessSelect').append($('<option>', {
-            value: "readonly",
-            text: "readonly",
-            selected: field.isReadonly()
-        }));
-        $('#editFieldModalAccessSelect').append($('<option>', {
-            value: "readwrite",
-            text: "readwrite",
-            selected: !field.isReadonly()
-        }));
 
         // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();

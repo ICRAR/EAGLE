@@ -12,8 +12,9 @@ export class Field {
     private type : ko.Observable<Eagle.DataType>;
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
     private options : ko.ObservableArray<string>;
+    private positional : ko.Observable<boolean>;
 
-    constructor(text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[]){
+    constructor(text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean){
         this.text = ko.observable(text);
         this.name = ko.observable(name);
         this.value = ko.observable(value);
@@ -23,6 +24,7 @@ export class Field {
         this.type = ko.observable(type);
         this.precious = ko.observable(precious);
         this.options = ko.observableArray(options);
+        this.positional = ko.observable(positional);
     }
 
     getText = () : string => {
@@ -105,6 +107,14 @@ export class Field {
         return this.options();
     }
 
+    isPositionalArgument = () : boolean => {
+        return this.positional();
+    }
+
+    setPositionalArgument = (positional: boolean): void => {
+        this.positional(positional);
+    }
+
     clear = () : void => {
         this.text("");
         this.name("");
@@ -115,10 +125,11 @@ export class Field {
         this.type(Eagle.DataType.Unknown);
         this.precious(false);
         this.options([]);
+        this.positional(false);
     }
 
     clone = () : Field => {
-        return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options());
+        return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
     }
 
     getFieldValue = () : string => {
@@ -149,6 +160,9 @@ export class Field {
         }
     },this)
 
+    // TODO: this probably isn't required any more, we can safely assume that
+    //       any field in node.fields is a DALiuGE field, and conversely,
+    //       if a field is in node.applicationArgs, it isn't a DALiuGE field
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume";
     }, this);
@@ -178,7 +192,8 @@ export class Field {
             readonly:field.readonly(),
             type:field.type(),
             precious:field.precious(),
-            options:field.options()
+            options:field.options(),
+            positional:field.positional()
         };
     }
 
@@ -192,7 +207,8 @@ export class Field {
             readonly:field.readonly(),
             type:field.type(),
             precious:field.precious(),
-            options:field.options()
+            options:field.options(),
+            positional: field.positional()
         };
     }
 
@@ -206,6 +222,7 @@ export class Field {
         let defaultValue: string = "";
         let precious: boolean = false;
         let options: string[] = [];
+        let positional: boolean = false;
 
         if (typeof data.text !== 'undefined')
             text = data.text;
@@ -225,8 +242,10 @@ export class Field {
             precious = data.precious;
         if (typeof data.options !== 'undefined')
             options = data.options;
+        if (typeof data.positional !== 'undefined')
+            positional = data.positional;
 
-        return new Field(text, name, value, defaultValue, description, readonly, type, precious, options);
+        return new Field(text, name, value, defaultValue, description, readonly, type, precious, options, positional);
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {

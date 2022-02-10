@@ -2065,7 +2065,6 @@ export class Eagle {
     }
 
     getParentNameAndKey = (parentKey:number) : string => {
-
         if(parentKey === null){
             return ""
         }
@@ -3718,7 +3717,7 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field("", "", "", "", "", false, Eagle.DataType.Integer, false, []);
+            const field: Field = new Field("", "", "", "", "", false, Eagle.DataType.Integer, false, [], false);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -3782,6 +3781,7 @@ export class Eagle {
                 field.setReadonly(newField.isReadonly());
                 field.setType(newField.getType());
                 field.setPrecious(newField.isPrecious());
+                field.setPositionalArgument(newField.isPositionalArgument());
             });
         }
     };
@@ -4558,6 +4558,10 @@ $( document ).ready(function() {
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });
+    })
+
+    $(".componentCheckbox").on("click",function(){
+        $(event.target).find("input").click()
     })
 
     //removes focus from input and textareas when using the canvas

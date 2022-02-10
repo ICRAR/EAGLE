@@ -255,27 +255,28 @@ export class Modals {
             const defaultValueSelect : string = <string>$('#editFieldModalDefaultValueInputSelect').val();
 
             const description: string = <string>$('#editFieldModalDescriptionInput').val();
-            const access: string = <string>$('#editFieldModalAccessSelect').val();
             const type: string = <string>$('#editFieldModalTypeSelect').val();
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
 
             // NOTE: currently no way to edit options in the "select"-type fields
             const options: string[] = [];
 
-            // translate access and type
-            const readonly: boolean = access === 'readonly';
+            const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
+            const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
+
+            // translate type
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
             let newField;
 
             switch(realType){
                 case Eagle.DataType.Boolean:
-                    newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options);
+                    newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
                     break;
                 case Eagle.DataType.Select:
-                    newField = new Field(text, name, valueSelect, defaultValueSelect, description, readonly, realType, precious, options);
+                    newField = new Field(text, name, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
                     break;
                 default:
-                    newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious, options);
+                    newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
                     break;
             }
 
@@ -296,6 +297,12 @@ export class Modals {
         $('#editFieldModalTypeSelect').on('change', function(){
             // show the correct entry field based on the field type
             const value = $('#editFieldModalTypeSelect').val();
+
+            if(value === Eagle.DataType.Boolean){
+                $("#editFieldModalDefaultValue").hide()
+            }else{
+                $("#editFieldModalDefaultValue").show()
+            }
 
             $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean && value !== Eagle.DataType.Select);
             $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
