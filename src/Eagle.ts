@@ -1999,7 +1999,13 @@ export class Eagle {
 
         // load the new palette
         const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
-        this.palettes.unshift(Palette.fromOJSJson(data, file, errorsWarnings));
+        const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
+
+        // sort items in palette
+        newPalette.sort();
+
+        // add to list of palettes
+        this.palettes.unshift(newPalette);
 
         if (errorsWarnings.errors.length > 0){
             if (showErrors){
