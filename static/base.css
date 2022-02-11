@@ -256,6 +256,9 @@
     margin-top: 10px;
 }
 
+.searchBarContainer a{
+    display: none;
+}
 
 .leftWindow {
     background-color: #002e5f;
