@@ -3759,6 +3759,8 @@ export class Eagle {
                        node.addApplicationParam(clone);
                    }
                 }
+
+                this.checkGraph();
             });
 
         } else {
@@ -3770,7 +3772,7 @@ export class Eagle {
                 field = this.selectedNode().getFields()[fieldIndex];
             } else {
                 $("#editFieldModalTitle").html("Edit Application Parameter");
-                field = this.selectedNode().getapplicationArgs()[fieldIndex];
+                field = this.selectedNode().getApplicationArgs()[fieldIndex];
             }
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
@@ -3791,6 +3793,8 @@ export class Eagle {
                 field.setType(newField.getType());
                 field.setPrecious(newField.isPrecious());
                 field.setPositionalArgument(newField.isPositionalArgument());
+
+                this.checkGraph();
             });
         }
     };

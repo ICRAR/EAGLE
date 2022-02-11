@@ -13,7 +13,7 @@
                 </a>
                 <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.applicationArgsSearchString"></input>
             </div>
-            <!-- ko foreach: selectedNode().getapplicationArgs() -->
+            <!-- ko foreach: selectedNode().getApplicationArgs() -->
                 <!-- ko if: $data.fitsApplicationSearchQuery() -->
                     <field params="data: $data, ro: $parent.selectedNode().getApplicationParamReadonly($index()), fieldType: Eagle.FieldType.ApplicationParam"></field>
                 <!-- /ko -->
