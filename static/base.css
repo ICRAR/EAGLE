@@ -196,7 +196,9 @@
 }
 
 .dropdown-item img{
-    float:right;
+    float: left;
+    transform: rotate(180deg);
+    margin-left: -4px;
 }
 .dropdown-item span{
     font-weight: 300;
