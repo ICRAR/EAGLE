@@ -652,7 +652,11 @@ def open_git_hub_file():
     most_recent_commit = commits[0]
 
     # get the file from this commit
-    f = repo.get_contents(filename, ref=most_recent_commit.sha)
+    try:
+        f = repo.get_contents(filename, ref=most_recent_commit.sha)
+    except github.GithubException as e:
+        return app.response_class(response=json.dumps({"error":e.data["message"]}), status=404, mimetype="application/json")
+
     raw_data = f.decoded_content
 
     # parse JSON
