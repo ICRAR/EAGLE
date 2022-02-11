@@ -4567,6 +4567,11 @@ $( document ).ready(function() {
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });
+
+        //settings modal make headings also toggle the checkbox button
+        $(".settingsModalCategoryWrapper .checkSettingLabel input").on("click", function(){
+            $(event.target).parent().find("button").click()
+        })
     })
 
     $(".componentCheckbox").on("click",function(){
