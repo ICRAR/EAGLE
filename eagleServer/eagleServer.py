@@ -668,7 +668,7 @@ def open_git_hub_file():
             # well, not found..
             return app.response_class(response=json.dumps({"error":"File not found"}), status=404, mimetype="application/json")
 
-        # we have sha
+        # use the sha to get the blob, then decode it
         blob = repo.get_git_blob(sha[0])
         b64 = base64.b64decode(blob.content)
         raw_data = b64.decode("utf8")
