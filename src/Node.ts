@@ -1233,6 +1233,13 @@ export class Node {
             y = nodeData.y;
         }
 
+        let key = 0;
+        if (typeof nodeData.key !== 'undefined' && nodeData.key !== null){
+            key = nodeData.key;
+        } else {
+            key = generateKeyFunc();
+        }
+
         let readonly = true;
         if (typeof nodeData.readonly !== 'undefined'){
             readonly = nodeData.readonly;
@@ -1243,11 +1250,11 @@ export class Node {
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            errorsWarnings.errors.push("Node with key " + nodeData.key + " has unknown category: " + category);
+            errorsWarnings.errors.push("Node with name " + name + " has unknown category: " + category);
             category = Eagle.Category.Unknown;
         }
 
-        const node : Node = new Node(nodeData.key, name, "", category, readonly);
+        const node : Node = new Node(key, name, "", category, readonly);
 
         // set position
         node.setPosition(x, y);
