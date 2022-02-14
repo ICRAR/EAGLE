@@ -1188,7 +1188,7 @@ export class Utils {
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
-            for (const param of node.getapplicationArgs()) {
+            for (const param of node.getApplicationArgs()) {
                 Utils._addFieldIfUnique(uniqueapplicationArgs, param.clone());
             }
         }
@@ -1436,12 +1436,32 @@ export class Utils {
 
         // check that all application params have default values
         for (const node of graph.getNodes()){
-            for (const field of node.getapplicationArgs()){
+            for (const field of node.getApplicationArgs()){
                 if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getName() + ") whose default value is not specified");
                 }
             }
         }
+
+        // check that fields and application parameters don't share the same name
+        // NOTE: this code checks many pairs of fields twice
+        for (const node of graph.getNodes()){
+            for (const field of node.getFields()){
+                for (const appArg of node.getApplicationArgs()){
+                    if (field.getName() == appArg.getName()){
+                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getName() + ") that shares the same name as an application argument.");
+                    }
+                }
+            }
+            for (const appArg of node.getApplicationArgs()){
+                for (const field of node.getFields()){
+                    if (appArg.getName() === field.getName()){
+                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application argument (" + appArg.getName() + ") that shares the same name as a component parameter.");
+                    }
+                }
+            }
+        }
+
 
         // check that all nodes have correct numbers of inputs and outputs
         for (const node of graph.getNodes()){

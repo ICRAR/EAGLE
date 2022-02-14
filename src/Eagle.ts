@@ -3759,6 +3759,8 @@ export class Eagle {
                        node.addApplicationParam(clone);
                    }
                 }
+
+                this.checkGraph();
             });
 
         } else {
@@ -3770,7 +3772,7 @@ export class Eagle {
                 field = this.selectedNode().getFields()[fieldIndex];
             } else {
                 $("#editFieldModalTitle").html("Edit Application Parameter");
-                field = this.selectedNode().getapplicationArgs()[fieldIndex];
+                field = this.selectedNode().getApplicationArgs()[fieldIndex];
             }
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
@@ -3791,6 +3793,8 @@ export class Eagle {
                 field.setType(newField.getType());
                 field.setPrecious(newField.isPrecious());
                 field.setPositionalArgument(newField.isPositionalArgument());
+
+                this.checkGraph();
             });
         }
     };
@@ -4574,8 +4578,21 @@ $( document ).ready(function() {
         })
     })
 
+    //increased click bubble for edit modal flag booleans
     $(".componentCheckbox").on("click",function(){
         $(event.target).find("input").click()
+    })
+
+    //for hiding the searchbar clear button if it is empty
+    $(".componentSearchBar").on("keyup", function(){
+        if($(event.target).val() === ""){
+            $(event.target).parent().find('a').hide()
+        }else{
+            $(event.target).parent().find('a').show()
+        }
+    })
+    $(".searchBarContainer").find('a').on("click", function(){
+            $(event.target).parent().hide()
     })
 
     //removes focus from input and textareas when using the canvas

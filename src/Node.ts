@@ -473,11 +473,11 @@ export class Node {
         return false;
     }
 
-    getapplicationArgs = () : Field[] => {
+    getApplicationArgs = () : Field[] => {
         return this.applicationArgs();
     }
 
-    getNumapplicationArgs = () : number => {
+    getNumApplicationArgs = () : number => {
         return this.applicationArgs().length;
     }
 
