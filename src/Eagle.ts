@@ -2652,6 +2652,7 @@ export class Eagle {
 
                 // mark the palette as modified
                 destinationPalette.fileInfo().modified = true;
+                destinationPalette.sort();
             }
         });
     }
@@ -3375,6 +3376,7 @@ export class Eagle {
             // add to destination palette
             destinationPalette.addNode(sourceComponent, true);
             destinationPalette.fileInfo().modified = true;
+            destinationPalette.sort();
         }
     }
 
