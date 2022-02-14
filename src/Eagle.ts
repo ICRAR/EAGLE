@@ -4583,6 +4583,10 @@ $( document ).ready(function() {
         $(event.target).find("input").click()
     })
 
+    $('#editFieldModalValueInputCheckbox').on("change",function(){
+        $(event.target).parent().find("span").text($(event.target).prop('checked'))
+    })
+
     //for hiding the searchbar clear button if it is empty
     $(".componentSearchBar").on("keyup", function(){
         if($(event.target).val() === ""){

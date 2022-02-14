@@ -416,14 +416,6 @@
     right: 20px;
 }
 
-#editFieldModalValueInputCheckbox, #editFieldModalDefaultValueInputCheckbox {
-    flex: none;
-    padding: 19px;
-    margin-left: 50%;
-    transform: translateX(-50%);
-    margin-top:0px;
-}
-
 #editFieldModal textarea{
     height:0px;
 }
@@ -432,16 +424,20 @@
     height:86px;
 }
 
+#componentValueCheckbox{
+    margin-bottom:0px !important;
+}
+
 .componentCheckbox{
     background-color: white;
-    height: 34px;
-    border-radius: 4px;
+    height: 38px;
+    border-radius: 4px !important;
     border: solid 1px #ced4da;
     overflow: hidden;
 }
 
 .componentCheckbox span{
-    padding-top: 4px;
+    padding-top: 5px;
     margin-left: 15px;
     color: black;
     pointer-events: none;
@@ -462,7 +458,6 @@
 
 .componentCheckbox input:focus{
     box-shadow: transparent;
-
 }
 
 select.form-control{
@@ -872,6 +867,7 @@ select.form-control{
 
 .modal select {
     margin-bottom: 1rem;
+    height:38px;
 }
 
 .leftWindow .leftWindowHandle {
