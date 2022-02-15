@@ -898,9 +898,8 @@ export class Utils {
                 explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, palette.name, palette.path));
             }
 
-            eagle.explorePalettes().files(explorePalettes);
-
-            // TODO: do we process files into a more complex structure here?
+            // process files into a more complex structure
+            eagle.explorePalettes().initialise(explorePalettes);
         });
     }
 
