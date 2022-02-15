@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     services:
       translator:
-        image: icrar/daliuge-translator:ray
+        image: icrar/daliuge-translator:master
         ports:
           - 6379:8084
       engine:
-        image: icrar/daliuge-engine:ray
+        image: icrar/daliuge-engine:master
         ports:
           - 5555:5555
           - 6666:6666
