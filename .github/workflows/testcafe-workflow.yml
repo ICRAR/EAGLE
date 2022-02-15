@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     services:
       translator:
-        image: icrar/daliuge-translator:ray
+        image: icrar/daliuge-translator:2.2.0
         ports:
           - 6379:8084
       engine:
-        image: icrar/daliuge-engine:ray
+        image: icrar/daliuge-engine:2.2.0
         ports:
           - 5555:5555
           - 6666:6666
@@ -41,4 +41,4 @@ jobs:
         env:
             EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
         with:
-            args: "chrome tests/simple.js tests/drag-and-drop.js tests/edit-node-parameter.js tests/load-translate-execute-2.js"
+            args: "chrome tests/simple.js tests/drag-and-drop.js tests/edit-node-parameter.js"
