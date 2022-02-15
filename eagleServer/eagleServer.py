@@ -23,6 +23,7 @@
 This is the main module of the EAGLE server side code.
 """
 import argparse
+import base64
 import json
 import logging
 import os
@@ -652,8 +653,28 @@ def open_git_hub_file():
     most_recent_commit = commits[0]
 
     # get the file from this commit
-    f = repo.get_contents(filename, ref=most_recent_commit.sha)
-    raw_data = f.decoded_content
+    try:
+        f = repo.get_contents(filename, ref=most_recent_commit.sha)
+        raw_data = f.decoded_content
+        download_url = f.download_url
+    except github.GithubException as e:
+        # first get the branch reference
+        ref = repo.get_git_ref(f'heads/{repo_branch}')
+        # then get the tree
+        tree = repo.get_git_tree(ref.object.sha, recursive='/' in filename).tree
+        # look for path in tree
+        sha = [x.sha for x in tree if x.path == filename]
+        if not sha:
+            # well, not found..
+            return app.response_class(response=json.dumps({"error":"File not found"}), status=404, mimetype="application/json")
+
+        # use the sha to get the blob, then decode it
+        blob = repo.get_git_blob(sha[0])
+        b64 = base64.b64decode(blob.content)
+        raw_data = b64.decode("utf8")
+
+        # manually build the download url
+        download_url = "https://raw.githubusercontent.com/" + repo_name + "/" + most_recent_commit.sha + "/" + filename
 
     # parse JSON
     graph = json.loads(raw_data)
@@ -671,7 +692,7 @@ def open_git_hub_file():
     graph["modelData"]["filePath"] = filename
 
     graph["modelData"]["sha"] = most_recent_commit.sha
-    graph["modelData"]["gitUrl"] = f.download_url
+    graph["modelData"]["gitUrl"] = download_url
     graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
     graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
     graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
