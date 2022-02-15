@@ -41,6 +41,7 @@
         "./src/Setting.ts",
         "./src/InspectorState.ts",
         "./src/KeyboardShortcut.ts",
-        "./src/PaletteInfo.ts"
+        "./src/PaletteInfo.ts",
+        "./src/ExplorePalettes.ts"
     ]
 }

@@ -49,6 +49,7 @@ import {Setting} from './Setting';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
+import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
 import { treemapSquarify } from "d3";
 
@@ -77,7 +78,7 @@ export class Eagle {
     rendererFrameCountRender : number;
     rendererFrameCountTick : number;
 
-    explorePalettes : ko.ObservableArray<PaletteInfo>;
+    explorePalettes : ko.Observable<ExplorePalettes>;
 
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
@@ -191,7 +192,7 @@ export class Eagle {
         this.rendererFrameCountRender = 0;
         this.rendererFrameCountTick = 0;
 
-        this.explorePalettes = ko.observableArray([]);
+        this.explorePalettes = ko.observable(new ExplorePalettes());
 
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);

@@ -6,6 +6,7 @@ import {Port} from './Port';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
+import {PaletteInfo} from './PaletteInfo';
 
 export class Modals {
 
@@ -439,9 +440,9 @@ export class Modals {
             }
 
             // loop through the explorePalettes, find any selected and load them
-            for (const ep of eagle.explorePalettes()){
-                if (ep.isSelected()){
-                    eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
+            for (const pi of eagle.explorePalettes().files()){
+                if (pi.isSelected()){
+                    eagle.openRemoteFile(new RepositoryFile(new Repository(pi.repositoryService, pi.repositoryName, pi.repositoryBranch, false), pi.path, pi.name));
                 }
             }
 
