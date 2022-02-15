@@ -2652,6 +2652,7 @@ export class Eagle {
 
                 // mark the palette as modified
                 destinationPalette.fileInfo().modified = true;
+                destinationPalette.sort();
             }
         });
     }
@@ -3375,6 +3376,7 @@ export class Eagle {
             // add to destination palette
             destinationPalette.addNode(sourceComponent, true);
             destinationPalette.fileInfo().modified = true;
+            destinationPalette.sort();
         }
     }
 
@@ -4581,6 +4583,10 @@ $( document ).ready(function() {
     //increased click bubble for edit modal flag booleans
     $(".componentCheckbox").on("click",function(){
         $(event.target).find("input").click()
+    })
+
+    $('#editFieldModalValueInputCheckbox').on("change",function(){
+        $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
 
     //for hiding the searchbar clear button if it is empty

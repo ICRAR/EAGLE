@@ -668,6 +668,7 @@ export class Utils {
         $('#editFieldModalNameInput').val(field.getName());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
         $('#editFieldModalValueInputSelect').empty();
         for (let option of field.getOptions()){
             $('#editFieldModalValueInputSelect').append($('<option>', {
@@ -703,7 +704,7 @@ export class Utils {
 
         // show the correct entry field based on the field type
         $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
-        $('#editFieldModalValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
+        $('#editFieldModalValueInputCheckbox').parent().toggle(field.getType() === Eagle.DataType.Boolean);
         $('#editFieldModalValueInputSelect').toggle(field.getType() === Eagle.DataType.Select);
 
         $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);

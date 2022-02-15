@@ -305,7 +305,7 @@ export class Modals {
             }
 
             $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean && value !== Eagle.DataType.Select);
-            $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
+            $('#editFieldModalValueInputCheckbox').parent().toggle(value === Eagle.DataType.Boolean);
             $('#editFieldModalValueInputSelect').toggle(value === Eagle.DataType.Select);
 
             $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType.Boolean && value !== Eagle.DataType.Select);
