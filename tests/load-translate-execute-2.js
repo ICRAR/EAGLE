@@ -130,7 +130,6 @@ fixture `DALiuGE Start Local Managers`
         await startLocalManagers();
     });
 
-/*
 fixture `Test Translator`
     .page `http://localhost:${DALIUGE_TRANSLATOR_PORT}/`
 
@@ -145,7 +144,6 @@ fixture `Test Translator`
         await printPageLocation("Test Translator");
         await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
     });
-*/
 
 fixture `Test Data Island Manager`
     .page `http://localhost:${DALIUGE_DIM_PORT}/`
