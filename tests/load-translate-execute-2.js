@@ -23,6 +23,7 @@ const GRAPHS = [
 //       port 8084 are already in use
 
 const DALIUGE_TRANSLATOR_PORT = "6379";
+//const DALIUGE_TRANSLATOR_PORT = "8084";
 
 const DALIUGE_DIM_PORT = "8001";
 const DALIUGE_NM_PORT = "8000";
@@ -129,6 +130,7 @@ fixture `DALiuGE Start Local Managers`
         await startLocalManagers();
     });
 
+/*
 fixture `Test Translator`
     .page `http://localhost:${DALIUGE_TRANSLATOR_PORT}/`
 
@@ -143,6 +145,7 @@ fixture `Test Translator`
         await printPageLocation("Test Translator");
         await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
     });
+*/
 
 fixture `Test Data Island Manager`
     .page `http://localhost:${DALIUGE_DIM_PORT}/`
