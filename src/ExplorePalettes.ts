@@ -4,22 +4,27 @@ import {PaletteInfo} from './PaletteInfo';
 
 export class ExplorePalettes {
 
-    files: ko.ObservableArray<PaletteInfo>;
+    showFiles: ko.Observable<boolean>;
+    palettes: ko.ObservableArray<PaletteInfo>;
     directories: ko.ObservableArray<string>;
+    directory: ko.Observable<string>;
+    files: ko.ObservableArray<string>;
 
     constructor(){
-        this.files = ko.observableArray([]);
+        this.showFiles = ko.observable(false);
+        this.palettes = ko.observableArray([]);
         this.directories = ko.observableArray([]);
+        this.directory = ko.observable("");
+        this.files = ko.observableArray([]);
     }
 
     initialise = (palettes: PaletteInfo[]) : void => {
-        this.files(palettes);
+        this.palettes(palettes);
         this.directories([]);
 
         // loop through all the palettes to find the directories
         for (const palette of palettes){
             const dir = palette.path.split("/")[0];
-            console.log("path", palette.path, "dir", dir);
 
             // check if directory is already in dorectories array
             let found = false;
@@ -34,10 +39,22 @@ export class ExplorePalettes {
             }
 
         }
+    }
 
-        // debug
-        console.log("directories", this.directories());
+    setDirectory = (directory: string) : void => {
+        console.log("setDirectory(" + directory + ")");
 
-        // can we sort non-master palettes by modification date (newest first)
+        this.directory(directory);
+        this.files([]);
+
+        for (const p of this.palettes()){
+            const dir = p.path.split("/")[0];
+
+            if (dir === directory){
+                this.files.push(p.name);
+            }
+        }
+
+        this.showFiles(true);
     }
 }
