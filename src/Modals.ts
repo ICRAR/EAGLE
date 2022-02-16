@@ -440,7 +440,7 @@ export class Modals {
             }
 
             // loop through the explorePalettes, find any selected and load them
-            for (const pi of eagle.explorePalettes().files()){
+            for (const pi of eagle.explorePalettes().palettes()){
                 if (pi.isSelected()){
                     eagle.openRemoteFile(new RepositoryFile(new Repository(pi.repositoryService, pi.repositoryName, pi.repositoryBranch, false), pi.path, pi.name));
                 }
