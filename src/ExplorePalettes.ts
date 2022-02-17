@@ -8,7 +8,7 @@ export class ExplorePalettes {
     palettes: ko.ObservableArray<PaletteInfo>;
     directories: ko.ObservableArray<string>;
     directory: ko.Observable<string>;
-    files: ko.ObservableArray<string>;
+    files: ko.ObservableArray<PaletteInfo>;
 
     constructor(){
         this.showFiles = ko.observable(false);
@@ -51,7 +51,7 @@ export class ExplorePalettes {
             const dir = p.path.split("/")[0];
 
             if (dir === directory){
-                this.files.push(p.name);
+                this.files.push(p);
             }
         }
 

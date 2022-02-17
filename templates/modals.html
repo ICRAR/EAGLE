@@ -707,6 +707,17 @@
                         </ul>
                     <!-- /ko -->
                 <!-- /ko -->
+                <!-- ko if: explorePalettes().showFiles -->
+                    <ul class="list-group" data-bind="foreach: explorePalettes().files">
+                        <li class="list-group-item d-flex justify-content-between align-items-center" data-bind="click: $root.explorePalettesClickHelper">
+                            <span data-bind="text: $data.name"></span>
+                            <!--<span class="badge badge-primary badge-pill">?</span>-->
+                            <div class="form-check">
+                                <input class="form-check-input position-static" type="checkbox" aria-label="select">
+                            </div>
+                        </li>
+                    </ul>
+                <!-- /ko -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="explorePalettesModalAffirmativeButton" data-bs-dismiss="modal"><span id="explorePalettesModalAffirmativeAnswer">OK</span></button>
