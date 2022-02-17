@@ -876,7 +876,7 @@ export class Utils {
         };
 
         // empty the list of palettes prior to (re)fetch
-        eagle.explorePalettes().files([]);
+        eagle.explorePalettes().clear();
 
         $('#explorePalettesModal').modal("toggle");
 

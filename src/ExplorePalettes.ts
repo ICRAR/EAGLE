@@ -19,8 +19,8 @@ export class ExplorePalettes {
     }
 
     initialise = (palettes: PaletteInfo[]) : void => {
+        this.clear();
         this.palettes(palettes);
-        this.directories([]);
 
         // loop through all the palettes to find the directories
         for (const palette of palettes){
@@ -39,6 +39,14 @@ export class ExplorePalettes {
             }
 
         }
+    }
+
+    clear = () : void => {
+        this.showFiles(false);
+        this.palettes([]);
+        this.directories([]);
+        this.directory("");
+        this.files([]);
     }
 
     setDirectory = (directory: string) : void => {
