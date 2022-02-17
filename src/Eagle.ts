@@ -4598,7 +4598,7 @@ $( document ).ready(function() {
     $('#editFieldModalValueInputCheckbox').on("change",function(){
         $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
-    
+
     //removes focus from input and textareas when using the canvas
     $("#logicalGraphParent").on("mousedown", function(){
         $("input").blur();

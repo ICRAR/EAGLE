@@ -831,6 +831,29 @@ export class Utils {
         $('#gitCustomRepositoryModal').modal("toggle");
     }
 
+    static validateCustomRepository() : boolean {
+        const repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
+        const repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
+        const repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
+
+        // check service
+        if (repositoryService.trim() !== Eagle.RepositoryService.GitHub && repositoryService.trim() !== Eagle.RepositoryService.GitLab){
+            return false;
+        }
+
+        // check name
+        if (repositoryName.trim() == ""){
+            return false;
+        }
+
+        // check branch
+        if (repositoryBranch.trim() == ""){
+            return false;
+        }
+
+        return true;
+    }
+
     static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository) : void {
         // remove existing options from the repository name select tag
         $('#gitCommitModalRepositoryNameSelect').empty();

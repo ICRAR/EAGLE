@@ -160,6 +160,12 @@ export class Modals {
         });
 
         // #gitCustomRepositoryModal - requestUserAddCustomRepository()
+        $('#gitCustomRepositoryModalRepositoryNameInput, #gitCustomRepositoryModalRepositoryBranchInput').on('keyup', function(){
+            // show/hide OK button
+            $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
+        });
+
+
         $('#gitCustomRepositoryModalAffirmativeButton').on('click', function(){
             $('#gitCustomRepositoryModal').data('completed', true);
         });
@@ -167,6 +173,7 @@ export class Modals {
             $('#gitCustomRepositoryModal').data('completed', false);
         });
         $('#gitCustomRepositoryModal').on('shown.bs.modal', function(){
+            $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
             $('#gitCustomRepositoryModalAffirmativeButton').focus();
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
