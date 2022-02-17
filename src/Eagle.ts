@@ -314,9 +314,19 @@ export class Eagle {
         this.leftWindow().toggleShown()
     }
 
-    emptySearchBar = (target : ko.Observable) => {
+    emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
         target("")
+        $(event.target).parent().hide()
     }
+
+    setSearchBarClearBtnState = (data:string, event : Event) => {
+        if($(event.target).val() === ""){
+            $(event.target).parent().find('a').hide()
+        }else{
+            $(event.target).parent().find('a').show()
+        }
+    }
+
 
     zoomIn = () : void => {
         this.globalScale += 0.05;
@@ -4588,19 +4598,7 @@ $( document ).ready(function() {
     $('#editFieldModalValueInputCheckbox').on("change",function(){
         $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
-
-    //for hiding the searchbar clear button if it is empty
-    $(".componentSearchBar").on("keyup", function(){
-        if($(event.target).val() === ""){
-            $(event.target).parent().find('a').hide()
-        }else{
-            $(event.target).parent().find('a').show()
-        }
-    })
-    $(".searchBarContainer").find('a').on("click", function(){
-            $(event.target).parent().hide()
-    })
-
+    
     //removes focus from input and textareas when using the canvas
     $("#logicalGraphParent").on("mousedown", function(){
         $("input").blur();
