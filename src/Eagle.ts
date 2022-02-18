@@ -2418,10 +2418,10 @@ export class Eagle {
 
     // TODO: maybe move to Field.ts
     // TODO: add comments
-    getFieldType = (type:string, id:string, value:string) : string => {
-        if (type === "Float" || type === "Integer"){
+    getFieldType = (type:Eagle.DataType, id:string, value:string) : string => {
+        if (type === Eagle.DataType.Float || type === Eagle.DataType.Integer){
             return "number"
-        }else if(type === "Boolean"){
+        }else if(type === Eagle.DataType.Boolean){
             $("#"+id).addClass("form-check-input")
             if (value === "true"){
                 $("#"+id).addClass("inputChecked")
@@ -2431,19 +2431,12 @@ export class Eagle {
                 $("#"+id).html("Check")
             }
             return "checkbox"
-        }else if(type === "Select"){
+        }else if(type === Eagle.DataType.Select){
             return "select";
+        }else if(type === Eagle.DataType.Password){
+            return "password";
         }else{
             return "text"
-        }
-    }
-
-    // TODO: seems too simple to be required
-    fieldIsBoolean = (type:string) : boolean => {
-        if (type === "Boolean"){
-            return true
-        }else{
-            return false
         }
     }
 
@@ -4474,7 +4467,8 @@ export namespace Eagle
         Float = "Float",
         Complex = "Complex",
         Boolean = "Boolean",
-        Select = "Select"
+        Select = "Select",
+        Password = "Password"
     }
 
     export enum ModalType {
