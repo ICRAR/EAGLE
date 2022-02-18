@@ -3410,9 +3410,6 @@ export class Eagle {
     };
 
     rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        const img : HTMLImageElement = document.createElement("img");
-
-        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
         Eagle.dragStartX = e.clientX;
         this.leftWindow().adjusting(false);
         this.rightWindow().adjusting(true);
@@ -3472,8 +3469,6 @@ export class Eagle {
     }
 
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        const img : HTMLImageElement = document.createElement("img");
-        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
 
         Eagle.dragStartX = e.clientX;
         this.leftWindow().adjusting(true);
