@@ -1590,7 +1590,7 @@ export class Eagle {
     loadSchemas = () : void => {
         console.log("loadSchemas()");
 
-        Utils.httpGet("./static/" + Config.graphSchemaFileName, (error : string, data : string) => {
+        Utils.httpGet(Config.DALIUGE_GRAPH_SCHEMA_URL, (error : string, data : string) => {
             if (error !== null){
                 console.error(error);
                 return;
@@ -1601,15 +1601,6 @@ export class Eagle {
             // NOTE: we don't have a schema for the V3 or appRef versions
             Utils.v3GraphSchema = JSON.parse(data);
             Utils.appRefGraphSchema = JSON.parse(data);
-        });
-
-        Utils.httpGet("./static/" + Config.paletteSchemaFileName, (error : string, data : string) => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
-
-            Utils.ojsPaletteSchema = JSON.parse(data);
         });
     }
 
@@ -4593,7 +4584,7 @@ $( document ).ready(function() {
     $('#editFieldModalValueInputCheckbox').on("change",function(){
         $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
-    
+
     //removes focus from input and textareas when using the canvas
     $("#logicalGraphParent").on("mousedown", function(){
         $("input").blur();
