@@ -3277,6 +3277,19 @@ export class Eagle {
         // retrieve data about the node being dragged
         // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
         //       Using the native javascript works better, it always fetches the current value of the attribute
+
+        //this is for dealing with drag and drop actions while there is already one ore more palette components selected
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+
+            var paletteIndex = $(e.target).data("palette-index")
+            var componentIndex = $(e.target).data("component-index")
+            var draggedNode = this.palettes()[paletteIndex].getNodes()[componentIndex]
+
+            if(!this.objectIsSelected(draggedNode)){
+                $(e.target).find("div").click()
+            }
+        }
+
         Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
         Eagle.nodeDragComponentIndex = parseInt(e.target.getAttribute('data-component-index'), 10);
 
