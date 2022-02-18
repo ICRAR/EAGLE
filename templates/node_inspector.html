@@ -72,7 +72,10 @@
         <!-- node component parameters list -->
         <!-- ko if: selectedNode().canHaveParameters() -->
         {% include 'node_inspector_parameters.html' %}
-        {% include 'node_inspector_application_parameters.html' %}
+
+            <!-- ko if: selectedNode().isApplication() -->
+            {% include 'node_inspector_application_parameters.html' %}
+            <!-- /ko -->
         <!-- /ko -->
 
         <!-- input application type -->
