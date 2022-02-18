@@ -212,12 +212,13 @@
 
 .rightWindowSizeAdjuster {
     top: 0px;
-    left: 0px;
+    left: -5px;
     height: 100%;
-    width: 8px;
+    width: 10px;
     position: absolute;
     background-color: rgba(0,0,0,0);
     cursor: col-resize;
+    opacity: 0;
 }
 
 .componentSearchBar{
@@ -893,12 +894,13 @@ select.form-control{
 
 .leftWindowSizeAdjuster {
     top: 0px;
-    right: 0px;
+    right: -5px;
     height: 100%;
-    width: 8px;
+    width: 10px;
     position: absolute;
     background-color: rgba(0,0,0,0);
     cursor: col-resize;
+    opacity: 0;
 }
 
 #graphArea #logicalGraphParent {
