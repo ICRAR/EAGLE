@@ -84,7 +84,6 @@ export class Utils {
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
 
     static ojsGraphSchema : object = {};
-    static ojsPaletteSchema : object = {};
     static v3GraphSchema : object = {};
     static appRefGraphSchema : object = {};
 
@@ -1535,10 +1534,8 @@ export class Utils {
             case Eagle.DALiuGESchemaVersion.OJS:
                 switch(fileType){
                     case Eagle.FileType.Graph:
-                        valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
-                        break;
                     case Eagle.FileType.Palette:
-                        valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
+                        valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
                         break;
                     default:
                         console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
