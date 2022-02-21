@@ -34,7 +34,7 @@ export class ExplorePalettes {
         for (const palette of palettes){
             console.log("path", palette.path, "name", palette.name);
             const dir = palette.path.split("/")[0];
-            const isDefaultPalette = palette.name.includes('master');
+            const isDefaultPalette = palette.name.includes('master') || palette.name.includes('main');
 
             // check if directory is already in directories array
             let found : ExplorePalettesProject = null;

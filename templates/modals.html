@@ -701,10 +701,15 @@
                                 <h5 class="mb-1">
                                     <span data-bind="text: $data.name()"></span>
                                 </h5>
-                                <!--<small>3 days ago</small>-->
-                                <span class="badge bg-primary rounded-pill" data-bind="text: $data.palettes().length, click: function(){$root.explorePalettes().setProject($data.name());}"></span>
+                                <div>
+                                    <span class="badge bg-danger rounded-pill" data-bind="visible: $data.defaultPalette() === null, eagleTooltip: 'There is no default (master/main) palette for this project. Please click the blue label on the right to select from all available palettes.'" data-bs-placement="bottom">&nbsp;!&nbsp;</span>
+                                    <span class="badge bg-primary rounded-pill" data-bind="text: $data.palettes().length, click: function(){$root.explorePalettes().setProject($data.name());}"></span>
+                                </div>
                             </div>
-                            <p class="mb-1">Some placeholder content in a paragraph.</p>
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <p class="mb-1">Some placeholder content in a paragraph.</p>
+                                <!--<small>? days ago</small>-->
+                            </div>
                         </a>
                         <!-- /ko -->
                     </div>
@@ -724,8 +729,10 @@
             </div>
             <div class="modal-footer" data-bind="style: {'justify-content': explorePalettes().showFiles() ? 'space-between' : 'flex-end'}">
                 <button type="button" class="btn btn-secondary" id="explorePalettesModalBackButton" data-bind="click: explorePalettes().back, visible: explorePalettes().showFiles"><span>Back</span></button>
-                <button type="button" class="btn btn-secondary" id="explorePalettesModalNegativeButton" data-bs-dismiss="modal"><span id="explorePalettesModalNegativeAnswer">Cancel</span></button>
-                <button type="button" class="btn btn-primary" id="explorePalettesModalAffirmativeButton" data-bs-dismiss="modal" data-bind="visible: explorePalettes().showFiles"><span id="explorePalettesModalAffirmativeAnswer">OK</span></button>
+                <div>
+                    <button type="button" class="btn btn-secondary" id="explorePalettesModalNegativeButton" data-bs-dismiss="modal"><span id="explorePalettesModalNegativeAnswer">Cancel</span></button>
+                    <button type="button" class="btn btn-primary" id="explorePalettesModalAffirmativeButton" data-bs-dismiss="modal" data-bind="visible: explorePalettes().showFiles"><span id="explorePalettesModalAffirmativeAnswer">OK</span></button>
+                </div>
             </div>
         </div>
     </div>
