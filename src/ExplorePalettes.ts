@@ -65,4 +65,10 @@ export class ExplorePalettes {
 
         this.showFiles(true);
     }
+
+    back = () : void => {
+        this.directory("");
+        this.files([]);
+        this.showFiles(false);
+    }
 }

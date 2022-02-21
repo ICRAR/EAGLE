@@ -719,7 +719,10 @@
                     </ul>
                 <!-- /ko -->
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" data-bind="style: {'justify-content': explorePalettes().showFiles() ? 'space-between' : 'flex-end'}">
+                <!-- ko if: explorePalettes().showFiles -->
+                <button type="button" class="btn btn-secondary" id="explorePalettesModalBackButton" data-bind="click: explorePalettes().back"><span>Back</span></button>
+                <!-- /ko -->
                 <button type="button" class="btn btn-primary" id="explorePalettesModalAffirmativeButton" data-bs-dismiss="modal"><span id="explorePalettesModalAffirmativeAnswer">OK</span></button>
             </div>
         </div>
