@@ -2,73 +2,86 @@ import * as ko from "knockout";
 
 import {PaletteInfo} from './PaletteInfo';
 
-export class ExplorePalettes {
-
-    showFiles: ko.Observable<boolean>;
+export class ExplorePalettesProject {
+    name: ko.Observable<string>;
     palettes: ko.ObservableArray<PaletteInfo>;
-    directories: ko.ObservableArray<string>;
-    directory: ko.Observable<string>;
-    files: ko.ObservableArray<PaletteInfo>;
+    imgSrc: ko.Observable<string>;
+    defaultPalette: ko.Observable<PaletteInfo>;
+
+    constructor(name: string){
+        this.name = ko.observable(name);
+        this.palettes = ko.observableArray([]);
+        this.imgSrc = ko.observable("");
+        this.defaultPalette = ko.observable(null);
+    }
+}
+
+export class ExplorePalettes {
+    showFiles: ko.Observable<boolean>;
+    projects: ko.ObservableArray<ExplorePalettesProject>;
+    currentProjectIndex: ko.Observable<number>;
 
     constructor(){
         this.showFiles = ko.observable(false);
-        this.palettes = ko.observableArray([]);
-        this.directories = ko.observableArray([]);
-        this.directory = ko.observable("");
-        this.files = ko.observableArray([]);
+        this.projects = ko.observableArray([]);
+        this.currentProjectIndex = ko.observable(-1);
     }
 
     initialise = (palettes: PaletteInfo[]) : void => {
         this.clear();
-        this.palettes(palettes);
 
         // loop through all the palettes to find the directories
         for (const palette of palettes){
+            console.log("path", palette.path, "name", palette.name);
             const dir = palette.path.split("/")[0];
+            const isDefaultPalette = palette.name.includes('master');
 
-            // check if directory is already in dorectories array
-            let found = false;
-            for (const directory of this.directories()){
-                if (directory === dir){
-                    found = true;
+            // check if directory is already in directories array
+            let found : ExplorePalettesProject = null;
+            for (const project of this.projects()){
+                if (project.name() === dir){
+                    found = project;
                     break;
                 }
             }
-            if (!found){
-                this.directories.push(dir);
+
+            // if project not found, add a new project to the projects list
+            if (found === null){
+                found = new ExplorePalettesProject(dir);
+                this.projects.push(found);
             }
 
+            // add palette to project
+            found.palettes.push(palette);
+
+            if (isDefaultPalette){
+                found.defaultPalette(palette);
+            }
         }
     }
 
     clear = () : void => {
         this.showFiles(false);
-        this.palettes([]);
-        this.directories([]);
-        this.directory("");
-        this.files([]);
+        this.projects([]);
+        this.currentProjectIndex(-1);
     }
 
-    setDirectory = (directory: string) : void => {
-        console.log("setDirectory(" + directory + ")");
-
-        this.directory(directory);
-        this.files([]);
-
-        for (const p of this.palettes()){
-            const dir = p.path.split("/")[0];
-
-            if (dir === directory){
-                this.files.push(p);
+    setProject = (projectName: string) : void => {
+        for (let i = 0 ; i < this.projects().length ; i++){
+            if (projectName === this.projects()[i].name()){
+                this.currentProjectIndex(i);
             }
         }
-
         this.showFiles(true);
     }
 
+    getProject = () : ExplorePalettesProject => {
+        return this.projects()[this.currentProjectIndex()];
+    }
+
     back = () : void => {
-        this.directory("");
-        this.files([]);
         this.showFiles(false);
+        this.currentProjectIndex(-1);
+
     }
 }

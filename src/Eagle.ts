@@ -3880,10 +3880,23 @@ export class Eagle {
         return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
     }
 
-    explorePalettesClickHelper = (data:any, event:any): void => {
+    explorePalettesClickHelper = (data: PaletteInfo, event:any): void => {
+        console.log("explorePalettesClickHelper()", data);
+        if (data === null){
+            return;
+        }
+
         var newState = !data.isSelected()
         data.isSelected(newState)
-        $(event.target).find('input').prop("checked",newState)
+
+        if (typeof event === "undefined"){
+            // load immediately
+            this.openRemoteFile(new RepositoryFile(new Repository(data.repositoryService, data.repositoryName, data.repositoryBranch, false), data.path, data.name));
+            $('#explorePalettesModal').modal('hide');
+        } else {
+            // mark as checked
+            $(event.target).find('input').prop("checked", newState);
+        }
     }
 
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
