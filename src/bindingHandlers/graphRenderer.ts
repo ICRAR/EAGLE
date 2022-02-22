@@ -378,8 +378,27 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 isDraggingNode = false;
             }
 
+            // determine the size of the node being moved, based on whether it is collapsed or not
+            let posX, posY, width, height = 0;
+            if (node.isCollapsed()){
+                // find center of node
+                let centerX = node.getPosition().x + node.getWidth()/2;
+                let centerY = node.getPosition().y + node.getHeight()/2;
+
+                // top left corner of icon
+                posX = centerX - Node.DATA_COMPONENT_WIDTH/2;
+                posY = centerY - Node.DATA_COMPONENT_HEIGHT/2;
+                width = Node.DATA_COMPONENT_WIDTH;
+                height = Node.DATA_COMPONENT_HEIGHT;
+            } else {
+                posX = node.getPosition().x;
+                posY = node.getPosition().y;
+                width = node.getWidth();
+                height = node.getHeight();
+            }
+
             // check for nodes underneath the node we dropped
-            const parent : Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getWidth(), node.getHeight(), node.getKey(), true);
+            const parent : Node = eagle.logicalGraph().checkForNodeAt(posX, posY, width, height, node.getKey(), true);
 
             // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
             const ancestorOfParent = isAncestor(parent, node);
