@@ -32,7 +32,6 @@ export class ExplorePalettes {
 
         // loop through all the palettes to find the directories
         for (const palette of palettes){
-            console.log("path", palette.path, "name", palette.name);
             const dir = palette.path.split("/")[0];
             const isDefaultPalette = palette.name.includes('master') || palette.name.includes('main');
 

@@ -439,14 +439,23 @@ export class Modals {
                 return;
             }
 
+            for (const ep of eagle.explorePalettes().getProject().palettes()){
+                if (ep.isSelected()){
+                    eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
+                }
+            }
+
+            /*
             // loop through the explorePalettes, find any selected and load them
             for (const project of eagle.explorePalettes().projects()){
                 for (const pi of project.palettes()){
                     if (pi.isSelected()){
                         eagle.openRemoteFile(new RepositoryFile(new Repository(pi.repositoryService, pi.repositoryName, pi.repositoryBranch, false), pi.path, pi.name));
+                        pi.isSelected(false);
                     }
                 }
             }
+            */
         });
     }
 }
