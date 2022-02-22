@@ -397,7 +397,7 @@
     transform: translateX(-50%);
 }
 
-.shortCutsModalItem{    
+.shortCutsModalItem{
     padding: 10px 20px;
     background-color: rgb(216, 221, 240);
     border: solid 1px #001225;
@@ -746,7 +746,7 @@ select.form-control{
     padding: 10px;
 }
 
-#eplorePalettesWrapper{
+#explorePalettesWrapper{
     width: 90%;
     display: inline-block;
 }

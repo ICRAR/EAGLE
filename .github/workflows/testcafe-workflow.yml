@@ -41,4 +41,4 @@ jobs:
         env:
             EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
         with:
-            args: "chrome tests/simple.js tests/drag-and-drop.js tests/edit-node-parameter.js"
+            args: "chrome tests/simple.js tests/drag-and-drop.js tests/edit-node-parameter.js tests/explore-palettes.js"
