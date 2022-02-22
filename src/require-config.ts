@@ -40,7 +40,8 @@ require.config({
         "SideWindow": "./static/built/SideWindow",
         "InspectorState": "./static/built/InspectorState",
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
-        "PaletteInfo": "./static/built/PaletteInfo"
+        "PaletteInfo": "./static/built/PaletteInfo",
+        "ExplorePalettes": "./static/built/ExplorePalettes"
     },
     shim: {
         "bootstrap": {

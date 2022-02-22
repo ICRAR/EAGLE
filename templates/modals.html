@@ -369,7 +369,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                
+
                 <div class="row">
                     <!-- ko foreach: getShortcutDisplay() -->
                         <div class="col-lg-6">
@@ -685,17 +685,44 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="min-height: 640px; max-height: 640px; overflow: scroll;">
-                <!-- ko if: explorePalettes().length === 0 -->
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                    <div class="spinner-border" id="loadPaletteText" style="width: 3rem; height: 3rem;" role="status">
-                        <span class="sr-only">Loading...</span>
+                <!-- ko ifnot: explorePalettes().showFiles -->
+                    <!-- ko if: explorePalettes().projects().length === 0 -->
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                        <div class="spinner-border" id="loadPaletteText" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
-                </div>
+                    <!-- /ko -->
+                    <!-- ko if: explorePalettes().projects().length !== 0 -->
+                    <div class="list-group">
+                        <!-- ko foreach: explorePalettes().projects -->
+                        <a href="#" class="list-group-item list-group-item-action" aria-current="true" data-bind="click: function(){$root.explorePalettesClickHelper($data.defaultPalette());}">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <h5 class="mb-1">
+                                    <span data-bind="text: $data.name()"></span>
+                                </h5>
+                                <div>
+                                    <span class="badge bg-primary rounded-pill" data-bind="text: $data.palettes().length + ' branch(es)', click: function(){$root.explorePalettes().setProject($data.name());}, eagleTooltip: 'There are ' + $data.palettes().length + ' palettes available in this project. Click to browse.'"  data-bs-placement="bottom"></span>
+                                </div>
+                            </div>
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <!--<p class="mb-1">Some placeholder content in a paragraph.</p>-->
+                                <!-- ko if: $data.defaultPalette() !== null -->
+                                    <small data-bind="text: 'click to load ' + $data.defaultPalette().name"></small>
+                                <!-- /ko -->
+                                <!-- ko if: $data.defaultPalette() === null -->
+                                    <span class="badge bg-danger rounded-pill" data-bind="eagleTooltip: 'There is no default (master/main) palette for this project. Please click the blue label on the right to select from all available palettes.'" data-bs-placement="bottom">&nbsp;!&nbsp;</span>
+                                <!-- /ko -->
+                            </div>
+                        </a>
+                        <!-- /ko -->
+                    </div>
+                    <!-- /ko -->
                 <!-- /ko -->
-                <!-- ko if: explorePalettes().length !== 0 -->
-                    <ul class="list-group" data-bind="foreach: explorePalettes">
+                <!-- ko if: explorePalettes().showFiles -->
+                    <ul class="list-group" data-bind="foreach: explorePalettes().getProject().palettes">
                         <li class="list-group-item d-flex justify-content-between align-items-center" data-bind="click: $root.explorePalettesClickHelper">
-                            <span data-bind="text: $data.fullPath()"></span>
+                            <span data-bind="text: $data.name"></span>
                             <!--<span class="badge badge-primary badge-pill">?</span>-->
                             <div class="form-check">
                                 <input class="form-check-input position-static" type="checkbox" aria-label="select">
@@ -704,8 +731,12 @@
                     </ul>
                 <!-- /ko -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="explorePalettesModalAffirmativeButton" data-bs-dismiss="modal"><span id="explorePalettesModalAffirmativeAnswer">OK</span></button>
+            <div class="modal-footer" data-bind="style: {'justify-content': explorePalettes().showFiles() ? 'space-between' : 'flex-end'}">
+                <button type="button" class="btn btn-secondary" id="explorePalettesModalBackButton" data-bind="click: explorePalettes().back, visible: explorePalettes().showFiles"><span>Back</span></button>
+                <div>
+                    <button type="button" class="btn btn-secondary" id="explorePalettesModalNegativeButton" data-bs-dismiss="modal"><span id="explorePalettesModalNegativeAnswer">Cancel</span></button>
+                    <button type="button" class="btn btn-primary" id="explorePalettesModalAffirmativeButton" data-bs-dismiss="modal" data-bind="visible: explorePalettes().showFiles"><span id="explorePalettesModalAffirmativeAnswer">OK</span></button>
+                </div>
             </div>
         </div>
     </div>

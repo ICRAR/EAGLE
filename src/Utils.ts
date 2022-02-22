@@ -875,7 +875,7 @@ export class Utils {
         };
 
         // empty the list of palettes prior to (re)fetch
-        eagle.explorePalettes([]);
+        eagle.explorePalettes().clear();
 
         $('#explorePalettesModal').modal("toggle");
 
@@ -897,7 +897,8 @@ export class Utils {
                 explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, palette.name, palette.path));
             }
 
-            eagle.explorePalettes(explorePalettes);
+            // process files into a more complex structure
+            eagle.explorePalettes().initialise(explorePalettes);
         });
     }
 

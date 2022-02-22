@@ -49,6 +49,7 @@ import {Setting} from './Setting';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
+import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
 import { treemapSquarify } from "d3";
 
@@ -77,7 +78,7 @@ export class Eagle {
     rendererFrameCountRender : number;
     rendererFrameCountTick : number;
 
-    explorePalettes : ko.ObservableArray<PaletteInfo>;
+    explorePalettes : ko.Observable<ExplorePalettes>;
 
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
@@ -191,7 +192,7 @@ export class Eagle {
         this.rendererFrameCountRender = 0;
         this.rendererFrameCountTick = 0;
 
-        this.explorePalettes = ko.observableArray([]);
+        this.explorePalettes = ko.observable(new ExplorePalettes());
 
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
@@ -1983,7 +1984,7 @@ export class Eagle {
 
         // if dictated by settings, reload the palette immediately
         if (alreadyLoadedPalette !== null && Eagle.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
-            Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
+            Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
                 if (confirmed){
                     this._reloadPalette(file, data, alreadyLoadedPalette);
                 }
@@ -3881,10 +3882,22 @@ export class Eagle {
         return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
     }
 
-    explorePalettesClickHelper = (data:any, event:any): void => {
+    explorePalettesClickHelper = (data: PaletteInfo, event:any): void => {
+        if (data === null){
+            return;
+        }
+
         var newState = !data.isSelected()
         data.isSelected(newState)
-        $(event.target).find('input').prop("checked",newState)
+
+        if (typeof event === "undefined"){
+            // load immediately
+            this.openRemoteFile(new RepositoryFile(new Repository(data.repositoryService, data.repositoryName, data.repositoryBranch, false), data.path, data.name));
+            $('#explorePalettesModal').modal('hide');
+        } else {
+            // mark as checked
+            $(event.target).find('input').prop("checked", newState);
+        }
     }
 
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
