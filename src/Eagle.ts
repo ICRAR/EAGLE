@@ -3881,7 +3881,6 @@ export class Eagle {
     }
 
     explorePalettesClickHelper = (data: PaletteInfo, event:any): void => {
-        console.log("explorePalettesClickHelper()", data);
         if (data === null){
             return;
         }
