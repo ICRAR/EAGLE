@@ -84,7 +84,6 @@ export class Utils {
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
 
     static ojsGraphSchema : object = {};
-    static ojsPaletteSchema : object = {};
     static v3GraphSchema : object = {};
     static appRefGraphSchema : object = {};
 
@@ -291,23 +290,11 @@ export class Utils {
     }
 
     static translateStringToDataType(dataType: string): Eagle.DataType {
-        if (dataType === "Boolean"){
-            return Eagle.DataType.Boolean;
-        }
-        if (dataType === "Float"){
-            return Eagle.DataType.Float;
-        }
-        if (dataType === "Integer"){
-            return Eagle.DataType.Integer;
-        }
-        if (dataType === "String"){
-            return Eagle.DataType.String;
-        }
-        if (dataType === "Complex"){
-            return Eagle.DataType.Complex;
-        }
-        if (dataType === "Unknown"){
-            return Eagle.DataType.Unknown;
+
+        for (let dt of Object.values(Eagle.DataType)){
+            if (dt.toLowerCase() === dataType.toLowerCase()){
+                return dt;
+            }
         }
 
         console.warn("Unknown DataType", dataType);
@@ -680,62 +667,58 @@ export class Utils {
         $('#editFieldModalNameInput').val(field.getName());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalValueInputSelect').empty();
+        for (let option of field.getOptions()){
+            $('#editFieldModalValueInputSelect').append($('<option>', {
+                value: option,
+                text: option,
+                selected: field.getValue() === option
+            }));
+        }
+
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
         $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.string2Type(field.getDefaultValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalDefaultValueInputSelect').empty();
+        for (let option of field.getOptions()){
+            $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
+                value: option,
+                text: option,
+                selected: field.getDefaultValue() === option
+            }));
+        }
+
+        // set accessibility state checkbox
+        $('#editFieldModalAccessInputCheckbox').prop('checked', field.isReadonly());
+
+        // set positional argument checkbox
+        $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
-        $('#editFieldModalAccessSelect').empty();
+        if(field.getType() === Eagle.DataType.Boolean){
+            $("#editFieldModalDefaultValue").hide()
+        }else{
+            $("#editFieldModalDefaultValue").show()
+        }
 
         // show the correct entry field based on the field type
-        $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
-        $('#editFieldModalValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
-        $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
+        $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
+        $('#editFieldModalValueInputCheckbox').parent().toggle(field.getType() === Eagle.DataType.Boolean);
+        $('#editFieldModalValueInputSelect').toggle(field.getType() === Eagle.DataType.Select);
+
+        $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
         $('#editFieldModalDefaultValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
+        $('#editFieldModalDefaultValueInputSelect').toggle(field.getType() === Eagle.DataType.Select);
 
-        // add options to the access select tag
-        $('#editFieldModalAccessSelect').append($('<option>', {
-            value: "readonly",
-            text: "readonly",
-            selected: field.isReadonly()
-        }));
-        $('#editFieldModalAccessSelect').append($('<option>', {
-            value: "readwrite",
-            text: "readwrite",
-            selected: !field.isReadonly()
-        }));
-
+        // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();
-        // TODO: we should iterate through the values in the Eagle.DataType enum, rather than hard-code each type
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Integer",
-            text: "Integer",
-            selected: field.getType() === Eagle.DataType.Integer
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Float",
-            text: "Float",
-            selected: field.getType() === Eagle.DataType.Float
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "String",
-            text: "String",
-            selected: field.getType() === Eagle.DataType.String
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Boolean",
-            text: "Boolean",
-            selected: field.getType() === Eagle.DataType.Boolean
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Complex",
-            text: "Complex",
-            selected: field.getType() === Eagle.DataType.Complex
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Unknown",
-            text: "Unknown",
-            selected: field.getType() === Eagle.DataType.Unknown
-        }));
+        for (let dataType of Object.values(Eagle.DataType)){
+            $('#editFieldModalTypeSelect').append($('<option>', {
+                value: dataType,
+                text: dataType,
+                selected: field.getType() === dataType
+            }));
+        }
 
         $('#editFieldModalPreciousInputCheckbox').prop('checked', field.isPrecious());
 
@@ -847,6 +830,34 @@ export class Utils {
         $('#gitCustomRepositoryModal').modal("toggle");
     }
 
+    static validateCustomRepository() : boolean {
+        const repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
+        const repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
+        const repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
+
+        $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
+        $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
+
+        // check service
+        if (repositoryService.trim() !== Eagle.RepositoryService.GitHub && repositoryService.trim() !== Eagle.RepositoryService.GitLab){
+            return false;
+        }
+
+        // check name
+        if (repositoryName.trim() == ""){
+            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+            return false;
+        }
+
+        // check branch
+        if (repositoryBranch.trim() == ""){
+            $('#gitCustomRepositoryModalRepositoryBranchInput').addClass('is-invalid');
+            return false;
+        }
+
+        return true;
+    }
+
     static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository) : void {
         // remove existing options from the repository name select tag
         $('#gitCommitModalRepositoryNameSelect').empty();
@@ -892,7 +903,7 @@ export class Utils {
         };
 
         // empty the list of palettes prior to (re)fetch
-        eagle.explorePalettes([]);
+        eagle.explorePalettes().clear();
 
         $('#explorePalettesModal').modal("toggle");
 
@@ -914,7 +925,8 @@ export class Utils {
                 explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, palette.name, palette.path));
             }
 
-            eagle.explorePalettes(explorePalettes);
+            // process files into a more complex structure
+            eagle.explorePalettes().initialise(explorePalettes);
         });
     }
 
@@ -1200,17 +1212,17 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph
      */
-    static getUniqueApplicationParamsList = (diagram : Palette | LogicalGraph) : Field[] => {
-        const uniqueApplicationParams : Field[] = [];
+    static getUniqueapplicationArgsList = (diagram : Palette | LogicalGraph) : Field[] => {
+        const uniqueapplicationArgs : Field[] = [];
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
-            for (const param of node.getApplicationParams()) {
-                Utils._addFieldIfUnique(uniqueApplicationParams, param.clone());
+            for (const param of node.getApplicationArgs()) {
+                Utils._addFieldIfUnique(uniqueapplicationArgs, param.clone());
             }
         }
 
-        return uniqueApplicationParams;
+        return uniqueapplicationArgs;
     }
 
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
@@ -1453,12 +1465,32 @@ export class Utils {
 
         // check that all application params have default values
         for (const node of graph.getNodes()){
-            for (const field of node.getApplicationParams()){
+            for (const field of node.getApplicationArgs()){
                 if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getName() + ") whose default value is not specified");
                 }
             }
         }
+
+        // check that fields and application parameters don't share the same name
+        // NOTE: this code checks many pairs of fields twice
+        for (const node of graph.getNodes()){
+            for (const field of node.getFields()){
+                for (const appArg of node.getApplicationArgs()){
+                    if (field.getName() == appArg.getName()){
+                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getName() + ") that shares the same name as an application argument.");
+                    }
+                }
+            }
+            for (const appArg of node.getApplicationArgs()){
+                for (const field of node.getFields()){
+                    if (appArg.getName() === field.getName()){
+                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application argument (" + appArg.getName() + ") that shares the same name as a component parameter.");
+                    }
+                }
+            }
+        }
+
 
         // check that all nodes have correct numbers of inputs and outputs
         for (const node of graph.getNodes()){
@@ -1531,10 +1563,8 @@ export class Utils {
             case Eagle.DALiuGESchemaVersion.OJS:
                 switch(fileType){
                     case Eagle.FileType.Graph:
-                        valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
-                        break;
                     case Eagle.FileType.Palette:
-                        valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
+                        valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
                         break;
                     default:
                         console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
@@ -1574,6 +1604,21 @@ export class Utils {
         }
 
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
+    }
+
+    static validateField(type: Eagle.DataType, value: string){
+        let valid: boolean = true;
+
+        // make sure JSON fields are parse-able
+        if (type === Eagle.DataType.Json){
+            try {
+                JSON.parse(value);
+            } catch(e) {
+                valid = false;
+            }
+        }
+
+        return valid;
     }
 
     static downloadFile(error : string, data : string, fileName : string) : void {

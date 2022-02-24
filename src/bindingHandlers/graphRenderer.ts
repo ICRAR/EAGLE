@@ -162,20 +162,22 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         e.preventDefault()
         hasDraggedBackground = false;
         draggingInGraph = true;
-            if (e.shiftKey || e.altKey){
-                isDraggingSelectionRegion = true;
-                selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(e.originalEvent.x);
-                selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-headerHeight);
-            }
 
-            if (e.altKey){
-                isDraggingWithAlt = true;
-            } else {
-                isDraggingWithAlt = false;
-            }
+        if (e.shiftKey || e.altKey){
+            isDraggingSelectionRegion = true;
+            selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(e.originalEvent.x);
+            selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-headerHeight);
+        }
+
+        if (e.altKey){
+            isDraggingWithAlt = true;
+        } else {
+            isDraggingWithAlt = false;
+        }
     });
 
     $("#logicalGraphD3Div svg").mousemove(function(e){
+
         e.preventDefault()
         if (!draggingInGraph){
             return
@@ -200,7 +202,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     })
 
     $("#logicalGraphD3Div svg").mouseleave(function(e:any){
-        if( draggingInGraph === true){
+        if(draggingInGraph === true){
             finishDragging();
         }
     })
@@ -229,7 +231,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             objects.push(...nodes);
             objects.push(...edges);
 
-            eagle.selectedObjects(objects);
+            eagle.selectedObjects.push(...objects);
             eagle.selectedLocation(Eagle.FileType.Graph);
             eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector);
 
@@ -243,6 +245,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             selectionRegionStart.y = 0;
             selectionRegionEnd.x = 0;
             selectionRegionEnd.y = 0;
+
+            // finish selecting a region
+            isDraggingSelectionRegion = false;
 
             // necessary to make uncollapsed nodes show up
             eagle.logicalGraph.valueHasMutated();
@@ -378,8 +383,27 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 isDraggingNode = false;
             }
 
+            // determine the size of the node being moved, based on whether it is collapsed or not
+            let posX, posY, width, height = 0;
+            if (node.isCollapsed()){
+                // find center of node
+                let centerX = node.getPosition().x + node.getWidth()/2;
+                let centerY = node.getPosition().y + node.getHeight()/2;
+
+                // top left corner of icon
+                posX = centerX - Node.DATA_COMPONENT_WIDTH/2;
+                posY = centerY - Node.DATA_COMPONENT_HEIGHT/2;
+                width = Node.DATA_COMPONENT_WIDTH;
+                height = Node.DATA_COMPONENT_HEIGHT;
+            } else {
+                posX = node.getPosition().x;
+                posY = node.getPosition().y;
+                width = node.getWidth();
+                height = node.getHeight();
+            }
+
             // check for nodes underneath the node we dropped
-            const parent : Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getWidth(), node.getHeight(), node.getKey(), true);
+            const parent : Node = eagle.logicalGraph().checkForNodeAt(posX, posY, width, height, node.getKey(), true);
 
             // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
             const ancestorOfParent = isAncestor(parent, node);
@@ -3112,10 +3136,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         for (let i = nodeData.length - 1; i >= 0 ; i--){
             const node : Node = nodeData[i];
-            const x : number = node.getPosition().x;
-            const y : number = node.getPosition().y;
 
-            if (x >= realLeft && realRight >= x && y >= realTop && realBottom >= y){
+            // use center of node as position
+            const centerX : number = node.getPosition().x + node.getWidth()/2;
+            const centerY : number = node.getPosition().y + node.getHeight()/2;
+
+            if (centerX >= realLeft && realRight >= centerX && centerY >= realTop && realBottom >= centerY){
                 result.push(node);
             }
         }

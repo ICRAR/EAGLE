@@ -181,7 +181,7 @@
     width: auto;
     height:auto;
     font-size: 12px;
-    top: 0;
+    top: -6px;
     right: 100%;
 }
 
@@ -196,7 +196,9 @@
 }
 
 .dropdown-item img{
-    float:right;
+    float: left;
+    transform: rotate(180deg);
+    margin-left: -4px;
 }
 .dropdown-item span{
     font-weight: 300;
@@ -210,12 +212,13 @@
 
 .rightWindowSizeAdjuster {
     top: 0px;
-    left: 0px;
+    left: -5px;
     height: 100%;
-    width: 8px;
+    width: 10px;
     position: absolute;
     background-color: rgba(0,0,0,0);
     cursor: col-resize;
+    opacity: 0;
 }
 
 .componentSearchBar{
@@ -256,6 +259,9 @@
     margin-top: 10px;
 }
 
+.searchBarContainer a{
+    display: none;
+}
 
 .leftWindow {
     background-color: #002e5f;
@@ -382,12 +388,33 @@
     overflow-y: unset;
 }
 
-#editFieldModalValueInputCheckbox, #editFieldModalDefaultValueInputCheckbox, #editFieldModalPreciousInputCheckbox {
-    flex: none;
-    padding: 19px;
-    margin-left: 50%;
+#shortcutsModal .modal-dialog{
+    transform:none!important;
+}
+
+#shortcutsModal .modal-content{
+    width: 1000px;
+    position: absolute;
     transform: translateX(-50%);
-    margin-top:0px;
+}
+
+.shortCutsModalItem{
+    padding: 10px 20px;
+    background-color: rgb(216, 221, 240);
+    border: solid 1px #001225;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.shortCutsModalItem span{
+    font-weight: 400;
+}
+
+.shortCutsModalItem .shortCutsModalItemRight{
+    font-weight: 700;
+    position: absolute;
+    right: 20px;
 }
 
 #editFieldModal textarea{
@@ -396,6 +423,42 @@
 
 #editFieldModal textarea:focus{
     height:86px;
+}
+
+#componentValueCheckbox{
+    margin-bottom:0px !important;
+}
+
+.componentCheckbox{
+    background-color: white;
+    height: 38px;
+    border-radius: 4px !important;
+    border: solid 1px #ced4da;
+    overflow: hidden;
+}
+
+.componentCheckbox span{
+    padding-top: 5px;
+    margin-left: 15px;
+    color: black;
+    pointer-events: none;
+}
+
+.componentCheckbox input{
+    position: absolute !important;
+    height: 100%;
+    width: 34px !important;
+    top: 0px;
+    right: 0px;
+    margin: 0px;
+    transform: none;
+    border: none;
+    border-left: 1px solid #ced4da;
+    border-radius: 0px !important;
+}
+
+.componentCheckbox input:focus{
+    box-shadow: transparent;
 }
 
 select.form-control{
@@ -470,9 +533,43 @@ select.form-control{
     border: 1px solid #c2c8dc;
 }
 
+#checkGraphAccordion .accordion-button{
+    color: white;
+    background-color: #4a6b8f;
+}
+
+#checkGraphAccordion .accordion-button::after{
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
+}
+
+#checkGraphAccordion .accordion-button:focus{
+    border-color: transparent;
+    box-shadow: none !important;
+}
+
+#checkGraphAccordion .accordion-item{
+    margin-bottom: 10px;
+}
+
+#graphErrorRed{
+    color: #dc3545;
+}
+
+#graphErrorYellow{
+    color: #ffc107;
+}
+
 #resetSettingsDefaults{
     left: 10px;
     position: absolute;
+}
+
+.checkSettingLabel input{
+    cursor: default;
+}
+
+.checkSettingLabel input:focus{
+    box-shadow: none;
 }
 
 .headerIcons{
@@ -650,7 +747,7 @@ select.form-control{
     padding: 10px;
 }
 
-#eplorePalettesWrapper{
+#explorePalettesWrapper{
     width: 90%;
     display: inline-block;
 }
@@ -771,6 +868,7 @@ select.form-control{
 
 .modal select {
     margin-bottom: 1rem;
+    height:38px;
 }
 
 .leftWindow .leftWindowHandle {
@@ -796,12 +894,13 @@ select.form-control{
 
 .leftWindowSizeAdjuster {
     top: 0px;
-    right: 0px;
+    right: -5px;
     height: 100%;
-    width: 8px;
+    width: 10px;
     position: absolute;
     background-color: rgba(0,0,0,0);
     cursor: col-resize;
+    opacity: 0;
 }
 
 #graphArea #logicalGraphParent {
@@ -1064,14 +1163,6 @@ div.rightWindow h5.card-header {
     margin: top 1px;
 }
 
-#edgeEditBtn{
-    color:rgb(0, 89, 165);
-}
-
-#edgeDeleteBtn{
-    color: red;;
-}
-
 #nodeInspector .input-group-prepend, #edgeInspector .input-group-prepend, #translationMenu .input-group-prepend {
     width:40%;
 }
@@ -1107,6 +1198,11 @@ div.rightWindow h5.card-header {
 
 #edgeInspectorIcons button{
     padding:0px;
+    color:#095cb4;
+}
+
+#edgeInspectorIcons button:hover{
+    color:#00162e;
 }
 
 #nodeInspector .input-group-text img{
@@ -1405,6 +1501,16 @@ nav.navbar .introjs-helperLayer {
 
 .headerBtns button.btn:focus {
     box-shadow: none;
+    background-color:transparent;
+    border:none;
+}
+
+#multiSelectionHeader .headerBtns button{
+    color:#095cb4;
+}
+
+#multiSelectionHeader .headerBtns button:hover{
+    color:#00162e;
 }
 
 .nodeInspectorSubsectionTitle{

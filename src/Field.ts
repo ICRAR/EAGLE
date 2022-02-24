@@ -11,8 +11,10 @@ export class Field {
     private readonly : ko.Observable<boolean>;
     private type : ko.Observable<Eagle.DataType>;
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
+    private options : ko.ObservableArray<string>;
+    private positional : ko.Observable<boolean>;
 
-    constructor(text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean){
+    constructor(text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean){
         this.text = ko.observable(text);
         this.name = ko.observable(name);
         this.value = ko.observable(value);
@@ -21,6 +23,8 @@ export class Field {
         this.readonly = ko.observable(readonly);
         this.type = ko.observable(type);
         this.precious = ko.observable(precious);
+        this.options = ko.observableArray(options);
+        this.positional = ko.observable(positional);
     }
 
     getText = () : string => {
@@ -99,6 +103,18 @@ export class Field {
         return this.precious();
     }
 
+    getOptions = () : string[] => {
+        return this.options();
+    }
+
+    isPositionalArgument = () : boolean => {
+        return this.positional();
+    }
+
+    setPositionalArgument = (positional: boolean): void => {
+        this.positional(positional);
+    }
+
     clear = () : void => {
         this.text("");
         this.name("");
@@ -108,10 +124,12 @@ export class Field {
         this.readonly(false);
         this.type(Eagle.DataType.Unknown);
         this.precious(false);
+        this.options([]);
+        this.positional(false);
     }
 
     clone = () : Field => {
-        return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious());
+        return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
     }
 
     getFieldValue = () : string => {
@@ -133,15 +151,18 @@ export class Field {
     },this)
 
     fitsApplicationSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        if(Eagle.applicationParamsSearchString() === ""){
+        if(Eagle.applicationArgsSearchString() === ""){
             return true
-        }else if(this.text().toLowerCase().indexOf(Eagle.applicationParamsSearchString().toLowerCase())>=0){
+        }else if(this.text().toLowerCase().indexOf(Eagle.applicationArgsSearchString().toLowerCase())>=0){
             return true
         }else{
             return false
         }
     },this)
 
+    // TODO: this probably isn't required any more, we can safely assume that
+    //       any field in node.fields is a DALiuGE field, and conversely,
+    //       if a field is in node.applicationArgs, it isn't a DALiuGE field
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume";
     }, this);
@@ -170,7 +191,9 @@ export class Field {
             description:field.description(),
             readonly:field.readonly(),
             type:field.type(),
-            precious:field.precious()
+            precious:field.precious(),
+            options:field.options(),
+            positional:field.positional()
         };
     }
 
@@ -183,7 +206,9 @@ export class Field {
             description:field.description(),
             readonly:field.readonly(),
             type:field.type(),
-            precious:field.precious()
+            precious:field.precious(),
+            options:field.options(),
+            positional: field.positional()
         };
     }
 
@@ -196,6 +221,8 @@ export class Field {
         let value: string = "";
         let defaultValue: string = "";
         let precious: boolean = false;
+        let options: string[] = [];
+        let positional: boolean = false;
 
         if (typeof data.text !== 'undefined')
             text = data.text;
@@ -213,8 +240,12 @@ export class Field {
             defaultValue = data.default.toString();
         if (typeof data.precious !== 'undefined')
             precious = data.precious;
+        if (typeof data.options !== 'undefined')
+            options = data.options;
+        if (typeof data.positional !== 'undefined')
+            positional = data.positional;
 
-        return new Field(text, name, value, defaultValue, description, readonly, type, precious);
+        return new Field(text, name, value, defaultValue, description, readonly, type, precious, options, positional);
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {

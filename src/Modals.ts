@@ -6,6 +6,7 @@ import {Port} from './Port';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
+import {PaletteInfo} from './PaletteInfo';
 
 export class Modals {
 
@@ -160,6 +161,12 @@ export class Modals {
         });
 
         // #gitCustomRepositoryModal - requestUserAddCustomRepository()
+        $('#gitCustomRepositoryModalRepositoryNameInput, #gitCustomRepositoryModalRepositoryBranchInput').on('keyup', function(){
+            // show/hide OK button
+            $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
+        });
+
+
         $('#gitCustomRepositoryModalAffirmativeButton').on('click', function(){
             $('#gitCustomRepositoryModal').data('completed', true);
         });
@@ -167,6 +174,10 @@ export class Modals {
             $('#gitCustomRepositoryModal').data('completed', false);
         });
         $('#gitCustomRepositoryModal').on('shown.bs.modal', function(){
+            $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
+            $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
+
+            $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
             $('#gitCustomRepositoryModalAffirmativeButton').focus();
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
@@ -241,24 +252,43 @@ export class Modals {
             // extract field data from HTML elements
             const text : string = <string>$('#editFieldModalTextInput').val();
             const name : string = <string>$('#editFieldModalNameInput').val();
+
+            // only one of these three ui elements contains the "real" value,
+            // but we get all three and then choose correctly based on field type
             const valueText : string = <string>$('#editFieldModalValueInputText').val();
             const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
+            const valueSelect : string = <string>$('#editFieldModalValueInputSelect').val();
+
+            // only one of these three ui elements contains the "real" default value,
+            // but we get all three and then choose correctly based on field type
             const defaultValueText : string = <string>$('#editFieldModalDefaultValueInputText').val();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
+            const defaultValueSelect : string = <string>$('#editFieldModalDefaultValueInputSelect').val();
+
             const description: string = <string>$('#editFieldModalDescriptionInput').val();
-            const access: string = <string>$('#editFieldModalAccessSelect').val();
             const type: string = <string>$('#editFieldModalTypeSelect').val();
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
 
-            // translate access and type
-            const readonly: boolean = access === 'readonly';
+            // NOTE: currently no way to edit options in the "select"-type fields
+            const options: string[] = [];
+
+            const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
+            const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
+
+            // translate type
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
             let newField;
 
-            if (realType === Eagle.DataType.Boolean){
-                newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious);
-            } else {
-                newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious);
+            switch(realType){
+                case Eagle.DataType.Boolean:
+                    newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
+                    break;
+                case Eagle.DataType.Select:
+                    newField = new Field(text, name, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
+                    break;
+                default:
+                    newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
+                    break;
             }
 
             callback(true, newField);
@@ -279,10 +309,19 @@ export class Modals {
             // show the correct entry field based on the field type
             const value = $('#editFieldModalTypeSelect').val();
 
-            $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean);
-            $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
-            $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType.Boolean);
+            if(value === Eagle.DataType.Boolean){
+                $("#editFieldModalDefaultValue").hide()
+            }else{
+                $("#editFieldModalDefaultValue").show()
+            }
+
+            $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean && value !== Eagle.DataType.Select);
+            $('#editFieldModalValueInputCheckbox').parent().toggle(value === Eagle.DataType.Boolean);
+            $('#editFieldModalValueInputSelect').toggle(value === Eagle.DataType.Select);
+
+            $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType.Boolean && value !== Eagle.DataType.Select);
             $('#editFieldModalDefaultValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
+            $('#editFieldModalDefaultValueInputSelect').toggle(value === Eagle.DataType.Select);
 
             if(value === Eagle.DataType.Float || value === Eagle.DataType.Integer){
                 $('#editFieldModalDefaultValueInputText').attr("type", "number")
@@ -291,6 +330,13 @@ export class Modals {
                 $('#editFieldModalDefaultValueInputText').attr("type", "text")
                 $('#editFieldModalValueInputText').attr("type", "text")
             }
+        });
+        // add some validation to the value entry field
+        $('#editFieldModalValueInputText').on('keyup', function(){
+            Modals._validateFieldModalValueInputText();
+        });
+        $('#editFieldModalTypeSelect').on('change', function(){
+            Modals._validateFieldModalValueInputText();
         });
 
         // #editPortModal - requestUserEditPort()
@@ -410,13 +456,46 @@ export class Modals {
                 return;
             }
 
-            // loop through the explorePalettes, find any selected and load them
-            for (const ep of eagle.explorePalettes()){
+            for (const ep of eagle.explorePalettes().getProject().palettes()){
                 if (ep.isSelected()){
                     eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
                 }
             }
 
+            /*
+            // loop through the explorePalettes, find any selected and load them
+            for (const project of eagle.explorePalettes().projects()){
+                for (const pi of project.palettes()){
+                    if (pi.isSelected()){
+                        eagle.openRemoteFile(new RepositoryFile(new Repository(pi.repositoryService, pi.repositoryName, pi.repositoryBranch, false), pi.path, pi.name));
+                        pi.isSelected(false);
+                    }
+                }
+            }
+            */
         });
+    }
+
+    static _validateFieldModalValueInputText(){
+        const type: string = <string>$('#editFieldModalTypeSelect').val();
+        const value: string = <string>$('#editFieldModalValueInputText').val();
+        const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+
+        // only validate Json fields
+        if (realType !== Eagle.DataType.Json){
+            $('#editFieldModalValueInputText').removeClass('is-valid');
+            $('#editFieldModalValueInputText').removeClass('is-invalid');
+            return;
+        }
+
+        const isValid = Utils.validateField(realType, value);
+
+        if (isValid){
+            $('#editFieldModalValueInputText').addClass('is-valid');
+            $('#editFieldModalValueInputText').removeClass('is-invalid');
+        } else {
+            $('#editFieldModalValueInputText').removeClass('is-valid');
+            $('#editFieldModalValueInputText').addClass('is-invalid');
+        }
     }
 }

@@ -220,4 +220,51 @@ export class Palette {
     replaceNode = (index : number, newNode : Node) : void => {
         this.nodes.splice(index, 1, newNode);
     }
+
+    sort = () : void => {
+
+        const sortFunc = function(a:Node, b:Node) : number {
+            const aCData : Eagle.CategoryData = Eagle.getCategoryData(a.getCategory());
+            const bCData : Eagle.CategoryData = Eagle.getCategoryData(b.getCategory());
+
+            if (aCData.sortOrder < bCData.sortOrder) {
+                return -1;
+            }
+            if (aCData.sortOrder > bCData.sortOrder) {
+                return 1;
+            }
+
+            // a must be equal to b
+            return a.getName() > b.getName() ? 1 : -1;
+        }
+
+        this.nodes.sort(sortFunc);
+    }
+
+    copyUrl = (): void => {
+        // get reference to the LG fileInfo object
+        const fileInfo: FileInfo = this.fileInfo();
+
+        // if we don't know where this file came from then we can't build a URL
+        // for example, if the palette was loaded from local disk, then we can't build a URL for others to reach it
+        if (fileInfo.repositoryService === Eagle.RepositoryService.Unknown || fileInfo.repositoryService === Eagle.RepositoryService.File){
+            Utils.showNotification("Palette URL", "Source of palette is a local file or unknown, unable to create URL for graph.", "danger");
+            return;
+        }
+
+        // build palette url
+        let palette_url = window.location.origin;
+
+        palette_url += "/?service=" + fileInfo.repositoryService;
+        palette_url += "&repository=" + fileInfo.repositoryName;
+        palette_url += "&branch=" + fileInfo.repositoryBranch;
+        palette_url += "&path=" + fileInfo.path;
+        palette_url += "&filename=" + fileInfo.name;
+
+        // copy to cliboard
+        navigator.clipboard.writeText(palette_url);
+
+        // notification
+        Utils.showNotification("Palette URL", "Copied to clipboard", "success");
+    }
 }

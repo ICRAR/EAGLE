@@ -23,6 +23,7 @@ const GRAPHS = [
 //       port 8084 are already in use
 
 const DALIUGE_TRANSLATOR_PORT = "6379";
+//const DALIUGE_TRANSLATOR_PORT = "8084";
 
 const DALIUGE_DIM_PORT = "8001";
 const DALIUGE_NM_PORT = "8000";

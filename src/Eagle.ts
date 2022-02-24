@@ -49,6 +49,7 @@ import {Setting} from './Setting';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
+import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
 import { treemapSquarify } from "d3";
 
@@ -77,14 +78,14 @@ export class Eagle {
     rendererFrameCountRender : number;
     rendererFrameCountTick : number;
 
-    explorePalettes : ko.ObservableArray<PaletteInfo>;
+    explorePalettes : ko.Observable<ExplorePalettes>;
 
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
-    static applicationParamsSearchString : ko.Observable<string>;
+    static applicationArgsSearchString : ko.Observable<string>;
 
 
     static settings : {[category:string] : Setting[]}
@@ -114,7 +115,7 @@ export class Eagle {
 
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("")
-        Eagle.applicationParamsSearchString = ko.observable("")
+        Eagle.applicationArgsSearchString = ko.observable("")
 
         Eagle.settings = {
             "User Options" : [
@@ -191,7 +192,7 @@ export class Eagle {
         this.rendererFrameCountRender = 0;
         this.rendererFrameCountTick = 0;
 
-        this.explorePalettes = ko.observableArray([]);
+        this.explorePalettes = ko.observable(new ExplorePalettes());
 
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
@@ -314,9 +315,19 @@ export class Eagle {
         this.leftWindow().toggleShown()
     }
 
-    emptySearchBar = (target : ko.Observable) => {
+    emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
         target("")
+        $(event.target).parent().hide()
     }
+
+    setSearchBarClearBtnState = (data:string, event : Event) => {
+        if($(event.target).val() === ""){
+            $(event.target).parent().find('a').hide()
+        }else{
+            $(event.target).parent().find('a').show()
+        }
+    }
+
 
     zoomIn = () : void => {
         this.globalScale += 0.05;
@@ -1001,6 +1012,9 @@ export class Eagle {
             Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
         }
 
+        // sort the palette
+        p.sort();
+
         // add new palette to the START of the palettes array
         this.palettes.unshift(p);
 
@@ -1093,6 +1107,23 @@ export class Eagle {
     }
 
     /**
+     * Reloads a previously loaded palette.
+     */
+     reloadPalette = (palette: Palette) : void => {
+         const fileInfo : FileInfo = palette.fileInfo();
+
+         // remove palette
+         this.closePalette(palette);
+
+         if (fileInfo.repositoryService === Eagle.RepositoryService.File){
+             // load palette
+             this.getPaletteFileToLoad();
+         } else { // GitHub or Gitlab
+             this.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
+         }
+    }
+
+    /**
      * Create a new diagram (graph or palette).
      */
     newDiagram = (fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void => {
@@ -1100,6 +1131,10 @@ export class Eagle {
         Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", "", false, (completed : boolean, userString : string) : void => {
             if (!completed)
             {   // Cancelling action.
+                return;
+            }
+            if (userString === ""){
+            Utils.showNotification("Input Error", "Enter A Valid Name", "warning");
                 return;
             }
 
@@ -1533,6 +1568,9 @@ export class Eagle {
                     palette.fileInfo().gitUrl = paletteList[index].filename;
                     palette.fileInfo().sha = "master";
                     palette.fileInfo().type = Eagle.FileType.Palette;
+
+                    // sort palette and add to results
+                    palette.sort();
                     results[index] = palette;
                 }
 
@@ -1553,7 +1591,7 @@ export class Eagle {
     loadSchemas = () : void => {
         console.log("loadSchemas()");
 
-        Utils.httpGet("./static/" + Config.graphSchemaFileName, (error : string, data : string) => {
+        Utils.httpGet(Config.DALIUGE_GRAPH_SCHEMA_URL, (error : string, data : string) => {
             if (error !== null){
                 console.error(error);
                 return;
@@ -1564,15 +1602,6 @@ export class Eagle {
             // NOTE: we don't have a schema for the V3 or appRef versions
             Utils.v3GraphSchema = JSON.parse(data);
             Utils.appRefGraphSchema = JSON.parse(data);
-        });
-
-        Utils.httpGet("./static/" + Config.paletteSchemaFileName, (error : string, data : string) => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
-
-            Utils.ojsPaletteSchema = JSON.parse(data);
         });
     }
 
@@ -1955,7 +1984,7 @@ export class Eagle {
 
         // if dictated by settings, reload the palette immediately
         if (alreadyLoadedPalette !== null && Eagle.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
-            Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
+            Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
                 if (confirmed){
                     this._reloadPalette(file, data, alreadyLoadedPalette);
                 }
@@ -1975,7 +2004,13 @@ export class Eagle {
 
         // load the new palette
         const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
-        this.palettes.unshift(Palette.fromOJSJson(data, file, errorsWarnings));
+        const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
+
+        // sort items in palette
+        newPalette.sort();
+
+        // add to list of palettes
+        this.palettes.unshift(newPalette);
 
         if (errorsWarnings.errors.length > 0){
             if (showErrors){
@@ -2038,6 +2073,16 @@ export class Eagle {
                 break;
             }
         }
+    }
+
+    getParentNameAndKey = (parentKey:number) : string => {
+        if(parentKey === null){
+            return ""
+        }
+
+        var parentText = this.logicalGraph().findNodeByKey(parentKey).getName() + ' | Key: ' + parentKey;
+
+        return parentText
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
@@ -2374,10 +2419,10 @@ export class Eagle {
 
     // TODO: maybe move to Field.ts
     // TODO: add comments
-    getFieldType = (type:string, id:string, value:string) : string => {
-        if (type === "Float" || type === "Integer"){
+    getFieldType = (type:Eagle.DataType, id:string, value:string) : string => {
+        if (type === Eagle.DataType.Float || type === Eagle.DataType.Integer){
             return "number"
-        }else if(type === "Boolean"){
+        }else if(type === Eagle.DataType.Boolean){
             $("#"+id).addClass("form-check-input")
             if (value === "true"){
                 $("#"+id).addClass("inputChecked")
@@ -2387,17 +2432,12 @@ export class Eagle {
                 $("#"+id).html("Check")
             }
             return "checkbox"
+        }else if(type === Eagle.DataType.Select){
+            return "select";
+        }else if(type === Eagle.DataType.Password){
+            return "password";
         }else{
             return "text"
-        }
-    }
-
-    // TODO: seems too simple to be required
-    fieldIsBoolean = (type:string) : boolean => {
-        if (type === "Boolean"){
-            return true
-        }else{
-            return false
         }
     }
 
@@ -2607,18 +2647,26 @@ export class Eagle {
 
                 // mark the palette as modified
                 destinationPalette.fileInfo().modified = true;
+                destinationPalette.sort();
             }
         });
     }
 
-    addSelectedNodeToPalette = () : void => {
-        const selectedNode = this.selectedNode();
+    addSelectedNodesToPalette = () : void => {
+        const nodes = []
 
-        if (selectedNode === null){
+        for(const object of this.selectedObjects()){
+            if ((object instanceof Node)){
+                nodes.push(object)
+            }
+        }
+
+        if (nodes.length === 0){
             console.error("Attempt to add selected node to palette when no node selected");
             return;
         }
-        this.addNodesToPalette([selectedNode]);
+
+        this.addNodesToPalette(nodes);
     }
 
     deleteSelection = (suppressUserConfirmationRequest: boolean) : void => {
@@ -3078,14 +3126,12 @@ export class Eagle {
         const nodeList : string[] = [];
         let selectedChoiceIndex = 0;
 
+        //this is needed for the selected choice index as the index of the function will not work because many entries a skipped, the selected choice index was generally higher than the amount of legitimate choices available
+        var validChoiceIndex = 0
+
         // build list of nodes that are candidates to be the parent
         for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
             const node : Node = this.logicalGraph().getNodes()[i];
-
-            // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
-            if (node.getKey() === selectedNode.getParentKey()){
-                selectedChoiceIndex = i;
-            }
 
             // a node can't be its own parent
             if (node.getKey() === selectedNode.getKey()){
@@ -3097,11 +3143,19 @@ export class Eagle {
                 continue;
             }
 
+            //this index only counts up if the above doesnt filter out the choice
+            validChoiceIndex++
+
+            // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
+            if (node.getKey() === selectedNode.getParentKey()){
+                selectedChoiceIndex = validChoiceIndex;
+            }
+
             nodeList.push(node.getName() + " : " + node.getKey());
         }
 
         // add "None" to the list of possible parents
-        nodeList.push("None : 0");
+        nodeList.unshift("None : 0");
 
         // ask user to choose a parent
         Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number) => {
@@ -3217,6 +3271,19 @@ export class Eagle {
         // retrieve data about the node being dragged
         // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
         //       Using the native javascript works better, it always fetches the current value of the attribute
+
+        //this is for dealing with drag and drop actions while there is already one ore more palette components selected
+        if (this.selectedLocation() === Eagle.FileType.Palette){
+
+            var paletteIndex = $(e.target).data("palette-index")
+            var componentIndex = $(e.target).data("component-index")
+            var draggedNode = this.palettes()[paletteIndex].getNodes()[componentIndex]
+
+            if(!this.objectIsSelected(draggedNode)){
+                $(e.target).find("div").click()
+            }
+        }
+
         Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
         Eagle.nodeDragComponentIndex = parseInt(e.target.getAttribute('data-component-index'), 10);
 
@@ -3317,6 +3384,7 @@ export class Eagle {
             // add to destination palette
             destinationPalette.addNode(sourceComponent, true);
             destinationPalette.fileInfo().modified = true;
+            destinationPalette.sort();
         }
     }
 
@@ -3340,9 +3408,6 @@ export class Eagle {
     };
 
     rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        const img : HTMLImageElement = document.createElement("img");
-
-        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
         Eagle.dragStartX = e.clientX;
         this.leftWindow().adjusting(false);
         this.rightWindow().adjusting(true);
@@ -3402,8 +3467,6 @@ export class Eagle {
     }
 
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        const img : HTMLImageElement = document.createElement("img");
-        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
 
         Eagle.dragStartX = e.clientX;
         this.leftWindow().adjusting(true);
@@ -3648,7 +3711,7 @@ export class Eagle {
         if (fieldType === Eagle.FieldType.Field){
             allFields = Utils.getUniqueFieldsList(this.logicalGraph());
         } else {
-            allFields = Utils.getUniqueApplicationParamsList(this.logicalGraph());
+            allFields = Utils.getUniqueapplicationArgsList(this.logicalGraph());
         }
 
         // once done, sort fields and then collect names into the allFieldNames list
@@ -3668,7 +3731,7 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field("", "", "", "", "", false, Eagle.DataType.Integer, false);
+            const field: Field = new Field("", "", "", "", "", false, Eagle.DataType.Integer, false, [], false);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -3701,6 +3764,8 @@ export class Eagle {
                        node.addApplicationParam(clone);
                    }
                 }
+
+                this.checkGraph();
             });
 
         } else {
@@ -3712,7 +3777,7 @@ export class Eagle {
                 field = this.selectedNode().getFields()[fieldIndex];
             } else {
                 $("#editFieldModalTitle").html("Edit Application Parameter");
-                field = this.selectedNode().getApplicationParams()[fieldIndex];
+                field = this.selectedNode().getApplicationArgs()[fieldIndex];
             }
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
@@ -3732,6 +3797,9 @@ export class Eagle {
                 field.setReadonly(newField.isReadonly());
                 field.setType(newField.getType());
                 field.setPrecious(newField.isPrecious());
+                field.setPositionalArgument(newField.isPositionalArgument());
+
+                this.checkGraph();
             });
         }
     };
@@ -3814,10 +3882,22 @@ export class Eagle {
         return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
     }
 
-    explorePalettesClickHelper = (data:any, event:any): void => {
+    explorePalettesClickHelper = (data: PaletteInfo, event:any): void => {
+        if (data === null){
+            return;
+        }
+
         var newState = !data.isSelected()
         data.isSelected(newState)
-        $(event.target).find('input').prop("checked",newState)
+
+        if (typeof event === "undefined"){
+            // load immediately
+            this.openRemoteFile(new RepositoryFile(new Repository(data.repositoryService, data.repositoryName, data.repositoryBranch, false), data.path, data.name));
+            $('#explorePalettesModal').modal('hide');
+        } else {
+            // mark as checked
+            $(event.target).find('input').prop("checked", newState);
+        }
     }
 
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
@@ -4029,8 +4109,8 @@ export class Eagle {
 
         // if we don't know where this file came from then we can't build a URL
         // for example, if the graph was loaded from local disk, then we can't build a URL for others to reach it
-        if (fileInfo.repositoryService === Eagle.RepositoryService.Unknown){
-            Utils.showNotification("Graph URL", "Source of graph is unknown or not publicly accessible, unable to create URL for graph.", "danger");
+        if (fileInfo.repositoryService === Eagle.RepositoryService.Unknown || fileInfo.repositoryService === Eagle.RepositoryService.File){
+            Utils.showNotification("Graph URL", "Source of graph is a local file or unknown, unable to create URL for graph.", "danger");
             return;
         }
 
@@ -4061,17 +4141,43 @@ export class Eagle {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
             let message = "";
 
-            if (this.graphWarnings().length > 0){
-                message += "<h5>Warnings</h5>" + this.graphWarnings().join('<br/>');
-            }
-            if (this.graphWarnings().length > 0 && this.graphErrors().length > 0){
-                message += "<br/><br/>";
-            }
-            if (this.graphErrors().length > 0){
-                message += "<h5>Errors</h5>" + this.graphErrors().join('<br/>')
-            }
+            //start of modal content
+            message += "<div class='accordion' id='checkGraphAccordion'>"
 
-            Utils.showUserMessage("Check graph", message);
+                //graph errors
+                if (this.graphErrors().length > 0){
+                    message += '<div class="accordion-item">'
+                        message += '<h2 class="accordion-header" id="checkGraphAccordionHeadingOne">'
+                            message += '<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors  <span id="graphErrorRed">[' + this.graphErrors().length + ']</span></button>'
+                        message += "</h2>"
+                        message += '<div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">'
+                            message += '<div class="accordion-body">'
+                                message += this.graphErrors().join('<br/>')
+                            message += '</div>'
+                        message += '</div>'
+                    message += "</div>"
+                }
+
+                //graph warnings
+                if (this.graphWarnings().length > 0){
+                    message += '<div class="accordion-item">'
+                        message += '<h2 class="accordion-header" id="checkGraphAccordionHeadingTwo">'
+                            message += '<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings  <span id="graphErrorYellow">[' + this.graphWarnings().length + ']</span></button>'
+                        message += "</h2>"
+                        message += '<div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">'
+                            message += '<div class="accordion-body">'
+                                message += this.graphWarnings().join('<br/>')
+                            message += '</div>'
+                        message += '</div>'
+                    message += "</div>"
+                }
+
+            //end of modal content
+            message += "</div>"
+
+            Utils.showUserMessage("Check Graph", message);
+            //set fixed height for this use of the shared modal to prevent it collapsing when collapsing a section within
+            $("#checkGraphAccordion").parent().parent().css("height","70vh")
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
@@ -4271,7 +4377,8 @@ export class Eagle {
                 icon: "error",
                 color: "pink",
                 collapsedHeaderOffsetY: 0,
-                expandedHeaderOffsetY: 20
+                expandedHeaderOffsetY: 20,
+                sortOrder: Number.MAX_SAFE_INTEGER,
             };
         }
 
@@ -4286,45 +4393,52 @@ export class Eagle {
     static readonly controlIconColor : string = "rgb(88 167 94)"
     static readonly selectionColor : string = "rgb(47 22 213)"
 
+    static readonly controlSortOrder = 0;
+    static readonly appSortOrder = 1;
+    static readonly dataSortOrder = 2;
+    static readonly constructSortOrder = 3;
+    static readonly documentationSortOrder = 4;
+    static readonly otherSortOrder = 5;
+
     static readonly cData : {[category:string] : Eagle.CategoryData} = {
-        Start              : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-play_arrow", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        End                : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-stop", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Comment            : {isData: false, isApplication: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-comment", color: Eagle.descriptionIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Description        : {isData: false, isApplication: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-description", color: Eagle.descriptionIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Scatter            : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-call_split", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20},
-        Gather             : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-merge_type", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20},
-        MKN                : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveParameters: true, icon: "icon-many-to-many", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        GroupBy            : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveParameters: true, icon: "icon-group", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Loop               : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-loop", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
+        Start                : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-play_arrow", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.controlSortOrder},
+        End                  : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-stop", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.controlSortOrder},
+        Comment              : {isData: false, isApplication: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-comment", color: Eagle.descriptionIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.documentationSortOrder},
+        Description          : {isData: false, isApplication: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-description", color: Eagle.descriptionIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.documentationSortOrder},
+        Scatter              : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-call_split", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
+        Gather               : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-merge_type", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
+        MKN                  : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveParameters: true, icon: "icon-many-to-many", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
+        GroupBy              : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveParameters: true, icon: "icon-group", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
+        Loop                 : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-loop", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
 
-        PythonApp          : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-python", color: Eagle.appIconColor, collapsedHeaderOffsetY: 10, expandedHeaderOffsetY: 20},
-        BashShellApp       : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-bash", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        DynlibApp          : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-dynamic_library", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Mpi                : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-mpi", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Docker             : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-docker", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Singularity        : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-singularity", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
+        PythonApp            : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-python", color: Eagle.appIconColor, collapsedHeaderOffsetY: 10, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        BashShellApp         : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-bash", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        DynlibApp            : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-dynamic_library", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        Mpi                  : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-mpi", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        Docker               : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-docker", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        Singularity          : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-singularity", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
 
-        File               : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-hard-drive", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-        Memory             : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-memory", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 16, expandedHeaderOffsetY: 20},
-        SharedMemory       : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-memory", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 16, expandedHeaderOffsetY: 20},
-        NGAS               : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-ngas", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-        S3                 : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-s3_bucket", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-        Plasma             : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-plasma", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-        PlasmaFlight       : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-plasmaflight", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-        ParameterSet       : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-        EnvironmentVars    : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
+        File                 : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-hard-drive", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
+        Memory               : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-memory", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 16, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
+        SharedMemory         : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-memory", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 16, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
+        NGAS                 : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-ngas", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
+        S3                   : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-s3_bucket", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
+        Plasma               : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-plasma", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
+        PlasmaFlight         : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-plasmaflight", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
 
-        Service            : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-build", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        ExclusiveForceNode : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-force_node", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
+        ParameterSet         : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
+        EnvironmentVariables : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
 
-        Variables          : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Branch             : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-share", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 54},
+        Service              : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-build", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        ExclusiveForceNode   : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-force_node", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
 
-        SubGraph           : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-subgraph", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
+        Branch               : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-share", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 54, sortOrder: Eagle.controlSortOrder},
 
-        Unknown            : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        None               : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-none", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        UnknownApplication : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
+        SubGraph             : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-subgraph", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
+
+        Unknown              : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.otherSortOrder},
+        None                 : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-none", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.otherSortOrder},
+        UnknownApplication   : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.otherSortOrder},
     };
 }
 
@@ -4378,7 +4492,10 @@ export namespace Eagle
         Integer = "Integer",
         Float = "Float",
         Complex = "Complex",
-        Boolean = "Boolean"
+        Boolean = "Boolean",
+        Select = "Select",
+        Password = "Password",
+        Json = "Json",
     }
 
     export enum ModalType {
@@ -4422,13 +4539,13 @@ export namespace Eagle
         File = "File",
         Plasma = "Plasma",
         PlasmaFlight = "PlasmaFlight",
+
         ParameterSet = "ParameterSet",
-        EnvironmentVars = "EnvironmentVars",
+        EnvironmentVariables = "EnvironmentVariables",
 
         Service = "Service",
         ExclusiveForceNode = "ExclusiveForceNode",
 
-        Variables = "Variables",
         Branch = "Branch",
 
         SubGraph = "SubGraph",
@@ -4447,7 +4564,7 @@ export namespace Eagle
         Right = "Right"
     }
 
-    export type CategoryData = {isData: boolean, isApplication: boolean, isGroup:boolean, isResizable:boolean, minInputs: number, maxInputs: number, minOutputs: number, maxOutputs: number, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveParameters: boolean, icon: string, color: string, collapsedHeaderOffsetY: number, expandedHeaderOffsetY: number};
+    export type CategoryData = {isData: boolean, isApplication: boolean, isGroup:boolean, isResizable:boolean, minInputs: number, maxInputs: number, minOutputs: number, maxOutputs: number, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveParameters: boolean, icon: string, color: string, collapsedHeaderOffsetY: number, expandedHeaderOffsetY: number, sortOrder: number};
     export type ErrorsWarnings = {warnings: string[], errors: string[]};
 }
 
@@ -4464,6 +4581,7 @@ $( document ).ready(function() {
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
+        $("#checkGraphAccordion").parent().parent().attr('style','')
     });
 
     $('.modal').on('shown.bs.modal',function(){
@@ -4472,6 +4590,20 @@ $( document ).ready(function() {
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });
+
+        //settings modal make headings also toggle the checkbox button
+        $(".settingsModalCategoryWrapper .checkSettingLabel input").on("click", function(){
+            $(event.target).parent().find("button").click()
+        })
+    })
+
+    //increased click bubble for edit modal flag booleans
+    $(".componentCheckbox").on("click",function(){
+        $(event.target).find("input").click()
+    })
+
+    $('#editFieldModalValueInputCheckbox').on("change",function(){
+        $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
 
     //removes focus from input and textareas when using the canvas

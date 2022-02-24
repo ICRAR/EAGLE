@@ -27,10 +27,6 @@ export class Config {
     static readonly templatePaletteFileName : string = "template.palette";
     static readonly builtinPaletteFileName : string = "builtin.palette";
 
-    // schemas
-    static readonly graphSchemaFileName : string = "assets/schema/dlg-lg.graph.schema";
-    static readonly paletteSchemaFileName : string = "assets/schema/dlg-lg.palette.schema";
-
     // Dimensions.
     static readonly paletteNodeHeight : number = 22;
     static readonly paletteNodeWidth : number = 130;
@@ -48,6 +44,11 @@ export class Config {
     static readonly defaultRightWindowWidth : number = 400;
     static readonly defaultLeftWindowWidth : number = 310;
 
+    // automatically loaded palettes
     static readonly DEFAULT_PALETTE_REPOSITORY : string = "ICRAR/EAGLE_test_repo";
-    static readonly DALIUGE_PALETTE_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette";
+    static readonly DALIUGE_PALETTE_URL : string  = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette";
+    static readonly DALIUGE_TEMPLATE_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master-template.palette";
+
+    // schemas
+    static readonly DALIUGE_GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg-lg.graph.schema";
 }
