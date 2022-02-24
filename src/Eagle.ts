@@ -4494,7 +4494,8 @@ export namespace Eagle
         Complex = "Complex",
         Boolean = "Boolean",
         Select = "Select",
-        Password = "Password"
+        Password = "Password",
+        Json = "Json",
     }
 
     export enum ModalType {

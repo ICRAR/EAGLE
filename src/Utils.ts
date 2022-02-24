@@ -1606,6 +1606,21 @@ export class Utils {
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
     }
 
+    static validateField(type: Eagle.DataType, value: string){
+        let valid: boolean = true;
+
+        // make sure JSON fields are parse-able
+        if (type === Eagle.DataType.Json){
+            try {
+                JSON.parse(value);
+            } catch(e) {
+                valid = false;
+            }
+        }
+
+        return valid;
+    }
+
     static downloadFile(error : string, data : string, fileName : string) : void {
         if (error != null){
             Utils.showUserMessage("Error", "Error saving the file!");
