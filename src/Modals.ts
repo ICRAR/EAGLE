@@ -331,6 +331,13 @@ export class Modals {
                 $('#editFieldModalValueInputText').attr("type", "text")
             }
         });
+        // add some validation to the value entry field
+        $('#editFieldModalValueInputText').on('keyup', function(){
+            Modals._validateFieldModalValueInputText();
+        });
+        $('#editFieldModalTypeSelect').on('change', function(){
+            Modals._validateFieldModalValueInputText();
+        });
 
         // #editPortModal - requestUserEditPort()
         $('#editPortModalAffirmativeButton').on('click', function(){
@@ -467,5 +474,28 @@ export class Modals {
             }
             */
         });
+    }
+
+    static _validateFieldModalValueInputText(){
+        const type: string = <string>$('#editFieldModalTypeSelect').val();
+        const value: string = <string>$('#editFieldModalValueInputText').val();
+        const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+
+        // only validate Json fields
+        if (realType !== Eagle.DataType.Json){
+            $('#editFieldModalValueInputText').removeClass('is-valid');
+            $('#editFieldModalValueInputText').removeClass('is-invalid');
+            return;
+        }
+
+        const isValid = Utils.validateField(realType, value);
+
+        if (isValid){
+            $('#editFieldModalValueInputText').addClass('is-valid');
+            $('#editFieldModalValueInputText').removeClass('is-invalid');
+        } else {
+            $('#editFieldModalValueInputText').removeClass('is-valid');
+            $('#editFieldModalValueInputText').addClass('is-invalid');
+        }
     }
 }
