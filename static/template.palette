@@ -826,7 +826,7 @@
             "readonly": true
         },
         {
-            "category": "EnvironmentVars",
+            "category": "EnvironmentVariables",
             "outputPorts": [],
             "fields": [{
                 "text": "Data volume",
