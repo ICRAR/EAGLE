@@ -4288,6 +4288,22 @@ export class Eagle {
         });
     }
 
+    editNodeCategory = (eagle: Eagle) : void => {
+        console.log("editNodeCategory()");
+
+        // TODO: create array of all categories
+        let categories: Eagle.Category[] = [];
+        let selectedIndex = 0;
+
+        Utils.requestUserChoice("Edit Node Category", "Select a new category", categories, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+            if (!completed){
+                return;
+            }
+
+            this.selectedNode().setCategory(categories[userChoiceIndex]);
+        });
+    }
+
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         // copy node
