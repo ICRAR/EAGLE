@@ -57,7 +57,9 @@
                 <!-- /ko -->
             </div>
             <div class="col-3 text-right">
+                <!-- ko if: Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING) -->
                 <i class="material-icons interactive me-1" data-bs-placement="left" data-bind="click: editNodeCategory, eagleTooltip: 'Edit Node Category'">edit</i>
+                <!-- /ko -->
                 <i class="material-icons interactive me-3" data-bs-placement="left" data-bind="eagleTooltip: selectedNode().getGitHTML()">info</i>
             </div>
 
