@@ -4289,11 +4289,18 @@ export class Eagle {
     }
 
     editNodeCategory = (eagle: Eagle) : void => {
-        console.log("editNodeCategory()");
-
-        // TODO: create array of all categories
+        // create array of all categories
         let categories: Eagle.Category[] = [];
         let selectedIndex = 0;
+        let i = 0;
+
+        for (const category of Object.values(Eagle.Category)){
+            categories.push(category);
+            if (category === this.selectedNode().getCategory()){
+                selectedIndex = i;
+            }
+            i++;
+        }
 
         Utils.requestUserChoice("Edit Node Category", "Select a new category", categories, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
             if (!completed){
@@ -4301,6 +4308,10 @@ export class Eagle {
             }
 
             this.selectedNode().setCategory(categories[userChoiceIndex]);
+
+            // TODO: once the category is changed, some things about the node may no longer be valid
+            //       for example, the node may contain ports, but no ports are allowed
+            
         });
     }
 
