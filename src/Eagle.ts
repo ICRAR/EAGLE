@@ -4307,11 +4307,42 @@ export class Eagle {
                 return;
             }
 
+            // change the category of the node
             this.selectedNode().setCategory(categories[userChoiceIndex]);
 
-            // TODO: once the category is changed, some things about the node may no longer be valid
-            //       for example, the node may contain ports, but no ports are allowed
-            
+            // once the category is changed, some things about the node may no longer be valid
+            // for example, the node may contain ports, but no ports are allowed
+
+            // get category data
+            const categoryData = Eagle.getCategoryData(categories[userChoiceIndex]);
+
+            // delete extra input ports
+            if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
+                for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
+                    this.removePortFromNodeByIndex(this.selectedNode(), i, true);
+                }
+            }
+
+            // delete extra output ports
+            if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
+                for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
+                    this.removePortFromNodeByIndex(this.selectedNode(), i, false);
+                }
+            }
+
+            // delete input application, if necessary
+            if (this.selectedNode().hasInputApplication() && !categoryData.canHaveInputApplication){
+                this.selectedNode().setInputApplication(null);
+            }
+
+            // delete output application, if necessary
+            if (this.selectedNode().hasOutputApplication() && !categoryData.canHaveOutputApplication){
+                this.selectedNode().setOutputApplication(null);
+            }
+
+            this.flagActiveFileModified();
+            this.checkGraph();
+            this.logicalGraph.valueHasMutated();
         });
     }
 
