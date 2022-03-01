@@ -4316,6 +4316,20 @@ export class Eagle {
             // get category data
             const categoryData = Eagle.getCategoryData(categories[userChoiceIndex]);
 
+            // delete parameters, if necessary
+            if (this.selectedNode().getFields().length > 0 && !categoryData.canHaveParameters){
+                for (let i = this.selectedNode().getFields().length - 1 ; i >= 0 ; i--){
+                    this.selectedNode().removeFieldByIndex(Eagle.FieldType.Field, i);
+                }
+            }
+
+            // delete application args, if necessary
+            if (this.selectedNode().getApplicationArgs().length > 0 && !categoryData.canHaveParameters){
+                for (let i = this.selectedNode().getApplicationArgs().length - 1 ; i >= 0 ; i--){
+                    this.selectedNode().removeApplicationParamByIndex(i);
+                }
+            }
+
             // delete extra input ports
             if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
                 for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){

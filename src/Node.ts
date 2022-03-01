@@ -923,6 +923,8 @@ export class Node {
         this.fields.splice(i, 0, field);
     }
 
+    // TODO: refactor this to just use the index parameter and assume it will
+    // remove a field, use removeApplicationParamByIndex() to remove applicationArgs
     removeFieldByIndex = (fieldType: Eagle.FieldType, index : number) : void => {
         if (fieldType === Eagle.FieldType.Field){
             this.fields.splice(index, 1);
