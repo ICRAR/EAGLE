@@ -4318,16 +4318,12 @@ export class Eagle {
 
             // delete parameters, if necessary
             if (this.selectedNode().getFields().length > 0 && !categoryData.canHaveParameters){
-                for (let i = this.selectedNode().getFields().length - 1 ; i >= 0 ; i--){
-                    this.selectedNode().removeFieldByIndex(Eagle.FieldType.Field, i);
-                }
+                this.selectedNode().removeAllFields();
             }
 
             // delete application args, if necessary
             if (this.selectedNode().getApplicationArgs().length > 0 && !categoryData.canHaveParameters){
-                for (let i = this.selectedNode().getApplicationArgs().length - 1 ; i >= 0 ; i--){
-                    this.selectedNode().removeApplicationParamByIndex(i);
-                }
+                this.selectedNode().removeAllApplicationArgs();
             }
 
             // delete extra input ports
