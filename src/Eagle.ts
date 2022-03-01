@@ -4288,6 +4288,74 @@ export class Eagle {
         });
     }
 
+    editNodeCategory = (eagle: Eagle) : void => {
+        // create array of all categories
+        let categories: Eagle.Category[] = [];
+        let selectedIndex = 0;
+        let i = 0;
+
+        for (const category of Object.values(Eagle.Category)){
+            categories.push(category);
+            if (category === this.selectedNode().getCategory()){
+                selectedIndex = i;
+            }
+            i++;
+        }
+
+        Utils.requestUserChoice("Edit Node Category", "NOTE: changing a node's category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category", categories, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+            if (!completed){
+                return;
+            }
+
+            // change the category of the node
+            this.selectedNode().setCategory(categories[userChoiceIndex]);
+
+            // once the category is changed, some things about the node may no longer be valid
+            // for example, the node may contain ports, but no ports are allowed
+
+            // get category data
+            const categoryData = Eagle.getCategoryData(categories[userChoiceIndex]);
+
+            // delete parameters, if necessary
+            if (this.selectedNode().getFields().length > 0 && !categoryData.canHaveParameters){
+                this.selectedNode().removeAllFields();
+            }
+
+            // delete application args, if necessary
+            if (this.selectedNode().getApplicationArgs().length > 0 && !categoryData.canHaveParameters){
+                this.selectedNode().removeAllApplicationArgs();
+            }
+
+            // delete extra input ports
+            if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
+                for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
+                    this.removePortFromNodeByIndex(this.selectedNode(), i, true);
+                }
+            }
+
+            // delete extra output ports
+            if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
+                for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
+                    this.removePortFromNodeByIndex(this.selectedNode(), i, false);
+                }
+            }
+
+            // delete input application, if necessary
+            if (this.selectedNode().hasInputApplication() && !categoryData.canHaveInputApplication){
+                this.selectedNode().setInputApplication(null);
+            }
+
+            // delete output application, if necessary
+            if (this.selectedNode().hasOutputApplication() && !categoryData.canHaveOutputApplication){
+                this.selectedNode().setOutputApplication(null);
+            }
+
+            this.flagActiveFileModified();
+            this.checkGraph();
+            this.logicalGraph.valueHasMutated();
+        });
+    }
+
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         // copy node

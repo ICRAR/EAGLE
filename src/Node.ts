@@ -923,12 +923,16 @@ export class Node {
         this.fields.splice(i, 0, field);
     }
 
-    removeFieldByIndex = (fieldType: Eagle.FieldType, index : number) : void => {
+    removeParamByIndex = (fieldType: Eagle.FieldType, index : number) : void => {
         if (fieldType === Eagle.FieldType.Field){
-            this.fields.splice(index, 1);
+            this.removeFieldByIndex(index);
         } else {
-            this.applicationArgs.splice(index, 1);
+            this.removeApplicationArgByIndex(index);
         }
+    }
+
+    removeFieldByIndex = (index : number) : void => {
+        this.fields.splice(index, 1);
     }
 
     removeAllFields = () : void => {
@@ -952,8 +956,12 @@ export class Node {
         this.applicationArgs.push(param);
     }
 
-    removeApplicationParamByIndex = (index : number) : void => {
+    removeApplicationArgByIndex = (index : number) : void => {
         this.applicationArgs.splice(index, 1);
+    }
+
+    removeAllApplicationArgs = () : void => {
+        this.applicationArgs([]);
     }
 
     clone = () : Node => {
