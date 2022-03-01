@@ -2749,6 +2749,12 @@ export class Eagle {
     addNodeToLogicalGraph = (node : Node) : void => {
         let pos : {x:number, y:number};
 
+        // if node is a construct, set width and height a little larger
+        if (Eagle.getCategoryData(node.getCategory()).isGroup){
+            node.setWidth(Node.GROUP_DEFAULT_WIDTH);
+            node.setHeight(Node.GROUP_DEFAULT_HEIGHT);
+        }
+
         // get new position for node
         if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
             pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
