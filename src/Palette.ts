@@ -103,6 +103,7 @@ export class Palette {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(palette.fileInfo());
+        result.modelData.numLGNodes = palette.getNodes().length;
 
         // add nodes
         result.nodeDataArray = [];
