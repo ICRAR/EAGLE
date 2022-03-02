@@ -51,6 +51,7 @@ export class LogicalGraph {
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
         result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.OJS;
+        result.modelData.numLGNodes = graph.getNodes().length;
 
         // add nodes
         result.nodeDataArray = [];
@@ -297,6 +298,7 @@ export class LogicalGraph {
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
         result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.AppRef;
+        result.modelData.numLGNodes = graph.getNodes().length;
 
         // add nodes
         result.nodeDataArray = [];

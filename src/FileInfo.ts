@@ -22,6 +22,8 @@ export class FileInfo {
     private _lastModifiedEmail : ko.Observable<string>;
     private _lastModifiedDatetime : ko.Observable<number>;
 
+    private _numLGNodes : ko.Observable<number>;  // NOTE: this is only updated prior to saving to disk, during editing it could be incorrect
+
     constructor(){
         this._name = ko.observable("");
         this._path = ko.observable("");
@@ -40,6 +42,8 @@ export class FileInfo {
         this._lastModifiedName = ko.observable("");
         this._lastModifiedEmail = ko.observable("");
         this._lastModifiedDatetime = ko.observable(0);
+
+        this._numLGNodes = ko.observable(0);
     }
 
     get name() : string{
@@ -170,6 +174,14 @@ export class FileInfo {
         this._lastModifiedDatetime(datetime);
     }
 
+    get numLGNodes() : number{
+        return this._numLGNodes();
+    }
+
+    set numLGNodes(numNodes : number){
+        this._numLGNodes(numNodes);
+    }
+
     clear = () : void => {
         this._name("");
         this._path("");
@@ -188,6 +200,8 @@ export class FileInfo {
         this._lastModifiedName("");
         this._lastModifiedEmail("");
         this._lastModifiedDatetime(0);
+
+        this._numLGNodes(0);
     }
 
     clone = () : FileInfo => {
@@ -210,6 +224,8 @@ export class FileInfo {
         result.lastModifiedName = this._lastModifiedName();
         result.lastModifiedEmail = this._lastModifiedEmail();
         result.lastModifiedDatetime = this._lastModifiedDatetime();
+
+        result.numLGNodes = this._numLGNodes();
 
         return result;
     }
@@ -288,6 +304,8 @@ export class FileInfo {
         s += " Last Modified Email:" + this._lastModifiedEmail();
         s += " Last Modified Date:" + this._lastModifiedDatetime();
 
+        s += " Num LG Nodes:" + this._numLGNodes();
+
         return s;
     }
 
@@ -307,7 +325,9 @@ export class FileInfo {
             gitUrl: fileInfo.gitUrl,
             lastModifiedName: fileInfo.lastModifiedName,
             lastModifiedEmail: fileInfo.lastModifiedEmail,
-            lastModifiedDatetime: fileInfo.lastModifiedDatetime
+            lastModifiedDatetime: fileInfo.lastModifiedDatetime,
+
+            numLGNodes: fileInfo.numLGNodes,
         };
     }
 
@@ -335,6 +355,8 @@ export class FileInfo {
         result.lastModifiedName = modelData.lastModifiedName == undefined ? "" : modelData.lastModifiedName;
         result.lastModifiedEmail = modelData.lastModifiedEmail == undefined ? "" : modelData.lastModifiedEmail;
         result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? 0 : modelData.lastModifiedDatetime;
+
+        result.numLGNodes = modelData.numLGNodes == undefined ? 0 : modelData.numLGNodes;
 
         return result;
     }
