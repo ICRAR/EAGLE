@@ -23,6 +23,7 @@
 */
 
 import * as Ajv from "ajv";
+import * as Showdown from "showdown";
 import * as ko from "knockout";
 
 import {Config} from './Config';
@@ -1751,5 +1752,10 @@ export class Utils {
         }
 
         return "";
+    }
+
+    static markdown2html(markdown: string) : string {
+        var converter = new Showdown.Converter();
+        return converter.makeHtml(markdown);
     }
 }
