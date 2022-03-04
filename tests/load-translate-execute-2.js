@@ -137,7 +137,10 @@ fixture `Test Translator`
     test('is running', async t => {
 
         await t
-            .setNativeDialogHandler(() => true);
+            .setNativeDialogHandler((type, text, url) => {
+                console.log("Handled native dialog:" + type + ":" + text + ":" + url);
+                return true;
+            });
 
         await printPageLocation("Test Translator");
         await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
