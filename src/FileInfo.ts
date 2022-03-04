@@ -356,6 +356,12 @@ export class FileInfo {
         result.lastModifiedEmail = modelData.lastModifiedEmail == undefined ? "" : modelData.lastModifiedEmail;
         result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? 0 : modelData.lastModifiedDatetime;
 
+        // check that lastModifiedDatetime is a Number, if not correct
+        if (typeof result.lastModifiedDatetime !== 'number'){
+            result.lastModifiedDatetime = 0;
+            errorsWarnings.errors.push("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value.");
+        }
+
         result.numLGNodes = modelData.numLGNodes == undefined ? 0 : modelData.numLGNodes;
 
         return result;
