@@ -14,6 +14,7 @@ const GRAPHS = [
     "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/SummitIngest_Demo.graph",
     "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/testLoop.graph",
     "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/chiles_simple.graph",
+
     //"https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/lofar_std.graph",
     //"https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/test_grpby_gather.graph"
 ];
@@ -136,10 +137,7 @@ fixture `Test Translator`
     test('is running', async t => {
 
         await t
-            .setNativeDialogHandler((type, text, url) => {
-                console.log("Handled native dialog:" + type + ":" + text + ":" + url);
-                return true;
-            });
+            .setNativeDialogHandler(() => true);
 
         await printPageLocation("Test Translator");
         await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
@@ -157,7 +155,7 @@ fixture `Test Data Island Manager`
             });
 
         await printPageLocation("Test DIM");
-        await t.expect(Selector(".container .breadcrumb li a").innerText).contains("DataIslandManager", {timeout:15000});
+        await t.expect(Selector("nav.navbar .navbar-brand span").innerText).contains("DataIslandManager", {timeout:15000});
     });
 
 fixture `Test Node Manager`
@@ -172,7 +170,7 @@ fixture `Test Node Manager`
             });
 
         await printPageLocation("Test NM");
-        await t.expect(Selector(".container h1").innerText).contains("NodeManager", {timeout:15000});
+        await t.expect(Selector("nav.navbar .navbar-brand span").innerText).contains("NodeManager", {timeout:15000});
     });
 
 fixture `DALiuGE Regression Test`
@@ -262,17 +260,23 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         await printPageLocation("Translator");
 
         // !!!!!!!!!!!!! DEPLOY AND EXECUTE
+        // open settings modal
+        await t
+            .click('li.nav-item a[data-text="Settings"]');
+
         await t
             // write manager host and port
-            .typeText(Selector('input[name="dlg_mgr_host"]'), ip, { replace : true })
-            .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_DIM_PORT, { replace : true });
+            .typeText(Selector('#managerUrlInput'), "http://" + ip + ":" + DALIUGE_DIM_PORT, { replace : true });
+
+        // close modal (save settings)
+        await t.click("#settingsModal .modal-footer button.btn-primary");
 
             // modify the pg_form to make it open in the same tab when the button is clicked
         await setFormTargetSelf();
 
             // click 'generate and deploy physical graph' button
         await t
-            .click('#gen_pg_button');
+            .click('#deploy_button');
 
 
         // !!!!!!!!!!!!! AWAIT RESULTS
