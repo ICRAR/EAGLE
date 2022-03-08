@@ -100,3 +100,16 @@ It is only possible to link components that meet certain criteria, and some edge
   :figclass: align-center
 
   A warning message (above) and an error message (below) caused by the creation of an edge that may affect performance or is invalid.
+
+Environment Variables
+---------------------
+DALiuGE and, by extension, EAGLE support globally accessible environment variables in the form of ``EnvironmentVars`` components.
+These components act as a globally available key-value store.
+Other drops' parameters can reference parameters specified in this component. The translator and runtime engine handles filling these values in during workflow execution.
+Importantly, each ``EnvironmentVars`` component in a graph needs a unique name to avoid variable aliasing.
+Reference a store's variable in another component using the following syntax:
+``$store_name.var_name``
+For example, consider a store with the name 'environment_vars' and parameter 'scratch_dir: '/users/me/scratch''.
+A second drop could reference this value in the parameter 'working_dir' by setting the parameter field to ``$environment_vars.scratch_dir``
+
+Dynamic getting and setting of such variables are currently unsupported; they remain static variables, an editor accessible replacement for commonly used configuration files.

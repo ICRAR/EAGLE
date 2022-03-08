@@ -826,6 +826,32 @@
             "readonly": true
         },
         {
+            "category": "EnvironmentVariables",
+            "outputPorts": [],
+            "fields": [{
+                "text": "Data volume",
+                "name": "data_volume",
+                "value": 5,
+                "description": "Estimated size of the data contained in this node",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Group end",
+                "name": "group_end",
+                "value": false,
+                "description": "Is this node the end of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }],
+            "key": -4,
+            "text": "Environment Variables",
+            "description": "An immutable key-value store visible to all drops via component parameters with a '$StoreName.key' syntax",
+            "inputPorts": [],
+            "readonly": true
+        },
+        {
             "category": "GroupBy",
             "text": "Group By",
             "description": "A construct that runs an application on a number of inputs and groups the outputs by results",
