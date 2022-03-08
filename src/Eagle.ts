@@ -51,7 +51,7 @@ import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
-import { treemapSquarify } from "d3";
+import { text, treemapSquarify } from "d3";
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -3904,6 +3904,20 @@ export class Eagle {
             // mark as checked
             $(event.target).find('input').prop("checked", newState);
         }
+    }
+
+    getExplorePaletteText = (number:number): string => {
+        var text = " branch"
+        if (number > 1){
+            text = " branches"
+        }
+        var text = "Click to view " + number + text;
+        return text;
+    }
+
+    disableClickToLoadDefault = (data:string, event:any):void =>{
+        console.log("blop")
+        console.log(event.target)
     }
 
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
