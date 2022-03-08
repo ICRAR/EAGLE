@@ -10,16 +10,16 @@ export class Setting {
     private type : Setting.Type;
     private key : string;
     private defaultValue : any;
-    oldValue : any;
+    private oldValue : any;
 
-    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any, oldValue:any){
+    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any){
         this.name = name;
         this.description = description;
         this.type = type;
         this.key = key;
         this.value = ko.observable(defaultValue);
         this.defaultValue = defaultValue;
-        this.oldValue = oldValue;
+        this.oldValue = "";
 
         this.load();
 

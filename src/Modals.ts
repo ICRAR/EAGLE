@@ -205,9 +205,9 @@ export class Modals {
             $('#settingsModalAffirmativeButton').focus();
         });
 
-        $("#settingsModalNegativeButton").on('click', function(){
-            eagle.cancelSettingChanges()
-        })
+        // $("#settingsModalNegativeButton").on('click', function(){
+        //     eagle.cancelSettingChanges()
+        // })
 
         $("#settingsModalAffirmativeButton").on('click', function(){
             $('#settingsModal').data('completed', true);
