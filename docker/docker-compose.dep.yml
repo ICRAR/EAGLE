@@ -5,7 +5,7 @@ services:
         restart: "no"
         build:
             context: ..
-            dockerfile: docker/Dockerfile.dep
+            dockerfile: docker/Dockerfile-noalpine.dep
         ports:
             - 8888:80/tcp
         volumes:
