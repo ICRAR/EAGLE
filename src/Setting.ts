@@ -10,6 +10,7 @@ export class Setting {
     private type : Setting.Type;
     private key : string;
     private defaultValue : any;
+    private oldValue : any;
 
     constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any){
         this.name = name;
@@ -18,6 +19,7 @@ export class Setting {
         this.key = key;
         this.value = ko.observable(defaultValue);
         this.defaultValue = defaultValue;
+        this.oldValue = "";
 
         this.load();
 
@@ -80,6 +82,14 @@ export class Setting {
 
     resetDefault = () : void => {
         this.value(this.defaultValue);
+    }
+
+    cancelChanges = () : void => {
+        this.value(this.oldValue)
+    }
+
+    copyCurrentSettings = () : void => {
+        this.oldValue = this.value()
     }
 
     private valueToString = (value : any) : string => {
