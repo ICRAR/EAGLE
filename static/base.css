@@ -58,11 +58,16 @@
     overflow-x: hidden;
 }
 
+#explorePalettesModal .list-group-item:hover{
+    color: black;
+    background-color: #f1f1f1;
+}
+
 #explorePalettesModal input{
     pointer-events: none;
 }
 
-#explorePalettesModal li:hover{
+#explorePalettesModal li.list-group-item:hover{
     background-color: #b6c3cf;
 }
 
@@ -901,6 +906,10 @@ select.form-control{
     background-color: rgba(0,0,0,0);
     cursor: col-resize;
     opacity: 0;
+}
+
+.loadDefaultDisabled{
+    background-color: grey !important;
 }
 
 #graphArea #logicalGraphParent {
