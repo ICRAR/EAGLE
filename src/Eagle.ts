@@ -1558,8 +1558,8 @@ export class Eagle {
                 complete[index] = true;
 
                 if  (error !== null){
-                    console.error(error);
-                    errorsWarnings.errors.push(error);
+                    console.warn("Unable to fetch default palette: " + paletteList[i].filename);
+                    errorsWarnings.warnings.push(error);
                 } else {
                     const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
                     palette.fileInfo().clear();
@@ -1593,7 +1593,7 @@ export class Eagle {
 
         Utils.httpGet(Config.DALIUGE_GRAPH_SCHEMA_URL, (error : string, data : string) => {
             if (error !== null){
-                console.error(error);
+                console.warn("Unable to fetch graph schema JSON");
                 return;
             }
 
