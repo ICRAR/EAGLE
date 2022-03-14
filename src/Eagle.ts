@@ -3992,21 +3992,7 @@ export class Eagle {
 
             // update the correct field
             selectedNode.getFields()[fieldIndex].setValue(newValue);
-
-            this.hackObjectsUpdate();
         });
-    }
-
-    private hackObjectsUpdate = () : void => {
-        console.warn("hackObjectsUpdate()");
-
-        // HACK to make sure that new value is shown in the UI
-        const x = this.selectedObjects();
-        this.selectedObjects([]);
-        const that = this;
-        setTimeout(function(){
-            that.selectedObjects(x);
-        }, 1);
     }
 
     private setNodeApplication = (title: string, message: string, callback:(node:Node) => void) : void => {
