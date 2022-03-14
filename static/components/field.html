@@ -23,11 +23,13 @@
     <!-- /ko -->
 
     <!-- ko ifnot: $data.ro -->
-    <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data.input);}, attr: {id: 'nodeInspectorEditField' + $index()}, eagleTooltip: 'Open Field Value Wizard'" data-bs-placement="left">
-            <i class="material-icons md-18">link</i>
-        </button>
-    </div>
+        <!-- ko if: getType() === Eagle.DataType.String -->
+        <div class="input-group-append">
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data.input);}, attr: {id: 'nodeInspectorEditField' + $index()}, eagleTooltip: 'Open Field Value Wizard'" data-bs-placement="left">
+                <i class="material-icons md-18">link</i>
+            </button>
+        </div>
+        <!-- /ko -->
     <!-- /ko -->
 
     <!-- ko ifnot: $data.ro -->
