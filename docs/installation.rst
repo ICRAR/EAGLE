@@ -6,9 +6,6 @@ Instructions of how to install and run the EAGLE. The primary method detailed be
 Docker Images
 -------------
 
-alpine based docker images
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 This is the preferred way to get EAGLE up and running both in an operational and in a development environment. It is based on an image from <https://github.com/tiangolo/meinheld-gunicorn-flask-docker> and packs meinheld, gunicorn, flask and EAGLE into a less than 400 MB docker image. When started, it runs EAGLE as a Flask WSGI application served by multiple gunicorn tasks.
 
 There are two versions of the docker image build procedures, one for deployment and one for local development.
