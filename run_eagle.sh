@@ -25,6 +25,6 @@ case "$1" in
         python -m webbrowser http://localhost:8888
         exit 1;;
     *)
-        echo "Usage run_eagle.sh <dep|dev|rel>"
+        echo "Usage run_eagle.sh <dep|dev|rel|slim>"
         exit 1;;
 esac
