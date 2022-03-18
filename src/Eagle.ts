@@ -2376,6 +2376,10 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
+    openParamsTableModal = () : void => {
+        Utils.showOpenParamsTableModal();
+    }
+
     //used by the settings modal html to generate an id from the title
     getSettingCategoryId = (title:string) : string => {
         title = title.split(' ').join('')

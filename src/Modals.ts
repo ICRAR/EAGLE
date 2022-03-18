@@ -7,6 +7,7 @@ import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
 import {PaletteInfo} from './PaletteInfo';
+import { Grid } from 'gridjs'
 
 export class Modals {
 
@@ -503,6 +504,17 @@ export class Modals {
             }
             */
         });
+
+        //initialising the parameters table
+        const tableId = $("#testtable")[0]
+        const wrapperId = $("#testwrapper")[0]
+        new Grid({
+            sort: true,
+            from: tableId,
+        }).render(wrapperId);
+            
+
+  
     }
 
     static _validateFieldModalValueInputText(){
