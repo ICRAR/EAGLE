@@ -3,7 +3,7 @@
         <i class="material-icons interactive nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().componentParameters}">keyboard_arrow_down</i>
         <i class="material-icons">archive</i>
         <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Wrapper parameters describing this component for the DALiuGE system.'">Component Parameters</span>
-        <button class="btn btn-secondary btn-sm" data-bind=" click: openParamsTableModal, clickBubble: false, eagleTooltip: 'View Parameters in Table'">
+        <button class="btn btn-secondary btn-sm" data-bind=" click: function(){openParamsTableModal('component')}, clickBubble: false, eagleTooltip: 'View Parameters in Table'">
             <i class="material-icons md-18">table_chart</i>
         </button>
     </h5>

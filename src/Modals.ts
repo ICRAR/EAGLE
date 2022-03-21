@@ -504,17 +504,18 @@ export class Modals {
             }
             */
         });
+    }
 
+    static initialiseParametersTable (tableType:string, eagle:Eagle){
+        eagle.parameterTableType = tableType
         //initialising the parameters table
         const tableId = $("#testtable")[0]
         const wrapperId = $("#testwrapper")[0]
+        $("#testwrapper").empty();
         new Grid({
             sort: true,
             from: tableId,
         }).render(wrapperId);
-            
-
-  
     }
 
     static _validateFieldModalValueInputText(){

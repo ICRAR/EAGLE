@@ -30,6 +30,7 @@ import * as bootstrap from 'bootstrap';
 
 
 import {Utils} from './Utils';
+import {Modals} from './Modals'
 import {Config} from './Config';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
@@ -64,6 +65,8 @@ export class Eagle {
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
     selectedLocation : ko.Observable<Eagle.FileType>;
+
+    parameterTableType : string;
 
     translator : ko.Observable<Translator>;
 
@@ -184,6 +187,8 @@ export class Eagle {
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
+
+        this.parameterTableType = '';
 
         this.inspectorState = ko.observable(new InspectorState());
 
@@ -2376,7 +2381,8 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    openParamsTableModal = () : void => {
+    openParamsTableModal = (tableType:string) : void => {
+        Modals.initialiseParametersTable(tableType, this)
         Utils.showOpenParamsTableModal();
     }
 

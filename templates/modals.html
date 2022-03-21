@@ -523,6 +523,60 @@
     </div>
 </div>
 
+<!-- Parameter/arguments table Modal -->
+<div class="modal fade" id="parameterTableModal" tabindex="-1" role="dialog" aria-labelledby="parameterTableModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="parameterTableModalTitle">Component Parameters</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- input table for gridjs -->
+                <table id="testtable">
+                    <thead>
+                      <tr>
+                        <th>Text</th>
+                        <th>Name</th>
+                        <th>Value</th>
+                        <th>Default Value</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Precious</th>
+                        <th>Positional</th>
+                        <th>Read Only</th>
+                      </tr>
+                    </thead>
+
+                    <!-- ko if: selectedNode() != null -->
+                    <tbody data-bind="foreach: selectedNode().getFields()">
+                        <tr>
+                            <div data-bind="text:function(){console.log($data);}()"></div>
+                            <td><input type="string" data-bind="value: function(){return $data.text()}"></td>
+                            <td><input type="number" value="3"></td>
+                        </tr>
+
+                        <!-- <tr>
+                            <td>John</td>
+                            <td><input type="number" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>Mike</td>
+                            <td><b>mike@example.com</b></td>
+                        </tr> -->
+                    </tbody>
+                    <!-- /ko -->
+                  </table>
+                  <!-- output location for gridjs -->
+                <div id="testwrapper"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal"><span id="parameterTableModalAffirmativeAnswer">OK</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Edit Port Modal -->
 <div class="modal fade" id="editPortModal" tabindex="-1" role="dialog" aria-labelledby="editPortModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -737,44 +791,6 @@
                     <button type="button" class="btn btn-secondary" id="explorePalettesModalNegativeButton" data-bs-dismiss="modal"><span id="explorePalettesModalNegativeAnswer">Cancel</span></button>
                     <button type="button" class="btn btn-primary" id="explorePalettesModalAffirmativeButton" data-bs-dismiss="modal" data-bind="visible: explorePalettes().showFiles"><span id="explorePalettesModalAffirmativeAnswer">OK</span></button>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Parameter/arguments table Modal -->
-<div class="modal fade" id="parameterTableModal" tabindex="-1" role="dialog" aria-labelledby="parameterTableModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="parameterTableModalTitle">Table View</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- input table for gridjs -->
-                <table id="testtable">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>John</td>
-                        <td><input type="number" value="3"></td>
-                      </tr>
-                      <tr>
-                        <td>Mike</td>
-                        <td><b>mike@example.com</b></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <!-- output location for gridjs -->
-                <div id="testwrapper"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal"><span id="parameterTableModalAffirmativeAnswer">OK</span></button>
             </div>
         </div>
     </div>
