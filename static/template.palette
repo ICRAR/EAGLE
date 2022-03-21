@@ -496,7 +496,7 @@
             "readonly": true
         },
         {
-            "category": "PyFuncApp",
+            "category": "PythonApp",
             "outputPorts": [],
             "text": "PyFunc App",
             "description": "An application component that executes a Python function",
