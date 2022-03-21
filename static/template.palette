@@ -496,6 +496,105 @@
             "readonly": true
         },
         {
+            "category": "PyFuncApp",
+            "outputPorts": [],
+            "text": "PyFunc App",
+            "description": "An application component that executes a Python function",
+            "key": -30,
+            "fields": [{
+                "text": "Execution time",
+                "name": "execution_time",
+                "value": 5,
+                "description": "Estimate of execution time (in seconds) for this application.",
+                "readonly": false,
+                "type": "Float",
+                "default": 5
+            }, {
+                "text": "Num CPUs",
+                "name": "num_cpus",
+                "value": 1,
+                "description": "Number of CPUs used for this application.",
+                "readonly": false,
+                "type": "Integer",
+                "default": 1
+            }, {
+                "text": "Group start",
+                "name": "group_start",
+                "value": false,
+                "description": "Is this node the start of a group?",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Appclass",
+                "name": "appclass",
+                "value": "test.graphsRepository",
+                "description": "The python class that implements this application",
+                "readonly": false,
+                "type": "String",
+                "default": "test.graphsRepository"
+            }, {
+                "text": "Input error rate (%)",
+                "name": "input_error_threshold",
+                "value": "0",
+                "description": "The allowed failure rate of the inputs (in percent), before this component goes to ERROR state and is not executed",
+                "readonly": false,
+                "type": "Integer",
+                "default": "0"
+            }, {
+                "text": "Number of tries",
+                "name": "n_tries",
+                "value": "1",
+                "description": "Specifies the number of times the 'run' method will be executed before finally giving up",
+                "readonly": false,
+                "type": "Integer",
+                "default": "0"
+            }],
+            "inputPorts": [],
+            "readonly": true,
+            "applicationArgs": [{
+                "text": "Function Name",
+                "name": "func_name",
+                "value": "",
+                "description": "Python function name",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Function Code",
+                "name": "func_code",
+                "value": "",
+                "description": "Python function code, e.g. 'def function_name(args): return args'",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Pickle",
+                "name": "pickle",
+                "value": false,
+                "description": "Whether the python arguments are pickled.",
+                "readonly": false,
+                "type": "Boolean",
+                "default": false
+            }, {
+                "text": "Function Defaults",
+                "name": "func_defaults",
+                "value": "",
+                "description": "Mapping from argname to default value. Should match only the last part of the argnames list. Values are interpreted as Python code literals and that means string values need to be quoted.",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }, {
+                "text": "Function Arguments Mapping",
+                "name": "function_arg_mapping",
+                "value": "",
+                "description": "Mapping between argument name and input drop uids",
+                "readonly": false,
+                "type": "String",
+                "default": ""
+            }]
+        },
+        {
             "category": "Service",
             "text": "Service",
             "description": "An external service (e.g. a database)",
