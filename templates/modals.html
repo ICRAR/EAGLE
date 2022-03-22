@@ -553,7 +553,7 @@
                         <tr>
                             <td><input type="string" data-bind="attr:{value: $data.text()}"></td>
                             <td><input type="string" data-bind="attr:{value: $data.name()}"></td>
-                            <td><input data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.value(), type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                            <td><input data-bind="valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.value(), type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())}, checked: $data.value(), event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                             <td><input data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.defaultValue(), type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                             <td><input type="string" data-bind="attr:{value: $data.description()}"></td>
                             <td><input data-bind="attr:{value: $data.type()}"></td>

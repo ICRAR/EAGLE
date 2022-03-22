@@ -516,6 +516,7 @@ export class Modals {
             sort: true,
             search:true,
             fixedHeader:true,
+            resizable:true,
             from: tableId,
         }).render(wrapperId);
     }
