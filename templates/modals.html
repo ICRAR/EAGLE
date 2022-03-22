@@ -551,19 +551,17 @@
                     <!-- ko if: selectedNode() != null -->
                     <tbody data-bind="foreach: selectedNode().getFields()">
                         <tr>
-                            <div data-bind="text:function(){console.log($data);}()"></div>
-                            <td><input type="string" data-bind="value: function(){return $data.text()}"></td>
-                            <td><input type="number" value="3"></td>
+                            <td><input type="string" data-bind="attr:{value: $data.text()}"></td>
+                            <td><input type="string" data-bind="attr:{value: $data.name()}"></td>
+                            <td><input data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.value(), type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                            <td><input data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.defaultValue(), type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                            <td><input type="string" data-bind="attr:{value: $data.description()}"></td>
+                            <td><input data-bind="attr:{value: $data.type()}"></td>
+                            <td><input type="checkbox" data-bind="checked: valIsTrue($data.precious()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.precious()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                            <td><input type="checkbox" data-bind="checked: valIsTrue($data.positional()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.positional()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                            <td><input type="checkbox" data-bind="checked: valIsTrue($data.readonly()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.readonly()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                        
                         </tr>
-
-                        <!-- <tr>
-                            <td>John</td>
-                            <td><input type="number" value="3"></td>
-                        </tr>
-                        <tr>
-                            <td>Mike</td>
-                            <td><b>mike@example.com</b></td>
-                        </tr> -->
                     </tbody>
                     <!-- /ko -->
                   </table>

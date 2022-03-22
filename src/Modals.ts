@@ -514,6 +514,8 @@ export class Modals {
         $("#testwrapper").empty();
         new Grid({
             sort: true,
+            search:true,
+            fixedHeader:true,
             from: tableId,
         }).render(wrapperId);
     }

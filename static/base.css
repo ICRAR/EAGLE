@@ -71,6 +71,22 @@
     background-color: #b6c3cf;
 }
 
+#parameterTableModal .modal-dialog{ 
+    max-width: 70vw;
+}
+
+#parameterTableModal .modal-dialog input{ 
+    border: none;
+}
+
+#parameterTableModal .modal-dialog td{
+    padding:3px;
+}
+
+.gridjs-table {
+    width: 100% !important;
+}
+
 /*Animation must have unfill path strokes to work*/
 .path{
     fill: none;
