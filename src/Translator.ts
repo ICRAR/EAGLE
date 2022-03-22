@@ -54,7 +54,6 @@ export class Translator {
         this.searchSpaceDimension = ko.observable(30);
         this.numberOfParallelTaskStreams = ko.observable(1);
         this.rmode = ko.observable(0);
-
         this.isTranslating = ko.observable(false);
     }
 
@@ -88,7 +87,7 @@ export class Translator {
         this.addInput("max_load_imb", this.loadBalancing().toString(), form);
         this.addInput("max_cpu", this.maxCPUsPerPartition().toString(), form);
         this.addInput("num_parallel_task_streams", this.numberOfParallelTaskStreams().toString(), form);
-        this.addInput("rmode", this.rmode.toString(), form);
+        this.addInput("rmode", this.rmode().toString(), form);
 
         // temporarily add form to document and submit
         document.body.appendChild(form);
