@@ -614,7 +614,6 @@ export class Eagle {
             lg_name: this.logicalGraph().fileInfo().name,
             json_data: JSON.stringify(json),
             test: testingMode.toString(),
-            rmode: "0"  // TODO: Make rmode dynamic.
         };
 
         this.translator().submit(translatorURL, translatorData);
