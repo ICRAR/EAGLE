@@ -300,6 +300,7 @@
                 <select id="alg1-rmode-options" data-bind="value: translator().rmode"
                     onchange="const textbox = document.getElementById('alg1-rmode-value'); textbox.value = (this.selectedIndex === -1 ? '0' : this.options[this.selectedIndex].value);">
                     <option value="0">NOTHING</option>
+                    <option value="-1">ALL</option>
                     <option value="1">RERUN</option>
                     <option value="2">REPEAT</option>
                     <option value="4">RECOMPUTE</option>
