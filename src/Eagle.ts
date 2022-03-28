@@ -613,7 +613,7 @@ export class Eagle {
             algo: Config.translationAlgorithms[algorithmIndex],
             lg_name: this.logicalGraph().fileInfo().name,
             json_data: JSON.stringify(json),
-            test: testingMode.toString(),
+            test: testingMode.toString()
         };
 
         this.translator().submit(translatorURL, translatorData);
