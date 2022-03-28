@@ -533,18 +533,19 @@
             </div>
             <div class="modal-body">
                 <!-- input table for gridjs -->
-                <table id="testtable">
+                <table id="gridJsInputTable">
                     <thead>
                       <tr>
-                        <th>Text</th>
-                        <th>Name</th>
-                        <th>Value</th>
-                        <th>Default Value</th>
-                        <th>Description</th>
-                        <th>Type</th>
-                        <th>Precious</th>
-                        <th>Positional</th>
-                        <th>Read Only</th>
+                        <th id="parameter_table_text">Text</th>
+                        <th id="parameter_table_name">Name</th>
+                        <th id="parameter_table_value">Value</th>
+                        <th id="parameter_table_default_value">Default Value</th>
+                        <th id="parameter_table_description">Description</th>
+                        <th id="parameter_table_type">Type</th>
+                        <th id="parameter_table_precious">Precious</th>
+                        <th id="parameter_table_positional">Positional</th>
+                        <th id="parameter_table_read_only">Read Only</th>
+                        <th id="parameter_table_actions">Actions</th>
                       </tr>
                     </thead>
 
@@ -556,17 +557,21 @@
                             <td><input data-bind="valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.value(), type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())}, checked: $data.value(), event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                             <td><input data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.defaultValue(), type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                             <td><input type="string" data-bind="attr:{value: $data.description()}"></td>
-                            <td><input data-bind="attr:{value: $data.type()}"></td>
+                            <td>
+                                <select data-bind="html: $root.fillParamentersTable($data.type())">
+                                <!-- options are added dynamically -->
+                                </select>
+                            </td>
                             <td><input type="checkbox" data-bind="checked: valIsTrue($data.precious()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.precious()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                             <td><input type="checkbox" data-bind="checked: valIsTrue($data.positional()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.positional()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                             <td><input type="checkbox" data-bind="checked: valIsTrue($data.readonly()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.readonly()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                        
+                            <td><button>delete</button></td>
                         </tr>
                     </tbody>
                     <!-- /ko -->
                   </table>
                   <!-- output location for gridjs -->
-                <div id="testwrapper"></div>
+                <div id="gridJsOutput"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal"><span id="parameterTableModalAffirmativeAnswer">OK</span></button>

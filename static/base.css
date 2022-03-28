@@ -77,14 +77,48 @@
 
 #parameterTableModal .modal-dialog input{ 
     border: none;
+    width:100%;
 }
 
 #parameterTableModal .modal-dialog td{
     padding:3px;
+    overflow: hidden;
 }
 
 .gridjs-table {
     width: 100% !important;
+}
+
+#gridJsOutput th{
+    padding:8px 4px;
+}
+
+#gridJsOutput th[data-column-id="actions"]{
+    width: 70px;
+}
+
+#gridJsOutput th[data-column-id="precious"]{
+    width: 80px;
+}
+
+#gridJsOutput th[data-column-id="positional"]{
+    width: 90px;
+}
+
+#gridJsOutput th[data-column-id="readOnly"]{
+    width: 90px;
+}
+
+#gridJsOutput th[data-column-id="type"]{
+    width: 100px;
+}
+
+#gridJsOutput th[data-column-id="text"]{
+    width: 200px;
+}
+
+#gridJsOutput th[data-column-id="name"]{
+    width: 200px;
 }
 
 /*Animation must have unfill path strokes to work*/

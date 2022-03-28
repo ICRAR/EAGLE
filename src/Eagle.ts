@@ -4702,7 +4702,7 @@ $( document ).ready(function() {
             $(event.target).parent().find("button").click()
         })
     })
-    
+
     //increased click bubble for edit modal flag booleans
     $(".componentCheckbox").on("click",function(){
         $(event.target).find("input").click()
