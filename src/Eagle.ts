@@ -2456,12 +2456,9 @@ export class Eagle {
     fillParamentersTable = (type:any):string => {
         var options:string;
         var selectedType = type
-        console.log("data is: "+selectedType)
 
         for (let dataType of Object.values(Eagle.DataType)){
             var selected=""
-            console.log(selectedType)
-            console.log(dataType)
             if(selectedType === dataType){
                 selected = "selected=true"
             }
@@ -2469,6 +2466,10 @@ export class Eagle {
         }
 
         return options
+    }
+
+    test = ():void => {
+        console.log("btn1")
     }
 
     static findSettingValue = (key : string) : any => {

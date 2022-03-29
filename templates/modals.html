@@ -565,7 +565,7 @@
                             <td><input type="checkbox" data-bind="checked: valIsTrue($data.precious()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.precious()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                             <td><input type="checkbox" data-bind="checked: valIsTrue($data.positional()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.positional()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                             <td><input type="checkbox" data-bind="checked: valIsTrue($data.readonly()), valueUpdate: ['afterkeydown', 'input'], attr: {value: $data.readonly()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                            <td><button>delete</button></td>
+                            <td><button class="delete"><i class="material-icons md-24">delete</i></button><button class="resetDefaults"><i class="material-icons">upload_file</i></button></td>
                         </tr>
                     </tbody>
                     <!-- /ko -->

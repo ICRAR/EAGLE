@@ -89,6 +89,14 @@
     overflow: hidden;
 }
 
+#parameterTableModal .modal-dialog td button{
+    border: none;
+    background-color: transparent;
+    color: #002e5f;
+    display: inline-block;
+    padding: 0px;
+}
+
 .gridjs-table {
     width: 100% !important;
 }
