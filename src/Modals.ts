@@ -520,28 +520,6 @@ export class Modals {
         }).render(wrapperId);
     }
 
-    static fillParamentersTable (data:any):string{
-        var options:string;
-
-        // for (let dataType of Object.values(Eagle.DataType)){
-        //     options = options + ($('<option>', {
-        //         value: dataType,
-        //         text: dataType,
-        //         selected: field.getType() === dataType
-        //     }));
-        // }
-
-        for (let dataType of Object.values(Eagle.DataType)){
-            var selected:boolean = false
-            if(data = dataType){
-                selected = true
-            }
-            options = options + "<option value="+dataType+" text="+dataType+" selected="+selected+"></option>";
-        }
-
-        return options
-    }
-
     static _validateFieldModalValueInputText(){
         const type: string = <string>$('#editFieldModalTypeSelect').val();
         const value: string = <string>$('#editFieldModalValueInputText').val();
