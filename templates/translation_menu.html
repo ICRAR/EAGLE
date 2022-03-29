@@ -255,7 +255,24 @@
                 </div>
             </div>
         </div>
-
+        <div class="input-group mb-1">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="alg1-rmode-label">Rmode</span>
+            </div>
+            <select id="alg1-rmode-options" data-bind="value: translator().rmode"
+                    onchange="const textbox = document.getElementById('alg1-rmode-value'); textbox.value = (this.selectedIndex === -1 ? '0' : this.options[this.selectedIndex].value);">
+                <option value="0">NOTHING</option>
+                <option value="-1">ALL</option>
+                <option value="1">RERUN</option>
+                <option value="2">REPEAT</option>
+                <option value="4">RECOMPUTE</option>
+                <option value="5">REPRODUCE</option>
+                <option value="6">REPLICATE SCI</option>
+                <option value="7">REPLICATE COMP</option>
+                <option value="8">REPLICATE TOTALLY</option>
+            </select>
+            <input type="hidden" class="form-control" placeholder="0" id="alg1-rmode-value" aria-label="Key" aria-describedby="alg1-rmode-label" data-bind="value: translator().rmode">
+        </div>
         <div class="row mt-2">
             <div class="col">
                 <button type="button" id="setTranslatorUrlBtn" class="btn btn-primary btn-block btn_wide" data-bind="click: setTranslatorUrl">Set Translator URL</button>
@@ -292,6 +309,24 @@
                 <div class="input-group-append">
                     <span class="input-group-text">%</span>
                 </div>
+            </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="alg1-rmode-label">Rmode</span>
+                </div>
+                <select id="alg1-rmode-options" data-bind="value: translator().rmode"
+                    onchange="const textbox = document.getElementById('alg1-rmode-value'); textbox.value = (this.selectedIndex === -1 ? '0' : this.options[this.selectedIndex].value);">
+                    <option value="0">NOTHING</option>
+                    <option value="-1">ALL</option>
+                    <option value="1">RERUN</option>
+                    <option value="2">REPEAT</option>
+                    <option value="4">RECOMPUTE</option>
+                    <option value="5">REPRODUCE</option>
+                    <option value="6">REPLICATE SCI</option>
+                    <option value="7">REPLICATE COMP</option>
+                    <option value="8">REPLICATE TOTALLY</option>
+                </select>
+                <input type="hidden" class="form-control" placeholder="0" id="alg1-rmode-value" aria-label="Key" aria-describedby="alg1-rmode-label" data-bind="value: translator().rmode">
             </div>
             <button id="alg1PGT" class="btn btn-primary btn-block mt-2 btn_wide" data-bind="click: function(){genPGT(1, false, Eagle.DALiuGESchemaVersion.OJS);}">Generate PGT</button>
             <button id="test1PGT" class="btn btn-secondary btn-block mt-2 btn_wide" data-bind="click: function(){genPGT(1, true, Eagle.DALiuGESchemaVersion.OJS);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
