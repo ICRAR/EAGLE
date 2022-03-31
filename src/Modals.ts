@@ -1,4 +1,5 @@
 import {Eagle} from './Eagle';
+import * as ko from "knockout";
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {LogicalGraph} from './LogicalGraph';
@@ -527,6 +528,7 @@ export class Modals {
                 from: tableId,
             }).forceRender();
         }
+
     }
 
     static fillParamentersTable (data:any):string{

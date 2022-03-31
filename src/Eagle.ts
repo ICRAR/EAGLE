@@ -2383,8 +2383,10 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    openParamsTableModal = (tableType:string) : void => {
-        Modals.initialiseParametersTable(tableType, this)
+    openParamsTableModal = (tableType:string, data:any, event:any) : void => {
+        event.preventDefault();
+        event.stopPropagation();
+        Modals.initialiseParametersTable(tableType, this);
         Utils.showOpenParamsTableModal();
     }
 

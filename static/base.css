@@ -139,6 +139,10 @@
     width: 200px;
 }
 
+#gridJsInputTable{
+    display: inline-block !important;
+}
+
 /*Animation must have unfill path strokes to work*/
 .path{
     fill: none;
