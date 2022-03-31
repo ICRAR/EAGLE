@@ -86,6 +86,8 @@ export class Eagle {
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
 
+    static grid : any;
+
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
     static applicationArgsSearchString : ko.Observable<string>;
@@ -2466,10 +2468,6 @@ export class Eagle {
         }
 
         return options
-    }
-
-    test = ():void => {
-        console.log("btn1")
     }
 
     static findSettingValue = (key : string) : any => {

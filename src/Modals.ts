@@ -511,13 +511,44 @@ export class Modals {
         //initialising the parameters table
         const tableId = $("#gridJsInputTable")[0]
         const wrapperId = $("#gridJsOutput")[0]
-        $("#gridJsOutput").empty();
-        new Grid({
-            // sort: true,
-            search:true,
-            resizable:true,
-            from: tableId,
-        }).render(wrapperId);
+
+        if( $("#gridJsOutput").children().length===0){
+            Eagle.grid = new Grid({
+                // sort: true,
+                search:true,
+                resizable:true,
+                from: tableId,
+            }).render(wrapperId);
+        }else{
+            Eagle.grid.updateConfig({
+                // sort: true,
+                search:true,
+                resizable:true,
+                from: tableId,
+            }).forceRender();
+        }
+    }
+
+    static fillParamentersTable (data:any):string{
+        var options:string;
+
+        // for (let dataType of Object.values(Eagle.DataType)){
+        //     options = options + ($('<option>', {
+        //         value: dataType,
+        //         text: dataType,
+        //         selected: field.getType() === dataType
+        //     }));
+        // }
+
+        for (let dataType of Object.values(Eagle.DataType)){
+            var selected:boolean = false
+            if(data = dataType){
+                selected = true
+            }
+            options = options + "<option value="+dataType+" text="+dataType+" selected="+selected+"></option>";
+        }
+
+        return options
     }
 
     static _validateFieldModalValueInputText(){
