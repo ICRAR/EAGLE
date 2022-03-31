@@ -517,7 +517,7 @@ def save_git_hub_file():
     graph["modelData"]["gitUrl"] = ""
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = 0
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -587,7 +587,7 @@ def save_git_lab_file():
     graph["modelData"]["gitUrl"] = ""
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = 0
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -761,7 +761,7 @@ def open_git_lab_file():
     graph["modelData"]["gitUrl"] = ""
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = 0
 
     json_data = json.dumps(graph, indent=4)
 
