@@ -372,13 +372,24 @@ export class Eagle {
                 maxY = node.getPosition().y + node.getHeight();
             }
         }
+        console.log("minXY: (", minX, ",", minY, ")", "maxXY: (", maxX, ",", maxY, ")");
+
 
         // determine the centroid of the graph
         const centroidX = minX + ((maxX - minX) / 2);
         const centroidY = minY + ((maxY - minY) / 2);
 
+        // TODO: determine the size of the visible graph region
+        let visibleX = 500;
+        let visibleY = 800;
+
+        // scales
+        let scaleX = visibleX / (maxX - minX);
+        let scaleY = visibleY / (maxY - minY);
+        console.log("scaleX", scaleX, "scaleY", scaleY);
+
         // reset scale
-        this.globalScale = 1.0;
+        this.globalScale = Math.min(scaleX, scaleY);
 
         //determine center of the display area
         const displayCenterX : number = $('#logicalGraphParent').width() / this.globalScale / 2;
