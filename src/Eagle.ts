@@ -91,7 +91,7 @@ export class Eagle {
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
     static applicationArgsSearchString : ko.Observable<string>;
-
+    static tableSearchString : ko.Observable<string>;
 
     static settings : {[category:string] : Setting[]}
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
@@ -119,8 +119,9 @@ export class Eagle {
         this.translator = ko.observable(new Translator());
 
         Eagle.componentParamsSearchString = ko.observable("");
-        Eagle.paletteComponentSearchString = ko.observable("")
-        Eagle.applicationArgsSearchString = ko.observable("")
+        Eagle.paletteComponentSearchString = ko.observable("");
+        Eagle.applicationArgsSearchString = ko.observable("");
+        Eagle.tableSearchString = ko.observable("");
 
         Eagle.settings = {
             "User Options" : [
