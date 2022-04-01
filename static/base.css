@@ -85,8 +85,9 @@
 }
 
 #parameterTableModal .modal-dialog td{
-    padding:3px;
+    padding:0px 3px;
     overflow: hidden;
+    border-right: 1px solid rgb(14 2 76 / 16%);
 }
 
 #parameterTableModal .modal-dialog td button{
@@ -109,7 +110,7 @@
     width: 90px;
 }
 
-#parameter_table_readonly{
+#parameter_table_read_only{
     width: 90px;
 }
 
@@ -125,8 +126,41 @@
     width: 200px;
 }
 
+#parameterTableModal .modal-header{
+    border: none;
+}
+
+#parameterTableModal .modal-body{
+    padding: 0px;
+    display: inline-table;
+}
+
 #paramsTableWrapper{
-    display: inline-table !important;
+    width: 100%;
+}
+
+#paramsTableWrapper th{
+    background-color: #002349;
+    color: white;
+    padding: 5px;
+}
+
+#paramsTableWrapper tr {
+    background-color: white;
+}
+
+#paramsTableWrapper tr:nth-child(even) {
+    background-color: rgba(214, 219, 239, 0.95);
+}
+
+#paramsTableWrapper select{
+    padding: 0px;
+    height: fit-content;
+    margin: 0px;
+}
+
+#paramsTableWrapper input{
+    background-color: transparent;
 }
 
 /*Animation must have unfill path strokes to work*/
