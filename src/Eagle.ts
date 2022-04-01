@@ -4738,6 +4738,10 @@ $( document ).ready(function() {
         $("textarea").blur();
     });
 
+    $(".tableParameter").on("click", function(){
+        console.log(this)
+    })
+
     //expand palettes when using searchbar and return to prior collapsed state on completion.
     $("#paletteList .componentSearchBar").on("keyup",function(){
         if ($("#paletteList .componentSearchBar").val() !== ""){

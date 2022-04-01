@@ -540,6 +540,10 @@
             </div>
             <div class="modal-body">
                     <table id="paramsTableWrapper">
+                        <div id="tableInspector">
+                            <input id="tableInspectorSelection" type="text" value="" placeholder="Selection" readonly>
+                            <input id="tableInspectorValue" type="text" value="" placeholder="Value">
+                        </div>
                         <thead>
                         <tr>
                             <th id="parameter_table_text">Text</th>
@@ -559,19 +563,19 @@
                         <tbody data-bind="foreach: selectedNode().getFields()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                             <tr>
-                                <td><input type="string" data-bind="value: text, valueUpdate: ['afterkeydown', 'input']"></td>
-                                <td><input type="string" data-bind="value: name, valueUpdate: ['afterkeydown', 'input']"></td>
-                                <td><input data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                                <td><input data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                                <td><input type="string" data-bind="value: description, valueUpdate: ['afterkeydown', 'input']"></td>
+                                <td><input class="tableParameter" type="string" data-bind="value: text, valueUpdate: ['afterkeydown', 'input']"></td>
+                                <td><input class="tableParameter" type="string" data-bind="value: name, valueUpdate: ['afterkeydown', 'input']"></td>
+                                <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                <td><input class="tableParameter" type="string" data-bind="value: description, valueUpdate: ['afterkeydown', 'input']"></td>
                                 <td>
                                     <select data-bind="html: $root.fillParamentersTable($data.type())">
                                     <!-- options are added dynamically -->
                                     </select>
                                 </td>
-                                <td><input type="checkbox" data-bind="value: precious, checked: $data.precious(), valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                                <td><input type="checkbox" data-bind="value: positional, checked: $data.positional(), valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                                <td><input type="checkbox" data-bind="value: readonly, checked: $data.readonly(), valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                <td><input class="tableParameter" type="checkbox" data-bind="value: precious, checked: $data.precious(), valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                <td><input class="tableParameter" type="checkbox" data-bind="value: positional, checked: $data.positional(), valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                <td><input class="tableParameter" type="checkbox" data-bind="value: readonly, checked: $data.readonly(), valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                 <td>
                                     <button class="delete" data-bind="click: function(){$root.selectedNode().removeParamByIndex($data.fieldType, $index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}"><i class="material-icons md-24">delete</i></button>
                                     <button class="resetDefaults" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}"><i class="material-icons">upload_file</i></button>
@@ -583,6 +587,7 @@
                     </table>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
                 <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal"><span id="parameterTableModalAffirmativeAnswer">OK</span></button>
             </div>
         </div>

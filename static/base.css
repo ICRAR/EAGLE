@@ -71,6 +71,34 @@
     background-color: #b6c3cf;
 }
 
+#parameterTableModal .modal-footer{
+    padding:5px 10px;
+}
+
+#tableInspector{
+    width:100%;
+    padding:0px;
+    background: white;
+}
+
+#tableInspectorSelection{
+    width: 300px !important;
+    padding: 0px 5px;
+    margin: 0px;
+    border-right:1px solid rgba(0, 0, 0, 0.336) !important;
+}
+
+#tableInspectorValue{
+    width: calc(100% - 305px) !important;
+    padding: 0px 5px;
+    margin: 0px;
+}
+
+#parameterTableModalAddParameterButton{
+    left: 15px;
+    position: absolute;
+}
+
 #parameterTableModal .modal-dialog{ 
     max-width: 70vw;
 }
