@@ -111,31 +111,35 @@
     height:25px;
 }
 
-#gridJsOutput th[data-column-id="actions"]{
+#gridJsInputTable{
+    width: 100%;
+}
+
+#parameter_table_actions{
     width: 70px;
 }
 
-#gridJsOutput th[data-column-id="precious"]{
+#parameter_table_precious{
     width: 80px;
 }
 
-#gridJsOutput th[data-column-id="positional"]{
+#parameter_table_positional{
     width: 90px;
 }
 
-#gridJsOutput th[data-column-id="readOnly"]{
+#parameter_table_readonly{
     width: 90px;
 }
 
-#gridJsOutput th[data-column-id="type"]{
+#parameter_table_type{
     width: 100px;
 }
 
-#gridJsOutput th[data-column-id="text"]{
+#parameter_table_text{
     width: 200px;
 }
 
-#gridJsOutput th[data-column-id="name"]{
+#parameter_table_name{
     width: 200px;
 }
 
