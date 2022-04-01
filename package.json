@@ -30,7 +30,6 @@
     "ajv": "^6.12.6",
     "bootstrap": "^5.1.1",
     "easy-pie-chart": "^2.1.7",
-    "gridjs": "^5.0.2",
     "jquery": "^3.5.1",
     "knockout": "^3.5.1",
     "showdown": "^2.0.1",

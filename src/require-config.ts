@@ -6,7 +6,6 @@ require.config({
         "knockout": "./static/externals/knockout-min",
         "jquery": "./static/externals/jquery-3.2.1",
         "jqueryui": "./static/externals/jquery-ui.min",
-        "gridjs":"./static/externals/gridjs.umd",
         "bootstrap": "./static/externals/bootstrap.bundle.min",
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
         "introjs": "./static/externals/intro.min",

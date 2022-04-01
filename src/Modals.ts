@@ -8,7 +8,6 @@ import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
 import {PaletteInfo} from './PaletteInfo';
-import { Grid } from 'gridjs'
 
 export class Modals {
 
@@ -507,40 +506,8 @@ export class Modals {
         });
     }
 
-    static initialiseParametersTable (tableType:string, eagle:Eagle){
-        eagle.parameterTableType = tableType
-        //initialising the parameters table
-        const tableId = $("#gridJsInputTable")[0]
-        const wrapperId = $("#gridJsOutput")[0]
-
-        if( $("#gridJsOutput").children().length===0){
-            Eagle.grid = new Grid({
-                // sort: true,
-                search:true,
-                resizable:true,
-                from: tableId,
-            }).render(wrapperId);
-        }else{
-            Eagle.grid.updateConfig({
-                // sort: true,
-                search:true,
-                resizable:true,
-                from: tableId,
-            }).forceRender();
-        }
-
-    }
-
     static fillParamentersTable (data:any):string{
         var options:string;
-
-        // for (let dataType of Object.values(Eagle.DataType)){
-        //     options = options + ($('<option>', {
-        //         value: dataType,
-        //         text: dataType,
-        //         selected: field.getType() === dataType
-        //     }));
-        // }
 
         for (let dataType of Object.values(Eagle.DataType)){
             var selected:boolean = false

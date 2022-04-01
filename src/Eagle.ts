@@ -2385,9 +2385,6 @@ export class Eagle {
     }
 
     openParamsTableModal = (tableType:string, data:any, event:any) : void => {
-        event.preventDefault();
-        event.stopPropagation();
-        Modals.initialiseParametersTable(tableType, this);
         Utils.showOpenParamsTableModal();
     }
 

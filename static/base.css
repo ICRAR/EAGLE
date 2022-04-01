@@ -97,24 +97,6 @@
     padding: 0px;
 }
 
-.gridjs-table {
-    width: 100% !important;
-}
-
-#gridJsOutput th{
-    padding:8px 4px;
-}
-
-#gridJsOutput select{
-    width: 100%;
-    margin:0px;
-    height:25px;
-}
-
-#gridJsInputTable{
-    width: 100%;
-}
-
 #parameter_table_actions{
     width: 70px;
 }
@@ -143,8 +125,8 @@
     width: 200px;
 }
 
-#gridJsInputTable{
-    display: inline-block !important;
+#paramsTableWrapper{
+    display: inline-table !important;
 }
 
 /*Animation must have unfill path strokes to work*/

@@ -33,7 +33,6 @@ import {Utils} from './Utils';
 import {Modals} from './Modals';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
-import { Grid } from 'gridjs';
 
 
 import {LogicalGraph} from './LogicalGraph';
