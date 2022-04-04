@@ -87,7 +87,7 @@ export class Eagle {
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
 
-    static grid : any;
+    static paramsModalTarget : ko.ObservableArray<Field>;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -118,6 +118,8 @@ export class Eagle {
         this.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.translator = ko.observable(new Translator());
+
+        Eagle.paramsModalTarget = ko.observableArray(null)
 
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("");
@@ -2388,6 +2390,11 @@ export class Eagle {
     }
 
     openParamsTableModal = (tableType:string, data:any, event:any) : void => {
+        if (tableType === 'component'){
+            Eagle.paramsModalTarget(this.selectedNode().getFields())
+        }else{
+            Eagle.paramsModalTarget(this.selectedNode().getApplicationArgs())
+        }
         Utils.showOpenParamsTableModal();
     }
 
