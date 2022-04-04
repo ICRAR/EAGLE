@@ -529,7 +529,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="parameterTableModalTitle">Component Parameters</h5>
-                
+
                 <div class="searchBarContainer">
                     <i class="material-icons md-18 searchBarIcon">search</i>
                     <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.tableSearchString,data,event)}">
@@ -569,7 +569,7 @@
                                 <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                 <td><input class="tableParameter" type="string" data-bind="value: description, valueUpdate: ['afterkeydown', 'input']"></td>
                                 <td>
-                                    <select data-bind="html: $root.fillParamentersTable($data.type())">
+                                    <select data-bind="html: $root.fillParamentersTable($data.type()), value: type">
                                     <!-- options are added dynamically -->
                                     </select>
                                 </td>
