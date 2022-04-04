@@ -218,11 +218,11 @@
     background-color: rgba(214, 219, 239, 0.95);
 }
 
-#paramsTableWrapper tr.selectedTableParameter {
+#paramsTableWrapper td.selectedTableParameter {
     background-color: rgba(214, 0, 0, 0.95);
 }
 
-#paramsTableWrapper tr:nth-child(even).selectedTableParameter {
+#paramsTableWrapper td:nth-child(even).selectedTableParameter {
     background-color: rgba(214, 0, 0, 0.95);
 }
 

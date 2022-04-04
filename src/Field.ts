@@ -180,8 +180,10 @@ export class Field {
     }, this);
 
 
-    select = () : void => {
-        Eagle.parameterTableSelection(this);
+    select = (selection:any,selectionName:string, selectionParent:Field, event:any) : void => {
+        Eagle.parameterTableSelectionName(selectionName)
+        Eagle.parameterTableSelectionParent(selectionParent);
+        Eagle.parameterTableSelection(selection());
     }
 
     // used to transform the value attribute of a field into a variable with the correct type

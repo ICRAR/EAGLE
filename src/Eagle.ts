@@ -52,7 +52,7 @@ import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
-import { text, treemapSquarify } from "d3";
+import { selection, text, treemapSquarify } from "d3";
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -67,7 +67,9 @@ export class Eagle {
     selectedLocation : ko.Observable<Eagle.FileType>;
 
     parameterTableType : string;
-    static parameterTableSelection : ko.Observable<Field>; // row in the parameter table that is currently selected
+    static parameterTableSelectionParent : ko.Observable<Field>; // row in the parameter table that is currently selected
+    static parameterTableSelection : ko.Observable<Field>; // cell in the parameter table that is currently selected
+    static parameterTableSelectionName : ko.Observable<string>; // name of selected parameter in field
 
     translator : ko.Observable<Translator>;
 
@@ -195,7 +197,9 @@ export class Eagle {
         this.globalScale = 1.0;
 
         this.parameterTableType = '';
+        Eagle.parameterTableSelectionParent = ko.observable(null);
         Eagle.parameterTableSelection = ko.observable(null);
+        Eagle.parameterTableSelectionName = ko.observable('');
 
         this.inspectorState = ko.observable(new InspectorState());
 
@@ -764,6 +768,11 @@ export class Eagle {
         } else {
             Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
         }
+    }
+
+    formatTableInspectorSelection = () : string => {
+       
+        return Eagle.parameterTableSelectionParent().getText()+" - "+Eagle.parameterTableSelectionName()
     }
 
     createSubgraphFromSelection = () : void => {

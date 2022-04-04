@@ -546,8 +546,8 @@
                             <input id="tableInspectorValue" type="text" placeholder="Value" value="">
                             <!-- /ko -->
                             <!-- ko ifnot: Eagle.parameterTableSelection() == null -->
-                            <input id="tableInspectorSelection" type="text" placeholder="Selection" data-bind="value: Eagle.parameterTableSelection().name" readonly>
-                            <input id="tableInspectorValue" type="text" placeholder="Value" data-bind="value: Eagle.parameterTableSelection().value, valueUpdate: ['afterkeydown', 'input']">
+                            <input id="tableInspectorSelection" type="text" placeholder="Selection" data-bind="value: function(){return $root.formatTableInspectorSelection()}()" readonly>
+                            <input id="tableInspectorValue" type="text" placeholder="Value" data-bind="value: Eagle.parameterTableSelection(), valueUpdate: ['afterkeydown', 'input']">
                             <!-- /ko -->
                         </div>
                         <thead>
@@ -567,8 +567,8 @@
                         <!-- ko if: selectedNode() != null -->
                             <tbody data-bind="foreach: Eagle.paramsModalTarget">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
-                            <tr data-bind="css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data.name == Eagle.parameterTableSelection().name }, click: select">
-                                <td><input class="tableParameter" type="string" data-bind="value: text, valueUpdate: ['afterkeydown', 'input']"></td>
+                            <tr data-bind="css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data.name == Eagle.parameterTableSelection().name }">
+                                <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data.text == Eagle.parameterTableSelectionParent().text }"><input class="tableParameter" type="string" data-bind="value: text, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.text, 'text', $data,event)}"></td>
                                 <td><input class="tableParameter" type="string" data-bind="value: name, valueUpdate: ['afterkeydown', 'input']"></td>
 
                                 <!-- value fields -->
