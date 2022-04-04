@@ -179,6 +179,11 @@ export class Field {
         return this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume";
     }, this);
 
+
+    select = () : void => {
+        Eagle.parameterTableSelection(this);
+    }
+
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
     static string2Type = (value: string, type: Eagle.DataType) : any => {
