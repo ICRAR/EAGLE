@@ -67,6 +67,7 @@ export class Eagle {
     selectedLocation : ko.Observable<Eagle.FileType>;
 
     parameterTableType : string;
+    static parameterTableSelection : ko.Observable<Field>; // row in the parameter table that is currently selected
 
     translator : ko.Observable<Translator>;
 
@@ -194,6 +195,7 @@ export class Eagle {
         this.globalScale = 1.0;
 
         this.parameterTableType = '';
+        Eagle.parameterTableSelection = ko.observable(null);
 
         this.inspectorState = ko.observable(new InspectorState());
 

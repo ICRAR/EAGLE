@@ -136,16 +136,16 @@
     position: absolute;
 }
 
-#parameterTableModal .modal-dialog{ 
+#parameterTableModal .modal-dialog{
     max-width: 70vw;
 }
 
-#parameterTableModal .modal-dialog input{ 
+#parameterTableModal .modal-dialog input{
     border: none;
     width:100%;
 }
 
-#parameterTableModal .modal-dialog input[type="checkbox"]{ 
+#parameterTableModal .modal-dialog input[type="checkbox"]{
     height:15px;
 }
 
@@ -216,6 +216,14 @@
 
 #paramsTableWrapper tr:nth-child(even) {
     background-color: rgba(214, 219, 239, 0.95);
+}
+
+#paramsTableWrapper tr.selectedTableParameter {
+    background-color: rgba(214, 0, 0, 0.95);
+}
+
+#paramsTableWrapper tr:nth-child(even).selectedTableParameter {
+    background-color: rgba(214, 0, 0, 0.95);
 }
 
 #paramsTableWrapper select{
