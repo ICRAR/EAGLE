@@ -558,11 +558,8 @@
                             <th id="parameter_table_actions">Actions</th>
                         </tr>
                         </thead>
-
                         <!-- ko if: selectedNode() != null -->
-                                <tbody data-bind="foreach: Eagle.paramsModalTarget">
-
-                
+                            <tbody data-bind="foreach: Eagle.paramsModalTarget">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                             <tr>
                                 <td><input class="tableParameter" type="string" data-bind="value: text, valueUpdate: ['afterkeydown', 'input']"></td>
@@ -600,7 +597,6 @@
                             </tr>
                             <!-- /ko -->
                         </tbody>
-
                         <!-- /ko -->
                     </table>
             </div>

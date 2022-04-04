@@ -81,8 +81,35 @@
     background-color: #b6c3cf;
 }
 
+#parameterTableModal .modal-content{
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: clip;
+}
+
 #parameterTableModal .modal-footer{
     padding:5px 10px;
+    position: sticky;
+    bottom: 0;
+    z-index: 111;
+}
+
+#parameterTableModal .modal-header{
+    position: sticky;
+    top: 0;
+    z-index: 111;
+}
+
+#parameterTableModal #tableInspector{
+    position: sticky;
+    top: 66px;
+    z-index: 111;
+}
+
+#parameterTableModal thead{
+    position: sticky;
+    top: 90px;
+    z-index: 111;
 }
 
 #tableInspector{
