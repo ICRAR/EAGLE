@@ -4714,7 +4714,7 @@ export namespace Eagle
 
 
 $( document ).ready(function() {
-    // jquery starts here
+    // jquery event listeners start here
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
@@ -4726,6 +4726,9 @@ $( document ).ready(function() {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
         $("#checkGraphAccordion").parent().parent().attr('style','')
+        Eagle.parameterTableSelection(null)
+        Eagle.parameterTableSelectionParent(null)
+        Eagle.parameterTableSelectionName('')
     });
 
     $('.modal').on('shown.bs.modal',function(){

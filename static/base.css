@@ -219,11 +219,13 @@
 }
 
 #paramsTableWrapper td.selectedTableParameter {
-    background-color: rgba(214, 0, 0, 0.95);
+    background-color: rgb(162 202 255 / 95%);
+    border: #002e5f 2px solid;
 }
 
 #paramsTableWrapper td:nth-child(even).selectedTableParameter {
-    background-color: rgba(214, 0, 0, 0.95);
+    background-color: rgb(162 202 255 / 95%);
+    border: #002e5f 2px solid;
 }
 
 #paramsTableWrapper select{
@@ -234,6 +236,11 @@
 
 #paramsTableWrapper input{
     background-color: transparent;
+    font-size: 15px;
+}
+
+#paramsTableWrapper input:focus{
+    outline: none;
 }
 
 /*Animation must have unfill path strokes to work*/

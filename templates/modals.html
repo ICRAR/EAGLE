@@ -567,27 +567,31 @@
                         <!-- ko if: selectedNode() != null -->
                             <tbody data-bind="foreach: Eagle.paramsModalTarget">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
-                            <tr data-bind="css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data.name == Eagle.parameterTableSelection().name }">
-                                <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data.text == Eagle.parameterTableSelectionParent().text }"><input class="tableParameter" type="string" data-bind="value: text, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.text, 'text', $data,event)}"></td>
-                                <td><input class="tableParameter" type="string" data-bind="value: name, valueUpdate: ['afterkeydown', 'input']"></td>
+                            <tr>
+                                <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'text' }"><input class="tableParameter" type="string" data-bind="value: text, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.text, 'text', $data,event)}"></td>
+                                <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'name' }"><input class="tableParameter" type="string" data-bind="value: name, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.name, 'name', $data,event)}"></td>
 
                                 <!-- value fields -->
+
+                                <!-- normal text input -->
                                 <!-- ko if: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'number' || $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'text' || $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'password' -->
-                                    <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                                    <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                    <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'value' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}, click: function(event, data){select($data.value, 'value', $data,event)}}"></td>
+                                    <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'defaultValue' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}, click: function(event, data){select($data.defaultValue, 'defaultValue', $data,event)}}"></td>
                                 <!-- /ko -->
 
+                                <!-- boolean checkbox input -->
                                 <!-- ko if: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'checkbox' -->
                                     <td><input class="tableParameter" onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                     <td><input class="tableParameter" onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                 <!-- /ko -->
 
+                                <!-- selection input -->
                                 <!-- ko if: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'select' -->
                                     <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                     <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                 <!-- /ko -->
 
-                                <td><input class="tableParameter" type="string" data-bind="value: description, valueUpdate: ['afterkeydown', 'input']"></td>
+                                <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'description' }"><input class="tableParameter" type="string" data-bind="value: description, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.description, 'description', $data,event)}"></td>
                                 <td>
                                     <select data-bind="html: $root.fillParamentersTable($data.type()), value: type">
                                     <!-- options are added dynamically -->
