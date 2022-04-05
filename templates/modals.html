@@ -547,7 +547,7 @@
                             <!-- /ko -->
                             <!-- ko ifnot: Eagle.parameterTableSelection() == null -->
                             <input id="tableInspectorSelection" type="text" placeholder="Selection" data-bind="value: function(){return $root.formatTableInspectorSelection()}()" readonly>
-                            <input id="tableInspectorValue" type="text" placeholder="Value" data-bind="value: Eagle.parameterTableSelection(), valueUpdate: ['afterkeydown', 'input']">
+                            <input id="tableInspectorValue" type="text" placeholder="Value" data-bind="value: Eagle.parameterTableSelection(), event: {keyup: $root.tableInspectorUpdateSelection($element.value)}">
                             <!-- /ko -->
                         </div>
                         <thead>

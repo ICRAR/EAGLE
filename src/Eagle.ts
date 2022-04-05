@@ -771,8 +771,25 @@ export class Eagle {
     }
 
     formatTableInspectorSelection = () : string => {
-       
         return Eagle.parameterTableSelectionParent().getText()+" - "+Eagle.parameterTableSelectionName()
+    }
+
+    tableInspectorUpdateSelection = (value:string) : void => {
+        var selected = Eagle.parameterTableSelectionName()
+        var selectedForm = Eagle.parameterTableSelectionParent()
+        if(selected === 'text'){
+            selectedForm.setText(value)
+        } else if(selected === 'name'){
+            selectedForm.setName(value)
+        } else if(selected === 'value'){
+            selectedForm.setValue(value)
+        } else if(selected === 'defaultValue'){
+            selectedForm.setDefaultValue(value)
+        } else if(selected === 'description'){
+            selectedForm.setDescription(value)
+        } else{
+            return
+        }
     }
 
     createSubgraphFromSelection = () : void => {
