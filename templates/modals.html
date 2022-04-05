@@ -601,8 +601,8 @@
                                 <td><input class="tableParameter" type="checkbox" onclick="$(this).val(this.checked ? true : false)" data-bind="value: positional, checked: $data.positional(), valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                 <td><input class="tableParameter" type="checkbox" onclick="$(this).val(this.checked ? true : false)" data-bind="value: readonly, checked: $data.readonly(), valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                 <td>
-                                    <button class="delete" data-bind="click: function(){$root.selectedNode().removeParamByIndex($data.fieldType, $index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
-                                    <button class="resetDefaults" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
+                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.selectedNode().removeParamByIndex($data.fieldType, $index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                    <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
                                 </td>
                             </tr>
                             <!-- /ko -->

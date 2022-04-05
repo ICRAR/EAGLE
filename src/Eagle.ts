@@ -2418,8 +2418,10 @@ export class Eagle {
     openParamsTableModal = (tableType:string, data:any, event:any) : void => {
         if (tableType === 'component'){
             Eagle.paramsModalTarget(this.selectedNode().getFields())
+            $("#parameterTableModalTitle").html("Component Parameter Table")
         }else{
             Eagle.paramsModalTarget(this.selectedNode().getApplicationArgs())
+            $("#parameterTableModalTitle").html("Application Argument Table")
         }
         Utils.showOpenParamsTableModal();
     }
