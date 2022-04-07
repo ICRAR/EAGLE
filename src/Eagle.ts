@@ -2433,6 +2433,14 @@ export class Eagle {
         }
     })
 
+    getCurrentParamReadonly = (index: number) : boolean => {
+        if (Eagle.parameterTableType() === 'component'){
+            return this.selectedNode().getFieldReadonly(index);
+        }else{
+            return this.selectedNode().getApplicationParamReadonly(index);
+        }
+    }
+
     //used by the settings modal html to generate an id from the title
     getSettingCategoryId = (title:string) : string => {
         title = title.split(' ').join('')
