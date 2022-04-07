@@ -66,7 +66,7 @@ export class Eagle {
     selectedObjects : ko.ObservableArray<Node|Edge>;
     selectedLocation : ko.Observable<Eagle.FileType>;
 
-    parameterTableType : string;
+    static parameterTableType : ko.Observable<string>;
     static parameterTableSelectionParent : ko.Observable<Field>; // row in the parameter table that is currently selected
     static parameterTableSelection : ko.Observable<Field>; // cell in the parameter table that is currently selected
     static parameterTableSelectionName : ko.Observable<string>; // name of selected parameter in field
@@ -88,8 +88,6 @@ export class Eagle {
 
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
-
-    static paramsModalTarget : ko.ObservableArray<Field>;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -121,7 +119,6 @@ export class Eagle {
 
         this.translator = ko.observable(new Translator());
 
-        Eagle.paramsModalTarget = ko.observableArray(null)
 
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("");
@@ -196,7 +193,7 @@ export class Eagle {
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
 
-        this.parameterTableType = '';
+        Eagle.parameterTableType = ko.observable('');
         Eagle.parameterTableSelectionParent = ko.observable(null);
         Eagle.parameterTableSelection = ko.observable(null);
         Eagle.parameterTableSelectionName = ko.observable('');
@@ -2416,15 +2413,23 @@ export class Eagle {
     }
 
     openParamsTableModal = (tableType:string, data:any, event:any) : void => {
+        Eagle.parameterTableType(tableType)
+
         if (tableType === 'component'){
-            Eagle.paramsModalTarget(this.selectedNode().getFields())
             $("#parameterTableModalTitle").html("Component Parameter Table")
         }else{
-            Eagle.paramsModalTarget(this.selectedNode().getApplicationArgs())
             $("#parameterTableModalTitle").html("Application Argument Table")
         }
         Utils.showOpenParamsTableModal();
     }
+
+    currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
+        if (Eagle.parameterTableType() === 'component'){
+            return this.selectedNode().getFields()
+        }else{
+            return this.selectedNode().getApplicationArgs()
+        }
+    })
 
     //used by the settings modal html to generate an id from the title
     getSettingCategoryId = (title:string) : string => {

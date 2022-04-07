@@ -565,7 +565,7 @@
                         </tr>
                         </thead>
                         <!-- ko if: selectedNode() != null -->
-                            <tbody data-bind="foreach: $root.selectedNode().getFields()">
+                            <tbody data-bind="foreach: $root.currentParamsArray()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                             <tr>
                                 <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'text' }"><input class="tableParameter" type="string" data-bind="value: text, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.text, 'text', $data,event)}, event:{keyup: function(event, data){select($data.text, 'text', $data,event)}}"></td>
