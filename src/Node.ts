@@ -1154,6 +1154,10 @@ export class Node {
         this.fields()[0].setValue(e.value);
     }
 
+    addEmptyField = (selectedNode:Node) :void => {
+        selectedNode.addField(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+    }
+
     // TODO: this seems similar to findPortTypeById(), maybe we can just use this one!
     findPortIsInputById = (portId: string) : boolean => {
         // find the port within the node

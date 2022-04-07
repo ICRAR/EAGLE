@@ -3181,6 +3181,10 @@ export class Eagle {
          $("#"+divID).hide();
     }
 
+    addEmptyField = (node:Node) : void => {
+        node.addEmptyField(this.selectedNode())
+    }
+
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
         let selectSectionID;
         let modalID;

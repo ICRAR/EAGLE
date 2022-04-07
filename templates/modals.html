@@ -547,7 +547,7 @@
                             <!-- /ko -->
                             <!-- ko ifnot: Eagle.parameterTableSelection() == null -->
                             <input id="tableInspectorSelection" type="text" placeholder="Selection" data-bind="value: function(){return $root.formatTableInspectorSelection()}()" readonly>
-                            <input id="tableInspectorValue" type="text" placeholder="Value" data-bind="value: Eagle.parameterTableSelection(), readonly: Eagle.parameterTableSelectionReadonly(), event: {keyup: $root.tableInspectorUpdateSelection($element.value)}">
+                            <input id="tableInspectorValue" type="text" placeholder="Content" data-bind="value: Eagle.parameterTableSelection(), readonly: Eagle.parameterTableSelectionReadonly(), event: {keyup: $root.tableInspectorUpdateSelection($element.value)}">
                             <!-- /ko -->
                         </div>
                         <thead>
@@ -601,7 +601,7 @@
                                 <td><input class="tableParameter" onclick="$(this).val(this.checked ? true : false)" data-bind="value: positional, disabled: $root.selectedNode().getFieldReadonly($index()), checked: valIsTrue($data.positional()), valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                 <td><input class="tableParameter" onclick="$(this).val(this.checked ? true : false)" data-bind="value: readonly, checked: valIsTrue($data.readonly()), valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr: {type: 'checkbox'}"></td>
                                 <td>
-                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.selectedNode().removeParamByIndex($data.fieldType, $index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.selectedNode().getFieldReadonly($index()), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.selectedNode().removeParamByIndex($data.fieldType, $index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                     <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.selectedNode().getFieldReadonly($index()), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
                                 </td>
                             </tr>
@@ -611,7 +611,7 @@
                     </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
+                <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyField" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
                 <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal"><span id="parameterTableModalAffirmativeAnswer">OK</span></button>
             </div>
         </div>
