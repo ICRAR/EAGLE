@@ -3185,6 +3185,10 @@ export class Eagle {
         node.addEmptyField(this.selectedNode())
     }
 
+    addEmptyArg = (node:Node) : void => {
+        node.addEmptyArg(this.selectedNode())
+    }
+
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
         let selectSectionID;
         let modalID;
