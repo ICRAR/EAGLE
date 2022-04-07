@@ -538,6 +538,7 @@
                     <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}}">
                 </div>
             </div>
+                <!-- ko if: selectedNode() != null -->
             <div class="modal-body">
                     <table id="paramsTableWrapper">
                         <div id="tableInspector">
@@ -564,7 +565,6 @@
                             <th id="parameter_table_actions">Actions</th>
                         </tr>
                         </thead>
-                        <!-- ko if: selectedNode() != null -->
                             <tbody data-bind="foreach: $root.currentParamsArray()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                             <tr>
@@ -607,13 +607,19 @@
                             </tr>
                             <!-- /ko -->
                         </tbody>
-                        <!-- /ko -->
                     </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyField" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
+                <!-- ko if: Eagle.parameterTableType() === 'component' -->
+                    <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyField, disabled: $root.selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
+                <!-- /ko -->
+                <!-- ko if: Eagle.parameterTableType() === 'applicationArgs' -->
+                    <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyArg, disabled: $root.selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
+                <!-- /ko -->
                 <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal"><span id="parameterTableModalAffirmativeAnswer">OK</span></button>
             </div>
+            <!-- /ko -->
+
         </div>
     </div>
 </div>
