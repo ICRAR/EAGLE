@@ -70,6 +70,7 @@ export class Eagle {
     static parameterTableSelectionParent : ko.Observable<Field>; // row in the parameter table that is currently selected
     static parameterTableSelection : ko.Observable<Field>; // cell in the parameter table that is currently selected
     static parameterTableSelectionName : ko.Observable<string>; // name of selected parameter in field
+    static parameterTableSelectionReadonly : ko.Observable<boolean> // check if selection is readonly
 
     translator : ko.Observable<Translator>;
 
@@ -197,6 +198,7 @@ export class Eagle {
         Eagle.parameterTableSelectionParent = ko.observable(null);
         Eagle.parameterTableSelection = ko.observable(null);
         Eagle.parameterTableSelectionName = ko.observable('');
+        Eagle.parameterTableSelectionReadonly = ko.observable(false);
 
         this.inspectorState = ko.observable(new InspectorState());
 

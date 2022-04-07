@@ -131,6 +131,16 @@
     margin: 0px;
 }
 
+#parameterTableModal .componentSearchBar{
+    border: none;
+    outline: none;
+}
+
+#tableInspectorValue:focus {
+    border: none;
+    outline: none;
+}
+
 #parameterTableModalAddParameterButton{
     left: 15px;
     position: absolute;
