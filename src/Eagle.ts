@@ -30,6 +30,7 @@ import * as bootstrap from 'bootstrap';
 
 
 import {Utils} from './Utils';
+import {Modals} from './Modals'
 import {Config} from './Config';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
@@ -51,7 +52,7 @@ import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
-import { text, treemapSquarify } from "d3";
+import { selection, text, treemapSquarify } from "d3";
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -64,6 +65,12 @@ export class Eagle {
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
     selectedLocation : ko.Observable<Eagle.FileType>;
+
+    static parameterTableType : ko.Observable<string>;
+    static parameterTableSelectionParent : ko.Observable<Field>; // row in the parameter table that is currently selected
+    static parameterTableSelection : ko.Observable<Field>; // cell in the parameter table that is currently selected
+    static parameterTableSelectionName : ko.Observable<string>; // name of selected parameter in field
+    static parameterTableSelectionReadonly : ko.Observable<boolean> // check if selection is readonly
 
     translator : ko.Observable<Translator>;
 
@@ -86,7 +93,7 @@ export class Eagle {
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
     static applicationArgsSearchString : ko.Observable<string>;
-
+    static tableSearchString : ko.Observable<string>;
 
     static settings : {[category:string] : Setting[]}
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
@@ -113,9 +120,11 @@ export class Eagle {
 
         this.translator = ko.observable(new Translator());
 
+
         Eagle.componentParamsSearchString = ko.observable("");
-        Eagle.paletteComponentSearchString = ko.observable("")
-        Eagle.applicationArgsSearchString = ko.observable("")
+        Eagle.paletteComponentSearchString = ko.observable("");
+        Eagle.applicationArgsSearchString = ko.observable("");
+        Eagle.tableSearchString = ko.observable("");
 
         Eagle.settings = {
             "User Options" : [
@@ -184,6 +193,12 @@ export class Eagle {
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
+
+        Eagle.parameterTableType = ko.observable('');
+        Eagle.parameterTableSelectionParent = ko.observable(null);
+        Eagle.parameterTableSelection = ko.observable(null);
+        Eagle.parameterTableSelectionName = ko.observable('');
+        Eagle.parameterTableSelectionReadonly = ko.observable(false);
 
         this.inspectorState = ko.observable(new InspectorState());
 
@@ -325,6 +340,7 @@ export class Eagle {
             $(event.target).parent().find('a').hide()
         }else{
             $(event.target).parent().find('a').show()
+            console.log("show")
         }
     }
 
@@ -750,6 +766,28 @@ export class Eagle {
             }
         } else {
             Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+        }
+    }
+
+    formatTableInspectorSelection = () : string => {
+        return Eagle.parameterTableSelectionParent().getText()+" - "+Eagle.parameterTableSelectionName()
+    }
+
+    tableInspectorUpdateSelection = (value:string) : void => {
+        var selected = Eagle.parameterTableSelectionName()
+        var selectedForm = Eagle.parameterTableSelectionParent()
+        if(selected === 'text'){
+            selectedForm.setText(value)
+        } else if(selected === 'name'){
+            selectedForm.setName(value)
+        } else if(selected === 'value'){
+            selectedForm.setValue(value)
+        } else if(selected === 'defaultValue'){
+            selectedForm.setDefaultValue(value)
+        } else if(selected === 'description'){
+            selectedForm.setDescription(value)
+        } else{
+            return
         }
     }
 
@@ -2376,6 +2414,33 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
+    openParamsTableModal = (tableType:string, data:any, event:any) : void => {
+        Eagle.parameterTableType(tableType)
+
+        if (tableType === 'component'){
+            $("#parameterTableModalTitle").html("Component Parameter Table")
+        }else{
+            $("#parameterTableModalTitle").html("Application Argument Table")
+        }
+        Utils.showOpenParamsTableModal();
+    }
+
+    currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
+        if (Eagle.parameterTableType() === 'component'){
+            return this.selectedNode().getFields()
+        }else{
+            return this.selectedNode().getApplicationArgs()
+        }
+    })
+
+    getCurrentParamReadonly = (index: number) : boolean => {
+        if (Eagle.parameterTableType() === 'component'){
+            return this.selectedNode().getFieldReadonly(index);
+        }else{
+            return this.selectedNode().getApplicationParamReadonly(index);
+        }
+    }
+
     //used by the settings modal html to generate an id from the title
     getSettingCategoryId = (title:string) : string => {
         title = title.split(' ').join('')
@@ -2439,6 +2504,23 @@ export class Eagle {
         }else{
             return "text"
         }
+    }
+
+
+
+    fillParamentersTable = (type:any):string => {
+        var options:string;
+        var selectedType = type
+
+        for (let dataType of Object.values(Eagle.DataType)){
+            var selected=""
+            if(selectedType === dataType){
+                selected = "selected=true"
+            }
+            options = options + "<option value="+dataType+"  "+selected+">"+dataType+"</option>";
+        }
+
+        return options
     }
 
     static findSettingValue = (key : string) : any => {
@@ -3105,6 +3187,14 @@ export class Eagle {
         }
          $("#editFieldModal").removeClass("nodeSelected");
          $("#"+divID).hide();
+    }
+
+    addEmptyField = (node:Node) : void => {
+        node.addEmptyField(this.selectedNode())
+    }
+
+    addEmptyArg = (node:Node) : void => {
+        node.addEmptyArg(this.selectedNode())
     }
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
@@ -4666,7 +4756,7 @@ export namespace Eagle
 
 
 $( document ).ready(function() {
-    // jquery starts here
+    // jquery event listeners start here
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
@@ -4678,6 +4768,9 @@ $( document ).ready(function() {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
         $("#checkGraphAccordion").parent().parent().attr('style','')
+        Eagle.parameterTableSelection(null)
+        Eagle.parameterTableSelectionParent(null)
+        Eagle.parameterTableSelectionName('')
     });
 
     $('.modal').on('shown.bs.modal',function(){
@@ -4707,6 +4800,10 @@ $( document ).ready(function() {
         $("input").blur();
         $("textarea").blur();
     });
+
+    $(".tableParameter").on("click", function(){
+        console.log(this)
+    })
 
     //expand palettes when using searchbar and return to prior collapsed state on completion.
     $("#paletteList .componentSearchBar").on("keyup",function(){

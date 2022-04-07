@@ -67,8 +67,203 @@
     pointer-events: none;
 }
 
+.openParamsTableBtn{
+    width: fit-content;
+    height: fit-content;
+    font-size: 9px;
+    position: absolute;
+    padding: 3px 4px;
+    right: 20px;
+    top: 2px;
+}
+
 #explorePalettesModal li.list-group-item:hover{
     background-color: #b6c3cf;
+}
+
+#parameterTableModal .modal-content{
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: clip;
+}
+
+#parameterTableModal .modal-footer{
+    padding:5px 10px;
+    position: sticky;
+    bottom: 0;
+    z-index: 111;
+}
+
+#parameterTableModal .modal-header{
+    position: sticky;
+    top: 0;
+    z-index: 111;
+}
+
+#parameterTableModal #tableInspector{
+    position: sticky;
+    top: 66px;
+    z-index: 111;
+}
+
+#parameterTableModal thead{
+    position: sticky;
+    top: 90px;
+    z-index: 111;
+}
+
+#tableInspector{
+    width:100%;
+    padding:0px;
+    background: white;
+}
+
+#tableInspectorSelection{
+    width: 300px !important;
+    padding: 0px 5px;
+    margin: 0px;
+    border-right:1px solid rgba(0, 0, 0, 0.336) !important;
+}
+
+#tableInspectorValue{
+    width: calc(100% - 305px) !important;
+    padding: 0px 5px;
+    margin: 0px;
+}
+
+#parameterTableModal .componentSearchBar{
+    border: none;
+    outline: none;
+}
+
+#tableInspectorValue:focus {
+    border: none;
+    outline: none;
+}
+
+#parameterTableModalAddParameterButton{
+    left: 15px;
+    position: absolute;
+}
+
+#parameterTableModal .modal-dialog{
+    max-width: 70vw;
+}
+
+#parameterTableModal .modal-dialog input{
+    border: none;
+    width:100%;
+}
+
+#parameterTableModal .modal-dialog input:read-only{
+    color: rgb(91 91 91);
+}
+
+#tableInspectorSelection{
+    color: black !important;
+    font-weight: 500;
+}
+
+#parameterTableModal .modal-dialog input[type="checkbox"]{
+    height:15px;
+}
+
+#parameterTableModal .modal-dialog td{
+    padding:0px 3px;
+    overflow: hidden;
+    border-right: 1px solid rgb(14 2 76 / 16%);
+}
+
+#parameterTableModal .modal-dialog td button{
+    border: none;
+    background-color: transparent;
+    color: #002e5f;
+    display: inline-block;
+    padding: 0px;
+}
+
+#parameterTableModal .modal-dialog td button:disabled{
+    color: rgb(113 113 113);
+}
+
+#parameter_table_actions{
+    width: 70px;
+}
+
+#parameter_table_precious{
+    width: 80px;
+}
+
+#parameter_table_positional{
+    width: 90px;
+}
+
+#parameter_table_read_only{
+    width: 90px;
+}
+
+#parameter_table_type{
+    width: 100px;
+}
+
+#parameter_table_text{
+    width: 200px;
+}
+
+#parameter_table_name{
+    width: 200px;
+}
+
+#parameterTableModal .modal-header{
+    border: none;
+}
+
+#parameterTableModal .modal-body{
+    padding: 0px;
+    display: inline-table;
+}
+
+#paramsTableWrapper{
+    width: 100%;
+}
+
+#paramsTableWrapper th{
+    background-color: #002349;
+    color: white;
+    padding: 5px;
+}
+
+#paramsTableWrapper tr {
+    background-color: white;
+}
+
+#paramsTableWrapper tr:nth-child(even) {
+    background-color: rgba(214, 219, 239, 0.95);
+}
+
+#paramsTableWrapper td.selectedTableParameter {
+    background-color: rgb(162 202 255 / 95%);
+    border: #002e5f 2px solid;
+}
+
+#paramsTableWrapper td:nth-child(even).selectedTableParameter {
+    background-color: rgb(162 202 255 / 95%);
+    border: #002e5f 2px solid;
+}
+
+#paramsTableWrapper select{
+    padding: 0px;
+    height: fit-content;
+    margin: 0px;
+}
+
+#paramsTableWrapper input{
+    background-color: transparent;
+    font-size: 15px;
+}
+
+#paramsTableWrapper input:focus{
+    outline: none;
 }
 
 /*Animation must have unfill path strokes to work*/
@@ -301,13 +496,14 @@
     background: white;
 }
 
-.rightWindow ::-webkit-scrollbar-thumb{
+.rightWindow ::-webkit-scrollbar-thumb, #parameterTableModal ::-webkit-scrollbar-thumb{
     background: #002349;
     border-radius: 5px;
 }
 
-.rightWindow ::-webkit-scrollbar-track{
-    background: rgb(212, 212, 212);
+.rightWindow ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
+    background: rgb(216 221 240);
+    border-radius: 5px;
 }
 
 .leftWindow.show {

@@ -132,6 +132,10 @@ export class Field {
         return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
     }
 
+    resetToDefault = () : void => {
+        this.value(this.defaultValue());
+    }
+
     getFieldValue = () : string => {
         const tooltipText = "Val: " + this.value();
         if  (tooltipText === "Val: "){
@@ -160,12 +164,28 @@ export class Field {
         }
     },this)
 
+    fitsTableSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        if (Eagle.tableSearchString() === ""){
+            return true;
+        }
+
+        return this.text().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0;
+    }, this);
+
     // TODO: this probably isn't required any more, we can safely assume that
     //       any field in node.fields is a DALiuGE field, and conversely,
     //       if a field is in node.applicationArgs, it isn't a DALiuGE field
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume";
     }, this);
+
+
+    select = (selection:any,selectionName:string, readOnlyState:boolean, selectionParent:Field, event:any) : void => {
+        Eagle.parameterTableSelectionName(selectionName);
+        Eagle.parameterTableSelectionParent(selectionParent);
+        Eagle.parameterTableSelection(selection());
+        Eagle.parameterTableSelectionReadonly(readOnlyState);
+    }
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally

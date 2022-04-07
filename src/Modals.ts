@@ -1,4 +1,5 @@
 import {Eagle} from './Eagle';
+import * as ko from "knockout";
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {LogicalGraph} from './LogicalGraph';
@@ -503,6 +504,20 @@ export class Modals {
             }
             */
         });
+    }
+
+    static fillParamentersTable (data:any):string{
+        var options:string;
+
+        for (let dataType of Object.values(Eagle.DataType)){
+            var selected:boolean = false
+            if(data = dataType){
+                selected = true
+            }
+            options = options + "<option value="+dataType+" text="+dataType+" selected="+selected+"></option>";
+        }
+
+        return options
     }
 
     static _validateFieldModalValueInputText(){
