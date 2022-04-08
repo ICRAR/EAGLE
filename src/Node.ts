@@ -67,8 +67,6 @@ export class Node {
 
     private subject : ko.Observable<number>;       // the key of another node that is the subject of this node. used by comment nodes only.
 
-    private readonly : ko.Observable<boolean>;
-
     private gitUrl : ko.Observable<string>;
     private gitHash : ko.Observable<string>;
 
@@ -94,7 +92,7 @@ export class Node {
     public static readonly CONSTRUCT_MARGIN_TOP: number = 72;
     public static readonly CONSTRUCT_MARGIN_BOTTOM: number = 16;
 
-    constructor(key : number, name : string, description : string, category : Eagle.Category, readonly: boolean){
+    constructor(key : number, name : string, description : string, category : Eagle.Category){
         this._id = Utils.uuidv4();
         this.key = ko.observable(key);
         this.name = ko.observable(name);
@@ -128,7 +126,6 @@ export class Node {
         this.subject = ko.observable(null);
 
         this.expanded = ko.observable(false); // indicates whether the node is shown expanded in the hierarchy display
-        this.readonly = ko.observable(readonly);
 
         this.gitUrl = ko.observable("");
         this.gitHash = ko.observable("");
@@ -338,10 +335,6 @@ export class Node {
         this.flipPorts(!this.flipPorts());
     }
 
-    isReadonly = (): boolean => {
-        return this.readonly();
-    }
-
     isLocked : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.selectedLocation() === Eagle.FileType.Graph){
             const allowComponentEditing : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
@@ -351,10 +344,6 @@ export class Node {
             return !allowPaletteEditing;
         }
     }, this);
-
-    setReadonly = (readonly: boolean) : void => {
-        this.readonly(readonly);
-    }
 
     getInputPorts = () : Port[] => {
         return this.inputPorts();
@@ -668,7 +657,6 @@ export class Node {
         this.subject(null);
 
         this.expanded(false);
-        this.readonly(true);
 
         this.gitUrl("");
         this.gitHash("");
@@ -973,7 +961,7 @@ export class Node {
     }
 
     clone = () : Node => {
-        const result : Node = new Node(this.key(), this.name(), this.description(), this.category(), this.readonly());
+        const result : Node = new Node(this.key(), this.name(), this.description(), this.category());
 
         result._id = this._id;
         result.x = this.x;
@@ -1025,8 +1013,6 @@ export class Node {
         for (const param of this.applicationArgs()){
             result.applicationArgs.push(param.clone());
         }
-
-        result.readonly(this.readonly());
 
         result.gitUrl(this.gitUrl());
         result.gitHash(this.gitHash());
@@ -1278,7 +1264,7 @@ export class Node {
             category = Eagle.Category.Unknown;
         }
 
-        const node : Node = new Node(key, name, "", category, readonly);
+        const node : Node = new Node(key, name, "", category);
 
         // set position
         node.setPosition(x, y);
@@ -1351,7 +1337,7 @@ export class Node {
             } else {
                 // check applicationType is an application
                 if (Eagle.getCategoryData(nodeData.inputApplicationType).isApplication){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputAppName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey(), readonly));
+                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputAppName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node.");
                 }
@@ -1364,7 +1350,7 @@ export class Node {
             } else {
                 // check applicationType is an application
                 if (Eagle.getCategoryData(nodeData.inputApplicationType).isApplication){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputApplicationName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey(), readonly));
+                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputApplicationName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node.");
                 }
@@ -1377,7 +1363,7 @@ export class Node {
             } else {
                 // check applicationType is an application
                 if (Eagle.getCategoryData(nodeData.outputApplicationType).isApplication){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputAppName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey(), readonly));
+                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputAppName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node.");
                 }
@@ -1389,7 +1375,7 @@ export class Node {
                 errorsWarnings.errors.push("Attempt to add outputApplication to unsuitable node: " + category);
             } else {
                 if (Eagle.getCategoryData(nodeData.outputApplicationType).isApplication){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputApplicationName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey(), readonly));
+                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputApplicationName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node.");
                 }
@@ -1414,7 +1400,7 @@ export class Node {
                 errorsWarnings.errors.push("Attempt to add inputApplication to unsuitable node: " + category);
             } else {
                 if (Eagle.getCategoryData(category).isApplication){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, "", node.getKey(), readonly));
+                    node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, "", node.getKey()));
                 } else {
                     errorsWarnings.errors.push("Attempt to add inputApplication of unsuitable type: " + category + ", to node.");
                 }
@@ -1484,7 +1470,7 @@ export class Node {
                 if (node.canHaveInputs()){
                     node.addPort(port, true);
                 } else {
-                    Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, nodeData.readonly, generateKeyFunc);
+                    Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, generateKeyFunc);
                 }
             }
         }
@@ -1497,7 +1483,7 @@ export class Node {
                 if (node.canHaveOutputs()){
                     node.addPort(port, false);
                 } else {
-                    Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, nodeData.readonly, generateKeyFunc);
+                    Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, generateKeyFunc);
                 }
             }
         }
@@ -1579,12 +1565,12 @@ export class Node {
         }
     }
 
-    private static addPortToEmbeddedApplication(node: Node, port: Port, input: boolean, errorsWarnings: Eagle.ErrorsWarnings, readonly: boolean, generateKeyFunc: () => number){
+    private static addPortToEmbeddedApplication(node: Node, port: Port, input: boolean, errorsWarnings: Eagle.ErrorsWarnings, generateKeyFunc: () => number){
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
             if (!node.hasInputApplication()){
                 if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.UnknownApplication, "", node.getKey(), readonly));
+                    node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.UnknownApplication, "", node.getKey()));
                     errorsWarnings.errors.push("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention.");
                 } else {
                     errorsWarnings.errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
@@ -1599,7 +1585,7 @@ export class Node {
             if (node.canHaveOutputApplication()){
                 if (!node.hasOutputApplication()){
                     if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                        node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.UnknownApplication, "", node.getKey(), readonly));
+                        node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.UnknownApplication, "", node.getKey()));
                         errorsWarnings.errors.push("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention.");
                     } else {
                         errorsWarnings.errors.push("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
@@ -1614,7 +1600,7 @@ export class Node {
                 if (node.canHaveInputApplication()){
                     if (!node.hasInputApplication()){
                         if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                            node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.UnknownApplication, "", node.getKey(), readonly));
+                            node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.UnknownApplication, "", node.getKey()));
                         } else {
                             errorsWarnings.errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
                             return;
@@ -1782,7 +1768,6 @@ export class Node {
         result.precious = node.precious();
         result.subject = node.subject();
         result.expanded = node.expanded();
-        result.readonly = node.readonly();
         result.git_url = node.gitUrl();
         result.sha = node.gitHash();
 
@@ -1909,7 +1894,6 @@ export class Node {
         result.precious = node.precious();
         result.subject = node.subject();
         result.expanded = node.expanded();
-        result.readonly = node.readonly();
         result.git_url = node.gitUrl();
         result.sha = node.gitHash();
 
@@ -1948,7 +1932,7 @@ export class Node {
     }
 
     static fromAppRefJson = (nodeData : any, errors: Eagle.ErrorsWarnings) : Node => {
-        const node = new Node(nodeData.key, nodeData.text, nodeData.description, nodeData.category, nodeData.readonly);
+        const node = new Node(nodeData.key, nodeData.text, nodeData.description, nodeData.category);
 
         node.color(nodeData.color);
         node.drawOrderHint(nodeData.drawOrderHint);
@@ -1962,7 +1946,6 @@ export class Node {
         node.precious(nodeData.precious);
         node.subject(nodeData.subject);
         node.expanded(nodeData.expanded);
-        node.readonly(nodeData.readonly);
         node.gitUrl(nodeData.git_url);
         node.gitHash(nodeData.sha);
         node.parentKey(nodeData.parentKey);
@@ -2008,7 +1991,6 @@ export class Node {
         result.flipPorts = node.flipPorts();
 
         result.expanded = node.expanded();
-        result.readonly = node.readonly();
         result.gitUrl = node.gitUrl();
         result.gitHash = node.gitHash();
 
@@ -2016,7 +1998,7 @@ export class Node {
     }
 
     static fromV3NodeJson = (nodeData : any, key: string, errorsWarnings: Eagle.ErrorsWarnings) : Node => {
-        const result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown, nodeData.readonly);
+        const result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown);
 
         result.color(nodeData.color);
         result.drawOrderHint(nodeData.drawOrderHint);
@@ -2029,7 +2011,6 @@ export class Node {
         result.flipPorts(nodeData.flipPorts);
 
         result.expanded(nodeData.expanded);
-        result.readonly(nodeData.readonly);
         result.gitUrl(nodeData.gitUrl);
         result.gitHash(nodeData.gitHash);
 
@@ -2100,10 +2081,10 @@ export class Node {
         node.embedKey(nodeData.embedKey);
     }
 
-    static createEmbeddedApplicationNode = (key: number, name : string, category: Eagle.Category, description: string, embedKey: number, readonly: boolean) : Node => {
+    static createEmbeddedApplicationNode = (key: number, name : string, category: Eagle.Category, description: string, embedKey: number) : Node => {
         console.assert(Eagle.getCategoryData(category).isApplication);
 
-        const node = new Node(key, name, description, category, readonly);
+        const node = new Node(key, name, description, category);
         node.setEmbedKey(embedKey);
         return node;
     }

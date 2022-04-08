@@ -161,7 +161,6 @@ export class Palette {
         // set appropriate key for node (one that is not already in use)
         newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.getNodes()));
-        newNode.setReadonly(false);
 
         if (force){
             this.nodes.push(newNode);

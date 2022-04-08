@@ -706,7 +706,7 @@ export class Eagle {
             }
 
             this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
-                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, false);
+                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph);
 
                 this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
@@ -793,7 +793,7 @@ export class Eagle {
         console.log("createSubgraphFromSelection()");
 
         // create new subgraph
-        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph, false);
+        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph);
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -843,7 +843,7 @@ export class Eagle {
             const userChoice: string = constructs[userChoiceIndex];
 
             // create new subgraph
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Eagle.Category>userChoice, false);
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Eagle.Category>userChoice);
 
             // add the parent node to the logical graph
             this.logicalGraph().addNodeComplete(parentNode);
@@ -1082,7 +1082,7 @@ export class Eagle {
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
-            const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, false);
+            const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description);
             const pos = this.getNewNodePosition(node.getDisplayWidth(), node.getDisplayHeight());
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.addNode(node, pos.x, pos.y, null);
@@ -1993,7 +1993,7 @@ export class Eagle {
             }
 
             // create parent node
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, false);
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph);
 
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
@@ -4110,7 +4110,6 @@ export class Eagle {
             // clone the input application to make a local copy
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
             const clone : Node = application.clone();
-            clone.setReadonly(false);
             const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
             clone.setKey(newKey);
 
@@ -4481,7 +4480,6 @@ export class Eagle {
         newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.logicalGraph().getNodes()));
         newNode.setPosition(x, y);
-        newNode.setReadonly(false);
         newNode.setEmbedKey(null);
 
         // convert start of end nodes to data components
