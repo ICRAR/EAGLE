@@ -42,7 +42,8 @@ require.config({
         "InspectorState": "./static/built/InspectorState",
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
         "PaletteInfo": "./static/built/PaletteInfo",
-        "ExplorePalettes": "./static/built/ExplorePalettes"
+        "ExplorePalettes": "./static/built/ExplorePalettes",
+        "Undo": "./static/built/Undo"
     },
     shim: {
         "bootstrap": {

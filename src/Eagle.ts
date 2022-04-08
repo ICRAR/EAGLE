@@ -52,6 +52,7 @@ import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
+import {Undo} from './Undo';
 import { selection, text, treemapSquarify } from "d3";
 
 export class Eagle {
@@ -189,6 +190,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.onlineHelp();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["u"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {Undo.pop(eagle)}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -2851,6 +2853,8 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
+        Undo.push(this);
+
         let pos : {x:number, y:number};
 
         // if node is a construct, set width and height a little larger

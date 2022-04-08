@@ -33,7 +33,7 @@ import {Utils} from './Utils';
 import {Modals} from './Modals';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
-
+import {Undo} from './Undo';
 
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
@@ -62,6 +62,10 @@ $(function(){
     // init empty data structures
     eagle.logicalGraph(new LogicalGraph());
     eagle.palettes([]);
+
+    // save initial state to undo memory
+    Undo.init();
+    Undo.push(eagle);
 
     // Show repository list.
     GitHub.loadRepoList(eagle);
