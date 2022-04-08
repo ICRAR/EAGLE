@@ -165,11 +165,14 @@
 }
 
 #parameterTableModal .modal-dialog input[type="checkbox"]{
-    height:15px;
+    height:fit-content;
+    width: fit-content;
+    margin-left: 50%;
+    transform: translateX(-50%);
 }
 
 #parameterTableModal .modal-dialog input[type="checkbox"]:focus{
-    outline: #0059a5;
+    box-shadow: 0 0 0 3px rgb(0, 89, 165);
 }
 
 #parameterTableModal .modal-dialog td{
