@@ -165,13 +165,24 @@
 }
 
 #parameterTableModal .modal-dialog input[type="checkbox"]{
-    height:15px;
+    height:fit-content;
+    width: fit-content;
+    margin-left: 50%;
+    transform: translateX(-50%);
+}
+
+#parameterTableModal .modal-dialog input[type="checkbox"]:focus{
+    box-shadow: 0 0 0 3px rgb(0, 89, 165);
 }
 
 #parameterTableModal .modal-dialog td{
     padding:0px 3px;
     overflow: hidden;
     border-right: 1px solid rgb(14 2 76 / 16%);
+}
+
+td:first-child input { 
+    font-weight: 700;
 }
 
 #parameterTableModal .modal-dialog td button{
@@ -1656,7 +1667,7 @@ nav.navbar .introjs-helperLayer {
     margin: 0px;
     color: white;
     border-radius: .25rem;
-    padding: 5px 10px 0px;
+    padding: 0px;
 }
 
 #nodeInspectorInfoCard{
@@ -1688,12 +1699,17 @@ nav.navbar .introjs-helperLayer {
 }
 
 .headerBtns {
-    padding: 0px;;
+    padding: 0px 10px;
+}
+
+#inspectorHeaderIconRow{
+    padding-top: 3px;
+    background: rgba(255, 255, 255, 0.171);
 }
 
 .headerBtns button {
     background-color: transparent;
-    padding:4px;
+    padding:0px 4px;
     margin-left:-4px;
     border: none;
     box-shadow: none;
