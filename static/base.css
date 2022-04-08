@@ -168,6 +168,10 @@
     height:15px;
 }
 
+#parameterTableModal .modal-dialog input[type="checkbox"]:focus{
+    outline: #0059a5;
+}
+
 #parameterTableModal .modal-dialog td{
     padding:0px 3px;
     overflow: hidden;

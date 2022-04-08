@@ -340,7 +340,6 @@ export class Eagle {
             $(event.target).parent().find('a').hide()
         }else{
             $(event.target).parent().find('a').show()
-            console.log("show")
         }
     }
 
