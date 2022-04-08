@@ -1667,7 +1667,7 @@ nav.navbar .introjs-helperLayer {
     margin: 0px;
     color: white;
     border-radius: .25rem;
-    padding: 5px 10px 0px;
+    padding: 0px;
 }
 
 #nodeInspectorInfoCard{
@@ -1699,12 +1699,17 @@ nav.navbar .introjs-helperLayer {
 }
 
 .headerBtns {
-    padding: 0px;;
+    padding: 0px 10px;
+}
+
+#inspectorHeaderIconRow{
+    padding-top: 3px;
+    background: rgba(255, 255, 255, 0.171);
 }
 
 .headerBtns button {
     background-color: transparent;
-    padding:4px;
+    padding:0px 4px;
     margin-left:-4px;
     border: none;
     box-shadow: none;
