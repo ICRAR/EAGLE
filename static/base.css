@@ -181,6 +181,10 @@
     border-right: 1px solid rgb(14 2 76 / 16%);
 }
 
+td:first-child input { 
+    font-weight: 700;
+}
+
 #parameterTableModal .modal-dialog td button{
     border: none;
     background-color: transparent;

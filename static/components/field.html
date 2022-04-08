@@ -22,7 +22,7 @@
     </div>
     <!-- /ko -->
 
-    <!-- ko ifnot: $data.ro -->
+    <!-- ko ifnot: $root.selectedNode().isLocked() -->
         <!-- ko if: getType() === Eagle.DataType.String -->
         <div class="input-group-append">
             <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data.input);}, attr: {id: 'nodeInspectorEditField' + $index()}, eagleTooltip: 'Open Field Value Wizard'" data-bs-placement="left">
@@ -32,7 +32,7 @@
         <!-- /ko -->
     <!-- /ko -->
 
-    <!-- ko ifnot: $data.ro -->
+    <!-- ko ifnot: $root.selectedNode().isLocked() -->
     <div class="input-group-append">
         <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField(null, 'Edit', $data.fieldType, $index());}, attr: {id: 'nodeInspectorEditField' + $index()}, eagleTooltip: 'Edit'" data-bs-placement="left">
             <i class="material-icons md-18">edit</i>

@@ -343,8 +343,13 @@ export class Node {
     }
 
     isLocked : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        const allowComponentEditing : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
-        return this.readonly() && !allowComponentEditing;
+        if(Eagle.selectedLocation() === Eagle.FileType.Graph){
+            const allowComponentEditing : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
+            return !allowComponentEditing;
+        }else{
+            const allowPaletteEditing : boolean = Eagle.findSettingValue(Utils.ALLOW_PALETTE_EDITING);
+            return !allowPaletteEditing;
+        }
     }, this);
 
     setReadonly = (readonly: boolean) : void => {
@@ -440,7 +445,7 @@ export class Node {
     }
 
     getDescriptionReadonly = () : boolean => {
-        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
+        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
 
         return !allowParam;
     }
@@ -451,7 +456,7 @@ export class Node {
         const field: Field = this.fields()[index];
 
         // modify using settings and node readonly
-        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
+        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
 
         //looking at the readonly state of the component parameters and the allow read only parameter editing setting 
         return (field.isReadonly()) && !allowParam;
@@ -490,9 +495,9 @@ export class Node {
         const param: Field = this.applicationArgs()[index];
 
         // modify using settings and node readonly
-        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_READONLY_PARAMETER_EDITING);
+        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
 
-        return (param.isReadonly() || this.readonly()) && !allowParam;
+        return (param.isReadonly()) && !allowParam;
     }
 
     getCategory = () : Eagle.Category => {
