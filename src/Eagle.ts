@@ -3523,7 +3523,7 @@ export class Eagle {
 
         // if a node or nodes in the palette are selected, then assume those are being moved to the destination
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-            return "Read Only - Turn on 'Allow Palette Editing' and 'Allow Component Editing' in the settings to unlock"
+            return "Read Only - Turn on 'Allow Palette Editing' in the settings to unlock"
         }
         return ''
     }
