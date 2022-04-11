@@ -2432,10 +2432,22 @@ export class Eagle {
     })
 
     getCurrentParamReadonly = (index: number) : boolean => {
-        if (Eagle.parameterTableType() === 'component'){
-            return this.selectedNode().getFieldReadonly(index);
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            if(this.allowPaletteEditing()){
+                    return false;
+                }else{
+                    if (Eagle.parameterTableType() === 'component'){
+                        return this.selectedNode().getFieldReadonly(index);
+                    }else{
+                        return this.selectedNode().getApplicationParamReadonly(index);
+                    }
+                }
         }else{
-            return this.selectedNode().getApplicationParamReadonly(index);
+            if (Eagle.parameterTableType() === 'component'){
+                return this.selectedNode().getFieldReadonly(index);
+            }else{
+                return this.selectedNode().getApplicationParamReadonly(index);
+            }
         }
     }
 
