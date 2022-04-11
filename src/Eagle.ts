@@ -2432,10 +2432,22 @@ export class Eagle {
     })
 
     getCurrentParamReadonly = (index: number) : boolean => {
-        if (Eagle.parameterTableType() === 'component'){
-            return this.selectedNode().getFieldReadonly(index);
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            if(this.allowPaletteEditing()){
+                    return false;
+                }else{
+                    if (Eagle.parameterTableType() === 'component'){
+                        return this.selectedNode().getFieldReadonly(index);
+                    }else{
+                        return this.selectedNode().getApplicationParamReadonly(index);
+                    }
+                }
         }else{
-            return this.selectedNode().getApplicationParamReadonly(index);
+            if (Eagle.parameterTableType() === 'component'){
+                return this.selectedNode().getFieldReadonly(index);
+            }else{
+                return this.selectedNode().getApplicationParamReadonly(index);
+            }
         }
     }
 
@@ -3502,6 +3514,18 @@ export class Eagle {
             destinationPalette.fileInfo().modified = true;
             destinationPalette.sort();
         }
+    }
+
+    getReadOnlyText = () : string => {
+        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
+            return "Read Only - Turn on 'Allow Component Editing' in the settings to unlock"
+        }
+
+        // if a node or nodes in the palette are selected, then assume those are being moved to the destination
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+            return "Read Only - Turn on 'Allow Palette Editing' in the settings to unlock"
+        }
+        return ''
     }
 
     getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number} => {

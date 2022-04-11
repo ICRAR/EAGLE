@@ -10,8 +10,8 @@
     <!-- /ko -->
 
     <!-- ko if: selectedNode() != null -->
-    <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: selectedNode().color}, click: inspectorState().toggleAll, eagleTooltip: getInspectorHeadingTooltip(selectedNode().getName(), selectedNode().getCategory(),selectedNode().description())">
-        <div class="col-12 headerBtns">
+    <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: selectedNode().color}, click: inspectorState().toggleAll">
+        <div class="col-12 headerBtns" data-bs-placement="left" data-bind="eagleTooltip: getInspectorHeadingTooltip(selectedNode().getName(), selectedNode().getCategory(),selectedNode().description())">
             <button type="button" class="btn btn-secondary btn-sm" data-bind="click: inspectorState().toggleAll, eagleTooltip: 'Expand/Collapse All'">
                 <i class="material-icons md-24" data-bind="css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
             </button>
@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-6">
                     <!-- ko if: selectedNode().isLocked() -->
-                    <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'readonly'">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: getReadOnlyText">
                         <i class="material-icons md-20">lock</i>
                     </button>
                     <!-- /ko -->
@@ -31,7 +31,7 @@
                     </button>
                     <!-- /ko -->
                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph -->
-                    <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node In Grasph'">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node In Graph'">
                         <i class="material-icons md-20">account_tree</i>
                     </button>
                     <!-- /ko -->
