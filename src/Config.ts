@@ -25,7 +25,6 @@
 export class Config {
     // File name of the palette template.
     static readonly templatePaletteFileName : string = "template.palette";
-    static readonly builtinPaletteFileName : string = "builtin.palette";
 
     // Dimensions.
     static readonly paletteNodeHeight : number = 22;
