@@ -15,6 +15,7 @@ export class FileInfo {
     private _eagleCommitHash : ko.Observable<string>;
     private _schemaVersion : ko.Observable<Eagle.DALiuGESchemaVersion>;
     private _readonly : ko.Observable<boolean>;
+    private _builtIn : ko.Observable<boolean>;
 
     private _sha : ko.Observable<string>;
     private _gitUrl : ko.Observable<string>;
@@ -36,6 +37,7 @@ export class FileInfo {
         this._eagleCommitHash = ko.observable("");
         this._schemaVersion = ko.observable(Eagle.DALiuGESchemaVersion.Unknown);
         this._readonly = ko.observable(true);
+        this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
 
         this._sha = ko.observable("");
         this._gitUrl = ko.observable("");
@@ -134,6 +136,14 @@ export class FileInfo {
         this._readonly(readonly);
     }
 
+    get builtIn() : boolean{
+        return this._builtIn();
+    }
+
+    set builtIn(builtIn : boolean){
+        this._builtIn(builtIn);
+    }
+
     get sha() : string{
         return this._sha();
     }
@@ -194,6 +204,7 @@ export class FileInfo {
         this._eagleCommitHash("");
         this._schemaVersion(Eagle.DALiuGESchemaVersion.Unknown);
         this._readonly(true);
+        this._builtIn(true);
 
         this._sha("");
         this._gitUrl("");
@@ -218,6 +229,7 @@ export class FileInfo {
         result.eagleCommitHash = this._eagleCommitHash();
         result.schemaVersion = this._schemaVersion();
         result.readonly = this._readonly();
+        result.builtIn = this._builtIn();
 
         result.sha = this._sha();
         result.gitUrl = this._gitUrl();
@@ -297,6 +309,7 @@ export class FileInfo {
         s += " EAGLE Commit Hash:" + this._eagleCommitHash();
         s += " Schema Version:" + this._schemaVersion();
         s += " readonly:" + this._readonly();
+        s += " builtIn:" + this._builtIn();
 
         s += " SHA:" + this._sha();
         s += " Git URL:" + this._gitUrl();

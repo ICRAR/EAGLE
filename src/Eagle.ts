@@ -1145,17 +1145,36 @@ export class Eagle {
     /**
      * Reloads a previously loaded palette.
      */
-     reloadPalette = (palette: Palette) : void => {
+     reloadPalette = (palette: Palette, index: number) : void => {
          const fileInfo : FileInfo = palette.fileInfo();
 
          // remove palette
          this.closePalette(palette);
 
-         if (fileInfo.repositoryService === Eagle.RepositoryService.File){
-             // load palette
-             this.getPaletteFileToLoad();
-         } else { // GitHub or Gitlab
-             this.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
+         switch (fileInfo.repositoryService){
+             case Eagle.RepositoryService.File:
+                // load palette
+                this.getPaletteFileToLoad();
+                break;
+            case Eagle.RepositoryService.GitLab:
+            case Eagle.RepositoryService.GitHub:
+                this.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
+                break;
+            case Eagle.RepositoryService.Url:
+                // TODO: new code
+                this.loadPalettes([
+                    {name:palette.fileInfo().name, filename:palette.fileInfo().gitUrl, readonly:palette.fileInfo().readonly}
+                ], (palettes: Palette[]):void => {
+                    for (const palette of palettes){
+                        if (palette !== null){
+                            this.palettes.splice(index, 0, palette);
+                        }
+                    }
+                });
+                break;
+            default:
+                // can't be fetched
+                break;
          }
     }
 
@@ -1601,9 +1620,11 @@ export class Eagle {
                     palette.fileInfo().clear();
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
+                    palette.fileInfo().builtIn = true;
                     palette.fileInfo().gitUrl = paletteList[index].filename;
                     palette.fileInfo().sha = "master";
                     palette.fileInfo().type = Eagle.FileType.Palette;
+                    palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
 
                     // sort palette and add to results
                     palette.sort();
@@ -4718,6 +4739,7 @@ export namespace Eagle
         GitHub = "GitHub",
         GitLab = "GitLab",
         File = "File",
+        Url = "Url",
         Unknown = "Unknown"
     }
 
