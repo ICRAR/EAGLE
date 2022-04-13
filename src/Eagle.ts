@@ -698,6 +698,9 @@ export class Eagle {
             return;
         }
 
+        // save state to undo
+        Undo.push(this);
+
         // Gets the file from formdata.
         const formData = new FormData();
         formData.append('file', uploadedGraphFileToInsertInputElement.files[0]);
@@ -796,6 +799,9 @@ export class Eagle {
     createSubgraphFromSelection = () : void => {
         console.log("createSubgraphFromSelection()");
 
+        // save state to undo
+        Undo.push(this);
+
         // create new subgraph
         const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph, false);
 
@@ -843,6 +849,9 @@ export class Eagle {
             {   // Cancelling action.
                 return;
             }
+
+            // save state to undo
+            Undo.push(this);
 
             const userChoice: string = constructs[userChoiceIndex];
 
@@ -2805,10 +2814,11 @@ export class Eagle {
         // request confirmation from user
         Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete " + numEdges + " edge(s) and " + numNodes + " node(s) (and their children)?", "Yes", "No", (confirmed : boolean) : void => {
             if (!confirmed){
-                console.log("User aborted deleteSelectedNode()");
+                console.log("User aborted deleteSelection()");
                 return;
             }
 
+            Undo.push(this);
             this._deleteSelection();
         });
     }

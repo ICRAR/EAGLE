@@ -29,6 +29,7 @@ import {LogicalGraph} from './LogicalGraph';
 import {Config} from './Config';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
+import {Utils} from './Utils';
 
 export class Undo {
     static memory: ko.ObservableArray<string>;
@@ -51,14 +52,27 @@ export class Undo {
     static push = (eagle: Eagle) : void => {
         console.log("Undo.push()");
 
-        Undo.memory.splice(Undo.index(), 1, JSON.stringify(LogicalGraph.toOJSJson(eagle.logicalGraph())));
+        const previousIndex = (Undo.index() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
+        console.log("previousIndex", previousIndex);
+        const previousContent = Undo.memory()[previousIndex];
+        const newContent = JSON.stringify(LogicalGraph.toOJSJson(eagle.logicalGraph()));
+
+        // check if newContent matches old content, if so, no need to push
+        // TODO: maybe speed this up with checksums? or maybe not required
+        if (previousContent === newContent){
+            console.log("Undo.push() : content hasn't changed, abort!");
+            return;
+        }
+
+        Undo.memory.splice(Undo.index(), 1, newContent);
         Undo.index((Undo.index() + 1) % Config.UNDO_MEMORY_SIZE);
     }
 
     static pop = (eagle: Eagle) : void => {
         console.log("Undo.pop()");
 
-        Undo.index((Undo.index() - 1) % Config.UNDO_MEMORY_SIZE);
+        const previousIndex = (Undo.index() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
+        Undo.index(previousIndex);
         const data : string = Undo.memory()[Undo.index()];
         Undo.memory.splice(Undo.index(), 1, null);
 
