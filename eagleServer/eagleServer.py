@@ -86,10 +86,14 @@ except:
 
 print("Version: " + version + " Commit Hash: " + commit_hash)
 
+
+# NOTE: for some reason, EAGLE client requests intro.js from the root URL,
+#       so we need a separate dedicated route fot this file.
+#       the reason for this is not understood
 @app.route("/intro.js")
-def hack():
-    print("hack")
+def serve_intro_js():
     return app.send_static_file("externals/intro.min.js")
+
 
 @app.route("/")
 def index():
