@@ -188,6 +188,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.onlineHelp();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('component');}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_application_argument_table_modal", "Open Application Argument Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('argument');}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -2433,7 +2435,7 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    openParamsTableModal = (tableType:string, data:any, event:any) : void => {
+    openParamsTableModal = (tableType:string) : void => {
         Eagle.parameterTableType(tableType)
 
         if (tableType === 'component'){
