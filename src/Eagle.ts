@@ -2452,19 +2452,27 @@ export class Eagle {
         }
     })
 
-    getCurrentParamReadonly = (index: number) : boolean => {
+    getCurrentParamReadonly = (index: number, type:string) : boolean => {
+
+        if (type === ""){
+            type = Eagle.parameterTableType()
+        }else if(type === "Field"){
+            type= 'component'
+        
+        }
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(this.allowPaletteEditing()){
                     return false;
                 }else{
-                    if (Eagle.parameterTableType() === 'component'){
+                    if (type === 'component'){
+                        console.log(this.selectedNode().getFieldReadonly(index))
                         return this.selectedNode().getFieldReadonly(index);
                     }else{
                         return this.selectedNode().getApplicationParamReadonly(index);
                     }
                 }
         }else{
-            if (Eagle.parameterTableType() === 'component'){
+            if (type === 'component'){
                 return this.selectedNode().getFieldReadonly(index);
             }else{
                 return this.selectedNode().getApplicationParamReadonly(index);
