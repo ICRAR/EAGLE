@@ -1092,6 +1092,9 @@ export class Eagle {
      * Creates a new logical graph for editing.
      */
     newLogicalGraph = () : void => {
+        // save state to undo
+        Undo.push(this);
+
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
@@ -1878,6 +1881,9 @@ export class Eagle {
 
             switch (fileTypeLoaded){
                 case Eagle.FileType.Graph:
+                    // save state to undo
+                    Undo.push(this);
+
                     // attempt to determine schema version from FileInfo
                     const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
@@ -2007,6 +2013,9 @@ export class Eagle {
 
             // create parent node
             const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, false);
+
+            // save state to undo
+            Undo.push(this);
 
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
@@ -2614,6 +2623,9 @@ export class Eagle {
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
+
+            // save state to undo
+            Undo.push(this);
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {

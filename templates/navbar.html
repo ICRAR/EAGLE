@@ -31,10 +31,10 @@
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" data-intro="Center the current graph within the graph rendering area.">
                     <i class="material-icons md-18">filter_center_focus</i>
                 </button>
-                <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomIn, eagleTooltip: 'Zoom In'" data-intro="Zoom in on the graph within the graph rendering area.">
+                <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomIn, eagleTooltip: 'Zoom In '  + Utils.getKeyboardShortcutTextByKey('zoom_in', true)" data-intro="Zoom in on the graph within the graph rendering area.">
                     <i class="material-icons md-18">zoom_in</i>
                 </button>
-                <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out'" data-intro="Zoom out from the graph within the graph rendering area.">
+                <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out ' + Utils.getKeyboardShortcutTextByKey('zoom_out', true)" data-intro="Zoom out from the graph within the graph rendering area.">
                     <i class="material-icons md-18">zoom_out</i>
                 </button>
                 <!-- ko if: allowPaletteEditing() -->

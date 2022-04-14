@@ -29,7 +29,6 @@ import {LogicalGraph} from './LogicalGraph';
 import {Config} from './Config';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
-import {Utils} from './Utils';
 
 export class Undo {
     static memory: ko.ObservableArray<string>;
