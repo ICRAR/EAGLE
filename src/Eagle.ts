@@ -2437,13 +2437,17 @@ export class Eagle {
 
     openParamsTableModal = (tableType:string) : void => {
         Eagle.parameterTableType(tableType)
-
-        if (tableType === 'component'){
-            $("#parameterTableModalTitle").html("Component Parameter Table")
+        if (!this.selectedNode()){
+            Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
-            $("#parameterTableModalTitle").html("Application Argument Table")
+            if (tableType === 'component'){
+                $("#parameterTableModalTitle").html("Component Parameter Table")
+            }else{
+                $("#parameterTableModalTitle").html("Application Argument Table")
+            }
+            Utils.showOpenParamsTableModal();
         }
-        Utils.showOpenParamsTableModal();
+       
     }
 
     currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
