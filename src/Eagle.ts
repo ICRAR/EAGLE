@@ -188,6 +188,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.onlineHelp();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('component');}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_application_argument_table_modal", "Open Application Argument Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('argument');}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -229,6 +231,10 @@ export class Eagle {
 
     allowPaletteEditing = () : boolean => {
         return Eagle.findSetting(Utils.ALLOW_PALETTE_EDITING).value();
+    }
+
+    allowComponentEditing = () : boolean => {
+        return Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
     }
 
     displayNodeKeys = () :boolean => {
@@ -2433,15 +2439,19 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    openParamsTableModal = (tableType:string, data:any, event:any) : void => {
+    openParamsTableModal = (tableType:string) : void => {
         Eagle.parameterTableType(tableType)
-
-        if (tableType === 'component'){
-            $("#parameterTableModalTitle").html("Component Parameter Table")
+        if (!this.selectedNode()){
+            Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
-            $("#parameterTableModalTitle").html("Application Argument Table")
+            if (tableType === 'component'){
+                $("#parameterTableModalTitle").html("Component Parameter Table")
+            }else{
+                $("#parameterTableModalTitle").html("Application Argument Table")
+            }
+            Utils.showOpenParamsTableModal();
         }
-        Utils.showOpenParamsTableModal();
+       
     }
 
     currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
@@ -2463,19 +2473,23 @@ export class Eagle {
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(this.allowPaletteEditing()){
                     return false;
-                }else{
-                    if (type === 'component'){
-                        console.log(this.selectedNode().getFieldReadonly(index))
-                        return this.selectedNode().getFieldReadonly(index);
-                    }else{
-                        return this.selectedNode().getApplicationParamReadonly(index);
-                    }
-                }
-        }else{
-            if (type === 'component'){
-                return this.selectedNode().getFieldReadonly(index);
             }else{
-                return this.selectedNode().getApplicationParamReadonly(index);
+                if (type === 'component'){
+                    console.log(this.selectedNode().getFieldReadonly(index))
+                    return this.selectedNode().getFieldReadonly(index);
+                }else{
+                    return this.selectedNode().getApplicationParamReadonly(index);
+                }
+            }
+        }else{
+            if(this.allowComponentEditing()){
+                return false
+            }else{
+                if (type === 'component'){
+                    return this.selectedNode().getFieldReadonly(index);
+                }else{
+                    return this.selectedNode().getApplicationParamReadonly(index);
+                }
             }
         }
     }
