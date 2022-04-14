@@ -2475,7 +2475,6 @@ export class Eagle {
                     return false;
             }else{
                 if (type === 'component'){
-                    console.log(this.selectedNode().getFieldReadonly(index))
                     return this.selectedNode().getFieldReadonly(index);
                 }else{
                     return this.selectedNode().getApplicationParamReadonly(index);
