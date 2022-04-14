@@ -445,10 +445,9 @@ export class Node {
         const field: Field = this.fields()[index];
 
         // modify using settings and node readonly
-        const allowParam : boolean = Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
 
         //looking at the readonly state of the component parameters and the allow read only parameter editing setting 
-        return (field.isReadonly()) && !allowParam;
+        return (field.isReadonly());
     }
 
     getApplicationParamByName = (name : string) : Field | null => {

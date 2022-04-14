@@ -233,6 +233,10 @@ export class Eagle {
         return Eagle.findSetting(Utils.ALLOW_PALETTE_EDITING).value();
     }
 
+    allowComponentEditing = () : boolean => {
+        return Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
+    }
+
     displayNodeKeys = () :boolean => {
         return Eagle.findSetting(Utils.DISPLAY_NODE_KEYS).value();
     }
@@ -2469,19 +2473,23 @@ export class Eagle {
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(this.allowPaletteEditing()){
                     return false;
-                }else{
-                    if (type === 'component'){
-                        console.log(this.selectedNode().getFieldReadonly(index))
-                        return this.selectedNode().getFieldReadonly(index);
-                    }else{
-                        return this.selectedNode().getApplicationParamReadonly(index);
-                    }
-                }
-        }else{
-            if (type === 'component'){
-                return this.selectedNode().getFieldReadonly(index);
             }else{
-                return this.selectedNode().getApplicationParamReadonly(index);
+                if (type === 'component'){
+                    console.log(this.selectedNode().getFieldReadonly(index))
+                    return this.selectedNode().getFieldReadonly(index);
+                }else{
+                    return this.selectedNode().getApplicationParamReadonly(index);
+                }
+            }
+        }else{
+            if(this.allowComponentEditing()){
+                return false
+            }else{
+                if (type === 'component'){
+                    return this.selectedNode().getFieldReadonly(index);
+                }else{
+                    return this.selectedNode().getApplicationParamReadonly(index);
+                }
             }
         }
     }
