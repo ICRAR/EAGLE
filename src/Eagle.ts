@@ -2560,7 +2560,10 @@ export class Eagle {
         }
     }
 
-
+    static resetParamsTableSelection = ():void => {
+        Eagle.parameterTableSelectionParentId(-1);
+        Eagle.parameterTableSelection(null);
+    }
 
     fillParamentersTable = (type:any):string => {
         var options:string;
@@ -4864,12 +4867,7 @@ $( document ).ready(function() {
         $("#checkGraphAccordion").parent().parent().attr('style','')
 
         //reset parameter table selecction
-        Eagle.parameterTableType('');
-        Eagle.parameterTableSelectionParent(null);
-        Eagle.parameterTableSelectionParentId(-1);
-        Eagle.parameterTableSelection(null);
-        Eagle.parameterTableSelectionName('');
-        Eagle.parameterTableSelectionReadonly(false);
+        Eagle.resetParamsTableSelection()
     });
 
     $('.modal').on('shown.bs.modal',function(){
