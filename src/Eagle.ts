@@ -2660,6 +2660,9 @@ export class Eagle {
                 return;
             }
 
+            // save state to undo
+            Undo.push(this);
+
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
             this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
@@ -2689,6 +2692,9 @@ export class Eagle {
                             edges.push(object);
                         }
                     }
+
+                    // save state to undo
+                    Undo.push(this);
 
                     this.insertGraph(nodes, edges, null);
                     this.checkGraph();
@@ -2838,6 +2844,9 @@ export class Eagle {
     private _deleteSelection = () : void => {
         if (this.selectedLocation() === Eagle.FileType.Graph){
 
+            // save state to undo
+            Undo.push(this);
+
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     this.logicalGraph().removeNode(object);
@@ -2850,6 +2859,8 @@ export class Eagle {
 
             // flag LG has changed
             this.logicalGraph().fileInfo().modified = true;
+
+            this.checkGraph();
         }
 
         if (this.selectedLocation() === Eagle.FileType.Palette){
@@ -2858,23 +2869,22 @@ export class Eagle {
                 if (object instanceof Node){
                     for (const palette of this.palettes()){
                         palette.removeNodeById(object.getId());
+
+                        // TODO: only flag palette has changed if a node was removed
+                        palette.fileInfo().modified = true;
                     }
                 }
 
                 // NOTE: do nothing with edges! shouldn't be any in palettes
             }
-
-            // flag LG has changed
-            this.logicalGraph().fileInfo().modified = true;
         }
-
-        this.checkGraph();
 
         // empty the selected objects, should have all been deleted
         this.selectedObjects([]);
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
+        // save state to undo
         Undo.push(this);
 
         let pos : {x:number, y:number};
@@ -3306,6 +3316,9 @@ export class Eagle {
             if (!completed)
                 return;
 
+            // save state to undo
+            Undo.push(this);
+
             const choice: string = nodeList[userChoiceIndex];
 
             // change the parent
@@ -3359,6 +3372,9 @@ export class Eagle {
             if (!completed)
                 return;
 
+            // save state to undo
+            Undo.push(this);
+
             const choice = nodeList[userChoiceIndex];
 
             // change the subject
@@ -3379,6 +3395,9 @@ export class Eagle {
             console.warn("Could not remove port from null node");
             return;
         }
+
+        // save state to undo
+        Undo.push(this);
 
         // remember port id
         let portId;
@@ -3882,6 +3901,9 @@ export class Eagle {
                 if (!completed){
                     return;
                 }
+
+                // save state to undo
+                Undo.push(this);
 
                 // check selected option in select tag
                 const choices : string[] = $('#editFieldModal').data('choices');
