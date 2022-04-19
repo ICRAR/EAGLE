@@ -1150,12 +1150,20 @@ export class Node {
         this.fields()[0].setValue(e.value);
     }
 
-    addEmptyField = (selectedNode:Node) :void => {
-        selectedNode.addField(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+    addEmptyField = (selectedNode:Node, index:number) :void => {
+        if(index === -1){
+            selectedNode.addField(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+        }else{
+            selectedNode.addFieldAtPosition(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
+        }
     }
 
-    addEmptyArg = (selectedNode:Node) :void => {
-        selectedNode.addApplicationArg(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+    addEmptyArg = (selectedNode:Node,index:number) :void => {
+        if(index === -1){
+            selectedNode.addApplicationArg(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+        }else{
+            selectedNode.addApplicationArgAtPosition(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
+        }
     }
 
     // TODO: this seems similar to findPortTypeById(), maybe we can just use this one!

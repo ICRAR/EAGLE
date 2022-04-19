@@ -614,7 +614,7 @@
                 <!-- ko if: Eagle.parameterTableType() === 'component' -->
                     <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyField, clickBubble:false,  disabled: $root.selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
                 <!-- /ko -->
-                <!-- ko if: Eagle.parameterTableType() === 'applicationArgs' -->
+                <!-- ko if: Eagle.parameterTableType() === 'argument'-->
                     <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyArg, clickBubble:false, disabled: $root.selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Argument</span></button>
                 <!-- /ko -->
                 <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>

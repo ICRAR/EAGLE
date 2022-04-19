@@ -3247,11 +3247,33 @@ export class Eagle {
     }
 
     addEmptyField = (node:Node) : void => {
-        node.addEmptyField(this.selectedNode())
+        var fieldIndex
+        if(Eagle.parameterTableSelectionParentId() != -1){
+            fieldIndex = Eagle.parameterTableSelectionParentId()+1
+            node.addEmptyField(this.selectedNode(), fieldIndex)
+        }else{
+            node.addEmptyField(this.selectedNode(), -1)
+            fieldIndex = this.selectedNode().getFields().length -1
+        }
+
+        //handling selecting and highlighting the newly created node
+        let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
     }
 
     addEmptyArg = (node:Node) : void => {
-        node.addEmptyArg(this.selectedNode())
+        var fieldIndex
+        if(Eagle.parameterTableSelectionParentId() != -1){
+            fieldIndex = Eagle.parameterTableSelectionParentId()+1
+            node.addEmptyArg(this.selectedNode(), fieldIndex)
+        }else{
+            node.addEmptyArg(this.selectedNode(), -1)
+            fieldIndex = this.selectedNode().getApplicationArgs().length -1
+        }
+
+        //handling selecting and highlighting the newly created node
+        let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
     }
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
