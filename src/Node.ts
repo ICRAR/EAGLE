@@ -947,13 +947,18 @@ export class Node {
         return result;
     }
 
-    addApplicationParam = (param : Field) : void => {
+    addApplicationArg = (param : Field) : void => {
         this.applicationArgs.push(param);
+    }
+
+    addApplicationArgAtPosition = (param : Field, i : number) : void => {
+        this.applicationArgs.splice(i, 0, param);
     }
 
     removeApplicationArgByIndex = (index : number) : void => {
         this.applicationArgs.splice(index, 1);
     }
+
 
     removeAllApplicationArgs = () : void => {
         this.applicationArgs([]);
@@ -1150,7 +1155,7 @@ export class Node {
     }
 
     addEmptyArg = (selectedNode:Node) :void => {
-        selectedNode.addApplicationParam(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+        selectedNode.addApplicationArg(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
     }
 
     // TODO: this seems similar to findPortTypeById(), maybe we can just use this one!
@@ -1521,7 +1526,7 @@ export class Node {
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                node.addApplicationParam(Field.fromOJSJson(paramData));
+                node.addApplicationArg(Field.fromOJSJson(paramData));
             }
         }
 
@@ -1967,7 +1972,7 @@ export class Node {
 
         node.applicationArgs([]);
         for (const param of nodeData.applicationArgs){
-            node.addApplicationParam(Field.fromOJSJson(param));
+            node.addApplicationArg(Field.fromOJSJson(param));
         }
 
         return node;

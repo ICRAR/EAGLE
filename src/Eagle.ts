@@ -68,6 +68,7 @@ export class Eagle {
 
     static parameterTableType : ko.Observable<string>;
     static parameterTableSelectionParent : ko.Observable<Field>; // row in the parameter table that is currently selected
+    static parameterTableSelectionParentId : ko.Observable<number> // id of the selected field 
     static parameterTableSelection : ko.Observable<Field>; // cell in the parameter table that is currently selected
     static parameterTableSelectionName : ko.Observable<string>; // name of selected parameter in field
     static parameterTableSelectionReadonly : ko.Observable<boolean> // check if selection is readonly
@@ -197,6 +198,7 @@ export class Eagle {
 
         Eagle.parameterTableType = ko.observable('');
         Eagle.parameterTableSelectionParent = ko.observable(null);
+        Eagle.parameterTableSelectionParentId = ko.observable(-1);
         Eagle.parameterTableSelection = ko.observable(null);
         Eagle.parameterTableSelectionName = ko.observable('');
         Eagle.parameterTableSelectionReadonly = ko.observable(false);
@@ -3200,7 +3202,7 @@ export class Eagle {
     /**
      * Adds an application param to the selected node via HTML.
      */
-    addApplicationParamHTML = () : void => {
+    addApplicationArgHTML = () : void => {
         const node: Node = this.selectedNode();
 
         if (node === null){
@@ -3936,14 +3938,14 @@ export class Eagle {
                    if (fieldType === Eagle.FieldType.Field){
                        node.addField(newField);
                    } else {
-                       node.addApplicationParam(newField);
+                       node.addApplicationArg(newField);
                    }
                 } else {
                    const clone : Field = allFields[choice].clone();
                    if (fieldType === Eagle.FieldType.Field){
                        node.addField(clone);
                    } else {
-                       node.addApplicationParam(clone);
+                       node.addApplicationArg(clone);
                    }
                 }
 
@@ -3985,6 +3987,35 @@ export class Eagle {
             });
         }
     };
+
+    duplicateParameter = (index:number) :void => {
+        var fieldIndex //variable holds the index of which row to highlight after creation
+        if(Eagle.parameterTableSelectionParentId() != -1){
+        //if a cell in the table is selected in this case the new node will be placed below the currently selected node
+            fieldIndex = Eagle.parameterTableSelectionParentId()+1
+            if (Eagle.parameterTableType() === 'component'){
+            //for component parameter tables
+                this.selectedNode().addFieldAtPosition(this.selectedNode().getFields()[index].clone(),fieldIndex)
+            }else{
+            //for application parameter tables
+                this.selectedNode().addApplicationArgAtPosition(this.selectedNode().getApplicationArgs()[index].clone(),fieldIndex)
+            }
+        }else{
+        //if no call in the table is selected, in this case the new node is appended
+            if (Eagle.parameterTableType() === 'component'){
+            //for component parameter tables
+                this.selectedNode().addField(this.selectedNode().getFields()[index].clone())
+            }else{
+            //for application parameter tables
+                this.selectedNode().addApplicationArg(this.selectedNode().getApplicationArgs()[index].clone())
+            }
+            fieldIndex = this.selectedNode().getFields().length -1
+        }
+
+        //handling selecting and highlighting the newly created node
+        let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
+    }
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
         const allPorts: Port[] = Utils.getUniquePortsList(this.palettes(), this.logicalGraph());
@@ -4831,9 +4862,14 @@ $( document ).ready(function() {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
         $("#checkGraphAccordion").parent().parent().attr('style','')
-        Eagle.parameterTableSelection(null)
-        Eagle.parameterTableSelectionParent(null)
-        Eagle.parameterTableSelectionName('')
+
+        //reset parameter table selecction
+        Eagle.parameterTableType('');
+        Eagle.parameterTableSelectionParent(null);
+        Eagle.parameterTableSelectionParentId(-1);
+        Eagle.parameterTableSelection(null);
+        Eagle.parameterTableSelectionName('');
+        Eagle.parameterTableSelectionReadonly(false);
     });
 
     $('.modal').on('shown.bs.modal',function(){
