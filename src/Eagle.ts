@@ -3954,6 +3954,9 @@ export class Eagle {
                     return;
                 }
 
+                // save state to undo
+                Undo.push(this);
+
                 // update field data
                 field.setText(newField.getText());
                 field.setName(newField.getName());
