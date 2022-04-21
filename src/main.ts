@@ -51,6 +51,7 @@ $(function(){
     (<any>window).Eagle = Eagle;
     (<any>window).Utils = Utils;
     (<any>window).Config = Config;
+    (<any>window).Undo = Undo;
 
     ko.applyBindings(eagle);
     ko.applyBindings(eagle, document.getElementById("tabTitle"));

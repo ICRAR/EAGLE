@@ -82,6 +82,22 @@ export class Undo {
 
             eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
         }
+    }
 
+    static print = () : string => {
+        console.log("print()");
+        const result = [];
+
+        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
+            const index = (i + Undo.index()) % Config.UNDO_MEMORY_SIZE;
+
+            if (Undo.memory()[index] === null){
+                break;
+            }
+
+            result.push(index);
+        }
+
+        return result.join(",");
     }
 }
