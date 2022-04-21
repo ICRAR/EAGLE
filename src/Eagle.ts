@@ -4006,6 +4006,9 @@ export class Eagle {
                    return;
                }
 
+               // save state to undo
+               Undo.push(this);
+
                // hide the custom text input unless the last option in the select is chosen
                if (choice === choices.length){
                    newPort.setId(Utils.uuidv4());
@@ -4036,6 +4039,9 @@ export class Eagle {
                 if (!completed){
                     return;
                 }
+
+                // save state to undo
+                Undo.push(this);
 
                 // update port data (except nodeKey and id, those don't change)
                 const nodeKey = port.getNodeKey();
@@ -4181,6 +4187,9 @@ export class Eagle {
             const selectedNode: Node = this.selectedNode();
             const oldApp: Node = selectedNode.getInputApplication();
 
+            // save state to undo
+            Undo.push(this);
+
             // remove all edges incident on the old input application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
@@ -4201,6 +4210,9 @@ export class Eagle {
         this.setNodeApplication("Output Application", "Choose an output application", (node: Node) => {
             const selectedNode: Node = this.selectedNode();
             const oldApp: Node = selectedNode.getOutputApplication();
+
+            // save state to undo
+            Undo.push(this);
 
             // remove all edges incident on the old output application
             if (oldApp !== null){
@@ -4306,6 +4318,7 @@ export class Eagle {
         this.graphErrors(checkResult.errors);
     };
 
+    // TODO: maybe try to move some of this html out to a template
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
             let message = "";
@@ -4475,6 +4488,9 @@ export class Eagle {
             if (!completed){
                 return;
             }
+
+            // save state to undo
+            Undo.push(this);
 
             // change the category of the node
             this.selectedNode().setCategory(categories[userChoiceIndex]);
