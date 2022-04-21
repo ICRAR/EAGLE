@@ -88,7 +88,7 @@ export class Undo {
         console.log("print()");
         const result = [];
 
-        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
+        for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){
             const index = (i + Undo.index()) % Config.UNDO_MEMORY_SIZE;
 
             if (Undo.memory()[index] === null){
