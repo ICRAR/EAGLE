@@ -3248,7 +3248,7 @@ export class Eagle {
          $("#"+divID).hide();
     }
 
-    addEmptyField = () : void => {
+    addEmptyTableRow = () : void => {
         var fieldIndex
         if(Eagle.parameterTableSelectionParentId() != -1){
         // A cell in the table is selected well insert new row instead of adding at the end
@@ -3256,7 +3256,6 @@ export class Eagle {
             if(Eagle.parameterTableType() === 'component'){
                 //component table
                 this.selectedNode().addEmptyField(fieldIndex)
-                //node.addEmptyField(this.selectedNode(), fieldIndex)
             }else{
                 //argument table
                 this.selectedNode().addEmptyArg(fieldIndex)
