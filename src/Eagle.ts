@@ -3273,12 +3273,12 @@ export class Eagle {
             if(Eagle.parameterTableType() === Eagle.FieldType.Field){
                 //component table
                 this.selectedNode().addEmptyField(-1)
-                fieldIndex = this.selectedNode().getFields().length -1
             }else{
                 //argument table
                 this.selectedNode().addEmptyArg(-1)
-                fieldIndex = this.selectedNode().getApplicationArgs().length -1
             }
+            //getting the length of the array to use as an index to select the last row in the table
+            fieldIndex = this.currentParamsArray().length -1
         }
 
         //handling selecting and highlighting the newly created row
