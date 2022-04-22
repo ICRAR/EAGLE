@@ -446,7 +446,7 @@ export class Node {
 
         // modify using settings and node readonly
 
-        //looking at the readonly state of the component parameters and the allow read only parameter editing setting 
+        //looking at the readonly state of the component parameters and the allow read only parameter editing setting
         return (field.isReadonly());
     }
 
@@ -1150,22 +1150,22 @@ export class Node {
         this.fields()[0].setValue(e.value);
     }
 
-    addEmptyField = (selectedNode:Node, index:number) :void => {
+    addEmptyField = (index:number) :void => {
         console.log("addign field")
 
         if(index === -1){
-            selectedNode.addField(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+            this.addField(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
         }else{
-            selectedNode.addFieldAtPosition(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
+            this.addFieldAtPosition(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
         }
     }
 
-    addEmptyArg = (selectedNode:Node,index:number) :void => {
+    addEmptyArg = (index:number) :void => {
         console.log("addign arg")
         if(index === -1){
-            selectedNode.addApplicationArg(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+            this.addApplicationArg(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
         }else{
-            selectedNode.addApplicationArgAtPosition(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
+            this.addApplicationArgAtPosition(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
         }
     }
 

@@ -68,7 +68,7 @@ export class Eagle {
 
     static parameterTableType : ko.Observable<string>;
     static parameterTableSelectionParent : ko.Observable<Field>; // row in the parameter table that is currently selected
-    static parameterTableSelectionParentId : ko.Observable<number> // id of the selected field 
+    static parameterTableSelectionParentId : ko.Observable<number> // id of the selected field
     static parameterTableSelection : ko.Observable<Field>; // cell in the parameter table that is currently selected
     static parameterTableSelectionName : ko.Observable<string>; // name of selected parameter in field
     static parameterTableSelectionReadonly : ko.Observable<boolean> // check if selection is readonly
@@ -2453,7 +2453,7 @@ export class Eagle {
             }
             Utils.showOpenParamsTableModal();
         }
-       
+
     }
 
     currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
@@ -2470,7 +2470,7 @@ export class Eagle {
             type = Eagle.parameterTableType()
         }else if(type === "Field"){
             type= 'component'
-        
+
         }
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(this.allowPaletteEditing()){
@@ -3246,30 +3246,32 @@ export class Eagle {
          $("#"+divID).hide();
     }
 
-    addEmptyField = (node:Node) : void => {
+    addEmptyField = () : void => {
         var fieldIndex
         console.log('addFieldbtn called')
         if(Eagle.parameterTableSelectionParentId() != -1){
         // A cell in the table is selected well insert new row instead of adding at the end
             fieldIndex = Eagle.parameterTableSelectionParentId()+1
             if(Eagle.parameterTableType() === 'component'){
-            //component table
-                node.addEmptyField(this.selectedNode(), fieldIndex)
+                //component table
+                this.selectedNode().addEmptyField(fieldIndex)
+                //node.addEmptyField(this.selectedNode(), fieldIndex)
             }else{
-            //argument table
-            node.addEmptyArg(this.selectedNode(), fieldIndex)
+                //argument table
+                this.selectedNode().addEmptyArg(fieldIndex)
             }
         }else{
         //no cell selected, add new row at the end
             if(Eagle.parameterTableType() === 'component'){
-            //component table
-                node.addEmptyField(this.selectedNode(), -1)
+                //component table
+                this.selectedNode().addEmptyField(-1)
                 fieldIndex = this.selectedNode().getFields().length -1
             }else{
-            //argument table
+                //argument table
                 console.log("case no selection agrument table")
+
                 //the function call below seems to for some reason call the addEmptyArg function in eagle.ts instead of in node.ts
-                node.addEmptyArg(this.selectedNode(), -1)
+                this.selectedNode().addEmptyArg(-1)
                 fieldIndex = this.selectedNode().getApplicationArgs().length -1
             }
         }
@@ -3279,6 +3281,7 @@ export class Eagle {
         clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
     }
 
+    /*
     //this is the seperate function that is now included in the function above. it is no longer called but for some reason needed, as when i delete it the function above no longer works.
     addEmptyArg = (node:Node) : void => {
         console.trace("addargbtn")
@@ -3295,6 +3298,7 @@ export class Eagle {
         let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
         clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
     }
+    */
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
         let selectSectionID;
