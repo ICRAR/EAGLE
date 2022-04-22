@@ -3248,20 +3248,40 @@ export class Eagle {
 
     addEmptyField = (node:Node) : void => {
         var fieldIndex
+        console.log('addFieldbtn called')
         if(Eagle.parameterTableSelectionParentId() != -1){
+        // A cell in the table is selected well insert new row instead of adding at the end
             fieldIndex = Eagle.parameterTableSelectionParentId()+1
-            node.addEmptyField(this.selectedNode(), fieldIndex)
+            if(Eagle.parameterTableType() === 'component'){
+            //component table
+                node.addEmptyField(this.selectedNode(), fieldIndex)
+            }else{
+            //argument table
+            node.addEmptyArg(this.selectedNode(), fieldIndex)
+            }
         }else{
-            node.addEmptyField(this.selectedNode(), -1)
-            fieldIndex = this.selectedNode().getFields().length -1
+        //no cell selected, add new row at the end
+            if(Eagle.parameterTableType() === 'component'){
+            //component table
+                node.addEmptyField(this.selectedNode(), -1)
+                fieldIndex = this.selectedNode().getFields().length -1
+            }else{
+            //argument table
+                console.log("case no selection agrument table")
+                //the function call below seems to for some reason call the addEmptyArg function in eagle.ts instead of in node.ts
+                node.addEmptyArg(this.selectedNode(), -1)
+                fieldIndex = this.selectedNode().getApplicationArgs().length -1
+            }
         }
 
-        //handling selecting and highlighting the newly created node
+        //handling selecting and highlighting the newly created row
         let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
         clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
     }
 
+    //this is the seperate function that is now included in the function above. it is no longer called but for some reason needed, as when i delete it the function above no longer works.
     addEmptyArg = (node:Node) : void => {
+        console.trace("addargbtn")
         var fieldIndex
         if(Eagle.parameterTableSelectionParentId() != -1){
             fieldIndex = Eagle.parameterTableSelectionParentId()+1
