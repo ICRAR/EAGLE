@@ -10,6 +10,7 @@ import {Node} from '../Node';
 import {Edge} from '../Edge';
 import {Port} from '../Port';
 import {Utils} from '../Utils';
+import {Undo} from '../Undo';
 
 ko.bindingHandlers.graphRenderer = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -438,6 +439,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 }
             }
 
+            Undo.pushSnapshot(eagle, "Move node " + node.getName());
             //tick();
         });
 

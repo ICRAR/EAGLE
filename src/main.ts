@@ -66,6 +66,7 @@ $(function(){
 
     // save initial state to undo memory
     Undo.init();
+    Undo.pushSnapshot(eagle, "EAGLE default");
 
     // Show repository list.
     GitHub.loadRepoList(eagle);

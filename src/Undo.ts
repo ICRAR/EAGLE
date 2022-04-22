@@ -30,9 +30,19 @@ import {Config} from './Config';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 
+class Snapshot {
+    description: ko.Observable<string>;
+    data : ko.Observable<string>; // TODO: can we store the data as an object, must we go to JSON?
+
+    constructor(description: string, data: string){
+        this.description = ko.observable(description);
+        this.data = ko.observable(data);
+    }
+}
+
 export class Undo {
-    static memory: ko.ObservableArray<string>;
-    static index: ko.Observable<number>;
+    static memory: ko.ObservableArray<Snapshot>;
+    static index: ko.Observable<number>; // place where next snapshot will go
 
     static init(){
         Undo.memory = ko.observableArray([]);
@@ -44,39 +54,42 @@ export class Undo {
     }
 
     static clear = () : void => {
-        Undo.memory.removeAll();
+        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
+            Undo.memory()[i] = null;
+        }
         Undo.index(0);
     }
 
-    static push = (eagle: Eagle) : void => {
-        console.log("Undo.push()");
+    static pushSnapshot = (eagle: Eagle, description: string) : void => {
+        console.log("Undo.pushSnapshot()");
 
         const previousIndex = (Undo.index() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
-        console.log("previousIndex", previousIndex);
-        const previousContent = Undo.memory()[previousIndex];
-        const newContent = JSON.stringify(LogicalGraph.toOJSJson(eagle.logicalGraph()));
+        const previousSnapshot : Snapshot = Undo.memory()[previousIndex];
+        const newContent : string = JSON.stringify(LogicalGraph.toOJSJson(eagle.logicalGraph()));
 
         // check if newContent matches old content, if so, no need to push
         // TODO: maybe speed this up with checksums? or maybe not required
-        if (previousContent === newContent){
-            console.log("Undo.push() : content hasn't changed, abort!");
+        if (previousSnapshot !== null && previousSnapshot.data() === newContent){
+            console.log("Undo.pushSnapshot() : content hasn't changed, abort!");
             return;
         }
 
-        Undo.memory.splice(Undo.index(), 1, newContent);
+        Undo.memory()[Undo.index()] = new Snapshot(description, newContent);
         Undo.index((Undo.index() + 1) % Config.UNDO_MEMORY_SIZE);
     }
 
-    static pop = (eagle: Eagle) : void => {
-        console.log("Undo.pop()");
+    static popSnapshot = (eagle: Eagle) : void => {
+        console.log("Undo.popSnapshot()");
 
-        const previousIndex = (Undo.index() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
-        Undo.index(previousIndex);
-        const data : string = Undo.memory()[Undo.index()];
-        Undo.memory.splice(Undo.index(), 1, null);
+        const prevprevIndex = (Undo.index() + Config.UNDO_MEMORY_SIZE - 2) % Config.UNDO_MEMORY_SIZE;
+        const prevIndex = (Undo.index() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
+        const previousSnapshot : Snapshot = Undo.memory()[prevprevIndex];
 
-        if (data !== null){
-            const dataObject = JSON.parse(data);
+        if (previousSnapshot !== null){
+            Undo.memory()[prevIndex] = null;
+            Undo.index(prevIndex);
+
+            const dataObject = JSON.parse(previousSnapshot.data());
             const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
             const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
 
@@ -85,7 +98,6 @@ export class Undo {
     }
 
     static print = () : string => {
-        console.log("print()");
         const result = [];
 
         for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){

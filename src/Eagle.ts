@@ -190,7 +190,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.onlineHelp();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["u"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {Undo.pop(eagle)}));
+        Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["u"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {Undo.popSnapshot(eagle)}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -698,9 +698,6 @@ export class Eagle {
             return;
         }
 
-        // save state to undo
-        Undo.push(this);
-
         // Gets the file from formdata.
         const formData = new FormData();
         formData.append('file', uploadedGraphFileToInsertInputElement.files[0]);
@@ -718,6 +715,7 @@ export class Eagle {
                 this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
                 this.checkGraph();
+                Undo.pushSnapshot(this, "Insert Logical Graph");
                 this.logicalGraph.valueHasMutated();
             });
         });
@@ -799,9 +797,6 @@ export class Eagle {
     createSubgraphFromSelection = () : void => {
         console.log("createSubgraphFromSelection()");
 
-        // save state to undo
-        Undo.push(this);
-
         // create new subgraph
         const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph, false);
 
@@ -833,6 +828,7 @@ export class Eagle {
         // flag graph as changed
         this.flagActiveFileModified();
         this.checkGraph();
+        Undo.pushSnapshot(this, "Create Subgraph from Selection");
         this.logicalGraph.valueHasMutated();
     }
 
@@ -849,9 +845,6 @@ export class Eagle {
             {   // Cancelling action.
                 return;
             }
-
-            // save state to undo
-            Undo.push(this);
 
             const userChoice: string = constructs[userChoiceIndex];
 
@@ -876,6 +869,7 @@ export class Eagle {
             // flag graph as changed
             this.flagActiveFileModified();
             this.checkGraph();
+            Undo.pushSnapshot(this, "Add Selection to Construct");
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -1092,9 +1086,6 @@ export class Eagle {
      * Creates a new logical graph for editing.
      */
     newLogicalGraph = () : void => {
-        // save state to undo
-        Undo.push(this);
-
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
@@ -1103,6 +1094,7 @@ export class Eagle {
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.addNode(node, pos.x, pos.y, null);
             this.checkGraph();
+            Undo.pushSnapshot(this, "New Logical Graph");
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -1881,9 +1873,6 @@ export class Eagle {
 
             switch (fileTypeLoaded){
                 case Eagle.FileType.Graph:
-                    // save state to undo
-                    Undo.push(this);
-
                     // attempt to determine schema version from FileInfo
                     const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
@@ -1922,6 +1911,7 @@ export class Eagle {
 
                     // check graph
                     this.checkGraph();
+                    Undo.pushSnapshot(this, "Loaded " + file.name);
 
                     // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
                     this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
@@ -2014,14 +2004,12 @@ export class Eagle {
             // create parent node
             const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, false);
 
-            // save state to undo
-            Undo.push(this);
-
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
             // trigger re-render
             this.logicalGraph.valueHasMutated();
+            Undo.pushSnapshot(this, "Inserted " + file.name);
             this.checkGraph();
 
             if (errorsWarnings.errors.length > 0){
@@ -2624,12 +2612,10 @@ export class Eagle {
                 return;
             }
 
-            // save state to undo
-            Undo.push(this);
-
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
                 this.checkGraph();
+                Undo.pushSnapshot(this, "Add edge");
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2660,13 +2646,11 @@ export class Eagle {
                 return;
             }
 
-            // save state to undo
-            Undo.push(this);
-
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
             this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
                 this.checkGraph();
+                Undo.pushSnapshot(this, "Edit edge");
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2693,11 +2677,9 @@ export class Eagle {
                         }
                     }
 
-                    // save state to undo
-                    Undo.push(this);
-
                     this.insertGraph(nodes, edges, null);
                     this.checkGraph();
+                    Undo.pushSnapshot(this, "Duplicate selection");
                     this.logicalGraph.valueHasMutated();
                 }
                 break;
@@ -2836,17 +2818,12 @@ export class Eagle {
                 return;
             }
 
-            Undo.push(this);
             this._deleteSelection();
         });
     }
 
     private _deleteSelection = () : void => {
         if (this.selectedLocation() === Eagle.FileType.Graph){
-
-            // save state to undo
-            Undo.push(this);
-
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     this.logicalGraph().removeNode(object);
@@ -2861,6 +2838,7 @@ export class Eagle {
             this.logicalGraph().fileInfo().modified = true;
 
             this.checkGraph();
+            Undo.pushSnapshot(this, "Delete Selection");
         }
 
         if (this.selectedLocation() === Eagle.FileType.Palette){
@@ -2884,9 +2862,6 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
-        // save state to undo
-        Undo.push(this);
-
         let pos : {x:number, y:number};
 
         // if node is a construct, set width and height a little larger
@@ -2925,6 +2900,7 @@ export class Eagle {
             }
 
             this.checkGraph();
+            Undo.pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -3316,9 +3292,6 @@ export class Eagle {
             if (!completed)
                 return;
 
-            // save state to undo
-            Undo.push(this);
-
             const choice: string = nodeList[userChoiceIndex];
 
             // change the parent
@@ -3333,6 +3306,7 @@ export class Eagle {
 
             // refresh the display
             this.checkGraph();
+            Undo.pushSnapshot(this, "Change Node Parent");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -3372,9 +3346,6 @@ export class Eagle {
             if (!completed)
                 return;
 
-            // save state to undo
-            Undo.push(this);
-
             const choice = nodeList[userChoiceIndex];
 
             // change the subject
@@ -3383,6 +3354,7 @@ export class Eagle {
 
             // refresh the display
             this.checkGraph();
+            Undo.pushSnapshot(this, "Change Node Subject");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -3395,9 +3367,6 @@ export class Eagle {
             console.warn("Could not remove port from null node");
             return;
         }
-
-        // save state to undo
-        Undo.push(this);
 
         // remember port id
         let portId;
@@ -3427,6 +3396,7 @@ export class Eagle {
         }
 
         this.checkGraph();
+        Undo.pushSnapshot(this, "Remove port from node");
     }
 
     // dragdrop
@@ -3902,9 +3872,6 @@ export class Eagle {
                     return;
                 }
 
-                // save state to undo
-                Undo.push(this);
-
                 // check selected option in select tag
                 const choices : string[] = $('#editFieldModal').data('choices');
                 const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
@@ -3932,6 +3899,7 @@ export class Eagle {
                 }
 
                 this.checkGraph();
+                Undo.pushSnapshot(this, "Add field");
             });
 
         } else {
@@ -3954,9 +3922,6 @@ export class Eagle {
                     return;
                 }
 
-                // save state to undo
-                Undo.push(this);
-
                 // update field data
                 field.setText(newField.getText());
                 field.setName(newField.getName());
@@ -3969,6 +3934,7 @@ export class Eagle {
                 field.setPositionalArgument(newField.isPositionalArgument());
 
                 this.checkGraph();
+                Undo.pushSnapshot(this, "Edit Field");
             });
         }
     };
@@ -4006,9 +3972,6 @@ export class Eagle {
                    return;
                }
 
-               // save state to undo
-               Undo.push(this);
-
                // hide the custom text input unless the last option in the select is chosen
                if (choice === choices.length){
                    newPort.setId(Utils.uuidv4());
@@ -4020,6 +3983,7 @@ export class Eagle {
                }
 
                this.checkGraph();
+               Undo.pushSnapshot(this, "Add Port");
             });
         } else {
             $("#editPortModalTitle").html("Edit Port");
@@ -4040,15 +4004,13 @@ export class Eagle {
                     return;
                 }
 
-                // save state to undo
-                Undo.push(this);
-
                 // update port data (except nodeKey and id, those don't change)
                 const nodeKey = port.getNodeKey();
                 const portId = port.getId();
                 port.copyWithKeyAndId(newPort, nodeKey, portId);
 
                 this.checkGraph();
+                Undo.pushSnapshot(this, "Edit Port");
             });
         }
     }
@@ -4187,9 +4149,6 @@ export class Eagle {
             const selectedNode: Node = this.selectedNode();
             const oldApp: Node = selectedNode.getInputApplication();
 
-            // save state to undo
-            Undo.push(this);
-
             // remove all edges incident on the old input application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
@@ -4198,6 +4157,7 @@ export class Eagle {
             selectedNode.setInputApplication(node);
 
             this.checkGraph();
+            Undo.pushSnapshot(this, "Set Node Input Application");
         });
     }
 
@@ -4211,9 +4171,6 @@ export class Eagle {
             const selectedNode: Node = this.selectedNode();
             const oldApp: Node = selectedNode.getOutputApplication();
 
-            // save state to undo
-            Undo.push(this);
-
             // remove all edges incident on the old output application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
@@ -4222,6 +4179,7 @@ export class Eagle {
             selectedNode.setOutputApplication(node);
 
             this.checkGraph();
+            Undo.pushSnapshot(this, "Set Node Output Application");
         });
     }
 
@@ -4489,9 +4447,6 @@ export class Eagle {
                 return;
             }
 
-            // save state to undo
-            Undo.push(this);
-
             // change the category of the node
             this.selectedNode().setCategory(categories[userChoiceIndex]);
 
@@ -4537,6 +4492,7 @@ export class Eagle {
 
             this.flagActiveFileModified();
             this.checkGraph();
+            Undo.pushSnapshot(this, "Edit Node Category");
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -4707,7 +4663,8 @@ export namespace Eagle
         Repository = "Repository",
         Inspector = "Inspector",
         TranslationMenu = "TranslationMenu",
-        Hierarchy = "Hierarchy"
+        Hierarchy = "Hierarchy",
+        Actions = "Actions"
     }
 
     export enum FileType {
