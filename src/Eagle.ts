@@ -2448,8 +2448,10 @@ export class Eagle {
         }else{
             if (tableType === 'component'){
                 $("#parameterTableModalTitle").html("Component Parameter Table")
+                $("#parameterTableModalAddParameterButton").html("Add Parameter")
             }else{
                 $("#parameterTableModalTitle").html("Application Argument Table")
+                $("#parameterTableModalAddParameterButton").html("Add Argument")
             }
             Utils.showOpenParamsTableModal();
         }
@@ -3248,7 +3250,6 @@ export class Eagle {
 
     addEmptyField = () : void => {
         var fieldIndex
-        console.log('addFieldbtn called')
         if(Eagle.parameterTableSelectionParentId() != -1){
         // A cell in the table is selected well insert new row instead of adding at the end
             fieldIndex = Eagle.parameterTableSelectionParentId()+1
@@ -3268,9 +3269,6 @@ export class Eagle {
                 fieldIndex = this.selectedNode().getFields().length -1
             }else{
                 //argument table
-                console.log("case no selection agrument table")
-
-                //the function call below seems to for some reason call the addEmptyArg function in eagle.ts instead of in node.ts
                 this.selectedNode().addEmptyArg(-1)
                 fieldIndex = this.selectedNode().getApplicationArgs().length -1
             }
@@ -3278,27 +3276,8 @@ export class Eagle {
 
         //handling selecting and highlighting the newly created row
         let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
-        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
+        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
     }
-
-    /*
-    //this is the seperate function that is now included in the function above. it is no longer called but for some reason needed, as when i delete it the function above no longer works.
-    addEmptyArg = (node:Node) : void => {
-        console.trace("addargbtn")
-        var fieldIndex
-        if(Eagle.parameterTableSelectionParentId() != -1){
-            fieldIndex = Eagle.parameterTableSelectionParentId()+1
-            node.addEmptyArg(this.selectedNode(), fieldIndex)
-        }else{
-            node.addEmptyArg(this.selectedNode(), -1)
-            fieldIndex = this.selectedNode().getApplicationArgs().length -1
-        }
-
-        //handling selecting and highlighting the newly created node
-        let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
-        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
-    }
-    */
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
         let selectSectionID;

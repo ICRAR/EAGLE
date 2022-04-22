@@ -1151,8 +1151,6 @@ export class Node {
     }
 
     addEmptyField = (index:number) :void => {
-        console.log("addign field")
-
         if(index === -1){
             this.addField(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
         }else{
@@ -1161,11 +1159,10 @@ export class Node {
     }
 
     addEmptyArg = (index:number) :void => {
-        console.log("addign arg")
         if(index === -1){
-            this.addApplicationArg(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+            this.addApplicationArg(new Field("New Argument", "", "", "", "", false, Eagle.DataType.String, false, [], false));
         }else{
-            this.addApplicationArgAtPosition(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
+            this.addApplicationArgAtPosition(new Field("New Argument", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
         }
     }
 

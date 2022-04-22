@@ -136,7 +136,7 @@
     outline: none;
 }
 
-#tableInspectorValue:focus {
+#tableInspectorValue:focus, #tableInspectorSelection:focus {
     border: none;
     outline: none;
 }
