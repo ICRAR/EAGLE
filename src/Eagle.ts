@@ -2447,9 +2447,17 @@ export class Eagle {
             Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
             if (tableType === 'component'){
+                if (!this.selectedNode().canHaveParameters()){
+                    Utils.showNotification("Error", "This Node Cannot Have Parameters", "warning");
+                    return
+                }
                 $("#parameterTableModalTitle").html("Component Parameter Table")
                 $("#parameterTableModalAddParameterButton").html("Add Parameter")
             }else{
+                if (!this.selectedNode().isApplication()){
+                    Utils.showNotification("Error", "This Node Is Not An Application", "warning");
+                    return
+                }
                 $("#parameterTableModalTitle").html("Application Argument Table")
                 $("#parameterTableModalAddParameterButton").html("Add Argument")
             }
