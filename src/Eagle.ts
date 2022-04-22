@@ -66,9 +66,9 @@ export class Eagle {
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
 
-    static parameterTableType : ko.Observable<string>;
+    static parameterTableType : ko.Observable<Eagle.FieldType>;
     static parameterTableSelectionParent : ko.Observable<Field>; // row in the parameter table that is currently selected
-    static parameterTableSelectionParentId : ko.Observable<number> // id of the selected field
+    static parameterTableSelectionParentIndex : ko.Observable<number> // id of the selected field
     static parameterTableSelection : ko.Observable<Field>; // cell in the parameter table that is currently selected
     static parameterTableSelectionName : ko.Observable<string>; // name of selected parameter in field
     static parameterTableSelectionReadonly : ko.Observable<boolean> // check if selection is readonly
@@ -189,16 +189,16 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.onlineHelp();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('component');}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_application_argument_table_modal", "Open Application Argument Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('argument');}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal(Eagle.FieldType.Field);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_application_argument_table_modal", "Open Application Argument Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal(Eagle.FieldType.ApplicationParam);}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
 
-        Eagle.parameterTableType = ko.observable('');
+        Eagle.parameterTableType = ko.observable(Eagle.FieldType.Unknown);
         Eagle.parameterTableSelectionParent = ko.observable(null);
-        Eagle.parameterTableSelectionParentId = ko.observable(-1);
+        Eagle.parameterTableSelectionParentIndex = ko.observable(-1);
         Eagle.parameterTableSelection = ko.observable(null);
         Eagle.parameterTableSelectionName = ko.observable('');
         Eagle.parameterTableSelectionReadonly = ko.observable(false);
@@ -2441,12 +2441,12 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    openParamsTableModal = (tableType:string) : void => {
+    openParamsTableModal = (tableType:Eagle.FieldType) : void => {
         Eagle.parameterTableType(tableType)
         if (!this.selectedNode()){
             Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
-            if (tableType === 'component'){
+            if (tableType === Eagle.FieldType.Field){
                 if (!this.selectedNode().canHaveParameters()){
                     Utils.showNotification("Error", "This Node Cannot Have Parameters", "warning");
                     return
@@ -2467,7 +2467,7 @@ export class Eagle {
     }
 
     currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
-        if (Eagle.parameterTableType() === 'component'){
+        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
             return this.selectedNode().getFields()
         }else{
             return this.selectedNode().getApplicationArgs()
@@ -2571,7 +2571,7 @@ export class Eagle {
     }
 
     static resetParamsTableSelection = ():void => {
-        Eagle.parameterTableSelectionParentId(-1);
+        Eagle.parameterTableSelectionParentIndex(-1);
         Eagle.parameterTableSelection(null);
     }
 
@@ -3258,10 +3258,10 @@ export class Eagle {
 
     addEmptyTableRow = () : void => {
         var fieldIndex
-        if(Eagle.parameterTableSelectionParentId() != -1){
+        if(Eagle.parameterTableSelectionParentIndex() != -1){
         // A cell in the table is selected well insert new row instead of adding at the end
-            fieldIndex = Eagle.parameterTableSelectionParentId()+1
-            if(Eagle.parameterTableType() === 'component'){
+            fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
+            if(Eagle.parameterTableType() === Eagle.FieldType.Field){
                 //component table
                 this.selectedNode().addEmptyField(fieldIndex)
             }else{
@@ -3270,7 +3270,7 @@ export class Eagle {
             }
         }else{
         //no cell selected, add new row at the end
-            if(Eagle.parameterTableType() === 'component'){
+            if(Eagle.parameterTableType() === Eagle.FieldType.Field){
                 //component table
                 this.selectedNode().addEmptyField(-1)
                 fieldIndex = this.selectedNode().getFields().length -1
@@ -4025,10 +4025,10 @@ export class Eagle {
 
     duplicateParameter = (index:number) :void => {
         var fieldIndex //variable holds the index of which row to highlight after creation
-        if(Eagle.parameterTableSelectionParentId() != -1){
+        if(Eagle.parameterTableSelectionParentIndex() != -1){
         //if a cell in the table is selected in this case the new node will be placed below the currently selected node
-            fieldIndex = Eagle.parameterTableSelectionParentId()+1
-            if (Eagle.parameterTableType() === 'component'){
+            fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
+            if (Eagle.parameterTableType() === Eagle.FieldType.Field){
             //for component parameter tables
                 this.selectedNode().addFieldAtPosition(this.selectedNode().getFields()[index].clone(),fieldIndex)
             }else{
@@ -4037,7 +4037,7 @@ export class Eagle {
             }
         }else{
         //if no call in the table is selected, in this case the new node is appended
-            if (Eagle.parameterTableType() === 'component'){
+            if (Eagle.parameterTableType() === Eagle.FieldType.Field){
             //for component parameter tables
                 this.selectedNode().addField(this.selectedNode().getFields()[index].clone())
             }else{
@@ -4819,7 +4819,8 @@ export namespace Eagle
 
     export enum FieldType {
         Field = "Field",
-        ApplicationParam = "ApplicationParam"
+        ApplicationParam = "ApplicationParam",
+        Unknown = 'unknown'
     }
 
     export enum RepositoryService {
