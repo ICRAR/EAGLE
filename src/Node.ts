@@ -1151,10 +1151,11 @@ export class Node {
     }
 
     addEmptyField = (index:number) :void => {
+        var newField = new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false)
         if(index === -1){
-            this.addField(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+            this.addField(newField);
         }else{
-            this.addFieldAtPosition(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
+            this.addFieldAtPosition(newField, index);
         }
     }
 
