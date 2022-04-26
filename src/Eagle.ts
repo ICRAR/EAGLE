@@ -4664,8 +4664,7 @@ export namespace Eagle
         Repository = "Repository",
         Inspector = "Inspector",
         TranslationMenu = "TranslationMenu",
-        Hierarchy = "Hierarchy",
-        Actions = "Actions"
+        Hierarchy = "Hierarchy"
     }
 
     export enum FileType {

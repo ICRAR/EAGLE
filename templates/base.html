@@ -100,9 +100,6 @@
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}" data-intro='Explore the hierarchy of nodes in the current logical graph.'>
                             Hierarchy
                         </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeActions" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Actions);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Actions}" data-intro='Observe the list of previous user actions that modified the logical graph.'>
-                            Actions
-                        </button>
                     </div>
                 <div class="rightWindowHandle" data-bind="click: rightWindow().toggleShown, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_right_window', true)">
                     <span data-bind="visible: rightWindow().shown()">
@@ -165,9 +162,6 @@
                     </div>
                     <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy">
                         {% include 'hierarchy.html' %}
-                    </div>
-                    <div class="rightWindowDisplay actions" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Actions">
-                        {% include 'actions.html' %}
                     </div>
                 </div>
 
