@@ -102,13 +102,12 @@
 
 #parameterTableModal #tableInspector{
     position: sticky;
-    top: 66px;
+    top: 62px;
     z-index: 111;
 }
 
 #parameterTableModal thead{
     position: sticky;
-    top: 90px;
     z-index: 111;
 }
 
@@ -181,6 +180,11 @@
     border-right: 1px solid rgb(14 2 76 / 16%);
 }
 
+#parameterTableModal .modal-dialog td i{
+    margin-left: 50%;
+    transform: translate(-50%, 2px);
+}
+
 td:first-child input { 
     font-weight: 700;
 }
@@ -227,6 +231,23 @@ td:first-child input {
 
 #parameterTableModal .modal-header{
     border: none;
+    justify-content: unset;
+}
+
+#parameterTableModal .searchBarContainer{
+    position: absolute;
+    right: 20px;
+}
+
+#parameterTableModal .modal-header button{
+    background: transparent;
+    border: none;
+    padding: 0px;
+    margin-left: 5px;
+}
+
+#parameterTableModal .modal-header button i{
+    transform: translateY(2px);
 }
 
 #parameterTableModal .modal-body{
