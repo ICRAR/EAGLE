@@ -528,7 +528,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" data-bind="click: function(){Eagle.resetParamsTableSelection()}">
-                <h5 class="modal-title" id="parameterTableModalTitle">Component Parameters</h5>
+                <h5 class="modal-title" id="parameterTableModalTitle" data-bind="html: $root.getParamsTableModalTitleText()">Component Parameters</h5>
 
                 <div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
                     <i class="material-icons md-18 searchBarIcon">search</i>
@@ -611,7 +611,7 @@
                     </table>
             </div>
             <div class="modal-footer"  data-bind="click: Eagle.resetParamsTableSelection">
-                <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: $root.selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
+                <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: $root.selectedNode().isLocked(),html: $root.getParamsTableModalButtonText()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
                 <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>
             </div>
             <!-- /ko -->

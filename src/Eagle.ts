@@ -2451,19 +2451,30 @@ export class Eagle {
                     Utils.showNotification("Error", "This Node Cannot Have Parameters", "warning");
                     return
                 }
-                $("#parameterTableModalTitle").html("Component Parameter Table")
-                $("#parameterTableModalAddParameterButton").html("Add Parameter")
             }else{
                 if (!this.selectedNode().isApplication()){
                     Utils.showNotification("Error", "This Node Is Not An Application", "warning");
                     return
                 }
-                $("#parameterTableModalTitle").html("Application Argument Table")
-                $("#parameterTableModalAddParameterButton").html("Add Argument")
             }
             Utils.showOpenParamsTableModal();
         }
+    }
 
+    getParamsTableModalTitleText = () : string => {
+        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            return "Component Parameter Table"
+        }else{
+            return "Application Argument Table"
+        }
+    }
+
+    getParamsTableModalButtonText = () : string => {
+        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            return "Add Parameter"
+        }else{
+            return "Add Argument"
+        }
     }
 
     currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
