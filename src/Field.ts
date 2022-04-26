@@ -180,9 +180,10 @@ export class Field {
     }, this);
 
 
-    select = (selection:any,selectionName:string, readOnlyState:boolean, selectionParent:Field, event:any) : void => {
+    select = (selection:any,selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
         Eagle.parameterTableSelectionName(selectionName);
         Eagle.parameterTableSelectionParent(selectionParent);
+        Eagle.parameterTableSelectionParentIndex(selectionIndex);
         Eagle.parameterTableSelection(selection());
         Eagle.parameterTableSelectionReadonly(readOnlyState);
     }

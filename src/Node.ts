@@ -446,7 +446,7 @@ export class Node {
 
         // modify using settings and node readonly
 
-        //looking at the readonly state of the component parameters and the allow read only parameter editing setting 
+        //looking at the readonly state of the component parameters and the allow read only parameter editing setting
         return (field.isReadonly());
     }
 
@@ -947,13 +947,18 @@ export class Node {
         return result;
     }
 
-    addApplicationParam = (param : Field) : void => {
+    addApplicationArg = (param : Field) : void => {
         this.applicationArgs.push(param);
+    }
+
+    addApplicationArgAtPosition = (param : Field, i : number) : void => {
+        this.applicationArgs.splice(i, 0, param);
     }
 
     removeApplicationArgByIndex = (index : number) : void => {
         this.applicationArgs.splice(index, 1);
     }
+
 
     removeAllApplicationArgs = () : void => {
         this.applicationArgs([]);
@@ -1145,12 +1150,21 @@ export class Node {
         this.fields()[0].setValue(e.value);
     }
 
-    addEmptyField = (selectedNode:Node) :void => {
-        selectedNode.addField(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+    addEmptyField = (index:number) :void => {
+        var newField = new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false)
+        if(index === -1){
+            this.addField(newField);
+        }else{
+            this.addFieldAtPosition(newField, index);
+        }
     }
 
-    addEmptyArg = (selectedNode:Node) :void => {
-        selectedNode.addApplicationParam(new Field("New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+    addEmptyArg = (index:number) :void => {
+        if(index === -1){
+            this.addApplicationArg(new Field("New Argument", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+        }else{
+            this.addApplicationArgAtPosition(new Field("New Argument", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
+        }
     }
 
     // TODO: this seems similar to findPortTypeById(), maybe we can just use this one!
@@ -1521,7 +1535,7 @@ export class Node {
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                node.addApplicationParam(Field.fromOJSJson(paramData));
+                node.addApplicationArg(Field.fromOJSJson(paramData));
             }
         }
 
@@ -1967,7 +1981,7 @@ export class Node {
 
         node.applicationArgs([]);
         for (const param of nodeData.applicationArgs){
-            node.addApplicationParam(Field.fromOJSJson(param));
+            node.addApplicationArg(Field.fromOJSJson(param));
         }
 
         return node;

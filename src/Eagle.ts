@@ -66,8 +66,9 @@ export class Eagle {
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
 
-    static parameterTableType : ko.Observable<string>;
+    static parameterTableType : ko.Observable<Eagle.FieldType>;
     static parameterTableSelectionParent : ko.Observable<Field>; // row in the parameter table that is currently selected
+    static parameterTableSelectionParentIndex : ko.Observable<number> // id of the selected field
     static parameterTableSelection : ko.Observable<Field>; // cell in the parameter table that is currently selected
     static parameterTableSelectionName : ko.Observable<string>; // name of selected parameter in field
     static parameterTableSelectionReadonly : ko.Observable<boolean> // check if selection is readonly
@@ -188,15 +189,16 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.onlineHelp();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('component');}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_application_argument_table_modal", "Open Application Argument Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('argument');}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal(Eagle.FieldType.Field);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_application_argument_table_modal", "Open Application Argument Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal(Eagle.FieldType.ApplicationParam);}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
 
-        Eagle.parameterTableType = ko.observable('');
+        Eagle.parameterTableType = ko.observable(Eagle.FieldType.Unknown);
         Eagle.parameterTableSelectionParent = ko.observable(null);
+        Eagle.parameterTableSelectionParentIndex = ko.observable(-1);
         Eagle.parameterTableSelection = ko.observable(null);
         Eagle.parameterTableSelectionName = ko.observable('');
         Eagle.parameterTableSelectionReadonly = ko.observable(false);
@@ -2439,23 +2441,44 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    openParamsTableModal = (tableType:string) : void => {
+    openParamsTableModal = (tableType:Eagle.FieldType) : void => {
         Eagle.parameterTableType(tableType)
         if (!this.selectedNode()){
             Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
-            if (tableType === 'component'){
-                $("#parameterTableModalTitle").html("Component Parameter Table")
+            if (tableType === Eagle.FieldType.Field){
+                if (!this.selectedNode().canHaveParameters()){
+                    Utils.showNotification("Error", "This Node Cannot Have Parameters", "warning");
+                    return
+                }
             }else{
-                $("#parameterTableModalTitle").html("Application Argument Table")
+                if (!this.selectedNode().isApplication()){
+                    Utils.showNotification("Error", "This Node Is Not An Application", "warning");
+                    return
+                }
             }
             Utils.showOpenParamsTableModal();
         }
-       
+    }
+
+    getParamsTableModalTitleText = () : string => {
+        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            return "Component Parameter Table"
+        }else{
+            return "Application Argument Table"
+        }
+    }
+
+    getParamsTableModalButtonText = () : string => {
+        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            return "Add Parameter"
+        }else{
+            return "Add Argument"
+        }
     }
 
     currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
-        if (Eagle.parameterTableType() === 'component'){
+        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
             return this.selectedNode().getFields()
         }else{
             return this.selectedNode().getApplicationArgs()
@@ -2468,7 +2491,7 @@ export class Eagle {
             type = Eagle.parameterTableType()
         }else if(type === "Field"){
             type= 'component'
-        
+
         }
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(this.allowPaletteEditing()){
@@ -2558,7 +2581,10 @@ export class Eagle {
         }
     }
 
-
+    static resetParamsTableSelection = ():void => {
+        Eagle.parameterTableSelectionParentIndex(-1);
+        Eagle.parameterTableSelection(null);
+    }
 
     fillParamentersTable = (type:any):string => {
         var options:string;
@@ -3200,7 +3226,7 @@ export class Eagle {
     /**
      * Adds an application param to the selected node via HTML.
      */
-    addApplicationParamHTML = () : void => {
+    addApplicationArgHTML = () : void => {
         const node: Node = this.selectedNode();
 
         if (node === null){
@@ -3241,12 +3267,34 @@ export class Eagle {
          $("#"+divID).hide();
     }
 
-    addEmptyField = (node:Node) : void => {
-        node.addEmptyField(this.selectedNode())
-    }
+    addEmptyTableRow = () : void => {
+        var fieldIndex
+        if(Eagle.parameterTableSelectionParentIndex() != -1){
+        // A cell in the table is selected well insert new row instead of adding at the end
+            fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
+            if(Eagle.parameterTableType() === Eagle.FieldType.Field){
+                //component table
+                this.selectedNode().addEmptyField(fieldIndex)
+            }else{
+                //argument table
+                this.selectedNode().addEmptyArg(fieldIndex)
+            }
+        }else{
+        //no cell selected, add new row at the end
+            if(Eagle.parameterTableType() === Eagle.FieldType.Field){
+                //component table
+                this.selectedNode().addEmptyField(-1)
+            }else{
+                //argument table
+                this.selectedNode().addEmptyArg(-1)
+            }
+            //getting the length of the array to use as an index to select the last row in the table
+            fieldIndex = this.currentParamsArray().length -1
+        }
 
-    addEmptyArg = (node:Node) : void => {
-        node.addEmptyArg(this.selectedNode())
+        //handling selecting and highlighting the newly created row
+        let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
     }
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
@@ -3936,14 +3984,14 @@ export class Eagle {
                    if (fieldType === Eagle.FieldType.Field){
                        node.addField(newField);
                    } else {
-                       node.addApplicationParam(newField);
+                       node.addApplicationArg(newField);
                    }
                 } else {
                    const clone : Field = allFields[choice].clone();
                    if (fieldType === Eagle.FieldType.Field){
                        node.addField(clone);
                    } else {
-                       node.addApplicationParam(clone);
+                       node.addApplicationArg(clone);
                    }
                 }
 
@@ -3985,6 +4033,35 @@ export class Eagle {
             });
         }
     };
+
+    duplicateParameter = (index:number) :void => {
+        var fieldIndex //variable holds the index of which row to highlight after creation
+        if(Eagle.parameterTableSelectionParentIndex() != -1){
+        //if a cell in the table is selected in this case the new node will be placed below the currently selected node
+            fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
+            if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            //for component parameter tables
+                this.selectedNode().addFieldAtPosition(this.selectedNode().getFields()[index].clone(),fieldIndex)
+            }else{
+            //for application parameter tables
+                this.selectedNode().addApplicationArgAtPosition(this.selectedNode().getApplicationArgs()[index].clone(),fieldIndex)
+            }
+        }else{
+        //if no call in the table is selected, in this case the new node is appended
+            if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            //for component parameter tables
+                this.selectedNode().addField(this.selectedNode().getFields()[index].clone())
+            }else{
+            //for application parameter tables
+                this.selectedNode().addApplicationArg(this.selectedNode().getApplicationArgs()[index].clone())
+            }
+            fieldIndex = this.selectedNode().getFields().length -1
+        }
+
+        //handling selecting and highlighting the newly created node
+        let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
+    }
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
         const allPorts: Port[] = Utils.getUniquePortsList(this.palettes(), this.logicalGraph());
@@ -4753,7 +4830,8 @@ export namespace Eagle
 
     export enum FieldType {
         Field = "Field",
-        ApplicationParam = "ApplicationParam"
+        ApplicationParam = "ApplicationParam",
+        Unknown = 'unknown'
     }
 
     export enum RepositoryService {
@@ -4831,9 +4909,9 @@ $( document ).ready(function() {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
         $("#checkGraphAccordion").parent().parent().attr('style','')
-        Eagle.parameterTableSelection(null)
-        Eagle.parameterTableSelectionParent(null)
-        Eagle.parameterTableSelectionName('')
+
+        //reset parameter table selecction
+        Eagle.resetParamsTableSelection()
     });
 
     $('.modal').on('shown.bs.modal',function(){
