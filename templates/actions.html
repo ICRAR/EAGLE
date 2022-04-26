@@ -1,10 +1,10 @@
 <div class="container py-2">
     <div class="row">
         <div class="col">
-            <ul data-bind="foreach: $root.undo().memory">
+            <ul data-bind="foreach: $root.undo().history">
                 <!-- ko ifnot: $data === null -->
                 <li>
-                    <span data-bind="text: $index() + ' ' + $data.description()"></span>
+                    <span data-bind="text: $data.description()"></span>
                 </li>
                 <!-- /ko -->
             </ul>
