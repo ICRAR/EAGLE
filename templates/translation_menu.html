@@ -259,7 +259,7 @@
             <div class="input-group-prepend">
                 <span class="input-group-text" id="alg1-rmode-label">Rmode</span>
             </div>
-            <select id="alg1-rmode-options" data-bind="value: translator().rmode"
+            <select id="alg1-rmode-options" class="form-control" data-bind="value: translator().rmode"
                     onchange="const textbox = document.getElementById('alg1-rmode-value'); textbox.value = (this.selectedIndex === -1 ? '0' : this.options[this.selectedIndex].value);">
                 <option value="0">NOTHING</option>
                 <option value="-1">ALL</option>
@@ -314,7 +314,7 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="alg1-rmode-label">Rmode</span>
                 </div>
-                <select id="alg1-rmode-options" data-bind="value: translator().rmode"
+                <select id="alg1-rmode-options" class="form-control" data-bind="value: translator().rmode"
                     onchange="const textbox = document.getElementById('alg1-rmode-value'); textbox.value = (this.selectedIndex === -1 ? '0' : this.options[this.selectedIndex].value);">
                     <option value="0">NOTHING</option>
                     <option value="-1">ALL</option>
