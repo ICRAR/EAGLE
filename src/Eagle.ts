@@ -2443,6 +2443,7 @@ export class Eagle {
 
     openParamsTableModal = (tableType:Eagle.FieldType) : void => {
         Eagle.parameterTableType(tableType)
+        console.log(Eagle.parameterTableType())
         if (!this.selectedNode()){
             Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
@@ -2485,19 +2486,16 @@ export class Eagle {
         }
     })
 
-    getCurrentParamReadonly = (index: number, type:string) : boolean => {
-
-        if (type === ""){
+    getCurrentParamReadonly = (index: number, type:Eagle.FieldType) : boolean => {
+        if (type === Eagle.FieldType.Unknown){
             type = Eagle.parameterTableType()
-        }else if(type === "Field"){
-            type= 'component'
-
         }
+
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(this.allowPaletteEditing()){
                     return false;
             }else{
-                if (type === 'component'){
+                if (type === Eagle.FieldType.Field){
                     return this.selectedNode().getFieldReadonly(index);
                 }else{
                     return this.selectedNode().getApplicationParamReadonly(index);
@@ -2507,7 +2505,7 @@ export class Eagle {
             if(this.allowComponentEditing()){
                 return false
             }else{
-                if (type === 'component'){
+                if (type === Eagle.FieldType.Field){
                     return this.selectedNode().getFieldReadonly(index);
                 }else{
                     return this.selectedNode().getApplicationParamReadonly(index);
