@@ -2443,7 +2443,6 @@ export class Eagle {
 
     openParamsTableModal = (tableType:Eagle.FieldType) : void => {
         Eagle.parameterTableType(tableType)
-        console.log(Eagle.parameterTableType())
         if (!this.selectedNode()){
             Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
