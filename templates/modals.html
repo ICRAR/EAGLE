@@ -589,10 +589,10 @@
                                 <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                 <!-- /ko -->
 
-                                <!-- ko if: $root.allowComponentEditing() -->
+                                <!-- ko ifnot: $root.selectedNode().isLocked() -->
                                     <td><input class="tableParameter" data-bind="checked: readonly, disabled: $root.selectedNode().isLocked(), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr: {type: 'checkbox'}"></td>
                                 <!-- /ko -->
-                                <!-- ko if: !$root.allowComponentEditing() -->
+                                <!-- ko if: $root.selectedNode().isLocked() -->
                                     <!-- ko if: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown) -->
                                         <td><i class="material-icons md-20" data-bind="eagleTooltip: $root.getReadOnlyText">lock</i></td>
                                     <!-- /ko -->
