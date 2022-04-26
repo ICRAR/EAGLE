@@ -51,7 +51,6 @@ $(function(){
     (<any>window).Eagle = Eagle;
     (<any>window).Utils = Utils;
     (<any>window).Config = Config;
-    (<any>window).Undo = Undo;
 
     ko.applyBindings(eagle);
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
@@ -65,8 +64,7 @@ $(function(){
     eagle.palettes([]);
 
     // save initial state to undo memory
-    Undo.init();
-    Undo.pushSnapshot(eagle, "EAGLE default");
+    eagle.undo().pushSnapshot(eagle, "EAGLE Startup");
 
     // Show repository list.
     GitHub.loadRepoList(eagle);

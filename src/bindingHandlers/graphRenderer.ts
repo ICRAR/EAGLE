@@ -439,7 +439,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 }
             }
 
-            Undo.pushSnapshot(eagle, "Move node " + node.getName());
+            eagle.undo().pushSnapshot(eagle, "Move node " + node.getName());
             //tick();
         });
 

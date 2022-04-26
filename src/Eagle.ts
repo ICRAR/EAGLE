@@ -74,6 +74,7 @@ export class Eagle {
     static parameterTableSelectionReadonly : ko.Observable<boolean> // check if selection is readonly
 
     translator : ko.Observable<Translator>;
+    undo : ko.Observable<Undo>;
 
     globalOffsetX : number;
     globalOffsetY : number;
@@ -120,7 +121,7 @@ export class Eagle {
         this.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.translator = ko.observable(new Translator());
-
+        this.undo = ko.observable(new Undo());
 
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("");
@@ -190,7 +191,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.onlineHelp();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["u"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {Undo.popSnapshot(eagle)}));
+        Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["u"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.undo().popSnapshot(eagle)}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -715,7 +716,7 @@ export class Eagle {
                 this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
                 this.checkGraph();
-                Undo.pushSnapshot(this, "Insert Logical Graph");
+                this.undo().pushSnapshot(this, "Insert Logical Graph");
                 this.logicalGraph.valueHasMutated();
             });
         });
@@ -828,7 +829,7 @@ export class Eagle {
         // flag graph as changed
         this.flagActiveFileModified();
         this.checkGraph();
-        Undo.pushSnapshot(this, "Create Subgraph from Selection");
+        this.undo().pushSnapshot(this, "Create Subgraph from Selection");
         this.logicalGraph.valueHasMutated();
     }
 
@@ -869,7 +870,7 @@ export class Eagle {
             // flag graph as changed
             this.flagActiveFileModified();
             this.checkGraph();
-            Undo.pushSnapshot(this, "Add Selection to Construct");
+            this.undo().pushSnapshot(this, "Add Selection to Construct");
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -1094,7 +1095,7 @@ export class Eagle {
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.addNode(node, pos.x, pos.y, null);
             this.checkGraph();
-            Undo.pushSnapshot(this, "New Logical Graph");
+            this.undo().pushSnapshot(this, "New Logical Graph");
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -1911,7 +1912,7 @@ export class Eagle {
 
                     // check graph
                     this.checkGraph();
-                    Undo.pushSnapshot(this, "Loaded " + file.name);
+                    this.undo().pushSnapshot(this, "Loaded " + file.name);
 
                     // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
                     this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
@@ -2009,7 +2010,7 @@ export class Eagle {
 
             // trigger re-render
             this.logicalGraph.valueHasMutated();
-            Undo.pushSnapshot(this, "Inserted " + file.name);
+            this.undo().pushSnapshot(this, "Inserted " + file.name);
             this.checkGraph();
 
             if (errorsWarnings.errors.length > 0){
@@ -2615,7 +2616,7 @@ export class Eagle {
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
                 this.checkGraph();
-                Undo.pushSnapshot(this, "Add edge");
+                this.undo().pushSnapshot(this, "Add edge");
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2650,7 +2651,7 @@ export class Eagle {
             this.logicalGraph().removeEdgeById(edge.getId());
             this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
                 this.checkGraph();
-                Undo.pushSnapshot(this, "Edit edge");
+                this.undo().pushSnapshot(this, "Edit edge");
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2679,7 +2680,7 @@ export class Eagle {
 
                     this.insertGraph(nodes, edges, null);
                     this.checkGraph();
-                    Undo.pushSnapshot(this, "Duplicate selection");
+                    this.undo().pushSnapshot(this, "Duplicate selection");
                     this.logicalGraph.valueHasMutated();
                 }
                 break;
@@ -2838,7 +2839,7 @@ export class Eagle {
             this.logicalGraph().fileInfo().modified = true;
 
             this.checkGraph();
-            Undo.pushSnapshot(this, "Delete Selection");
+            this.undo().pushSnapshot(this, "Delete Selection");
         }
 
         if (this.selectedLocation() === Eagle.FileType.Palette){
@@ -2900,7 +2901,7 @@ export class Eagle {
             }
 
             this.checkGraph();
-            Undo.pushSnapshot(this, "Add node " + newNode.getName());
+            this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
         });
     }
@@ -3306,7 +3307,7 @@ export class Eagle {
 
             // refresh the display
             this.checkGraph();
-            Undo.pushSnapshot(this, "Change Node Parent");
+            this.undo().pushSnapshot(this, "Change Node Parent");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -3354,7 +3355,7 @@ export class Eagle {
 
             // refresh the display
             this.checkGraph();
-            Undo.pushSnapshot(this, "Change Node Subject");
+            this.undo().pushSnapshot(this, "Change Node Subject");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -3396,7 +3397,7 @@ export class Eagle {
         }
 
         this.checkGraph();
-        Undo.pushSnapshot(this, "Remove port from node");
+        this.undo().pushSnapshot(this, "Remove port from node");
     }
 
     // dragdrop
@@ -3899,7 +3900,7 @@ export class Eagle {
                 }
 
                 this.checkGraph();
-                Undo.pushSnapshot(this, "Add field");
+                this.undo().pushSnapshot(this, "Add field");
             });
 
         } else {
@@ -3934,7 +3935,7 @@ export class Eagle {
                 field.setPositionalArgument(newField.isPositionalArgument());
 
                 this.checkGraph();
-                Undo.pushSnapshot(this, "Edit Field");
+                this.undo().pushSnapshot(this, "Edit Field");
             });
         }
     };
@@ -3983,7 +3984,7 @@ export class Eagle {
                }
 
                this.checkGraph();
-               Undo.pushSnapshot(this, "Add Port");
+               this.undo().pushSnapshot(this, "Add Port");
             });
         } else {
             $("#editPortModalTitle").html("Edit Port");
@@ -4010,7 +4011,7 @@ export class Eagle {
                 port.copyWithKeyAndId(newPort, nodeKey, portId);
 
                 this.checkGraph();
-                Undo.pushSnapshot(this, "Edit Port");
+                this.undo().pushSnapshot(this, "Edit Port");
             });
         }
     }
@@ -4157,7 +4158,7 @@ export class Eagle {
             selectedNode.setInputApplication(node);
 
             this.checkGraph();
-            Undo.pushSnapshot(this, "Set Node Input Application");
+            this.undo().pushSnapshot(this, "Set Node Input Application");
         });
     }
 
@@ -4179,7 +4180,7 @@ export class Eagle {
             selectedNode.setOutputApplication(node);
 
             this.checkGraph();
-            Undo.pushSnapshot(this, "Set Node Output Application");
+            this.undo().pushSnapshot(this, "Set Node Output Application");
         });
     }
 
@@ -4492,7 +4493,7 @@ export class Eagle {
 
             this.flagActiveFileModified();
             this.checkGraph();
-            Undo.pushSnapshot(this, "Edit Node Category");
+            this.undo().pushSnapshot(this, "Edit Node Category");
             this.logicalGraph.valueHasMutated();
         });
     }
