@@ -191,7 +191,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.onlineHelp();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["u"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.undo().popSnapshot(eagle)}));
+        Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["u"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.undo().prevSnapshot(eagle)}));
+        Eagle.shortcuts.push(new KeyboardShortcut("redo", "Redo", ["u"], "keyup", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, (eagle): void => {eagle.undo().nextSnapshot(eagle)}));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;

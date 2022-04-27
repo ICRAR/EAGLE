@@ -42,7 +42,8 @@ class Snapshot {
 
 export class Undo {
     memory: ko.ObservableArray<Snapshot>;
-    index: ko.Observable<number>; // place where next snapshot will go
+    front: ko.Observable<number>; // place where next snapshot will go
+    rear: ko.Observable<number>;
 
     constructor(){
         this.memory = ko.observableArray([]);
@@ -50,7 +51,8 @@ export class Undo {
             this.memory.push(null);
         }
 
-        this.index = ko.observable(0);
+        this.front = ko.observable(0);
+        this.rear = ko.observable(0);
     }
 
     clear = () : void => {
@@ -58,13 +60,14 @@ export class Undo {
             this.memory()[i] = null;
         }
         this.memory.valueHasMutated();
-        this.index(0);
+        this.front(0);
+        this.rear(0);
     }
 
     pushSnapshot = (eagle: Eagle, description: string) : void => {
         console.log("Undo.pushSnapshot()");
 
-        const previousIndex = (this.index() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
+        const previousIndex = (this.front() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
         const previousSnapshot : Snapshot = this.memory()[previousIndex];
         const newContent : string = JSON.stringify(LogicalGraph.toOJSJson(eagle.logicalGraph()));
 
@@ -75,9 +78,11 @@ export class Undo {
             return;
         }
 
-        this.memory()[this.index()] = new Snapshot(description, newContent);
+        this.memory()[this.front()] = new Snapshot(description, newContent);
         this.memory.valueHasMutated();
-        this.index((this.index() + 1) % Config.UNDO_MEMORY_SIZE);
+        this.front((this.front() + 1) % Config.UNDO_MEMORY_SIZE);
+
+        // TODO: update rear
     }
 
     popSnapshot = (eagle: Eagle) : void => {
@@ -98,6 +103,14 @@ export class Undo {
 
             eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
         }
+    }
+
+    prevSnapshot = (eagle: Eagle) : void => {
+
+    }
+
+    nextSnapshot = (eagle: Eagle) : void => {
+
     }
 
     print = () : string => {
