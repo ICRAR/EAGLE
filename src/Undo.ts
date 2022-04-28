@@ -29,6 +29,7 @@ import {LogicalGraph} from './LogicalGraph';
 import {Config} from './Config';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
+import {Utils} from './Utils';
 
 class Snapshot {
     description: ko.Observable<string>;
@@ -93,36 +94,24 @@ export class Undo {
     prevSnapshot = (eagle: Eagle) : void => {
         if (this.rear() === this.current()){
             console.log("Undo.prevSnapshot() : no previous snapshot, abort!");
+            Utils.showNotification("Unable to Undo", "No further history available", "warning");
             return;
         }
 
         const prevprevIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 2) % Config.UNDO_MEMORY_SIZE;
-        const prevIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
-        const previousSnapshot : Snapshot = this.memory()[prevprevIndex];
 
-        if (previousSnapshot !== null){
-            this.current(prevIndex);
-
-            const dataObject = JSON.parse(previousSnapshot.data());
-            const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
-            const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
-
-            eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
-        }
+        this._loadFromIndex(prevprevIndex, eagle);
+        this.current((this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE);
     }
 
     nextSnapshot = (eagle: Eagle) : void => {
         if (this.front() === this.current()){
             console.log("Undo.nextSnapshot() : no next snapshot, abort!");
+            Utils.showNotification("Unable to Redo", "No further history available", "warning");
             return;
         }
 
-        const next : Snapshot = this.memory()[this.current()];
-        const dataObject = JSON.parse(next.data());
-        const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
-        const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
-        eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
-
+        this._loadFromIndex(this.current(), eagle);
         this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
     }
 
@@ -163,4 +152,19 @@ export class Undo {
 
         return result;
     }, this);
+
+    _loadFromIndex = (index: number, eagle: Eagle) : void => {
+        const snapshot : Snapshot = this.memory()[index];
+
+        if (snapshot === null){
+            console.warn("Undo memory at index", index, "is null");
+            return;
+        }
+
+        const dataObject = JSON.parse(snapshot.data());
+        const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
+        const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
+
+        eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
+    }
 }
