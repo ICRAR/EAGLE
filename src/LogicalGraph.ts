@@ -203,8 +203,16 @@ export class LogicalGraph {
             if (typeof linkData.loop_aware !== 'undefined'){
                 loopAware = linkData.loop_aware !== "0";
             }
+            if (typeof linkData.loopAware !== 'undefined'){
+                loopAware = linkData.loopAware;
+            }
 
-            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName(), loopAware));
+            let closesLoop: boolean = false;
+            if (typeof linkData.closesLoop !== 'undefined'){
+                closesLoop = linkData.closesLoop;
+            }
+
+            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName(), loopAware, closesLoop));
         }
 
         // check for missing name

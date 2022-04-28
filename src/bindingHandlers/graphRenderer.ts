@@ -836,9 +836,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     // abort if edge is invalid
                                     if (allowInvalidEdges || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
                                         if (linkValid === Eagle.LinkValid.Warning){
-                                            addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, srcPort.getName(), sourceDataType, true);
+                                            addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, srcPort.getName(), sourceDataType, true, false);
                                         } else {
-                                            addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, srcPort.getName(), sourceDataType, false);
+                                            addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, srcPort.getName(), sourceDataType, false, false);
                                         }
                                     } else {
                                         console.warn("link not valid, result", linkValid);
@@ -1494,7 +1494,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let draggingY2 : number;
 
         if (isDraggingPort){
-            const tempEdge: Edge = new Edge(sourceNodeKey, sourcePortId, 0, "", "", false);
+            const tempEdge: Edge = new Edge(sourceNodeKey, sourcePortId, 0, "", "", false, false);
             draggingX1 = edgeGetX1(tempEdge);
             draggingY1 = edgeGetY1(tempEdge);
             draggingX2 = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
@@ -1526,7 +1526,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // autocomplete link
         if (isDraggingPort && suggestedNodeKey !== null){
-            const tempEdge: Edge = new Edge(sourceNodeKey, sourcePortId, suggestedNodeKey, suggestedPortId, "", false);
+            const tempEdge: Edge = new Edge(sourceNodeKey, sourcePortId, suggestedNodeKey, suggestedPortId, "", false, false);
             const x2 : number = edgeGetX2(tempEdge);
             const y2 : number = edgeGetY2(tempEdge);
 
@@ -2810,7 +2810,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function addEdge(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName : string, portType : string, loopAware: boolean) : void {
+    function addEdge(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName : string, portType : string, loopAware: boolean, closesLoop: boolean) : void {
         //console.log("addEdge()", "port", srcPortId, "on node", srcNodeKey, "to port", destPortId, "on node", destNodeKey, "loopAware", loopAware);
 
         if (srcPortId === destPortId){
@@ -2818,7 +2818,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return;
         }
 
-        eagle.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, portName, portType, loopAware, (edge : Edge) : void => {
+        eagle.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, portName, portType, loopAware, closesLoop, (edge : Edge) : void => {
             eagle.checkGraph();
             eagle.logicalGraph.valueHasMutated();
             clearEdgeVars();

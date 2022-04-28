@@ -185,7 +185,7 @@
     transform: translate(-50%, 2px);
 }
 
-td:first-child input { 
+td:first-child input {
     font-weight: 700;
 }
 
@@ -698,7 +698,7 @@ select.form-control{
     appearance: revert;
 }
 
-#editEdgeModalValueInputCheckbox{
+#editEdgeModalLoopAwareCheckbox, #editEdgeModalClosesLoopCheckbox{
     flex: none;
     padding: 19px;
     margin-left: 50%;
