@@ -3293,8 +3293,9 @@ export class Eagle {
         let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
         clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
         
+        //scroll to new row
         $("#parameterTableModal .modal-content").animate({
-            scrollTop: 20+(fieldIndex*30)
+            scrollTop: (fieldIndex*30)
           }, 1000);
     }
 
@@ -4062,6 +4063,9 @@ export class Eagle {
         //handling selecting and highlighting the newly created node
         let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
         clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
+        $("#parameterTableModal .modal-content").animate({
+            scrollTop: (fieldIndex*30)
+          }, 1000);
     }
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
