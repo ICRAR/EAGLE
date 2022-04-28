@@ -24,6 +24,7 @@
 
 import * as ko from "knockout";
 import * as $ from "jquery";
+import "jqueryMigrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
