@@ -137,22 +137,6 @@ export class Undo {
         return result.join(",");
     }
 
-    history : ko.PureComputed<Snapshot[]> = ko.pureComputed(() => {
-        const result : Snapshot[] = [];
-
-        for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){
-            const index = (i + this.front()) % Config.UNDO_MEMORY_SIZE;
-
-            if (this.memory()[index] === null){
-                break;
-            }
-
-            result.push(this.memory()[index]);
-        }
-
-        return result;
-    }, this);
-
     _loadFromIndex = (index: number, eagle: Eagle) : void => {
         const snapshot : Snapshot = this.memory()[index];
 
