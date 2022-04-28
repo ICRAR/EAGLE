@@ -3292,6 +3292,10 @@ export class Eagle {
         //handling selecting and highlighting the newly created row
         let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
         clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
+        
+        $("#parameterTableModal .modal-content").animate({
+            scrollTop: 20+(fieldIndex*30)
+          }, 1000);
     }
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
