@@ -115,7 +115,7 @@ export class Undo {
         this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
     }
 
-    print = () : string => {
+    toString = () : string => {
         const result = [];
 
         for (let i = 0; i < Config.UNDO_MEMORY_SIZE ; i++){
