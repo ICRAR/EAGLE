@@ -44,6 +44,7 @@ export class Undo {
     memory: ko.ObservableArray<Snapshot>;
     front: ko.Observable<number>; // place where next snapshot will go
     rear: ko.Observable<number>;
+    current: ko.Observable<number>; // snapshot currently in use, normally equal to front
 
     constructor(){
         this.memory = ko.observableArray([]);
@@ -53,6 +54,7 @@ export class Undo {
 
         this.front = ko.observable(0);
         this.rear = ko.observable(0);
+        this.current = ko.observable(0);
     }
 
     clear = () : void => {
@@ -61,13 +63,12 @@ export class Undo {
         }
         this.memory.valueHasMutated();
         this.front(0);
+        this.current(0);
         this.rear(0);
     }
 
     pushSnapshot = (eagle: Eagle, description: string) : void => {
-        console.log("Undo.pushSnapshot()");
-
-        const previousIndex = (this.front() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
+        const previousIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
         const previousSnapshot : Snapshot = this.memory()[previousIndex];
         const newContent : string = JSON.stringify(LogicalGraph.toOJSJson(eagle.logicalGraph()));
 
@@ -78,24 +79,29 @@ export class Undo {
             return;
         }
 
-        this.memory()[this.front()] = new Snapshot(description, newContent);
+        this.memory()[this.current()] = new Snapshot(description, newContent);
         this.memory.valueHasMutated();
-        this.front((this.front() + 1) % Config.UNDO_MEMORY_SIZE);
+        this.front((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
+        this.current(this.front());
 
-        // TODO: update rear
+        // update rear
+        if (this.rear() === this.front()){
+            this.rear((this.rear() + 1) % Config.UNDO_MEMORY_SIZE);
+        }
     }
 
-    popSnapshot = (eagle: Eagle) : void => {
-        console.log("Undo.popSnapshot()");
+    prevSnapshot = (eagle: Eagle) : void => {
+        if (this.rear() === this.current()){
+            console.log("Undo.prevSnapshot() : no previous snapshot, abort!");
+            return;
+        }
 
-        const prevprevIndex = (this.index() + Config.UNDO_MEMORY_SIZE - 2) % Config.UNDO_MEMORY_SIZE;
-        const prevIndex = (this.index() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
+        const prevprevIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 2) % Config.UNDO_MEMORY_SIZE;
+        const prevIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
         const previousSnapshot : Snapshot = this.memory()[prevprevIndex];
 
         if (previousSnapshot !== null){
-            this.memory()[prevIndex] = null;
-            this.memory.valueHasMutated();
-            this.index(prevIndex);
+            this.current(prevIndex);
 
             const dataObject = JSON.parse(previousSnapshot.data());
             const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
@@ -105,25 +111,38 @@ export class Undo {
         }
     }
 
-    prevSnapshot = (eagle: Eagle) : void => {
-
-    }
-
     nextSnapshot = (eagle: Eagle) : void => {
+        if (this.front() === this.current()){
+            console.log("Undo.nextSnapshot() : no next snapshot, abort!");
+            return;
+        }
 
+        const next : Snapshot = this.memory()[this.current()];
+        const dataObject = JSON.parse(next.data());
+        const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
+        const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
+        eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
+
+        this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
     }
 
     print = () : string => {
         const result = [];
 
-        for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){
-            const index = (i + this.index()) % Config.UNDO_MEMORY_SIZE;
+        for (let i = 0; i < Config.UNDO_MEMORY_SIZE ; i++){
+            let suffix = "";
 
-            if (this.memory()[index] === null){
-                break;
+            if (i === this.rear()){
+                suffix += "r";
+            }
+            if (i === this.current()){
+                suffix += "c";
+            }
+            if (i === this.front()){
+                suffix += "f";
             }
 
-            result.push(index);
+            result.push(i + suffix);
         }
 
         return result.join(",");
@@ -133,7 +152,7 @@ export class Undo {
         const result : Snapshot[] = [];
 
         for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){
-            const index = (i + this.index()) % Config.UNDO_MEMORY_SIZE;
+            const index = (i + this.front()) % Config.UNDO_MEMORY_SIZE;
 
             if (this.memory()[index] === null){
                 break;
