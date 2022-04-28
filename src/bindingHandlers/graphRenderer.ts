@@ -233,7 +233,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             objects.push(...edges);
 
             eagle.selectedObjects.push(...objects);
-            eagle.selectedLocation(Eagle.FileType.Graph);
+            Eagle.selectedLocation(Eagle.FileType.Graph);
             eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector);
 
             if (isDraggingWithAlt){

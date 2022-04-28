@@ -86,10 +86,14 @@ except:
 
 print("Version: " + version + " Commit Hash: " + commit_hash)
 
+
+# NOTE: for some reason, EAGLE client requests intro.js from the root URL,
+#       so we need a separate dedicated route fot this file.
+#       the reason for this is not understood
 @app.route("/intro.js")
-def hack():
-    print("hack")
+def serve_intro_js():
     return app.send_static_file("externals/intro.min.js")
+
 
 @app.route("/")
 def index():
@@ -903,6 +907,13 @@ def parse_args():
         default=SERVER_PORT,
         help="EAGLE server port (%d by default)" % SERVER_PORT,
     )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="suppress info logging output from the server",
+
+    )
     args = parser.parse_args()
 
     if args.tempdir is not None:
@@ -924,6 +935,10 @@ def main():
     """
     args = parse_args()
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
+    if args.quiet:
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)
 
     app.run(host="0.0.0.0", debug=True, port=args.port)
 

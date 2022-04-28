@@ -65,10 +65,11 @@ export class Eagle {
     rightWindow : ko.Observable<SideWindow>;
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
-    selectedLocation : ko.Observable<Eagle.FileType>;
+    static selectedLocation : ko.Observable<Eagle.FileType>;
 
-    static parameterTableType : ko.Observable<string>;
+    static parameterTableType : ko.Observable<Eagle.FieldType>;
     static parameterTableSelectionParent : ko.Observable<Field>; // row in the parameter table that is currently selected
+    static parameterTableSelectionParentIndex : ko.Observable<number> // id of the selected field
     static parameterTableSelection : ko.Observable<Field>; // cell in the parameter table that is currently selected
     static parameterTableSelectionName : ko.Observable<string>; // name of selected parameter in field
     static parameterTableSelectionReadonly : ko.Observable<boolean> // check if selection is readonly
@@ -118,7 +119,7 @@ export class Eagle {
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
         this.selectedObjects = ko.observableArray([]);
-        this.selectedLocation = ko.observable(Eagle.FileType.Unknown);
+        Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.translator = ko.observable(new Translator());
         this.undo = ko.observable(new Undo());
@@ -149,7 +150,6 @@ export class Eagle {
                 new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Utils.ALLOW_PALETTE_EDITING, false),
                 new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PALETTE_EDITING, false),
                 new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
-                new Setting("Allow Readonly Parameter Editing", "Allow the user to edit values of readonly parameters in components.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PARAMETER_EDITING, false),
                 new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
                 new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, false)
             ],
@@ -193,6 +193,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.onlineHelp();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal(Eagle.FieldType.Field);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_application_argument_table_modal", "Open Application Argument Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal(Eagle.FieldType.ApplicationParam);}));
         Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["z"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, (eagle): void => {eagle.undo().prevSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("redo", "Redo", ["z"], "keyup", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, (eagle): void => {eagle.undo().nextSnapshot(eagle)}));
 
@@ -200,8 +202,9 @@ export class Eagle {
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
 
-        Eagle.parameterTableType = ko.observable('');
+        Eagle.parameterTableType = ko.observable(Eagle.FieldType.Unknown);
         Eagle.parameterTableSelectionParent = ko.observable(null);
+        Eagle.parameterTableSelectionParentIndex = ko.observable(-1);
         Eagle.parameterTableSelection = ko.observable(null);
         Eagle.parameterTableSelectionName = ko.observable('');
         Eagle.parameterTableSelectionReadonly = ko.observable(false);
@@ -236,6 +239,10 @@ export class Eagle {
 
     allowPaletteEditing = () : boolean => {
         return Eagle.findSetting(Utils.ALLOW_PALETTE_EDITING).value();
+    }
+
+    allowComponentEditing = () : boolean => {
+        return Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
     }
 
     displayNodeKeys = () :boolean => {
@@ -346,7 +353,6 @@ export class Eagle {
             $(event.target).parent().find('a').hide()
         }else{
             $(event.target).parent().find('a').show()
-            console.log("show")
         }
     }
 
@@ -445,7 +451,7 @@ export class Eagle {
      */
     resetEditor = () : void => {
         this.selectedObjects([]);
-        this.selectedLocation(Eagle.FileType.Unknown);
+        Eagle.selectedLocation(Eagle.FileType.Unknown);
 
         // Show the last open repository.
         this.rightWindow().mode(Eagle.RightWindowMode.Repository);
@@ -488,7 +494,7 @@ export class Eagle {
             this.selectedObjects([selection]);
         }
 
-        this.selectedLocation(selectedLocation);
+        Eagle.selectedLocation(selectedLocation);
         this.rightWindow().mode(rightWindowMode);
 
         // update the display of all the sections of the node inspector (collapse/expand as appropriate)
@@ -497,8 +503,8 @@ export class Eagle {
 
     editSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         // check that location is the same, otherwise default back to set
-        if (selectedLocation !== this.selectedLocation()){
-            Utils.showNotification("Selection Error", "Can't add object from " + selectedLocation + " to existing selected objects in " + this.selectedLocation(), "warning");
+        if (selectedLocation !== Eagle.selectedLocation()){
+            Utils.showNotification("Selection Error", "Can't add object from " + selectedLocation + " to existing selected objects in " + Eagle.selectedLocation(), "warning");
             return;
         }
 
@@ -714,7 +720,7 @@ export class Eagle {
             }
 
             this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
-                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, false);
+                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph);
 
                 this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
@@ -802,7 +808,7 @@ export class Eagle {
         console.log("createSubgraphFromSelection()");
 
         // create new subgraph
-        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph, false);
+        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph);
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -853,7 +859,7 @@ export class Eagle {
             const userChoice: string = constructs[userChoiceIndex];
 
             // create new subgraph
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Eagle.Category>userChoice, false);
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Eagle.Category>userChoice);
 
             // add the parent node to the logical graph
             this.logicalGraph().addNodeComplete(parentNode);
@@ -1093,7 +1099,7 @@ export class Eagle {
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
-            const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, false);
+            const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description);
             const pos = this.getNewNodePosition(node.getDisplayWidth(), node.getDisplayHeight());
             node.setColor(Utils.getColorForNode(Eagle.Category.Description));
             this.addNode(node, pos.x, pos.y, null);
@@ -1157,17 +1163,36 @@ export class Eagle {
     /**
      * Reloads a previously loaded palette.
      */
-     reloadPalette = (palette: Palette) : void => {
+     reloadPalette = (palette: Palette, index: number) : void => {
          const fileInfo : FileInfo = palette.fileInfo();
 
          // remove palette
          this.closePalette(palette);
 
-         if (fileInfo.repositoryService === Eagle.RepositoryService.File){
-             // load palette
-             this.getPaletteFileToLoad();
-         } else { // GitHub or Gitlab
-             this.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
+         switch (fileInfo.repositoryService){
+             case Eagle.RepositoryService.File:
+                // load palette
+                this.getPaletteFileToLoad();
+                break;
+            case Eagle.RepositoryService.GitLab:
+            case Eagle.RepositoryService.GitHub:
+                this.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
+                break;
+            case Eagle.RepositoryService.Url:
+                // TODO: new code
+                this.loadPalettes([
+                    {name:palette.fileInfo().name, filename:palette.fileInfo().gitUrl, readonly:palette.fileInfo().readonly}
+                ], (palettes: Palette[]):void => {
+                    for (const palette of palettes){
+                        if (palette !== null){
+                            this.palettes.splice(index, 0, palette);
+                        }
+                    }
+                });
+                break;
+            default:
+                // can't be fetched
+                break;
          }
     }
 
@@ -1613,9 +1638,11 @@ export class Eagle {
                     palette.fileInfo().clear();
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
+                    palette.fileInfo().builtIn = true;
                     palette.fileInfo().gitUrl = paletteList[index].filename;
                     palette.fileInfo().sha = "master";
                     palette.fileInfo().type = Eagle.FileType.Palette;
+                    palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
 
                     // sort palette and add to results
                     palette.sort();
@@ -2006,7 +2033,7 @@ export class Eagle {
             }
 
             // create parent node
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, false);
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph);
 
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
@@ -2426,30 +2453,75 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    openParamsTableModal = (tableType:string, data:any, event:any) : void => {
+    openParamsTableModal = (tableType:Eagle.FieldType) : void => {
         Eagle.parameterTableType(tableType)
-
-        if (tableType === 'component'){
-            $("#parameterTableModalTitle").html("Component Parameter Table")
+        if (!this.selectedNode()){
+            Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
-            $("#parameterTableModalTitle").html("Application Argument Table")
+            if (tableType === Eagle.FieldType.Field){
+                if (!this.selectedNode().canHaveParameters()){
+                    Utils.showNotification("Error", "This Node Cannot Have Parameters", "warning");
+                    return
+                }
+            }else{
+                if (!this.selectedNode().isApplication()){
+                    Utils.showNotification("Error", "This Node Is Not An Application", "warning");
+                    return
+                }
+            }
+            Utils.showOpenParamsTableModal();
         }
-        Utils.showOpenParamsTableModal();
+    }
+
+    getParamsTableModalTitleText = () : string => {
+        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            return "Component Parameter Table"
+        }else{
+            return "Application Argument Table"
+        }
+    }
+
+    getParamsTableModalButtonText = () : string => {
+        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            return "Add Parameter"
+        }else{
+            return "Add Argument"
+        }
     }
 
     currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
-        if (Eagle.parameterTableType() === 'component'){
+        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
             return this.selectedNode().getFields()
         }else{
             return this.selectedNode().getApplicationArgs()
         }
     })
 
-    getCurrentParamReadonly = (index: number) : boolean => {
-        if (Eagle.parameterTableType() === 'component'){
-            return this.selectedNode().getFieldReadonly(index);
+    getCurrentParamReadonly = (index: number, type:Eagle.FieldType) : boolean => {
+        if (type === Eagle.FieldType.Unknown){
+            type = Eagle.parameterTableType()
+        }
+
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            if(this.allowPaletteEditing()){
+                    return false;
+            }else{
+                if (type === Eagle.FieldType.Field){
+                    return this.selectedNode().getFieldReadonly(index);
+                }else{
+                    return this.selectedNode().getApplicationParamReadonly(index);
+                }
+            }
         }else{
-            return this.selectedNode().getApplicationParamReadonly(index);
+            if(this.allowComponentEditing()){
+                return false
+            }else{
+                if (type === Eagle.FieldType.Field){
+                    return this.selectedNode().getFieldReadonly(index);
+                }else{
+                    return this.selectedNode().getApplicationParamReadonly(index);
+                }
+            }
         }
     }
 
@@ -2518,7 +2590,10 @@ export class Eagle {
         }
     }
 
-
+    static resetParamsTableSelection = ():void => {
+        Eagle.parameterTableSelectionParentIndex(-1);
+        Eagle.parameterTableSelection(null);
+    }
 
     fillParamentersTable = (type:any):string => {
         var options:string;
@@ -2664,7 +2739,7 @@ export class Eagle {
     duplicateSelection = () : void => {
         console.log("duplicateSelection()", this.selectedObjects().length, "objects");
 
-        switch(this.selectedLocation()){
+        switch(Eagle.selectedLocation()){
             case Eagle.FileType.Graph:
                 {
                     const nodes : Node[] = [];
@@ -2701,7 +2776,7 @@ export class Eagle {
                 }
                 break;
             default:
-                console.error("Unknown selectedLocation", this.selectedLocation());
+                console.error("Unknown selectedLocation", Eagle.selectedLocation());
                 break;
         }
     }
@@ -2827,7 +2902,8 @@ export class Eagle {
     }
 
     private _deleteSelection = () : void => {
-        if (this.selectedLocation() === Eagle.FileType.Graph){
+        if (Eagle.selectedLocation() === Eagle.FileType.Graph){
+
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     this.logicalGraph().removeNode(object);
@@ -2845,7 +2921,7 @@ export class Eagle {
             this.undo().pushSnapshot(this, "Delete Selection");
         }
 
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
 
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
@@ -3164,7 +3240,7 @@ export class Eagle {
     /**
      * Adds an application param to the selected node via HTML.
      */
-    addApplicationParamHTML = () : void => {
+    addApplicationArgHTML = () : void => {
         const node: Node = this.selectedNode();
 
         if (node === null){
@@ -3205,12 +3281,34 @@ export class Eagle {
          $("#"+divID).hide();
     }
 
-    addEmptyField = (node:Node) : void => {
-        node.addEmptyField(this.selectedNode())
-    }
+    addEmptyTableRow = () : void => {
+        var fieldIndex
+        if(Eagle.parameterTableSelectionParentIndex() != -1){
+        // A cell in the table is selected well insert new row instead of adding at the end
+            fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
+            if(Eagle.parameterTableType() === Eagle.FieldType.Field){
+                //component table
+                this.selectedNode().addEmptyField(fieldIndex)
+            }else{
+                //argument table
+                this.selectedNode().addEmptyArg(fieldIndex)
+            }
+        }else{
+        //no cell selected, add new row at the end
+            if(Eagle.parameterTableType() === Eagle.FieldType.Field){
+                //component table
+                this.selectedNode().addEmptyField(-1)
+            }else{
+                //argument table
+                this.selectedNode().addEmptyArg(-1)
+            }
+            //getting the length of the array to use as an index to select the last row in the table
+            fieldIndex = this.currentParamsArray().length -1
+        }
 
-    addEmptyArg = (node:Node) : void => {
-        node.addEmptyArg(this.selectedNode())
+        //handling selecting and highlighting the newly created row
+        let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
     }
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
@@ -3410,7 +3508,7 @@ export class Eagle {
         //       Using the native javascript works better, it always fetches the current value of the attribute
 
         //this is for dealing with drag and drop actions while there is already one ore more palette components selected
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
 
             var paletteIndex = $(e.target).data("palette-index")
             var componentIndex = $(e.target).data("component-index")
@@ -3453,13 +3551,13 @@ export class Eagle {
         const sourceComponents : Node[] = [];
 
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
-        if (this.selectedLocation() === Eagle.FileType.Graph || this.selectedLocation() === Eagle.FileType.Unknown){
+        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
             sourceComponents.push(component);
         }
 
         // if a node or nodes in the palette are selected, then assume those are being moved to the destination
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     sourceComponents.push(object);
@@ -3484,13 +3582,13 @@ export class Eagle {
         const sourceComponents : Node[] = [];
 
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
-        if (this.selectedLocation() === Eagle.FileType.Graph || this.selectedLocation() === Eagle.FileType.Unknown){
+        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
             sourceComponents.push(component);
         }
 
         // if a node or nodes in the palette are selected, then assume those are being moved to the destination
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     sourceComponents.push(object);
@@ -3523,6 +3621,18 @@ export class Eagle {
             destinationPalette.fileInfo().modified = true;
             destinationPalette.sort();
         }
+    }
+
+    getReadOnlyText = () : string => {
+        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
+            return "Read Only - Turn on 'Allow Component Editing' in the settings to unlock"
+        }
+
+        // if a node or nodes in the palette are selected, then assume those are being moved to the destination
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+            return "Read Only - Turn on 'Allow Palette Editing' in the settings to unlock"
+        }
+        return ''
     }
 
     getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number} => {
@@ -3891,14 +4001,14 @@ export class Eagle {
                    if (fieldType === Eagle.FieldType.Field){
                        node.addField(newField);
                    } else {
-                       node.addApplicationParam(newField);
+                       node.addApplicationArg(newField);
                    }
                 } else {
                    const clone : Field = allFields[choice].clone();
                    if (fieldType === Eagle.FieldType.Field){
                        node.addField(clone);
                    } else {
-                       node.addApplicationParam(clone);
+                       node.addApplicationArg(clone);
                    }
                 }
 
@@ -3942,6 +4052,35 @@ export class Eagle {
             });
         }
     };
+
+    duplicateParameter = (index:number) :void => {
+        var fieldIndex //variable holds the index of which row to highlight after creation
+        if(Eagle.parameterTableSelectionParentIndex() != -1){
+        //if a cell in the table is selected in this case the new node will be placed below the currently selected node
+            fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
+            if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            //for component parameter tables
+                this.selectedNode().addFieldAtPosition(this.selectedNode().getFields()[index].clone(),fieldIndex)
+            }else{
+            //for application parameter tables
+                this.selectedNode().addApplicationArgAtPosition(this.selectedNode().getApplicationArgs()[index].clone(),fieldIndex)
+            }
+        }else{
+        //if no call in the table is selected, in this case the new node is appended
+            if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            //for component parameter tables
+                this.selectedNode().addField(this.selectedNode().getFields()[index].clone())
+            }else{
+            //for application parameter tables
+                this.selectedNode().addApplicationArg(this.selectedNode().getApplicationArgs()[index].clone())
+            }
+            fieldIndex = this.selectedNode().getFields().length -1
+        }
+
+        //handling selecting and highlighting the newly created node
+        let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
+    }
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
         const allPorts: Port[] = Utils.getUniquePortsList(this.palettes(), this.logicalGraph());
@@ -4135,7 +4274,6 @@ export class Eagle {
             // clone the input application to make a local copy
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
             const clone : Node = application.clone();
-            clone.setReadonly(false);
             const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
             clone.setKey(newKey);
 
@@ -4144,7 +4282,7 @@ export class Eagle {
     }
 
     setNodeInputApplication = () : void => {
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
             return;
         }
@@ -4166,7 +4304,7 @@ export class Eagle {
     }
 
     setNodeOutputApplication = () : void => {
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
             return;
         }
@@ -4510,7 +4648,6 @@ export class Eagle {
         newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.logicalGraph().getNodes()));
         newNode.setPosition(x, y);
-        newNode.setReadonly(false);
         newNode.setEmbedKey(null);
 
         // convert start of end nodes to data components
@@ -4718,13 +4855,15 @@ export namespace Eagle
 
     export enum FieldType {
         Field = "Field",
-        ApplicationParam = "ApplicationParam"
+        ApplicationParam = "ApplicationParam",
+        Unknown = 'unknown'
     }
 
     export enum RepositoryService {
         GitHub = "GitHub",
         GitLab = "GitLab",
         File = "File",
+        Url = "Url",
         Unknown = "Unknown"
     }
 
@@ -4795,9 +4934,9 @@ $( document ).ready(function() {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
         $("#checkGraphAccordion").parent().parent().attr('style','')
-        Eagle.parameterTableSelection(null)
-        Eagle.parameterTableSelectionParent(null)
-        Eagle.parameterTableSelectionName('')
+
+        //reset parameter table selecction
+        Eagle.resetParamsTableSelection()
     });
 
     $('.modal').on('shown.bs.modal',function(){
