@@ -701,7 +701,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("d", customTriangle)
         .attr("data-id", function(port : Port){return port.getId();})
         .attr("class", function(port : Port){return port.isEvent() ? "" : "hiddenPortIcon"})
-        .attr("style", getInputPortTranslatePosition)
+        .attr("style", getInputLocalPortTranslatePosition)
         .attr("data-node-key", function(port : Port){return port.getNodeKey();})
         .on("mouseenter", mouseEnterPort)
         .on("mouseleave", mouseLeavePort);
@@ -781,7 +781,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("d", customTriangle)
         .attr("data-id", function(port : Port){return port.getId();})
         .attr("class", function(port : Port){return port.isEvent() ? "" : "hiddenPortIcon"})
-        .attr("style", getOutputPortTranslatePosition)
+        .attr("style", getOutputLocalPortTranslatePosition)
         .attr("data-node-key", function(port : Port){return port.getNodeKey();})
         .on("mouseenter", mouseEnterPort)
         .on("mouseleave", mouseLeavePort);
@@ -2127,7 +2127,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var posX = getOutputPortCirclePositionX(port, index)
         var posY = getOutputPortCirclePositionY(port,index)
 
-        return "transform:translate("+posX+","+posY+") rotate(270deg)"
+        return "transform:translate("+posX+"px,"+posY+"px) rotate(270deg)"
+    }
+
+    function getInputLocalPortTranslatePosition(port:Port, index:number) : string {
+        var posX = getInputLocalPortCirclePositionX(port, index)
+        var posY = getInputLocalPortCirclePositionY(port,index)
+
+        return "transform: translate("+posX+"px,"+posY+"px) rotate(90deg)"
+    }
+    
+    function getOutputLocalPortTranslatePosition(port:Port, index:number) : string {
+        var posX = getOutputLocalPortCirclePositionX(port, index)
+        var posY = getOutputLocalPortCirclePositionY(port,index)
+
+        return "transform:translate("+posX+"px,"+posY+"px) rotate(270deg)"
     }
 
     // port circle positions
