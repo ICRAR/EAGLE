@@ -444,6 +444,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         });
 
     nodeDragHandler(rootContainer.selectAll("g.node"));
+        
+    var customTriangle = d3.symbol().type(d3.symbolTriangle)
 
     // add a header background to each node
     nodes
@@ -643,14 +645,23 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .text(function (port : Port) {return port.getName();});
 
     const inputCircles = inputPortGroups
-        .selectAll("g")
-        .data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();})
-        .enter()
-        .append("circle")
+    var inputPortGroupsEnter = inputPortGroups.selectAll("g").data(function(node : Node){return node.hasInputApplication() ? node.getInputApplicationInputPorts() : node.getInputPorts();}).enter()
+        inputPortGroupsEnter.append("circle")
         .attr("data-id", function(port : Port){return port.getId();})
+        .attr("class", function(port : Port){return port.isEvent() ? "hiddenPortIcon" : ""})
         .attr("cx", getInputPortCirclePositionX)
         .attr("cy", getInputPortCirclePositionY)
         .attr("r", 6)
+        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+        .on("mouseenter", mouseEnterPort)
+        .on("mouseleave", mouseLeavePort)
+        .exit()
+
+        inputPortGroupsEnter.append("path")
+        .attr("d", customTriangle)
+        .attr("data-id", function(port : Port){return port.getId();})
+        .attr("class", function(port : Port){return port.isEvent() ? "" : "hiddenPortIcon"})
+        .attr("style", getInputPortTranslatePosition)
         .attr("data-node-key", function(port : Port){return port.getNodeKey();})
         .on("mouseenter", mouseEnterPort)
         .on("mouseleave", mouseLeavePort);
@@ -674,14 +685,23 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .text(function (port : Port) {return port.getName();});
 
     const inputLocalCircles = inputLocalPortGroups
-        .selectAll("g")
-        .data(function(node : Node){return node.getInputApplicationOutputPorts();})
-        .enter()
-        .append("circle")
+        var inputLocalPortGroupsEnter = inputLocalPortGroups.selectAll("g").data(function(node : Node){return node.getInputApplicationOutputPorts();}).enter()
+        
+        inputLocalPortGroupsEnter.append("circle")
         .attr("data-id", function(port : Port){return port.getId();})
+        .attr("class", function(port : Port){return port.isEvent() ? "hiddenPortIcon" : ""})
         .attr("cx", getInputLocalPortCirclePositionX)
         .attr("cy", getInputLocalPortCirclePositionY)
         .attr("r", 6)
+        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+        .on("mouseenter", mouseEnterPort)
+        .on("mouseleave", mouseLeavePort);
+
+        inputLocalPortGroupsEnter.append("path")
+        .attr("d", customTriangle)
+        .attr("data-id", function(port : Port){return port.getId();})
+        .attr("class", function(port : Port){return port.isEvent() ? "" : "hiddenPortIcon"})
+        .attr("style", getInputPortTranslatePosition)
         .attr("data-node-key", function(port : Port){return port.getNodeKey();})
         .on("mouseenter", mouseEnterPort)
         .on("mouseleave", mouseLeavePort);
@@ -705,14 +725,23 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .text(function (port : Port) {return port.getName();});
 
     const outputCircles = outputPortGroups
-        .selectAll("g")
-        .data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();})
-        .enter()
-        .append("circle")
+        var outputPortGroupsEnter = outputPortGroups.selectAll("g").data(function(node : Node){return node.hasOutputApplication() ? node.getOutputApplicationOutputPorts() : node.getOutputPorts();}).enter()
+        
+        outputPortGroupsEnter.append("circle")
         .attr("data-id", function(port : Port){return port.getId();})
+        .attr("class", function(port : Port){return port.isEvent() ? "hiddenPortIcon" : ""})
         .attr("cx", getOutputPortCirclePositionX)
         .attr("cy", getOutputPortCirclePositionY)
         .attr("r", 6)
+        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+        .on("mouseenter", mouseEnterPort)
+        .on("mouseleave", mouseLeavePort);
+
+        outputPortGroupsEnter.append("path")
+        .attr("d", customTriangle)
+        .attr("data-id", function(port : Port){return port.getId();})
+        .attr("class", function(port : Port){return port.isEvent() ? "" : "hiddenPortIcon"})
+        .attr("style", getOutputPortTranslatePosition)
         .attr("data-node-key", function(port : Port){return port.getNodeKey();})
         .on("mouseenter", mouseEnterPort)
         .on("mouseleave", mouseLeavePort);
@@ -736,14 +765,23 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .text(function (port : Port) {return port.getName();});
 
     const outputLocalCircles = outputLocalPortGroups
-        .selectAll("g")
-        .data(function(node : Node){return node.getOutputApplicationInputPorts();})
-        .enter()
-        .append("circle")
+        var outputLocalPortGroupsEnter = outputLocalPortGroups.selectAll("g").data(function(node : Node){return node.getOutputApplicationInputPorts();}).enter()
+        
+        outputLocalPortGroupsEnter.append("circle")
         .attr("data-id", function(port : Port){return port.getId();})
+        .attr("class", function(port : Port){return port.isEvent() ? "hiddenPortIcon" : ""})
         .attr("cx", getOutputLocalPortCirclePositionX)
         .attr("cy", getOutputLocalPortCirclePositionY)
         .attr("r", 6)
+        .attr("data-node-key", function(port : Port){return port.getNodeKey();})
+        .on("mouseenter", mouseEnterPort)
+        .on("mouseleave", mouseLeavePort);
+
+        outputLocalPortGroupsEnter.append("path")
+        .attr("d", customTriangle)
+        .attr("data-id", function(port : Port){return port.getId();})
+        .attr("class", function(port : Port){return port.isEvent() ? "" : "hiddenPortIcon"})
+        .attr("style", getOutputPortTranslatePosition)
         .attr("data-node-key", function(port : Port){return port.getNodeKey();})
         .on("mouseenter", mouseEnterPort)
         .on("mouseleave", mouseLeavePort);
@@ -2078,8 +2116,19 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return -20;
     }
 
+    function getInputPortTranslatePosition(port:Port, index:number) : string {
+        var posX = getInputPortCirclePositionX(port, index)
+        var posY = getInputPortCirclePositionY(port,index)
 
+        return "transform: translate("+posX+"px,"+posY+"px) rotate(90deg)"
+    }
 
+    function getOutputPortTranslatePosition(port:Port, index:number) : string {
+        var posX = getOutputPortCirclePositionX(port, index)
+        var posY = getOutputPortCirclePositionY(port,index)
+
+        return "transform:translate("+posX+","+posY+") rotate(270deg)"
+    }
 
     // port circle positions
     function getInputPortCirclePositionX(port : Port, index : number) : number {
