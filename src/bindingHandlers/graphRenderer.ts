@@ -31,18 +31,20 @@ ko.bindingHandlers.graphRenderer = {
     }
 };
 
-const LINK_COLORS:{[key:string]:string} = {
-    LINK_DEFAULT_COLOR: 'dimgrey',
-    LINK_DEFAULT_SELECTED_COLOR: 'rgb(47 22 213)',
-    LINK_WARNING_COLOR: 'orange',
-    LINK_WARNING_SELECTED_COLOR: 'rgb(47 22 213)',
-    LINK_INVALID_COLOR: 'red',
-    LINK_INVALID_SELECTED_COLOR: 'rgb(47 22 213)',
-    LINK_VALID_COLOR: 'limegreen',
-    LINK_EVENT_COLOR: 'rgb(128,128,255)',
-    LINK_EVENT_SELECTED_COLOR: 'rgb(47 22 213)',
-    LINK_AUTO_COMPLETE_COLOR: 'purple'
-}
+enum LINK_COLORS {
+    DEFAULT = 'dimgrey',
+    DEFAULT_SELECTED = 'rgb(47 22 213)',
+    WARNING = 'orange',
+    WARNING_SELECTED = 'rgb(47 22 213)',
+    INVALID = 'red',
+    INVALID_SELECTED = 'rgb(47 22 213)',
+    VALID = 'limegreen',
+    EVENT = 'rgb(128,128,255)',
+    EVENT_SELECTED = 'rgb(47 22 213)',
+    AUTO_COMPLETE = 'purple',
+    CLOSES_LOOP = 'rgb(204 49 204)',
+    CLOSES_LOOP_SELECTED = 'rgb(47 22 213)'
+};
 
 //function to allow the user to drag select within groups
 window.addEventListener("keydown",
@@ -134,10 +136,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const defs = rootContainer.append("defs");
 
     //generating defs from colors array
-    Object.keys(LINK_COLORS).forEach(function (value, i) {
+    Object.entries(LINK_COLORS).forEach(function (value, i) {
         const newArrowhead = defs
             .append("marker")
-            .attr("id", value)
+            .attr("id", value[0])
             .attr("viewBox", "0 0 10 10")
             .attr("refX", "7")
             .attr("refY", "5")
@@ -150,7 +152,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .append("path")
             .attr("d", "M 0 0 L 10 5 L 0 10 z")
             .attr("stroke", "none")
-            .attr("fill",LINK_COLORS[value]);
+            .attr("fill", value[1]);
     })
 
     // background
@@ -916,9 +918,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     commentLinks
         .attr("class", "commentLink")
         .attr("d", createCommentLink)
-        .attr("stroke", LINK_COLORS["LINK_DEFAULT_COLOR"])
+        .attr("stroke", LINK_COLORS.DEFAULT)
         .attr("fill", "transparent")
-        .attr("marker-end", "url(#LINK_DEFAULT_COLOR)")
+        .attr("marker-end", "url(#DEFAULT)")
         .style("display", getCommentLinkDisplay);
 
     // create one link that is only used during the creation of a new link
@@ -941,7 +943,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("y1", 0)
         .attr("x2", 0)
         .attr("y2", 0)
-        .attr("stroke", LINK_COLORS["LINK_AUTO_COMPLETE_COLOR"]);
+        .attr("stroke", LINK_COLORS.AUTO_COMPLETE);
 
     const selectionRegion = rootContainer
         .append("rect")
@@ -990,7 +992,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (srcNode === null || destNode === null){
             console.warn("Can't find srcNode or can't find destNode for edge.");
-            return createBezier(0,0,0,0,Eagle.Direction.Down,Eagle.Direction.Down);
+            return createBezier(0,0,0,0,Eagle.Direction.Down,Eagle.Direction.Down, edge.isClosesLoop());
         }
 
         const srcPortType : string =  srcNode.findPortTypeById(edge.getSrcPortId());
@@ -1017,7 +1019,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const startDirection = determineDirection(true, srcNode, srcPortIndex, srcPortType);
         const endDirection = determineDirection(false, destNode, destPortIndex, destPortType);
 
-        return createBezier(x1, y1, x2, y2, startDirection, endDirection);
+        return createBezier(x1, y1, x2, y2, startDirection, endDirection, edge.isClosesLoop());
     }
 
     function tick(){
@@ -1482,9 +1484,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         commentLinks
             .attr("class", "commentLink")
             .attr("d", createCommentLink)
-            .attr("stroke", LINK_COLORS["LINK_DEFAULT_COLOR"])
+            .attr("stroke", LINK_COLORS.DEFAULT)
             .attr("fill", "transparent")
-            .attr("marker-end", "ur(#LINK_DEFAULT_COLOR)")
+            .attr("marker-end", "ur(#DEFAULT)")
             .style("display", getCommentLinkDisplay);
 
         // dragging link
@@ -1534,7 +1536,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                             .attr("y1", draggingY2)
                             .attr("x2", x2)
                             .attr("y2", y2)
-                            .attr("stroke", LINK_COLORS["LINK_AUTO_COMPLETE_COLOR"]);
+                            .attr("stroke", LINK_COLORS.AUTO_COMPLETE);
         } else {
             autoCompleteLink.attr("x1", 0)
                             .attr("y1", 0)
@@ -2743,8 +2745,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetStrokeColor(edge: Edge, index: number) : string {
-        let normalColor: string = LINK_COLORS['LINK_DEFAULT_COLOR'];
-        let selectedColor: string = LINK_COLORS['LINK_DEFAULT_SELECTED_COLOR'];
+        let normalColor: string = LINK_COLORS.DEFAULT;
+        let selectedColor: string = LINK_COLORS.DEFAULT_SELECTED;
 
         // check if source node is an event, if so, draw in blue
         const srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
@@ -2753,8 +2755,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const srcPort : Port = srcNode.findPortById(edge.getSrcPortId());
 
             if (srcPort !== null && srcPort.isEvent()){
-                normalColor = LINK_COLORS['LINK_EVENT_COLOR'];
-                selectedColor = LINK_COLORS['LINK_EVENT_SELECTED_COLOR'];
+                normalColor = LINK_COLORS.EVENT;
+                selectedColor = LINK_COLORS.EVENT_SELECTED;
             }
         }
 
@@ -2762,20 +2764,30 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
 
         if (linkValid === Eagle.LinkValid.Invalid){
-            normalColor = LINK_COLORS['LINK_INVALID_COLOR'];
-            selectedColor = LINK_COLORS['LINK_INVALID_SELECTED_COLOR'];
+            normalColor = LINK_COLORS.INVALID;
+            selectedColor = LINK_COLORS.INVALID_SELECTED;
         }
 
         if (linkValid === Eagle.LinkValid.Warning){
-            normalColor = LINK_COLORS['LINK_WARNING_COLOR'];
-            selectedColor = LINK_COLORS['LINK_WARNING_SELECTED_COLOR'];
+            normalColor = LINK_COLORS.WARNING;
+            selectedColor = LINK_COLORS.WARNING_SELECTED;
         }
+
+        // check if the edge is a "closes loop" edge
+        if (edge.isClosesLoop()){
+            normalColor = LINK_COLORS.CLOSES_LOOP;
+            selectedColor = LINK_COLORS.CLOSES_LOOP_SELECTED;
+        }
+
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
     }
 
+    // TODO: this is inefficient, it calls edgeGetStrokeColor that determines the correct color enum and returns the color
+    //       then this function uses the color to get back to the enum
     function edgeGetArrowheadUrl(edge: Edge, index: number) {
-        const selectedEdgeColor = edgeGetStrokeColor(edge, index)
-        return "url(#"+Object.keys(LINK_COLORS).find(key => LINK_COLORS[key] === selectedEdgeColor)+")";
+        const selectedEdgeColor = edgeGetStrokeColor(edge, index);
+        const findResult = Object.entries(LINK_COLORS).find(value => value[1] === selectedEdgeColor);
+        return "url(#"+findResult[0]+")";
     }
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
@@ -2802,11 +2814,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             case Eagle.LinkValid.Unknown:
                 return "black";
             case Eagle.LinkValid.Invalid:
-                return LINK_COLORS['LINK_INVALID_COLOR'];
+                return LINK_COLORS.INVALID;
             case Eagle.LinkValid.Warning:
-                return LINK_COLORS['LINK_WARNING_COLOR'];
+                return LINK_COLORS.WARNING;
             case Eagle.LinkValid.Valid:
-                return LINK_COLORS['LINK_VALID_COLOR'];
+                return LINK_COLORS.VALID;
         }
     }
 
@@ -2891,7 +2903,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             endDirection = Eagle.Direction.Down;
         }
 
-        return createBezier(x1, y1, x2, y2, startDirection, endDirection);
+        return createBezier(x1, y1, x2, y2, startDirection, endDirection, false);
     }
 
     function getCommentLinkDisplay(node : Node) : string {
@@ -2928,14 +2940,26 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function createBezier(x1: number, y1: number, x2: number, y2: number, startDirection: Eagle.Direction, endDirection: Eagle.Direction) : string {
-        // find control points
-        const c1x = x1 + directionOffset(true, startDirection);
-        const c1y = y1 + directionOffset(false, startDirection);
-        const c2x = x2 - directionOffset(true, endDirection);
-        const c2y = y2 - directionOffset(false, endDirection);
+    function createBezier(x1: number, y1: number, x2: number, y2: number, startDirection: Eagle.Direction, endDirection: Eagle.Direction, isLoop: boolean) : string {
+        if (isLoop){
+            // find control points
+            const c1x = x1 + 3 * directionOffset(true, startDirection);
+            const c1y = y1 + 1.5 * directionOffset(true, startDirection);
+            const c2x = x2 - 3 * directionOffset(true, endDirection);
+            const c2y = y2 + 1.5 * directionOffset(true, endDirection);
 
-        return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
+            return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
+        } else {
+            // find control points
+            const c1x = x1 + directionOffset(true, startDirection);
+            const c1y = y1 + directionOffset(false, startDirection);
+            const c2x = x2 - directionOffset(true, endDirection);
+            const c2y = y2 - directionOffset(false, endDirection);
+
+            return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
+        }
+
+
     }
 
     function shrinkOnClick(node : Node, index : number){
