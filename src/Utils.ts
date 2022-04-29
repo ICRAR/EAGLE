@@ -885,7 +885,7 @@ export class Utils {
     static showOpenParamsTableModal() : void {
         $('#parameterTableModal').modal("toggle");
     }
-    
+
 
     static showShortcutsModal() : void {
         $('#shortcutsModal').modal("toggle");
@@ -1738,16 +1738,16 @@ export class Utils {
                         //some processing of the return
                         //if the return should have brackets they are added here
                         //the first letter of the string returned is also capitalised
-                        if(addBrackets){
+                        if (addBrackets){
                             ks.push("["+k.charAt(0).toUpperCase() + k.slice(1)+"]");
-                        }else{
+                        } else {
                             ks.push(k.charAt(0).toUpperCase() + k.slice(1));
                         }
                     } else {
-                        if(addBrackets){
+                        if (addBrackets){
                             ks.push("["+shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1)+"]");
-                        }else{
-                        ks.push(shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1));
+                        } else {
+                            ks.push(shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1));
                         }
                     }
                 }
@@ -1755,6 +1755,7 @@ export class Utils {
             }
         }
 
+        console.warn("Could not find keyboard shortcut text for key", key);
         return "";
     }
 
