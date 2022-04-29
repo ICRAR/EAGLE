@@ -885,7 +885,7 @@ export class Utils {
     static showOpenParamsTableModal() : void {
         $('#parameterTableModal').modal("toggle");
     }
-    
+
 
     static showShortcutsModal() : void {
         $('#shortcutsModal').modal("toggle");
