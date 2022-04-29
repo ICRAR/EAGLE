@@ -38,7 +38,7 @@
                     <i class="material-icons md-18">zoom_out</i>
                 </button>
                 <!-- ko if: allowPaletteEditing() -->
-                <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette'" data-intro="Add all nodes in the current graph to the a new or existing palette.">
+                <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + Utils.getKeyboardShortcutTextByKey('add_graph_nodes_to_palette', true)" data-intro="Add all nodes in the current graph to the a new or existing palette.">
                     <i class="material-icons md-18">palette</i>
                 </button>
                 <!-- /ko -->
@@ -56,7 +56,7 @@
                 <button id="checkGraph" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'" data-intro="Check the graph for common issues and missing information.">
                     <i class="material-icons md-18">done_all</i>
                 </button>
-                <button id="checkGraph" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: graphWarnings().length > 0 || graphErrors().length > 0, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors'" data-intro="Check the graph for common issues and missing information.">
+                <button id="checkGraph" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: graphWarnings().length > 0 || graphErrors().length > 0, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)" data-intro="Check the graph for common issues and missing information.">
                     <span class="badge bg-warning" data-bind="text: graphWarnings().length, visible: graphWarnings().length > 0"></span>
                     <span class="badge bg-danger" data-bind="text: graphErrors().length, visible: graphErrors().length > 0"></span>
                 </button>
