@@ -12,6 +12,15 @@ ko.bindingHandlers.eagleTooltip = {
         if (typeof placement === 'undefined'){
             jQueryElement.attr("data-bs-placement", "right");
         }
+
+        var options = ko.unwrap(valueAccessor()),
+            $el = $(element)[0];
+        $el.eagleTooltip(options)
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+            // This will be called when the element is removed by Knockout or
+            // if some other part of your code calls ko.removeNode(element)
+            $el.eagleTooltip("destroy");
+        });
     },
     update: function (element, valueAccessor) {
         const jQueryElement = $(element);
