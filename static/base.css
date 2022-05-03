@@ -571,6 +571,7 @@ td:first-child input {
 
 .settingsModalCategoryWrapper{
     display: none;
+    width: 100%;
 }
 
 .settingsModalButton{
