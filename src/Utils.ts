@@ -83,6 +83,8 @@ export class Utils {
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
 
+    static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
+
     static ojsGraphSchema : object = {};
     static v3GraphSchema : object = {};
     static appRefGraphSchema : object = {};

@@ -45,6 +45,7 @@ export class Setting {
         return this.key;
     }
 
+    // TODO: do we need this?
     getSettings = () :any => {
         console.log("bop")
     }

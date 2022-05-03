@@ -156,6 +156,9 @@ export class Eagle {
                 new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""),
                 new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, ""),
                 new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, "icrar")
+            ],
+            "Workarounds" : [
+                new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically", Setting.Type.Boolean, Utils.SKIP_CLOSE_LOOP_EDGES, true),
             ]
         };
 
@@ -610,7 +613,7 @@ export class Eagle {
         let json;
         switch (format){
             case Eagle.DALiuGESchemaVersion.OJS:
-                json = LogicalGraph.toOJSJson(this.logicalGraph());
+                json = LogicalGraph.toOJSJson(this.logicalGraph(), true);
                 break;
             case Eagle.DALiuGESchemaVersion.AppRef:
                 json = LogicalGraph.toAppRefJson(this.logicalGraph());
@@ -1495,7 +1498,7 @@ export class Eagle {
             // clone the logical graph
             const lg_clone : LogicalGraph = (<LogicalGraph> obj).clone();
             lg_clone.fileInfo().updateEagleInfo();
-            const json = LogicalGraph.toOJSJson(lg_clone);
+            const json = LogicalGraph.toOJSJson(lg_clone, false);
 
             this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, json);
         } else {
@@ -2222,7 +2225,7 @@ export class Eagle {
         const lg_clone : LogicalGraph = this.logicalGraph().clone();
         lg_clone.fileInfo().removeGitInfo();
         lg_clone.fileInfo().updateEagleInfo();
-        const json : object = LogicalGraph.toOJSJson(lg_clone);
+        const json : object = LogicalGraph.toOJSJson(lg_clone, false);
 
         // validate json
         if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
