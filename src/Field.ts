@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
+import {Utils} from './Utils';
 
 export class Field {
     private text : ko.Observable<string>; // external user-facing name
@@ -88,7 +89,7 @@ export class Field {
     }
 
     valIsTrue = (val:string) : boolean => {
-        return val === 'true';
+        return Utils.asBool(val);
     }
 
     setType = (type: Eagle.DataType) : void => {
@@ -193,7 +194,7 @@ export class Field {
     static string2Type = (value: string, type: Eagle.DataType) : any => {
         switch (type){
             case Eagle.DataType.Boolean:
-                return value.toLowerCase() === 'true';
+                return Utils.asBool(value);
             case Eagle.DataType.Float:
                 return parseFloat(value);
             case Eagle.DataType.Integer:

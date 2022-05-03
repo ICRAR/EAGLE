@@ -2399,6 +2399,7 @@ export class Eagle {
         sourceNode.setGroupEnd(this.selectedEdge().isClosesLoop());
         destNode.setGroupStart(this.selectedEdge().isClosesLoop());
 
+        this.checkGraph();
         Utils.showNotification("Toggle edge closes loop", "Node " + sourceNode.getName() + " component parameter 'group_end' set to " + sourceNode.getFieldByName("group_end").getValue() + ". Node " + destNode.getName() + " component parameter 'group_start' set to " + destNode.getFieldByName("group_start").getValue() + ".", "success");
 
         this.selectedObjects.valueHasMutated();
@@ -2577,7 +2578,7 @@ export class Eagle {
             return "number"
         }else if(type === Eagle.DataType.Boolean){
             $("#"+id).addClass("form-check-input")
-            if (value === "true"){
+            if (Utils.asBool(value)){
                 $("#"+id).addClass("inputChecked")
                 $("#"+id).html("Checked")
             }else {
