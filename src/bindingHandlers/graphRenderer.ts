@@ -656,7 +656,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("r", 6)
         .attr("data-node-key", function(port : Port){return port.getNodeKey();})
         .on("mouseenter", mouseEnterPort)
-        .on("mouseleave", mouseLeavePort)
+        .on("mouseleave", mouseLeavePort);
 
     const inputTriangles = inputPortGroups
         .selectAll("g")
@@ -925,7 +925,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     portDragHandler(inputLocalTriangles);
     portDragHandler(outputTriangles);
     portDragHandler(outputLocalTriangles);
-
 
     // draw link extras (these a invisble wider links that assist users in selecting the edges)
     // TODO: ideally we would not use the 'any' type here
