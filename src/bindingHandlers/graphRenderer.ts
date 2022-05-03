@@ -657,7 +657,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("data-node-key", function(port : Port){return port.getNodeKey();})
         .on("mouseenter", mouseEnterPort)
         .on("mouseleave", mouseLeavePort)
-        .exit()
 
     const inputTriangles = inputPortGroups
         .selectAll("g")
