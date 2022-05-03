@@ -2389,6 +2389,22 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
+    toggleEdgeClosesLoop = () : void => {
+        this.selectedEdge().toggleClosesLoop();
+
+        // get nodes from edge
+        const sourceNode = this.logicalGraph().findNodeByKey(this.selectedEdge().getSrcNodeKey());
+        const destNode = this.logicalGraph().findNodeByKey(this.selectedEdge().getDestNodeKey());
+
+        sourceNode.setGroupEnd(this.selectedEdge().isClosesLoop());
+        destNode.setGroupStart(this.selectedEdge().isClosesLoop());
+
+        Utils.showNotification("Toggle edge closes loop", "Node " + sourceNode.getName() + " component parameter 'group_end' set to " + sourceNode.getFieldByName("group_end").getValue() + ". Node " + destNode.getName() + " component parameter 'group_start' set to " + destNode.getFieldByName("group_start").getValue() + ".", "success");
+
+        this.selectedObjects.valueHasMutated();
+        this.logicalGraph.valueHasMutated();
+    }
+
     showAbout = () : void => {
         $('#aboutModal').modal('show');
     }
