@@ -29,8 +29,8 @@ test('Edit node parameter', async t =>{
         // close settings modal
         .click('#settingsModalAffirmativeButton')
 
-        // select bash shell app node in palette
-        .click("#selectPaletteNodeBashShellApp")
+        // select hello world app node in palette
+        .click("#selectPaletteNodeHelloWorldApp")
 
         // add selected node to palette
         .click("#addSelectedNodeToPalette")
@@ -43,11 +43,11 @@ test('Edit node parameter', async t =>{
         // click OK on modal dialog
         .click('#choiceModalAffirmativeButton')
 
-        // add a bash shell node to the graph
-        .click("#addPaletteNodeBashShellApp")
+        // add a hello world node to the graph
+        .click("#addPaletteNodeHelloWorldApp")
 
         // check that a file node has been created
-        .expect(Selector("#nodeNameValue").value).eql("BashShellApp")
+        .expect(Selector("#nodeNameValue").value).eql("HelloWorldApp")
 
         // click the header for the parameters section
         .click(Selector('h5.card-header[href="#nodeCategoryCollapse9"]'))
