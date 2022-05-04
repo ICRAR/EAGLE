@@ -76,7 +76,7 @@ $(function(){
         eagle.loadPalettes([
             {name:"DALiuGE Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true},
-            {name:"Legacy Raw Components", filename:"./static/" + Config.templatePaletteFileName, readonly:true}
+            {name:"Graph Components", filename:"./static/" + Config.templatePaletteFileName, readonly:true}
         ], (palettes: Palette[]):void => {
             for (const palette of palettes){
                 if (palette !== null){

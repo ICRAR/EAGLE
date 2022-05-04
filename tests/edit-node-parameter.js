@@ -29,8 +29,8 @@ test('Edit node parameter', async t =>{
         // close settings modal
         .click('#settingsModalAffirmativeButton')
 
-        // select python app node in palette
-        .click("#selectPaletteNodePythonApp")
+        // select hello world app node in palette
+        .click("#selectPaletteNodeHelloWorldApp")
 
         // add selected node to palette
         .click("#addSelectedNodeToPalette")
@@ -43,20 +43,20 @@ test('Edit node parameter', async t =>{
         // click OK on modal dialog
         .click('#choiceModalAffirmativeButton')
 
-        // add a python node to the graph
-        .click("#addPaletteNodePythonApp")
+        // add a hello world node to the graph
+        .click("#addPaletteNodeHelloWorldApp")
 
         // check that a file node has been created
-        .expect(Selector("#nodeNameValue").value).eql("Python App")
+        .expect(Selector("#nodeNameValue").value).eql("HelloWorldApp")
 
         // click the header for the parameters section
         .click(Selector('h5.card-header[href="#nodeCategoryCollapse9"]'))
 
         // edit first parameter in the node inspector
-        .typeText(Selector('#Field0'), DUMMY_VALUE, {replace: true})
+        .typeText(Selector('#Field4'), DUMMY_VALUE, {replace: true})
 
         // check that first parameter was updated
-        .expect(Selector("#Field0").value).eql(DUMMY_VALUE)
+        .expect(Selector("#Field4").value).eql(DUMMY_VALUE)
 
         // end
         .wait(3000);
