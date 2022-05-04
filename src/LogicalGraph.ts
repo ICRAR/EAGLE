@@ -64,7 +64,9 @@ export class LogicalGraph {
         result.linkDataArray = [];
         for (const edge of graph.getEdges()){
             if (forTranslation && Eagle.findSettingValue(Utils.SKIP_CLOSE_LOOP_EDGES)){
-                continue;
+                if (edge.isClosesLoop()){
+                    continue;
+                }
             }
 
             const linkData : any = Edge.toOJSJson(edge);

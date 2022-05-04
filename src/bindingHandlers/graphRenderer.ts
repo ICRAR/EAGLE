@@ -42,7 +42,7 @@ enum LINK_COLORS {
     EVENT = 'rgb(128,128,255)',
     EVENT_SELECTED = 'rgb(47 22 213)',
     AUTO_COMPLETE = 'purple',
-    CLOSES_LOOP = 'rgb(204 49 204)',
+    CLOSES_LOOP = 'dimgrey',
     CLOSES_LOOP_SELECTED = 'rgb(47 22 213)'
 };
 
@@ -2804,9 +2804,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (srcNode.isStreaming() || destNode.isStreaming()){
             return "8";
-        } else {
-            return "";
         }
+
+        if (edge.isClosesLoop()){
+            return "8 8 2 8"
+        }
+
+        return "";
     }
 
     function draggingEdgeGetStrokeColor(edge: Edge, index: number) : string {
