@@ -26,6 +26,9 @@ test('Edit node parameter', async t =>{
         // enable 'allow palette editing'
         .click('#settingAllowPaletteEditingButton')
 
+        // enable 'expert mode'
+        .click('#settingEnableExpertModeButton')
+
         // close settings modal
         .click('#settingsModalAffirmativeButton')
 
