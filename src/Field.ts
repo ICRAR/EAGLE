@@ -179,8 +179,6 @@ export class Field {
     }, this);
 
     select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
-        console.log("select():", selection, typeof selection);
-
         Eagle.parameterTableSelectionName(selectionName);
         Eagle.parameterTableSelectionParent(selectionParent);
         Eagle.parameterTableSelectionParentIndex(selectionIndex);
