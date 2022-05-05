@@ -4882,6 +4882,7 @@ export namespace Eagle
         Select = "Select",
         Password = "Password",
         Json = "Json",
+        Python = "Python",
     }
 
     export enum ModalType {
