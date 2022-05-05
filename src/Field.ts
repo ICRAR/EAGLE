@@ -178,11 +178,13 @@ export class Field {
         return Config.EXPERT_MODE_PARAMETER_NAMES.indexOf(this.name()) > -1;
     }, this);
 
-    select = (selection:any,selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
+    select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
+        console.log("select():", selection, typeof selection);
+
         Eagle.parameterTableSelectionName(selectionName);
         Eagle.parameterTableSelectionParent(selectionParent);
         Eagle.parameterTableSelectionParentIndex(selectionIndex);
-        Eagle.parameterTableSelection(selection());
+        Eagle.parameterTableSelection(selection);
         Eagle.parameterTableSelectionReadonly(readOnlyState);
     }
 
