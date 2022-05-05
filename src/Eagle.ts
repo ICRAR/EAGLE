@@ -251,6 +251,10 @@ export class Eagle {
         return Eagle.findSetting(Utils.DISPLAY_NODE_KEYS).value();
     }
 
+    expertModeEnabled = () : boolean => {
+        return Eagle.findSetting(Utils.ENABLE_EXPERT_MODE).value();
+    }
+
     // TODO: remove?
     flagActiveFileModified = () : void => {
         if (this.logicalGraph()){
