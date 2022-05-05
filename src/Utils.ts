@@ -82,6 +82,7 @@ export class Utils {
     static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
+    static readonly ENABLE_EXPERT_MODE: string = "EnableExpertMode";
 
     static ojsGraphSchema : object = {};
     static v3GraphSchema : object = {};

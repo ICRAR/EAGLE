@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
+import {Config} from './Config';
 
 export class Field {
     private text : ko.Observable<string>; // external user-facing name
@@ -172,13 +173,9 @@ export class Field {
         return this.text().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0;
     }, this);
 
-    // TODO: this probably isn't required any more, we can safely assume that
-    //       any field in node.fields is a DALiuGE field, and conversely,
-    //       if a field is in node.applicationArgs, it isn't a DALiuGE field
-    isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return this.name() === "execution_time" || this.name() === "num_cpus" || this.name() === "group_start" || this.name() === "group_end" || this.name() === "data_volume";
+    isExpertModeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return Config.EXPERT_MODE_PARAMETER_NAMES.indexOf(this.name()) > -1;
     }, this);
-
 
     select = (selection:any,selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
         Eagle.parameterTableSelectionName(selectionName);
