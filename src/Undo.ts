@@ -71,7 +71,7 @@ export class Undo {
     pushSnapshot = (eagle: Eagle, description: string) : void => {
         const previousIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
         const previousSnapshot : Snapshot = this.memory()[previousIndex];
-        const newContent : string = JSON.stringify(LogicalGraph.toOJSJson(eagle.logicalGraph()));
+        const newContent : string = JSON.stringify(LogicalGraph.toOJSJson(eagle.logicalGraph(), false));
 
         // check if newContent matches old content, if so, no need to push
         // TODO: maybe speed this up with checksums? or maybe not required
