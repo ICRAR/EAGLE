@@ -4,7 +4,7 @@
         <i class="material-icons">settings_applications</i>
         <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Parameters which are passed on to the payload application of this component at runtime.'">Application Arguments</span>
     </h5>
-    <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind=" click: function(data, event){openParamsTableModal(Eagle.FieldType.applicationParam)}, clickBubble: false, eagleTooltip: 'Open Application Arguments in Table'">
+    <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind=" click: function(data, event){openParamsTableModal(Eagle.FieldType.applicationParam)}, clickBubble: false, eagleTooltip: 'Open Application Arguments in Table ' + Utils.getKeyboardShortcutTextByKey('open_application_argument_table_modal', true)">
         <i class="material-icons md-18">table_chart</i>
     </button>
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse11">

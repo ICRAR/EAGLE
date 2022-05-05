@@ -553,8 +553,12 @@ export class Node {
         return Eagle.getCategoryData(this.category()).canHaveOutputApplication;
     }
 
-    canHaveParameters = () : boolean => {
-        return Eagle.getCategoryData(this.category()).canHaveParameters;
+    canHaveComponentParameters = () : boolean => {
+        return Eagle.getCategoryData(this.category()).canHaveComponentParameters;
+    }
+
+    canHaveApplicationArguments = () : boolean => {
+        return Eagle.getCategoryData(this.category()).canHaveApplicationArguments;
     }
 
     fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {

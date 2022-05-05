@@ -6,16 +6,18 @@ export class KeyboardShortcut {
     keys: string[];
     eventType: string;
     modifier: KeyboardShortcut.Modifier;
+    display: boolean;
     canRun: (eagle: Eagle) => boolean;
     run: (eagle: Eagle) => void;
 
 
-    constructor(key: string, name: string, keys : string[], eventType: string, modifier: KeyboardShortcut.Modifier, canRun: (eagle: Eagle) => boolean, run: (eagle: Eagle) => void){
+    constructor(key: string, name: string, keys : string[], eventType: string, modifier: KeyboardShortcut.Modifier, display: boolean, canRun: (eagle: Eagle) => boolean, run: (eagle: Eagle) => void){
         this.key = key;
         this.name = name;
         this.keys = keys;
         this.eventType = eventType;
         this.modifier = modifier;
+        this.display = display;
         this.canRun = canRun;
         this.run = run;
     }
@@ -123,5 +125,11 @@ export namespace KeyboardShortcut{
         Shift = "Shift",
         None = "none",
         MetaShift = "Meta + Shift"
+    }
+
+    // whether or not the shortcut should be shown in the keyboard shortcuts list in help UI
+    export namespace Display {
+        export const Enabled = true;
+        export const Disabled = false;
     }
 }

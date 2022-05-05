@@ -109,6 +109,7 @@
 #parameterTableModal thead{
     position: sticky;
     z-index: 111;
+    top: 86px;
 }
 
 #tableInspector{

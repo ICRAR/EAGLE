@@ -40,6 +40,16 @@ export class Config {
         "simple"
     ];
 
+    static readonly EXPERT_MODE_PARAMETER_NAMES = [
+        "data_volume",
+        "execution_time",
+        "num_cpus",
+        "group_start",
+        "group_end",
+        "input_error_threshold",
+        "n_tries"
+    ];
+
     static readonly defaultRightWindowWidth : number = 400;
     static readonly defaultLeftWindowWidth : number = 310;
 
@@ -50,4 +60,6 @@ export class Config {
 
     // schemas
     static readonly DALIUGE_GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg-lg.graph.schema";
+
+    static readonly UNDO_MEMORY_SIZE : number = 10;
 }

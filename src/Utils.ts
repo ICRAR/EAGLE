@@ -82,6 +82,7 @@ export class Utils {
     static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
+    static readonly ENABLE_EXPERT_MODE: string = "EnableExpertMode";
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
 
@@ -1770,16 +1771,16 @@ export class Utils {
                         //some processing of the return
                         //if the return should have brackets they are added here
                         //the first letter of the string returned is also capitalised
-                        if(addBrackets){
+                        if (addBrackets){
                             ks.push("["+k.charAt(0).toUpperCase() + k.slice(1)+"]");
-                        }else{
+                        } else {
                             ks.push(k.charAt(0).toUpperCase() + k.slice(1));
                         }
                     } else {
-                        if(addBrackets){
+                        if (addBrackets){
                             ks.push("["+shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1)+"]");
-                        }else{
-                        ks.push(shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1));
+                        } else {
+                            ks.push(shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1));
                         }
                     }
                 }
@@ -1787,6 +1788,7 @@ export class Utils {
             }
         }
 
+        console.warn("Could not find keyboard shortcut text for key", key);
         return "";
     }
 

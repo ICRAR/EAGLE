@@ -88,13 +88,12 @@
 
         {% include 'node_inspector_display_options.html' %}
 
-        <!-- node component parameters list -->
-        <!-- ko if: selectedNode().canHaveParameters() -->
+        <!-- ko if: selectedNode().canHaveComponentParameters() -->
         {% include 'node_inspector_parameters.html' %}
+        <!-- /ko -->
 
-            <!-- ko if: selectedNode().isApplication() -->
-            {% include 'node_inspector_application_parameters.html' %}
-            <!-- /ko -->
+        <!-- ko if: selectedNode().canHaveApplicationArguments() -->
+        {% include 'node_inspector_application_parameters.html' %}
         <!-- /ko -->
 
         <!-- input application type -->

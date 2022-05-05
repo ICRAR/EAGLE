@@ -24,6 +24,7 @@
 
 import * as ko from "knockout";
 import * as $ from "jquery";
+import "jqueryMigrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
@@ -33,7 +34,7 @@ import {Utils} from './Utils';
 import {Modals} from './Modals';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
-
+import {Undo} from './Undo';
 
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
@@ -63,6 +64,9 @@ $(function(){
     eagle.logicalGraph(new LogicalGraph());
     eagle.palettes([]);
 
+    // save initial state to undo memory
+    eagle.undo().pushSnapshot(eagle, "EAGLE Startup");
+
     // Show repository list.
     GitHub.loadRepoList(eagle);
     GitLab.loadRepoList(eagle);
@@ -72,7 +76,7 @@ $(function(){
         eagle.loadPalettes([
             {name:"DALiuGE Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true},
-            {name:"Legacy Raw Components", filename:"./static/" + Config.templatePaletteFileName, readonly:true}
+            {name:"Graph Components", filename:"./static/" + Config.templatePaletteFileName, readonly:true}
         ], (palettes: Palette[]):void => {
             for (const palette of palettes){
                 if (palette !== null){
