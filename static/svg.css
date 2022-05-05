@@ -73,6 +73,17 @@ g.node g circle {
     cursor: crosshair;
 }
 
+g.node g path {
+    stroke: white;
+    stroke-width: 2;
+    fill: grey;
+    cursor: crosshair;
+}
+
+g.node g .hiddenPortIcon{
+    display: none;
+}
+
 g.node g.inputPorts.no-flip text, g.node g.outputPorts.flipped text, g.node g.exitPorts.flipped text {
     text-anchor: start;
     font-family: sans-serif;
