@@ -84,6 +84,8 @@ export class Utils {
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
     static readonly ENABLE_EXPERT_MODE: string = "EnableExpertMode";
 
+    static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
+
     static ojsGraphSchema : object = {};
     static v3GraphSchema : object = {};
     static appRefGraphSchema : object = {};
@@ -1556,6 +1558,36 @@ export class Utils {
             }
         }
 
+        // check that all "closes loop" edges:
+        // - begin from a Data component
+        // - end with a App component
+        // - sourceNode has a 'group_end' field set to true
+        // - destNode has a 'group_start' field set to true
+        for (const edge of graph.getEdges()){
+            if (!edge.isClosesLoop()){
+                continue;
+            }
+
+            const sourceNode = graph.findNodeByKey(edge.getSrcNodeKey());
+            const destNode = graph.findNodeByKey(edge.getDestNodeKey());
+
+            if (!sourceNode.isData()){
+                errors.push("Closes Loop Edge (" + edge.getId() + ") does not start from a Data component.");
+            }
+
+            if (!destNode.isApplication()){
+                errors.push("Closes Loop Edge (" + edge.getId() + ") does not end at an Application component.");
+            }
+
+            if (!sourceNode.hasFieldWithName('group_end') || !Utils.asBool(sourceNode.getFieldByName('group_end').getValue())){
+                errors.push("'Closes Loop' Edge (" + edge.getId() + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.");
+            }
+
+            if (!destNode.hasFieldWithName('group_start') || !Utils.asBool(destNode.getFieldByName('group_start').getValue())){
+                errors.push("'Closes Loop' Edge (" + edge.getId() + ") end node (" + destNode.getName() + ") does not have 'group_start' set to true.");
+            }
+        }
+
         return {warnings: warnings, errors: errors};
     }
 
@@ -1763,5 +1795,9 @@ export class Utils {
     static markdown2html(markdown: string) : string {
         var converter = new Showdown.Converter();
         return converter.makeHtml(markdown);
+    }
+
+    static asBool(value: string) : boolean {
+        return value.toLowerCase() === "true";
     }
 }

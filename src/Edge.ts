@@ -35,9 +35,10 @@ export class Edge {
     private destNodeKey : number;
     private destPortId : string;
     private dataType : string;
-    private loopAware : boolean;
+    private loopAware : boolean; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
+    private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
 
-    constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean){
+    constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean, closesLoop: boolean){
         this._id = Utils.uuidv4();
 
         this.srcNodeKey = srcNodeKey;
@@ -47,6 +48,7 @@ export class Edge {
 
         this.dataType = dataType;
         this.loopAware = loopAware;
+        this.closesLoop = closesLoop;
     }
 
     getId = () : string => {
@@ -101,6 +103,18 @@ export class Edge {
         this.loopAware = !this.loopAware;
     }
 
+    isClosesLoop = () : boolean => {
+        return this.closesLoop;
+    }
+
+    setClosesLoop = (value : boolean) : void => {
+        this.closesLoop = value;
+    }
+
+    toggleClosesLoop = () : void => {
+        this.closesLoop = !this.closesLoop;
+    }
+
     clear = () : void => {
         this._id = "";
         this.srcNodeKey = 0;
@@ -109,10 +123,11 @@ export class Edge {
         this.destPortId = "";
         this.dataType = "";
         this.loopAware = false;
+        this.closesLoop = false;
     }
 
     clone = () : Edge => {
-        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware);
+        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, this.closesLoop);
 
         result._id = this._id;
 
@@ -125,7 +140,8 @@ export class Edge {
             fromPort: edge.srcPortId,
             to: -1,
             toPort: edge.destPortId,
-            loop_aware: edge.loopAware ? "1" : "0"
+            loop_aware: edge.loopAware ? "1" : "0",
+            closesLoop: edge.closesLoop
         };
     }
 
@@ -135,12 +151,13 @@ export class Edge {
             srcPort: edge.srcPortId,
             destNode: edge.destNodeKey.toString(),
             destPort: edge.destPortId,
-            loop_aware: edge.loopAware ? "1" : "0"
+            loop_aware: edge.loopAware ? "1" : "0",
+            closesLoop: edge.closesLoop
         }
     }
 
     static fromV3Json = (edgeData: any, errorsWarnings: Eagle.ErrorsWarnings): Edge => {
-        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, "", edgeData.loop_aware === "1");
+        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, "", edgeData.loop_aware === "1", edgeData.closesLoop);
     }
 
     static toAppRefJson = (edge : Edge, lg: LogicalGraph) : object => {
@@ -150,6 +167,7 @@ export class Edge {
             to: edge.destNodeKey,
             toPort: edge.destPortId,
             loopAware: edge.loopAware,
+            closesLoop: edge.closesLoop,
             dataType: edge.dataType
         };
 
@@ -169,7 +187,7 @@ export class Edge {
     }
 
     static fromAppRefJson = (edgeData: any, errorsWarnings: Eagle.ErrorsWarnings): Edge => {
-        return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware);
+        return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware, edgeData.closesLoop);
     }
 
 

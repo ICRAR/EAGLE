@@ -45,6 +45,7 @@ export class Setting {
         return this.key;
     }
 
+    // TODO: do we need this?
     getSettings = () :any => {
         console.log("bop")
     }
@@ -104,7 +105,7 @@ export class Setting {
             case Setting.Type.Number:
                 return Number(s);
             case Setting.Type.Boolean:
-                return s === "true";
+                return Utils.asBool(s);
             default:
                 console.warn("Unknown setting type", this.type);
                 return s;

@@ -441,10 +441,10 @@ export class Modals {
             const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
             const destPortId: string = <string>$('#editEdgeModalDestPortIdSelect').val();
             const dataType: string = <string>$('#editEdgeModalDataTypeInput').val();
-            const loopAware: boolean = $('#editEdgeModalValueInputCheckbox').prop('checked');
-            //console.log("srcNodeKey", srcNodeKey, "srcPortId", srcPortId, "destNodeKey", destNodeKey, "destPortId", destPortId, "dataType", dataType);
+            const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
+            const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware);
+            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop);
 
             callback(true, newEdge);
         });

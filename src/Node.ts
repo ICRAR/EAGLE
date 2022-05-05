@@ -922,11 +922,19 @@ export class Node {
         this.fields.splice(i, 0, field);
     }
 
-    removeParamByIndex = (fieldType: Eagle.FieldType, index : number) : void => {
-        if (fieldType === Eagle.FieldType.Field){
-            this.removeFieldByIndex(index);
+    setGroupStart = (value: boolean) => {
+        if (!this.hasFieldWithName("group_start")){
+            this.addField(new Field("Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType.Boolean, false, [], false));
         } else {
-            this.removeApplicationArgByIndex(index);
+            this.getFieldByName("group_start").setValue(value.toString());
+        }
+    }
+
+    setGroupEnd = (value: boolean) => {
+        if (!this.hasFieldWithName("group_end")){
+            this.addField(new Field("Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType.Boolean, false, [], false));
+        } else {
+            this.getFieldByName("group_end").setValue(value.toString());
         }
     }
 
@@ -934,6 +942,13 @@ export class Node {
         this.fields.splice(index, 1);
     }
 
+    removeParamByIndex = (fieldType: Eagle.FieldType, index : number) : void => {
+        if (fieldType === Eagle.FieldType.Field){
+            this.removeFieldByIndex(index);
+        } else {
+            this.removeApplicationArgByIndex(index);
+        }
+    }
     removeAllFields = () : void => {
         this.fields([]);
     }

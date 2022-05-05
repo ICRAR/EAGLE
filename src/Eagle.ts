@@ -159,6 +159,9 @@ export class Eagle {
                 new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""),
                 new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, ""),
                 new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, "icrar")
+            ],
+            "Workarounds" : [
+                new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Utils.SKIP_CLOSE_LOOP_EDGES, true),
             ]
         };
 
@@ -622,7 +625,7 @@ export class Eagle {
         let json;
         switch (format){
             case Eagle.DALiuGESchemaVersion.OJS:
-                json = LogicalGraph.toOJSJson(this.logicalGraph());
+                json = LogicalGraph.toOJSJson(this.logicalGraph(), true);
                 break;
             case Eagle.DALiuGESchemaVersion.AppRef:
                 json = LogicalGraph.toAppRefJson(this.logicalGraph());
@@ -1007,7 +1010,7 @@ export class Eagle {
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), "", edge.getDataType(), edge.isLoopAware(), null);
+            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), "", edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(),  null);
         }
     }
 
@@ -1511,7 +1514,7 @@ export class Eagle {
             // clone the logical graph
             const lg_clone : LogicalGraph = (<LogicalGraph> obj).clone();
             lg_clone.fileInfo().updateEagleInfo();
-            const json = LogicalGraph.toOJSJson(lg_clone);
+            const json = LogicalGraph.toOJSJson(lg_clone, false);
 
             this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, json);
         } else {
@@ -2240,7 +2243,7 @@ export class Eagle {
         const lg_clone : LogicalGraph = this.logicalGraph().clone();
         lg_clone.fileInfo().removeGitInfo();
         lg_clone.fileInfo().updateEagleInfo();
-        const json : object = LogicalGraph.toOJSJson(lg_clone);
+        const json : object = LogicalGraph.toOJSJson(lg_clone, false);
 
         // validate json
         if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
@@ -2404,6 +2407,23 @@ export class Eagle {
         }
 
         // trigger re-render
+        this.logicalGraph.valueHasMutated();
+    }
+
+    toggleEdgeClosesLoop = () : void => {
+        this.selectedEdge().toggleClosesLoop();
+
+        // get nodes from edge
+        const sourceNode = this.logicalGraph().findNodeByKey(this.selectedEdge().getSrcNodeKey());
+        const destNode = this.logicalGraph().findNodeByKey(this.selectedEdge().getDestNodeKey());
+
+        sourceNode.setGroupEnd(this.selectedEdge().isClosesLoop());
+        destNode.setGroupStart(this.selectedEdge().isClosesLoop());
+
+        this.checkGraph();
+        Utils.showNotification("Toggle edge closes loop", "Node " + sourceNode.getName() + " component parameter 'group_end' set to " + sourceNode.getFieldByName("group_end").getValue() + ". Node " + destNode.getName() + " component parameter 'group_start' set to " + destNode.getFieldByName("group_start").getValue() + ".", "success");
+
+        this.selectedObjects.valueHasMutated();
         this.logicalGraph.valueHasMutated();
     }
 
@@ -2579,7 +2599,7 @@ export class Eagle {
             return "number"
         }else if(type === Eagle.DataType.Boolean){
             $("#"+id).addClass("form-check-input")
-            if (value === "true"){
+            if (Utils.asBool(value)){
                 $("#"+id).addClass("inputChecked")
                 $("#"+id).html("Checked")
             }else {
@@ -2682,7 +2702,7 @@ export class Eagle {
         }
 
         // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "", false);
+        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "", false, false);
 
         // display edge editing modal UI
         Utils.requestUserEditEdge(newEdge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
@@ -2699,7 +2719,7 @@ export class Eagle {
             }
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
+            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Add edge");
                 // trigger the diagram to re-draw with the modified edge
@@ -2734,7 +2754,7 @@ export class Eagle {
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
-            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
+            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit edge");
                 // trigger the diagram to re-draw with the modified edge
@@ -4484,7 +4504,7 @@ export class Eagle {
         return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
     }, this);
 
-    addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName: string, portType : string, loopAware: boolean, callback : (edge: Edge) => void) : void => {
+    addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName: string, portType : string, loopAware: boolean, closesLoop: boolean, callback : (edge: Edge) => void) : void => {
         // check if edge is connecting two application components, if so, we should insert a data component (of type chosen by user)
         const srcNode : Node = this.logicalGraph().findNodeByKey(srcNodeKey);
         const destNode : Node = this.logicalGraph().findNodeByKey(destNodeKey);
@@ -4500,7 +4520,7 @@ export class Eagle {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, portType, loopAware);
+            const edge : Edge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, portType, loopAware, closesLoop);
             this.logicalGraph().addEdgeComplete(edge);
             if (callback !== null) callback(edge);
             return;
@@ -4574,8 +4594,8 @@ export class Eagle {
             const newOutputPortId : string = newNode.findPortByName(portName, false, false).getId();
 
             // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNodeKey, srcPortId, newNodeKey, newInputPortId, portType, loopAware);
-            const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNodeKey, destPortId, portType, loopAware);
+            const firstEdge : Edge = new Edge(srcNodeKey, srcPortId, newNodeKey, newInputPortId, portType, loopAware, closesLoop);
+            const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNodeKey, destPortId, portType, loopAware, closesLoop);
 
             this.logicalGraph().addEdgeComplete(firstEdge);
             this.logicalGraph().addEdgeComplete(secondEdge);

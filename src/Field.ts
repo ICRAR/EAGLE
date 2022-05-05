@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
+import {Utils} from './Utils';
 import {Config} from './Config';
 
 export class Field {
@@ -89,7 +90,7 @@ export class Field {
     }
 
     valIsTrue = (val:string) : boolean => {
-        return val === 'true';
+        return Utils.asBool(val);
     }
 
     setType = (type: Eagle.DataType) : void => {
@@ -190,7 +191,7 @@ export class Field {
     static string2Type = (value: string, type: Eagle.DataType) : any => {
         switch (type){
             case Eagle.DataType.Boolean:
-                return value.toLowerCase() === 'true';
+                return Utils.asBool(value);
             case Eagle.DataType.Float:
                 return parseFloat(value);
             case Eagle.DataType.Integer:
