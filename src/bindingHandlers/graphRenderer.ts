@@ -838,17 +838,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     suggestedPort = null;
                                 }
 
-                                // peek at nearby nodes (only if they contain a port that matches the source port)
+                                // reset all nodes to peek false
                                 for (const node of nodeData){
                                     node.setPeek(false);
                                 }
-                                for (const node of nearbyNodes){
-                                    // TODO: should probably match on type, not name!
-                                    // TODO: check if this could just be suggestedPort!
-                                    if (node.findPortById(suggestedPort.getId()) !== null){
-                                        node.setPeek(true);
-                                    }
-                                }
+
+                                // peek at the suggestedNode
+                                suggestedNode.setPeek(true);
 
                                 tick();
                             })
@@ -857,10 +853,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 isDraggingPort = false;
 
                                 if (destinationPort !== null || suggestedPort !== null){
-                                    const srcNode = findNodeWithKey(sourceNode.getKey(), nodeData);
-                                    // TODO: again, simplify here, don't we have sourcePort!
-                                    const srcPort = srcNode.findPortById(sourcePort.getId());
-                                    const srcPortType = srcNode.findPortTypeById(sourcePort.getId());
+                                    const srcNode = sourceNode;
+                                    const srcPort = sourcePort;
+                                    const srcPortType = sourcePort.getType();
 
                                     let destNode;
                                     let destPort;
