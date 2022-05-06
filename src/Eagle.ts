@@ -4569,11 +4569,11 @@ export class Eagle {
 
             // add input port and output port for dataType (if they don't exist)
             // TODO: check by type, not name
-            if (!newNode.hasPortWithName(portName, true, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), portName, portName, false, portType, ""), true);
+            if (!newNode.hasPortWithName(srcPort.getName(), true, false)){
+                newNode.addPort(new Port(Utils.uuidv4(), srcPort.getName(), srcPort.getText(), false, srcPort.getType(), ""), true);
             }
-            if (!newNode.hasPortWithName(portName, false, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), portName, portName, false, portType, ""), false);
+            if (!newNode.hasPortWithName(destPort.getName(), false, false)){
+                newNode.addPort(new Port(Utils.uuidv4(), destPort.getName(), destPort.getText(), false, destPort.getType(), ""), false);
             }
 
             // set the parent of the new node
@@ -4591,12 +4591,12 @@ export class Eagle {
             }
 
             // get references to input port and output port
-            const newInputPortId : string = newNode.findPortByName(portName, true, false).getId();
-            const newOutputPortId : string = newNode.findPortByName(portName, false, false).getId();
+            const newInputPortId : string = newNode.findPortByName(srcPort.getName(), true, false).getId();
+            const newOutputPortId : string = newNode.findPortByName(destPort.getName(), false, false).getId();
 
             // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNodeKey, srcPortId, newNodeKey, newInputPortId, portType, loopAware, closesLoop);
-            const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNodeKey, destPortId, portType, loopAware, closesLoop);
+            const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPortId, srcPort.getType(), loopAware, closesLoop);
+            const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop);
 
             this.logicalGraph().addEdgeComplete(firstEdge);
             this.logicalGraph().addEdgeComplete(secondEdge);
