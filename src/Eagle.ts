@@ -898,8 +898,8 @@ export class Eagle {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph keys
-        const keyMap: Map<number, number> = new Map();
-        const portMap: Map<string, string> = new Map();
+        const keyMap: Map<number, Node> = new Map();
+        const portMap: Map<string, Port> = new Map();
         let parentNodePosition;
 
         // add the parent node to the logical graph
@@ -925,7 +925,7 @@ export class Eagle {
         for (const node of nodes){
             this.addNode(node.clone(), parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
                 // save mapping for node itself
-                keyMap.set(node.getKey(), insertedNode.getKey());
+                keyMap.set(node.getKey(), insertedNode);
 
                 // if insertedNode has no parent, make it a parent of the parent node
                 if (insertedNode.getParentKey() === null && parentNode !== null){
@@ -938,17 +938,17 @@ export class Eagle {
                     const clone : Node = inputApplication.clone();
                     const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
                     clone.setKey(newKey);
-                    keyMap.set(inputApplication.getKey(), newKey);
+                    keyMap.set(inputApplication.getKey(), clone);
 
                     insertedNode.setInputApplication(clone);
 
                     // loop through ports, adding them to the port map
                     for (const inputPort of inputApplication.getInputPorts()){
-                        portMap.set(inputPort.getId(), inputPort.getId());
+                        portMap.set(inputPort.getId(), inputPort);
                     }
 
                     for (const outputPort of inputApplication.getOutputPorts()){
-                        portMap.set(outputPort.getId(), outputPort.getId());
+                        portMap.set(outputPort.getId(), outputPort);
                     }
                 }
 
@@ -958,36 +958,35 @@ export class Eagle {
                     const clone : Node = outputApplication.clone();
                     const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
                     clone.setKey(newKey);
-                    keyMap.set(outputApplication.getKey(), newKey);
+                    keyMap.set(outputApplication.getKey(), clone);
 
                     insertedNode.setOutputApplication(clone);
 
                     // loop through ports, adding them to the port map
                     for (const inputPort of outputApplication.getInputPorts()){
-                        portMap.set(inputPort.getId(), inputPort.getId());
+                        portMap.set(inputPort.getId(), inputPort);
                     }
 
                     for (const outputPort of outputApplication.getOutputPorts()){
-                        portMap.set(outputPort.getId(), outputPort.getId());
+                        portMap.set(outputPort.getId(), outputPort);
                     }
                 }
 
                 // save mapping for input ports
                 for (let j = 0 ; j < node.getInputPorts().length; j++){
-                    portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j].getId());
+                    portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j]);
                 }
 
                 // save mapping for output ports
                 for (let j = 0 ; j < node.getOutputPorts().length; j++){
-                    portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j].getId());
+                    portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
                 }
             });
         }
 
         // update some other details of the nodes are updated correctly
         for (const node of nodes){
-            const insertedNodeKey: number = keyMap.get(node.getKey());
-            const insertedNode: Node = this.logicalGraph().findNodeByKey(insertedNodeKey);
+            const insertedNode: Node = keyMap.get(node.getKey());
 
             // if original node had no parent, skip
             if (node.getParentKey() === null){
@@ -995,22 +994,22 @@ export class Eagle {
             }
 
             // check if parent of original node was also mapped to a new node
-            let mappedParentKey = keyMap.get(node.getParentKey());
+            let mappedParent: Node = keyMap.get(node.getParentKey());
 
             // make sure parent is set correctly
             // if no mapping is available for the parent, then use the original parent as the parent for the new node
             // if a mapping is available, then use the mapped node as the parent for the new node
-            if (typeof mappedParentKey === 'undefined'){
+            if (typeof mappedParent === 'undefined'){
                 insertedNode.setParentKey(node.getParentKey());
             } else {
-                insertedNode.setParentKey(mappedParentKey);
+                insertedNode.setParentKey(mappedParent.getKey());
             }
         }
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), "", edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(),  null);
+            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
         }
     }
 
@@ -2718,8 +2717,13 @@ export class Eagle {
                 return;
             }
 
+            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const srcPort: Port = srcNode.findPortById(edge.getSrcPortId());
+            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destPort: Port = destNode.findPortById(edge.getDestPortId());
+
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), () => {
+            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Add edge");
                 // trigger the diagram to re-draw with the modified edge
@@ -2752,9 +2756,14 @@ export class Eagle {
                 return;
             }
 
+            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const srcPort: Port = srcNode.findPortById(edge.getSrcPortId());
+            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destPort: Port = destNode.findPortById(edge.getDestPortId());
+
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
-            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), () => {
+            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit edge");
                 // trigger the diagram to re-draw with the modified edge
