@@ -792,16 +792,16 @@ export class Eagle {
     }
 
     formatTableInspectorSelection = () : string => {
-        return Eagle.parameterTableSelectionParent().getText()+" - "+Eagle.parameterTableSelectionName()
+        return Eagle.parameterTableSelectionParent().getDisplayText()+" - "+Eagle.parameterTableSelectionName()
     }
 
     tableInspectorUpdateSelection = (value:string) : void => {
         var selected = Eagle.parameterTableSelectionName()
         var selectedForm = Eagle.parameterTableSelectionParent()
         if(selected === 'text'){
-            selectedForm.setText(value)
+            selectedForm.setDisplayText(value)
         } else if(selected === 'name'){
-            selectedForm.setName(value)
+            selectedForm.setIdText(value)
         } else if(selected === 'value'){
             selectedForm.setValue(value)
         } else if(selected === 'defaultValue'){
@@ -2420,7 +2420,7 @@ export class Eagle {
         destNode.setGroupStart(this.selectedEdge().isClosesLoop());
 
         this.checkGraph();
-        Utils.showNotification("Toggle edge closes loop", "Node " + sourceNode.getName() + " component parameter 'group_end' set to " + sourceNode.getFieldByName("group_end").getValue() + ". Node " + destNode.getName() + " component parameter 'group_start' set to " + destNode.getFieldByName("group_start").getValue() + ".", "success");
+        Utils.showNotification("Toggle edge closes loop", "Node " + sourceNode.getName() + " component parameter 'group_end' set to " + sourceNode.getFieldByIdText("group_end").getValue() + ". Node " + destNode.getName() + " component parameter 'group_start' set to " + destNode.getFieldByIdText("group_start").getValue() + ".", "success");
 
         this.selectedObjects.valueHasMutated();
         this.logicalGraph.valueHasMutated();
@@ -3180,9 +3180,9 @@ export class Eagle {
                         const selectedNode = that.selectedNode();
 
                         // get references to image, tag and digest fields in this component
-                        const imageField:  Field = selectedNode.getFieldByName("image");
-                        const tagField:    Field = selectedNode.getFieldByName("tag");
-                        const digestField: Field = selectedNode.getFieldByName("digest");
+                        const imageField:  Field = selectedNode.getFieldByIdText("image");
+                        const tagField:    Field = selectedNode.getFieldByIdText("tag");
+                        const digestField: Field = selectedNode.getFieldByIdText("digest");
 
                         // set values for the fields
                         if (imageField !== null){
@@ -4005,7 +4005,7 @@ export class Eagle {
         // once done, sort fields and then collect names into the allFieldNames list
         allFields.sort(Field.sortFunc);
         for (const field of allFields){
-            allFieldNames.push(field.getName() + " (" + field.getType() + ")");
+            allFieldNames.push(field.getIdText() + " (" + field.getType() + ")");
         }
 
         //if creating a new field component parameter
@@ -4078,8 +4078,8 @@ export class Eagle {
                 }
 
                 // update field data
-                field.setText(newField.getText());
-                field.setName(newField.getName());
+                field.setDisplayText(newField.getDisplayText());
+                field.setIdText(newField.getIdText());
                 field.setValue(newField.getValue());
                 field.setDefaultValue(newField.getDefaultValue());
                 field.setDescription(newField.getDescription());
@@ -4133,7 +4133,7 @@ export class Eagle {
         const allPortNames: string[] = [];
         // get list of port names from list of ports
         for (const port of allPorts){
-            allPortNames.push(port.getName() + " (" + port.getType() + ")");
+            allPortNames.push(port.getIdText() + " (" + port.getType() + ")");
         }
 
         if (modalType === Eagle.ModalType.Add){
@@ -4552,7 +4552,7 @@ export class Eagle {
             ineligibleCategories.push(Eagle.Category.Memory);
         }
 
-        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), srcPort.getName(), srcPort.getType(), ineligibleCategories);
+        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), srcPort.getIdText(), srcPort.getType(), ineligibleCategories);
 
         // if edge DOES connect two applications, insert data component (of type chosen by user except ineligibleTypes)
         this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
@@ -4566,15 +4566,15 @@ export class Eagle {
             newNode.setKey(newNodeKey);
 
             // set name of new node (use user-facing name)
-            newNode.setName(srcPort.getText());
+            newNode.setName(srcPort.getDisplayText());
 
             // add input port and output port for dataType (if they don't exist)
             // TODO: check by type, not name
-            if (!newNode.hasPortWithName(srcPort.getName(), true, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), srcPort.getName(), srcPort.getText(), false, srcPort.getType(), ""), true);
+            if (!newNode.hasPortWithIdText(srcPort.getIdText(), true, false)){
+                newNode.addPort(new Port(Utils.uuidv4(), srcPort.getIdText(), srcPort.getDisplayText(), false, srcPort.getType(), ""), true);
             }
-            if (!newNode.hasPortWithName(destPort.getName(), false, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), destPort.getName(), destPort.getText(), false, destPort.getType(), ""), false);
+            if (!newNode.hasPortWithIdText(destPort.getIdText(), false, false)){
+                newNode.addPort(new Port(Utils.uuidv4(), destPort.getIdText(), destPort.getDisplayText(), false, destPort.getType(), ""), false);
             }
 
             // set the parent of the new node
@@ -4592,8 +4592,8 @@ export class Eagle {
             }
 
             // get references to input port and output port
-            const newInputPortId : string = newNode.findPortByName(srcPort.getName(), true, false).getId();
-            const newOutputPortId : string = newNode.findPortByName(destPort.getName(), false, false).getId();
+            const newInputPortId : string = newNode.findPortByIdText(srcPort.getIdText(), true, false).getId();
+            const newOutputPortId : string = newNode.findPortByIdText(destPort.getIdText(), false, false).getId();
 
             // create TWO edges, one from src to data component, one from data component to dest
             const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPortId, srcPort.getType(), loopAware, closesLoop);

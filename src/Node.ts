@@ -406,9 +406,9 @@ export class Node {
         return false;
     }
 
-    getFieldByName = (name : string) : Field | null => {
+    getFieldByIdText = (idText : string) : Field | null => {
         for (const field of this.fields()){
-            if (field.getName() === name){
+            if (field.getIdText() === idText){
                 return field;
             }
         }
@@ -416,9 +416,9 @@ export class Node {
         return null;
     }
 
-    hasFieldWithName = (name : string) : boolean => {
+    hasFieldWithIdText = (idText : string) : boolean => {
         for (const field of this.fields()){
-            if (field.getName() === name){
+            if (field.getIdText() === idText){
                 return true;
             }
         }
@@ -450,9 +450,9 @@ export class Node {
         return (field.isReadonly());
     }
 
-    getApplicationParamByName = (name : string) : Field | null => {
+    getApplicationParamByIdText = (idText : string) : Field | null => {
         for (const param of this.applicationArgs()){
-            if (param.getName() === name){
+            if (param.getIdText() === idText){
                 return param;
             }
         }
@@ -460,9 +460,9 @@ export class Node {
         return null;
     }
 
-    hasApplicationParamWithName = (name : string) : boolean => {
+    hasApplicationParamWithIdText = (idText : string) : boolean => {
         for (const param of this.applicationArgs()){
-            if (param.getName() === name){
+            if (param.getIdText() === idText){
                 return true;
             }
         }
@@ -861,20 +861,20 @@ export class Node {
         return -1;
     }
 
-    findPortByName = (name : string, input : boolean, local : boolean) : Port => {
+    findPortByIdText = (idText : string, input : boolean, local : boolean) : Port => {
         console.assert(!local);
 
         if (input){
             // check input ports
             for (const inputPort of this.inputPorts()){
-                if (inputPort.getName() === name){
+                if (inputPort.getIdText() === idText){
                     return inputPort;
                 }
             }
         } else {
             // check output ports
             for (const outputPort of this.outputPorts()){
-                if (outputPort.getName() === name){
+                if (outputPort.getIdText() === idText){
                     return outputPort;
                 }
             }
@@ -901,8 +901,8 @@ export class Node {
         return null;
     }
 
-    hasPortWithName = (name : string, input : boolean, local : boolean) : boolean => {
-        return this.findPortByName(name, input, local) !== null;
+    hasPortWithIdText = (idText : string, input : boolean, local : boolean) : boolean => {
+        return this.findPortByIdText(idText, input, local) !== null;
     }
 
     // WARN: dangerous! removes a port without considering if the port is in use by an edge
@@ -923,18 +923,18 @@ export class Node {
     }
 
     setGroupStart = (value: boolean) => {
-        if (!this.hasFieldWithName("group_start")){
+        if (!this.hasFieldWithIdText("group_start")){
             this.addField(new Field("Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType.Boolean, false, [], false));
         } else {
-            this.getFieldByName("group_start").setValue(value.toString());
+            this.getFieldByIdText("group_start").setValue(value.toString());
         }
     }
 
     setGroupEnd = (value: boolean) => {
-        if (!this.hasFieldWithName("group_end")){
+        if (!this.hasFieldWithIdText("group_end")){
             this.addField(new Field("Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType.Boolean, false, [], false));
         } else {
-            this.getFieldByName("group_end").setValue(value.toString());
+            this.getFieldByIdText("group_end").setValue(value.toString());
         }
     }
 
@@ -958,7 +958,7 @@ export class Node {
 
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
             const field : Field = this.fields()[i];
-            if (!Utils.isParameterArgument(field.getName())){
+            if (!Utils.isParameterArgument(field.getIdText())){
                 result.push(this.fields.splice(i, 1)[0]);
             }
         }
@@ -1056,7 +1056,7 @@ export class Node {
 
     getInputMultiplicity = () : number => {
         if (this.isMKN()){
-            const m : Field = this.getFieldByName("m");
+            const m : Field = this.getFieldByIdText("m");
 
             if (m === null){
                 console.warn("Unable to determine input multiplicity of MKN, no 'm' field. Using default value (1).");
@@ -1067,7 +1067,7 @@ export class Node {
         }
 
         if (this.isGather()){
-            const numInputs : Field = this.getFieldByName("num_of_inputs");
+            const numInputs : Field = this.getFieldByIdText("num_of_inputs");
 
             if (numInputs === null){
                 console.warn("Unable to determine input multiplicity of Gather, no 'num_of_inputs' field. Using default value (1).");
@@ -1082,7 +1082,7 @@ export class Node {
 
     getOutputMultiplicity = () : number => {
         if (this.isMKN()){
-            const n : Field = this.getFieldByName("n");
+            const n : Field = this.getFieldByIdText("n");
 
             if (n === null){
                 console.warn("Unable to determine output multiplicity of MKN, no 'n' field. Using default value (1).");
@@ -1093,7 +1093,7 @@ export class Node {
         }
 
         if (this.isScatter()){
-            const numCopies : Field = this.getFieldByName("num_of_copies");
+            const numCopies : Field = this.getFieldByIdText("num_of_copies");
 
             if (numCopies === null){
                 console.warn("Unable to determine output multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
@@ -1108,7 +1108,7 @@ export class Node {
 
     getLocalMultiplicity = () : number => {
         if (this.isMKN()){
-            const k : Field = this.getFieldByName("k");
+            const k : Field = this.getFieldByIdText("k");
 
             if (k === null){
                 console.warn("Unable to determine local multiplicity of MKN, no 'k' field. Using default value (1).");
@@ -1119,7 +1119,7 @@ export class Node {
         }
 
         if (this.isScatter()){
-            const numCopies = this.getFieldByName("num_of_copies");
+            const numCopies = this.getFieldByIdText("num_of_copies");
 
             if (numCopies === null){
                 console.warn("Unable to determine local multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
@@ -1135,7 +1135,7 @@ export class Node {
         }
 
         if (this.isLoop()){
-            const numCopies = this.getFieldByName("num_of_iter");
+            const numCopies = this.getFieldByIdText("num_of_iter");
 
             if (numCopies === null){
                 console.warn("Unable to determine local multiplicity of Loop, no 'num_of_iter' field. Using default value (1).");
@@ -1602,45 +1602,45 @@ export class Node {
         if (input){
             if (!node.hasInputApplication()){
                 if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.UnknownApplication, "", node.getKey()));
+                    node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Eagle.Category.UnknownApplication, "", node.getKey()));
                     errorsWarnings.errors.push("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention.");
                 } else {
-                    errorsWarnings.errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
+                    errorsWarnings.errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getIdText() );
                     return;
                 }
             }
             node.inputApplication().addPort(port, true);
             port.setNodeKey(node.inputApplication().getKey());
-            errorsWarnings.warnings.push("Moved input port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")");
+            errorsWarnings.warnings.push("Moved input port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")");
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
             if (node.canHaveOutputApplication()){
                 if (!node.hasOutputApplication()){
                     if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                        node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.UnknownApplication, "", node.getKey()));
+                        node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Eagle.Category.UnknownApplication, "", node.getKey()));
                         errorsWarnings.errors.push("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention.");
                     } else {
-                        errorsWarnings.errors.push("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
+                        errorsWarnings.errors.push("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getIdText() );
                         return;
                     }
                 }
                 node.outputApplication().addPort(port, false);
                 port.setNodeKey(node.outputApplication().getKey());
-                errorsWarnings.warnings.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")");
+                errorsWarnings.warnings.push("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")");
             } else {
                 // if possible, add port to output side of input application
                 if (node.canHaveInputApplication()){
                     if (!node.hasInputApplication()){
                         if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                            node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getName(), Eagle.Category.UnknownApplication, "", node.getKey()));
+                            node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Eagle.Category.UnknownApplication, "", node.getKey()));
                         } else {
-                            errorsWarnings.errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getName() );
+                            errorsWarnings.errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getIdText() );
                             return;
                         }
                     }
                     node.inputApplication().addPort(port, false);
                     port.setNodeKey(node.inputApplication().getKey());
-                    errorsWarnings.warnings.push("Moved output port (" + port.getName() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application");
+                    errorsWarnings.warnings.push("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application");
                 } else {
                     errorsWarnings.errors.push("Can't add port to embedded application. Node can't have output OR exit application.");
                 }

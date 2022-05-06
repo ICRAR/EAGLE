@@ -643,7 +643,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getInputPortPositionX)
         .attr("y", getInputPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getText();});
+        .text(function (port : Port) {return port.getDisplayText();});
 
     const inputCircles = inputPortGroups
         .selectAll("g")
@@ -688,7 +688,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getInputLocalPortPositionX)
         .attr("y", getInputLocalPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getText();});
+        .text(function (port : Port) {return port.getDisplayText();});
 
     const inputLocalCircles = inputLocalPortGroups
         .selectAll("g")
@@ -733,7 +733,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getOutputPortPositionX)
         .attr("y", getOutputPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getText();});
+        .text(function (port : Port) {return port.getDisplayText();});
 
     const outputCircles = outputPortGroups
         .selectAll("g")
@@ -778,7 +778,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getOutputLocalPortPositionX)
         .attr("y", getOutputLocalPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getText();});
+        .text(function (port : Port) {return port.getDisplayText();});
 
     const outputLocalCircles = outputLocalPortGroups
         .selectAll("g")
@@ -1337,7 +1337,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getInputPortPositionX)
             .attr("y", getInputPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getText();});
+            .text(function (port : Port) {return port.getDisplayText();});
 
         nodes
             .selectAll("g.inputPorts circle")
@@ -1412,7 +1412,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getInputLocalPortPositionX)
             .attr("y", getInputLocalPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getText();});
+            .text(function (port : Port) {return port.getDisplayText();});
 
         nodes
             .selectAll("g.inputLocalPorts circle")
@@ -1487,7 +1487,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getOutputPortPositionX)
             .attr("y", getOutputPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getText()});
+            .text(function (port : Port) {return port.getDisplayText()});
 
         nodes
             .selectAll("g.outputPorts circle")
@@ -1562,7 +1562,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getOutputLocalPortPositionX)
             .attr("y", getOutputLocalPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getText();});
+            .text(function (port : Port) {return port.getDisplayText();});
 
         nodes
             .selectAll("g.outputLocalPorts circle")
@@ -3434,7 +3434,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             for (const port of portList){
                 // TODO: should probably match on type, not name!
-                if (port.getName() !== sourceDataType){
+                if (port.getIdText() !== sourceDataType){
                     continue;
                 }
 

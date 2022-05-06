@@ -1236,7 +1236,7 @@ export class Utils {
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
         // check if the new field matches an existing field (by name and type), if so, abort
         for (const f of fields){
-            if (f.getName() === field.getName() && f.getType() === field.getType()){
+            if (f.getIdText() === field.getIdText() && f.getType() === field.getType()){
                 return;
             }
         }
@@ -1428,36 +1428,36 @@ export class Utils {
         for (const node of graph.getNodes()){
             for (const port of node.getInputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
             for (const port of node.getOutputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationInputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationOutputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationInputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationOutputPorts()){
                 if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
         }
@@ -1466,7 +1466,7 @@ export class Utils {
         for (const node of graph.getNodes()){
             for (const field of node.getFields()){
                 if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getName() + ") whose default value is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") whose default value is not specified");
                 }
             }
         }
@@ -1475,7 +1475,7 @@ export class Utils {
         for (const node of graph.getNodes()){
             for (const field of node.getApplicationArgs()){
                 if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getName() + ") whose default value is not specified");
+                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getIdText() + ") whose default value is not specified");
                 }
             }
         }
@@ -1485,15 +1485,15 @@ export class Utils {
         for (const node of graph.getNodes()){
             for (const field of node.getFields()){
                 for (const appArg of node.getApplicationArgs()){
-                    if (field.getName() == appArg.getName()){
-                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getName() + ") that shares the same name as an application argument.");
+                    if (field.getIdText() == appArg.getIdText()){
+                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") that shares the same name as an application argument.");
                     }
                 }
             }
             for (const appArg of node.getApplicationArgs()){
                 for (const field of node.getFields()){
-                    if (appArg.getName() === field.getName()){
-                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application argument (" + appArg.getName() + ") that shares the same name as a component parameter.");
+                    if (appArg.getIdText() === field.getIdText()){
+                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application argument (" + appArg.getIdText() + ") that shares the same name as a component parameter.");
                     }
                 }
             }
@@ -1579,11 +1579,11 @@ export class Utils {
                 errors.push("Closes Loop Edge (" + edge.getId() + ") does not end at an Application component.");
             }
 
-            if (!sourceNode.hasFieldWithName('group_end') || !Utils.asBool(sourceNode.getFieldByName('group_end').getValue())){
+            if (!sourceNode.hasFieldWithIdText('group_end') || !Utils.asBool(sourceNode.getFieldByIdText('group_end').getValue())){
                 errors.push("'Closes Loop' Edge (" + edge.getId() + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.");
             }
 
-            if (!destNode.hasFieldWithName('group_start') || !Utils.asBool(destNode.getFieldByName('group_start').getValue())){
+            if (!destNode.hasFieldWithIdText('group_start') || !Utils.asBool(destNode.getFieldByIdText('group_start').getValue())){
                 errors.push("'Closes Loop' Edge (" + edge.getId() + ") end node (" + destNode.getName() + ") does not have 'group_start' set to true.");
             }
         }
