@@ -3023,14 +3023,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function clearEdgeVars(){
-        sourcePortId = null;
-        sourceNodeKey = null;
-        sourceDataType = null;
+        sourcePort = null;
+        sourceNode = null;
         sourcePortIsInput = false;
-        destinationPortId = null;
-        destinationNodeKey = null;
-        suggestedPortId = null;
-        suggestedNodeKey = null;
+        destinationPort = null;
+        destinationNode = null;
+        suggestedPort = null;
+        suggestedNode = null;
     }
 
     function createCommentLink(node : Node){
@@ -3468,15 +3467,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
 
-        destinationPortId = port.getId();
-        destinationNodeKey = port.getNodeKey();
+        destinationPort = port;
+        destinationNode = graph.findNodeByKey(port.getNodeKey());
 
-        isDraggingPortValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, true, true, true);
+        isDraggingPortValid = Edge.isValid(graph, sourceNode.getKey(), sourcePort.getId(), destinationNode.getKey(), destinationPort.getId(), true, true, true);
     }
 
     function mouseLeavePort(port : Port) : void {
-        destinationPortId = null;
-        destinationNodeKey = null;
+        destinationPort = null;
+        destinationNode = null;
 
         isDraggingPortValid = Eagle.LinkValid.Unknown;
     }
