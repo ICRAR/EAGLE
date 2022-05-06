@@ -4504,6 +4504,7 @@ export class Eagle {
         return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
     }, this);
 
+    // TODO: (srcNode, srcPort, destNode, destPort, loopAware, closesLoop, callback)
     addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName: string, portType : string, loopAware: boolean, closesLoop: boolean, callback : (edge: Edge) => void) : void => {
         // check if edge is connecting two application components, if so, we should insert a data component (of type chosen by user)
         const srcNode : Node = this.logicalGraph().findNodeByKey(srcNodeKey);

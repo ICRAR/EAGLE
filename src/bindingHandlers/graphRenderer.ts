@@ -644,7 +644,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getInputPortPositionX)
         .attr("y", getInputPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getName();});
+        .text(function (port : Port) {return port.getText();});
 
     const inputCircles = inputPortGroups
         .selectAll("g")
@@ -689,7 +689,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getInputLocalPortPositionX)
         .attr("y", getInputLocalPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getName();});
+        .text(function (port : Port) {return port.getText();});
 
     const inputLocalCircles = inputLocalPortGroups
         .selectAll("g")
@@ -734,7 +734,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getOutputPortPositionX)
         .attr("y", getOutputPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getName();});
+        .text(function (port : Port) {return port.getText();});
 
     const outputCircles = outputPortGroups
         .selectAll("g")
@@ -779,7 +779,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getOutputLocalPortPositionX)
         .attr("y", getOutputLocalPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getName();});
+        .text(function (port : Port) {return port.getText();});
 
     const outputLocalCircles = outputLocalPortGroups
         .selectAll("g")
@@ -810,7 +810,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const portDragHandler = d3.drag()
                             .on("start", function (port : Port) {
-                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getName());
+                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getText());
                                 isDraggingPort = true;
                                 sourceNodeKey = port.getNodeKey();
                                 sourcePortId = port.getId();
@@ -1343,7 +1343,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getInputPortPositionX)
             .attr("y", getInputPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getName();});
+            .text(function (port : Port) {return port.getText();});
 
         nodes
             .selectAll("g.inputPorts circle")
@@ -1418,7 +1418,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getInputLocalPortPositionX)
             .attr("y", getInputLocalPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getName();});
+            .text(function (port : Port) {return port.getText();});
 
         nodes
             .selectAll("g.inputLocalPorts circle")
@@ -1493,7 +1493,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getOutputPortPositionX)
             .attr("y", getOutputPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getName()});
+            .text(function (port : Port) {return port.getText()});
 
         nodes
             .selectAll("g.outputPorts circle")
@@ -1568,7 +1568,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getOutputLocalPortPositionX)
             .attr("y", getOutputLocalPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getName();});
+            .text(function (port : Port) {return port.getText();});
 
         nodes
             .selectAll("g.outputLocalPorts circle")
