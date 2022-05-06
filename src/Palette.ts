@@ -258,8 +258,8 @@ export class Palette {
         palette_url += "/?service=" + fileInfo.repositoryService;
         palette_url += "&repository=" + fileInfo.repositoryName;
         palette_url += "&branch=" + fileInfo.repositoryBranch;
-        palette_url += "&path=" + fileInfo.path;
-        palette_url += "&filename=" + fileInfo.name;
+        palette_url += "&path=" + encodeURI(fileInfo.path);
+        palette_url += "&filename=" + encodeURI(fileInfo.name);
 
         // copy to cliboard
         navigator.clipboard.writeText(palette_url);
