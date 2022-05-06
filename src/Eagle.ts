@@ -4504,14 +4504,14 @@ export class Eagle {
         return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
     }, this);
 
-    // TODO: (srcNode, srcPort, destNode, destPort, loopAware, closesLoop, callback)
-    addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName: string, portType : string, loopAware: boolean, closesLoop: boolean, callback : (edge: Edge) => void) : void => {
+    addEdge = (srcNode: Node, srcPort: Port, destNode: Node, destPort: Port, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
+    //addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName: string, portType : string, loopAware: boolean, closesLoop: boolean, callback : (edge: Edge) => void) : void => {
         // check if edge is connecting two application components, if so, we should insert a data component (of type chosen by user)
-        const srcNode : Node = this.logicalGraph().findNodeByKey(srcNodeKey);
-        const destNode : Node = this.logicalGraph().findNodeByKey(destNodeKey);
+        //const srcNode : Node = this.logicalGraph().findNodeByKey(srcNodeKey);
+        //const destNode : Node = this.logicalGraph().findNodeByKey(destNodeKey);
 
-        const srcPort : Port = srcNode.findPortById(srcPortId);
-        const destPort : Port = destNode.findPortById(destPortId);
+        //const srcPort : Port = srcNode.findPortById(srcPortId);
+        //const destPort : Port = destNode.findPortById(destPortId);
 
         const edgeConnectsTwoApplications : boolean =
             (srcNode.isApplication() || srcNode.isGroup()) &&
@@ -4521,7 +4521,7 @@ export class Eagle {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, portType, loopAware, closesLoop);
+            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop);
             this.logicalGraph().addEdgeComplete(edge);
             if (callback !== null) callback(edge);
             return;
@@ -4551,7 +4551,7 @@ export class Eagle {
             ineligibleCategories.push(Eagle.Category.Memory);
         }
 
-        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), portName, portType, ineligibleCategories);
+        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), srcPort.getName(), srcPort.getType(), ineligibleCategories);
 
         // if edge DOES connect two applications, insert data component (of type chosen by user except ineligibleTypes)
         this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
@@ -4565,7 +4565,7 @@ export class Eagle {
             newNode.setKey(newNodeKey);
 
             // set name of new node
-            newNode.setName(portName);
+            newNode.setName(srcPort.getName());
 
             // add input port and output port for dataType (if they don't exist)
             // TODO: check by type, not name
