@@ -4564,8 +4564,8 @@ export class Eagle {
             const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
             newNode.setKey(newNodeKey);
 
-            // set name of new node
-            newNode.setName(srcPort.getName());
+            // set name of new node (use user-facing name)
+            newNode.setName(srcPort.getText());
 
             // add input port and output port for dataType (if they don't exist)
             // TODO: check by type, not name
