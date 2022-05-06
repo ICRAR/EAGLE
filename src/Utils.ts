@@ -666,8 +666,8 @@ export class Utils {
         }
 
         // populate UI with current field data
-        $('#editFieldModalTextInput').val(field.getText());
-        $('#editFieldModalNameInput').val(field.getName());
+        $('#editFieldModalTextInput').val(field.getDisplayText());
+        $('#editFieldModalNameInput').val(field.getIdText());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
         $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
@@ -811,8 +811,8 @@ export class Utils {
         }
 
         // populate UI with current port data
-        $('#editPortModalNameInput').val(port.getName());
-        $('#editPortModalTextInput').val(port.getText());
+        $('#editPortModalNameInput').val(port.getIdText());
+        $('#editPortModalTextInput').val(port.getDisplayText());
         $('#editPortModalTypeInput').val(port.getType());
         $('#editPortModalDescriptionInput').val(port.getDescription());
 
@@ -1010,7 +1010,7 @@ export class Utils {
             for (const port of srcNode.getOutputPorts()){
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
-                    text: port.getName(),
+                    text: port.getIdText(),
                     selected: edge.getSrcPortId() === port.getId()
                 }));
             }
@@ -1068,7 +1068,7 @@ export class Utils {
             for (const port of destNode.getInputPorts()){
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
-                    text: port.getName(),
+                    text: port.getIdText(),
                     selected: edge.getDestPortId() === port.getId()
                 }));
             }
@@ -1192,7 +1192,7 @@ export class Utils {
 
         // check if the new port matches an existing port (by name and type), if so, abort
         for (const p of ports){
-            if (p.getName() === port.getName() && p.getType() === port.getType()){
+            if (p.getIdText() === port.getIdText() && p.getType() === port.getType()){
                 return;
             }
         }
