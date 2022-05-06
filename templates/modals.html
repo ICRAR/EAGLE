@@ -306,7 +306,7 @@
                                     <!-- ko if: $data.getType() === 0 -->
                                         <div class="input-group mb-1">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getIdText(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
+                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
                                             </div>
                                             <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
                                         </div>
@@ -314,7 +314,7 @@
                                     <!-- ko if: $data.getType() === 1 -->
                                         <div class="input-group mb-1">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getIdText(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
+                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
                                             </div>
                                             <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
                                         </div>
@@ -322,7 +322,7 @@
                                     <!-- ko if: $data.getType() === 2 -->
                                         <div class="settingSm col-6">
                                             <div class="input-group mb-1 checkSettingLabel">
-                                                <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getIdText()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
+                                                <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
                                                 <div class="input-group-append">
                                                     <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.toggle, attr:{id:'setting'+$data.getKey()+'Button'}">
                                                         <i class="material-icons md-18" data-bind="visible: $data.value">radio_button_checked</i>
@@ -335,7 +335,7 @@
                                     <!-- ko if: $data.getType() === 3 -->
                                         <div class="input-group mb-1">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getIdText(), eagleTooltip:$data.getDescription()" data-bs-placement="left"></span>
+                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip:$data.getDescription()" data-bs-placement="left"></span>
                                             </div>
                                             <input type="password" autocomplete="off" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
                                             <div class="input-group-append">
