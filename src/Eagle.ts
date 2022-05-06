@@ -4436,8 +4436,8 @@ export class Eagle {
         graph_url += "/?service=" + fileInfo.repositoryService;
         graph_url += "&repository=" + fileInfo.repositoryName;
         graph_url += "&branch=" + fileInfo.repositoryBranch;
-        graph_url += "&path=" + fileInfo.path;
-        graph_url += "&filename=" + fileInfo.name;
+        graph_url += "&path=" + encodeURI(fileInfo.path);
+        graph_url += "&filename=" + encodeURI(fileInfo.name);
 
         // copy to cliboard
         navigator.clipboard.writeText(graph_url);
