@@ -4514,14 +4514,6 @@ export class Eagle {
     }, this);
 
     addEdge = (srcNode: Node, srcPort: Port, destNode: Node, destPort: Port, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
-    //addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName: string, portType : string, loopAware: boolean, closesLoop: boolean, callback : (edge: Edge) => void) : void => {
-        // check if edge is connecting two application components, if so, we should insert a data component (of type chosen by user)
-        //const srcNode : Node = this.logicalGraph().findNodeByKey(srcNodeKey);
-        //const destNode : Node = this.logicalGraph().findNodeByKey(destNodeKey);
-
-        //const srcPort : Port = srcNode.findPortById(srcPortId);
-        //const destPort : Port = destNode.findPortById(destPortId);
-
         const edgeConnectsTwoApplications : boolean =
             (srcNode.isApplication() || srcNode.isGroup()) &&
             (destNode.isApplication() || destNode.isGroup());
