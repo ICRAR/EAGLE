@@ -255,8 +255,8 @@ export class Eagle {
         return Eagle.findSetting(Utils.DISPLAY_NODE_KEYS).value();
     }
 
-    expertModeEnabled = () : boolean => {
-        return Eagle.findSetting(Utils.ENABLE_EXPERT_MODE).value();
+    showDaliugeRuntimeParameters = () : boolean => {
+        return Eagle.findSetting(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS).value();
     }
 
     // TODO: remove?

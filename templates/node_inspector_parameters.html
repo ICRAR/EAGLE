@@ -18,7 +18,7 @@
             </div>
             <!-- ko foreach: selectedNode().getFields() -->
                 <!-- ko if: $data.fitsComponentSearchQuery() -->
-                    <!-- ko if: !$data.isExpertModeField() || $root.expertModeEnabled() -->
+                    <!-- ko if: !$data.isDaliugeField() || $root.showDaliugeRuntimeParameters() -->
                         <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index()), fieldType: Eagle.FieldType.Field"></field>
                     <!-- /ko -->
                 <!-- /ko -->

@@ -174,8 +174,8 @@ export class Field {
         return this.text().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0;
     }, this);
 
-    isExpertModeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Config.EXPERT_MODE_PARAMETER_NAMES.indexOf(this.name()) > -1;
+    isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.name()) > -1;
     }, this);
 
     select = (selection:any,selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
