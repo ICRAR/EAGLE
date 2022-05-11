@@ -9,16 +9,18 @@ export class Setting {
     private description : string;
     private type : Setting.Type;
     private key : string;
-    private display : (eagle: Eagle) => boolean;
+    private displayFunc : (eagle: Eagle) => boolean;
+    private toggleFunc : (value: boolean) => void;
     private defaultValue : any;
     private oldValue : any;
 
-    constructor(name : string, description : string, type : Setting.Type, key : string, display: (eagle:Eagle) => boolean, defaultValue : any){
+    constructor(name : string, description : string, type : Setting.Type, key : string, displayFunc: (eagle:Eagle) => boolean, toggleFunc: (value: boolean) => void, defaultValue : any){
         this.name = name;
         this.description = description;
         this.type = type;
         this.key = key;
-        this.display = display;
+        this.displayFunc = displayFunc;
+        this.toggleFunc = toggleFunc;
         this.value = ko.observable(defaultValue);
         this.defaultValue = defaultValue;
         this.oldValue = "";
@@ -39,6 +41,19 @@ export class Setting {
         return true;
     }
 
+    static noop = (value: boolean) : void => {
+        return;
+    }
+
+    static toggleExpertMode = (value: boolean) : void => {
+        // enable some other settings
+        Eagle.setSettingValue(Utils.ALLOW_INVALID_EDGES, value);
+        Eagle.setSettingValue(Utils.ALLOW_COMPONENT_EDITING, value);
+        Eagle.setSettingValue(Utils.ALLOW_PALETTE_EDITING, value);
+        Eagle.setSettingValue(Utils.ALLOW_READONLY_PALETTE_EDITING, value);
+        Eagle.setSettingValue(Utils.ALLOW_EDGE_EDITING, value);
+    }
+
     getName = () : string => {
         return this.name;
     }
@@ -56,7 +71,7 @@ export class Setting {
     }
 
     getDisplay = (eagle: Eagle) : boolean => {
-        return this.display(eagle);
+        return this.displayFunc(eagle);
     }
 
     // TODO: do we need this?
@@ -85,6 +100,8 @@ export class Setting {
 
         // update the value
         this.value(!this.value());
+
+        this.toggleFunc(this.value());
     }
 
     copy = () : void => {
