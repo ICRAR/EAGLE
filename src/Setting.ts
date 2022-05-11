@@ -31,6 +31,14 @@ export class Setting {
         });
     }
 
+    static expertModeEnabled = (eagle: Eagle) : boolean => {
+        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE);
+    }
+
+    static true = (eagle: Eagle) : boolean => {
+        return true;
+    }
+
     getName = () : string => {
         return this.name;
     }
