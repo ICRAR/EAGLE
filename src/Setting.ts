@@ -52,6 +52,7 @@ export class Setting {
         Eagle.setSettingValue(Utils.ALLOW_PALETTE_EDITING, value);
         Eagle.setSettingValue(Utils.ALLOW_READONLY_PALETTE_EDITING, value);
         Eagle.setSettingValue(Utils.ALLOW_EDGE_EDITING, value);
+        Eagle.setSettingValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, value);
     }
 
     getName = () : string => {
@@ -59,7 +60,7 @@ export class Setting {
     }
 
     getDescription = () : string => {
-        return this.description;
+        return this.description + " (default value: " + this.defaultValue + ")";
     }
 
     getType = () : Setting.Type => {
