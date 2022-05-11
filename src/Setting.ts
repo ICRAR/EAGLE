@@ -1,22 +1,24 @@
 import * as ko from "knockout";
 
+import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 
 export class Setting {
-
     value : ko.Observable<any>;
     private name : string;
     private description : string;
     private type : Setting.Type;
     private key : string;
+    private display : (eagle: Eagle) => boolean;
     private defaultValue : any;
     private oldValue : any;
 
-    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any){
+    constructor(name : string, description : string, type : Setting.Type, key : string, display: (eagle:Eagle) => boolean, defaultValue : any){
         this.name = name;
         this.description = description;
         this.type = type;
         this.key = key;
+        this.display = display;
         this.value = ko.observable(defaultValue);
         this.defaultValue = defaultValue;
         this.oldValue = "";
@@ -43,6 +45,10 @@ export class Setting {
 
     getKey = () : string => {
         return this.key;
+    }
+
+    getDisplay = (eagle: Eagle) : boolean => {
+        return this.display(eagle);
     }
 
     // TODO: do we need this?
