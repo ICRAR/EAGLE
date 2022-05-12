@@ -34,16 +34,14 @@ export class Setting {
     private description : string;
     private type : Setting.Type;
     private key : string;
-    private toggleFunc : (value: boolean) => void;
     private defaultValue : any;
     private oldValue : any;
 
-    constructor(name : string, description : string, type : Setting.Type, key : string, toggleFunc: (value: boolean) => void, defaultValue : any){
+    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any){
         this.name = name;
         this.description = description;
         this.type = type;
         this.key = key;
-        this.toggleFunc = toggleFunc;
         this.value = ko.observable(defaultValue);
         this.defaultValue = defaultValue;
         this.oldValue = "";
@@ -54,20 +52,6 @@ export class Setting {
         this.value.subscribe(function(){
             that.save();
         });
-    }
-
-    static noop = (value: boolean) : void => {
-        return;
-    }
-
-    static toggleExpertMode = (value: boolean) : void => {
-        // enable some other settings
-        Eagle.setSettingValue(Utils.ALLOW_INVALID_EDGES, value);
-        Eagle.setSettingValue(Utils.ALLOW_COMPONENT_EDITING, value);
-        Eagle.setSettingValue(Utils.ALLOW_PALETTE_EDITING, value);
-        Eagle.setSettingValue(Utils.ALLOW_READONLY_PALETTE_EDITING, value);
-        Eagle.setSettingValue(Utils.ALLOW_EDGE_EDITING, value);
-        Eagle.setSettingValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, value);
     }
 
     getName = () : string => {
@@ -107,8 +91,6 @@ export class Setting {
 
         // update the value
         this.value(!this.value());
-
-        this.toggleFunc(this.value());
     }
 
     copy = () : void => {
