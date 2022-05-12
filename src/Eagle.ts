@@ -2685,10 +2685,8 @@ export class Eagle {
     }
 
     resetSettingsDefaults = () : void => {
-        for (const categoryName of Object.keys(Eagle.settings)){
-            const category = Eagle.settings[categoryName];
-
-            for (const setting of category){
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
                 setting.resetDefault();
             }
         }
@@ -2696,10 +2694,8 @@ export class Eagle {
 
     //copies currently set settings in case the user wishes to cancel chenges in the setting modal
     copyCurrentSettings = () : void => {
-        for (const categoryName of Object.keys(Eagle.settings)){
-            const category = Eagle.settings[categoryName];
-
-            for (const setting of category){
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
                 setting.copyCurrentSettings();
             }
         }
@@ -2707,15 +2703,13 @@ export class Eagle {
 
     //returns settings values to the previously copied settings, cancelling the settings editing
     cancelSettingChanges = () : void => {
-        for (const categoryName of Object.keys(Eagle.settings)){
-            const category = Eagle.settings[categoryName];
-
-            for (const setting of category){
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
                 setting.cancelChanges();
             }
         }
     }
-
+    
     addEdgeToLogicalGraph = () : void => {
         // check that there is at least one node in the graph, otherwise it is difficult to create an edge
         if (this.logicalGraph().getNumNodes() === 0){
