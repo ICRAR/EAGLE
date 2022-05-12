@@ -897,7 +897,7 @@ export class Eagle {
     insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node) : void => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
-        // create map of inserted graph keys to final graph keys
+        // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports 
         const keyMap: Map<number, Node> = new Map();
         const portMap: Map<string, Port> = new Map();
         let parentNodePosition;
