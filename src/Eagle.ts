@@ -46,7 +46,7 @@ import {Port} from './Port';
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
-import {Setting} from './Setting';
+import {Setting, SettingsGroup} from './Setting';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
@@ -98,7 +98,7 @@ export class Eagle {
     static applicationArgsSearchString : ko.Observable<string>;
     static tableSearchString : ko.Observable<string>;
 
-    static settings : {[category:string] : Setting[]}
+    static settings : SettingsGroup[];
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
 
     static dragStartX : number;
@@ -129,42 +129,58 @@ export class Eagle {
         Eagle.applicationArgsSearchString = ko.observable("");
         Eagle.tableSearchString = ko.observable("");
 
-        Eagle.settings = {
-            "User Options" : [
-                new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, Setting.true, Setting.noop, true),
-                new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, Setting.true, Setting.noop, true),
-                new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, Setting.true, Setting.noop, true),
-                new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, Setting.true, Setting.noop, true),
-                new Setting("Confirm Delete", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_OBJECTS, Setting.true, Setting.noop, true),
-                new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, Setting.true, Setting.noop, false),
-                new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, Setting.true, Setting.noop, false),
-                new Setting("Spawn Translation Tab", "When translating a graph, display the output of the translator in a new tab", Setting.Type.Boolean, Utils.SPAWN_TRANSLATION_TAB, Setting.true, Setting.noop, true),
-                new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, Setting.true, Setting.noop, false),
-                new Setting("Use Simplified Translator Options", "Hide the complex and rarely used translator options", Setting.Type.Boolean, Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS, Setting.true, Setting.noop, true),
-                new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, Setting.true, Setting.noop, false),
-                new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, Setting.true, Setting.noop, 1000),
-                new Setting("Enable Expert Mode", "Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Boolean, Utils.ENABLE_EXPERT_MODE, Setting.true, Setting.toggleExpertMode, false),
-            ],
-            "Advanced Editing" : [
-                new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, Setting.expertModeEnabled, Setting.noop, false),
-                new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, Setting.expertModeEnabled, Setting.noop, false),
-                new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Utils.ALLOW_PALETTE_EDITING, Setting.expertModeEnabled, Setting.noop, false),
-                new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PALETTE_EDITING, Setting.expertModeEnabled, Setting.noop, false),
-                new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, Setting.expertModeEnabled, Setting.noop, false),
-                new Setting("Show DALiuGE runtime parameters", "Show additional component arguments that modify the behaviour of the DALiuGE runtime. For example: Data Volume, Execution Time, Num CPUs, Group Start/End", Setting.Type.Boolean, Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, Setting.expertModeEnabled, Setting.noop, false),
-            ],
-            "External Services" : [
-                new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, Setting.true, Setting.noop, "http://localhost:8084/gen_pgt"),
-                new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, Setting.true, Setting.noop, ""),
-                new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, Setting.true, Setting.noop, ""),
-                new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, Setting.true, Setting.noop, "icrar")
-            ],
-            "Workarounds" : [
-                new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, Setting.expertModeEnabled, Setting.noop, false),
-                new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, Setting.expertModeEnabled, Setting.noop, true),
-                new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Utils.SKIP_CLOSE_LOOP_EDGES, Setting.expertModeEnabled, Setting.noop, true),
-            ]
-        };
+        Eagle.settings = [
+            new SettingsGroup(
+                "User Options",
+                (eagle) => {return true;},
+                [
+                    new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, Setting.noop, true),
+                    new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, Setting.noop, true),
+                    new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, Setting.noop, true),
+                    new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, Setting.noop, true),
+                    new Setting("Confirm Delete", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_OBJECTS, Setting.noop, true),
+                    new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, Setting.noop, false),
+                    new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, Setting.noop, false),
+                    new Setting("Spawn Translation Tab", "When translating a graph, display the output of the translator in a new tab", Setting.Type.Boolean, Utils.SPAWN_TRANSLATION_TAB, Setting.noop, true),
+                    new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, Setting.noop, false),
+                    new Setting("Use Simplified Translator Options", "Hide the complex and rarely used translator options", Setting.Type.Boolean, Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS, Setting.noop, true),
+                    new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, Setting.noop, false),
+                    new Setting("Enable Expert Mode", "Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Boolean, Utils.ENABLE_EXPERT_MODE, Setting.toggleExpertMode, false),
+                    new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, Setting.noop, 1000),
+                ]
+            ),
+            new SettingsGroup(
+                "Advanced Editing",
+                (eagle) => {return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE);},
+                [
+                    new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, Setting.noop, false),
+                    new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, Setting.noop, false),
+                    new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Utils.ALLOW_PALETTE_EDITING, Setting.noop, false),
+                    new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PALETTE_EDITING, Setting.noop, false),
+                    new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, Setting.noop, false),
+                    new Setting("Show DALiuGE runtime parameters", "Show additional component arguments that modify the behaviour of the DALiuGE runtime. For example: Data Volume, Execution Time, Num CPUs, Group Start/End", Setting.Type.Boolean, Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, Setting.noop, false),
+                ]
+            ),
+            new SettingsGroup(
+                "External Services",
+                (eagle) => {return true;},
+                [
+                    new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, Setting.noop, "http://localhost:8084/gen_pgt"),
+                    new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, Setting.noop, ""),
+                    new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, Setting.noop, ""),
+                    new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, Setting.noop, "icrar")
+                ]
+            ),
+            new SettingsGroup(
+                "Workarounds",
+                (eagle) => {return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE);},
+                [
+                    new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, Setting.noop, false),
+                    new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, Setting.noop, true),
+                    new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Utils.SKIP_CLOSE_LOOP_EDGES, Setting.noop, true),
+                ]
+            )
+        ];
 
         Eagle.shortcuts = ko.observableArray();
         Eagle.shortcuts.push(new KeyboardShortcut("new_graph", "New Graph", ["n"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, this.allowPaletteEditing, (eagle): void => {eagle.newLogicalGraph();}));
@@ -2552,12 +2568,6 @@ export class Eagle {
         }
     }
 
-    //used by the settings modal html to generate an id from the title
-    getSettingCategoryId = (title:string) : string => {
-        title = title.split(' ').join('')
-        return 'settingCategory' + title;
-    }
-
     toggleSettingsTab = (btn:any, target:any) :void => {
         //deselect and deactivate current tab content and buttons
         $(".settingsModalButton").removeClass("settingCategoryBtnActive");
@@ -2582,14 +2592,14 @@ export class Eagle {
             return null;
         }
 
-        for (const categoryName of Object.keys(Eagle.settings)){
-            const category = Eagle.settings[categoryName];
-            for (const setting of category){
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
                 if (setting.getKey() === key){
                     return setting;
                 }
             }
         }
+
         return null;
     }
 

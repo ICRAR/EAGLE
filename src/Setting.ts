@@ -3,23 +3,46 @@ import * as ko from "knockout";
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 
+export class SettingsGroup {
+    private name : string;
+    private displayFunc : (eagle: Eagle) => boolean;
+    private settings : Setting[];
+
+    constructor(name: string, displayFunc: (eagle:Eagle) => boolean, settings: Setting[]){
+        this.name = name;
+        this.displayFunc = displayFunc;
+        this.settings = settings;
+    }
+
+    isVisible = (eagle: Eagle) : boolean => {
+        return this.displayFunc(eagle);
+    }
+
+    getSettings = () : Setting[] => {
+        return this.settings;
+    }
+
+    // used by the settings modal html to generate an id from the name
+    getHtmlId = () : string => {
+        return 'settingCategory' + this.name.split(' ').join('');
+    }
+}
+
 export class Setting {
     value : ko.Observable<any>;
     private name : string;
     private description : string;
     private type : Setting.Type;
     private key : string;
-    private displayFunc : (eagle: Eagle) => boolean;
     private toggleFunc : (value: boolean) => void;
     private defaultValue : any;
     private oldValue : any;
 
-    constructor(name : string, description : string, type : Setting.Type, key : string, displayFunc: (eagle:Eagle) => boolean, toggleFunc: (value: boolean) => void, defaultValue : any){
+    constructor(name : string, description : string, type : Setting.Type, key : string, toggleFunc: (value: boolean) => void, defaultValue : any){
         this.name = name;
         this.description = description;
         this.type = type;
         this.key = key;
-        this.displayFunc = displayFunc;
         this.toggleFunc = toggleFunc;
         this.value = ko.observable(defaultValue);
         this.defaultValue = defaultValue;
@@ -31,14 +54,6 @@ export class Setting {
         this.value.subscribe(function(){
             that.save();
         });
-    }
-
-    static expertModeEnabled = (eagle: Eagle) : boolean => {
-        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE);
-    }
-
-    static true = (eagle: Eagle) : boolean => {
-        return true;
     }
 
     static noop = (value: boolean) : void => {
@@ -69,10 +84,6 @@ export class Setting {
 
     getKey = () : string => {
         return this.key;
-    }
-
-    getDisplay = (eagle: Eagle) : boolean => {
-        return this.displayFunc(eagle);
     }
 
     // TODO: do we need this?
