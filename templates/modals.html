@@ -577,7 +577,7 @@
                         </thead>
                             <tbody data-bind="foreach: $root.currentParamsArray()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
-                                <!-- ko if: !$data.isDaliugeField() || $root.showDaliugeRuntimeParameters() -->
+                                <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
                                 <tr>
                                     <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'text' }"><input class="tableParameter" type="string" data-bind="value: text, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.text, 'text', $root.selectedNode().isLocked(), $data, $index(),event)}, event:{keyup: function(event, data){select($data.text, 'text', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
                                     <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'name' }"><input class="tableParameter" type="string" data-bind="value: name, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.name, 'name', $root.selectedNode().isLocked(), $data, $index(),event)}, event:{keyup: function(event, data){select($data.name, 'name', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
