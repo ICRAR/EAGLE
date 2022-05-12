@@ -183,8 +183,8 @@ export class Eagle {
         ];
 
         Eagle.shortcuts = ko.observableArray();
-        Eagle.shortcuts.push(new KeyboardShortcut("new_graph", "New Graph", ["n"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, this.allowPaletteEditing, (eagle): void => {eagle.newLogicalGraph();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, this.allowPaletteEditing, (eagle): void => {eagle.newPalette();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("new_graph", "New Graph", ["n"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, Eagle.allowPaletteEditing, (eagle): void => {eagle.newLogicalGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, Eagle.allowPaletteEditing, (eagle): void => {eagle.newPalette();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_graph_from_repo", "Open graph from repo", ["g"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().mode(Eagle.RightWindowMode.Repository);eagle.rightWindow().shown(true);}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_graph_from_local_disk", "Open graph from local disk", ["g"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_palette_from_repo", "Open palette from repo", ["p"], "keydown", KeyboardShortcut.Modifier.None,KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().mode(Eagle.RightWindowMode.Repository);eagle.rightWindow().shown(true);}));
@@ -259,20 +259,32 @@ export class Eagle {
         return false;
     }
 
-    allowPaletteEditing = () : boolean => {
-        return Eagle.findSetting(Utils.ALLOW_PALETTE_EDITING).value();
+    static allowInvalidEdges = () : boolean => {
+        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_INVALID_EDGES);
     }
 
-    allowComponentEditing = () : boolean => {
-        return Eagle.findSetting(Utils.ALLOW_COMPONENT_EDITING).value();
+    static allowPaletteEditing = () : boolean => {
+        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_PALETTE_EDITING);
+    }
+
+    static allowReadonlyPaletteEditing = () : boolean => {
+        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
+    }
+
+    static allowComponentEditing = () : boolean => {
+        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
+    }
+
+    static allowEdgeEditing = (): boolean => {
+        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
+    }
+
+    static showDaliugeRuntimeParameters = () : boolean => {
+        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
     }
 
     displayNodeKeys = () :boolean => {
         return Eagle.findSetting(Utils.DISPLAY_NODE_KEYS).value();
-    }
-
-    showDaliugeRuntimeParameters = () : boolean => {
-        return Eagle.findSetting(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS).value();
     }
 
     // TODO: remove?
@@ -2546,7 +2558,7 @@ export class Eagle {
         }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(this.allowPaletteEditing()){
+            if(Eagle.allowPaletteEditing()){
                     return false;
             }else{
                 if (type === Eagle.FieldType.Field){
@@ -2556,7 +2568,7 @@ export class Eagle {
                 }
             }
         }else{
-            if(this.allowComponentEditing()){
+            if(Eagle.allowComponentEditing()){
                 return false
             }else{
                 if (type === Eagle.FieldType.Field){
@@ -3648,7 +3660,7 @@ export class Eagle {
         const destinationPaletteIndex : number = parseInt($(e.currentTarget)[0].getAttribute('data-palette-index'), 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
-        const allowReadonlyPaletteEditing = Eagle.findSetting(Utils.ALLOW_READONLY_PALETTE_EDITING).value();
+        const allowReadonlyPaletteEditing = Eagle.allowReadonlyPaletteEditing();
 
         // check user can write to destination palette
         if (destinationPalette.fileInfo().readonly && !allowReadonlyPaletteEditing){
@@ -4207,10 +4219,6 @@ export class Eagle {
                 this.undo().pushSnapshot(this, "Edit Port");
             });
         }
-    }
-
-    allowEdgeEditing = (): boolean => {
-        return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
     }
 
     explorePalettesClickHelper = (data: PaletteInfo, event:any): void => {
