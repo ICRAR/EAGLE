@@ -37,7 +37,7 @@
                 <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out ' + Utils.getKeyboardShortcutTextByKey('zoom_out', true)" data-intro="Zoom out from the graph within the graph rendering area.">
                     <i class="material-icons md-18">zoom_out</i>
                 </button>
-                <!-- ko if: allowPaletteEditing() -->
+                <!-- ko if: Eagle.allowPaletteEditing() -->
                 <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + Utils.getKeyboardShortcutTextByKey('add_graph_nodes_to_palette', true)" data-intro="Add all nodes in the current graph to the a new or existing palette.">
                     <i class="material-icons md-18">palette</i>
                 </button>
@@ -117,7 +117,7 @@
                     Palette
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPalette">
-                <!-- ko if: allowPaletteEditing() -->
+                <!-- ko if: Eagle.allowPaletteEditing() -->
                     <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
                             <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette
@@ -144,7 +144,7 @@
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" id="saveToPalette" href="#" data-bind="click: addGraphNodesToPalette">Save Node To Palette</a>
                 <!-- /ko -->
-                <!-- ko if: !allowPaletteEditing() -->
+                <!-- ko if: !Eagle.allowPaletteEditing() -->
                     <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Local Palette
                         <span data-bind="text: Utils.getKeyboardShortcutTextByKey('open_palette_from_local_disk', true)"></span>
                     </a>

@@ -8,7 +8,7 @@
                 more_vert
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="paletteWindowdropdown">
-            <!-- ko if: allowPaletteEditing() -->
+            <!-- ko if: Eagle.allowPaletteEditing() -->
                 <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                     <div class="dropDropDown">
                         <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette
@@ -45,7 +45,7 @@
                     <!-- ko if: $data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown -->
                     <a href="#" data-bind="click: function(){$root.reloadPalette($data, $index())}, clickBubble: false" data-html="true"><span>Reload Palette</span></a>
                     <!-- /ko -->
-                    <!-- ko if: $root.allowPaletteEditing() -->
+                    <!-- ko if: Eagle.allowPaletteEditing() -->
                         <a href="#" data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>
                         <a href="#" data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>
                     <!-- /ko -->

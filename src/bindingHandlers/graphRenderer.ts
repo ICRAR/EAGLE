@@ -892,11 +892,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     // check if link is valid
                                     const linkValid : Eagle.LinkValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, false, true, true);
 
-                                    // check if we should allow invalid edges
-                                    const allowInvalidEdges : boolean = Eagle.findSettingValue(Utils.ALLOW_INVALID_EDGES);
-
                                     // abort if edge is invalid
-                                    if (allowInvalidEdges || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
+                                    if (Eagle.allowInvalidEdges() || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
                                         if (linkValid === Eagle.LinkValid.Warning){
                                             addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, srcPort.getName(), sourceDataType, true, false);
                                         } else {
