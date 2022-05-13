@@ -1,9 +1,34 @@
 import * as ko from "knockout";
 
+import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 
-export class Setting {
+export class SettingsGroup {
+    private name : string;
+    private displayFunc : (eagle: Eagle) => boolean;
+    private settings : Setting[];
 
+    constructor(name: string, displayFunc: (eagle:Eagle) => boolean, settings: Setting[]){
+        this.name = name;
+        this.displayFunc = displayFunc;
+        this.settings = settings;
+    }
+
+    isVisible = (eagle: Eagle) : boolean => {
+        return this.displayFunc(eagle);
+    }
+
+    getSettings = () : Setting[] => {
+        return this.settings;
+    }
+
+    // used by the settings modal html to generate an id from the name
+    getHtmlId = () : string => {
+        return 'settingCategory' + this.name.split(' ').join('');
+    }
+}
+
+export class Setting {
     value : ko.Observable<any>;
     private name : string;
     private description : string;
@@ -34,7 +59,7 @@ export class Setting {
     }
 
     getDescription = () : string => {
-        return this.description;
+        return this.description + " (default value: " + this.defaultValue + ")";
     }
 
     getType = () : Setting.Type => {
@@ -45,9 +70,8 @@ export class Setting {
         return this.key;
     }
 
-    // TODO: do we need this?
-    getSettings = () :any => {
-        console.log("bop")
+    getOldValue = () : any => {
+        return this.oldValue;
     }
 
     save = () : void => {

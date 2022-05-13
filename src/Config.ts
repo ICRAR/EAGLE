@@ -40,7 +40,7 @@ export class Config {
         "simple"
     ];
 
-    static readonly EXPERT_MODE_PARAMETER_NAMES = [
+    static readonly DALIUGE_PARAMETER_NAMES = [
         "data_volume",
         "execution_time",
         "num_cpus",

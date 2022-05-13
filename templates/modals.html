@@ -294,15 +294,15 @@
             </div>
             <div class="modal-body">
                 <div id="settingsModalHeader">
-                    <!-- ko foreach: Object.keys(Eagle.settings) -->
-                        <button class="settingsModalButton" data-bind="attr:{id: $root.getSettingCategoryId($data)}, text: $data, click: $root.toggleSettingsTab($root.getSettingCategoryId($data), 'settingsCategory'+$index()+'Content')"></button>
+                    <!-- ko foreach: Eagle.settings -->
+                        <button class="settingsModalButton" data-bind="attr:{id: $data.getHtmlId()}, text: $data.name, click: $root.toggleSettingsTab($data.getHtmlId(), 'settingsCategory'+$index()+'Content'), visible: $data.isVisible($root)"></button>
                     <!-- /ko -->
                 </div>
                 <form>
-                    <!-- ko foreach: Object.keys(Eagle.settings) -->
-                        <div class="settingsModalCategoryWrapper" data-bind="attr:{id:'settingsCategory'+$index()+'Content'}">
+                    <!-- ko foreach: Eagle.settings -->
+                        <div class="settingsModalCategoryWrapper" data-bind="attr:{id:'settingsCategory'+$index()+'Content'}, visible: $data.isVisible($root)">
                             <div class="row">
-                                <!-- ko foreach: Eagle.settings[$data] -->
+                                <!-- ko foreach: $data.settings -->
                                     <!-- ko if: $data.getType() === 0 -->
                                         <div class="input-group mb-1">
                                             <div class="input-group-prepend">
@@ -571,7 +571,7 @@
                         </thead>
                             <tbody data-bind="foreach: $root.currentParamsArray()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
-                                <!-- ko if: !$data.isExpertModeField() || $root.expertModeEnabled() -->
+                                <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
                                 <tr>
                                     <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'displayText' }"><input class="tableParameter" type="string" data-bind="value: displayText, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.displayText(), 'displayText', $root.selectedNode().isLocked(), $data, $index(), event)}, event:{keyup: function(event, data){select($data.displayText(), 'displayText', $root.selectedNode().isLocked(), $data, $index(), event)}}"></td>
                                     <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'idText' }"><input class="tableParameter" type="string" data-bind="value: idText, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.idText(), 'idText', $root.selectedNode().isLocked(), $data, $index(), event)}, event:{keyup: function(event, data){select($data.idText(), 'idText', $root.selectedNode().isLocked(), $data, $index(), event)}}"></td>

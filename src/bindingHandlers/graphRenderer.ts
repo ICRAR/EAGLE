@@ -888,11 +888,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     // check if link is valid
                                     const linkValid : Eagle.LinkValid = Edge.isValid(graph, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, true, true);
 
-                                    // check if we should allow invalid edges
-                                    const allowInvalidEdges : boolean = Eagle.findSettingValue(Utils.ALLOW_INVALID_EDGES);
-
                                     // abort if edge is invalid
-                                    if (allowInvalidEdges || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
+                                    if (Eagle.allowInvalidEdges() || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
                                         if (linkValid === Eagle.LinkValid.Warning){
                                             addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
                                         } else {
