@@ -843,8 +843,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     node.setPeek(false);
                                 }
 
-                                // peek at the suggestedNode
-                                suggestedNode.setPeek(true);
+                                // peek at the suggestedNode, if one exists
+                                if (suggestedNode){
+                                    suggestedNode.setPeek(true);
+                                }
 
                                 tick();
                             })
@@ -3433,8 +3435,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             for (const port of portList){
-                // TODO: should probably match on type, not name!
-                if (port.getIdText() !== sourceDataType){
+                if (port.getType() !== sourceDataType){
                     continue;
                 }
 

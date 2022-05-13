@@ -811,8 +811,8 @@ export class Utils {
         }
 
         // populate UI with current port data
-        $('#editPortModalNameInput').val(port.getIdText());
-        $('#editPortModalTextInput').val(port.getDisplayText());
+        $('#editPortModalIdTextInput').val(port.getIdText());
+        $('#editPortModalDisplayTextInput').val(port.getDisplayText());
         $('#editPortModalTypeInput').val(port.getType());
         $('#editPortModalDescriptionInput').val(port.getDescription());
 

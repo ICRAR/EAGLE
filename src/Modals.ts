@@ -405,12 +405,12 @@ export class Modals {
             // extract field data from HTML elements
             // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
             const id = "dummy-id";
-            const name: string = <string>$('#editPortModalNameInput').val();
-            const text: string = <string>$('#editPortModalTextInput').val();
+            const idText: string = <string>$('#editPortModalIdTextInput').val();
+            const displayText: string = <string>$('#editPortModalDisplayTextInput').val();
             const type: string = <string>$('#editPortModalTypeInput').val();
             const description: string = <string>$('#editPortModalDescriptionInput').val();
 
-            const newPort = new Port(id, name, text, false, type, description);
+            const newPort = new Port(id, idText, displayText, false, type, description);
 
             callback(true, newPort);
         });

@@ -101,8 +101,8 @@ class Page {
     this.addOutputApplication = Selector('#nodeInspectorAddOutputApplication');
 
     this.portModalSelect = Selector('#portModalSelect');
-    this.portModalNameInput = Selector('#editPortModalNameInput');
-    this.portModalTextInput = Selector('#editPortModalTextInput');
+    this.portModalIdTextInput = Selector('#editPortModalIdTextInput');
+    this.portModalDisplayTextInput = Selector('#editPortModalDisplayTextInput');
     this.portModalAffirmativeButton = Selector('#editPortModalAffirmativeButton');
 
     this.commitRepo = Selector('#gitCommitModalRepositoryNameSelect');
@@ -253,8 +253,8 @@ class Page {
         .click(this.portModalSelect)
         .click(Selector(this.portModalSelect).find('option').withText("Custom (enter below)"));
 
-    await t.typeText(this.portModalNameInput, portInternalName, {replace:true});
-    await t.typeText(this.portModalTextInput, portExternalName, {replace:true});
+    await t.typeText(this.portModalIdTextInput, portInternalName, {replace:true});
+    await t.typeText(this.portModalDisplayTextInput, portExternalName, {replace:true});
 
     await t.click(this.portModalAffirmativeButton);
   }
