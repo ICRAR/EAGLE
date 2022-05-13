@@ -1644,6 +1644,30 @@ export class Utils {
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
     }
 
+    static isAlpha(ch: string){
+        return /^[A-Z]$/i.test(ch);
+    }
+
+    static isNumeric(ch: string){
+        return /^[0-9]$/i.test(ch);
+    }
+
+    static validateIdText(idText: string) : boolean {
+        // must start with a letter of underscore character
+        if (idText[0] !== "_" && !Utils.isAlpha(idText[0])){
+            return false;
+        }
+
+        // can only contain alpha-numeric and underscores
+        for (let i = 1 ; i < idText.length ; i++){
+            if (!Utils.isAlpha(idText[i]) && !Utils.isNumeric(idText[i]) && idText[i] !== "_"){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     static validateField(type: Eagle.DataType, value: string){
         let valid: boolean = true;
 

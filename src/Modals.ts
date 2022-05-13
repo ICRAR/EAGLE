@@ -361,6 +361,11 @@ export class Modals {
                 $('#editFieldModalValueInputText').attr("type", "text")
             }
         });
+        // add some validation of the idText
+        $('#editFieldModalIdTextInput').on('keyup', function(){
+            Modals._validateFieldModalIdText();
+        });
+
         // add some validation to the value entry field
         $('#editFieldModalValueInputText').on('keyup', function(){
             Modals._validateFieldModalValueInputText();
@@ -413,6 +418,10 @@ export class Modals {
             const newPort = new Port(id, idText, displayText, false, type, description);
 
             callback(true, newPort);
+        });
+        // add some validation of the idText
+        $('#editPortModalIdTextInput').on('keyup', function(){
+            Modals._validatePortModalIdText();
         });
 
         // #editEdgeModal - requestUserEditEdge()
@@ -506,6 +515,7 @@ export class Modals {
         });
     }
 
+    // TODO: can we get rid of this? seems to be a duplicate of eagle.fillParamentersTable()
     static fillParamentersTable (data:any):string{
         var options:string;
 
@@ -518,6 +528,13 @@ export class Modals {
         }
 
         return options
+    }
+
+    static _validateFieldModalIdText(){
+        const idText: string = <string>$('#editFieldModalIdTextInput').val();
+        const isValid = Utils.validateIdText(idText);
+
+        Modals._setValidClasses('#editFieldModalIdTextInput', isValid);
     }
 
     static _validateFieldModalValueInputText(){
@@ -534,12 +551,23 @@ export class Modals {
 
         const isValid = Utils.validateField(realType, value);
 
+        Modals._setValidClasses('#editFieldModalValueInputText', isValid);
+    }
+
+    static _validatePortModalIdText(){
+        const idText: string = <string>$('#editPortModalIdTextInput').val();
+        const isValid = Utils.validateIdText(idText);
+
+        Modals._setValidClasses('#editPortModalIdTextInput', isValid);
+    }
+
+    static _setValidClasses(id: string, isValid: boolean){
         if (isValid){
-            $('#editFieldModalValueInputText').addClass('is-valid');
-            $('#editFieldModalValueInputText').removeClass('is-invalid');
+            $(id).addClass('is-valid');
+            $(id).removeClass('is-invalid');
         } else {
-            $('#editFieldModalValueInputText').removeClass('is-valid');
-            $('#editFieldModalValueInputText').addClass('is-invalid');
+            $(id).removeClass('is-valid');
+            $(id).addClass('is-invalid');
         }
     }
 }
