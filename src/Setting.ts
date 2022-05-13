@@ -70,6 +70,10 @@ export class Setting {
         return this.key;
     }
 
+    getOldValue = () : any => {
+        return this.oldValue;
+    }
+
     save = () : void => {
         localStorage.setItem(this.key, this.valueToString(this.value()));
     }
