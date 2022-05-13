@@ -666,8 +666,8 @@ export class Utils {
         }
 
         // populate UI with current field data
-        $('#editFieldModalTextInput').val(field.getDisplayText());
-        $('#editFieldModalNameInput').val(field.getIdText());
+        $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
+        $('#editFieldModalIdTextInput').val(field.getIdText());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
         $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.string2Type(field.getValue(), Eagle.DataType.Boolean));

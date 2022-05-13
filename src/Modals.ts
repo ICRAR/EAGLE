@@ -280,8 +280,8 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            const text : string = <string>$('#editFieldModalTextInput').val();
-            const name : string = <string>$('#editFieldModalNameInput').val();
+            const idText : string = <string>$('#editFieldModalIdTextInput').val();
+            const displayText : string = <string>$('#editFieldModalDisplayTextInput').val();
 
             // only one of these three ui elements contains the "real" value,
             // but we get all three and then choose correctly based on field type
@@ -311,13 +311,13 @@ export class Modals {
 
             switch(realType){
                 case Eagle.DataType.Boolean:
-                    newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
+                    newField = new Field(displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
                     break;
                 case Eagle.DataType.Select:
-                    newField = new Field(text, name, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
+                    newField = new Field(displayText, idText, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
                     break;
                 default:
-                    newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
+                    newField = new Field(displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
                     break;
             }
 
