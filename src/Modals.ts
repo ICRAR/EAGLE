@@ -280,8 +280,8 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            const text : string = <string>$('#editFieldModalTextInput').val();
-            const name : string = <string>$('#editFieldModalNameInput').val();
+            const idText : string = <string>$('#editFieldModalIdTextInput').val();
+            const displayText : string = <string>$('#editFieldModalDisplayTextInput').val();
 
             // only one of these three ui elements contains the "real" value,
             // but we get all three and then choose correctly based on field type
@@ -311,13 +311,13 @@ export class Modals {
 
             switch(realType){
                 case Eagle.DataType.Boolean:
-                    newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
+                    newField = new Field(displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
                     break;
                 case Eagle.DataType.Select:
-                    newField = new Field(text, name, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
+                    newField = new Field(displayText, idText, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
                     break;
                 default:
-                    newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
+                    newField = new Field(displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
                     break;
             }
 
@@ -361,6 +361,11 @@ export class Modals {
                 $('#editFieldModalValueInputText').attr("type", "text")
             }
         });
+        // add some validation of the idText
+        $('#editFieldModalIdTextInput').on('keyup', function(){
+            Modals._validateFieldModalIdText();
+        });
+
         // add some validation to the value entry field
         $('#editFieldModalValueInputText').on('keyup', function(){
             Modals._validateFieldModalValueInputText();
@@ -405,14 +410,18 @@ export class Modals {
             // extract field data from HTML elements
             // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
             const id = "dummy-id";
-            const name: string = <string>$('#editPortModalNameInput').val();
-            const text: string = <string>$('#editPortModalTextInput').val();
+            const idText: string = <string>$('#editPortModalIdTextInput').val();
+            const displayText: string = <string>$('#editPortModalDisplayTextInput').val();
             const type: string = <string>$('#editPortModalTypeInput').val();
             const description: string = <string>$('#editPortModalDescriptionInput').val();
 
-            const newPort = new Port(id, name, text, false, type, description);
+            const newPort = new Port(id, idText, displayText, false, type, description);
 
             callback(true, newPort);
+        });
+        // add some validation of the idText
+        $('#editPortModalIdTextInput').on('keyup', function(){
+            Modals._validatePortModalIdText();
         });
 
         // #editEdgeModal - requestUserEditEdge()
@@ -506,6 +515,7 @@ export class Modals {
         });
     }
 
+    // TODO: can we get rid of this? seems to be a duplicate of eagle.fillParamentersTable()
     static fillParamentersTable (data:any):string{
         var options:string;
 
@@ -518,6 +528,13 @@ export class Modals {
         }
 
         return options
+    }
+
+    static _validateFieldModalIdText(){
+        const idText: string = <string>$('#editFieldModalIdTextInput').val();
+        const isValid = Utils.validateIdText(idText);
+
+        Modals._setValidClasses('#editFieldModalIdTextInput', isValid);
     }
 
     static _validateFieldModalValueInputText(){
@@ -534,12 +551,23 @@ export class Modals {
 
         const isValid = Utils.validateField(realType, value);
 
+        Modals._setValidClasses('#editFieldModalValueInputText', isValid);
+    }
+
+    static _validatePortModalIdText(){
+        const idText: string = <string>$('#editPortModalIdTextInput').val();
+        const isValid = Utils.validateIdText(idText);
+
+        Modals._setValidClasses('#editPortModalIdTextInput', isValid);
+    }
+
+    static _setValidClasses(id: string, isValid: boolean){
         if (isValid){
-            $('#editFieldModalValueInputText').addClass('is-valid');
-            $('#editFieldModalValueInputText').removeClass('is-invalid');
+            $(id).addClass('is-valid');
+            $(id).removeClass('is-invalid');
         } else {
-            $('#editFieldModalValueInputText').removeClass('is-valid');
-            $('#editFieldModalValueInputText').addClass('is-invalid');
+            $(id).removeClass('is-valid');
+            $(id).addClass('is-invalid');
         }
     }
 }

@@ -71,7 +71,7 @@ for (const node of outputGraph.getNodes()){
 }
 
 // write the logical graph to disk using the outputFilename
-fs.writeFileSync(outputFilename, JSON.stringify(LogicalGraph.toOJSJson(outputGraph), null, 4));
+fs.writeFileSync(outputFilename, JSON.stringify(LogicalGraph.toOJSJson(outputGraph, false), null, 4));
 
 // finish
 process.exit();
@@ -133,7 +133,7 @@ function readNode(nodeData : any, index : number) : Node {
     }
 
     // create new node
-    const node : Node = new Node(nodeData.key, nodeData.text, "", category, false);
+    const node : Node = new Node(nodeData.key, nodeData.text, "", category);
     node.setPosition(x, y);
 
     // get description (if exists)

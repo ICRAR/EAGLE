@@ -1,7 +1,7 @@
 <div class="input-group mb-1">
 
     <div class="input-group-prepend">
-        <span class="input-group-text" id="group-addon" data-bind="text: $data.text, eagleTooltip: $data.getDescriptionText()" data-bs-placement="left"></span>
+        <span class="input-group-text" id="group-addon" data-bind="text: $data.displayText, eagleTooltip: $data.getDescriptionText()" data-bs-placement="left"></span>
     </div>
 
     <!-- ko if: getType() !== Eagle.DataType.Boolean && getType() !== Eagle.DataType.Select -->

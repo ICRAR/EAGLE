@@ -825,7 +825,7 @@ export class Eagle {
             return "";
         }
 
-        return Eagle.parameterTableSelectionParent().getText()+" - "+Eagle.parameterTableSelectionName()
+        return Eagle.parameterTableSelectionParent().getDisplayText()+" - "+Eagle.parameterTableSelectionName()
     }
 
     formatTableInspectorValue = () : string => {
@@ -840,9 +840,9 @@ export class Eagle {
         var selected = Eagle.parameterTableSelectionName()
         var selectedForm = Eagle.parameterTableSelectionParent()
         if(selected === 'text'){
-            selectedForm.setText(value)
+            selectedForm.setDisplayText(value)
         } else if(selected === 'name'){
-            selectedForm.setName(value)
+            selectedForm.setIdText(value)
         } else if(selected === 'value'){
             selectedForm.setValue(value)
         } else if(selected === 'defaultValue'){
@@ -938,9 +938,9 @@ export class Eagle {
     insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node) : void => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
-        // create map of inserted graph keys to final graph keys
-        const keyMap: Map<number, number> = new Map();
-        const portMap: Map<string, string> = new Map();
+        // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
+        const keyMap: Map<number, Node> = new Map();
+        const portMap: Map<string, Port> = new Map();
         let parentNodePosition;
 
         // add the parent node to the logical graph
@@ -966,7 +966,7 @@ export class Eagle {
         for (const node of nodes){
             this.addNode(node.clone(), parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
                 // save mapping for node itself
-                keyMap.set(node.getKey(), insertedNode.getKey());
+                keyMap.set(node.getKey(), insertedNode);
 
                 // if insertedNode has no parent, make it a parent of the parent node
                 if (insertedNode.getParentKey() === null && parentNode !== null){
@@ -979,17 +979,17 @@ export class Eagle {
                     const clone : Node = inputApplication.clone();
                     const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
                     clone.setKey(newKey);
-                    keyMap.set(inputApplication.getKey(), newKey);
+                    keyMap.set(inputApplication.getKey(), clone);
 
                     insertedNode.setInputApplication(clone);
 
                     // loop through ports, adding them to the port map
                     for (const inputPort of inputApplication.getInputPorts()){
-                        portMap.set(inputPort.getId(), inputPort.getId());
+                        portMap.set(inputPort.getId(), inputPort);
                     }
 
                     for (const outputPort of inputApplication.getOutputPorts()){
-                        portMap.set(outputPort.getId(), outputPort.getId());
+                        portMap.set(outputPort.getId(), outputPort);
                     }
                 }
 
@@ -999,36 +999,35 @@ export class Eagle {
                     const clone : Node = outputApplication.clone();
                     const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
                     clone.setKey(newKey);
-                    keyMap.set(outputApplication.getKey(), newKey);
+                    keyMap.set(outputApplication.getKey(), clone);
 
                     insertedNode.setOutputApplication(clone);
 
                     // loop through ports, adding them to the port map
                     for (const inputPort of outputApplication.getInputPorts()){
-                        portMap.set(inputPort.getId(), inputPort.getId());
+                        portMap.set(inputPort.getId(), inputPort);
                     }
 
                     for (const outputPort of outputApplication.getOutputPorts()){
-                        portMap.set(outputPort.getId(), outputPort.getId());
+                        portMap.set(outputPort.getId(), outputPort);
                     }
                 }
 
                 // save mapping for input ports
                 for (let j = 0 ; j < node.getInputPorts().length; j++){
-                    portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j].getId());
+                    portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j]);
                 }
 
                 // save mapping for output ports
                 for (let j = 0 ; j < node.getOutputPorts().length; j++){
-                    portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j].getId());
+                    portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
                 }
             });
         }
 
         // update some other details of the nodes are updated correctly
         for (const node of nodes){
-            const insertedNodeKey: number = keyMap.get(node.getKey());
-            const insertedNode: Node = this.logicalGraph().findNodeByKey(insertedNodeKey);
+            const insertedNode: Node = keyMap.get(node.getKey());
 
             // if original node had no parent, skip
             if (node.getParentKey() === null){
@@ -1036,22 +1035,22 @@ export class Eagle {
             }
 
             // check if parent of original node was also mapped to a new node
-            let mappedParentKey = keyMap.get(node.getParentKey());
+            let mappedParent: Node = keyMap.get(node.getParentKey());
 
             // make sure parent is set correctly
             // if no mapping is available for the parent, then use the original parent as the parent for the new node
             // if a mapping is available, then use the mapped node as the parent for the new node
-            if (typeof mappedParentKey === 'undefined'){
+            if (typeof mappedParent === 'undefined'){
                 insertedNode.setParentKey(node.getParentKey());
             } else {
-                insertedNode.setParentKey(mappedParentKey);
+                insertedNode.setParentKey(mappedParent.getKey());
             }
         }
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), "", edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(),  null);
+            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
         }
     }
 
@@ -2462,7 +2461,7 @@ export class Eagle {
         destNode.setGroupStart(this.selectedEdge().isClosesLoop());
 
         this.checkGraph();
-        Utils.showNotification("Toggle edge closes loop", "Node " + sourceNode.getName() + " component parameter 'group_end' set to " + sourceNode.getFieldByName("group_end").getValue() + ". Node " + destNode.getName() + " component parameter 'group_start' set to " + destNode.getFieldByName("group_start").getValue() + ".", "success");
+        Utils.showNotification("Toggle edge closes loop", "Node " + sourceNode.getName() + " component parameter 'group_end' set to " + sourceNode.getFieldByIdText("group_end").getValue() + ". Node " + destNode.getName() + " component parameter 'group_start' set to " + destNode.getFieldByIdText("group_start").getValue() + ".", "success");
 
         this.selectedObjects.valueHasMutated();
         this.logicalGraph.valueHasMutated();
@@ -2770,8 +2769,13 @@ export class Eagle {
                 return;
             }
 
+            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const srcPort: Port = srcNode.findPortById(edge.getSrcPortId());
+            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destPort: Port = destNode.findPortById(edge.getDestPortId());
+
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), () => {
+            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Add edge");
                 // trigger the diagram to re-draw with the modified edge
@@ -2804,9 +2808,14 @@ export class Eagle {
                 return;
             }
 
+            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const srcPort: Port = srcNode.findPortById(edge.getSrcPortId());
+            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destPort: Port = destNode.findPortById(edge.getDestPortId());
+
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
-            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), () => {
+            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit edge");
                 // trigger the diagram to re-draw with the modified edge
@@ -3223,9 +3232,9 @@ export class Eagle {
                         const selectedNode = that.selectedNode();
 
                         // get references to image, tag and digest fields in this component
-                        const imageField:  Field = selectedNode.getFieldByName("image");
-                        const tagField:    Field = selectedNode.getFieldByName("tag");
-                        const digestField: Field = selectedNode.getFieldByName("digest");
+                        const imageField:  Field = selectedNode.getFieldByIdText("image");
+                        const tagField:    Field = selectedNode.getFieldByIdText("tag");
+                        const digestField: Field = selectedNode.getFieldByIdText("digest");
 
                         // set values for the fields
                         if (imageField !== null){
@@ -4048,7 +4057,7 @@ export class Eagle {
         // once done, sort fields and then collect names into the allFieldNames list
         allFields.sort(Field.sortFunc);
         for (const field of allFields){
-            allFieldNames.push(field.getName() + " (" + field.getType() + ")");
+            allFieldNames.push(field.getIdText() + " (" + field.getType() + ")");
         }
 
         //if creating a new field component parameter
@@ -4121,8 +4130,8 @@ export class Eagle {
                 }
 
                 // update field data
-                field.setText(newField.getText());
-                field.setName(newField.getName());
+                field.setDisplayText(newField.getDisplayText());
+                field.setIdText(newField.getIdText());
                 field.setValue(newField.getValue());
                 field.setDefaultValue(newField.getDefaultValue());
                 field.setDescription(newField.getDescription());
@@ -4176,7 +4185,7 @@ export class Eagle {
         const allPortNames: string[] = [];
         // get list of port names from list of ports
         for (const port of allPorts){
-            allPortNames.push(port.getName() + " (" + port.getType() + ")");
+            allPortNames.push(port.getIdText() + " (" + port.getType() + ")");
         }
 
         if (modalType === Eagle.ModalType.Add){
@@ -4552,14 +4561,7 @@ export class Eagle {
         return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
     }, this);
 
-    addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName: string, portType : string, loopAware: boolean, closesLoop: boolean, callback : (edge: Edge) => void) : void => {
-        // check if edge is connecting two application components, if so, we should insert a data component (of type chosen by user)
-        const srcNode : Node = this.logicalGraph().findNodeByKey(srcNodeKey);
-        const destNode : Node = this.logicalGraph().findNodeByKey(destNodeKey);
-
-        const srcPort : Port = srcNode.findPortById(srcPortId);
-        const destPort : Port = destNode.findPortById(destPortId);
-
+    addEdge = (srcNode: Node, srcPort: Port, destNode: Node, destPort: Port, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
         const edgeConnectsTwoApplications : boolean =
             (srcNode.isApplication() || srcNode.isGroup()) &&
             (destNode.isApplication() || destNode.isGroup());
@@ -4568,7 +4570,7 @@ export class Eagle {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, portType, loopAware, closesLoop);
+            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop);
             this.logicalGraph().addEdgeComplete(edge);
             if (callback !== null) callback(edge);
             return;
@@ -4598,7 +4600,7 @@ export class Eagle {
             ineligibleCategories.push(Eagle.Category.Memory);
         }
 
-        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), portName, portType, ineligibleCategories);
+        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), srcPort.getIdText(), srcPort.getType(), ineligibleCategories);
 
         // if edge DOES connect two applications, insert data component (of type chosen by user except ineligibleTypes)
         this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
@@ -4611,16 +4613,16 @@ export class Eagle {
             const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
             newNode.setKey(newNodeKey);
 
-            // set name of new node
-            newNode.setName(portName);
+            // set name of new node (use user-facing name)
+            newNode.setName(srcPort.getDisplayText());
 
             // add input port and output port for dataType (if they don't exist)
             // TODO: check by type, not name
-            if (!newNode.hasPortWithName(portName, true, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), portName, portName, false, portType, ""), true);
+            if (!newNode.hasPortWithIdText(srcPort.getIdText(), true, false)){
+                newNode.addPort(new Port(Utils.uuidv4(), srcPort.getIdText(), srcPort.getDisplayText(), false, srcPort.getType(), ""), true);
             }
-            if (!newNode.hasPortWithName(portName, false, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), portName, portName, false, portType, ""), false);
+            if (!newNode.hasPortWithIdText(destPort.getIdText(), false, false)){
+                newNode.addPort(new Port(Utils.uuidv4(), destPort.getIdText(), destPort.getDisplayText(), false, destPort.getType(), ""), false);
             }
 
             // set the parent of the new node
@@ -4638,12 +4640,12 @@ export class Eagle {
             }
 
             // get references to input port and output port
-            const newInputPortId : string = newNode.findPortByName(portName, true, false).getId();
-            const newOutputPortId : string = newNode.findPortByName(portName, false, false).getId();
+            const newInputPortId : string = newNode.findPortByIdText(srcPort.getIdText(), true, false).getId();
+            const newOutputPortId : string = newNode.findPortByIdText(destPort.getIdText(), false, false).getId();
 
             // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNodeKey, srcPortId, newNodeKey, newInputPortId, portType, loopAware, closesLoop);
-            const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNodeKey, destPortId, portType, loopAware, closesLoop);
+            const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPortId, srcPort.getType(), loopAware, closesLoop);
+            const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop);
 
             this.logicalGraph().addEdgeComplete(firstEdge);
             this.logicalGraph().addEdgeComplete(secondEdge);

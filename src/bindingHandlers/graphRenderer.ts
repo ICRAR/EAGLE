@@ -76,14 +76,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     let isDraggingNode : boolean = false;
     let draggingInGraph : boolean = false;
     let isDraggingSelectionRegion : boolean = false;
-    let sourcePortId : string | null = null;
-    let sourceNodeKey : number | null = null;
-    let sourceDataType : string | null = null;
+    let sourcePort: Port | null = null;
+    let sourceNode: Node | null = null;
     let sourcePortIsInput : boolean;
-    let destinationPortId : string | null = null;
-    let destinationNodeKey : number | null = null;
-    let suggestedPortId : string | null = null;
-    let suggestedNodeKey : number | null = null;
+    let destinationPort: Port | null = null;
+    let destinationNode: Node | null = null;
+    let suggestedPort: Port | null = null;
+    let suggestedNode: Node | null = null;
     let isDraggingPort : boolean = false;
     let isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
     let isDraggingWithAlt : boolean = false;
@@ -644,7 +643,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getInputPortPositionX)
         .attr("y", getInputPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getName();});
+        .text(function (port : Port) {return port.getDisplayText();});
 
     const inputCircles = inputPortGroups
         .selectAll("g")
@@ -689,7 +688,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getInputLocalPortPositionX)
         .attr("y", getInputLocalPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getName();});
+        .text(function (port : Port) {return port.getDisplayText();});
 
     const inputLocalCircles = inputLocalPortGroups
         .selectAll("g")
@@ -734,7 +733,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getOutputPortPositionX)
         .attr("y", getOutputPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getName();});
+        .text(function (port : Port) {return port.getDisplayText();});
 
     const outputCircles = outputPortGroups
         .selectAll("g")
@@ -779,7 +778,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("x", getOutputLocalPortPositionX)
         .attr("y", getOutputLocalPortPositionY)
         .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-        .text(function (port : Port) {return port.getName();});
+        .text(function (port : Port) {return port.getDisplayText();});
 
     const outputLocalCircles = outputLocalPortGroups
         .selectAll("g")
@@ -810,13 +809,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const portDragHandler = d3.drag()
                             .on("start", function (port : Port) {
-                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getName());
+                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getText());
                                 isDraggingPort = true;
-                                sourceNodeKey = port.getNodeKey();
-                                sourcePortId = port.getId();
-                                sourceDataType = port.getName();
-                                const sourceNode = graph.findNodeByKey(sourceNodeKey);
-                                sourcePortIsInput = sourceNode.findPortIsInputById(sourcePortId)
+                                sourceNode = graph.findNodeByKey(port.getNodeKey());
+                                sourcePort = port;
+                                sourcePortIsInput = sourceNode.findPortIsInputById(sourcePort.getId())
                             })
                             .on("drag", function () {
                                 //console.log("drag from port", data.Id);
@@ -828,28 +825,27 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 const mouseY = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
 
                                 // check for nearby nodes
-                                const nearbyNodes = findNodesInRange(mouseX, mouseY, MIN_AUTO_COMPLETE_EDGE_RANGE, sourceNodeKey, sourcePortId, sourceDataType);
+                                const nearbyNodes = findNodesInRange(mouseX, mouseY, MIN_AUTO_COMPLETE_EDGE_RANGE, sourceNode.getKey(), sourcePort.getId(), sourcePort.getType());
 
                                 // check for nearest matching port in the nearby nodes
-                                const matchingPort: Port = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourceDataType, sourcePortIsInput);
+                                const matchingPort: Port = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourcePort.getType(), sourcePortIsInput);
 
                                 if (matchingPort !== null){
-                                    suggestedNodeKey = matchingPort.getNodeKey();
-                                    suggestedPortId = matchingPort.getId();
+                                    suggestedNode = graph.findNodeByKey(matchingPort.getNodeKey());
+                                    suggestedPort = matchingPort;
                                 } else {
-                                    suggestedNodeKey = null;
-                                    suggestedPortId = null;
+                                    suggestedNode = null;
+                                    suggestedPort = null;
                                 }
 
-                                // peek at nearby nodes (only if they contain a port that matches the source port)
+                                // reset all nodes to peek false
                                 for (const node of nodeData){
                                     node.setPeek(false);
                                 }
-                                for (const node of nearbyNodes){
-                                    // TODO: should probably match on type, not name!
-                                    if (node.findPortById(suggestedPortId) !== null){
-                                        node.setPeek(true);
-                                    }
+
+                                // peek at the suggestedNode, if one exists
+                                if (suggestedNode){
+                                    suggestedNode.setPeek(true);
                                 }
 
                                 tick();
@@ -858,31 +854,31 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 //console.log("drag end", port.getId());
                                 isDraggingPort = false;
 
-                                if (destinationPortId !== null || suggestedPortId !== null){
-                                    const srcNode = findNodeWithKey(sourceNodeKey, nodeData);
-                                    const srcPort = srcNode.findPortById(sourcePortId);
-                                    const srcPortType = srcNode.findPortTypeById(sourcePortId);
+                                if (destinationPort !== null || suggestedPort !== null){
+                                    const srcNode = sourceNode;
+                                    const srcPort = sourcePort;
+                                    const srcPortType = sourcePort.getType();
 
                                     let destNode;
                                     let destPort;
                                     let destPortType;
 
-                                    if (destinationPortId !== null){
-                                        destNode = findNodeWithKey(destinationNodeKey, nodeData);
-                                        destPort = destNode.findPortById(destinationPortId);
-                                        destPortType = destNode.findPortTypeById(destinationPortId);
+                                    if (destinationPort !== null){
+                                        destNode = destinationNode;
+                                        destPort = destinationPort;
+                                        destPortType = destinationPort.getType();
                                     } else {
-                                        destNode = findNodeWithKey(suggestedNodeKey, nodeData);
-                                        destPort = destNode.findPortById(suggestedPortId);
-                                        destPortType = destNode.findPortTypeById(suggestedPortId);
+                                        destNode = suggestedNode;
+                                        destPort = suggestedPort;
+                                        destPortType = suggestedPort.getType();
                                     }
 
                                     // check if edge is back-to-front (input-to-output), if so, swap the source and destination
                                     const backToFront : boolean = (srcPortType === "input" || srcPortType === "outputLocal") && (destPortType === "output" || destPortType === "inputLocal");
-                                    sourceNodeKey      = backToFront ? destNode.getKey() : srcNode.getKey();
-                                    sourcePortId       = backToFront ? destPort.getId()  : srcPort.getId();
-                                    destinationNodeKey = backToFront ? srcNode.getKey()  : destNode.getKey();
-                                    destinationPortId  = backToFront ? srcPort.getId()   : destPort.getId();
+                                    const realSourceNode: Node      = backToFront ? destNode : srcNode;
+                                    const realSourcePort: Port      = backToFront ? destPort : srcPort;
+                                    const realDestinationNode: Node = backToFront ? srcNode  : destNode;
+                                    const realDestinationPort: Port = backToFront ? srcPort  : destPort;
 
                                     // notify user
                                     if (backToFront){
@@ -890,14 +886,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     }
 
                                     // check if link is valid
-                                    const linkValid : Eagle.LinkValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, false, true, true);
+                                    const linkValid : Eagle.LinkValid = Edge.isValid(graph, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, true, true);
 
                                     // abort if edge is invalid
                                     if (Eagle.allowInvalidEdges() || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
                                         if (linkValid === Eagle.LinkValid.Warning){
-                                            addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, srcPort.getName(), sourceDataType, true, false);
+                                            addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
                                         } else {
-                                            addEdge(sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, srcPort.getName(), sourceDataType, false, false);
+                                            addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, false, false);
                                         }
                                     } else {
                                         console.warn("link not valid, result", linkValid);
@@ -1340,7 +1336,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getInputPortPositionX)
             .attr("y", getInputPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getName();});
+            .text(function (port : Port) {return port.getDisplayText();});
 
         nodes
             .selectAll("g.inputPorts circle")
@@ -1415,7 +1411,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getInputLocalPortPositionX)
             .attr("y", getInputLocalPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getName();});
+            .text(function (port : Port) {return port.getDisplayText();});
 
         nodes
             .selectAll("g.inputLocalPorts circle")
@@ -1490,7 +1486,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getOutputPortPositionX)
             .attr("y", getOutputPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getName()});
+            .text(function (port : Port) {return port.getDisplayText()});
 
         nodes
             .selectAll("g.outputPorts circle")
@@ -1565,7 +1561,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", getOutputLocalPortPositionX)
             .attr("y", getOutputLocalPortPositionY)
             .style("font-size", PORT_LABEL_FONT_SIZE + "px")
-            .text(function (port : Port) {return port.getName();});
+            .text(function (port : Port) {return port.getDisplayText();});
 
         nodes
             .selectAll("g.outputLocalPorts circle")
@@ -1650,7 +1646,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let draggingY2 : number;
 
         if (isDraggingPort){
-            const tempEdge: Edge = new Edge(sourceNodeKey, sourcePortId, 0, "", "", false, false);
+            const tempEdge: Edge = new Edge(sourceNode.getKey(), sourcePort.getId(), 0, "", "", false, false);
             draggingX1 = edgeGetX1(tempEdge);
             draggingY1 = edgeGetY1(tempEdge);
             draggingX2 = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
@@ -1681,8 +1677,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // autocomplete link
-        if (isDraggingPort && suggestedNodeKey !== null){
-            const tempEdge: Edge = new Edge(sourceNodeKey, sourcePortId, suggestedNodeKey, suggestedPortId, "", false, false);
+        if (isDraggingPort && suggestedNode !== null){
+            const tempEdge: Edge = new Edge(sourceNode.getKey(), sourcePort.getId(), suggestedNode.getKey(), suggestedPort.getId(), "", false, false);
             const x2 : number = edgeGetX2(tempEdge);
             const y2 : number = edgeGetY2(tempEdge);
 
@@ -3005,15 +3001,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function addEdge(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName : string, portType : string, loopAware: boolean, closesLoop: boolean) : void {
+    function addEdge(srcNode: Node, srcPort: Port, destNode: Node, destPort: Port, loopAware: boolean, closesLoop: boolean) : void {
         //console.log("addEdge()", "port", srcPortId, "on node", srcNodeKey, "to port", destPortId, "on node", destNodeKey, "loopAware", loopAware);
 
-        if (srcPortId === destPortId){
+        if (srcPort.getId() === destPort.getId()){
             console.warn("Abort addLink() from port to itself!");
             return;
         }
 
-        eagle.addEdge(srcNodeKey, srcPortId, destNodeKey, destPortId, portName, portType, loopAware, closesLoop, (edge : Edge) : void => {
+        eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, (edge : Edge) : void => {
             eagle.checkGraph();
             eagle.logicalGraph.valueHasMutated();
             clearEdgeVars();
@@ -3021,14 +3017,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function clearEdgeVars(){
-        sourcePortId = null;
-        sourceNodeKey = null;
-        sourceDataType = null;
+        sourcePort = null;
+        sourceNode = null;
         sourcePortIsInput = false;
-        destinationPortId = null;
-        destinationNodeKey = null;
-        suggestedPortId = null;
-        suggestedNodeKey = null;
+        destinationPort = null;
+        destinationNode = null;
+        suggestedPort = null;
+        suggestedNode = null;
     }
 
     function createCommentLink(node : Node){
@@ -3437,8 +3432,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             for (const port of portList){
-                // TODO: should probably match on type, not name!
-                if (port.getName() !== sourceDataType){
+                if (port.getType() !== sourceDataType){
                     continue;
                 }
 
@@ -3466,15 +3460,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
 
-        destinationPortId = port.getId();
-        destinationNodeKey = port.getNodeKey();
+        destinationPort = port;
+        destinationNode = graph.findNodeByKey(port.getNodeKey());
 
-        isDraggingPortValid = Edge.isValid(graph, sourceNodeKey, sourcePortId, destinationNodeKey, destinationPortId, true, true, true);
+        isDraggingPortValid = Edge.isValid(graph, sourceNode.getKey(), sourcePort.getId(), destinationNode.getKey(), destinationPort.getId(), true, true, true);
     }
 
     function mouseLeavePort(port : Port) : void {
-        destinationPortId = null;
-        destinationNodeKey = null;
+        destinationPort = null;
+        destinationNode = null;
 
         isDraggingPortValid = Eagle.LinkValid.Unknown;
     }
