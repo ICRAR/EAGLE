@@ -4,8 +4,8 @@ import {Eagle} from './Eagle';
 
 export class Port {
     private _id : ko.Observable<string>;
-    private text : ko.Observable<string>; // external user-facing name
-    private name : ko.Observable<string>; // internal no-whitespace name
+    private displayText : ko.Observable<string>; // external user-facing name
+    private idText : ko.Observable<string>;      // internal no-whitespace name
     private nodeKey : ko.Observable<number>;
     private local : ko.Observable<boolean>;
     private event : ko.Observable<boolean>;
@@ -15,10 +15,10 @@ export class Port {
     public static readonly DEFAULT_ID : string = "<default>";
     public static readonly DEFAULT_EVENT_PORT_NAME = "event";
 
-    constructor(id : string, name : string, text : string, event : boolean, type: string, description: string){
+    constructor(id : string, idText : string, displayText : string, event : boolean, type: string, description: string){
         this._id = ko.observable(id);
-        this.text = ko.observable(text);
-        this.name = ko.observable(name);
+        this.displayText = ko.observable(displayText);
+        this.idText = ko.observable(idText);
         this.nodeKey = ko.observable(0);
         this.local = ko.observable(false);
         this.event = ko.observable(event);
@@ -34,20 +34,20 @@ export class Port {
         this._id(id);
     }
 
-    getName = () : string => {
-        return this.name();
+    getIdText = () : string => {
+        return this.idText();
     }
 
-    setName = (name : string) : void => {
-        this.name(name);
+    setIdText = (idText : string) : void => {
+        this.idText(idText);
     }
 
-    getText = () : string => {
-        return this.text();
+    getDisplayText = () : string => {
+        return this.displayText();
     }
 
-    setText = (text : string) : void => {
-        this.text(text);
+    setDisplayText = (displayText : string) : void => {
+        this.displayText(displayText);
     }
 
     getDescription = () : string => {
@@ -68,8 +68,8 @@ export class Port {
 
     clear = () : void => {
         this._id("");
-        this.text("");
-        this.name("");
+        this.displayText("");
+        this.idText("");
         this.nodeKey(0);
         this.local(false);
         this.event(false);
@@ -94,18 +94,18 @@ export class Port {
     }
 
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
-        return this.name() + " " + this.text() + " (" + this.type() + ') | Description:"' +this.description()+'"';
+        return this.idText() + " " + this.displayText() + " (" + this.type() + ') | Description:"' +this.description()+'"';
     }, this);
 
     clone = () : Port => {
-        const port = new Port(this._id(), this.name(), this.text(), this.event(), this.type(), this.description());
+        const port = new Port(this._id(), this.idText(), this.displayText(), this.event(), this.type(), this.description());
         port.local(this.local());
         return port;
     }
 
     copy = (src: Port) : void => {
-        this.name(src.name());
-        this.text(src.text());
+        this.idText(src.idText());
+        this.displayText(src.displayText());
         this.nodeKey(src.nodeKey());
         this.local(src.local());
         this.event(src.event());
@@ -115,8 +115,8 @@ export class Port {
 
     copyWithKeyAndId = (src: Port, nodeKey: number, id: string) : void => {
         this._id(id);
-        this.name(src.name());
-        this.text(src.text());
+        this.idText(src.idText());
+        this.displayText(src.displayText());
         this.nodeKey(nodeKey);
         this.local(src.local());
         this.event(src.event());
@@ -127,8 +127,8 @@ export class Port {
     static toOJSJson = (port : Port) : object => {
         return {
             Id:port._id(),
-            IdText:port.name(),
-            text:port.text(),
+            IdText:port.idText(),
+            text:port.displayText(),
             event:port.event(),
             type:port.type(),
             description:port.description()
@@ -137,8 +137,8 @@ export class Port {
 
     static toV3Json = (port : Port) : object => {
         return {
-            name:port.name(),
-            text:port.text(),
+            name:port.idText(),
+            text:port.displayText(),
             event:port.event(),
             type:port.type(),
             description:port.description()
@@ -163,10 +163,10 @@ export class Port {
     }
 
     public static sortFunc = (a: Port, b: Port) : number => {
-        if (a.name() < b.name())
+        if (a.displayText() < b.displayText())
             return -1;
 
-        if (a.name() > b.name())
+        if (a.idText() > b.idText())
             return 1;
 
         if (a.type() < b.type())

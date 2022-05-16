@@ -5,8 +5,8 @@ import {Utils} from './Utils';
 import {Config} from './Config';
 
 export class Field {
-    private text : ko.Observable<string>; // external user-facing name
-    private name : ko.Observable<string>; // internal no-whitespace name
+    private displayText : ko.Observable<string>; // external user-facing name
+    private idText : ko.Observable<string>; // internal no-whitespace name
     private value : ko.Observable<string>; // the current value
     private defaultValue : ko.Observable<string>;  // default value
     private description : ko.Observable<string>;
@@ -16,9 +16,9 @@ export class Field {
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
 
-    constructor(text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean){
-        this.text = ko.observable(text);
-        this.name = ko.observable(name);
+    constructor(displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean){
+        this.displayText = ko.observable(displayText);
+        this.idText = ko.observable(idText);
         this.value = ko.observable(value);
         this.defaultValue = ko.observable(defaultValue);
         this.description = ko.observable(description);
@@ -29,20 +29,20 @@ export class Field {
         this.positional = ko.observable(positional);
     }
 
-    getText = () : string => {
-        return this.text();
+    getDisplayText = () : string => {
+        return this.displayText();
     }
 
-    setText = (text: string): void => {
-        this.text(text);
+    setDisplayText = (displayText: string): void => {
+        this.displayText(displayText);
     }
 
-    getName = () : string => {
-        return this.name();
+    getIdText = () : string => {
+        return this.idText();
     }
 
-    setName = (name: string): void => {
-        this.name(name);
+    setIdText = (name: string): void => {
+        this.idText(name);
     }
 
     getValue = () : string => {
@@ -118,8 +118,8 @@ export class Field {
     }
 
     clear = () : void => {
-        this.text("");
-        this.name("");
+        this.displayText("");
+        this.idText("");
         this.value("");
         this.defaultValue("");
         this.description("");
@@ -131,7 +131,7 @@ export class Field {
     }
 
     clone = () : Field => {
-        return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
+        return new Field(this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
     }
 
     resetToDefault = () : void => {
@@ -149,7 +149,7 @@ export class Field {
     fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.componentParamsSearchString() === ""){
             return true
-        }else if(this.text().toLowerCase().indexOf(Eagle.componentParamsSearchString().toLowerCase())>=0){
+        }else if(this.displayText().toLowerCase().indexOf(Eagle.componentParamsSearchString().toLowerCase())>=0){
             return true
         }else{
             return false
@@ -159,7 +159,7 @@ export class Field {
     fitsApplicationSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.applicationArgsSearchString() === ""){
             return true
-        }else if(this.text().toLowerCase().indexOf(Eagle.applicationArgsSearchString().toLowerCase())>=0){
+        }else if(this.displayText().toLowerCase().indexOf(Eagle.applicationArgsSearchString().toLowerCase())>=0){
             return true
         }else{
             return false
@@ -171,11 +171,11 @@ export class Field {
             return true;
         }
 
-        return this.text().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0;
+        return this.displayText().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0;
     }, this);
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.name()) > -1;
+        return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.idText()) > -1;
     }, this);
 
     select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
@@ -203,8 +203,8 @@ export class Field {
 
     static toOJSJson = (field : Field) : object => {
         return {
-            text:field.text(),
-            name:field.name(),
+            text:field.displayText(),
+            name:field.idText(),
             value:Field.string2Type(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
@@ -218,8 +218,8 @@ export class Field {
 
     static toV3Json = (field : Field) : object => {
         return {
-            text:field.text(),
-            name:field.name(),
+            text:field.displayText(),
+            name:field.idText(),
             value:Field.string2Type(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
@@ -268,10 +268,10 @@ export class Field {
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
-        if (a.name() < b.name())
+        if (a.idText() < b.idText())
             return -1;
 
-        if (a.name() > b.name())
+        if (a.idText() > b.idText())
             return 1;
 
         if (a.type() < b.type())
