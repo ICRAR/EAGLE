@@ -16,7 +16,12 @@ export class Field {
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
 
-    constructor(text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean){
+    // port-specific details
+    private isPort : ko.Observable<boolean>;
+    private id : ko.Observable<string>;
+    private event : ko.Observable<boolean>;
+
+    constructor(id: string, text: string, name: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean){
         this.text = ko.observable(text);
         this.name = ko.observable(name);
         this.value = ko.observable(value);
@@ -27,6 +32,17 @@ export class Field {
         this.precious = ko.observable(precious);
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
+
+        this.id = ko.observable(id);
+        this.event = ko.observable(false);
+    }
+
+    getId = () : string => {
+        return this.id();
+    }
+
+    setId = (id: string): void => {
+        this.id(id);
     }
 
     getText = () : string => {
@@ -131,7 +147,7 @@ export class Field {
     }
 
     clone = () : Field => {
-        return new Field(this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
+        return new Field(this.id(), this.text(), this.name(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
     }
 
     resetToDefault = () : void => {
@@ -281,5 +297,43 @@ export class Field {
             return 1;
 
         return 0;
+    }
+
+    static toOJSJsonPort = (field : Field) : object => {
+        return {
+            Id:field._id(),
+            IdText:field.name(),
+            text:field.text(),
+            event:field.event(),
+            type:field.type(),
+            description:field.description()
+        };
+    }
+
+    static toV3JsonPort = (field : Field) : object => {
+        return {
+            name:field.name(),
+            text:field.text(),
+            event:field.event(),
+            type:field.type(),
+            description:field.description()
+        };
+    }
+
+    static fromOJSJsonPort = (data : any) : Field => {
+        let text: string = "";
+        let event: boolean = false;
+        let type: string = "";
+        let description: string = ""
+        if (typeof data.text !== 'undefined')
+            text = data.text;
+        if (typeof data.event !== 'undefined')
+            event = data.event;
+        if (typeof data.type !== 'undefined')
+            type = data.type;
+        if (typeof data.description !== 'undefined')
+            description = data.description;
+
+        return new Field(data.Id, data.IdText, text, event, type, description);
     }
 }

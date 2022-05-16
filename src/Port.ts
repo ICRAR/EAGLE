@@ -124,44 +124,6 @@ export class Port {
         this.description(src.description());
     }
 
-    static toOJSJson = (port : Port) : object => {
-        return {
-            Id:port._id(),
-            IdText:port.name(),
-            text:port.text(),
-            event:port.event(),
-            type:port.type(),
-            description:port.description()
-        };
-    }
-
-    static toV3Json = (port : Port) : object => {
-        return {
-            name:port.name(),
-            text:port.text(),
-            event:port.event(),
-            type:port.type(),
-            description:port.description()
-        };
-    }
-
-    static fromOJSJson = (data : any) : Port => {
-        let text: string = "";
-        let event: boolean = false;
-        let type: string = "";
-        let description: string = ""
-        if (typeof data.text !== 'undefined')
-            text = data.text;
-        if (typeof data.event !== 'undefined')
-            event = data.event;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
-        if (typeof data.description !== 'undefined')
-            description = data.description;
-
-        return new Port(data.Id, data.IdText, text, event, type, description);
-    }
-
     public static sortFunc = (a: Port, b: Port) : number => {
         if (a.name() < b.name())
             return -1;
