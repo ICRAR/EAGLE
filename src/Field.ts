@@ -134,6 +134,14 @@ export class Field {
         this.positional(positional);
     }
 
+    getIsEvent = (): boolean => {
+        return this.isEvent();
+    }
+
+    setIsEvent = (isEvent: boolean) : void => {
+        this.isEvent(isEvent);
+    }
+
     clear = () : void => {
         this.displayText("");
         this.idText("");
@@ -249,6 +257,7 @@ export class Field {
     }
 
     static fromOJSJson = (data : any) : Field => {
+        let id: string = Utils.uuidv4();
         let text: string = "";
         let name: string = "";
         let description: string = "";
@@ -260,6 +269,8 @@ export class Field {
         let options: string[] = [];
         let positional: boolean = false;
 
+        if (typeof data.id !== 'undefined')
+            id = data.id;
         if (typeof data.text !== 'undefined')
             text = data.text;
         if (typeof data.name !== 'undefined')
@@ -281,7 +292,7 @@ export class Field {
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
 
-        return new Field(text, name, value, defaultValue, description, readonly, type, precious, options, positional);
+        return new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional);
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
@@ -324,8 +335,9 @@ export class Field {
     static fromOJSJsonPort = (data : any) : Field => {
         let text: string = "";
         let event: boolean = false;
-        let type: string = "";
-        let description: string = ""
+        let type: Eagle.DataType;
+        let description: string = "";
+
         if (typeof data.text !== 'undefined')
             text = data.text;
         if (typeof data.event !== 'undefined')
@@ -335,6 +347,9 @@ export class Field {
         if (typeof data.description !== 'undefined')
             description = data.description;
 
-        return new Field(data.Id, data.IdText, text, event, type, description);
+        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false);
+        f.setIsEvent(event);
+
+        return f;
     }
 }

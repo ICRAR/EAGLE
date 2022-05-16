@@ -36,7 +36,6 @@ require.config({
         "Node": "./static/built/Node",
         "Field": "./static/built/Field",
         "Edge": "./static/built/Edge",
-        "Port": "./static/built/Port",
         "FileInfo": "./static/built/FileInfo",
         "Setting": "./static/built/Setting",
         "SideWindow": "./static/built/SideWindow",

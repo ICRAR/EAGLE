@@ -42,7 +42,6 @@ import {Translator} from './Translator';
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
 import {Node} from './Node';
-import {Port} from './Port';
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
