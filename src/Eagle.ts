@@ -2639,13 +2639,26 @@ export class Eagle {
         Eagle.parameterTableSelection(null);
     }
 
-    fillParamentersTable = (type:any):string => {
-        var options:string;
-        var selectedType = type
+    fillParametersTable = (type:Eagle.DataType):string => {
+        var options:string = "";
 
         for (let dataType of Object.values(Eagle.DataType)){
             var selected=""
-            if(selectedType === dataType){
+            if(type === dataType){
+                selected = "selected=true"
+            }
+            options = options + "<option value="+dataType+"  "+selected+">"+dataType+"</option>";
+        }
+
+        return options
+    }
+
+    fillPortTypeCell = (portType:Eagle.PortType):string => {
+        var options:string = "";
+
+        for (let dataType of Object.values(Eagle.PortType)){
+            var selected=""
+            if(portType === dataType){
                 selected = "selected=true"
             }
             options = options + "<option value="+dataType+"  "+selected+">"+dataType+"</option>";

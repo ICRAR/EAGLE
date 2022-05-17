@@ -465,21 +465,6 @@ export class Modals {
         });
     }
 
-    // TODO: can we get rid of this? seems to be a duplicate of eagle.fillParamentersTable()
-    static fillParamentersTable (data:any):string{
-        var options:string;
-
-        for (let dataType of Object.values(Eagle.DataType)){
-            var selected:boolean = false
-            if(data = dataType){
-                selected = true
-            }
-            options = options + "<option value="+dataType+" text="+dataType+" selected="+selected+"></option>";
-        }
-
-        return options
-    }
-
     static _validateFieldModalIdText(){
         const idText: string = <string>$('#editFieldModalIdTextInput').val();
         const isValid = Utils.validateIdText(idText);

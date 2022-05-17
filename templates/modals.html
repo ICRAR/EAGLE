@@ -615,13 +615,13 @@
 
                                     <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'description' }"><input class="tableParameter" type="string" data-bind="value: description, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.description(), 'description', $root.selectedNode().isLocked(), $data, $index(),event)}, event:{keyup: function(event, data){select($data.description(), 'description', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
                                     <td>
-                                        <select data-bind="html: $root.fillParamentersTable($data.type()), value: type, disabled: $root.selectedNode().isLocked()">
+                                        <select data-bind="html: $root.fillParametersTable($data.type()), value: type, disabled: $root.selectedNode().isLocked()">
                                         <!-- options are added dynamically -->
                                         </select>
                                     </td>
                                     <!-- ko if: Eagle.parameterTableType() === Eagle.FieldType.ApplicationParam -->
                                     <td>
-                                        <select data-bind="html: $root.fillParamentersTable($data.type()), value: type, disabled: $root.selectedNode().isLocked()">
+                                        <select data-bind="html: $root.fillPortTypeCell($data.portType()), value: portType, disabled: $root.selectedNode().isLocked()">
                                             <!-- options are added dynamically -->
                                         </select>
                                     </td>
