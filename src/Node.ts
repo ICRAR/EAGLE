@@ -953,10 +953,12 @@ export class Node {
 
     addField = (field : Field) : void => {
         this.fields.push(field);
+        field.setNodeKey(this.key());
     }
 
     addFieldAtPosition = (field : Field, i : number) : void => {
         this.fields.splice(i, 0, field);
+        field.setNodeKey(this.key());
     }
 
     setGroupStart = (value: boolean) => {
@@ -1005,10 +1007,12 @@ export class Node {
 
     addApplicationArg = (param : Field) : void => {
         this.applicationArgs.push(param);
+        param.setNodeKey(this.key());
     }
 
     addApplicationArgAtPosition = (param : Field, i : number) : void => {
         this.applicationArgs.splice(i, 0, param);
+        param.setNodeKey(this.key());
     }
 
     removeApplicationArgByIndex = (index : number) : void => {
@@ -1598,7 +1602,6 @@ export class Node {
                 }
             }
             node.inputApplication().addField(port);
-            port.setNodeKey(node.inputApplication().getKey());
             errorsWarnings.warnings.push("Moved input port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")");
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
@@ -1613,7 +1616,6 @@ export class Node {
                     }
                 }
                 node.outputApplication().addField(port);
-                port.setNodeKey(node.outputApplication().getKey());
                 errorsWarnings.warnings.push("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")");
             } else {
                 // if possible, add port to output side of input application
@@ -1627,7 +1629,6 @@ export class Node {
                         }
                     }
                     node.inputApplication().addField(port);
-                    port.setNodeKey(node.inputApplication().getKey());
                     errorsWarnings.warnings.push("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application");
                 } else {
                     errorsWarnings.errors.push("Can't add port to embedded application. Node can't have output OR exit application.");
