@@ -851,21 +851,16 @@ export class Node {
     findPortByIdText = (idText : string, input : boolean, local : boolean) : Field => {
         console.assert(!local);
 
-        if (input){
-            // check input ports
-            for (const inputPort of this.getInputPorts()){
-                if (inputPort.getIdText() === idText){
-                    return inputPort;
-                }
-            }
-        } else {
-            // check output ports
-            for (const outputPort of this.getOutputPorts()){
-                if (outputPort.getIdText() === idText){
-                    return outputPort;
+        const findPortType = input ? Eagle.PortType.Input : Eagle.PortType.Output;
+
+        for (const arg of this.applicationArgs()){
+            if (arg.getPortType() === findPortType){
+                if (arg.getIdText() === idText){
+                    return arg;
                 }
             }
         }
+
         return null;
     }
 

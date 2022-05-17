@@ -4602,15 +4602,18 @@ export class Eagle {
 
             // add input port and output port for dataType (if they don't exist)
             // TODO: check by type, not name
-            if (!newNode.hasPortWithIdText(srcPort.getIdText(), true, false)){
-                const inputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false);
-                inputPort.setPortType(Eagle.PortType.Input);
-                newNode.addField(inputPort);
+            let newInputPort = newNode.findPortByIdText(srcPort.getIdText(), true, false);
+            let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
+
+            if (!newInputPort){
+                newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false);
+                newInputPort.setPortType(Eagle.PortType.Input);
+                newNode.addApplicationArg(newInputPort);
             }
-            if (!newNode.hasPortWithIdText(destPort.getIdText(), false, false)){
-                const outputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false);
-                outputPort.setPortType(Eagle.PortType.Output);
-                newNode.addField(outputPort);
+            if (!newOutputPort){
+                newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false);
+                newOutputPort.setPortType(Eagle.PortType.Output);
+                newNode.addApplicationArg(newOutputPort);
             }
 
             // set the parent of the new node
@@ -4627,13 +4630,9 @@ export class Eagle {
                 newNode.setParentKey(srcNode.getKey());
             }
 
-            // get references to input port and output port
-            const newInputPortId : string = newNode.findPortByIdText(srcPort.getIdText(), true, false).getId();
-            const newOutputPortId : string = newNode.findPortByIdText(destPort.getIdText(), false, false).getId();
-
             // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPortId, srcPort.getType(), loopAware, closesLoop);
-            const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop);
+            const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop);
+            const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop);
 
             this.logicalGraph().addEdgeComplete(firstEdge);
             this.logicalGraph().addEdgeComplete(secondEdge);
