@@ -741,6 +741,16 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
+    findPortById = (portId: string) : Field => {
+        for (const arg of this.applicationArgs()){
+            if (arg.getId() === portId){
+                return arg;
+            }
+        }
+
+        return null;
+    }
+
     findPortInApplicationsById = (portId : string) : {key: number, port: Field} => {
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){

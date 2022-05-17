@@ -25,6 +25,7 @@
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
+import {Field} from './Field';
 import {Utils} from './Utils';
 
 export class Edge {
@@ -244,8 +245,8 @@ export class Edge {
             return Eagle.LinkValid.Invalid;
         }
 
-        const sourcePort : Port = sourceNode.findPortById(sourcePortId);
-        const destinationPort : Port = destinationNode.findPortById(destinationPortId);
+        const sourcePort : Field = sourceNode.findPortById(sourcePortId);
+        const destinationPort : Field = destinationNode.findPortById(destinationPortId);
 
         if (sourcePort === null || destinationPort === null){
             return Eagle.LinkValid.Unknown;
@@ -264,7 +265,7 @@ export class Edge {
         }
 
         // check that source and destination port are both event, or both not event
-        if ((sourcePort.isEvent() && !destinationPort.isEvent()) || (!sourcePort.isEvent() && destinationPort.isEvent())){
+        if ((sourcePort.getIsEvent() && !destinationPort.getIsEvent()) || (!sourcePort.getIsEvent() && destinationPort.getIsEvent())){
             if (showNotification)
                 Utils.showNotification("Invalid Edge", "sourcePort and destinationPort are mix of event and non-event ports", "danger");
             return Eagle.LinkValid.Invalid;

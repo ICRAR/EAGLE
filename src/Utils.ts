@@ -1379,30 +1379,19 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-/*
     static determineSchemaVersion(data: any): Eagle.DALiuGESchemaVersion {
-        // v3
-        if (typeof data.DALiuGEGraph !== 'undefined'){
-            if (typeof data.DALiuGEGraph.schemaVersion !== 'undefined'){
-                return Eagle.DALiuGESchemaVersion.V3;
-            }
-        }
-
         // appref
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                if (data.modelData.schemaVersion === Eagle.DALiuGESchemaVersion.AppRef){
-                    return Eagle.DALiuGESchemaVersion.AppRef;
-                }
                 if (data.modelData.schemaVersion === Eagle.DALiuGESchemaVersion.OJS){
                     return Eagle.DALiuGESchemaVersion.OJS;
                 }
+                return data.modelData.schemaVersion;
             }
         }
 
         return Eagle.DALiuGESchemaVersion.Unknown;
     }
-*/
 
     static checkPalette(palette: Palette): string[] {
         const results: string[] = [];
