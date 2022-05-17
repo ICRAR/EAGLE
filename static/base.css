@@ -81,6 +81,10 @@
     background-color: #b6c3cf;
 }
 
+#explorePalettesModal li.list-group-item span{
+    pointer-events: none;
+}
+
 #parameterTableModal .modal-content{
     max-height: 70vh;
     overflow-y: auto;
