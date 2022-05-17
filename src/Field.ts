@@ -365,16 +365,6 @@ export class Field {
         };
     }
 
-    static toV3JsonPort = (field : Field) : object => {
-        return {
-            name:field.idText(),
-            text:field.displayText(),
-            event:field.isEvent(),
-            type:field.type(),
-            description:field.description()
-        };
-    }
-
     static fromOJSJsonPort = (data : any) : Field => {
         let text: string = "";
         let event: boolean = false;
