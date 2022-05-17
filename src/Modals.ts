@@ -3,7 +3,6 @@ import * as ko from "knockout";
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {LogicalGraph} from './LogicalGraph';
-import {Port} from './Port';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
@@ -280,6 +279,7 @@ export class Modals {
             }
 
             // extract field data from HTML elements
+            const id : string = <string>$('#editFieldModalIdInput').val();
             const idText : string = <string>$('#editFieldModalIdTextInput').val();
             const displayText : string = <string>$('#editFieldModalDisplayTextInput').val();
 
@@ -311,13 +311,13 @@ export class Modals {
 
             switch(realType){
                 case Eagle.DataType.Boolean:
-                    newField = new Field(displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
                     break;
                 case Eagle.DataType.Select:
-                    newField = new Field(displayText, idText, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
                     break;
                 default:
-                    newField = new Field(displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
                     break;
             }
 
@@ -398,7 +398,7 @@ export class Modals {
         });
 
         $('#editPortModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
+            const callback : (completed : boolean, port: Field) => void = $('#editPortModal').data('callback');
             const completed : boolean = $('#editPortModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
@@ -408,14 +408,16 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
-            const id = "dummy-id";
+            const id = <string>$('#editPortModalIdInput').val();
             const idText: string = <string>$('#editPortModalIdTextInput').val();
             const displayText: string = <string>$('#editPortModalDisplayTextInput').val();
             const type: string = <string>$('#editPortModalTypeInput').val();
             const description: string = <string>$('#editPortModalDescriptionInput').val();
 
-            const newPort = new Port(id, idText, displayText, false, type, description);
+            // translate type
+            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+
+            const newPort = new Field(id, displayText, idText, "", "", "", false, realType, false, [], false);
 
             callback(true, newPort);
         });

@@ -20,6 +20,7 @@ export class Field {
     private id : ko.Observable<string>;
     private isPort : ko.Observable<boolean>;
     private isEvent : ko.Observable<boolean>;
+    private nodeKey : ko.Observable<number>;
 
     constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean){
         this.displayText = ko.observable(displayText);
@@ -36,6 +37,7 @@ export class Field {
         this.id = ko.observable(id);
         this.isPort = ko.observable(false);
         this.isEvent = ko.observable(false);
+        this.nodeKey = ko.observable(0);
     }
 
     getId = () : string => {
@@ -134,12 +136,28 @@ export class Field {
         this.positional(positional);
     }
 
+    getIsPort = (): boolean => {
+        return this.isPort();
+    }
+
+    setIsPort = (isPort: boolean) : void => {
+        this.isPort(isPort);
+    }
+
     getIsEvent = (): boolean => {
         return this.isEvent();
     }
 
     setIsEvent = (isEvent: boolean) : void => {
         this.isEvent(isEvent);
+    }
+
+    getNodeKey = () : number => {
+        return this.nodeKey();
+    }
+
+    setNodeKey = (key : number) : void => {
+        this.nodeKey(key);
     }
 
     clear = () : void => {
@@ -153,10 +171,15 @@ export class Field {
         this.precious(false);
         this.options([]);
         this.positional(false);
+
+        // TODO
     }
 
     clone = () : Field => {
-        return new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
+        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
+        f.setIsEvent(this.isEvent());
+        // TODO
+        return f;
     }
 
     resetToDefault = () : void => {
@@ -349,7 +372,7 @@ export class Field {
 
         const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false);
         f.setIsEvent(event);
-
+        f.setIsPort(true);
         return f;
     }
 }

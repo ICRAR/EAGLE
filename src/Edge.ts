@@ -25,7 +25,6 @@
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
-import {Port} from './Port';
 import {Utils} from './Utils';
 
 export class Edge {

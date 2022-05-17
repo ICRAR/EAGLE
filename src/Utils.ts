@@ -33,7 +33,6 @@ import {Palette} from './Palette';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
 import {Edge} from './Edge';
-import {Port} from './Port';
 import {Field} from './Field';
 import {Repository} from './Repository';
 import {PaletteInfo} from './PaletteInfo';
@@ -733,7 +732,7 @@ export class Utils {
 
     }
 
-    static requestUserEditPort(eagle:Eagle, modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {
+    static requestUserEditPort(eagle:Eagle, modalType: Eagle.ModalType, port: Field, choices: string[], callback: (completed: boolean, port: Field) => void) : void {
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#portModalSelect').empty();
@@ -1081,22 +1080,22 @@ export class Utils {
     /**
      * Returns a list of unique port names (except event ports)
      */
-    static getUniquePortsList = (palettes : Palette[], graph: LogicalGraph) : Port[] => {
-        const uniquePorts : Port[] = [];
+    static getUniquePortsList = (palettes : Palette[], graph: LogicalGraph) : Field[] => {
+        const uniquePorts : Field[] = [];
 
         // build a list from all palettes
         for (const palette of palettes){
             for (const node of palette.getNodes()){
                 // add input port names into the list
                 for (const port of node.getInputPorts()) {
-                    if (!port.isEvent()){
+                    if (!port.getIsEvent()){
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // add output port names into the list
                 for (const port of node.getOutputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
@@ -1107,14 +1106,14 @@ export class Utils {
         for (const node of graph.getNodes()) {
             // add input port names into the list
             for (const port of node.getInputPorts()) {
-                if (!port.isEvent()){
+                if (!port.getIsEvent()){
                     Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
             }
 
             // add output port names into the list
             for (const port of node.getOutputPorts()) {
-                if (!port.isEvent()) {
+                if (!port.getIsEvent()) {
                     Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
             }
@@ -1123,14 +1122,14 @@ export class Utils {
             if (node.hasInputApplication()){
                 // input ports
                 for (const port of node.getInputApplication().getInputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getInputApplication().getOutputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
@@ -1140,14 +1139,14 @@ export class Utils {
             if (node.hasOutputApplication()){
                 // input ports
                 for (const port of node.getOutputApplication().getInputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getOutputApplication().getOutputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
@@ -1189,7 +1188,7 @@ export class Utils {
         return result;
     }
 
-    private static _addPortIfUnique = (ports : Port[], port: Port) : void => {
+    private static _addPortIfUnique = (ports : Field[], port: Field) : void => {
 
         // check if the new port matches an existing port (by name and type), if so, abort
         for (const p of ports){
@@ -1380,6 +1379,7 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
+/*
     static determineSchemaVersion(data: any): Eagle.DALiuGESchemaVersion {
         // v3
         if (typeof data.DALiuGEGraph !== 'undefined'){
@@ -1402,6 +1402,7 @@ export class Utils {
 
         return Eagle.DALiuGESchemaVersion.Unknown;
     }
+*/
 
     static checkPalette(palette: Palette): string[] {
         const results: string[] = [];
@@ -1428,36 +1429,36 @@ export class Utils {
         // check that all port dataTypes have been defined
         for (const node of graph.getNodes()){
             for (const port of node.getInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
             for (const port of node.getOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
@@ -1604,31 +1605,6 @@ export class Utils {
                     case Eagle.FileType.Graph:
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
-                        break;
-                    default:
-                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
-                        valid = true;
-                        break;
-                }
-                break;
-            case Eagle.DALiuGESchemaVersion.V3:
-                switch(fileType){
-                    case Eagle.FileType.Graph:
-                        valid = ajv.validate(Utils.v3GraphSchema, json) as boolean;
-                        break;
-                    default:
-                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
-                        valid = true;
-                        break;
-                }
-                break;
-            case Eagle.DALiuGESchemaVersion.AppRef:
-                switch(fileType){
-                    case Eagle.FileType.Graph:
-                        // TODO: enable validation once a schema is ready
-                        //valid = ajv.validate(Utils.appRefGraphSchema, json) as boolean;
-                        console.warn("No AppRef schema, abort validation.");
-                        valid = true;
                         break;
                     default:
                         console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");

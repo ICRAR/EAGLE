@@ -631,8 +631,12 @@ export class Eagle {
         const translatorURL : string = Eagle.findSetting(Utils.TRANSLATOR_URL).value();
         console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
 
+        // set the schema version
+        format = Eagle.DALiuGESchemaVersion.OJS;
+
+        /*
         if (format === Eagle.DALiuGESchemaVersion.Unknown){
-            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS, Eagle.DALiuGESchemaVersion.AppRef];
+            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS];
 
             // ask user to specify graph format to be sent to translator
             Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
@@ -646,6 +650,8 @@ export class Eagle {
         } else {
             this._genPGT(translatorURL, algorithmIndex, testingMode, format);
         }
+        */
+        this._genPGT(translatorURL, algorithmIndex, testingMode, format);
     }
 
     _genPGT = (translatorURL: string, algorithmIndex : number, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
@@ -654,9 +660,6 @@ export class Eagle {
         switch (format){
             case Eagle.DALiuGESchemaVersion.OJS:
                 json = LogicalGraph.toOJSJson(this.logicalGraph(), true);
-                break;
-            case Eagle.DALiuGESchemaVersion.AppRef:
-                json = LogicalGraph.toAppRefJson(this.logicalGraph());
                 break;
             default:
                 console.error("Unsupported graph format for translator!");
@@ -939,7 +942,7 @@ export class Eagle {
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const keyMap: Map<number, Node> = new Map();
-        const portMap: Map<string, Port> = new Map();
+        const portMap: Map<string, Field> = new Map();
         let parentNodePosition;
 
         // add the parent node to the logical graph
@@ -2769,9 +2772,9 @@ export class Eagle {
             }
 
             const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const srcPort: Port = srcNode.findPortById(edge.getSrcPortId());
+            const srcPort: Field = srcNode.findPortById(edge.getSrcPortId());
             const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destPort: Port = destNode.findPortById(edge.getDestPortId());
+            const destPort: Field = destNode.findPortById(edge.getDestPortId());
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
@@ -4560,12 +4563,12 @@ export class Eagle {
         return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
     }, this);
 
-    addEdge = (srcNode: Node, srcPort: Port, destNode: Node, destPort: Port, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
+    addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
         const edgeConnectsTwoApplications : boolean =
             (srcNode.isApplication() || srcNode.isGroup()) &&
             (destNode.isApplication() || destNode.isGroup());
 
-        const twoEventPorts : boolean = srcPort.isEvent() && destPort.isEvent();
+        const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
@@ -4618,10 +4621,10 @@ export class Eagle {
             // add input port and output port for dataType (if they don't exist)
             // TODO: check by type, not name
             if (!newNode.hasPortWithIdText(srcPort.getIdText(), true, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), srcPort.getIdText(), srcPort.getDisplayText(), false, srcPort.getType(), ""), true);
+                newNode.addPort(new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false), true);
             }
             if (!newNode.hasPortWithIdText(destPort.getIdText(), false, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), destPort.getIdText(), destPort.getDisplayText(), false, destPort.getType(), ""), false);
+                newNode.addPort(new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false), false);
             }
 
             // set the parent of the new node
@@ -4910,8 +4913,6 @@ export namespace Eagle
     export enum DALiuGESchemaVersion {
         Unknown = "Unknown",
         OJS = "OJS",
-        V3 = "V3",
-        AppRef = "AppRef"
     }
 
     export enum LinkValid {

@@ -7,7 +7,6 @@ import {GraphUpdater} from '../src/GraphUpdater';
 import {FileInfo} from '../src/FileInfo';
 import {Node} from '../src/Node';
 import {Field} from '../src/Field';
-import {Port} from '../src/Port';
 import {Edge} from '../src/Edge';
 
 // check command line arguments
