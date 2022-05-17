@@ -338,12 +338,11 @@ export class Node {
         }
     }, this);
 
-    // TODO: how to determine input?
     getInputPorts = () : Field[] => {
         const result: Field[] = []
 
         for (const arg of this.applicationArgs()){
-            if (arg.getIsPort()){
+            if (arg.isInputPort()){
                 result.push(arg);
             }
         }
@@ -351,12 +350,11 @@ export class Node {
         return result;
     }
 
-    // TODO: how to determine output?
     getOutputPorts = () : Field[] => {
         const result: Field[] = []
 
         for (const arg of this.applicationArgs()){
-            if (arg.getIsPort()){
+            if (arg.isOutputPort()){
                 result.push(arg);
             }
         }
@@ -784,17 +782,16 @@ export class Node {
     }
 
     // TODO: I have a feeling this should not be necessary. Especially the 'inputLocal' and 'outputLocal' stuff
-    /*
     findPortTypeById = (portId : string) : string => {
         // check input ports
-        for (const inputPort of this.inputPorts()){
+        for (const inputPort of this.getInputPorts()){
             if (inputPort.getId() === portId){
                 return "input";
             }
         }
 
         // check output ports
-        for (const outputPort of this.outputPorts()){
+        for (const outputPort of this.getOutputPorts()){
             if (outputPort.getId() === portId){
                 return "output";
             }
@@ -802,12 +799,12 @@ export class Node {
 
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
-            for (const inputPort of this.inputApplication().inputPorts()){
+            for (const inputPort of this.inputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
                     return "input";
                 }
             }
-            for (const outputPort of this.inputApplication().outputPorts()){
+            for (const outputPort of this.inputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
                     return "inputLocal";
                 }
@@ -816,12 +813,12 @@ export class Node {
 
         // if node has an outputApplication, check those ports too
         if (this.hasOutputApplication()){
-            for (const inputPort of this.outputApplication().inputPorts()){
+            for (const inputPort of this.outputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
                     return "outputLocal";
                 }
             }
-            for (const outputPort of this.outputApplication().outputPorts()){
+            for (const outputPort of this.outputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
                     return "output";
                 }
@@ -830,7 +827,6 @@ export class Node {
 
         return "";
     }
-    */
 
     findPortIndexById = (portId : string) : number => {
         // check input ports
@@ -1484,6 +1480,8 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
                 const port = Field.fromOJSJsonPort(inputPort);
+                port.setPortType(Eagle.PortType.Input);
+
                 if (node.canHaveInputs()){
                     node.addField(port);
                 } else {
@@ -1496,6 +1494,7 @@ export class Node {
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
                 const port = Field.fromOJSJsonPort(outputPort);
+                port.setPortType(Eagle.PortType.Output);
 
                 if (node.canHaveOutputs()){
                     node.addField(port);
@@ -1510,6 +1509,8 @@ export class Node {
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
                     const port = Field.fromOJSJsonPort(inputLocalPort);
+                    port.setPortType(Eagle.PortType.Input);
+
                     node.inputApplication().addField(port);
                 } else {
                     errorsWarnings.errors.push("Can't add inputLocal port " + inputLocalPort.IdText + " to node " + node.getName() + ". No input application.");
@@ -1521,6 +1522,8 @@ export class Node {
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
                 const port = Field.fromOJSJsonPort(outputLocalPort);
+                port.setPortType(Eagle.PortType.Output);
+
                 if (node.hasOutputApplication()){
                     node.outputApplication().addField(port);
                 } else {

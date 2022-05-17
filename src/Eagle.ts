@@ -2059,13 +2059,6 @@ export class Eagle {
             // use the correct parsing function based on schema version
             let lg: LogicalGraph;
             switch (schemaVersion){
-                case Eagle.DALiuGESchemaVersion.AppRef:
-                    lg = LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings);
-                    break;
-                case Eagle.DALiuGESchemaVersion.V3:
-                    Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                    lg = LogicalGraph.fromV3Json(dataObject, file, errorsWarnings);
-                    break;
                 case Eagle.DALiuGESchemaVersion.OJS:
                 case Eagle.DALiuGESchemaVersion.Unknown:
                     lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
@@ -4062,7 +4055,7 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field("", "", "", "", "", false, Eagle.DataType.Integer, false, [], false);
+            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType.Integer, false, [], false);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -4228,7 +4221,7 @@ export class Eagle {
                 port = this.selectedNode().getOutputPorts()[portIndex];
             }
 
-            Utils.requestUserEditPort(this, Eagle.ModalType.Edit, port, allPortNames, (completed : boolean, newPort: Port) => {
+            Utils.requestUserEditPort(this, Eagle.ModalType.Edit, port, allPortNames, (completed : boolean, newPort: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -4610,10 +4603,14 @@ export class Eagle {
             // add input port and output port for dataType (if they don't exist)
             // TODO: check by type, not name
             if (!newNode.hasPortWithIdText(srcPort.getIdText(), true, false)){
-                newNode.addPort(new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false), true);
+                const inputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false);
+                inputPort.setPortType(Eagle.PortType.Input);
+                newNode.addField(inputPort);
             }
             if (!newNode.hasPortWithIdText(destPort.getIdText(), false, false)){
-                newNode.addPort(new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false), false);
+                const outputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false);
+                outputPort.setPortType(Eagle.PortType.Output);
+                newNode.addField(outputPort);
             }
 
             // set the parent of the new node
@@ -4747,7 +4744,7 @@ export class Eagle {
                 newNode.setName(node.getName());
 
                 // Remove the redundant input port
-                newNode.removePortByIndex(0, true);
+                newNode.removeApplicationArgByIndex(0);
 
                 // flag that the logical graph has been modified
                 this.logicalGraph().fileInfo().modified = true;
@@ -4922,6 +4919,12 @@ export namespace Eagle
         Password = "Password",
         Json = "Json",
         Python = "Python",
+    }
+
+    export enum PortType {
+        None = "None",
+        Input = "Input",
+        Output = "Output"
     }
 
     export enum ModalType {

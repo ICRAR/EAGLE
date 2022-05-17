@@ -873,7 +873,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     }
 
                                     // check if edge is back-to-front (input-to-output), if so, swap the source and destination
-                                    const backToFront : boolean = (srcPortType === "input" || srcPortType === "outputLocal") && (destPortType === "output" || destPortType === "inputLocal");
+                                    //const backToFront : boolean = (srcPortType === "input" || srcPortType === "outputLocal") && (destPortType === "output" || destPortType === "inputLocal");
+                                    const backToFront : boolean = (srcPort.isInputPort()) && (destPort.isOutputPort());
                                     const realSourceNode: Node       = backToFront ? destNode : srcNode;
                                     const realSourcePort: Field      = backToFront ? destPort : srcPort;
                                     const realDestinationNode: Node  = backToFront ? srcNode  : destNode;

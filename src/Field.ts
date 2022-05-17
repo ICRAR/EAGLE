@@ -18,7 +18,7 @@ export class Field {
 
     // port-specific attributes
     private id : ko.Observable<string>;
-    private isPort : ko.Observable<boolean>;
+    private portType : ko.Observable<Eagle.PortType>;
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
@@ -35,7 +35,7 @@ export class Field {
         this.positional = ko.observable(positional);
 
         this.id = ko.observable(id);
-        this.isPort = ko.observable(false);
+        this.portType = ko.observable(Eagle.PortType.None);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
     }
@@ -136,12 +136,12 @@ export class Field {
         this.positional(positional);
     }
 
-    getIsPort = (): boolean => {
-        return this.isPort();
+    getPortType = (): Eagle.PortType => {
+        return this.portType();
     }
 
-    setIsPort = (isPort: boolean) : void => {
-        this.isPort(isPort);
+    setPortType = (portType: Eagle.PortType) : void => {
+        this.portType(portType);
     }
 
     getIsEvent = (): boolean => {
@@ -192,6 +192,26 @@ export class Field {
             return "";
         }
         return tooltipText;
+    }
+
+    copyWithKeyAndId = (src: Field, nodeKey: number, id: string) : void => {
+        this.id(id);
+        this.idText(src.idText());
+        this.displayText(src.displayText());
+        this.nodeKey(nodeKey);
+        this.isEvent(src.isEvent());
+        this.type(src.type());
+        this.description(src.description());
+
+        // TODO: more
+    }
+
+    isInputPort = () : boolean => {
+        return this.portType() === Eagle.PortType.Input;
+    }
+
+    isOutputPort = () : boolean => {
+        return this.portType() === Eagle.PortType.Output;
     }
 
     fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -372,7 +392,6 @@ export class Field {
 
         const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false);
         f.setIsEvent(event);
-        f.setIsPort(true);
         return f;
     }
 }
