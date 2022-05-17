@@ -374,58 +374,6 @@ export class Modals {
             Modals._validateFieldModalValueInputText();
         });
 
-        // #editPortModal - requestUserEditPort()
-        $('#editPortModalAffirmativeButton').on('click', function(){
-            $('#editPortModal').data('completed', true);
-        });
-        $('#editPortModalNegativeButton').on('click', function(){
-            $('#editPortModal').data('completed', false);
-        });
-        $('#editPortModal').on('shown.bs.modal', function(){
-            $('#editPortModalAffirmativeButton').focus();
-        });
-        $('#portModalSelect').on('change', function(){
-            // check selected option in select tag
-            const choices : string[] = $('#editPortModal').data('choices');
-            const choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
-
-            // hide the custom text input unless the last option in the select is chosen
-            if (choice === choices.length){
-                $('#customPortOptionsWrapper').slideDown();
-            } else {
-                $('#customPortOptionsWrapper').slideUp();
-            }
-        });
-
-        $('#editPortModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, port: Field) => void = $('#editPortModal').data('callback');
-            const completed : boolean = $('#editPortModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                callback(false, null);
-                return;
-            }
-
-            // extract field data from HTML elements
-            const id = <string>$('#editPortModalIdInput').val();
-            const idText: string = <string>$('#editPortModalIdTextInput').val();
-            const displayText: string = <string>$('#editPortModalDisplayTextInput').val();
-            const type: string = <string>$('#editPortModalTypeInput').val();
-            const description: string = <string>$('#editPortModalDescriptionInput').val();
-
-            // translate type
-            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
-
-            const newPort = new Field(id, displayText, idText, "", "", "", false, realType, false, [], false);
-
-            callback(true, newPort);
-        });
-        // add some validation of the idText
-        $('#editPortModalIdTextInput').on('keyup', function(){
-            Modals._validatePortModalIdText();
-        });
-
         // #editEdgeModal - requestUserEditEdge()
         $('#editEdgeModalAffirmativeButton').on('click', function(){
             $('#editEdgeModal').data('completed', true);

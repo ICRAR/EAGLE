@@ -3241,57 +3241,6 @@ export class Eagle {
     }
 
     /**
-     * Adds an input port to the selected node via HTML.
-     */
-    addInputPortHTML = () : void => {
-        const node: Node = this.selectedNode();
-
-        if (node === null){
-            console.error("Attempt to add input port when no node selected");
-            return;
-        }
-
-        // check whether node already has maximum number of ports
-        const maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxInputs;
-
-        if (node.getInputPorts().length >= maxPorts ){
-            Utils.showUserMessage("Error", "This node may not contain more input ports. Maximum is " + maxPorts + " for " + node.getCategory() + " nodes.");
-            return;
-        }
-
-        this.editPort(node, Eagle.ModalType.Add, null, true);
-        $("#editPortModal").addClass("forceHide");
-        $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddInputPortDiv").show();
-    }
-
-    /**
-     * Adds an output port to the selected node via HTML arguments.
-     */
-    addOutputPortHTML = () : void => {
-        const node: Node = this.selectedNode();
-
-        if (node === null){
-            console.error("Attempt to add output port when no node selected");
-            return;
-        }
-
-        // check whether node already has maximum number of ports
-        const maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxOutputs;
-
-        if (node.getOutputPorts().length >= maxPorts ){
-            Utils.showUserMessage("Error", "This node may not contain more output ports. Maximum is " + maxPorts + " for " + node.getCategory() + " nodes.");
-            return;
-        }
-
-        this.editPort(node, Eagle.ModalType.Add, null, false);
-        $("#editPortModal").addClass("forceHide");
-        $("#editPortModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddOutputPortDiv").show();
-    }
-
-    /**
      * Adds an field to the selected node via HTML.
      */
     addFieldHTML = () : void => {
@@ -3332,6 +3281,7 @@ export class Eagle {
         return tooltipText;
     }
 
+    // TODO: simplify this, no port modal any more
     hideDropDown = (divID:string) : void => {
         if (divID === "nodeInspectorAddFieldDiv"){
             //hides the dropdown node inspector elements when stopping hovering over the element
@@ -3388,6 +3338,7 @@ export class Eagle {
           }, 1000);
     }
 
+    // TODO: simplify this, no port modal
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
         let selectSectionID;
         let modalID;
@@ -4160,82 +4111,6 @@ export class Eagle {
         $("#parameterTableModal .modal-content").animate({
             scrollTop: (fieldIndex*30)
           }, 1000);
-    }
-
-    editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
-        const allPorts: Field[] = Utils.getUniquePortsList(this.palettes(), this.logicalGraph());
-        allPorts.sort(Field.sortFunc);
-
-        const allPortNames: string[] = [];
-        // get list of port names from list of ports
-        for (const port of allPorts){
-            allPortNames.push(port.getIdText() + " (" + port.getType() + ")");
-        }
-
-        if (modalType === Eagle.ModalType.Add){
-            $("#editPortModalTitle").html("Add Port")
-            $("#addPortWrapper").show();
-            $("#customPortOptionsWrapper").hide();
-
-            // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const port: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType.String, false, [], false);
-
-            Utils.requestUserEditPort(this, Eagle.ModalType.Add, port, allPortNames, (completed : boolean, newPort: Field) => {
-                // abort if the user aborted
-                if (!completed){
-                    return;
-                }
-
-                // check selected option in select tag
-               const choices : string[] = $('#editPortModal').data('choices');
-               const choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
-
-               // abort if -1 selected
-               if (choice === -1){
-                   return;
-               }
-
-               // hide the custom text input unless the last option in the select is chosen
-               if (choice === choices.length){
-                   newPort.setId(Utils.uuidv4());
-                   node.addField(newPort);
-               } else {
-                   const clone : Field = allPorts[choice].clone();
-                   clone.setId(Utils.uuidv4());
-                   node.addField(clone);
-               }
-
-               this.checkGraph();
-               this.undo().pushSnapshot(this, "Add Port");
-            });
-        } else {
-            $("#editPortModalTitle").html("Edit Port");
-            $("#addPortWrapper").hide();
-            $("#customPortOptionsWrapper").show();
-
-            // get a reference to the port we are editing
-            let port: Field;
-            if (input){
-                port = this.selectedNode().getInputPorts()[portIndex];
-            } else {
-                port = this.selectedNode().getOutputPorts()[portIndex];
-            }
-
-            Utils.requestUserEditPort(this, Eagle.ModalType.Edit, port, allPortNames, (completed : boolean, newPort: Field) => {
-                // abort if the user aborted
-                if (!completed){
-                    return;
-                }
-
-                // update port data (except nodeKey and id, those don't change)
-                const nodeKey = port.getNodeKey();
-                const portId = port.getId();
-                port.copyWithKeyAndId(newPort, nodeKey, portId);
-
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Edit Port");
-            });
-        }
     }
 
     explorePalettesClickHelper = (data: PaletteInfo, event:any): void => {
