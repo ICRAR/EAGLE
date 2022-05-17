@@ -17,8 +17,10 @@
                 <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.applicationArgsSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}} "></input>
             </div>
             <!-- ko foreach: selectedNode().getApplicationArgs() -->
+                <!-- ko if: $data.getPortType() === Eagle.PortType.None -->
                 <!-- ko if: $data.fitsApplicationSearchQuery() -->
                     <field params="data: $data, ro: $parent.selectedNode().getApplicationParamReadonly($index()), fieldType: Eagle.FieldType.ApplicationParam"></field>
+                <!-- /ko -->
                 <!-- /ko -->
             <!-- /ko -->
 

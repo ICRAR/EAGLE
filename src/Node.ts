@@ -1476,62 +1476,6 @@ export class Node {
             node.subject(null);
         }
 
-        // add input ports
-        if (typeof nodeData.inputPorts !== 'undefined'){
-            for (const inputPort of nodeData.inputPorts){
-                const port = Field.fromOJSJsonPort(inputPort);
-                port.setPortType(Eagle.PortType.Input);
-
-                if (node.canHaveInputs()){
-                    node.addField(port);
-                } else {
-                    Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, generateKeyFunc);
-                }
-            }
-        }
-
-        // add output ports
-        if (typeof nodeData.outputPorts !== 'undefined'){
-            for (const outputPort of nodeData.outputPorts){
-                const port = Field.fromOJSJsonPort(outputPort);
-                port.setPortType(Eagle.PortType.Output);
-
-                if (node.canHaveOutputs()){
-                    node.addField(port);
-                } else {
-                    Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, generateKeyFunc);
-                }
-            }
-        }
-
-        // add input local ports
-        if (typeof nodeData.inputLocalPorts !== 'undefined'){
-            for (const inputLocalPort of nodeData.inputLocalPorts){
-                if (node.hasInputApplication()){
-                    const port = Field.fromOJSJsonPort(inputLocalPort);
-                    port.setPortType(Eagle.PortType.Input);
-
-                    node.inputApplication().addField(port);
-                } else {
-                    errorsWarnings.errors.push("Can't add inputLocal port " + inputLocalPort.IdText + " to node " + node.getName() + ". No input application.");
-                }
-            }
-        }
-
-        // add output local ports
-        if (typeof nodeData.outputLocalPorts !== 'undefined'){
-            for (const outputLocalPort of nodeData.outputLocalPorts){
-                const port = Field.fromOJSJsonPort(outputLocalPort);
-                port.setPortType(Eagle.PortType.Output);
-
-                if (node.hasOutputApplication()){
-                    node.outputApplication().addField(port);
-                } else {
-                    errorsWarnings.errors.push("Can't add outputLocal port " + outputLocalPort.IdText + " to node " + node.getName() + ". No output application.");
-                }
-            }
-        }
-
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
@@ -1564,6 +1508,62 @@ export class Node {
                     node.outputApplication().addField(Field.fromOJSJson(fieldData));
                 } else {
                     errorsWarnings.errors.push("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application.");
+                }
+            }
+        }
+
+        // add input ports
+        if (typeof nodeData.inputPorts !== 'undefined'){
+            for (const inputPort of nodeData.inputPorts){
+                const port = Field.fromOJSJsonPort(inputPort);
+                port.setPortType(Eagle.PortType.Input);
+
+                if (node.canHaveInputs()){
+                    node.addApplicationArg(port);
+                } else {
+                    Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, generateKeyFunc);
+                }
+            }
+        }
+
+        // add output ports
+        if (typeof nodeData.outputPorts !== 'undefined'){
+            for (const outputPort of nodeData.outputPorts){
+                const port = Field.fromOJSJsonPort(outputPort);
+                port.setPortType(Eagle.PortType.Output);
+
+                if (node.canHaveOutputs()){
+                    node.addApplicationArg(port);
+                } else {
+                    Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, generateKeyFunc);
+                }
+            }
+        }
+
+        // add input local ports
+        if (typeof nodeData.inputLocalPorts !== 'undefined'){
+            for (const inputLocalPort of nodeData.inputLocalPorts){
+                if (node.hasInputApplication()){
+                    const port = Field.fromOJSJsonPort(inputLocalPort);
+                    port.setPortType(Eagle.PortType.Input);
+
+                    node.inputApplication().addApplicationArg(port);
+                } else {
+                    errorsWarnings.errors.push("Can't add inputLocal port " + inputLocalPort.IdText + " to node " + node.getName() + ". No input application.");
+                }
+            }
+        }
+
+        // add output local ports
+        if (typeof nodeData.outputLocalPorts !== 'undefined'){
+            for (const outputLocalPort of nodeData.outputLocalPorts){
+                const port = Field.fromOJSJsonPort(outputLocalPort);
+                port.setPortType(Eagle.PortType.Output);
+
+                if (node.hasOutputApplication()){
+                    node.outputApplication().addApplicationArg(port);
+                } else {
+                    errorsWarnings.errors.push("Can't add outputLocal port " + outputLocalPort.IdText + " to node " + node.getName() + ". No output application.");
                 }
             }
         }
