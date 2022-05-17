@@ -357,7 +357,12 @@ def get_git_lab_files_all():
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
 
     gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
-    gl.auth()
+
+    try:
+        gl.auth()
+    except gitlab.exceptions.GitlabAuthenticationError as gae:
+        print("GitlabAuthenticationError {1}: {0}".format(str(gae), repo_name))
+        return jsonify({"error": "Gitlab Authentication Error. Access token may be invalid." + "\n" + str(gae)})
 
     try:
         project = gl.projects.get(repo_name)
