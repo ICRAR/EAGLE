@@ -799,13 +799,6 @@ export class Eagle {
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
-            case Eagle.DALiuGESchemaVersion.AppRef:
-                loadFunc(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errorsWarnings));
-                break;
-            case Eagle.DALiuGESchemaVersion.V3:
-                Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                loadFunc(LogicalGraph.fromV3Json(dataObject, dummyFile, errorsWarnings));
-                break;
             case Eagle.DALiuGESchemaVersion.OJS:
             case Eagle.DALiuGESchemaVersion.Unknown:
                 loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
@@ -1621,6 +1614,7 @@ export class Eagle {
     /**
      * Export file to V3 Json
      */
+     /*
     exportV3Json = () : void => {
         Utils.showUserMessage("Unsupported feature", "Saving files using the V3 schema is not supported.");
 
@@ -1647,7 +1641,7 @@ export class Eagle {
             Utils.downloadFile(error, data, fileName);
         });
     }
-
+    */
 
     /**
      * Export file to AppRef Json
@@ -1655,6 +1649,7 @@ export class Eagle {
      * nodes out of constructs to the end of the node array, and then refers to
      * them by ID and key within the node
      */
+     /*
     exportAppRefJson = () : void => {
         const fileName : string = this.logicalGraph().fileInfo().name;
 
@@ -1667,6 +1662,7 @@ export class Eagle {
             Utils.downloadFile(error, data, fileName);
         });
     }
+    */
 
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
@@ -1962,13 +1958,6 @@ export class Eagle {
 
                     // use the correct parsing function based on schema version
                     switch (schemaVersion){
-                        case Eagle.DALiuGESchemaVersion.AppRef:
-                            this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings));
-                            break;
-                        case Eagle.DALiuGESchemaVersion.V3:
-                            Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                            this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errorsWarnings));
-                            break;
                         case Eagle.DALiuGESchemaVersion.OJS:
                         case Eagle.DALiuGESchemaVersion.Unknown:
                             this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
@@ -2811,9 +2800,9 @@ export class Eagle {
             }
 
             const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const srcPort: Port = srcNode.findPortById(edge.getSrcPortId());
+            const srcPort: Field = srcNode.findPortById(edge.getSrcPortId());
             const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destPort: Port = destNode.findPortById(edge.getDestPortId());
+            const destPort: Field = destNode.findPortById(edge.getDestPortId());
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
@@ -4181,8 +4170,8 @@ export class Eagle {
     }
 
     editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
-        const allPorts: Port[] = Utils.getUniquePortsList(this.palettes(), this.logicalGraph());
-        allPorts.sort(Port.sortFunc);
+        const allPorts: Field[] = Utils.getUniquePortsList(this.palettes(), this.logicalGraph());
+        allPorts.sort(Field.sortFunc);
 
         const allPortNames: string[] = [];
         // get list of port names from list of ports
@@ -4196,9 +4185,9 @@ export class Eagle {
             $("#customPortOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const port: Port = new Port("", "", "", false, "String", "");
+            const port: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType.String, false, [], false);
 
-            Utils.requestUserEditPort(this, Eagle.ModalType.Add, port, allPortNames, (completed : boolean, newPort: Port) => {
+            Utils.requestUserEditPort(this, Eagle.ModalType.Add, port, allPortNames, (completed : boolean, newPort: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -4216,11 +4205,11 @@ export class Eagle {
                // hide the custom text input unless the last option in the select is chosen
                if (choice === choices.length){
                    newPort.setId(Utils.uuidv4());
-                   node.addPort(newPort, input);
+                   node.addField(newPort);
                } else {
-                   const clone : Port = allPorts[choice].clone();
+                   const clone : Field = allPorts[choice].clone();
                    clone.setId(Utils.uuidv4());
-                   node.addPort(clone, input);
+                   node.addField(clone);
                }
 
                this.checkGraph();
@@ -4232,7 +4221,7 @@ export class Eagle {
             $("#customPortOptionsWrapper").show();
 
             // get a reference to the port we are editing
-            let port: Port;
+            let port: Field;
             if (input){
                 port = this.selectedNode().getInputPorts()[portIndex];
             } else {
