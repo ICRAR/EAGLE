@@ -4061,12 +4061,19 @@ export class Eagle {
             //if editing an existing field
             let field: Field;
 
-            if (fieldType == Eagle.FieldType.Field){
+            switch (fieldType){
+            case Eagle.FieldType.Field:
                 $("#editFieldModalTitle").html("Edit Component Parameter");
                 field = this.selectedNode().getFields()[fieldIndex];
-            } else {
+                break;
+            case Eagle.FieldType.ApplicationParam:
                 $("#editFieldModalTitle").html("Edit Application Parameter");
                 field = this.selectedNode().getApplicationArgs()[fieldIndex];
+                break;
+            case Eagle.FieldType.Port:
+                $("#editFieldModalTitle").html("Edit Port");
+                field = this.selectedNode().getApplicationArgs()[fieldIndex];
+                break;
             }
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
@@ -4822,6 +4829,7 @@ export namespace Eagle
     export enum FieldType {
         Field = "Field",
         ApplicationParam = "ApplicationParam",
+        Port = "Port",
         Unknown = 'unknown'
     }
 
