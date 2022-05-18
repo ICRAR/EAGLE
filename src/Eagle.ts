@@ -3294,26 +3294,18 @@ export class Eagle {
         return tooltipText;
     }
 
-    // TODO: simplify this, no port modal any more
+    // hide the drop down menu that appears when the user is adding a new field
     hideDropDown = (divID:string) : void => {
         if (divID === "nodeInspectorAddFieldDiv"){
             //hides the dropdown node inspector elements when stopping hovering over the element
             if(!$("#editFieldModal").hasClass("nodeSelected")){
                 $("#editFieldModal").modal('hide');
                 $("#editFieldModal").addClass("fade");
-
-                // $("#"+divID).hide();
-            }
-        }else{
-            //hides the dropdown node inspector elements when stopping hovering over the element
-            if(!$("#editPortModal").hasClass("nodeSelected")){
-                $("#editPortModal").modal('hide');
-                $("#editPortModal").addClass("fade");
-                // $("#"+divID).hide();
             }
         }
-         $("#editFieldModal").removeClass("nodeSelected");
-         $("#"+divID).hide();
+
+        $("#editFieldModal").removeClass("nodeSelected");
+        $("#"+divID).hide();
     }
 
     addEmptyTableRow = () : void => {
@@ -3351,7 +3343,6 @@ export class Eagle {
           }, 1000);
     }
 
-    // TODO: simplify this, no port modal
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
         let selectSectionID;
         let modalID;
@@ -3361,10 +3352,6 @@ export class Eagle {
             selectSectionID = "fieldModalSelect"
             modalID = "editFieldModal"
             submitBtnID = "editFieldModalAffirmativeButton"
-        }else{
-            selectSectionID = "portModalSelect"
-            modalID = "editPortModal"
-            submitBtnID = "editPortModalAffirmativeButton"
         }
 
         if (val===-1){
