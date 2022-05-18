@@ -851,7 +851,7 @@ export class Node {
     findPortByIdText = (idText : string, input : boolean, local : boolean) : Field => {
         console.assert(!local);
 
-        const findPortType = input ? Eagle.PortType.Input : Eagle.PortType.Output;
+        const findPortType = input ? Eagle.PortType.InputPort : Eagle.PortType.OutputPort;
 
         for (const arg of this.applicationArgs()){
             if (arg.getPortType() === findPortType){
@@ -1515,7 +1515,7 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
                 const port = Field.fromOJSJsonPort(inputPort);
-                port.setPortType(Eagle.PortType.Input);
+                port.setPortType(Eagle.PortType.InputPort);
 
                 if (node.canHaveInputs()){
                     node.addApplicationArg(port);
@@ -1529,7 +1529,7 @@ export class Node {
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
                 const port = Field.fromOJSJsonPort(outputPort);
-                port.setPortType(Eagle.PortType.Output);
+                port.setPortType(Eagle.PortType.OutputPort);
 
                 if (node.canHaveOutputs()){
                     node.addApplicationArg(port);
@@ -1544,7 +1544,7 @@ export class Node {
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
                     const port = Field.fromOJSJsonPort(inputLocalPort);
-                    port.setPortType(Eagle.PortType.Input);
+                    port.setPortType(Eagle.PortType.InputPort);
 
                     node.inputApplication().addApplicationArg(port);
                 } else {
@@ -1557,7 +1557,7 @@ export class Node {
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
                 const port = Field.fromOJSJsonPort(outputLocalPort);
-                port.setPortType(Eagle.PortType.Output);
+                port.setPortType(Eagle.PortType.OutputPort);
 
                 if (node.hasOutputApplication()){
                     node.outputApplication().addApplicationArg(port);

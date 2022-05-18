@@ -4489,12 +4489,12 @@ export class Eagle {
 
             if (!newInputPort){
                 newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false);
-                newInputPort.setPortType(Eagle.PortType.Input);
+                newInputPort.setPortType(Eagle.PortType.InputPort);
                 newNode.addApplicationArg(newInputPort);
             }
             if (!newOutputPort){
                 newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false);
-                newOutputPort.setPortType(Eagle.PortType.Output);
+                newOutputPort.setPortType(Eagle.PortType.OutputPort);
                 newNode.addApplicationArg(newOutputPort);
             }
 
@@ -4803,9 +4803,9 @@ export namespace Eagle
     }
 
     export enum PortType {
-        None = "None",
-        Input = "Input",
-        Output = "Output"
+        Parameter = "Parameter",
+        InputPort = "InputPort",
+        OutputPort = "OutputPort"
     }
 
     export enum ModalType {

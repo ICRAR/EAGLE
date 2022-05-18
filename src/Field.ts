@@ -35,7 +35,7 @@ export class Field {
         this.positional = ko.observable(positional);
 
         this.id = ko.observable(id);
-        this.portType = ko.observable(Eagle.PortType.None);
+        this.portType = ko.observable(Eagle.PortType.Parameter);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
     }
@@ -207,11 +207,11 @@ export class Field {
     }
 
     isInputPort = () : boolean => {
-        return this.portType() === Eagle.PortType.Input;
+        return this.portType() === Eagle.PortType.InputPort;
     }
 
     isOutputPort = () : boolean => {
-        return this.portType() === Eagle.PortType.Output;
+        return this.portType() === Eagle.PortType.OutputPort;
     }
 
     fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
