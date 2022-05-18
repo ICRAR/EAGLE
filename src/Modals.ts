@@ -489,13 +489,6 @@ export class Modals {
         Modals._setValidClasses('#editFieldModalValueInputText', isValid);
     }
 
-    static _validatePortModalIdText(){
-        const idText: string = <string>$('#editPortModalIdTextInput').val();
-        const isValid = Utils.validateIdText(idText);
-
-        Modals._setValidClasses('#editPortModalIdTextInput', isValid);
-    }
-
     static _setValidClasses(id: string, isValid: boolean){
         if (isValid){
             $(id).addClass('is-valid');
