@@ -242,6 +242,7 @@ export class Modals {
             const defaultValueText : string = <string>$('#editFieldModalDefaultValueInputText').val();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
             const type: string = <string>$('#editFieldModalTypeSelect').val();
+            const fieldType: string = <string>$('#editFieldModalFieldTypeSelect').val();
 
             // translate type
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
@@ -269,6 +270,7 @@ export class Modals {
             }
         });
         $('#editFieldModal').on('hidden.bs.modal', function(){
+            console.log("editFieldModal hidden");
             const callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
             const completed : boolean = $('#editFieldModal').data('completed');
 
@@ -297,6 +299,7 @@ export class Modals {
 
             const description: string = <string>$('#editFieldModalDescriptionInput').val();
             const type: string = <string>$('#editFieldModalTypeSelect').val();
+            const fieldType: string = <string>$('#editFieldModalFieldTypeSelect').val();
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
 
             // NOTE: currently no way to edit options in the "select"-type fields
@@ -307,6 +310,7 @@ export class Modals {
 
             // translate type
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+            const realFieldType: Eagle.FieldType = Utils.translateStringToFieldType(fieldType);
             let newField;
 
             switch(realType){
@@ -320,6 +324,8 @@ export class Modals {
                     newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
                     break;
             }
+            console.log("editFieldModal hidden", realFieldType);
+            newField.setFieldType(realFieldType);
 
             callback(true, newField);
         });

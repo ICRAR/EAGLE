@@ -304,6 +304,17 @@ export class Utils {
         return Eagle.DataType.Unknown;
     }
 
+    static translateStringToFieldType(fieldType: string): Eagle.FieldType {
+        for (let ft of Object.values(Eagle.FieldType)){
+            if (ft.toLowerCase() === fieldType.toLowerCase()){
+                return ft;
+            }
+        }
+
+        console.warn("Unknown FieldType", fieldType);
+        return Eagle.FieldType.Unknown;
+    }
+
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
         $.ajax({
             url: url,
@@ -722,6 +733,16 @@ export class Utils {
                 value: dataType,
                 text: dataType,
                 selected: field.getType() === dataType
+            }));
+        }
+
+        // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
+        $('#editFieldModalFieldTypeSelect').empty();
+        for (let fieldType of [Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
+            $('#editFieldModalFieldTypeSelect').append($('<option>', {
+                value: fieldType,
+                text: fieldType,
+                selected: field.getFieldType() === fieldType
             }));
         }
 

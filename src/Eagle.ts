@@ -3982,6 +3982,8 @@ export class Eagle {
     }
 
     editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
+        console.log("editField()", modalType, fieldType, fieldIndex);
+
         // get field names list from the logical graph
         let allFields: Field[];
         let allFieldNames: string[] = [];
@@ -4060,15 +4062,15 @@ export class Eagle {
                 field = this.selectedNode().getFields()[fieldIndex];
                 break;
             case Eagle.FieldType.ApplicationArgument:
-                $("#editFieldModalTitle").html("Edit Application Parameter");
+                $("#editFieldModalTitle").html("Edit Application Argument");
                 field = this.selectedNode().getApplicationArgs()[fieldIndex];
                 break;
             case Eagle.FieldType.InputPort:
-                $("#editFieldModalTitle").html("Edit Port");
+                $("#editFieldModalTitle").html("Edit Input Port");
                 field = this.selectedNode().getInputPorts()[fieldIndex];
                 break;
             case Eagle.FieldType.OutputPort:
-                $("#editFieldModalTitle").html("Edit Port");
+                $("#editFieldModalTitle").html("Edit Output Port");
                 field = this.selectedNode().getOutputPorts()[fieldIndex];
                 break;
             }
@@ -4095,6 +4097,7 @@ export class Eagle {
                 field.setType(newField.getType());
                 field.setPrecious(newField.isPrecious());
                 field.setPositionalArgument(newField.isPositionalArgument());
+                field.setFieldType(newField.getFieldType());
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
