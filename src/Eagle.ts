@@ -213,8 +213,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.onlineHelp();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Disabled, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal(Eagle.FieldType.Field);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_application_argument_table_modal", "Open Application Argument Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal(Eagle.FieldType.ApplicationParam);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal(Eagle.FieldType.ComponentParameter);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_application_argument_table_modal", "Open Application Argument Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal(Eagle.FieldType.ApplicationArgument);}));
         Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["z"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().prevSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("redo", "Redo", ["z"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().nextSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("check_graph", "Check Graph", ["!"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.showGraphErrors();}));
@@ -2508,7 +2508,7 @@ export class Eagle {
         if (!this.selectedNode()){
             Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
-            if (tableType === Eagle.FieldType.Field){
+            if (tableType === Eagle.FieldType.ComponentParameter){
                 if (!this.selectedNode().canHaveComponentParameters()){
                     Utils.showNotification("Error", "This node cannot have component parameters", "warning");
                     return
@@ -2524,7 +2524,7 @@ export class Eagle {
     }
 
     getParamsTableModalTitleText = () : string => {
-        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+        if (Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
             return "Component Parameter Table"
         }else{
             return "Application Argument Table"
@@ -2532,7 +2532,7 @@ export class Eagle {
     }
 
     getParamsTableModalButtonText = () : string => {
-        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+        if (Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
             return "Add Parameter"
         }else{
             return "Add Argument"
@@ -2540,7 +2540,7 @@ export class Eagle {
     }
 
     currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
-        if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+        if (Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
             return this.selectedNode().getFields()
         }else{
             return this.selectedNode().getApplicationArgs()
@@ -2556,7 +2556,7 @@ export class Eagle {
             if(Eagle.allowPaletteEditing()){
                     return false;
             }else{
-                if (type === Eagle.FieldType.Field){
+                if (type === Eagle.FieldType.ComponentParameter){
                     return this.selectedNode().getFieldReadonly(index);
                 }else{
                     return this.selectedNode().getApplicationParamReadonly(index);
@@ -2566,7 +2566,7 @@ export class Eagle {
             if(Eagle.allowComponentEditing()){
                 return false
             }else{
-                if (type === Eagle.FieldType.Field){
+                if (type === Eagle.FieldType.ComponentParameter){
                     return this.selectedNode().getFieldReadonly(index);
                 }else{
                     return this.selectedNode().getApplicationParamReadonly(index);
@@ -2612,6 +2612,7 @@ export class Eagle {
 
     // TODO: maybe move to Field.ts
     // TODO: add comments
+    // TODO: a "get" function probably should not alter state
     getFieldType = (type:Eagle.DataType, id:string, value:string) : string => {
         if (type === Eagle.DataType.Float || type === Eagle.DataType.Integer){
             return "number"
@@ -2653,12 +2654,14 @@ export class Eagle {
         return options
     }
 
-    fillPortTypeCell = (portType:Eagle.PortType):string => {
+    fillFieldTypeCell = (fieldType:Eagle.FieldType):string => {
         var options:string = "";
 
-        for (let dataType of Object.values(Eagle.PortType)){
+        const allowedTypes = [Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort];
+
+        for (let dataType of allowedTypes){
             var selected=""
-            if(portType === dataType){
+            if(fieldType === dataType){
                 selected = "selected=true"
             }
             options = options + "<option value="+dataType+"  "+selected+">"+dataType+"</option>";
@@ -3264,7 +3267,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.Field, null, Eagle.PortType.Parameter);
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ComponentParameter, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3282,7 +3285,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ApplicationParam, null, Eagle.PortType.Parameter);
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ApplicationArgument, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3313,7 +3316,7 @@ export class Eagle {
         if(Eagle.parameterTableSelectionParentIndex() != -1){
         // A cell in the table is selected well insert new row instead of adding at the end
             fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
-            if(Eagle.parameterTableType() === Eagle.FieldType.Field){
+            if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
                 //component table
                 this.selectedNode().addEmptyField(fieldIndex)
             }else{
@@ -3322,7 +3325,7 @@ export class Eagle {
             }
         }else{
         //no cell selected, add new row at the end
-            if(Eagle.parameterTableType() === Eagle.FieldType.Field){
+            if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
                 //component table
                 this.selectedNode().addEmptyField(-1)
             }else{
@@ -3978,12 +3981,12 @@ export class Eagle {
         this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
-    editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number, portType: Eagle.PortType) : void => {
+    editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
         // get field names list from the logical graph
         let allFields: Field[];
         let allFieldNames: string[] = [];
 
-        if (fieldType === Eagle.FieldType.Field){
+        if (fieldType === Eagle.FieldType.ComponentParameter){
             allFields = Utils.getUniqueFieldsList(this.logicalGraph());
         } else {
             allFields = Utils.getUniqueapplicationArgsList(this.logicalGraph());
@@ -3997,7 +4000,7 @@ export class Eagle {
 
         //if creating a new field component parameter
         if (modalType === Eagle.ModalType.Add) {
-            if (fieldType == Eagle.FieldType.Field){
+            if (fieldType == Eagle.FieldType.ComponentParameter){
                 $("#editFieldModalTitle").html("Add Component Parameter")
             } else {
                 $("#editFieldModalTitle").html("Add Application Parameter")
@@ -4025,15 +4028,18 @@ export class Eagle {
 
                 // hide the custom text input unless the last option in the select is chosen
                 if (choice === choices.length){
+                    newField.setFieldType(fieldType);
+
                    //create field from user input in modal
-                   if (fieldType === Eagle.FieldType.Field){
+                   if (fieldType === Eagle.FieldType.ComponentParameter){
                        node.addField(newField);
                    } else {
                        node.addApplicationArg(newField);
                    }
                 } else {
                    const clone : Field = allFields[choice].clone();
-                   if (fieldType === Eagle.FieldType.Field){
+                   clone.setFieldType(fieldType);
+                   if (fieldType === Eagle.FieldType.ComponentParameter){
                        node.addField(clone);
                    } else {
                        node.addApplicationArg(clone);
@@ -4049,27 +4055,27 @@ export class Eagle {
             let field: Field;
 
             switch (fieldType){
-            case Eagle.FieldType.Field:
+            case Eagle.FieldType.ComponentParameter:
                 $("#editFieldModalTitle").html("Edit Component Parameter");
                 field = this.selectedNode().getFields()[fieldIndex];
                 break;
-            case Eagle.FieldType.ApplicationParam:
+            case Eagle.FieldType.ApplicationArgument:
                 $("#editFieldModalTitle").html("Edit Application Parameter");
                 field = this.selectedNode().getApplicationArgs()[fieldIndex];
                 break;
-            case Eagle.FieldType.Port:
+            case Eagle.FieldType.InputPort:
                 $("#editFieldModalTitle").html("Edit Port");
-                if (portType === Eagle.PortType.InputPort){
-                    field = this.selectedNode().getInputPorts()[fieldIndex];
-                } else {
-                    field = this.selectedNode().getOutputPorts()[fieldIndex];
-                }
+                field = this.selectedNode().getInputPorts()[fieldIndex];
+                break;
+            case Eagle.FieldType.OutputPort:
+                $("#editFieldModalTitle").html("Edit Port");
+                field = this.selectedNode().getOutputPorts()[fieldIndex];
                 break;
             }
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
 
-            console.log("fieldType:", fieldType, "portType", portType, "field", field);
+            console.log("fieldType:", fieldType, "field", field);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Edit, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -4101,7 +4107,7 @@ export class Eagle {
         if(Eagle.parameterTableSelectionParentIndex() != -1){
         //if a cell in the table is selected in this case the new node will be placed below the currently selected node
             fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
-            if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            if (Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
             //for component parameter tables
                 this.selectedNode().addFieldAtPosition(this.selectedNode().getFields()[index].clone(),fieldIndex)
             }else{
@@ -4110,7 +4116,7 @@ export class Eagle {
             }
         }else{
         //if no call in the table is selected, in this case the new node is appended
-            if (Eagle.parameterTableType() === Eagle.FieldType.Field){
+            if (Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
             //for component parameter tables
                 this.selectedNode().addField(this.selectedNode().getFields()[index].clone())
             }else{
@@ -4497,12 +4503,12 @@ export class Eagle {
 
             if (!newInputPort){
                 newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false);
-                newInputPort.setPortType(Eagle.PortType.InputPort);
+                newInputPort.setFieldType(Eagle.FieldType.InputPort);
                 newNode.addApplicationArg(newInputPort);
             }
             if (!newOutputPort){
                 newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false);
-                newOutputPort.setPortType(Eagle.PortType.OutputPort);
+                newOutputPort.setFieldType(Eagle.FieldType.OutputPort);
                 newNode.addApplicationArg(newOutputPort);
             }
 
@@ -4810,22 +4816,17 @@ export namespace Eagle
         Python = "Python",
     }
 
-    export enum PortType {
-        Parameter = "Parameter",
-        InputPort = "InputPort",
-        OutputPort = "OutputPort"
-    }
-
     export enum ModalType {
         Add = "Add",
         Edit = "Edit"
     }
 
     export enum FieldType {
-        Field = "Field",
-        ApplicationParam = "ApplicationParam",
-        Port = "Port",
-        Unknown = 'unknown'
+        ComponentParameter = "ComponentParameter",
+        ApplicationArgument = "ApplicationArgument",
+        InputPort = "InputPort",
+        OutputPort = "OutputPort",
+        Unknown = "Unknown"
     }
 
     export enum RepositoryService {

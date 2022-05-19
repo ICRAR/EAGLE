@@ -7,7 +7,7 @@
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse8">
         <div class="card-body">
             <!-- ko foreach: selectedNode().getOutputPorts() -->
-            <port params="id: $data.getId(), name: $data.getDisplayText(), description: $data.getDescriptionText(), multiplicity: $root.logicalGraph().findMultiplicity($root.selectedNode()), isEventPort: $data.isEvent(), toggleEvent: $data.toggleEvent, input: false, fieldType: Eagle.FieldType.Port, portType: Eagle.PortType.OutputPort"></port>
+            <port params="id: $data.getId(), name: $data.getDisplayText(), description: $data.getDescriptionText(), multiplicity: $root.logicalGraph().findMultiplicity($root.selectedNode()), isEventPort: $data.isEvent(), toggleEvent: $data.toggleEvent, input: false, fieldType: Eagle.FieldType.OutputPort"></port>
             <!-- /ko -->
         </div>
     </div>

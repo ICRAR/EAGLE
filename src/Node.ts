@@ -851,10 +851,10 @@ export class Node {
     findPortByIdText = (idText : string, input : boolean, local : boolean) : Field => {
         console.assert(!local);
 
-        const findPortType = input ? Eagle.PortType.InputPort : Eagle.PortType.OutputPort;
+        const findFieldType = input ? Eagle.FieldType.InputPort : Eagle.FieldType.OutputPort;
 
         for (const arg of this.applicationArgs()){
-            if (arg.getPortType() === findPortType){
+            if (arg.getFieldType() === findFieldType){
                 if (arg.getIdText() === idText){
                     return arg;
                 }
@@ -977,7 +977,7 @@ export class Node {
     }
 
     removeParamByIndex = (fieldType: Eagle.FieldType, index : number) : void => {
-        if (fieldType === Eagle.FieldType.Field){
+        if (fieldType === Eagle.FieldType.ComponentParameter){
             this.removeFieldByIndex(index);
         } else {
             this.removeApplicationArgByIndex(index);
@@ -1478,14 +1478,18 @@ export class Node {
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
-                node.addField(Field.fromOJSJson(fieldData));
+                const field = Field.fromOJSJson(fieldData);
+                field.setFieldType(Eagle.FieldType.ComponentParameter);
+                node.addField(field);
             }
         }
 
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                node.addApplicationArg(Field.fromOJSJson(paramData));
+                const field = Field.fromOJSJson(paramData);
+                field.setFieldType(Eagle.FieldType.ApplicationArgument);
+                node.addApplicationArg(field);
             }
         }
 
@@ -1493,7 +1497,9 @@ export class Node {
         if (typeof nodeData.inputAppFields !== 'undefined'){
             for (const fieldData of nodeData.inputAppFields){
                 if (node.hasInputApplication()){
-                    node.inputApplication().addField(Field.fromOJSJson(fieldData));
+                    const field = Field.fromOJSJson(fieldData);
+                    field.setFieldType(Eagle.FieldType.ComponentParameter);
+                    node.inputApplication().addField(field);
                 } else {
                     errorsWarnings.errors.push("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application.");
                 }
@@ -1504,7 +1510,9 @@ export class Node {
         if (typeof nodeData.outputAppFields !== 'undefined'){
             for (const fieldData of nodeData.outputAppFields){
                 if (node.hasOutputApplication()){
-                    node.outputApplication().addField(Field.fromOJSJson(fieldData));
+                    const field = Field.fromOJSJson(fieldData);
+                    field.setFieldType(Eagle.FieldType.ComponentParameter);
+                    node.outputApplication().addField(field);
                 } else {
                     errorsWarnings.errors.push("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application.");
                 }
@@ -1515,7 +1523,7 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
                 const port = Field.fromOJSJsonPort(inputPort);
-                port.setPortType(Eagle.PortType.InputPort);
+                port.setFieldType(Eagle.FieldType.InputPort);
 
                 if (node.canHaveInputs()){
                     node.addApplicationArg(port);
@@ -1529,7 +1537,7 @@ export class Node {
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
                 const port = Field.fromOJSJsonPort(outputPort);
-                port.setPortType(Eagle.PortType.OutputPort);
+                port.setFieldType(Eagle.FieldType.OutputPort);
 
                 if (node.canHaveOutputs()){
                     node.addApplicationArg(port);
@@ -1544,7 +1552,7 @@ export class Node {
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
                     const port = Field.fromOJSJsonPort(inputLocalPort);
-                    port.setPortType(Eagle.PortType.InputPort);
+                    port.setFieldType(Eagle.FieldType.InputPort);
 
                     node.inputApplication().addApplicationArg(port);
                 } else {
@@ -1557,7 +1565,7 @@ export class Node {
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
                 const port = Field.fromOJSJsonPort(outputLocalPort);
-                port.setPortType(Eagle.PortType.OutputPort);
+                port.setFieldType(Eagle.FieldType.OutputPort);
 
                 if (node.hasOutputApplication()){
                     node.outputApplication().addApplicationArg(port);

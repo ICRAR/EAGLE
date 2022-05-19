@@ -18,7 +18,7 @@ export class Field {
 
     // port-specific attributes
     private id : ko.Observable<string>;
-    private portType : ko.Observable<Eagle.PortType>;
+    private fieldType : ko.Observable<Eagle.FieldType>;
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
@@ -35,7 +35,7 @@ export class Field {
         this.positional = ko.observable(positional);
 
         this.id = ko.observable(id);
-        this.portType = ko.observable(Eagle.PortType.Parameter);
+        this.fieldType = ko.observable(Eagle.FieldType.ComponentParameter);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
     }
@@ -136,12 +136,12 @@ export class Field {
         this.positional(positional);
     }
 
-    getPortType = (): Eagle.PortType => {
-        return this.portType();
+    getFieldType = (): Eagle.FieldType => {
+        return this.fieldType();
     }
 
-    setPortType = (portType: Eagle.PortType) : void => {
-        this.portType(portType);
+    setFieldType = (fieldType: Eagle.FieldType) : void => {
+        this.fieldType(fieldType);
     }
 
     getIsEvent = (): boolean => {
@@ -178,6 +178,7 @@ export class Field {
     clone = () : Field => {
         const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
         f.setIsEvent(this.isEvent());
+        f.setFieldType(this.fieldType());
         // TODO
         return f;
     }
@@ -207,11 +208,11 @@ export class Field {
     }
 
     isInputPort = () : boolean => {
-        return this.portType() === Eagle.PortType.InputPort;
+        return this.fieldType() === Eagle.FieldType.InputPort;
     }
 
     isOutputPort = () : boolean => {
-        return this.portType() === Eagle.PortType.OutputPort;
+        return this.fieldType() === Eagle.FieldType.OutputPort;
     }
 
     fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {

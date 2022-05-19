@@ -4,7 +4,7 @@
         <i class="material-icons">settings_applications</i>
         <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Parameters which are passed on to the payload application of this component at runtime.'">Application Arguments</span>
     </h5>
-    <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind=" click: function(data, event){openParamsTableModal(Eagle.FieldType.ApplicationParam)}, clickBubble: false, eagleTooltip: 'Open Application Arguments in Table ' + Utils.getKeyboardShortcutTextByKey('open_application_argument_table_modal', true)">
+    <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind=" click: function(data, event){openParamsTableModal(Eagle.FieldType.ApplicationArgument)}, clickBubble: false, eagleTooltip: 'Open Application Arguments in Table ' + Utils.getKeyboardShortcutTextByKey('open_application_argument_table_modal', true)">
         <i class="material-icons md-18">table_chart</i>
     </button>
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse11">
@@ -17,9 +17,9 @@
                 <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.applicationArgsSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}} "></input>
             </div>
             <!-- ko foreach: selectedNode().getApplicationArgs() -->
-                <!-- ko if: $data.getPortType() === Eagle.PortType.None -->
+                <!-- ko if: $data.getFieldType() === Eagle.FieldType.ApplicationArgument -->
                 <!-- ko if: $data.fitsApplicationSearchQuery() -->
-                    <field params="data: $data, ro: $parent.selectedNode().getApplicationParamReadonly($index()), fieldType: Eagle.FieldType.ApplicationParam, portType: Eagle.PortType.Parameter"></field>
+                    <field params="data: $data, ro: $parent.selectedNode().getApplicationParamReadonly($index())"></field>
                 <!-- /ko -->
                 <!-- /ko -->
             <!-- /ko -->

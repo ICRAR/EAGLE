@@ -601,10 +601,12 @@ export class Utils {
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+        console.log("requestUserEditField() fieldType", fieldType, "field", field);
+
         let dropDownKO;
         let divID;
 
-        if (fieldType === Eagle.FieldType.Field){
+        if (fieldType === Eagle.FieldType.ComponentParameter){
             dropDownKO = $("#nodeInspectorFieldDropDownKO");
             divID = "nodeInspectorAddFieldDiv";
         } else {
