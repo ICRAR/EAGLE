@@ -939,7 +939,7 @@ export class Node {
     /*
     removePortByIndex = (index : number, input : boolean) : void => {
         if (input){
-            this.ge.splice(index, 1);
+            this.inputPorts.splice(index, 1);
         } else {
             this.outputPorts.splice(index, 1);
         }

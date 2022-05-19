@@ -270,7 +270,6 @@ export class Modals {
             }
         });
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            console.log("editFieldModal hidden");
             const callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
             const completed : boolean = $('#editFieldModal').data('completed');
 
@@ -324,7 +323,6 @@ export class Modals {
                     newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
                     break;
             }
-            console.log("editFieldModal hidden", realFieldType);
             newField.setFieldType(realFieldType);
 
             callback(true, newField);

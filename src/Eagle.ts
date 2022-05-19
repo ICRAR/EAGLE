@@ -3982,8 +3982,6 @@ export class Eagle {
     }
 
     editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
-        console.log("editField()", modalType, fieldType, fieldIndex);
-
         // get field names list from the logical graph
         let allFields: Field[];
         let allFieldNames: string[] = [];
@@ -4077,15 +4075,11 @@ export class Eagle {
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
 
-            console.log("fieldType:", fieldType, "field", field);
-
             Utils.requestUserEditField(this, Eagle.ModalType.Edit, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
                 }
-
-                console.log("newField", newField);
 
                 // update field data
                 field.setDisplayText(newField.getDisplayText());

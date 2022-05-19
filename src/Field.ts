@@ -171,15 +171,12 @@ export class Field {
         this.precious(false);
         this.options([]);
         this.positional(false);
-
-        // TODO
     }
 
     clone = () : Field => {
         const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
         f.setIsEvent(this.isEvent());
         f.setFieldType(this.fieldType());
-        // TODO
         return f;
     }
 
@@ -203,8 +200,6 @@ export class Field {
         this.isEvent(src.isEvent());
         this.type(src.type());
         this.description(src.description());
-
-        // TODO: more
     }
 
     isInputPort = () : boolean => {
