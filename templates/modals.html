@@ -530,7 +530,7 @@
                 <!-- ko if: selectedNode() != null -->
 
             <div class="modal-header" data-bind="click: function(){Eagle.resetParamsTableSelection()}">
-                <h5 class="modal-title" id="parameterTableModalTitle" data-bind="html: $root.getParamsTableModalTitleText()">Component Parameters </h5>
+                <h5 class="modal-title" id="parameterTableModalTitle" data-bind="html: $root.getParamsTableModalTitleText()">Component Parameters</h5>
                 <!-- ko if: selectedNode().isLocked() -->
                     <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: getReadOnlyText">
                         <i class="material-icons md-20">lock</i>
