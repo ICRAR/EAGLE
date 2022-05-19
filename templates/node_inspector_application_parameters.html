@@ -19,7 +19,7 @@
             <!-- ko foreach: selectedNode().getApplicationArgs() -->
                 <!-- ko if: $data.getPortType() === Eagle.PortType.None -->
                 <!-- ko if: $data.fitsApplicationSearchQuery() -->
-                    <field params="data: $data, ro: $parent.selectedNode().getApplicationParamReadonly($index()), fieldType: Eagle.FieldType.ApplicationParam"></field>
+                    <field params="data: $data, ro: $parent.selectedNode().getApplicationParamReadonly($index()), fieldType: Eagle.FieldType.ApplicationParam, portType: Eagle.PortType.Parameter"></field>
                 <!-- /ko -->
                 <!-- /ko -->
             <!-- /ko -->

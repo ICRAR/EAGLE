@@ -3264,7 +3264,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.Field, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.Field, null, Eagle.PortType.Parameter);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3282,7 +3282,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ApplicationParam, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ApplicationParam, null, Eagle.PortType.Parameter);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3978,7 +3978,7 @@ export class Eagle {
         this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
-    editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
+    editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number, portType: Eagle.PortType) : void => {
         // get field names list from the logical graph
         let allFields: Field[];
         let allFieldNames: string[] = [];
@@ -4059,17 +4059,25 @@ export class Eagle {
                 break;
             case Eagle.FieldType.Port:
                 $("#editFieldModalTitle").html("Edit Port");
-                field = this.selectedNode().getApplicationArgs()[fieldIndex];
+                if (portType === Eagle.PortType.InputPort){
+                    field = this.selectedNode().getInputPorts()[fieldIndex];
+                } else {
+                    field = this.selectedNode().getOutputPorts()[fieldIndex];
+                }
                 break;
             }
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
+
+            console.log("fieldType:", fieldType, "portType", portType, "field", field);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Edit, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
                 }
+
+                console.log("newField", newField);
 
                 // update field data
                 field.setDisplayText(newField.getDisplayText());

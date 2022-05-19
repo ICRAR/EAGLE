@@ -380,6 +380,11 @@ export class Field {
         if (typeof data.description !== 'undefined')
             description = data.description;
 
+        // avoid empty text fields if we can
+        if (text === ""){
+            text = data.IdText;
+        }
+
         const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false);
         f.setIsEvent(event);
         return f;
