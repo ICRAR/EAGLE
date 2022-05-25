@@ -3981,7 +3981,10 @@ export class Eagle {
         this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
+    // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
     editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
+        console.log("editField node:", node, "modalType:", modalType, "fieldType:", fieldType, "fieldIndex:", fieldIndex);
+
         // get field names list from the logical graph
         let allFields: Field[];
         let allFieldNames: string[] = [];
@@ -4052,7 +4055,7 @@ export class Eagle {
 
         } else {
             //if editing an existing field
-            let field: Field;
+            let field: Field = null;
 
             switch (fieldType){
             case Eagle.FieldType.ComponentParameter:
@@ -4072,6 +4075,13 @@ export class Eagle {
                 field = this.selectedNode().getOutputPorts()[fieldIndex];
                 break;
             }
+
+            // check that we found a field
+            if (field === null || typeof field === 'undefined'){
+                console.error("Could not find the field to edit. fieldType", fieldType, "fieldIndex", fieldIndex);
+                return;
+            }
+
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
 
