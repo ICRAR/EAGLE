@@ -623,7 +623,6 @@ export class Utils {
             divID = "nodeInspectorAddApplicationParamDiv";
         }
 
-
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
             $('#fieldModalSelect').empty();
@@ -736,13 +735,20 @@ export class Utils {
 
         // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
         $('#editFieldModalFieldTypeSelect').empty();
-        for (let fieldType of [Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
+        for (let fieldType of [Eagle.FieldType.ComponentParameter, Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
             $('#editFieldModalFieldTypeSelect').append($('<option>', {
                 value: fieldType,
                 text: fieldType,
                 selected: field.getFieldType() === fieldType
             }));
         }
+        // hide the fieldType select if the fieldType is ComponentParameter, since that can't be changed
+        if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
+            $('#editFieldModalFieldTypeSelectRow').hide();
+        } else {
+            $('#editFieldModalFieldTypeSelectRow').show();
+        }
+
 
         $('#editFieldModalPreciousInputCheckbox').prop('checked', field.isPrecious());
 
