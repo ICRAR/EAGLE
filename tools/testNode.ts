@@ -1,6 +1,5 @@
 import {Eagle} from '../src/Eagle';
 import {Node} from '../src/Node';
-import {Port} from '../src/Port';
 import {Field} from '../src/Field';
 
 const KEY : number = -9;

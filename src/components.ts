@@ -39,17 +39,16 @@ ko.components.register('repository', {
 
 // custom component for a field
 ko.components.register('field', {
-    viewModel: function(params : {data : any, ro: boolean, fieldType: Eagle.FieldType}){
+    viewModel: function(params : {data : any, ro: boolean}){
         const vm = params.data;
         vm.ro = params.ro;
-        vm.fieldType = params.fieldType;
         return vm;
     },
     template: { require: "text!static/components/field.html" }
 });
 
 ko.components.register('port', {
-    viewModel: function(params : {id : string, name : string, description: string, multiplicity : number, isEventPort : boolean, toggleEvent : boolean, input : boolean, local: boolean}){
+    viewModel: function(params : {id : string, name : string, description: string, multiplicity : number, isEventPort : boolean, toggleEvent : boolean, input : boolean, fieldType: Eagle.FieldType}){
         return {
             id: params.id,
             name: params.name,
@@ -58,7 +57,7 @@ ko.components.register('port', {
             isEventPort: params.isEventPort,
             toggleEvent: params.toggleEvent,
             input: params.input,
-            local: params.local
+            fieldType: params.fieldType
         };
     },
     template: { require: "text!static/components/port.html" }

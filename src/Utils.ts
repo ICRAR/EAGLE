@@ -33,7 +33,6 @@ import {Palette} from './Palette';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
 import {Edge} from './Edge';
-import {Port} from './Port';
 import {Field} from './Field';
 import {Repository} from './Repository';
 import {PaletteInfo} from './PaletteInfo';
@@ -303,6 +302,17 @@ export class Utils {
 
         console.warn("Unknown DataType", dataType);
         return Eagle.DataType.Unknown;
+    }
+
+    static translateStringToFieldType(fieldType: string): Eagle.FieldType {
+        for (let ft of Object.values(Eagle.FieldType)){
+            if (ft.toLowerCase() === fieldType.toLowerCase()){
+                return ft;
+            }
+        }
+
+        console.warn("Unknown FieldType", fieldType);
+        return Eagle.FieldType.Unknown;
     }
 
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
@@ -605,7 +615,7 @@ export class Utils {
         let dropDownKO;
         let divID;
 
-        if (fieldType === Eagle.FieldType.Field){
+        if (fieldType === Eagle.FieldType.ComponentParameter){
             dropDownKO = $("#nodeInspectorFieldDropDownKO");
             divID = "nodeInspectorAddFieldDiv";
         } else {
@@ -724,6 +734,16 @@ export class Utils {
             }));
         }
 
+        // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
+        $('#editFieldModalFieldTypeSelect').empty();
+        for (let fieldType of [Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
+            $('#editFieldModalFieldTypeSelect').append($('<option>', {
+                value: fieldType,
+                text: fieldType,
+                selected: field.getFieldType() === fieldType
+            }));
+        }
+
         $('#editFieldModalPreciousInputCheckbox').prop('checked', field.isPrecious());
 
         $('#editFieldModal').data('completed', false);
@@ -731,96 +751,6 @@ export class Utils {
         $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal("toggle");
 
-    }
-
-    static requestUserEditPort(eagle:Eagle, modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {
-        if (modalType === Eagle.ModalType.Add){
-            // remove existing options from the select tag
-            $('#portModalSelect').empty();
-            $('#nodeInspectorInputPortDropDownKO').empty();
-            $('#nodeInspectorOutputPortDropDownKO').empty();
-
-
-            // add empty choice
-            $('#portModalSelect').append($('<option>', {
-                value: -1,
-                text: ""
-            }));
-            $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddInputPortDiv')}",
-                value: -1,
-                text: ""
-            }));
-            $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
-                value: -1,
-                text: ""
-            }));
-
-
-            // add options to the modal select tag
-            for (let i = 0 ; i < choices.length ; i++){
-                $('#portModalSelect').append($('<option>', {
-                    value: i,
-                    text: choices[i]
-                }));
-                $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
-                    href: "#",
-                    class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
-                    value: i,
-                    text: choices[i]
-                }));
-                $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
-                    href: "#",
-                    class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
-                    value: i,
-                    text: choices[i]
-                }));
-            }
-
-            // add custom choice
-            $('#portModalSelect').append($('<option>', {
-                value: choices.length,
-                text: "Custom"
-            }));
-            $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
-                value: choices.length,
-                text: "Custom"
-            }));
-            $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
-                value: choices.length,
-                text: "Custom"
-            }));
-
-            //applying knockout bindings for the new buttonsgenerated above
-            ko.cleanNode(document.getElementById("nodeInspectorInputPortDropDownKO"));
-            ko.applyBindings(eagle, document.getElementById("nodeInspectorInputPortDropDownKO"));
-            ko.cleanNode(document.getElementById("nodeInspectorOutputPortDropDownKO"));
-            ko.applyBindings(eagle, document.getElementById("nodeInspectorOutputPortDropDownKO"));
-        }
-
-        // populate UI with current port data
-        $('#editPortModalIdTextInput').val(port.getIdText());
-        $('#editPortModalDisplayTextInput').val(port.getDisplayText());
-        $('#editPortModalTypeInput').val(port.getType());
-        $('#editPortModalDescriptionInput').val(port.getDescription());
-
-        $('#editPortModal').data('completed', false);
-        $('#editPortModal').data('callback', callback);
-        $('#editPortModal').data('choices', choices);
-        $('#editPortModal').modal("toggle");
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
@@ -1081,22 +1011,22 @@ export class Utils {
     /**
      * Returns a list of unique port names (except event ports)
      */
-    static getUniquePortsList = (palettes : Palette[], graph: LogicalGraph) : Port[] => {
-        const uniquePorts : Port[] = [];
+    static getUniquePortsList = (palettes : Palette[], graph: LogicalGraph) : Field[] => {
+        const uniquePorts : Field[] = [];
 
         // build a list from all palettes
         for (const palette of palettes){
             for (const node of palette.getNodes()){
                 // add input port names into the list
                 for (const port of node.getInputPorts()) {
-                    if (!port.isEvent()){
+                    if (!port.getIsEvent()){
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // add output port names into the list
                 for (const port of node.getOutputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
@@ -1107,14 +1037,14 @@ export class Utils {
         for (const node of graph.getNodes()) {
             // add input port names into the list
             for (const port of node.getInputPorts()) {
-                if (!port.isEvent()){
+                if (!port.getIsEvent()){
                     Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
             }
 
             // add output port names into the list
             for (const port of node.getOutputPorts()) {
-                if (!port.isEvent()) {
+                if (!port.getIsEvent()) {
                     Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
             }
@@ -1123,14 +1053,14 @@ export class Utils {
             if (node.hasInputApplication()){
                 // input ports
                 for (const port of node.getInputApplication().getInputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getInputApplication().getOutputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
@@ -1140,14 +1070,14 @@ export class Utils {
             if (node.hasOutputApplication()){
                 // input ports
                 for (const port of node.getOutputApplication().getInputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getOutputApplication().getOutputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
@@ -1189,7 +1119,7 @@ export class Utils {
         return result;
     }
 
-    private static _addPortIfUnique = (ports : Port[], port: Port) : void => {
+    private static _addPortIfUnique = (ports : Field[], port: Field) : void => {
 
         // check if the new port matches an existing port (by name and type), if so, abort
         for (const p of ports){
@@ -1381,22 +1311,13 @@ export class Utils {
     }
 
     static determineSchemaVersion(data: any): Eagle.DALiuGESchemaVersion {
-        // v3
-        if (typeof data.DALiuGEGraph !== 'undefined'){
-            if (typeof data.DALiuGEGraph.schemaVersion !== 'undefined'){
-                return Eagle.DALiuGESchemaVersion.V3;
-            }
-        }
-
         // appref
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                if (data.modelData.schemaVersion === Eagle.DALiuGESchemaVersion.AppRef){
-                    return Eagle.DALiuGESchemaVersion.AppRef;
-                }
                 if (data.modelData.schemaVersion === Eagle.DALiuGESchemaVersion.OJS){
                     return Eagle.DALiuGESchemaVersion.OJS;
                 }
+                return data.modelData.schemaVersion;
             }
         }
 
@@ -1428,36 +1349,36 @@ export class Utils {
         // check that all port dataTypes have been defined
         for (const node of graph.getNodes()){
             for (const port of node.getInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
             for (const port of node.getOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
+                if (port.getType() === Eagle.DataType.Unknown){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
@@ -1604,31 +1525,6 @@ export class Utils {
                     case Eagle.FileType.Graph:
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
-                        break;
-                    default:
-                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
-                        valid = true;
-                        break;
-                }
-                break;
-            case Eagle.DALiuGESchemaVersion.V3:
-                switch(fileType){
-                    case Eagle.FileType.Graph:
-                        valid = ajv.validate(Utils.v3GraphSchema, json) as boolean;
-                        break;
-                    default:
-                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
-                        valid = true;
-                        break;
-                }
-                break;
-            case Eagle.DALiuGESchemaVersion.AppRef:
-                switch(fileType){
-                    case Eagle.FileType.Graph:
-                        // TODO: enable validation once a schema is ready
-                        //valid = ajv.validate(Utils.appRefGraphSchema, json) as boolean;
-                        console.warn("No AppRef schema, abort validation.");
-                        valid = true;
                         break;
                     default:
                         console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");

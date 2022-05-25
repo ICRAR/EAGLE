@@ -218,6 +218,10 @@ td:first-child input {
     width: 90px;
 }
 
+#parameter_table_isPort{
+    width: 90px;
+}
+
 #parameter_table_read_only{
     width: 90px;
 }

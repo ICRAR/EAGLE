@@ -3,7 +3,6 @@ import * as ko from "knockout";
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {LogicalGraph} from './LogicalGraph';
-import {Port} from './Port';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
@@ -243,6 +242,7 @@ export class Modals {
             const defaultValueText : string = <string>$('#editFieldModalDefaultValueInputText').val();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
             const type: string = <string>$('#editFieldModalTypeSelect').val();
+            const fieldType: string = <string>$('#editFieldModalFieldTypeSelect').val();
 
             // translate type
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
@@ -280,6 +280,7 @@ export class Modals {
             }
 
             // extract field data from HTML elements
+            const id : string = <string>$('#editFieldModalIdInput').val();
             const idText : string = <string>$('#editFieldModalIdTextInput').val();
             const displayText : string = <string>$('#editFieldModalDisplayTextInput').val();
 
@@ -297,6 +298,7 @@ export class Modals {
 
             const description: string = <string>$('#editFieldModalDescriptionInput').val();
             const type: string = <string>$('#editFieldModalTypeSelect').val();
+            const fieldType: string = <string>$('#editFieldModalFieldTypeSelect').val();
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
 
             // NOTE: currently no way to edit options in the "select"-type fields
@@ -307,19 +309,21 @@ export class Modals {
 
             // translate type
             const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+            const realFieldType: Eagle.FieldType = Utils.translateStringToFieldType(fieldType);
             let newField;
 
             switch(realType){
                 case Eagle.DataType.Boolean:
-                    newField = new Field(displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
                     break;
                 case Eagle.DataType.Select:
-                    newField = new Field(displayText, idText, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
                     break;
                 default:
-                    newField = new Field(displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
                     break;
             }
+            newField.setFieldType(realFieldType);
 
             callback(true, newField);
         });
@@ -372,56 +376,6 @@ export class Modals {
         });
         $('#editFieldModalTypeSelect').on('change', function(){
             Modals._validateFieldModalValueInputText();
-        });
-
-        // #editPortModal - requestUserEditPort()
-        $('#editPortModalAffirmativeButton').on('click', function(){
-            $('#editPortModal').data('completed', true);
-        });
-        $('#editPortModalNegativeButton').on('click', function(){
-            $('#editPortModal').data('completed', false);
-        });
-        $('#editPortModal').on('shown.bs.modal', function(){
-            $('#editPortModalAffirmativeButton').focus();
-        });
-        $('#portModalSelect').on('change', function(){
-            // check selected option in select tag
-            const choices : string[] = $('#editPortModal').data('choices');
-            const choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
-
-            // hide the custom text input unless the last option in the select is chosen
-            if (choice === choices.length){
-                $('#customPortOptionsWrapper').slideDown();
-            } else {
-                $('#customPortOptionsWrapper').slideUp();
-            }
-        });
-
-        $('#editPortModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
-            const completed : boolean = $('#editPortModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                callback(false, null);
-                return;
-            }
-
-            // extract field data from HTML elements
-            // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
-            const id = "dummy-id";
-            const idText: string = <string>$('#editPortModalIdTextInput').val();
-            const displayText: string = <string>$('#editPortModalDisplayTextInput').val();
-            const type: string = <string>$('#editPortModalTypeInput').val();
-            const description: string = <string>$('#editPortModalDescriptionInput').val();
-
-            const newPort = new Port(id, idText, displayText, false, type, description);
-
-            callback(true, newPort);
-        });
-        // add some validation of the idText
-        $('#editPortModalIdTextInput').on('keyup', function(){
-            Modals._validatePortModalIdText();
         });
 
         // #editEdgeModal - requestUserEditEdge()
@@ -515,21 +469,6 @@ export class Modals {
         });
     }
 
-    // TODO: can we get rid of this? seems to be a duplicate of eagle.fillParamentersTable()
-    static fillParamentersTable (data:any):string{
-        var options:string;
-
-        for (let dataType of Object.values(Eagle.DataType)){
-            var selected:boolean = false
-            if(data = dataType){
-                selected = true
-            }
-            options = options + "<option value="+dataType+" text="+dataType+" selected="+selected+"></option>";
-        }
-
-        return options
-    }
-
     static _validateFieldModalIdText(){
         const idText: string = <string>$('#editFieldModalIdTextInput').val();
         const isValid = Utils.validateIdText(idText);
@@ -552,13 +491,6 @@ export class Modals {
         const isValid = Utils.validateField(realType, value);
 
         Modals._setValidClasses('#editFieldModalValueInputText', isValid);
-    }
-
-    static _validatePortModalIdText(){
-        const idText: string = <string>$('#editPortModalIdTextInput').val();
-        const isValid = Utils.validateIdText(idText);
-
-        Modals._setValidClasses('#editPortModalIdTextInput', isValid);
     }
 
     static _setValidClasses(id: string, isValid: boolean){

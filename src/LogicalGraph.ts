@@ -29,8 +29,8 @@ import {GraphUpdater} from './GraphUpdater';
 
 import {Eagle} from './Eagle';
 import {Node} from './Node';
+import {Field} from './Field';
 import {Edge} from './Edge';
-import {Port} from './Port';
 import {FileInfo} from './FileInfo';
 import {RepositoryFile} from './RepositoryFile';
 
@@ -151,12 +151,12 @@ export class LogicalGraph {
             }
 
             // find source port on source node
-            let srcPort : Port = srcNode.findPortById(linkData.fromPort);
+            let srcPort : Field = srcNode.findPortById(linkData.fromPort);
 
             // if source port was not found on source node, check the source node's embedded application nodes
             // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
             if (srcPort === null){
-                const found: {key: number, port: Port} = srcNode.findPortInApplicationsById(linkData.fromPort);
+                const found: {key: number, port: Field} = srcNode.findPortInApplicationsById(linkData.fromPort);
                 if (found.port !== null){
                     const message: string = "Updated edge " + i + " source node from construct " + linkData.from + " to embedded application node " + found.key+ " and port " + found.port.getId();
                     srcPort = found.port;
@@ -183,12 +183,12 @@ export class LogicalGraph {
             }
 
             // find dest port on dest node
-            let destPort : Port = destNode.findPortById(linkData.toPort);
+            let destPort : Field = destNode.findPortById(linkData.toPort);
 
             // if destination port was not found on destination node, check the destination node's embedded application nodes
             // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
             if (destPort === null){
-                const found: {key: number, port: Port} = destNode.findPortInApplicationsById(linkData.toPort);
+                const found: {key: number, port: Field} = destNode.findPortInApplicationsById(linkData.toPort);
                 if (found.port !== null){
                     const message: string = "Updated edge " + i + " destination node from construct " + linkData.to + " to embedded application node " + found.key + " and port " + found.port.getId();
                     destPort = found.port;
@@ -235,6 +235,7 @@ export class LogicalGraph {
         return result;
     }
 
+/*
     static toV3Json = (graph : LogicalGraph) : object => {
         const result : any = {};
 
@@ -277,7 +278,9 @@ export class LogicalGraph {
 
         return result;
     }
+    */
 
+/*
     static fromV3Json = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
         const result: LogicalGraph = new LogicalGraph();
         const dlgg = dataObject.DALiuGEGraph;
@@ -306,7 +309,8 @@ export class LogicalGraph {
 
         return result;
     }
-
+*/
+/*
     static toAppRefJson = (graph : LogicalGraph) : object => {
         const result : any = {};
 
@@ -354,7 +358,8 @@ export class LogicalGraph {
 
         return result;
     }
-
+*/
+/*
     static fromAppRefJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
@@ -404,6 +409,7 @@ export class LogicalGraph {
 
         return result;
     }
+*/
 
     static _findNodeDataWithKey = (nodeDataArray: any[], key: number): any => {
         for (const nodeData of nodeDataArray){

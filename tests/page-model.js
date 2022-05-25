@@ -100,11 +100,6 @@ class Page {
     this.addInputApplication = Selector('#nodeInspectorAddInputApplication');
     this.addOutputApplication = Selector('#nodeInspectorAddOutputApplication');
 
-    this.portModalSelect = Selector('#portModalSelect');
-    this.portModalIdTextInput = Selector('#editPortModalIdTextInput');
-    this.portModalDisplayTextInput = Selector('#editPortModalDisplayTextInput');
-    this.portModalAffirmativeButton = Selector('#editPortModalAffirmativeButton');
-
     this.commitRepo = Selector('#gitCommitModalRepositoryNameSelect');
     this.commitPath = Selector('#gitCommitModalFilePathInput');
     this.commitFile = Selector('#gitCommitModalFileNameInput');
@@ -235,28 +230,6 @@ class Page {
       .click(this.selectChoice)
       .click(Selector(this.selectChoice).find('option').withText(parentText))
       .click(this.submitChoice);
-  }
-
-  async addNodePort (portInternalName, portExternalName, input){
-     if (input){
-         await t
-            .hover(this.addInputPort)
-            .click(this.addInputPort);
-    } else {
-        await t
-           .hover(this.addOutputPort)
-           .click(this.addOutputPort);
-    }
-
-    //await this.selectOption("Custom (enter below)");
-    await t
-        .click(this.portModalSelect)
-        .click(Selector(this.portModalSelect).find('option').withText("Custom (enter below)"));
-
-    await t.typeText(this.portModalIdTextInput, portInternalName, {replace:true});
-    await t.typeText(this.portModalDisplayTextInput, portExternalName, {replace:true});
-
-    await t.click(this.portModalAffirmativeButton);
   }
 
   async addNodeInputApplication(applicationName){

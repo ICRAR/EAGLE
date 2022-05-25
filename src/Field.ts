@@ -16,7 +16,13 @@ export class Field {
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
 
-    constructor(displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean){
+    // port-specific attributes
+    private id : ko.Observable<string>;
+    private fieldType : ko.Observable<Eagle.FieldType>;
+    private isEvent : ko.Observable<boolean>;
+    private nodeKey : ko.Observable<number>;
+
+    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean){
         this.displayText = ko.observable(displayText);
         this.idText = ko.observable(idText);
         this.value = ko.observable(value);
@@ -27,6 +33,19 @@ export class Field {
         this.precious = ko.observable(precious);
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
+
+        this.id = ko.observable(id);
+        this.fieldType = ko.observable(Eagle.FieldType.ComponentParameter);
+        this.isEvent = ko.observable(false);
+        this.nodeKey = ko.observable(0);
+    }
+
+    getId = () : string => {
+        return this.id();
+    }
+
+    setId = (id: string): void => {
+        this.id(id);
     }
 
     getDisplayText = () : string => {
@@ -117,6 +136,30 @@ export class Field {
         this.positional(positional);
     }
 
+    getFieldType = (): Eagle.FieldType => {
+        return this.fieldType();
+    }
+
+    setFieldType = (fieldType: Eagle.FieldType) : void => {
+        this.fieldType(fieldType);
+    }
+
+    getIsEvent = (): boolean => {
+        return this.isEvent();
+    }
+
+    setIsEvent = (isEvent: boolean) : void => {
+        this.isEvent(isEvent);
+    }
+
+    getNodeKey = () : number => {
+        return this.nodeKey();
+    }
+
+    setNodeKey = (key : number) : void => {
+        this.nodeKey(key);
+    }
+
     clear = () : void => {
         this.displayText("");
         this.idText("");
@@ -131,7 +174,10 @@ export class Field {
     }
 
     clone = () : Field => {
-        return new Field(this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
+        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
+        f.setIsEvent(this.isEvent());
+        f.setFieldType(this.fieldType());
+        return f;
     }
 
     resetToDefault = () : void => {
@@ -144,6 +190,24 @@ export class Field {
             return "";
         }
         return tooltipText;
+    }
+
+    copyWithKeyAndId = (src: Field, nodeKey: number, id: string) : void => {
+        this.id(id);
+        this.idText(src.idText());
+        this.displayText(src.displayText());
+        this.nodeKey(nodeKey);
+        this.isEvent(src.isEvent());
+        this.type(src.type());
+        this.description(src.description());
+    }
+
+    isInputPort = () : boolean => {
+        return this.fieldType() === Eagle.FieldType.InputPort;
+    }
+
+    isOutputPort = () : boolean => {
+        return this.fieldType() === Eagle.FieldType.OutputPort;
     }
 
     fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -232,6 +296,7 @@ export class Field {
     }
 
     static fromOJSJson = (data : any) : Field => {
+        let id: string = Utils.uuidv4();
         let text: string = "";
         let name: string = "";
         let description: string = "";
@@ -243,6 +308,8 @@ export class Field {
         let options: string[] = [];
         let positional: boolean = false;
 
+        if (typeof data.id !== 'undefined')
+            id = data.id;
         if (typeof data.text !== 'undefined')
             text = data.text;
         if (typeof data.name !== 'undefined')
@@ -264,7 +331,7 @@ export class Field {
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
 
-        return new Field(text, name, value, defaultValue, description, readonly, type, precious, options, positional);
+        return new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional);
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
@@ -281,5 +348,41 @@ export class Field {
             return 1;
 
         return 0;
+    }
+
+    static toOJSJsonPort = (field : Field) : object => {
+        return {
+            Id:field.id(),
+            IdText:field.idText(),
+            text:field.displayText(),
+            event:field.isEvent(),
+            type:field.type(),
+            description:field.description()
+        };
+    }
+
+    static fromOJSJsonPort = (data : any) : Field => {
+        let text: string = "";
+        let event: boolean = false;
+        let type: Eagle.DataType;
+        let description: string = "";
+
+        if (typeof data.text !== 'undefined')
+            text = data.text;
+        if (typeof data.event !== 'undefined')
+            event = data.event;
+        if (typeof data.type !== 'undefined')
+            type = data.type;
+        if (typeof data.description !== 'undefined')
+            description = data.description;
+
+        // avoid empty text fields if we can
+        if (text === ""){
+            text = data.IdText;
+        }
+
+        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false);
+        f.setIsEvent(event);
+        return f;
     }
 }

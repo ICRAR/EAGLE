@@ -513,6 +513,18 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Field Type:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="editFieldModalFieldTypeSelect">
+                                    <!-- options are added dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer" style="justify-content:space-between;">
@@ -530,7 +542,7 @@
                 <!-- ko if: selectedNode() != null -->
 
             <div class="modal-header" data-bind="click: function(){Eagle.resetParamsTableSelection()}">
-                <h5 class="modal-title" id="parameterTableModalTitle" data-bind="html: $root.getParamsTableModalTitleText()">Component Parameters </h5>
+                <h5 class="modal-title" id="parameterTableModalTitle" data-bind="html: $root.getParamsTableModalTitleText()">Component Parameters</h5>
                 <!-- ko if: selectedNode().isLocked() -->
                     <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: getReadOnlyText">
                         <i class="material-icons md-20">lock</i>
@@ -564,6 +576,9 @@
                             <th id="parameter_table_default_value">Default Value</th>
                             <th id="parameter_table_description">Description</th>
                             <th id="parameter_table_type">Type</th>
+                             <!-- ko if: Eagle.parameterTableType() === Eagle.FieldType.ApplicationArgument -->
+                             <th id="parameter_table_isPort">Use As</th>
+                             <!-- /ko -->
                             <th id="parameter_table_precious" data-bind="eagleTooltip:'Argument never suppressed'" data-bs-placement="top">Precious</th>
                             <th id="parameter_table_positional" data-bind="eagleTooltip:'If checked only the value of this argument will be put on the command line'" data-bs-placement="top">Positional</th>
                             <th id="parameter_table_actions">Actions</th>
@@ -577,11 +592,11 @@
                                     <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'idText' }"><input class="tableParameter" type="string" data-bind="value: idText, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.idText(), 'idText', $root.selectedNode().isLocked(), $data, $index(), event)}, event:{keyup: function(event, data){select($data.idText(), 'idText', $root.selectedNode().isLocked(), $data, $index(), event)}}"></td>
 
                                     <!-- value fields -->
-                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'number' || $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'text' || $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'password' -->
-                                        <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'value' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), readonly: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){select($data.value(), 'value', $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), $data, $index(),event)}, click: function(event, data){select($data.value(), 'value', $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), $data, $index(),event)}}"></td>
+                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'number' || $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'text' || $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'password' -->
+                                        <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'value' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), readonly: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){select($data.value(), 'value', $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), $data, $index(),event)}, click: function(event, data){select($data.value(), 'value', $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), $data, $index(),event)}}"></td>
                                     <!-- /ko -->
-                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'checkbox' -->
-                                    <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'checkbox' -->
+                                    <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                     <!-- /ko -->
 
                                     <!-- ko ifnot: $root.selectedNode().isLocked() -->
@@ -597,31 +612,38 @@
                                     <!-- /ko -->
 
                                     <!-- default value fields -->
-                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'number' || $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'text' || $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'password' -->
-                                        <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'defaultValue' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){select($data.defaultValue(), 'defaultValue', $root.selectedNode().isLocked(), $data, $index(),event)}, click: function(event, data){select($data.defaultValue(), 'defaultValue', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
+                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'number' || $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'text' || $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'password' -->
+                                        <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'defaultValue' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){select($data.defaultValue(), 'defaultValue', $root.selectedNode().isLocked(), $data, $index(),event)}, click: function(event, data){select($data.defaultValue(), 'defaultValue', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
                                     <!-- /ko -->
-                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'checkbox' -->
-                                        <td><input class="tableParameter" onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'checkbox' -->
+                                        <td><input class="tableParameter" onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                     <!-- /ko -->
 
                                     <!-- selection input -->
-                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value()) === 'select' -->
-                                        <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                                        <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'select' -->
+                                        <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                        <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                     <!-- /ko -->
 
                                     <td data-bind=" css: { selectedTableParameter: Eagle.parameterTableSelection() != null && $data == Eagle.parameterTableSelectionParent() && Eagle.parameterTableSelectionName() == 'description' }"><input class="tableParameter" type="string" data-bind="value: description, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.description(), 'description', $root.selectedNode().isLocked(), $data, $index(),event)}, event:{keyup: function(event, data){select($data.description(), 'description', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
                                     <td>
-                                        <select data-bind="html: $root.fillParamentersTable($data.type()), value: type, disabled: $root.selectedNode().isLocked()">
+                                        <select data-bind="html: $root.fillParametersTable($data.type()), value: type, disabled: $root.selectedNode().isLocked()">
                                         <!-- options are added dynamically -->
                                         </select>
                                     </td>
+                                    <!-- ko if: Eagle.parameterTableType() === Eagle.FieldType.ApplicationArgument -->
+                                    <td>
+                                        <select data-bind="html: $root.fillFieldTypeCell($data.fieldType()), value: fieldType, disabled: $root.selectedNode().isLocked()">
+                                            <!-- options are added dynamically -->
+                                        </select>
+                                    </td>
+                                    <!-- /ko -->
                                     <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                     <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                     <td>
                                         <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
                                         <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
-                                        <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.selectedNode().removeParamByIndex($data.fieldType, $index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                        <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.selectedNode().removeParamByIndex($data.fieldType(), $index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                     </td>
                                 </tr>
                                 <!-- /ko -->
@@ -635,78 +657,6 @@
             </div>
             <!-- /ko -->
 
-        </div>
-    </div>
-</div>
-
-<!-- Edit Port Modal -->
-<div class="modal fade" id="editPortModal" tabindex="-1" role="dialog" aria-labelledby="editPortModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editPortModalTitle">Edit Port</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="container" id="addPortWrapper">
-                    <div class="row">
-                        <p id="ComponentModalMessage">Please select a port name or create a custom port.</p>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="portModalSelect">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="container" id="customPortOptionsWrapper">
-                    <div class="row">
-                        <div class="col-3">
-                            <p data-bind="eagleTooltip: 'Internal name used by DALiuGE'" data-bs-placement="left">Id Text:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3 has-validation">
-                                <input type="text" class="form-control" id="editPortModalIdTextInput">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p data-bind="eagleTooltip: 'User-facing name'" data-bs-placement="left">Display Text:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editPortModalDisplayTextInput">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Type:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editPortModalTypeInput">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Description:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editPortModalDescriptionInput">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="editPortModalAffirmativeButton" data-bs-dismiss="modal"><span id="editPortModalAffirmativeAnswer">OK</span></button>
-            </div>
         </div>
     </div>
 </div>
