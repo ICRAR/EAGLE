@@ -79,6 +79,7 @@ export class KeyboardShortcut {
                     }
                     break;
                 case KeyboardShortcut.Modifier.Alt:
+                    //alt seems useless as is because mac uses that key to type special characters("alt + i" cannot be used as a shortcut because the event key passed would be "ˆ")
                     if (!e.altKey || e.shiftKey || e.metaKey || e.ctrlKey){
                         continue;
                     }
