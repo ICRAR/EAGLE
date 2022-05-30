@@ -46,23 +46,6 @@ enum LINK_COLORS {
     CLOSES_LOOP_SELECTED = 'rgb(47 22 213)'
 };
 
-//function to allow the user to drag select within groups
-window.addEventListener("keydown",
-    function(e) {
-        if (e.shiftKey || e.altKey) {
-            $("g.node").css("pointer-events", "none")
-        }
-    },false
-);
-
-window.addEventListener("keyup",
-    function(e) {
-        if (e.shiftKey || e.altKey) {
-            $("g.node").css("pointer-events", "auto")
-        }
-    },false
-);
-
 function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const startTime: number = performance.now();
     eagle.rendererFrameCountRender = eagle.rendererFrameCountRender + 1;
@@ -197,7 +180,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         tick();
     })
 
-
     $("#logicalGraphD3Div svg").mouseup(function(e:any){
         finishDragging();
     })
@@ -223,6 +205,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // if we dragged a selection region
         if (isDraggingSelectionRegion){
+            /*
             const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
 
             const edges: Edge[] = findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
@@ -246,6 +229,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             selectionRegionStart.y = 0;
             selectionRegionEnd.x = 0;
             selectionRegionEnd.y = 0;
+            */
 
             // finish selecting a region
             isDraggingSelectionRegion = false;
