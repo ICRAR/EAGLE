@@ -23,7 +23,7 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v1
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
       - name: NPM install
         run: npm install
       - name: Setup Python
