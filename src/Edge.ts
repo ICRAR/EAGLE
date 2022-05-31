@@ -257,9 +257,15 @@ export class Edge {
             return Eagle.LinkValid.Invalid;
         }
 
-        // check that source and destination are not both input or both output
-        if (sourceNode.findPortIsInputById(sourcePortId) === destinationNode.findPortIsInputById(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "sourcePort and destinationPort are both input or both output", "danger", showNotification, showConsole, errors, warnings);
+        // check if source and destination are both input
+        if (sourceNode.findPortIsInputById(sourcePortId) && destinationNode.findPortIsInputById(destinationPortId)){
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "sourcePort and destinationPort are both input", "danger", showNotification, showConsole, errors, warnings);
+            return Eagle.LinkValid.Invalid;
+        }
+
+        // check if source and destination are both output
+        if (!sourceNode.findPortIsInputById(sourcePortId) && !destinationNode.findPortIsInputById(destinationPortId)){
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "sourcePort and destinationPort are both output", "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
