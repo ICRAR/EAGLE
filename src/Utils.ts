@@ -1479,11 +1479,7 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
-
-            if (linkValid === Eagle.LinkValid.Invalid){
-                errors.push("Edge (" + edge.getId() + ") is invalid.");
-            }
+            Edge.isValid(graph, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false, errors, warnings);
         }
 
         // check that all "closes loop" edges:
