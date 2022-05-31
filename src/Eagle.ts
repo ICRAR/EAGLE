@@ -3524,9 +3524,9 @@ export class Eagle {
 
         // remove port
         if (input){
-            node.getInputPorts().splice(index, 1);
+            node.removeFieldTypeByIndex(index, Eagle.FieldType.InputPort);
         } else {
-            node.getOutputPorts().splice(index, 1);
+            node.removeFieldTypeByIndex(index, Eagle.FieldType.OutputPort);
         }
 
         // remove any edges connected to that port

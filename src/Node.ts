@@ -935,16 +935,21 @@ export class Node {
         return this.findPortByIdText(idText, input, local) !== null;
     }
 
-    // WARN: dangerous! removes a port without considering if the port is in use by an edge
-    /*
-    removePortByIndex = (index : number, input : boolean) : void => {
-        if (input){
-            this.inputPorts.splice(index, 1);
-        } else {
-            this.outputPorts.splice(index, 1);
+    // WARN: dangerous! removes a field/arg/port without considering if it is a port is in use by an edge
+    removeFieldTypeByIndex = (index : number, fieldType: Eagle.FieldType) : void => {
+        let matchIndex = -1;
+        for (let i = 0 ; i < this.applicationArgs().length ; i++){
+            const param = this.applicationArgs()[i];
+
+            if (param.getFieldType() === fieldType){
+                matchIndex += 1;
+
+                if (matchIndex === index){
+                    this.applicationArgs.splice(i, 1);
+                }
+            }
         }
     }
-    */
 
     addField = (field : Field) : void => {
         this.fields.push(field);
