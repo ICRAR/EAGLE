@@ -3080,7 +3080,6 @@ export class Eagle {
 
     addGraphNodesToPalette = () : void => {
         //check if there are any nodes in the graph
-        console.log("node amount",this.logicalGraph().getNodes().length)
         if  (this.logicalGraph().getNodes().length === 0){
             Utils.showNotification("Unable to add nodes to palette", "No nodes found in graph", "danger");
             return
