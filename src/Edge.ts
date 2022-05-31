@@ -190,8 +190,7 @@ export class Edge {
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware, edgeData.closesLoop);
     }
 
-
-    static isValid = (graph : LogicalGraph, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, showNotification : boolean, showConsole : boolean) : Eagle.LinkValid => {
+    static isValid = (graph : LogicalGraph, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, showNotification : boolean, showConsole : boolean, errors: string[], warnings: string[]) : Eagle.LinkValid => {
         // check for problems
         if (isNaN(sourceNodeKey)){
             return Eagle.LinkValid.Unknown;
@@ -232,7 +231,14 @@ export class Edge {
 
         // check that we are not connecting two ports within the same node
         if (sourceNodeKey === destinationNodeKey){
-            Edge.isValidLog("Invalid Edge", "sourceNodeKey and destinationNodeKey are the same", "danger", showNotification, showConsole);
+            let message : string = "";
+            if (edgeId === null){
+                message = "Edge sourceNodeKey and destinationNodeKey are the same";
+            } else {
+                message = "Edge (" + edgeId + ") sourceNodeKey and destinationNodeKey are the same"
+            }
+
+            Edge.isValidLog("Invalid Edge", message, "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
@@ -241,7 +247,7 @@ export class Edge {
         // this is not supported. How would a BashShellApp read data from another process?
         if ((sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.getCategory() === Eagle.Category.BashShellApp) ||
             (sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.hasInputApplication() && destinationNode.getInputApplication().getCategory() === Eagle.Category.BashShellApp)){
-            Edge.isValidLog("Invalid Edge", "Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", "danger", showNotification, showConsole);
+            Edge.isValidLog("Invalid Edge", "Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
@@ -254,13 +260,19 @@ export class Edge {
 
         // check that we are not connecting a port to itself
         if (sourcePortId === destinationPortId){
-            Edge.isValidLog("Invalid Edge", "sourcePort and destinationPort are the same", "danger", showNotification, showConsole);
+            let message : string = "";
+            if (edgeId = null){
+                message = "sourcePort and destinationPort are the same";
+            } else {
+                message = "sourcePort and destinationPort are the same";
+            }
+            Edge.isValidLog("Invalid Edge", message, "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // check that source and destination are not both input or both output
         if (sourceNode.findPortIsInputById(sourcePortId) === destinationNode.findPortIsInputById(destinationPortId)){
-            Edge.isValidLog("Invalid Edge", "sourcePort and destinationPort are both input or both output", "danger", showNotification, showConsole);
+            Edge.isValidLog("Invalid Edge", "sourcePort and destinationPort are both input or both output", "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
@@ -296,46 +308,52 @@ export class Edge {
 
         // if a node is connecting to its parent, it must connect to the local port
         if (isParent && !destinationNode.hasLocalPortWithId(destinationPortId)){
-            Edge.isValidLog("Invalid Edge", "Source port is connecting to its parent, yet destination port is not local", "danger", showNotification, showConsole);
+            Edge.isValidLog("Invalid Edge", "Source port is connecting to its parent, yet destination port is not local", "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // if a node is connecting to a child, it must start from the local port
         if (isChild && !sourceNode.hasLocalPortWithId(sourcePortId)){
-            Edge.isValidLog("Invalid Edge", "Source connecting to child, yet source port is not local", "danger", showNotification, showConsole);
+            Edge.isValidLog("Invalid Edge", "Source connecting to child, yet source port is not local", "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // if destination node is not a child, destination port cannot be a local port
         if (!parentIsEFN && !isParent && destinationNode.hasLocalPortWithId(destinationPortId)){
-            Edge.isValidLog("Invalid Edge", "Source is not a child of destination, yet destination port is local", "danger", showNotification, showConsole);
+            Edge.isValidLog("Invalid Edge", "Source is not a child of destination, yet destination port is local", "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         if (!parentIsEFN && !isChild && sourceNode.hasLocalPortWithId(sourcePortId)){
-            Edge.isValidLog("Invalid Edge", "Destination is not a child of source, yet source port is local", "danger", showNotification, showConsole);
+            Edge.isValidLog("Invalid Edge", "Destination is not a child of source, yet source port is local", "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // abort if source port and destination port have different data types
         if (sourcePort.getIdText() !== destinationPort.getIdText()){
-            Edge.isValidLog("Invalid Edge", "Port names don't match: sourcePortName:" + sourcePort.getIdText() + " destinationPortName:" + destinationPort.getIdText(), "danger", showNotification, showConsole);
+            Edge.isValidLog("Invalid Edge", "Port names don't match: sourcePortName:" + sourcePort.getIdText() + " destinationPortName:" + destinationPort.getIdText(), "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // if link is not a parent, child or sibling, then warn user
         if (!parentIsEFN && !isParent && !isChild && !isSibling && !loopAware && !isParentOfConstruct && !isChildOfConstruct){
-            Edge.isValidLog("Warning", "Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive", "warning", showNotification, showConsole);
+            Edge.isValidLog("Warning", "Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive", "warning", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Warning;
         }
 
         return Eagle.LinkValid.Valid
     }
 
-    private static isValidLog = (title : string, message : string, type : "success" | "info" | "warning" | "danger", showNotification : boolean, showConsole : boolean) : void => {
+    private static isValidLog = (title : string, message : string, type : "success" | "info" | "warning" | "danger", showNotification : boolean, showConsole : boolean, errors: string[], warnings: string[]) : void => {
         if (showNotification)
             Utils.showNotification(title, message, type);
         if (showConsole)
             console.warn(title + ":" + message);
+        if (type === "danger" && errors !== null){
+            errors.push(message);
+        }
+        if (type === "warning" && warnings !== null){
+            warnings.push(message);
+        }
     }
 }
