@@ -942,7 +942,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const edgeDragHandler = d3
     .drag()
     .on("start", function(edge : Edge){
-        selectEdge(edge, d3.event.shiftKey);
+        selectEdge(edge, d3.event.sourceEvent.shiftKey);
         tick();
     })
 
