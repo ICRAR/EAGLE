@@ -59,7 +59,7 @@
                     <input type="text" class="form-control" id="edge-data-type" placeholder="" aria-label="DataType" aria-describedby="edge-addon5" readonly data-bind="value: selectedEdge().dataType">
                 </div>
                 <div class="input-group mb-1">
-                    <input type="text" class="form-control" id="nodeLoopAwareValue" placeholder="" aria-label="LoopAware" aria-describedby="node-loop-aware" value="Loop Aware" readonly>
+                    <input type="text" class="form-control edgeInspectorCheckboxLabel" id="nodeLoopAwareValue" data-bind="eagleTooltip: 'Indicates the user is aware that the components at either end of the edge may differ in multiplicity'" placeholder="" aria-label="LoopAware" aria-describedby="node-loop-aware" value="Loop Aware" readonly>
                     <div class="input-group-append">
                         <button class="btn btn-secondary btn-sm" id="edgeInspectorToggleLoopAware" type="button" data-bind="click: function(){selectedEdge().toggleLoopAware();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
                             <i class="material-icons md-18" data-bind="visible: selectedEdge().isLoopAware()">radio_button_checked</i>
@@ -68,7 +68,7 @@
                     </div>
                 </div>
                 <div class="input-group mb-1">
-                    <input type="text" class="form-control" id="nodeClosesLoopValue" placeholder="" aria-label="ClosesLoop" aria-describedby="node-closes-loop" value="Closes Loop" readonly>
+                    <input type="text" class="form-control edgeInspectorCheckboxLabel" id="nodeClosesLoopValue" data-bind="eagleTooltip:'Indicates that this is a special type of edge that can be drawn in Eagle to specify the start/end of groups.'" placeholder="" aria-label="ClosesLoop" aria-describedby="node-closes-loop" value="Closes Loop" readonly>
                     <div class="input-group-append">
                         <button class="btn btn-secondary btn-sm" id="edgeInspectorToggleClosesLoop" type="button" data-bind="click:toggleEdgeClosesLoop">
                             <i class="material-icons md-18" data-bind="visible: selectedEdge().isClosesLoop()">radio_button_checked</i>
