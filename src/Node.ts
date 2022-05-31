@@ -1708,7 +1708,9 @@ export class Node {
         // add applicationArgs
         result.applicationArgs = [];
         for (const param of node.applicationArgs()){
-            result.applicationArgs.push(Field.toOJSJson(param));
+            if (param.getFieldType() === Eagle.FieldType.ApplicationArgument){
+                result.applicationArgs.push(Field.toOJSJson(param));
+            }
         }
 
         // add fields from inputApplication
@@ -1846,7 +1848,9 @@ export class Node {
         // add applicationArgs
         result.applicationArgs = [];
         for (const param of node.applicationArgs()){
-            result.applicationArgs.push(Field.toOJSJson(param));
+            if (param.getFieldType() === Eagle.FieldType.ApplicationArgument){
+                result.applicationArgs.push(Field.toOJSJson(param));
+            }
         }
 
         // add fields from inputApplication
