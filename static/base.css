@@ -1410,6 +1410,10 @@ div.rightWindow h5.card-header {
     margin: top 1px;
 }
 
+#edgeInspector .edgeInspectorCheckboxLabel{
+    font-size: .9rem;
+}
+
 #nodeInspector .input-group-prepend, #edgeInspector .input-group-prepend, #translationMenu .input-group-prepend {
     width:40%;
 }
@@ -1435,6 +1439,10 @@ div.rightWindow h5.card-header {
 
 #edgeInspectorToggleLoopAware{
     height:100%;
+}
+
+#edgeInspectorToggleClosesLoop{
+    height: 100%;
 }
 
 #edgeInspectorIcons{
