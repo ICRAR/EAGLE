@@ -134,6 +134,36 @@ export class Edge {
         return result;
     }
 
+    validClass = (graph: LogicalGraph) : string => {
+        const linkValid: Eagle.LinkValid = Edge.isValid(graph, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, false, false, null, null);
+
+        if (linkValid === Eagle.LinkValid.Invalid){
+            return "alert alert-danger";
+        }
+        if (linkValid === Eagle.LinkValid.Warning){
+            return "alert alert-warning";
+        }
+
+        return "alert alert-success";
+    }
+
+    validText = (graph: LogicalGraph) : string => {
+        const warnings: string[] = [];
+        const errors: string[] = [];
+        const linkValid: Eagle.LinkValid = Edge.isValid(graph, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, false, false, errors, warnings);
+
+        if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Warning){
+            if (errors.length > 0){
+                return errors[0];
+            } else {
+                return warnings[0];
+            }
+        }
+
+        return "Edge is valid";
+    }
+
+
     static toOJSJson = (edge : Edge) : object => {
         return {
             from: -1,

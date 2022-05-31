@@ -1433,7 +1433,7 @@ div.rightWindow h5.card-header {
     border-radius: 0px;
 }
 
-#edgeInspectorToggleLoopAware{
+#edgeInspectorToggleLoopAware, #edgeInspectorToggleClosesLoop{
     height:100%;
 }
 

@@ -78,6 +78,13 @@
                 </div>
                 <!-- /ko -->
             </div>
+            <div class="card-body">
+                <!-- ko if: selectedEdge() != null -->
+                <div data-bind="class: selectedEdge().validClass($root.logicalGraph())" role="alert">
+                    <span data-bind="text: selectedEdge().validText($root.logicalGraph())"></span>
+                </div>
+                <!-- /ko -->
+            </div>
         </div>
     <!-- /ko -->
 </div>
