@@ -1485,6 +1485,16 @@ export class Node {
             for (const fieldData of nodeData.fields){
                 const field = Field.fromOJSJson(fieldData);
                 field.setFieldType(Eagle.FieldType.ComponentParameter);
+
+                // we should support comment and description nodes, these need to use one component parameter, even though they don't officially support them
+                const isCommentOrDescriptionContentField : boolean = (category === Eagle.Category.Description || category === Eagle.Category.Comment) && field.getIdText() === "";
+
+                // check
+                if (!node.canHaveComponentParameters() && !isCommentOrDescriptionContentField){
+                    errorsWarnings.warnings.push("Node '" + node.getName() + "' (category: " + category + ") should not have any component parameters. Removed " + field.getDisplayText());
+                    continue;
+                }
+
                 node.addField(field);
             }
         }
