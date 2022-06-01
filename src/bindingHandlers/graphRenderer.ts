@@ -151,6 +151,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             isDraggingSelectionRegion = true;
             selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(e.originalEvent.x);
             selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-headerHeight);
+            selectionRegionEnd.x = selectionRegionStart.x;
+            selectionRegionEnd.y = selectionRegionStart.y;
         }
 
         if (e.altKey){
@@ -301,9 +303,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             // if node not selected, then select it
-            if (!eagle.objectIsSelected(node)){
-                selectNode(node, d3.event.sourceEvent.shiftKey);
-            }
+            selectNode(node, d3.event.sourceEvent.shiftKey);
 
             //tick();
         })
