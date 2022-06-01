@@ -69,6 +69,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     let isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
     let isDraggingWithAlt : boolean = false;
     let dragEventCount : number = 0;
+    let draggingNodeId : string = "";
 
     const mousePosition = {x:0, y:0};
     const selectionRegionStart = {x:0, y:0};
@@ -151,6 +152,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             isDraggingSelectionRegion = true;
             selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(e.originalEvent.x);
             selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(e.originalEvent.y-headerHeight);
+            selectionRegionEnd.x = selectionRegionStart.x;
+            selectionRegionEnd.y = selectionRegionStart.y;
         }
 
         if (e.altKey){
@@ -205,7 +208,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // if we dragged a selection region
         if (isDraggingSelectionRegion){
-            /*
             const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
 
             const edges: Edge[] = findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
@@ -229,7 +231,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             selectionRegionStart.y = 0;
             selectionRegionEnd.x = 0;
             selectionRegionEnd.y = 0;
-            */
 
             // finish selecting a region
             isDraggingSelectionRegion = false;
@@ -291,6 +292,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .on("start", function (node : Node) {
             isDraggingNode = false;
             dragEventCount = 0;
+
+            if (!eagle.objectIsSelected(node)){
+                draggingNodeId = node.getId();
+            }
 
             // new click time
             const newTime = Date.now();
@@ -366,6 +371,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // guarding this behind 'isDraggingNode' is a hack to get around the fact that d3.event.x and d3.event.y behave strangely
             if (isDraggingNode){
                 isDraggingNode = false;
+                draggingNodeId = "";
+            } else {
+                // if node already selected, then deselect it
+                if (eagle.objectIsSelected(node) && draggingNodeId !== node.getId()){
+                    selectNode(node, d3.event.sourceEvent.shiftKey);
+                }
             }
 
             // determine the size of the node being moved, based on whether it is collapsed or not
