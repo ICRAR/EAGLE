@@ -205,7 +205,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // if we dragged a selection region
         if (isDraggingSelectionRegion){
-            /*
             const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
 
             const edges: Edge[] = findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
@@ -229,7 +228,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             selectionRegionStart.y = 0;
             selectionRegionEnd.x = 0;
             selectionRegionEnd.y = 0;
-            */
 
             // finish selecting a region
             isDraggingSelectionRegion = false;
