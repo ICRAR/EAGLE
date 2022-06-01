@@ -709,7 +709,6 @@ export class Eagle {
     uploadGraphFile = () : void => {
         const uploadedGraphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToLoad");
         const fileFullPath : string = uploadedGraphFileToLoadInputElement.value;
-        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -727,7 +726,7 @@ export class Eagle {
                 return;
             }
 
-            this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
+            this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                 this.logicalGraph(lg);
 
                 // center graph
@@ -748,7 +747,6 @@ export class Eagle {
     insertGraphFile = () : void => {
         const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
         const fileFullPath : string = uploadedGraphFileToInsertInputElement.value;
-        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -766,7 +764,7 @@ export class Eagle {
                 return;
             }
 
-            this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
+            this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                 const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph);
 
                 this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
@@ -778,7 +776,28 @@ export class Eagle {
         });
     }
 
-    private _loadGraphJSON = (data: string, showErrors: boolean, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void) : void => {
+    private _handleLoadingErrors = (errorsWarnings: Eagle.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
+        // TODO: determine showErrors from settings
+        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+        const showWarnings = true;
+
+        // show errors (if found)
+        if (errorsWarnings.errors.length > 0 || errorsWarnings.warnings.length > 0){
+            if (showErrors || showWarnings){
+                // TODO: better modal here, use the check graph modal if possible
+                Utils.showUserMessage("Loading", errorsWarnings.warnings.join('<br/>') + '<br/>' + errorsWarnings.errors.join('<br/>'));
+            }
+        } else {
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
+        }
+
+        // print warnings in console
+        for (const warning of errorsWarnings.warnings){
+            console.warn(warning);
+        }
+    }
+
+    private _loadGraphJSON = (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void) : void => {
         let dataObject;
 
         // attempt to parse the JSON
@@ -812,14 +831,7 @@ export class Eagle {
                 break;
         }
 
-        // show errors (if found)
-        if (errorsWarnings.errors.length > 0){
-            if (showErrors){
-                Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
-            }
-        } else {
-            Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
-        }
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
     }
 
     formatTableInspectorSelection = () : string => {
@@ -1062,7 +1074,6 @@ export class Eagle {
     uploadPaletteFile = () : void => {
         const uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFileToLoad");
         const fileFullPath : string = uploadedPaletteFileInputElement.value;
-        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -1080,14 +1091,14 @@ export class Eagle {
                 return;
             }
 
-            this._loadPaletteJSON(data, showErrors, fileFullPath);
+            this._loadPaletteJSON(data, fileFullPath);
 
             this.palettes()[0].fileInfo().repositoryService = Eagle.RepositoryService.File;
             this.palettes()[0].fileInfo.valueHasMutated();
         });
     }
 
-    private _loadPaletteJSON = (data: string, showErrors: boolean, fileFullPath: string) => {
+    private _loadPaletteJSON = (data: string, fileFullPath: string) => {
         let dataObject;
 
         // attempt to parse the JSON
@@ -1112,9 +1123,7 @@ export class Eagle {
         const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
-        if (errorsWarnings.errors.length > 0 && showErrors){
-            Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
-        }
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
 
         // sort the palette
         p.sort();
@@ -1170,9 +1179,7 @@ export class Eagle {
                 return;
             }
 
-            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
-            this._loadGraphJSON(userText, showErrors, "", (lg: LogicalGraph) : void => {
+            this._loadGraphJSON(userText, "", (lg: LogicalGraph) : void => {
                 this.logicalGraph(lg);
             });
         });
@@ -1205,9 +1212,7 @@ export class Eagle {
                 return;
             }
 
-            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
-            this._loadPaletteJSON(userText, showErrors, "");
+            this._loadPaletteJSON(userText, "");
         });
     }
 
@@ -1941,9 +1946,6 @@ export class Eagle {
                 return;
             }
 
-            // if setting dictates, show errors during loading
-            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
             // attempt to parse the JSON
             let dataObject;
             try {
@@ -1971,18 +1973,8 @@ export class Eagle {
                             break;
                     }
 
-                    if (errorsWarnings.errors.length > 0){
-                        if (showErrors){
-                            Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
-                        }
-                    } else {
-                        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ". " + errorsWarnings.warnings.length + " warnings.", "success");
-                    }
-
-                    // print warnings in console
-                    for (const warning of errorsWarnings.warnings){
-                        console.warn(warning);
-                    }
+                    // show errors/warnings
+                    this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
                     // center graph
                     this.centerGraph();
@@ -2036,9 +2028,6 @@ export class Eagle {
                 return;
             }
 
-            // if setting dictates, show errors during loading
-            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
             // attempt to parse the JSON
             let dataObject;
             try {
@@ -2083,13 +2072,8 @@ export class Eagle {
             this.undo().pushSnapshot(this, "Inserted " + file.name);
             this.checkGraph();
 
-            if (errorsWarnings.errors.length > 0){
-                if (showErrors){
-                    Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
-                }
-            } else {
-                Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
-            }
+            // show errors/warnings
+            this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
         });
     };
 
@@ -2112,8 +2096,6 @@ export class Eagle {
     }
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
-        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
         // close the existing version of the open palette
         if (palette !== null){
             this.closePalette(palette);
@@ -2129,13 +2111,8 @@ export class Eagle {
         // add to list of palettes
         this.palettes.unshift(newPalette);
 
-        if (errorsWarnings.errors.length > 0){
-            if (showErrors){
-                Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
-            }
-        } else {
-            Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
-        }
+        // show errors/warnings
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
         this.leftWindow().shown(true);
     }
@@ -3506,6 +3483,20 @@ export class Eagle {
         });
     }
 
+    removeParamFromNodeByIndex = (node: Node, fieldType: Eagle.FieldType, index: number) : void => {
+        if (node === null){
+            console.warn("Could not remove param from null node");
+            return;
+        }
+
+        node.removeParamByIndex(fieldType, index);
+
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Remove param from node");
+        this.flagActiveFileModified();
+        this.selectedObjects.valueHasMutated();
+    }
+
     removePortFromNodeByIndex = (node : Node, index : number, input : boolean) : void => {
         console.log("removePortFromNodeByIndex(): node", node.getName(), "index", index, "input", input);
 
@@ -3543,6 +3534,8 @@ export class Eagle {
 
         this.checkGraph();
         this.undo().pushSnapshot(this, "Remove port from node");
+        this.flagActiveFileModified();
+        this.selectedObjects.valueHasMutated();
     }
 
     // dragdrop
@@ -4404,6 +4397,7 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
+        console.log("checkGraph()");
         const checkResult = Utils.checkGraph(this.logicalGraph());
 
         this.graphWarnings(checkResult.warnings);

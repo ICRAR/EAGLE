@@ -1425,6 +1425,20 @@ export class Utils {
                     }
                 }
             }
+
+            for (const appArg0 of node.getApplicationArgs()){
+                for (const appArg1 of node.getApplicationArgs()){
+                    if (appArg0.getId() === appArg1.getId()){
+                        continue;
+                    }
+
+                    // check for two application arguments with the same idText, not allowed unless
+                    // - one is a input and one is an output
+                    if (appArg0.getIdText() === appArg1.getIdText() && (appArg0.getFieldType() === appArg1.getFieldType() || appArg0.getFieldType() === Eagle.FieldType.ApplicationArgument || appArg1.getFieldType() === Eagle.FieldType.ApplicationArgument)){
+                        errors.push("Node " + node.getKey() + " (" + node.getName() + ") has multiple application arguments with the same idText (" + appArg0.getIdText() + ").");
+                    }
+                }
+            }
         }
 
 

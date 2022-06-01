@@ -1494,6 +1494,13 @@ export class Node {
             for (const paramData of nodeData.applicationArgs){
                 const field = Field.fromOJSJson(paramData);
                 field.setFieldType(Eagle.FieldType.ApplicationArgument);
+
+                // check
+                if (!node.canHaveApplicationArguments()){
+                    errorsWarnings.warnings.push("Node '" + node.getName() + "' (category: " + category + ") should not have any application arguments. Removed " + field.getDisplayText());
+                    continue;
+                }
+
                 node.addApplicationArg(field);
             }
         }
