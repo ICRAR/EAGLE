@@ -777,23 +777,15 @@ export class Eagle {
     }
 
     private _handleLoadingErrors = (errorsWarnings: Eagle.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
-        // TODO: determine showErrors from settings
         const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-        const showWarnings = true;
 
         // show errors (if found)
         if (errorsWarnings.errors.length > 0 || errorsWarnings.warnings.length > 0){
-            if (showErrors || showWarnings){
-                // TODO: better modal here, use the check graph modal if possible
-                Utils.showUserMessage("Loading", errorsWarnings.warnings.join('<br/>') + '<br/>' + errorsWarnings.errors.join('<br/>'));
+            if (showErrors){
+                Utils.showErrorsModal("Loading File", errorsWarnings.errors, errorsWarnings.warnings);
             }
         } else {
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
-        }
-
-        // print warnings in console
-        for (const warning of errorsWarnings.warnings){
-            console.warn(warning);
         }
     }
 
