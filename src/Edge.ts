@@ -363,6 +363,14 @@ export class Edge {
             return Eagle.LinkValid.Warning;
         }
 
+        // check if the edge already exists in the graph, there is no point in a duplicate
+        for (const edge of graph.getEdges()){
+            if (edge.getSrcPortId() === sourcePortId && edge.getDestPortId() === destinationPortId && edge.getId() !== edgeId){
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "Edge is a duplicate. Another edge with the same source port and destination port already exists", "danger", showNotification, showConsole, errors, warnings);
+                return Eagle.LinkValid.Invalid;
+            }
+        }
+
         return Eagle.LinkValid.Valid
     }
 
