@@ -4407,45 +4407,12 @@ export class Eagle {
     // TODO: maybe try to move some of this html out to a template
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
-            let message = "";
 
-            //start of modal content
-            message += "<div class='accordion' id='checkGraphAccordion'>"
+            // show graph modal
+            Utils.showErrorsModal("Check Graph", this.graphErrors(), this.graphWarnings());
 
-                //graph errors
-                if (this.graphErrors().length > 0){
-                    message += '<div class="accordion-item">'
-                        message += '<h2 class="accordion-header" id="checkGraphAccordionHeadingOne">'
-                            message += '<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors  <span id="graphErrorRed">[' + this.graphErrors().length + ']</span></button>'
-                        message += "</h2>"
-                        message += '<div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">'
-                            message += '<div class="accordion-body">'
-                                message += this.graphErrors().join('<br/>')
-                            message += '</div>'
-                        message += '</div>'
-                    message += "</div>"
-                }
-
-                //graph warnings
-                if (this.graphWarnings().length > 0){
-                    message += '<div class="accordion-item">'
-                        message += '<h2 class="accordion-header" id="checkGraphAccordionHeadingTwo">'
-                            message += '<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings  <span id="graphErrorYellow">[' + this.graphWarnings().length + ']</span></button>'
-                        message += "</h2>"
-                        message += '<div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">'
-                            message += '<div class="accordion-body">'
-                                message += this.graphWarnings().join('<br/>')
-                            message += '</div>'
-                        message += '</div>'
-                    message += "</div>"
-                }
-
-            //end of modal content
-            message += "</div>"
-
-            Utils.showUserMessage("Check Graph", message);
             //set fixed height for this use of the shared modal to prevent it collapsing when collapsing a section within
-            $("#checkGraphAccordion").parent().parent().css("height","70vh")
+            $("#errorsModalAccordion").parent().parent().css("height","70vh")
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
@@ -4937,7 +4904,7 @@ $( document ).ready(function() {
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
-        $("#checkGraphAccordion").parent().parent().attr('style','')
+        $("#errorsModalAccordion").parent().parent().attr('style','')
 
         //reset parameter table selecction
         Eagle.resetParamsTableSelection()

@@ -16,6 +16,48 @@
     </div>
 </div>
 
+<!-- Errors Modal -->
+<div class="modal fade" id="errorsModal" tabindex="-1" role="dialog" aria-labelledby="errorsModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorsModalTitle">Title</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class='accordion' id='errorsModalAccordion'>
+
+                    <div class="accordion-item" id="errorsModalErrorsAccordionItem">
+                        <h2 class="accordion-header" id="checkGraphAccordionHeadingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount"></span></button>
+                        </h2>
+                        <div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">
+                            <div class="accordion-body" id="errorsModalErrorsAccordionBody">
+                                message += this.graphErrors().join('<br/>')
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" id="errorsModalWarningsAccordionItem">
+                        <h2 class="accordion-header" id="checkGraphAccordionHeadingTwo">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount"></span></button>
+                        </h2>
+                        <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
+                            <div class="accordion-body" id="errorsModalWarningsAccordionBody">
+                                message += this.graphWarnings().join('<br/>')
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Request User Input Modal -->
 <div class="modal fade" id="inputModal" tabindex="-1" role="dialog" aria-labelledby="inputModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">

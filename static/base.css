@@ -776,29 +776,29 @@ select.form-control{
     border: 1px solid #c2c8dc;
 }
 
-#checkGraphAccordion .accordion-button{
+#errorsModalAccordion .accordion-button{
     color: white;
     background-color: #4a6b8f;
 }
 
-#checkGraphAccordion .accordion-button::after{
+#errorsModalAccordion .accordion-button::after{
     background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
 }
 
-#checkGraphAccordion .accordion-button:focus{
+#errorsModalAccordion .accordion-button:focus{
     border-color: transparent;
     box-shadow: none !important;
 }
 
-#checkGraphAccordion .accordion-item{
+#errorsModalAccordion .accordion-item{
     margin-bottom: 10px;
 }
 
-#graphErrorRed{
+#errorsModalErrorCount{
     color: #dc3545;
 }
 
-#graphErrorYellow{
+#errorsModalWarningCount{
     color: #ffc107;
 }
 

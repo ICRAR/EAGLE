@@ -443,6 +443,26 @@ export class Utils {
         }
     }
 
+    static showErrorsModal(title: string, errors: string[], warnings: string[]){
+        console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
+
+        $('#errorsModalTitle').text(title);
+
+        // hide whole errors or warnings sections if none are found
+        $('#errorsModalErrorsAccordionItem').toggle(errors.length > 0);
+        $('#errorsModalWarningsAccordionItem').toggle(warnings.length > 0);
+
+        // set count of errors and warnings
+        $('#errorsModalErrorCount').html('[' + errors.length.toString() + ']');
+        $('#errorsModalWarningCount').html('[' + warnings.length.toString() + ']');
+
+        // add error and warning text to those sections
+        $('#errorsModalErrorsAccordionBody').html(errors.join('<br/>'));
+        $('#errorsModalWarningsAccordionBody').html(warnings.join('<br/>'));
+
+        $('#errorsModal').modal("toggle");
+    }
+
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
         $.notify({
             title:title + ":",
