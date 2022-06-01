@@ -4389,7 +4389,6 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        console.log("checkGraph()");
         const checkResult = Utils.checkGraph(this.logicalGraph());
 
         this.graphWarnings(checkResult.warnings);
