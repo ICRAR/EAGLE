@@ -89,6 +89,21 @@ export class Undo {
         if (this.rear() === this.front()){
             this.rear((this.rear() + 1) % Config.UNDO_MEMORY_SIZE);
         }
+
+        // delete items from current to rear
+        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
+            const index = (this.current() + i) % Config.UNDO_MEMORY_SIZE;
+
+            if (((index + 1) % Config.UNDO_MEMORY_SIZE) === this.rear()){
+                break;
+            }
+
+            this.memory()[index] = null;
+        }
+
+        if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+            eagle.printUndoTable();
+        }
     }
 
     prevSnapshot = (eagle: Eagle) : void => {
@@ -102,6 +117,10 @@ export class Undo {
 
         this._loadFromIndex(prevprevIndex, eagle);
         this.current((this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE);
+
+        if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+            eagle.printUndoTable();
+        }
     }
 
     nextSnapshot = (eagle: Eagle) : void => {
@@ -113,6 +132,10 @@ export class Undo {
 
         this._loadFromIndex(this.current(), eagle);
         this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
+
+        if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+            eagle.printUndoTable();
+        }
     }
 
     toString = () : string => {

@@ -85,6 +85,7 @@ export class Utils {
     static readonly ENABLE_EXPERT_MODE: string = "EnableExpertMode";
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
+    static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
 
     static ojsGraphSchema : object = {};
     static v3GraphSchema : object = {};

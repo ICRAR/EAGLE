@@ -171,12 +171,13 @@ export class Eagle {
                 ]
             ),
             new SettingsGroup(
-                "Workarounds",
+                "Developer",
                 (eagle) => {return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE);},
                 [
                     new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
                     new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
                     new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Utils.SKIP_CLOSE_LOOP_EDGES, true),
+                    new Setting("Print Undo state to JS Console", "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", Setting.Type.Boolean, Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE, false)
                 ]
             )
         ];
@@ -2716,13 +2717,13 @@ export class Eagle {
 
     resetSettingsDefaults = () : void => {
         // if a reset would turn off the expert mode setting,
-        // AND we are currently on the 'advanced editing' or 'workarounds' tabs of the setting modal,
+        // AND we are currently on the 'advanced editing' or 'developer' tabs of the setting modal,
         // then those tabs will disappear and we'll be left looking at nothing, so switch to the 'User Options' tab
         const expertModeSetting: Setting = Eagle.findSetting(Utils.ENABLE_EXPERT_MODE);
         const turningOffExpertMode = expertModeSetting.value() && !expertModeSetting.getOldValue();
         const currentSettingsTab: string = $('.settingsModalButton.settingCategoryBtnActive').attr('id');
 
-        if (turningOffExpertMode && (currentSettingsTab === "settingCategoryAdvancedEditing" || currentSettingsTab === "settingCategoryWorkarounds")){
+        if (turningOffExpertMode && (currentSettingsTab === "settingCategoryAdvancedEditing" || currentSettingsTab === "settingCategoryDeveloper")){
             // switch back to "User Options" tab
             $('#settingCategoryUserOptions').click();
         }
@@ -3782,6 +3783,33 @@ export class Eagle {
         }
 
         return Edge.isValid(this.logicalGraph(), selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.isLoopAware(), false, true, null, null);
+    }
+
+    printUndoTable = () : void => {
+        const tableData : any[] = [];
+        const realCurrent: number = (this.undo().current() - 1 + Config.UNDO_MEMORY_SIZE) % Config.UNDO_MEMORY_SIZE;
+
+        for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){
+            const snapshot = this.undo().memory()[i];
+
+            if (snapshot === null){
+                continue;
+            }
+
+            tableData.push({
+                "current": realCurrent === i ? "->" : "",
+                "description": snapshot.description(),
+                "buffer position": i,
+            });
+        }
+
+        // cycle the table rows (move top row to bottom) X times so that we have "front" at the top of the table
+        const numCycles = tableData.length - this.undo().front();
+        for (let i = 0 ; i < numCycles ; i++){
+            tableData.push(tableData.shift());
+        }
+
+        console.table(tableData);
     }
 
     printLogicalGraphNodesTable = () : void => {
