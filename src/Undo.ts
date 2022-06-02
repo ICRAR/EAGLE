@@ -89,6 +89,9 @@ export class Undo {
         if (this.rear() === this.front()){
             this.rear((this.rear() + 1) % Config.UNDO_MEMORY_SIZE);
         }
+
+        // debug
+        eagle.printUndoTable();
     }
 
     prevSnapshot = (eagle: Eagle) : void => {
@@ -102,6 +105,9 @@ export class Undo {
 
         this._loadFromIndex(prevprevIndex, eagle);
         this.current((this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE);
+
+        // debug
+        eagle.printUndoTable();
     }
 
     nextSnapshot = (eagle: Eagle) : void => {
@@ -113,6 +119,9 @@ export class Undo {
 
         this._loadFromIndex(this.current(), eagle);
         this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
+
+        // debug
+        eagle.printUndoTable();
     }
 
     toString = () : string => {

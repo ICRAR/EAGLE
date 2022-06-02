@@ -3784,6 +3784,34 @@ export class Eagle {
         return Edge.isValid(this.logicalGraph(), selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.isLoopAware(), false, true, null, null);
     }
 
+    printUndoTable = () : void => {
+        const tableData : any[] = [];
+        const realCurrent: number = (this.undo().current() - 1 + Config.UNDO_MEMORY_SIZE) % Config.UNDO_MEMORY_SIZE;
+
+        for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){
+            const snapshot = this.undo().memory()[i];
+
+            if (snapshot === null){
+                continue;
+            }
+
+            //console.log("index", index, "realIndex", realIndex, "snapshot", snapshot);
+            tableData.push({
+                "current": realCurrent === i ? "->" : "",
+                "description": snapshot.description(),
+                "buffer position": i,
+            });
+        }
+
+        // cycle the array to have current at the top
+        const numCycles = tableData.length - this.undo().front();
+        for (let i = 0 ; i < numCycles ; i++){
+            tableData.push(tableData.shift());
+        }
+
+        console.table(tableData);
+    }
+
     printLogicalGraphNodesTable = () : void => {
         const tableData : any[] = [];
 
