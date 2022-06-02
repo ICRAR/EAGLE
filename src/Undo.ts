@@ -90,6 +90,17 @@ export class Undo {
             this.rear((this.rear() + 1) % Config.UNDO_MEMORY_SIZE);
         }
 
+        // delete items from current to rear
+        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
+            const index = (this.current() + i) % Config.UNDO_MEMORY_SIZE;
+
+            if (((index + 1) % Config.UNDO_MEMORY_SIZE) === this.rear()){
+                break;
+            }
+
+            this.memory()[index] = null;
+        }
+
         // debug
         eagle.printUndoTable();
     }

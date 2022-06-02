@@ -61,5 +61,5 @@ export class Config {
     // schemas
     static readonly DALIUGE_GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg-lg.graph.schema";
 
-    static readonly UNDO_MEMORY_SIZE : number = 4;
+    static readonly UNDO_MEMORY_SIZE : number = 10;
 }

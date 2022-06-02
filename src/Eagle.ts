@@ -3795,7 +3795,6 @@ export class Eagle {
                 continue;
             }
 
-            //console.log("index", index, "realIndex", realIndex, "snapshot", snapshot);
             tableData.push({
                 "current": realCurrent === i ? "->" : "",
                 "description": snapshot.description(),
@@ -3803,7 +3802,7 @@ export class Eagle {
             });
         }
 
-        // cycle the array to have current at the top
+        // cycle the table rows (move top row to bottom) X times so that we have "front" at the top of the table
         const numCycles = tableData.length - this.undo().front();
         for (let i = 0 ; i < numCycles ; i++){
             tableData.push(tableData.shift());
