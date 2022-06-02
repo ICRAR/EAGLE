@@ -101,8 +101,9 @@ export class Undo {
             this.memory()[index] = null;
         }
 
-        // debug
-        eagle.printUndoTable();
+        if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+            eagle.printUndoTable();
+        }
     }
 
     prevSnapshot = (eagle: Eagle) : void => {
@@ -117,8 +118,9 @@ export class Undo {
         this._loadFromIndex(prevprevIndex, eagle);
         this.current((this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE);
 
-        // debug
-        eagle.printUndoTable();
+        if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+            eagle.printUndoTable();
+        }
     }
 
     nextSnapshot = (eagle: Eagle) : void => {
@@ -131,8 +133,9 @@ export class Undo {
         this._loadFromIndex(this.current(), eagle);
         this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
 
-        // debug
-        eagle.printUndoTable();
+        if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+            eagle.printUndoTable();
+        }
     }
 
     toString = () : string => {
