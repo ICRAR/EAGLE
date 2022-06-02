@@ -1330,6 +1330,10 @@ export class Utils {
         return Eagle.DALiuGESchemaVersion.Unknown;
     }
 
+    static portsMatch(port0: Field, port1: Field){
+        return port0.getType() === port1.getType();
+    }
+
     static checkPalette(palette: Palette): string[] {
         const results: string[] = [];
 

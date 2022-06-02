@@ -352,8 +352,8 @@ export class Edge {
         }
 
         // abort if source port and destination port have different data types
-        if (sourcePort.getIdText() !== destinationPort.getIdText()){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "Port names don't match: sourcePortName:" + sourcePort.getIdText() + " destinationPortName:" + destinationPort.getIdText(), "danger", showNotification, showConsole, errors, warnings);
+        if (!Utils.portsMatch(sourcePort, destinationPort)){
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "Ports don't match: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")", "danger", showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
