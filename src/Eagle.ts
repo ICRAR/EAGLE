@@ -2500,6 +2500,10 @@ export class Eagle {
     }
 
     currentParamsArray : ko.PureComputed<Field[]> = ko.pureComputed(() => {
+        if (this.selectedNode() === null){
+            return [];
+        }
+
         if (Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
             return this.selectedNode().getFields()
         }else{
