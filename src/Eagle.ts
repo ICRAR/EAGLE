@@ -2922,13 +2922,13 @@ export class Eagle {
 
         // skip confirmation if setting dictates
         if (!Eagle.findSetting(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
-            this._deleteSelection();
+            this._deleteSelection(deleteChildren);
             return;
         }
 
         // determine number of nodes and edges in current selection
-        let numNodes = 0;
-        let numEdges = 0;
+        let numNodes: number = 0;
+        let numEdges: number = 0;
         for (const object of this.selectedObjects()){
             if (object instanceof Node){
                 numNodes += 1;
@@ -2939,20 +2939,34 @@ export class Eagle {
             }
         }
 
+        // build the confirmation message based on the current situation
+        let confirmMessage: string = "Are you sure you wish to delete " + numEdges + " edge(s) and " + numNodes + " node(s)";
+        if (deleteChildren){
+            confirmMessage += " (and their children)?";
+        } else {
+            confirmMessage += "? All children will be preserved.";
+        }
+
         // request confirmation from user
-        Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete " + numEdges + " edge(s) and " + numNodes + " node(s) (and their children)?", "Yes", "No", (confirmed : boolean) : void => {
+        Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", (confirmed : boolean) : void => {
             if (!confirmed){
                 console.log("User aborted deleteSelection()");
                 return;
             }
 
-            this._deleteSelection();
+            this._deleteSelection(deleteChildren);
         });
     }
 
-    private _deleteSelection = () : void => {
+    private _deleteSelection = (deleteChildren: boolean) : void => {
         if (Eagle.selectedLocation() === Eagle.FileType.Graph){
 
+            // if not deleting children, move them to different parents first
+            if (!deleteChildren){
+                this._moveChildrenOfSelection();
+            }
+
+            // delete the selection
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     this.logicalGraph().removeNode(object);
@@ -2990,9 +3004,17 @@ export class Eagle {
         this.selectedObjects([]);
     }
 
-    // used before deleting a
+    // used before deleting a selection, if we wish to preserve the children of the selection
     private _moveChildrenOfSelection = () : void => {
-
+        for (const object of this.selectedObjects()){
+            if (object instanceof Node){
+                for (const node of this.logicalGraph().getNodes()){
+                    if (node.getParentKey() === object.getKey()){
+                        node.setParentKey(object.getParentKey());
+                    }
+                }
+            }
+        }
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
