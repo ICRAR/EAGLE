@@ -802,6 +802,10 @@ select.form-control{
     color: #ffc107;
 }
 
+#errorsModal .modal-content{
+    height: 70vh;
+}
+
 #resetSettingsDefaults{
     left: 10px;
     position: absolute;

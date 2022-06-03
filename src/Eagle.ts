@@ -4401,9 +4401,6 @@ export class Eagle {
 
             // show graph modal
             Utils.showErrorsModal("Check Graph", this.graphErrors(), this.graphWarnings());
-
-            //set fixed height for this use of the shared modal to prevent it collapsing when collapsing a section within
-            $("#errorsModalAccordion").parent().parent().css("height","70vh")
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
