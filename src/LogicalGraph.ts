@@ -440,6 +440,10 @@ export class LogicalGraph {
         return this.edges;
     }
 
+    getNumEdges = () : number => {
+        return this.edges.length;
+    }
+
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Graph;
