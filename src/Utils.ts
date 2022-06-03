@@ -444,6 +444,26 @@ export class Utils {
         }
     }
 
+    static showErrorsModal(title: string, errors: string[], warnings: string[]){
+        console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
+
+        $('#errorsModalTitle').text(title);
+
+        // hide whole errors or warnings sections if none are found
+        $('#errorsModalErrorsAccordionItem').toggle(errors.length > 0);
+        $('#errorsModalWarningsAccordionItem').toggle(warnings.length > 0);
+
+        // set count of errors and warnings
+        $('#errorsModalErrorCount').html('[' + errors.length.toString() + ']');
+        $('#errorsModalWarningCount').html('[' + warnings.length.toString() + ']');
+
+        // add error and warning text to those sections
+        $('#errorsModalErrorsAccordionBody').html(errors.join('<br/>'));
+        $('#errorsModalWarningsAccordionBody').html(warnings.join('<br/>'));
+
+        $('#errorsModal').modal("toggle");
+    }
+
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
         $.notify({
             title:title + ":",
@@ -1427,6 +1447,20 @@ export class Utils {
                 for (const field of node.getFields()){
                     if (appArg.getIdText() === field.getIdText()){
                         warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application argument (" + appArg.getIdText() + ") that shares the same name as a component parameter.");
+                    }
+                }
+            }
+
+            for (const appArg0 of node.getApplicationArgs()){
+                for (const appArg1 of node.getApplicationArgs()){
+                    if (appArg0.getId() === appArg1.getId()){
+                        continue;
+                    }
+
+                    // check for two application arguments with the same idText, not allowed unless
+                    // - one is a input and one is an output
+                    if (appArg0.getIdText() === appArg1.getIdText() && (appArg0.getFieldType() === appArg1.getFieldType() || appArg0.getFieldType() === Eagle.FieldType.ApplicationArgument || appArg1.getFieldType() === Eagle.FieldType.ApplicationArgument)){
+                        errors.push("Node " + node.getKey() + " (" + node.getName() + ") has multiple application arguments with the same idText (" + appArg0.getIdText() + ").");
                     }
                 }
             }
