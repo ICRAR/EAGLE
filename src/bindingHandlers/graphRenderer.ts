@@ -74,7 +74,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const mousePosition = {x:0, y:0};
     const selectionRegionStart = {x:0, y:0};
     const selectionRegionEnd = {x:0, y:0};
-    const headerHeight = 57.78 + 26
+    const headerHeight = 57.78 + 30
 
     const DOUBLE_CLICK_DURATION : number = 200;
 
@@ -82,7 +82,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const PORT_HEIGHT : number = 24;
 
     const NODE_STROKE_WIDTH : number = 3;
-    const HEADER_INSET : number = NODE_STROKE_WIDTH - 1;
+    const HEADER_INSET : number = NODE_STROKE_WIDTH - 4;
 
     const PORT_OFFSET_X : number = 2;
     const PORT_ICON_HEIGHT : number = 8;
@@ -94,7 +94,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const RESIZE_BUTTON_LABEL : string = "\u25F2";
     const SHRINK_BUTTON_LABEL : string = "\u21B9";
 
-    const HEADER_TEXT_FONT_SIZE : number = 16;
+    const HEADER_TEXT_FONT_SIZE : number = 14;
     const CONTENT_TEXT_FONT_SIZE : number = 14;
     const PORT_LABEL_FONT_SIZE : number = 14;
     const RESIZE_BUTTON_LABEL_FONT_SIZE : number = 24;
@@ -3508,17 +3508,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function wrap(text: any, padding: boolean) {
         text.each(function() {
             const text = d3.select(this),
-                words = text.text().split(/\s+/).reverse(),
+                words = text.text().split(/[_ ]+/).reverse(),
                 lineHeight = 1.1, // ems
                 x = parseInt(text.attr("x"), 10),
                 y = parseInt(text.attr("y"), 10),
                 //dy = parseFloat(text.attr("dy")),
                 dy = 0.0;
-
             let word;
             let wordWrapWidth = parseInt(text.attr("eagle-wrap-width"), 10);
             let line : string[] = [];
             let tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+            $(this).attr('transform','translate(0,-3)');
             let lineNumber = 0;
 
             if (padding){
@@ -3533,6 +3533,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     tspan.text(line.join(" "));
                     line = [word];
                     tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    $(this).attr('transform','translate(0,-15)')
                 }
             }
         });

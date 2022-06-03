@@ -42,7 +42,7 @@
 
     <!-- ko ifnot: $root.selectedNode().isLocked() -->
     <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.selectedNode().removeParamByIndex($data.fieldType(), $index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, attr: {id: 'nodeInspectorRemoveField' + $index()}, eagleTooltip:'Remove parameter'" data-bs-placement="left">
+        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.selectedNode(), $data.fieldType(), $index());}, attr: {id: 'nodeInspectorRemoveField' + $index()}, eagleTooltip:'Remove parameter'" data-bs-placement="left">
             <i class="material-icons md-18">delete</i>
         </button>
     </div>
