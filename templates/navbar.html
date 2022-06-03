@@ -89,12 +89,8 @@
                     <div class="dropdown-divider"></div>
                     <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
-                            <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Graph)}">Save Graph
-                                <span data-bind="text: Utils.getKeyboardShortcutTextByKey('save_graph', true)"></span>
-                            </a>
-                            <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Graph)}">Save Graph As
-                                <span data-bind="text: Utils.getKeyboardShortcutTextByKey('save_as_graph', true)"></span>
-                            </a>
+                            <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Graph)}">Save Graph</a>
+                            <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Graph)}">Save Graph As</a>
                         </div>
                     </span>
                     <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
@@ -106,8 +102,6 @@
                                 <span data-bind="text: Utils.getKeyboardShortcutTextByKey('insert_graph_from_local_disk', true)"></span>
                             </a>
                             <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save Graph</a>
-                            <a class="dropdown-item" id="exportV3Json" href="#" data-bind="click: exportV3Json">Export V3 JSON</a>
-                            <a class="dropdown-item" id="exportAppRefJson" href="#" data-bind="click: exportAppRefJson">Export AppRef JSON</a>
                         </div>
                     </span>
                 </div>

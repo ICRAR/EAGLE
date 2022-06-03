@@ -1508,7 +1508,12 @@ export class Eagle {
         console.log("fileInfo().repositoryName", fileInfo().repositoryName);
 
         // if there is no git repository or filename defined for this file. Please use 'save as' instead!
-        if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown || fileInfo().repositoryName === null) {
+        if (
+            fileInfo().repositoryService === Eagle.RepositoryService.Unknown ||
+            fileInfo().repositoryService === Eagle.RepositoryService.File ||
+            fileInfo().repositoryService === Eagle.RepositoryService.Url ||
+            fileInfo().repositoryName === null
+        ) {
             this.commitToGitAs(fileType);
             return;
         }
@@ -1618,59 +1623,6 @@ export class Eagle {
 
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, jsonData);
     }
-
-    /**
-     * Export file to V3 Json
-     */
-     /*
-    exportV3Json = () : void => {
-        Utils.showUserMessage("Unsupported feature", "Saving files using the V3 schema is not supported.");
-
-        const fileInfo : ko.Observable<FileInfo> = this.logicalGraph().fileInfo;
-        const fileName : string = fileInfo().name;
-
-        // set the EAGLE version etc according to this running version
-        fileInfo().updateEagleInfo();
-
-        const json = LogicalGraph.toV3Json(this.logicalGraph());
-
-        // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.V3, Eagle.FileType.Graph);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
-
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
-            Utils.downloadFile(error, data, fileName);
-        });
-    }
-    */
-
-    /**
-     * Export file to AppRef Json
-     * This is an experimental new JSON format that moves embedded application
-     * nodes out of constructs to the end of the node array, and then refers to
-     * them by ID and key within the node
-     */
-     /*
-    exportAppRefJson = () : void => {
-        const fileName : string = this.logicalGraph().fileInfo().name;
-
-        // set the EAGLE version etc according to this running version
-        this.logicalGraph().fileInfo().updateEagleInfo();
-
-        const json = LogicalGraph.toAppRefJson(this.logicalGraph());
-
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
-            Utils.downloadFile(error, data, fileName);
-        });
-    }
-    */
 
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
