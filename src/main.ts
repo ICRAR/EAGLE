@@ -53,6 +53,7 @@ $(function(){
     (<any>window).Utils = Utils;
     (<any>window).Config = Config;
 
+    ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
 
