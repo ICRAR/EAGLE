@@ -193,7 +193,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("insert_graph_from_local_disk", "Insert graph from local disk", ["i"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToInsert();}));
         Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraph();}));
         Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save Graph As", ["s"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraphAs()}));
-        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection", "Delete Selection", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection", "Delete Selection", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false, true);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection_except_children", "Delete Without Children", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false, false);}));
         Eagle.shortcuts.push(new KeyboardShortcut("duplicate_selection", "Duplicate Selection", ["d"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_subgraph_from_selection", "Create subgraph from selection", ["["], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
@@ -2884,7 +2885,7 @@ export class Eagle {
         this.addNodesToPalette(nodes);
     }
 
-    deleteSelection = (suppressUserConfirmationRequest: boolean) : void => {
+    deleteSelection = (suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
         // if no objects selected, warn user
         if (this.selectedObjects().length === 0){
             console.warn("Unable to delete selection: Nothing selected");
@@ -2894,13 +2895,13 @@ export class Eagle {
 
         // skip confirmation if setting dictates
         if (!Eagle.findSetting(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
-            this._deleteSelection();
+            this._deleteSelection(deleteChildren);
             return;
         }
 
         // determine number of nodes and edges in current selection
-        let numNodes = 0;
-        let numEdges = 0;
+        let numNodes: number = 0;
+        let numEdges: number = 0;
         for (const object of this.selectedObjects()){
             if (object instanceof Node){
                 numNodes += 1;
@@ -2911,20 +2912,34 @@ export class Eagle {
             }
         }
 
+        // build the confirmation message based on the current situation
+        let confirmMessage: string = "Are you sure you wish to delete " + numEdges + " edge(s) and " + numNodes + " node(s)";
+        if (deleteChildren){
+            confirmMessage += " (and their children)?";
+        } else {
+            confirmMessage += "? All children will be preserved.";
+        }
+
         // request confirmation from user
-        Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete " + numEdges + " edge(s) and " + numNodes + " node(s) (and their children)?", "Yes", "No", (confirmed : boolean) : void => {
+        Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", (confirmed : boolean) : void => {
             if (!confirmed){
                 console.log("User aborted deleteSelection()");
                 return;
             }
 
-            this._deleteSelection();
+            this._deleteSelection(deleteChildren);
         });
     }
 
-    private _deleteSelection = () : void => {
+    private _deleteSelection = (deleteChildren: boolean) : void => {
         if (Eagle.selectedLocation() === Eagle.FileType.Graph){
 
+            // if not deleting children, move them to different parents first
+            if (!deleteChildren){
+                this._moveChildrenOfSelection();
+            }
+
+            // delete the selection
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     this.logicalGraph().removeNode(object);
@@ -2960,6 +2975,19 @@ export class Eagle {
 
         // empty the selected objects, should have all been deleted
         this.selectedObjects([]);
+    }
+
+    // used before deleting a selection, if we wish to preserve the children of the selection
+    private _moveChildrenOfSelection = () : void => {
+        for (const object of this.selectedObjects()){
+            if (object instanceof Node){
+                for (const node of this.logicalGraph().getNodes()){
+                    if (node.getParentKey() === object.getKey()){
+                        node.setParentKey(object.getParentKey());
+                    }
+                }
+            }
+        }
     }
 
     addNodeToLogicalGraph = (node : Node) : void => {
