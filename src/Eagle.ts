@@ -2912,12 +2912,51 @@ export class Eagle {
             }
         }
 
+        // determine number of child nodes that would be deleted
+        const childNodes: Node[] = [];
+        const childEdges: Edge[] = [];
+
+        // find child nodes
+        for (const object of this.selectedObjects()){
+            if (object instanceof Node){
+                childNodes.push(...this._findChildren(object));
+            }
+        }
+
+        // find child edges
+        for (const edge of this.logicalGraph().getEdges()){
+            for (const node of childNodes){
+                if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+                    // check if edge as already in the list
+                    let found = false;
+                    for (const e of childEdges){
+                        if (e.getId() === edge.getId()){
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // push edge into childEdges (if not already in there)
+                    if (!found){
+                        childEdges.push(edge);
+                    }
+                }
+            }
+        }
+
         // build the confirmation message based on the current situation
         let confirmMessage: string = "Are you sure you wish to delete " + numEdges + " edge(s) and " + numNodes + " node(s)";
-        if (deleteChildren){
-            confirmMessage += " (and their children)?";
+
+        // if no children exist, don't bother asking the user about them
+        if (childNodes.length === 0 && childEdges.length === 0){
+            confirmMessage += "?";
         } else {
-            confirmMessage += "? All children will be preserved.";
+            // if children will be deleted, let user know how many
+            if (deleteChildren){
+                confirmMessage += " (and their " + childNodes.length + " child node and " + childEdges.length + " child edges)?";
+            } else {
+                confirmMessage += "? All children will be preserved.";
+            }
         }
 
         // request confirmation from user
@@ -2929,6 +2968,19 @@ export class Eagle {
 
             this._deleteSelection(deleteChildren);
         });
+    }
+
+    private _findChildren = (parent : Node) : Node[] => {
+        let children: Node[] = [];
+
+        for(const node of this.logicalGraph().getNodes()){
+            if (node.getParentKey() === parent.getKey()){
+                children.push(node);
+                children.push(...this._findChildren(node));
+            }
+        }
+
+        return children;
     }
 
     private _deleteSelection = (deleteChildren: boolean) : void => {
