@@ -293,16 +293,20 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static translateStringToDataType(dataType: string): Eagle.DataType {
+    static dataTypePrefix(dataType: string): string {
+        return dataType.split(".")[0];
+    }
 
-        for (let dt of Object.values(Eagle.DataType)){
+    static translateStringToDataType(dataType: string): string {
+
+        for (let dt of Eagle.DataTypes){
             if (dt.toLowerCase() === dataType.toLowerCase()){
                 return dt;
             }
         }
 
         console.warn("Unknown DataType", dataType);
-        return Eagle.DataType.Unknown;
+        return Eagle.DataType_Unknown;
     }
 
     static translateStringToFieldType(fieldType: string): Eagle.FieldType {
@@ -700,8 +704,8 @@ export class Utils {
         $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
         $('#editFieldModalIdTextInput').val(field.getIdText());
         $('#editFieldModalValueInputText').val(field.getValue());
-        $('#editFieldModalValueInputCheckbox').prop('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
-        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalValueInputSelect').empty();
         for (let option of field.getOptions()){
             $('#editFieldModalValueInputSelect').append($('<option>', {
@@ -712,7 +716,7 @@ export class Utils {
         }
 
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
-        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.string2Type(field.getDefaultValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Eagle.DataType_Boolean));
         $('#editFieldModalDefaultValueInputSelect').empty();
         for (let option of field.getOptions()){
             $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
@@ -729,24 +733,27 @@ export class Utils {
         $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
-        if(field.getType() === Eagle.DataType.Boolean){
+        if(field.getType() === Eagle.DataType_Boolean){
             $("#editFieldModalDefaultValue").hide()
         }else{
             $("#editFieldModalDefaultValue").show()
         }
 
         // show the correct entry field based on the field type
-        $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
-        $('#editFieldModalValueInputCheckbox').parent().toggle(field.getType() === Eagle.DataType.Boolean);
-        $('#editFieldModalValueInputSelect').toggle(field.getType() === Eagle.DataType.Select);
+        $('#editFieldModalValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
+        $('#editFieldModalValueInputCheckbox').parent().toggle(field.isType(Eagle.DataType_Boolean));
+        $('#editFieldModalValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
 
-        $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
-        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
-        $('#editFieldModalDefaultValueInputSelect').toggle(field.getType() === Eagle.DataType.Select);
+        $('#editFieldModalDefaultValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
+        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.isType(Eagle.DataType_Boolean));
+        $('#editFieldModalDefaultValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
+
+        // TODO: this looks like Eagle.ts::fillParametersTable(), can we make them common
+        const allTypes = Utils.findAllKnownTypes(eagle.palettes(), eagle.logicalGraph());
 
         // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();
-        for (let dataType of Object.values(Eagle.DataType)){
+        for (let dataType of allTypes){
             $('#editFieldModalTypeSelect').append($('<option>', {
                 value: dataType,
                 text: dataType,
@@ -1033,6 +1040,11 @@ export class Utils {
         }
 
         $('#editEdgeModalDataTypeInput').val(edge.getDataType());
+    }
+
+    // TODO: incomplete!
+    static findAllKnownTypes = (palettes : Palette[], graph: LogicalGraph): string[] => {
+        return [];
     }
 
     /**
@@ -1380,36 +1392,36 @@ export class Utils {
         // check that all port dataTypes have been defined
         for (const node of graph.getNodes()){
             for (const port of node.getInputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
+                if (port.isType(Eagle.DataType_Unknown)){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
             for (const port of node.getOutputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
+                if (port.isType(Eagle.DataType_Unknown)){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationInputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
+                if (port.isType(Eagle.DataType_Unknown)){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getInputApplicationOutputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
+                if (port.isType(Eagle.DataType_Unknown)){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationInputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
+                if (port.isType(Eagle.DataType_Unknown)){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
 
             for (const port of node.getOutputApplicationOutputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
+                if (port.isType(Eagle.DataType_Unknown)){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
                 }
             }
@@ -1418,7 +1430,7 @@ export class Utils {
         // check that all fields have default values
         for (const node of graph.getNodes()){
             for (const field of node.getFields()){
-                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
+                if (field.getDefaultValue() === "" && !field.isType(Eagle.DataType_String)){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") whose default value is not specified");
                 }
             }
@@ -1427,7 +1439,7 @@ export class Utils {
         // check that all application params have default values
         for (const node of graph.getNodes()){
             for (const field of node.getApplicationArgs()){
-                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
+                if (field.getDefaultValue() === "" && !field.isType(Eagle.DataType_String)){
                     warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getIdText() + ") whose default value is not specified");
                 }
             }
@@ -1606,11 +1618,11 @@ export class Utils {
         return true;
     }
 
-    static validateField(type: Eagle.DataType, value: string){
+    static validateField(type: string, value: string){
         let valid: boolean = true;
 
         // make sure JSON fields are parse-able
-        if (type === Eagle.DataType.Json){
+        if (type === Eagle.DataType_Json){
             try {
                 JSON.parse(value);
             } catch(e) {

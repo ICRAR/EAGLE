@@ -963,7 +963,7 @@ export class Node {
 
     setGroupStart = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_start")){
-            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType.Boolean, false, [], false));
+            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false));
         } else {
             this.getFieldByIdText("group_start").setValue(value.toString());
         }
@@ -971,7 +971,7 @@ export class Node {
 
     setGroupEnd = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_end")){
-            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType.Boolean, false, [], false));
+            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false));
         } else {
             this.getFieldByIdText("group_end").setValue(value.toString());
         }
@@ -1196,14 +1196,14 @@ export class Node {
 
         // if no fields exist, create at least one, to store the custom data
         if (this.fields().length === 0){
-            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType.Unknown, false, [], false));
+            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Unknown, false, [], false));
         }
 
         this.fields()[0].setValue(e.value);
     }
 
     addEmptyField = (index:number) :void => {
-        var newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false)
+        var newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType_String, false, [], false)
         if(index === -1){
             this.addField(newField);
         }else{
@@ -1213,9 +1213,9 @@ export class Node {
 
     addEmptyArg = (index:number) :void => {
         if(index === -1){
-            this.addApplicationArg(new Field(Utils.uuidv4(), "New Argument", "", "", "", "", false, Eagle.DataType.String, false, [], false));
+            this.addApplicationArg(new Field(Utils.uuidv4(), "New Argument", "", "", "", "", false, Eagle.DataType_String, false, [], false));
         }else{
-            this.addApplicationArgAtPosition(new Field(Utils.uuidv4(), "New Argument", "", "", "", "", false, Eagle.DataType.String, false, [], false),index);
+            this.addApplicationArgAtPosition(new Field(Utils.uuidv4(), "New Argument", "", "", "", "", false, Eagle.DataType_String, false, [], false),index);
         }
     }
 

@@ -2547,10 +2547,13 @@ export class Eagle {
     // TODO: maybe move to Field.ts
     // TODO: add comments
     // TODO: a "get" function probably should not alter state
-    getFieldType = (type:Eagle.DataType, id:string, value:string) : string => {
-        if (type === Eagle.DataType.Float || type === Eagle.DataType.Integer){
+    getFieldType = (type:string, id:string, value:string) : string => {
+        console.log("getFieldType()", type, id, value);
+        const typePrefix = Utils.dataTypePrefix(type);
+
+        if (typePrefix === Eagle.DataType_Float || typePrefix === Eagle.DataType_Integer){
             return "number"
-        }else if(type === Eagle.DataType.Boolean){
+        }else if(type === Eagle.DataType_Boolean){
             $("#"+id).addClass("form-check-input")
             if (Utils.asBool(value)){
                 $("#"+id).addClass("inputChecked")
@@ -2560,9 +2563,9 @@ export class Eagle {
                 $("#"+id).html("Check")
             }
             return "checkbox"
-        }else if(type === Eagle.DataType.Select){
+        }else if(type === Eagle.DataType_Select){
             return "select";
-        }else if(type === Eagle.DataType.Password){
+        }else if(type === Eagle.DataType_Password){
             return "password";
         }else{
             return "text"
@@ -2574,10 +2577,14 @@ export class Eagle {
         Eagle.parameterTableSelection(null);
     }
 
-    fillParametersTable = (type:Eagle.DataType):string => {
-        var options:string = "";
+    // TODO: fill the datatype select element with all the types known within the current graph and palettes
+    fillParametersTable = (type:string):string => {
+        let options:string = "";
 
-        for (let dataType of Object.values(Eagle.DataType)){
+        // TODO: determine the list of all types in this graph and palettes
+        const allTypes: string[] = [];
+
+        for (let dataType of allTypes){
             var selected=""
             if(type === dataType){
                 selected = "selected=true"
@@ -4074,7 +4081,7 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType.Integer, false, [], false);
+            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -4837,18 +4844,28 @@ export namespace Eagle
         Valid = "Valid"
     }
 
-    export enum DataType {
-        Unknown = "Unknown",
-        String = "String",
-        Integer = "Integer",
-        Float = "Float",
-        Complex = "Complex",
-        Boolean = "Boolean",
-        Select = "Select",
-        Password = "Password",
-        Json = "Json",
-        Python = "Python",
-    }
+    export const DataType_Unknown = "Unknown";
+    export const DataType_String = "String";
+    export const DataType_Integer = "Integer";
+    export const DataType_Float = "Float";
+    export const DataType_Complex = "Complex";
+    export const DataType_Boolean = "Boolean";
+    export const DataType_Select = "Select";
+    export const DataType_Password = "Password";
+    export const DataType_Json = "Json";
+    export const DataType_Python = "Python";
+    export const DataTypes : string[] = [
+        DataType_Unknown,
+        DataType_String,
+        DataType_Integer,
+        DataType_Float,
+        DataType_Complex,
+        DataType_Boolean,
+        DataType_Select,
+        DataType_Password,
+        DataType_Json,
+        DataType_Python,
+    ];
 
     export enum ModalType {
         Add = "Add",

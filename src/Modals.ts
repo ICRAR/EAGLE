@@ -245,9 +245,9 @@ export class Modals {
             const fieldType: string = <string>$('#editFieldModalFieldTypeSelect').val();
 
             // translate type
-            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+            const realType: string = Utils.translateStringToDataType(type);
 
-            if (realType === Eagle.DataType.Boolean){
+            if (realType === Eagle.DataType_Boolean){
                 $('#editFieldModalValueInputCheckbox').prop('checked', defaultValueCheckbox);
             } else {
                 $('#editFieldModalValueInputText').val(defaultValueText);
@@ -308,15 +308,15 @@ export class Modals {
             const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
 
             // translate type
-            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+            const realType: string = Utils.translateStringToDataType(type);
             const realFieldType: Eagle.FieldType = Utils.translateStringToFieldType(fieldType);
             let newField;
 
             switch(realType){
-                case Eagle.DataType.Boolean:
+                case Eagle.DataType_Boolean:
                     newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
                     break;
-                case Eagle.DataType.Select:
+                case Eagle.DataType_Select:
                     newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
                     break;
                 default:
@@ -331,7 +331,7 @@ export class Modals {
         $('#editFieldModal').on('show.bs.modal', function(){
             const value = $('#editFieldModalTypeSelect').val();
 
-            if(value === Eagle.DataType.Float || value === Eagle.DataType.Integer){
+            if(value === Eagle.DataType_Float || value === Eagle.DataType_Integer){
                 $('#editFieldModalDefaultValueInputText').attr("type", "number")
                 $('#editFieldModalValueInputText').attr("type", "number")
             }else{
@@ -343,21 +343,21 @@ export class Modals {
             // show the correct entry field based on the field type
             const value = $('#editFieldModalTypeSelect').val();
 
-            if(value === Eagle.DataType.Boolean){
+            if(value === Eagle.DataType_Boolean){
                 $("#editFieldModalDefaultValue").hide()
             }else{
                 $("#editFieldModalDefaultValue").show()
             }
 
-            $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean && value !== Eagle.DataType.Select);
-            $('#editFieldModalValueInputCheckbox').parent().toggle(value === Eagle.DataType.Boolean);
-            $('#editFieldModalValueInputSelect').toggle(value === Eagle.DataType.Select);
+            $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType_Boolean && value !== Eagle.DataType_Select);
+            $('#editFieldModalValueInputCheckbox').parent().toggle(value === Eagle.DataType_Boolean);
+            $('#editFieldModalValueInputSelect').toggle(value === Eagle.DataType_Select);
 
-            $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType.Boolean && value !== Eagle.DataType.Select);
-            $('#editFieldModalDefaultValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
-            $('#editFieldModalDefaultValueInputSelect').toggle(value === Eagle.DataType.Select);
+            $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType_Boolean && value !== Eagle.DataType_Select);
+            $('#editFieldModalDefaultValueInputCheckbox').toggle(value === Eagle.DataType_Boolean);
+            $('#editFieldModalDefaultValueInputSelect').toggle(value === Eagle.DataType_Select);
 
-            if(value === Eagle.DataType.Float || value === Eagle.DataType.Integer){
+            if(value === Eagle.DataType_Float || value === Eagle.DataType_Integer){
                 $('#editFieldModalDefaultValueInputText').attr("type", "number")
                 $('#editFieldModalValueInputText').attr("type", "number")
             }else{
@@ -479,10 +479,10 @@ export class Modals {
     static _validateFieldModalValueInputText(){
         const type: string = <string>$('#editFieldModalTypeSelect').val();
         const value: string = <string>$('#editFieldModalValueInputText').val();
-        const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+        const realType: string = Utils.translateStringToDataType(type);
 
         // only validate Json fields
-        if (realType !== Eagle.DataType.Json){
+        if (realType !== Eagle.DataType_Json){
             $('#editFieldModalValueInputText').removeClass('is-valid');
             $('#editFieldModalValueInputText').removeClass('is-invalid');
             return;
