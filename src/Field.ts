@@ -105,7 +105,6 @@ export class Field {
     }
 
     getType = () : string => {
-        console.log("getType()", this.getId(), this.getDisplayText(), this.type());
         return this.type();
     }
 

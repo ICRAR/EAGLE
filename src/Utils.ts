@@ -1044,7 +1044,33 @@ export class Utils {
 
     // TODO: incomplete!
     static findAllKnownTypes = (palettes : Palette[], graph: LogicalGraph): string[] => {
-        return [];
+        const uniqueTypes : string[] = [];
+
+        // build a list from all palettes
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                for (const field of node.getFields()) {
+                    Utils._addTypeIfUnique(uniqueTypes, field.getType());
+                }
+
+                for (const arg of node.getApplicationArgs()) {
+                    Utils._addTypeIfUnique(uniqueTypes, arg.getType());
+                }
+            }
+        }
+
+        // add all types in LG nodes
+        for (const node of graph.getNodes()){
+            for (const field of node.getFields()) {
+                Utils._addTypeIfUnique(uniqueTypes, field.getType());
+            }
+
+            for (const arg of node.getApplicationArgs()) {
+                Utils._addTypeIfUnique(uniqueTypes, arg.getType());
+            }
+        }
+
+        return uniqueTypes;
     }
 
     /**
@@ -1169,6 +1195,15 @@ export class Utils {
 
         // otherwise add the port
         ports.push(port);
+    }
+
+    private static _addTypeIfUnique = (types: string[], newType: string) : void => {
+        for (const t of types){
+            if (t === newType){
+                return;
+            }
+        }
+        types.push(newType);
     }
 
     /**

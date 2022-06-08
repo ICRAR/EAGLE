@@ -2548,7 +2548,6 @@ export class Eagle {
     // TODO: add comments
     // TODO: a "get" function probably should not alter state
     getFieldType = (type:string, id:string, value:string) : string => {
-        console.log("getFieldType()", type, id, value);
         const typePrefix = Utils.dataTypePrefix(type);
 
         if (typePrefix === Eagle.DataType_Float || typePrefix === Eagle.DataType_Integer){
@@ -2582,7 +2581,7 @@ export class Eagle {
         let options:string = "";
 
         // TODO: determine the list of all types in this graph and palettes
-        const allTypes: string[] = [];
+        const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
 
         for (let dataType of allTypes){
             var selected=""
