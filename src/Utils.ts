@@ -1042,7 +1042,6 @@ export class Utils {
         $('#editEdgeModalDataTypeInput').val(edge.getDataType());
     }
 
-    // TODO: incomplete!
     static findAllKnownTypes = (palettes : Palette[], graph: LogicalGraph): string[] => {
         const uniqueTypes : string[] = [];
 
