@@ -754,21 +754,28 @@ export class Utils {
         // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();
         for (let dataType of allTypes){
-            $('#editFieldModalTypeSelect').append($('<option>', {
-                value: dataType,
-                text: dataType,
-                selected: field.getType() === dataType
-            }));
+            $('#editFieldModalTypeSelect').append(
+                /*
+                $('<option>', {
+                    value: dataType,
+                    text: dataType,
+                    selected: field.getType() === dataType
+                })
+                */
+                $('<li><a class="dropdown-item" href="#">' + dataType + '</a></li>')
+            );
         }
 
         // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
         $('#editFieldModalFieldTypeSelect').empty();
         for (let fieldType of [Eagle.FieldType.ComponentParameter, Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
-            $('#editFieldModalFieldTypeSelect').append($('<option>', {
-                value: fieldType,
-                text: fieldType,
-                selected: field.getFieldType() === fieldType
-            }));
+            $('#editFieldModalFieldTypeSelect').append(
+                $('<option>', {
+                    value: fieldType,
+                    text: fieldType,
+                    selected: field.getFieldType() === fieldType
+                })
+            );
         }
         // hide the fieldType select if the fieldType is ComponentParameter, since that can't be changed
         if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
