@@ -3335,7 +3335,7 @@ export class Eagle {
         
             if(Eagle.parameterTableSelectionParentIndex() != -1){
                 // A cell in the table is selected well insert new row instead of adding at the end
-                    fieldIndex = Eagle.parameterTableSelectionParentIndex()
+                    fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
                     if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
                         //component table
                         this.selectedNode().addEmptyField(fieldIndex)
