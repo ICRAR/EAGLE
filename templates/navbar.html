@@ -52,11 +52,11 @@
                     <i class="material-icons md-18">content_copy</i>
                 </button>
             </div>
-            <ul class="nav navbar-nav ms-4">
-                <button id="checkGraph" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'" data-intro="Check the graph for common issues and missing information.">
+            <ul class="nav navbar-nav ms-4" data-intro="Check the graph for common issues and missing information.">
+                <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'">
                     <i class="material-icons md-18">done_all</i>
                 </button>
-                <button id="checkGraph" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: graphWarnings().length > 0 || graphErrors().length > 0, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)" data-intro="Check the graph for common issues and missing information.">
+                <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: graphWarnings().length > 0 || graphErrors().length > 0, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
                     <span class="badge bg-warning" data-bind="text: graphWarnings().length, visible: graphWarnings().length > 0"></span>
                     <span class="badge bg-danger" data-bind="text: graphErrors().length, visible: graphErrors().length > 0"></span>
                 </button>
@@ -64,7 +64,7 @@
         </ul>
 
         <ul class="nav navbar-nav ms-auto">
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown" data-intro='Create new graphs'>
                 <a class="nav-link dropdown-toggle ms-auto" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Graph
                 </a>
@@ -107,7 +107,7 @@
                     </span>
                 </div>
             </li>
-            <li class="nav-item dropdown" data-intro='Create new palettes and logical graphs.'>
+            <li class="nav-item dropdown" data-intro='Create new palettes'>
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPalette" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Palette
                 </a>
@@ -162,7 +162,7 @@
                     </a>
                 </div>
             </li>
-            <a class="nav-link" data-bs-placement="bottom" id="settings" href="#" data-bind="click: openSettings, eagleTooltip: 'Settings'"><img src="/static/assets/img/settings_white_24dp.svg" alt=""></a>
+            <a class="nav-link" data-bs-placement="bottom" id="settings" href="#" data-bind="click: openSettings, eagleTooltip: 'Settings'" data-intro="Set user options, editing permissions and external services such as a github/lab tokens and the translator url."><img src="/static/assets/img/settings_white_24dp.svg" alt=""></a>
         </ul>
 
     </div>

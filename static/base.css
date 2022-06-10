@@ -1390,6 +1390,10 @@ div.rightWindow h5.card-header {
     color: white !important;
 }
 
+.navbar .introjs-tooltipbuttons a{
+    color: #002349 !important;
+}
+
 .inactiveLink {
     pointer-events: none;
     cursor: default;
@@ -1663,7 +1667,7 @@ nav.navbar .introjs-helperLayer {
 .navbar-nav.navbar-center {
     position: absolute;
     left: 50%;
-    transform: translatex(-50%);
+    transform: translatex(-50%) !important;
 }
 
 .template-title {
