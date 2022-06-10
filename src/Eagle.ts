@@ -3331,38 +3331,44 @@ export class Eagle {
     }
 
     addEmptyTableRow = () : void => {
-        var fieldIndex
-        if(Eagle.parameterTableSelectionParentIndex() != -1){
-        // A cell in the table is selected well insert new row instead of adding at the end
-            fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
-            if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
-                //component table
-                this.selectedNode().addEmptyField(fieldIndex)
-            }else{
-                //argument table
-                this.selectedNode().addEmptyArg(fieldIndex)
-            }
-        }else{
-        //no cell selected, add new row at the end
-            if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
-                //component table
-                this.selectedNode().addEmptyField(-1)
-            }else{
-                //argument table
-                this.selectedNode().addEmptyArg(-1)
-            }
-            //getting the length of the array to use as an index to select the last row in the table
-            fieldIndex = this.currentParamsArray().length -1
-        }
-
-        //handling selecting and highlighting the newly created row
-        let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
-        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
-
-        //scroll to new row
-        $("#parameterTableModal .modal-content").animate({
-            scrollTop: (fieldIndex*30)
-          }, 1000);
+        var fieldIndex:number
+        
+            if(Eagle.parameterTableSelectionParentIndex() != -1){
+                // A cell in the table is selected well insert new row instead of adding at the end
+                    fieldIndex = Eagle.parameterTableSelectionParentIndex()
+                    if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
+                        //component table
+                        this.selectedNode().addEmptyField(fieldIndex)
+                    }else{
+                        //argument table
+                        this.selectedNode().addEmptyArg(fieldIndex)
+                    }
+                }else{
+                //no cell selected, add new row at the end
+                    if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
+                        //component table
+                        this.selectedNode().addEmptyField(-1)
+                    }else{
+                        //argument table
+                        this.selectedNode().addEmptyArg(-1)
+                    }
+                    //getting the length of the array to use as an index to select the last row in the table
+                    fieldIndex = this.currentParamsArray().length-1
+                }
+        
+                //a timeout was necessary to wait for the element to be added before counting how many there are
+                setTimeout(function() {
+                    //handling selecting and highlighting the newly created row
+                    let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+                    
+                    clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
+            
+                    //scroll to new row
+                    $("#parameterTableModal .modal-content").animate({
+                        scrollTop: (fieldIndex*30)
+                      }, 1000);
+                }, 100);
+        
     }
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
@@ -4172,7 +4178,7 @@ export class Eagle {
     };
 
     duplicateParameter = (index:number) :void => {
-        var fieldIndex //variable holds the index of which row to highlight after creation
+        var fieldIndex:number //variable holds the index of which row to highlight after creation
         if(Eagle.parameterTableSelectionParentIndex() != -1){
         //if a cell in the table is selected in this case the new node will be placed below the currently selected node
             fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
@@ -4195,12 +4201,15 @@ export class Eagle {
             fieldIndex = this.selectedNode().getFields().length -1
         }
 
-        //handling selecting and highlighting the newly created node
+        setTimeout(function() {
+            //handling selecting and highlighting the newly created node
         let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
         clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
         $("#parameterTableModal .modal-content").animate({
             scrollTop: (fieldIndex*30)
           }, 1000);
+        }, 100);
+        
     }
 
     explorePalettesClickHelper = (data: PaletteInfo, event:any): void => {
