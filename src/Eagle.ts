@@ -92,6 +92,8 @@ export class Eagle {
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
 
+    showDataNodes : ko.Observable<boolean>;
+
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
     static applicationArgsSearchString : ko.Observable<string>;
@@ -248,6 +250,8 @@ export class Eagle {
 
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
+
+        this.showDataNodes = ko.observable(true);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -291,6 +295,10 @@ export class Eagle {
 
     displayNodeKeys = () :boolean => {
         return Eagle.findSetting(Utils.DISPLAY_NODE_KEYS).value();
+    }
+
+    toggleShowDataNodes = () : void => {
+        this.showDataNodes(!this.showDataNodes());
     }
 
     // TODO: remove?

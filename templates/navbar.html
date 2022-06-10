@@ -51,6 +51,10 @@
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" data-intro="Create a url that points to the current graph and copy the url to the clipboard.">
                     <i class="material-icons md-18">content_copy</i>
                 </button>
+                <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes'" data-intro="Toggle the display of data nodes in the current graph. Hiding the dtaa nodes can greatly simplify the appearance of the graph.">
+                    <i class="material-icons md-18" data-bind="visible: showDataNodes">folder_open</i>
+                    <i class="material-icons md-18" data-bind="hidden: showDataNodes" style="display:none;">close</i>
+                </button>
             </div>
             <ul class="nav navbar-nav ms-4">
                 <button id="checkGraph" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'" data-intro="Check the graph for common issues and missing information.">
