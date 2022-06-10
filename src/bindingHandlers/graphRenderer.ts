@@ -214,8 +214,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
             const objects: (Node | Edge)[] = [];
 
-            objects.push(...nodes);
-            objects.push(...edges);
+            // only add those objects which are not already selected
+            for (const node of nodes){
+                if (!eagle.objectIsSelected(node)){
+                    objects.push(node);
+                }
+            }
+            for (const edge of edges){
+                if (!eagle.objectIsSelected(edge)){
+                    objects.push(edge);
+                }
+            }
 
             eagle.selectedObjects.push(...objects);
             Eagle.selectedLocation(Eagle.FileType.Graph);
