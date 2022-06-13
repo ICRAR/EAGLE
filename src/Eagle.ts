@@ -2718,6 +2718,16 @@ export class Eagle {
         });
     }
 
+    isHierarchyNodeSelected = ($data : Node) : string => {
+        var className : string = ""
+
+        if(this.objectIsSelected($data)){
+            className = "hierarchyNodeIsSelected"
+        }
+
+        return className
+    }
+
     editSelectedEdge = () : void => {
         const selectedEdge: Edge = this.selectedEdge();
 

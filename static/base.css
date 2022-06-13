@@ -1077,6 +1077,29 @@ select.form-control{
     display: block;
 }
 
+.hierarchyNode {
+    margin-top: 8px;
+    background-color: #e9ecef;
+    padding: 5px 15px;
+    border-radius: 5px;
+    border: 1px solid #002349;
+}
+
+.hierarchyNodeIsSelected {
+    border: 3px solid #033059;
+    background-color: #215994;
+    color:white;
+}
+
+.hierarchyNode h5{
+    margin-bottom: 0px;
+    font-size: 18px;
+}
+
+.hierarchyNode span{
+    font-size:16px;
+}
+
 .accordion-button.collapsed::after {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }

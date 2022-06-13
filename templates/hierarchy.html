@@ -9,10 +9,13 @@
                 <!-- ko if: logicalGraph().getNumNodes() === 0 -->
                 <span>No Nodes</span>
                 <!-- /ko -->
-                <!-- ko if: logicalGraph().getNumNodes() !== 0 -->
-                    <span>Graph</span>
-                    <hierarchy params="data: logicalGraph()"></hierarchy>
-                <!-- /ko -->
+                <div data-bind="text: console.log(logicalGraph().getNodes())"></div>
+                <!-- ko foreach: logicalGraph().getNodes() -->
+                    <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($data)">
+                        <h5 data-bind="text: $data.getName()"></h5>
+                        <span data-bind="text: $data.getCategory()"></span>
+                    </div>
+                <!-- /ko -->    
             <!-- /ko -->
         </div>
     </div>
