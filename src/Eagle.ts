@@ -476,7 +476,17 @@ export class Eagle {
             }
         })
 
-        text = nodeCount + " nodes and " + edgeCount + " edges selected."
+        text =  nodeCount + " nodes and " + edgeCount + " edges."
+
+        return text
+    }
+
+    getTotalText = () : string => {
+        var text
+        var nodeCount = this.logicalGraph().getNodes().length
+        var edgeCount = this.logicalGraph().getEdges().length        
+
+        text =  nodeCount + " nodes and " + edgeCount + " edges."
 
         return text
     }
@@ -2718,10 +2728,9 @@ export class Eagle {
         });
     }
 
-    isHierarchyNodeSelected = ($data : Node) : string => {
+    isHierarchyNodeSelected = (selectState:boolean) : string => {
         var className : string = ""
-
-        if(this.objectIsSelected($data)){
+        if(selectState){
             className = "hierarchyNodeIsSelected"
         }
 

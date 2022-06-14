@@ -1077,10 +1077,21 @@ select.form-control{
     display: block;
 }
 
+.hierarchyDividerLine{
+    border-bottom: 1px solid black;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.hierarchyGraphInfoPre{
+    font-size: 18px;
+    font-weight: 600;
+}
+
 .hierarchyNode {
-    margin-top: 8px;
+    margin-top: 6px;
     background-color: #e9ecef;
-    padding: 5px 15px;
+    padding: 3px 15px;
     border-radius: 5px;
     border: 1px solid #002349;
 }
@@ -1093,11 +1104,12 @@ select.form-control{
 
 .hierarchyNode h5{
     margin-bottom: 0px;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .hierarchyNode span{
-    font-size:16px;
+    font-size:13px;
+    display:block;
 }
 
 .accordion-button.collapsed::after {
@@ -1311,6 +1323,7 @@ select.form-control{
 
 #nodeList ul.nodes {
     list-style-type: none;
+    padding: 0px 20px;
 }
 
 #nodeInspectorAddField, #nodeInspectorAddApplicationParam{
