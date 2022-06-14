@@ -52,7 +52,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     // sort the nodes array so that groups appear first, this ensures that child nodes are drawn on top of the group their parents
     const nodeData : Node[] = depthFirstTraversalOfNodes(graph.getNodes());
-    const linkData : Edge[] = graph.getEdges();
+    const linkData : Edge[] = getEdges(graph, eagle.showDataNodes());
 
     let hasDraggedBackground : boolean = false;
     let isDraggingNode : boolean = false;
@@ -210,7 +210,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (isDraggingSelectionRegion){
             const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
 
-            const edges: Edge[] = findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
+            const edges: Edge[] = findEdgesContainedByNodes(getEdges(eagle.logicalGraph(), eagle.showDataNodes()), nodes);
             console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
             const objects: (Node | Edge)[] = [];
 
@@ -1078,6 +1078,53 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const endDirection = determineDirection(false, destNode, destPortIndex, destPortType);
 
         return createBezier(x1, y1, x2, y2, startDirection, endDirection, edge.isClosesLoop());
+    }
+
+    function getEdges(graph: LogicalGraph, showDataNodes: boolean): Edge[]{
+        if (showDataNodes){
+            return graph.getEdges();
+        } else {
+            //return [graph.getEdges()[0]];
+            const edges: Edge[] = [];
+
+            for (const edge of graph.getEdges()){
+                const srcIsDataNode: boolean = findNodeWithKey(edge.getSrcNodeKey(), graph.getNodes()).isData();
+                const destIsDataNode: boolean = findNodeWithKey(edge.getDestNodeKey(), graph.getNodes()).isData();
+                console.log("edge", edge.getId(), "srcIsDataNode", srcIsDataNode, "destIsDataNode", destIsDataNode);
+
+                if (destIsDataNode){
+                    //skip the edge
+                    continue;
+                }
+
+                if (srcIsDataNode){
+                    console.log("edge", edge.getId(), "has data node source");
+
+                    const newSrc = findInputToDataNode(graph.getEdges(), edge.getSrcNodeKey());
+                    console.log("newSrc", newSrc);
+
+                    // TODO: do something else if newSrc is null
+                    if (newSrc){
+                        edges.push(new Edge(newSrc.nodeKey, newSrc.portId, edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop()));
+                    }
+                }
+            }
+
+            return edges;
+        }
+    }
+
+    function findInputToDataNode(edges: Edge[], nodeKey: number) : {nodeKey:number, portId: string}{
+        for (const edge of edges){
+            if (edge.getDestNodeKey() === nodeKey){
+                return {
+                    nodeKey: edge.getSrcNodeKey(),
+                    portId: edge.getSrcPortId()
+                };
+            }
+        }
+
+        return null;
     }
 
     function tick(){
