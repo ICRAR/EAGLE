@@ -1070,9 +1070,9 @@ select.form-control{
 }
 
 #inspectorSelectionSummaryNodes {
-    margin-top: 8px;
+    margin-top: 3px;
     background-color: #c2c8dc;
-    padding: 5px 15px;
+    padding: 1px 15px;
     border-radius: 5px;
     display: block;
 }
@@ -1089,7 +1089,7 @@ select.form-control{
 }
 
 .hierarchyNode {
-    margin-top: 6px;
+    margin-top: 4px;
     background-color: #e9ecef;
     padding: 3px 15px;
     border-radius: 5px;
@@ -1104,11 +1104,11 @@ select.form-control{
 
 .hierarchyNode h5{
     margin-bottom: 0px;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .hierarchyNode span{
-    font-size:13px;
+    font-size:12px;
     display:block;
 }
 
