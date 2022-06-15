@@ -51,7 +51,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     eagle.rendererFrameCountRender = eagle.rendererFrameCountRender + 1;
 
     // sort the nodes array so that groups appear first, this ensures that child nodes are drawn on top of the group their parents
-    const nodeData : Node[] = depthFirstTraversalOfNodes(graph.getNodes());
+    const nodeData : Node[] = depthFirstTraversalOfNodes(graph.getNodes(), eagle.showDataNodes());
     const linkData : Edge[] = getEdges(graph, eagle.showDataNodes());
 
     let hasDraggedBackground : boolean = false;
@@ -2589,12 +2589,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return depth;
     }
 
-    function depthFirstTraversalOfNodes(nodes: Node[]) : Node[] {
+    function depthFirstTraversalOfNodes(nodes: Node[], showDataNodes: boolean) : Node[] {
         const indexPlusDepths : {index:number, depth:number}[] = [];
         const result : Node[] = [];
 
         // populate key plus depths
         for (let i = 0 ; i < nodes.length ; i++){
+            // skip data nodes, if showDataNodes is false
+            if (!showDataNodes && nodes[i].isData()){
+                continue;
+            }
+
             const depth = findDepthOfNode(i, nodes);
 
             indexPlusDepths.push({index:i, depth:depth});
