@@ -51,7 +51,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     eagle.rendererFrameCountRender = eagle.rendererFrameCountRender + 1;
 
     // sort the nodes array so that groups appear first, this ensures that child nodes are drawn on top of the group their parents
-    const nodeData : Node[] = depthFirstTraversalOfNodes(graph.getNodes(), eagle.showDataNodes());
+    const nodeData : Node[] = depthFirstTraversalOfNodes(graph, eagle.showDataNodes());
     const linkData : Edge[] = getEdges(graph, eagle.showDataNodes());
 
     let hasDraggedBackground : boolean = false;
@@ -2589,18 +2589,33 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return depth;
     }
 
-    function depthFirstTraversalOfNodes(nodes: Node[], showDataNodes: boolean) : Node[] {
+    function depthFirstTraversalOfNodes(graph: LogicalGraph, showDataNodes: boolean) : Node[] {
         const indexPlusDepths : {index:number, depth:number}[] = [];
         const result : Node[] = [];
 
         // populate key plus depths
-        for (let i = 0 ; i < nodes.length ; i++){
+        for (let i = 0 ; i < graph.getNodes().length ; i++){
+            let nodeHasConnectedInput: boolean = false;
+            let nodeHasConnectedOutput: boolean = false;
+            const node = graph.getNodes()[i];
+
+            // check if node has connected input and output
+            for (const edge of graph.getEdges()){
+                if (edge.getDestNodeKey() === node.getKey()){
+                    nodeHasConnectedInput = true;
+                }
+
+                if (edge.getSrcNodeKey() === node.getKey()){
+                    nodeHasConnectedOutput = true;
+                }
+            }
+
             // skip data nodes, if showDataNodes is false
-            if (!showDataNodes && nodes[i].isData()){
+            if (!showDataNodes && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
                 continue;
             }
 
-            const depth = findDepthOfNode(i, nodes);
+            const depth = findDepthOfNode(i, graph.getNodes());
 
             indexPlusDepths.push({index:i, depth:depth});
         }
@@ -2612,7 +2627,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // write nodes to result in sorted order
         for (const indexPlusDepth of indexPlusDepths){
-            result.push(nodes[indexPlusDepth.index]);
+            result.push(graph.getNodes()[indexPlusDepth.index]);
         }
 
         return result;
