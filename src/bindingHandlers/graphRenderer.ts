@@ -1088,24 +1088,38 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const edges: Edge[] = [];
 
             for (const edge of graph.getEdges()){
+                let srcHasConnectedInput: boolean = false;
+                let destHasConnectedOutput: boolean = false;
+
+                for (const e of graph.getEdges()){
+                    if (e.getDestNodeKey() === edge.getSrcNodeKey()){
+                        srcHasConnectedInput = true;
+                    }
+                    if (e.getSrcNodeKey() === edge.getDestNodeKey()){
+                        destHasConnectedOutput = true;
+                    }
+                }
+
                 const srcIsDataNode: boolean = findNodeWithKey(edge.getSrcNodeKey(), graph.getNodes()).isData();
                 const destIsDataNode: boolean = findNodeWithKey(edge.getDestNodeKey(), graph.getNodes()).isData();
-                console.log("edge", edge.getId(), "srcIsDataNode", srcIsDataNode, "destIsDataNode", destIsDataNode);
+                //console.log("edge", edge.getId(), "srcIsDataNode", srcIsDataNode, "srcHasConnectedInput", srcHasConnectedInput, "destIsDataNode", destIsDataNode, "destHasConnectedOutput", destHasConnectedOutput);
 
                 if (destIsDataNode){
-                    //skip the edge
+                    if (!destHasConnectedOutput){
+                        // draw edge as normal
+                        edges.push(edge);
+                    }
                     continue;
                 }
 
                 if (srcIsDataNode){
-                    console.log("edge", edge.getId(), "has data node source");
-
-                    const newSrc = findInputToDataNode(graph.getEdges(), edge.getSrcNodeKey());
-                    console.log("newSrc", newSrc);
-
-                    // TODO: do something else if newSrc is null
-                    if (newSrc){
+                    if (srcHasConnectedInput){
+                        // build a new edge
+                        const newSrc = findInputToDataNode(graph.getEdges(), edge.getSrcNodeKey());
                         edges.push(new Edge(newSrc.nodeKey, newSrc.portId, edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop()));
+                    } else {
+                        // draw edge as normal
+                        edges.push(edge);
                     }
                 }
             }
