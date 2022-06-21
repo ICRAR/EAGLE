@@ -51,8 +51,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     eagle.rendererFrameCountRender = eagle.rendererFrameCountRender + 1;
 
     // sort the nodes array so that groups appear first, this ensures that child nodes are drawn on top of the group their parents
-    const nodeData : Node[] = depthFirstTraversalOfNodes(graph.getNodes());
-    const linkData : Edge[] = graph.getEdges();
+    const nodeData : Node[] = depthFirstTraversalOfNodes(graph, eagle.showDataNodes());
+    const linkData : Edge[] = getEdges(graph, eagle.showDataNodes());
 
     let hasDraggedBackground : boolean = false;
     let isDraggingNode : boolean = false;
@@ -210,7 +210,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (isDraggingSelectionRegion){
             const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
 
-            const edges: Edge[] = findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
+            const edges: Edge[] = findEdgesContainedByNodes(getEdges(eagle.logicalGraph(), eagle.showDataNodes()), nodes);
             console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
             const objects: (Node | Edge)[] = [];
 
@@ -1078,6 +1078,67 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const endDirection = determineDirection(false, destNode, destPortIndex, destPortType);
 
         return createBezier(x1, y1, x2, y2, startDirection, endDirection, edge.isClosesLoop());
+    }
+
+    function getEdges(graph: LogicalGraph, showDataNodes: boolean): Edge[]{
+        if (showDataNodes){
+            return graph.getEdges();
+        } else {
+            //return [graph.getEdges()[0]];
+            const edges: Edge[] = [];
+
+            for (const edge of graph.getEdges()){
+                let srcHasConnectedInput: boolean = false;
+                let destHasConnectedOutput: boolean = false;
+
+                for (const e of graph.getEdges()){
+                    if (e.getDestNodeKey() === edge.getSrcNodeKey()){
+                        srcHasConnectedInput = true;
+                    }
+                    if (e.getSrcNodeKey() === edge.getDestNodeKey()){
+                        destHasConnectedOutput = true;
+                    }
+                }
+
+                const srcIsDataNode: boolean = findNodeWithKey(edge.getSrcNodeKey(), graph.getNodes()).isData();
+                const destIsDataNode: boolean = findNodeWithKey(edge.getDestNodeKey(), graph.getNodes()).isData();
+                //console.log("edge", edge.getId(), "srcIsDataNode", srcIsDataNode, "srcHasConnectedInput", srcHasConnectedInput, "destIsDataNode", destIsDataNode, "destHasConnectedOutput", destHasConnectedOutput);
+
+                if (destIsDataNode){
+                    if (!destHasConnectedOutput){
+                        // draw edge as normal
+                        edges.push(edge);
+                    }
+                    continue;
+                }
+
+                if (srcIsDataNode){
+                    if (srcHasConnectedInput){
+                        // build a new edge
+                        const newSrc = findInputToDataNode(graph.getEdges(), edge.getSrcNodeKey());
+                        edges.push(new Edge(newSrc.nodeKey, newSrc.portId, edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop()));
+                    } else {
+                        // draw edge as normal
+                        edges.push(edge);
+                    }
+                }
+            }
+
+            return edges;
+        }
+    }
+
+    function findInputToDataNode(edges: Edge[], nodeKey: number) : {nodeKey:number, portId: string}{
+        for (const edge of edges){
+            if (edge.getDestNodeKey() === nodeKey){
+                return {
+                    nodeKey: edge.getSrcNodeKey(),
+                    portId: edge.getSrcPortId()
+                };
+            }
+        }
+
+        return null;
     }
 
     function tick(){
@@ -2542,13 +2603,33 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return depth;
     }
 
-    function depthFirstTraversalOfNodes(nodes: Node[]) : Node[] {
+    function depthFirstTraversalOfNodes(graph: LogicalGraph, showDataNodes: boolean) : Node[] {
         const indexPlusDepths : {index:number, depth:number}[] = [];
         const result : Node[] = [];
 
         // populate key plus depths
-        for (let i = 0 ; i < nodes.length ; i++){
-            const depth = findDepthOfNode(i, nodes);
+        for (let i = 0 ; i < graph.getNodes().length ; i++){
+            let nodeHasConnectedInput: boolean = false;
+            let nodeHasConnectedOutput: boolean = false;
+            const node = graph.getNodes()[i];
+
+            // check if node has connected input and output
+            for (const edge of graph.getEdges()){
+                if (edge.getDestNodeKey() === node.getKey()){
+                    nodeHasConnectedInput = true;
+                }
+
+                if (edge.getSrcNodeKey() === node.getKey()){
+                    nodeHasConnectedOutput = true;
+                }
+            }
+
+            // skip data nodes, if showDataNodes is false
+            if (!showDataNodes && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
+                continue;
+            }
+
+            const depth = findDepthOfNode(i, graph.getNodes());
 
             indexPlusDepths.push({index:i, depth:depth});
         }
@@ -2560,7 +2641,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // write nodes to result in sorted order
         for (const indexPlusDepth of indexPlusDepths){
-            result.push(nodes[indexPlusDepth.index]);
+            result.push(graph.getNodes()[indexPlusDepth.index]);
         }
 
         return result;
