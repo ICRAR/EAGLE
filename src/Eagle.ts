@@ -299,6 +299,11 @@ export class Eagle {
     }
 
     toggleShowDataNodes = () : void => {
+        // when we switch show/hide data nodes, some of the selected objects may become invisible,
+        // and some of the selected objects may have not existed in the first place,
+        // so it seems easier to just empty the selection
+        this.selectedObjects([]);
+
         this.showDataNodes(!this.showDataNodes());
     }
 
@@ -2902,6 +2907,13 @@ export class Eagle {
             return;
         }
 
+        // if in "hide data nodes" mode, then recommend the user delete edges in "show data nodes" mode instead
+        if (!this.showDataNodes()){
+            console.warn("Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.");
+            Utils.showNotification("Warning", "Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.", "warning");
+            return;
+        }
+
         // skip confirmation if setting dictates
         if (!Eagle.findSetting(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
             this._deleteSelection(deleteChildren);
@@ -3341,7 +3353,7 @@ export class Eagle {
 
     addEmptyTableRow = () : void => {
         var fieldIndex:number
-        
+
             if(Eagle.parameterTableSelectionParentIndex() != -1){
                 // A cell in the table is selected well insert new row instead of adding at the end
                     fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
@@ -3364,20 +3376,20 @@ export class Eagle {
                     //getting the length of the array to use as an index to select the last row in the table
                     fieldIndex = this.currentParamsArray().length-1
                 }
-        
+
                 //a timeout was necessary to wait for the element to be added before counting how many there are
                 setTimeout(function() {
                     //handling selecting and highlighting the newly created row
                     let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
-                    
+
                     clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
-            
+
                     //scroll to new row
                     $("#parameterTableModal .modal-content").animate({
                         scrollTop: (fieldIndex*30)
                       }, 1000);
                 }, 100);
-        
+
     }
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
@@ -4218,7 +4230,7 @@ export class Eagle {
             scrollTop: (fieldIndex*30)
           }, 1000);
         }, 100);
-        
+
     }
 
     explorePalettesClickHelper = (data: PaletteInfo, event:any): void => {
