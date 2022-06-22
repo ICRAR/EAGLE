@@ -608,7 +608,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const inputAppDragHandler = d3.drag()
         .on("end", function (node: Node){
-            console.log("inputAppDragHandler");
+            // check if node has an input app
+            if (node.hasInputApplication()){
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, node.getInputApplication(), Eagle.FileType.Graph);
+            } else {
+                eagle.setNodeInputApplication();
+            }
         });
 
     const outputAppDragHandler = d3.drag()
