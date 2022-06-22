@@ -606,6 +606,29 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     resizeDragHandler(rootContainer.selectAll("g.node rect.resize-control"));
     resizeDragHandler(rootContainer.selectAll("g.node text.resize-control-label"));
 
+    const inputAppDragHandler = d3.drag()
+        .on("end", function (node: Node){
+            // check if node has an input app
+            if (node.hasInputApplication()){
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, node.getInputApplication(), Eagle.FileType.Graph);
+            } else {
+                eagle.setNodeInputApplication();
+            }
+        });
+
+    const outputAppDragHandler = d3.drag()
+        .on("end", function (node: Node){
+            // check if node has an output app
+            if (node.hasOutputApplication()){
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, node.getOutputApplication(), Eagle.FileType.Graph);
+            } else {
+                eagle.setNodeOutputApplication();
+            }
+        });
+
+    inputAppDragHandler(rootContainer.selectAll("g.node text.inputAppName"));
+    outputAppDragHandler(rootContainer.selectAll("g.node text.outputAppName"));
+
     // add shrink buttons
     nodes
         .append("rect")
