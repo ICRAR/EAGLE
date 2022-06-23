@@ -1574,7 +1574,7 @@ export class Node {
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
                     const port = Field.fromOJSJsonPort(inputLocalPort);
-                    port.setFieldType(Eagle.FieldType.InputPort);
+                    port.setFieldType(Eagle.FieldType.OutputPort);
 
                     node.inputApplication().addApplicationArg(port);
                 } else {
@@ -1587,7 +1587,7 @@ export class Node {
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
                 const port = Field.fromOJSJsonPort(outputLocalPort);
-                port.setFieldType(Eagle.FieldType.OutputPort);
+                port.setFieldType(Eagle.FieldType.InputPort);
 
                 if (node.hasOutputApplication()){
                     node.outputApplication().addApplicationArg(port);
