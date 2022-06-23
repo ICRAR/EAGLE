@@ -2453,18 +2453,17 @@ export class Eagle {
     }
 
     getCurrentParamReadonly = (index: number) : boolean => {
-
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(Eagle.allowPaletteEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFieldReadonly(index);
+                return this.selectedNode().getFields()[index].isReadonly();
             }
         }else{
             if(Eagle.allowComponentEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFieldReadonly(index);
+                return this.selectedNode().getFields()[index].isReadonly();
             }
         }
     }

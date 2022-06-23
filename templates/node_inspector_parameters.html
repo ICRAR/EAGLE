@@ -19,7 +19,7 @@
             <!-- ko foreach: selectedNode().getComponentParameters() -->
                 <!-- ko if: $data.fitsComponentSearchQuery() -->
                     <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
-                        <field params="data: $data, ro: $parent.selectedNode().getComponentParameterReadonly($index())"></field>
+                        <field params="data: $data, ro: $data.isReadonly()"></field>
                     <!-- /ko -->
                 <!-- /ko -->
             <!-- /ko -->

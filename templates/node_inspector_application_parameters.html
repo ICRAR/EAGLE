@@ -15,7 +15,7 @@
             </div>
             <!-- ko foreach: selectedNode().getApplicationArguments() -->
                 <!-- ko if: $data.fitsApplicationSearchQuery() -->
-                    <field params="data: $data, ro: $parent.selectedNode().getApplicationArgumentReadonly($index())"></field>
+                    <field params="data: $data, ro: $data.isReadonly()"></field>
                 <!-- /ko -->
             <!-- /ko -->
 

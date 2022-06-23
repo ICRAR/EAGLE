@@ -467,29 +467,6 @@ export class Node {
         return !allowParam;
     }
 
-    getFieldReadonly = (index: number) : boolean => {
-        console.assert(index < this.fields().length);
-
-        const field: Field = this.fields()[index];
-
-        // modify using settings and node readonly
-
-        //looking at the readonly state of the component parameters and the allow read only parameter editing setting
-        return (field.isReadonly());
-    }
-
-    getComponentParameterReadonly = (index: number) : boolean => {
-        console.assert(index < this.getComponentParameters().length);
-
-        return this.getComponentParameters()[index].isReadonly();
-    }
-
-    getApplicationArgumentReadonly = (index: number) : boolean => {
-        console.assert(index < this.getApplicationArguments().length);
-
-        return this.getApplicationArguments()[index].isReadonly();
-    }
-
     getCategory = () : Eagle.Category => {
         return this.category();
     }
