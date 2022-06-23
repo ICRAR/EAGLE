@@ -584,7 +584,7 @@
                 <!-- ko if: selectedNode() != null -->
 
             <div class="modal-header" data-bind="click: function(){Eagle.resetParamsTableSelection()}">
-                <h5 class="modal-title" id="parameterTableModalTitle" data-bind="html: $root.getParamsTableModalTitleText()">Component Parameters</h5>
+                <h5 class="modal-title" id="parameterTableModalTitle">Attributes</h5>
                 <!-- ko if: selectedNode().isLocked() -->
                     <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: getReadOnlyText">
                         <i class="material-icons md-20">lock</i>
@@ -618,15 +618,13 @@
                             <th id="parameter_table_default_value">Default Value</th>
                             <th id="parameter_table_description">Description</th>
                             <th id="parameter_table_type">Type</th>
-                             <!-- ko if: Eagle.parameterTableType() === Eagle.FieldType.ApplicationArgument -->
-                             <th id="parameter_table_isPort">Use As</th>
-                             <!-- /ko -->
+                            <th id="parameter_table_isPort">Use As</th>
                             <th id="parameter_table_precious" data-bind="eagleTooltip:'Argument never suppressed'" data-bs-placement="top">Precious</th>
                             <th id="parameter_table_positional" data-bind="eagleTooltip:'If checked only the value of this argument will be put on the command line'" data-bs-placement="top">Positional</th>
                             <th id="parameter_table_actions">Actions</th>
                         </tr>
                         </thead>
-                            <tbody data-bind="foreach: $root.currentParamsArray()">
+                            <tbody data-bind="foreach: $root.selectedNode().getFields()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                                 <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
                                 <tr>
@@ -673,13 +671,11 @@
                                         <!-- options are added dynamically -->
                                         </select>
                                     </td>
-                                    <!-- ko if: Eagle.parameterTableType() === Eagle.FieldType.ApplicationArgument -->
                                     <td>
                                         <select data-bind="html: $root.fillFieldTypeCell($data.fieldType()), value: fieldType, disabled: $root.selectedNode().isLocked()">
                                             <!-- options are added dynamically -->
                                         </select>
                                     </td>
-                                    <!-- /ko -->
                                     <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                     <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                     <td>
@@ -694,7 +690,7 @@
                     </table>
             </div>
             <div class="modal-footer"  data-bind="click: Eagle.resetParamsTableSelection">
-                <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: $root.selectedNode().isLocked(),html: $root.getParamsTableModalButtonText()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
+                <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: $root.selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
                 <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>
             </div>
             <!-- /ko -->
