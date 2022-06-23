@@ -16,10 +16,10 @@
                 </a>
                 <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.componentParamsSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}}"></input>
             </div>
-            <!-- ko foreach: selectedNode().getFields() -->
+            <!-- ko foreach: selectedNode().getComponentParameters() -->
                 <!-- ko if: $data.fitsComponentSearchQuery() -->
                     <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
-                        <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+                        <field params="data: $data, ro: $parent.selectedNode().getComponentParameterReadonly($index())"></field>
                     <!-- /ko -->
                 <!-- /ko -->
             <!-- /ko -->

@@ -478,6 +478,12 @@ export class Node {
         return (field.isReadonly());
     }
 
+    getComponentParameterReadonly = (index: number) : boolean => {
+        console.assert(index < this.getComponentParameters().length);
+
+        return this.getComponentParameters()[index].isReadonly();
+    }
+
     getApplicationArgumentReadonly = (index: number) : boolean => {
         console.assert(index < this.getApplicationArguments().length);
 
@@ -1218,6 +1224,35 @@ export class Node {
 
     setExpanded = (value : boolean) : void => {
         this.expanded(value);
+    }
+
+    fillFieldTypeCell = (fieldType: Eagle.FieldType):string => {
+        var options:string = "";
+
+        const allowedTypes: Eagle.FieldType[] = [];
+
+        if (this.canHaveComponentParameters()){
+            allowedTypes.push(Eagle.FieldType.ComponentParameter);
+        }
+        if (this.canHaveApplicationArguments()){
+            allowedTypes.push(Eagle.FieldType.ApplicationArgument);
+        }
+        if (this.canHaveInputs()){
+            allowedTypes.push(Eagle.FieldType.InputPort);
+        }
+        if (this.canHaveOutputs()){
+            allowedTypes.push(Eagle.FieldType.OutputPort);
+        }
+
+        for (let dataType of allowedTypes){
+            var selected=""
+            if(fieldType === dataType){
+                selected = "selected=true"
+            }
+            options = options + "<option value="+dataType+"  "+selected+">"+dataType+"</option>";
+        }
+
+        return options
     }
 
     static canHaveInputApp = (node : Node) : boolean => {

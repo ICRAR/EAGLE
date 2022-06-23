@@ -2548,22 +2548,6 @@ export class Eagle {
         return options
     }
 
-    fillFieldTypeCell = (fieldType:Eagle.FieldType):string => {
-        var options:string = "";
-
-        const allowedTypes = [Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort];
-
-        for (let dataType of allowedTypes){
-            var selected=""
-            if(fieldType === dataType){
-                selected = "selected=true"
-            }
-            options = options + "<option value="+dataType+"  "+selected+">"+dataType+"</option>";
-        }
-
-        return options
-    }
-
     static findSettingValue = (key : string) : any => {
         const setting = Eagle.findSetting(key);
 
