@@ -314,16 +314,15 @@ export class Modals {
 
             switch(realType){
                 case Eagle.DataType.Boolean:
-                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional, realFieldType);
                     break;
                 case Eagle.DataType.Select:
-                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional, realFieldType);
                     break;
                 default:
-                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional, realFieldType);
                     break;
             }
-            newField.setFieldType(realFieldType);
 
             callback(true, newField);
         });

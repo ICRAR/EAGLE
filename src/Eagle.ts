@@ -1191,7 +1191,16 @@ export class Eagle {
     }
 
     displayLogicalGraphAsJson = () : void => {
-        const jsonString: string = JSON.stringify(LogicalGraph.toOJSJson(this.logicalGraph(), false));
+        const cloneLG: LogicalGraph = this.logicalGraph().clone();
+
+        // zero-out some info that isn't useful for comparison
+        cloneLG.fileInfo().sha = "";
+        cloneLG.fileInfo().gitUrl = "";
+        cloneLG.fileInfo().lastModifiedName = "";
+        cloneLG.fileInfo().lastModifiedEmail = "";
+        cloneLG.fileInfo().lastModifiedDatetime = 0;
+
+        const jsonString: string = JSON.stringify(LogicalGraph.toOJSJson(cloneLG, false), null, 4);
 
         Utils.requestUserText("Export Graph to JSON", "", jsonString, (completed: boolean, userText: string): void => {});
     }
@@ -4024,7 +4033,7 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType.Integer, false, [], false);
+            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType.Integer, false, [], false, Eagle.FieldType.ComponentParameter);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -4385,6 +4394,10 @@ export class Eagle {
         Utils.showNotification("Graph URL", "Copied to clipboard", "success");
     }
 
+    copyInputTextModalInput = (): void => {
+        navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
+    }
+
     checkGraph = (): void => {
         const checkResult = Utils.checkGraph(this.logicalGraph());
 
@@ -4468,13 +4481,11 @@ export class Eagle {
             let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
 
             if (!newInputPort){
-                newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false);
-                newInputPort.setFieldType(Eagle.FieldType.InputPort);
+                newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort);
                 newNode.addField(newInputPort);
             }
             if (!newOutputPort){
-                newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false);
-                newOutputPort.setFieldType(Eagle.FieldType.OutputPort);
+                newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort);
                 newNode.addField(newOutputPort);
             }
 

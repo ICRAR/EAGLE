@@ -950,7 +950,7 @@ export class Node {
 
     setGroupStart = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_start")){
-            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType.Boolean, false, [], false));
+            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType.Boolean, false, [], false, Eagle.FieldType.ComponentParameter));
         } else {
             this.getFieldByIdText("group_start").setValue(value.toString());
         }
@@ -958,7 +958,7 @@ export class Node {
 
     setGroupEnd = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_end")){
-            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType.Boolean, false, [], false));
+            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType.Boolean, false, [], false, Eagle.FieldType.ComponentParameter));
         } else {
             this.getFieldByIdText("group_end").setValue(value.toString());
         }
@@ -1176,14 +1176,14 @@ export class Node {
 
         // if no fields exist, create at least one, to store the custom data
         if (this.fields().length === 0){
-            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType.Unknown, false, [], false));
+            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType.Unknown, false, [], false, Eagle.FieldType.ComponentParameter));
         }
 
         this.fields()[0].setValue(e.value);
     }
 
     addEmptyField = (index:number) :void => {
-        var newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false)
+        var newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false, Eagle.FieldType.ComponentParameter)
         if(index === -1){
             this.addField(newField);
         }else{
@@ -1485,7 +1485,7 @@ export class Node {
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
                 const field = Field.fromOJSJson(fieldData);
-                //field.setFieldType(Eagle.FieldType.ComponentParameter);
+                field.setFieldType(Eagle.FieldType.ComponentParameter);
 
                 // we should support comment and description nodes, these need to use one component parameter, even though they don't officially support them
                 const isCommentOrDescriptionContentField : boolean = (category === Eagle.Category.Description || category === Eagle.Category.Comment) && field.getIdText() === "";
@@ -1504,7 +1504,7 @@ export class Node {
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
                 const field = Field.fromOJSJson(paramData);
-                //field.setFieldType(Eagle.FieldType.ApplicationArgument);
+                field.setFieldType(Eagle.FieldType.ApplicationArgument);
 
                 // check
                 if (!node.canHaveFieldType(field.getFieldType())){
@@ -1725,7 +1725,17 @@ export class Node {
         // add fields
         result.fields = [];
         for (const field of node.fields()){
-            result.fields.push(Field.toOJSJson(field));
+            if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
+                result.fields.push(Field.toOJSJson(field));
+            }
+        }
+
+        // add applicationArgs
+        result.applicationArgs = [];
+        for (const field of node.fields()){
+            if (field.getFieldType() === Eagle.FieldType.ApplicationArgument){
+                result.applicationArgs.push(Field.toOJSJson(field));
+            }
         }
 
         // add fields from inputApplication
@@ -1841,7 +1851,17 @@ export class Node {
         // add fields
         result.fields = [];
         for (const field of node.fields()){
-            result.fields.push(Field.toOJSJson(field));
+            if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
+                result.fields.push(Field.toOJSJson(field));
+            }
+        }
+
+        // add applicationArgs
+        result.applicationArgs = [];
+        for (const field of node.fields()){
+            if (field.getFieldType() === Eagle.FieldType.ApplicationArgument){
+                result.applicationArgs.push(Field.toOJSJson(field));
+            }
         }
 
         // add fields from inputApplication
