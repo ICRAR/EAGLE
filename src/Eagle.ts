@@ -1193,6 +1193,13 @@ export class Eagle {
         });
     }
 
+    displayLogicalGraphAsJson = () : void => {
+        const jsonString: string = JSON.stringify(LogicalGraph.toOJSJson(this.logicalGraph(), false));
+
+        Utils.requestUserText("Export Graph to JSON", "", jsonString, (completed: boolean, userText: string): void => {});
+    }
+
+
     /**
      * Creates a new palette for editing.
      */
