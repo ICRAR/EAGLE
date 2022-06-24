@@ -91,11 +91,7 @@ const compareObj = function(obj1, obj2) {
   var ret = {},rett;
   for(var i in obj2) {
       rett = {};
-      if (typeof obj2[i] === 'object'){
-          if(typeof obj1 === 'undefined'){
-              continue;
-          }
-
+      if (typeof obj2[i] === 'object' && typeof obj1 !== 'undefined'){
           rett = compareObj(obj1[i], obj2[i]);
           if (!isEmpty(rett) ){
            ret[i]= rett
