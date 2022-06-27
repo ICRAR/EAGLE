@@ -1567,6 +1567,18 @@ export class Utils {
             if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
                 errors.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
             }
+
+            // check that for Data nodes, all ports match
+            if (node.isData()){
+                for (const appArg0 of node.getApplicationArgs()){
+                    for (const appArg1 of node.getApplicationArgs()){
+                        if (!Utils.portsMatch(appArg0, appArg1)){
+                            errors.push("Node " + node.getKey() + " (" + node.getName() + ") is a Data node, but contains ports that do not match. Data nodes do not transform data, so input and output ports should match. Port " + appArg0.getDisplayText() + " (" + appArg0.getType() + ") does not match " + appArg1.getDisplayText() + " (" + appArg1.getType() + ").");
+                        }
+                    }
+                }
+            }
+
         }
 
         // check all edges are valid

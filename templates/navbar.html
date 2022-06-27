@@ -51,12 +51,15 @@
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" data-intro="Create a url that points to the current graph and copy the url to the clipboard.">
                     <i class="material-icons md-18">content_copy</i>
                 </button>
+                <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true)" data-intro="Toggle the display of data nodes in the current graph. Hiding the data nodes can greatly simplify the appearance of the graph.">
+                    <i class="material-icons md-18">subtitles</i>
+                </button>
             </div>
-            <ul class="nav navbar-nav ms-4">
-                <button id="checkGraph" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'" data-intro="Check the graph for common issues and missing information.">
+            <ul class="nav navbar-nav ms-4" data-intro="Check the graph for common issues and missing information.">
+                <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'">
                     <i class="material-icons md-18">done_all</i>
                 </button>
-                <button id="checkGraph" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: graphWarnings().length > 0 || graphErrors().length > 0, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)" data-intro="Check the graph for common issues and missing information.">
+                <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: graphWarnings().length > 0 || graphErrors().length > 0, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
                     <span class="badge bg-warning" data-bind="text: graphWarnings().length, visible: graphWarnings().length > 0"></span>
                     <span class="badge bg-danger" data-bind="text: graphErrors().length, visible: graphErrors().length > 0"></span>
                 </button>
@@ -64,7 +67,7 @@
         </ul>
 
         <ul class="nav navbar-nav ms-auto">
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown" data-intro='Create new graphs'>
                 <a class="nav-link dropdown-toggle ms-auto" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Graph
                 </a>
@@ -75,6 +78,7 @@
                                 <span data-bind="text: Utils.getKeyboardShortcutTextByKey('new_graph', true)"></span>
                             </a>
                             <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
+                            <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: displayLogicalGraphAsJson">Export Graph to JSON</a>
                             <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph
                                 <span data-bind="text: Utils.getKeyboardShortcutTextByKey('add_edge', true)"></span>
                             </a>
@@ -91,6 +95,7 @@
                         <div class="dropDropDown">
                             <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Graph)}">Save Graph</a>
                             <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Graph)}">Save Graph As</a>
+                            <a class="dropdown-item" id="gitLoadGraphFromRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
                         </div>
                     </span>
                     <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
@@ -106,7 +111,7 @@
                     </span>
                 </div>
             </li>
-            <li class="nav-item dropdown" data-intro='Create new palettes and logical graphs.'>
+            <li class="nav-item dropdown" data-intro='Create new palettes'>
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPalette" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Palette
                 </a>
@@ -125,6 +130,7 @@
                         <div class="dropDropDown">
                             <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Palette)}">Save Palette</a>
                             <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Palette)}">Save Palette As</a>
+                            <a class="dropdown-item" id="loadPaletteFromGitRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
                         </div>
                     </span>
                     <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
@@ -160,7 +166,7 @@
                     </a>
                 </div>
             </li>
-            <a class="nav-link" data-bs-placement="bottom" id="settings" href="#" data-bind="click: openSettings, eagleTooltip: 'Settings'"><img src="/static/assets/img/settings_white_24dp.svg" alt=""></a>
+            <a class="nav-link" data-bs-placement="bottom" id="settings" href="#" data-bind="click: openSettings, eagleTooltip: 'Settings'" data-intro="Set user options, editing permissions and external services such as a github/lab tokens and the translator url."><img src="/static/assets/img/settings_white_24dp.svg" alt=""></a>
         </ul>
 
     </div>

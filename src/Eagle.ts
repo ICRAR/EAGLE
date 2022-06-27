@@ -92,6 +92,8 @@ export class Eagle {
     graphWarnings : ko.ObservableArray<string>;
     graphErrors : ko.ObservableArray<string>;
 
+    showDataNodes : ko.Observable<boolean>;
+
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
     static applicationArgsSearchString : ko.Observable<string>;
@@ -224,6 +226,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_repository", "Open Repository", ["r"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_translation", "Open Translation", [">"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.TranslationMenu)}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_hierarchy", "Open Hierarchy", ["h"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Hierarchy)}));
+        Eagle.shortcuts.push(new KeyboardShortcut("toggle_show_data_nodes", "Toggle Show Data Nodes", ["j"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleShowDataNodes(); }));
 
 
         this.globalOffsetX = 0;
@@ -248,6 +251,8 @@ export class Eagle {
 
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
+
+        this.showDataNodes = ko.observable(true);
     }
 
     areAnyFilesModified = () : boolean => {
@@ -291,6 +296,15 @@ export class Eagle {
 
     displayNodeKeys = () :boolean => {
         return Eagle.findSetting(Utils.DISPLAY_NODE_KEYS).value();
+    }
+
+    toggleShowDataNodes = () : void => {
+        // when we switch show/hide data nodes, some of the selected objects may become invisible,
+        // and some of the selected objects may have not existed in the first place,
+        // so it seems easier to just empty the selection
+        this.selectedObjects([]);
+
+        this.showDataNodes(!this.showDataNodes());
     }
 
     // TODO: remove?
@@ -1178,6 +1192,13 @@ export class Eagle {
             });
         });
     }
+
+    displayLogicalGraphAsJson = () : void => {
+        const jsonString: string = JSON.stringify(LogicalGraph.toOJSJson(this.logicalGraph(), false));
+
+        Utils.requestUserText("Export Graph to JSON", "", jsonString, (completed: boolean, userText: string): void => {});
+    }
+
 
     /**
      * Creates a new palette for editing.
@@ -2899,6 +2920,13 @@ export class Eagle {
             return;
         }
 
+        // if in "hide data nodes" mode, then recommend the user delete edges in "show data nodes" mode instead
+        if (!this.showDataNodes()){
+            console.warn("Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.");
+            Utils.showNotification("Warning", "Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.", "warning");
+            return;
+        }
+
         // skip confirmation if setting dictates
         if (!Eagle.findSetting(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
             this._deleteSelection(deleteChildren);
@@ -3337,38 +3365,44 @@ export class Eagle {
     }
 
     addEmptyTableRow = () : void => {
-        var fieldIndex
-        if(Eagle.parameterTableSelectionParentIndex() != -1){
-        // A cell in the table is selected well insert new row instead of adding at the end
-            fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
-            if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
-                //component table
-                this.selectedNode().addEmptyField(fieldIndex)
-            }else{
-                //argument table
-                this.selectedNode().addEmptyArg(fieldIndex)
-            }
-        }else{
-        //no cell selected, add new row at the end
-            if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
-                //component table
-                this.selectedNode().addEmptyField(-1)
-            }else{
-                //argument table
-                this.selectedNode().addEmptyArg(-1)
-            }
-            //getting the length of the array to use as an index to select the last row in the table
-            fieldIndex = this.currentParamsArray().length -1
-        }
+        var fieldIndex:number
 
-        //handling selecting and highlighting the newly created row
-        let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
-        clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
+            if(Eagle.parameterTableSelectionParentIndex() != -1){
+                // A cell in the table is selected well insert new row instead of adding at the end
+                    fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
+                    if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
+                        //component table
+                        this.selectedNode().addEmptyField(fieldIndex)
+                    }else{
+                        //argument table
+                        this.selectedNode().addEmptyArg(fieldIndex)
+                    }
+                }else{
+                //no cell selected, add new row at the end
+                    if(Eagle.parameterTableType() === Eagle.FieldType.ComponentParameter){
+                        //component table
+                        this.selectedNode().addEmptyField(-1)
+                    }else{
+                        //argument table
+                        this.selectedNode().addEmptyArg(-1)
+                    }
+                    //getting the length of the array to use as an index to select the last row in the table
+                    fieldIndex = this.currentParamsArray().length-1
+                }
 
-        //scroll to new row
-        $("#parameterTableModal .modal-content").animate({
-            scrollTop: (fieldIndex*30)
-          }, 1000);
+                //a timeout was necessary to wait for the element to be added before counting how many there are
+                setTimeout(function() {
+                    //handling selecting and highlighting the newly created row
+                    let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+
+                    clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
+
+                    //scroll to new row
+                    $("#parameterTableModal .modal-content").animate({
+                        scrollTop: (fieldIndex*30)
+                      }, 1000);
+                }, 100);
+
     }
 
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
@@ -4178,7 +4212,7 @@ export class Eagle {
     };
 
     duplicateParameter = (index:number) :void => {
-        var fieldIndex //variable holds the index of which row to highlight after creation
+        var fieldIndex:number //variable holds the index of which row to highlight after creation
         if(Eagle.parameterTableSelectionParentIndex() != -1){
         //if a cell in the table is selected in this case the new node will be placed below the currently selected node
             fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
@@ -4201,12 +4235,15 @@ export class Eagle {
             fieldIndex = this.selectedNode().getFields().length -1
         }
 
-        //handling selecting and highlighting the newly created node
+        setTimeout(function() {
+            //handling selecting and highlighting the newly created node
         let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
         clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
         $("#parameterTableModal .modal-content").animate({
             scrollTop: (fieldIndex*30)
           }, 1000);
+        }, 100);
+
     }
 
     explorePalettesClickHelper = (data: PaletteInfo, event:any): void => {

@@ -59,7 +59,7 @@ export class Config {
     static readonly DALIUGE_TEMPLATE_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master-template.palette";
 
     // schemas
-    static readonly DALIUGE_GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg-lg.graph.schema";
+    static readonly DALIUGE_GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg/dropmake/lg.graph.schema";
 
     static readonly UNDO_MEMORY_SIZE : number = 10;
 }

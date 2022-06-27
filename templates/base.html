@@ -68,6 +68,7 @@
                 </div>
 
                 <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart , dragend: sideWindowAdjustEnd }">
+                    <div class="leftWindowSizeAdjusterLine"></div>
                 </div>
             </div>
 
@@ -164,8 +165,8 @@
                         {% include 'hierarchy.html' %}
                     </div>
                 </div>
-
                 <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart, dragend: sideWindowAdjustEnd }">
+                    <div class="rightWindowSizeAdjusterLine"></div>
                 </div>
             </div>
         </div>

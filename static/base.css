@@ -81,6 +81,22 @@
     background-color: #b6c3cf;
 }
 
+#editFieldModalTypeSelect{
+    position: absolute;
+    background: white;
+    padding: 0px;
+    height: 130px;
+    overflow-y: scroll;
+    margin: 0px;
+    transform: none !important;
+    inset: 40px 0px auto auto !important;
+}
+
+#editFieldModalTypeSelect .dropdown-item:hover{
+    background: #002e5f;
+    color: white;
+}
+
 #explorePalettesModal li.list-group-item span{
     pointer-events: none;
 }
@@ -453,13 +469,21 @@ td:first-child input {
 
 .rightWindowSizeAdjuster {
     top: 0px;
-    left: -5px;
+    left: -6px;
     height: 100%;
     width: 10px;
     position: absolute;
     background-color: rgba(0,0,0,0);
-    cursor: col-resize;
     opacity: 0;
+}
+
+.rightWindowSizeAdjusterLine{
+    position: absolute;
+    top: 0px;
+    right: 2px;
+    bottom: 0px;
+    left: 4px;
+    cursor: col-resize;
 }
 
 .componentSearchBar{
@@ -1146,8 +1170,16 @@ select.form-control{
     width: 10px;
     position: absolute;
     background-color: rgba(0,0,0,0);
-    cursor: col-resize;
     opacity: 0;
+}
+
+.leftWindowSizeAdjusterLine{
+    position: absolute;
+    top: 0px;
+    right: 2px;
+    bottom: 0px;
+    left: 4px;
+    cursor: col-resize;
 }
 
 .loadDefaultDisabled{
@@ -1356,6 +1388,10 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
 
 .navbar a{
     color: white !important;
+}
+
+.navbar .introjs-tooltipbuttons a{
+    color: #002349 !important;
 }
 
 .inactiveLink {
@@ -1631,7 +1667,7 @@ nav.navbar .introjs-helperLayer {
 .navbar-nav.navbar-center {
     position: absolute;
     left: 50%;
-    transform: translatex(-50%);
+    transform: translatex(-50%) !important;
 }
 
 .template-title {
