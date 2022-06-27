@@ -3436,6 +3436,17 @@ export class Eagle {
         }
     }
 
+    editFieldDropdownClick = (newType: string, oldType: string) : void => {
+        console.log("editFieldDropdownClick", newType, oldType);
+
+        // check if the types already match, therefore nothing to do
+        if (Utils.dataTypePrefix(oldType) === newType){
+            return;
+        }
+
+        $('#editFieldModalTypeInput').val(newType);
+    }
+
     changeNodeParent = () : void => {
         // build list of node name + ids (exclude self)
         const selectedNode: Node = this.selectedNode();

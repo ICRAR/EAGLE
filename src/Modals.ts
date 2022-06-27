@@ -297,7 +297,7 @@ export class Modals {
             const defaultValueSelect : string = <string>$('#editFieldModalDefaultValueInputSelect').val();
 
             const description: string = <string>$('#editFieldModalDescriptionInput').val();
-            const type: string = <string>$('#editFieldModalTypeSelect').val();
+            const type: string = <string>$('#editFieldModalTypeInput').val();
             const fieldType: string = <string>$('#editFieldModalFieldTypeSelect').val();
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
 
@@ -308,19 +308,19 @@ export class Modals {
             const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
 
             // translate type
-            const realType: string = Utils.translateStringToDataType(type);
+            const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
             const realFieldType: Eagle.FieldType = Utils.translateStringToFieldType(fieldType);
             let newField;
 
             switch(realType){
                 case Eagle.DataType_Boolean:
-                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional);
                     break;
                 case Eagle.DataType_Select:
-                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional);
                     break;
                 default:
-                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, realType, precious, options, positional);
+                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional);
                     break;
             }
             newField.setFieldType(realFieldType);

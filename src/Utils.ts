@@ -298,7 +298,6 @@ export class Utils {
     }
 
     static translateStringToDataType(dataType: string): string {
-
         for (let dt of Eagle.DataTypes){
             if (dt.toLowerCase() === dataType.toLowerCase()){
                 return dt;
@@ -748,22 +747,26 @@ export class Utils {
         $('#editFieldModalDefaultValueInputCheckbox').toggle(field.isType(Eagle.DataType_Boolean));
         $('#editFieldModalDefaultValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
 
+        $('#editFieldModalTypeInput').val(field.getType());
+
         // TODO: this looks like Eagle.ts::fillParametersTable(), can we make them common
         const allTypes = Utils.findAllKnownTypes(eagle.palettes(), eagle.logicalGraph());
 
         // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();
         for (let dataType of allTypes){
-            $('#editFieldModalTypeSelect').append(
-                /*
-                $('<option>', {
-                    value: dataType,
-                    text: dataType,
-                    selected: field.getType() === dataType
-                })
-                */
-                $('<li><a class="dropdown-item" href="#">' + dataType + '</a></li>')
-            );
+            const li = $('<li></li>');
+            const a = $('<a class="dropdown-item" href="#">' + dataType + '</a>');
+
+            a.attr("href", "javascript:eagle.editFieldDropdownClick('" + dataType + "','" + field.getType() + "');");
+
+            if (Utils.dataTypePrefix(field.getType()) === dataType){
+                a.addClass("active");
+            }
+
+            // add to the html
+            li.append(a);
+            $('#editFieldModalTypeSelect').append(li);
         }
 
         // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
