@@ -1183,7 +1183,7 @@ export class Utils {
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
-            for (const param of node.getApplicationArgs()) {
+            for (const param of node.getApplicationArguments()) {
                 Utils._addFieldIfUnique(uniqueapplicationArgs, param.clone());
             }
         }
@@ -1424,43 +1424,13 @@ export class Utils {
             }
         }
 
-        // check that all application params have default values
-        for (const node of graph.getNodes()){
-            for (const field of node.getApplicationArgs()){
-                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getIdText() + ") whose default value is not specified");
-                }
-            }
-        }
-
         // check that fields and application parameters don't share the same name
         // NOTE: this code checks many pairs of fields twice
         for (const node of graph.getNodes()){
-            for (const field of node.getFields()){
-                for (const appArg of node.getApplicationArgs()){
-                    if (field.getIdText() == appArg.getIdText()){
-                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") that shares the same name as an application argument.");
-                    }
-                }
-            }
-            for (const appArg of node.getApplicationArgs()){
-                for (const field of node.getFields()){
-                    if (appArg.getIdText() === field.getIdText()){
-                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application argument (" + appArg.getIdText() + ") that shares the same name as a component parameter.");
-                    }
-                }
-            }
-
-            for (const appArg0 of node.getApplicationArgs()){
-                for (const appArg1 of node.getApplicationArgs()){
-                    if (appArg0.getId() === appArg1.getId()){
-                        continue;
-                    }
-
-                    // check for two application arguments with the same idText, not allowed unless
-                    // - one is a input and one is an output
-                    if (appArg0.getIdText() === appArg1.getIdText() && (appArg0.getFieldType() === appArg1.getFieldType() || appArg0.getFieldType() === Eagle.FieldType.ApplicationArgument || appArg1.getFieldType() === Eagle.FieldType.ApplicationArgument)){
-                        errors.push("Node " + node.getKey() + " (" + node.getName() + ") has multiple application arguments with the same idText (" + appArg0.getIdText() + ").");
+            for (const field0 of node.getFields()){
+                for (const field1 of node.getFields()){
+                    if (field0.getId() !== field1.getId() && field0.getIdText() === field1.getIdText() && field0.getFieldType() === field1.getFieldType()){
+                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getIdText() + ").");
                     }
                 }
             }
@@ -1514,18 +1484,6 @@ export class Utils {
             if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
                 errors.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
             }
-
-            // check that for Data nodes, all ports match
-            if (node.isData()){
-                for (const appArg0 of node.getApplicationArgs()){
-                    for (const appArg1 of node.getApplicationArgs()){
-                        if (!Utils.portsMatch(appArg0, appArg1)){
-                            errors.push("Node " + node.getKey() + " (" + node.getName() + ") is a Data node, but contains ports that do not match. Data nodes do not transform data, so input and output ports should match. Port " + appArg0.getDisplayText() + " (" + appArg0.getType() + ") does not match " + appArg1.getDisplayText() + " (" + appArg1.getType() + ").");
-                        }
-                    }
-                }
-            }
-
         }
 
         // check all edges are valid
