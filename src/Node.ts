@@ -1009,6 +1009,14 @@ export class Node {
         }
     }
 
+    removeAllOutputPorts = () : void => {
+        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
+            if (this.fields()[i].getFieldType() === Eagle.FieldType.OutputPort){
+                this.fields.splice(i, 1);
+            }
+        }
+    }
+
     clone = () : Node => {
         const result : Node = new Node(this.key(), this.name(), this.description(), this.category());
 

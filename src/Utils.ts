@@ -1114,7 +1114,7 @@ export class Utils {
         return uniquePorts;
     }
 
-    static getDataComponentsWithPortTypeList(palettes: Palette[], portName: string, portType: string, ineligibleCategories: Eagle.Category[]){
+    static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Eagle.Category[]) : Node[] {
         console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
 
         const result: Node[] = [];
@@ -1144,6 +1144,22 @@ export class Utils {
         }
 
         return result;
+    }
+
+    static getDataComponentMemory(palettes: Palette[]) : Node {
+        console.log("getDataComponentMemory");
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (node.getName() === Eagle.Category.Memory){
+                    return node;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static _addPortIfUnique = (ports : Field[], port: Field) : void => {

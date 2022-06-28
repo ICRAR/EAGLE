@@ -4459,60 +4459,62 @@ export class Eagle {
             ineligibleCategories.push(Eagle.Category.Memory);
         }
 
-        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), srcPort.getIdText(), srcPort.getType(), ineligibleCategories);
+        const memoryComponent = Utils.getDataComponentMemory(this.palettes());
 
-        // if edge DOES connect two applications, insert data component (of type chosen by user except ineligibleTypes)
-        this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
-            if (node === null) {
-                return;
-            }
+        // if node not found, exit
+        if (memoryComponent === null) {
+            return;
+        }
 
-            // Add a data component to the graph.
-            const newNode : Node = this.logicalGraph().addDataComponentToGraph(node, dataComponentPosition);
-            const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
-            newNode.setKey(newNodeKey);
+        // Add a data component to the graph.
+        const newNode : Node = this.logicalGraph().addDataComponentToGraph(memoryComponent, dataComponentPosition);
+        const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
+        newNode.setKey(newNodeKey);
 
-            // set name of new node (use user-facing name)
-            newNode.setName(srcPort.getDisplayText());
+        // set name of new node (use user-facing name)
+        newNode.setName(srcPort.getDisplayText());
 
-            // add input port and output port for dataType (if they don't exist)
-            // TODO: check by type, not name
-            let newInputPort = newNode.findPortByIdText(srcPort.getIdText(), true, false);
-            let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
+        // remove existing ports from the memory node
+        newNode.removeAllInputPorts();
+        newNode.removeAllOutputPorts();
 
-            if (!newInputPort){
-                newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort);
-                newNode.addField(newInputPort);
-            }
-            if (!newOutputPort){
-                newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort);
-                newNode.addField(newOutputPort);
-            }
+        // add input port and output port for dataType (if they don't exist)
+        // TODO: check by type, not name
+        let newInputPort = newNode.findPortByIdText(srcPort.getIdText(), true, false);
+        let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
 
-            // set the parent of the new node
-            // by default, set parent to parent of source node,
-            newNode.setParentKey(srcNode.getParentKey());
+        if (!newInputPort){
+            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort);
+            newNode.addField(newInputPort);
+        }
+        if (!newOutputPort){
+            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort);
+            newNode.addField(newOutputPort);
+        }
 
-            // if source node is a child of dest node, make the new node a child too
-            if (srcNode.getParentKey() === destNode.getKey()){
-                newNode.setParentKey(destNode.getKey());
-            }
+        // set the parent of the new node
+        // by default, set parent to parent of source node,
+        newNode.setParentKey(srcNode.getParentKey());
 
-            // if dest node is a child of source node, make the new node a child too
-            if (destNode.getParentKey() === srcNode.getKey()){
-                newNode.setParentKey(srcNode.getKey());
-            }
+        // if source node is a child of dest node, make the new node a child too
+        if (srcNode.getParentKey() === destNode.getKey()){
+            newNode.setParentKey(destNode.getKey());
+        }
 
-            // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop);
-            const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop);
+        // if dest node is a child of source node, make the new node a child too
+        if (destNode.getParentKey() === srcNode.getKey()){
+            newNode.setParentKey(srcNode.getKey());
+        }
 
-            this.logicalGraph().addEdgeComplete(firstEdge);
-            this.logicalGraph().addEdgeComplete(secondEdge);
+        // create TWO edges, one from src to data component, one from data component to dest
+        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop);
+        const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop);
 
-            // reply with one of the edges
-            if (callback !== null) callback(firstEdge);
-        });
+        this.logicalGraph().addEdgeComplete(firstEdge);
+        this.logicalGraph().addEdgeComplete(secondEdge);
+
+        // reply with one of the edges
+        if (callback !== null) callback(firstEdge);
     }
 
     editNodeCategory = (eagle: Eagle) : void => {
@@ -4601,7 +4603,7 @@ export class Eagle {
             const nodePosition = newNode.getPosition();
 
             // build a list of ineligible types
-            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), null, null, [Eagle.Category.Memory, Eagle.Category.SharedMemory]);
+            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), [Eagle.Category.Memory, Eagle.Category.SharedMemory]);
 
             // ask the user which data type should be added
             this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
