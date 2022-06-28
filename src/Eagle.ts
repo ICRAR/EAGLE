@@ -4046,18 +4046,23 @@ export class Eagle {
 
 
     // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
-    selectNodeInHierarchy = (nodeViewModel : any) : void => {
+    selectNodeInHierarchy = (nodeViewModel : any, e : any) : void => {
+        console.log(e.shiftKey)
         const node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key());
         if (node === null){
             console.warn("Unable to find node in hierarchy!");
             return;
         }
-
         node.toggleExpanded();
 
-        this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
-
+        if(!e.shiftKey){
+            this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
+    
+        }else if(e.shiftKey){
+            this.editSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph)
+        }
         this.logicalGraph.valueHasMutated();
+        
     }
 
     selectInputApplicationNode = () : void => {
