@@ -1,9 +1,16 @@
-<!--<span>hierarchy-node</span>-->
 <!-- ko if: $data.parentKey === parentKey -->
     <li>
-        <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($root.objectIsSelectedById(_id)), click:select" params="data:$data, parentKey: key, select: $root.selectNodeInHierarchy">
+        <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($root.objectIsSelectedById(_id)), click:select, clickBubble:false" params="data:$data, parentKey: key, select: $root.selectNodeInHierarchy">
             <h5 data-bind="text: name"></h5>
             <span data-bind="text: category"></span>
+            <div>
+                <ul class="nodes" data-bind="foreach: $root.logicalGraph().getNodes()">
+                    <!--<li><span data-bind="text: parentKey() + ' ' + key() + ' ' + $parentContext.key + ' ' + $component.key()"></span></li>-->
+                    <!-- ko if: parentKey() === $component.key() -->
+                        <hierarchy-node params="data: $data, parentKey: key, select: $root.selectNodeInHierarchy"></hierarchy-node>
+                    <!-- /ko -->
+                </ul>
+            </div>
         </div>
     </li>
 <!-- /ko -->
