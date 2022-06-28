@@ -80,7 +80,6 @@ ko.components.register('hierarchy-node', {
         this.parentKey = params.data.parentKey;
         this.expanded = params.data.expanded;
         this.color = params.data.color;
-
         this.select = params.select;
     },
     template: { require: "text!static/components/hierarchy-node.html" }

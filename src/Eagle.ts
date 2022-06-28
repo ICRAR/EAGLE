@@ -4607,8 +4607,15 @@ export class Eagle {
         });
     }
 
-    getHierarchyColor = (color :string) : string => {
-        return 'border-left : 10px solid '+color
+    hierarchyNodeIsHidden = (key:number) : string => {
+        var node= this.logicalGraph().findNodeByKey(key)
+        if(!this.showDataNodes()){
+            if(node.getInputPorts().length === 0 || node.getOutputPorts().length === 0){
+                return 'hidden'
+            }
+            return 'visible'
+        }
+        return 'hidden'
     } 
 
     // NOTE: clones the node internally

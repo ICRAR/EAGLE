@@ -2,6 +2,9 @@
     <li>
         <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($root.objectIsSelectedById(_id)), click:select, clickBubble:false" params="data:$data, parentKey: key, select: $root.selectNodeInHierarchy">
             <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
+            <div class="hierarchyNodeVisibilityIcon" data-bind="style: {'visibility': $root.hierarchyNodeIsHidden(key())}">
+                <i class="material-icons md-18">visibility_off</i>
+            </div>
             <h5 data-bind="text: name"></h5>
             <span data-bind="text: category"></span>
             <div>
