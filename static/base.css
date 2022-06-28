@@ -81,6 +81,22 @@
     background-color: #b6c3cf;
 }
 
+#editFieldModalTypeSelect{
+    position: absolute;
+    background: white;
+    padding: 0px;
+    height: 130px;
+    overflow-y: scroll;
+    margin: 0px;
+    transform: none !important;
+    inset: 40px 0px auto auto !important;
+}
+
+#editFieldModalTypeSelect .dropdown-item:hover{
+    background: #002e5f;
+    color: white;
+}
+
 #explorePalettesModal li.list-group-item span{
     pointer-events: none;
 }
