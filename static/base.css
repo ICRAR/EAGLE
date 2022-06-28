@@ -1078,12 +1078,21 @@ select.form-control{
     padding: 3px 15px;
     border-radius: 5px;
     border: 1px solid #002349;
+    overflow: hidden;
+    position: relative;
 }
 
 .hierarchyNodeIsSelected {
-    border: 3px solid #033059;
-    background-color: #215994;
-    color:white;
+    border: 3px solid #002349;
+    background-color: #c3cfda;
+}
+
+.hierarchyNode .hierarchyNodeColor{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 10px;
+    height: 100%;
 }
 
 .hierarchyNode h5{
@@ -1094,6 +1103,10 @@ select.form-control{
         -ms-user-select: none; /* IE 10+ */
        -moz-user-select: none; /* Gecko (Firefox) */
     -webkit-user-select: none; /* Webkit (Safari, Chrome) */
+}
+
+.hierarchyNodeIsSelected h5{
+    font-weight: 700;
 }
 
 .hierarchyNode span{

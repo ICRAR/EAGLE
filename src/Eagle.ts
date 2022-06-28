@@ -4607,6 +4607,10 @@ export class Eagle {
         });
     }
 
+    getHierarchyColor = (color :string) : string => {
+        return 'border-left : 10px solid '+color
+    } 
+
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         // copy node
@@ -4706,7 +4710,7 @@ export class Eagle {
 
     static readonly dataIconColor : string = "#2c2c2c"
     static readonly appIconColor : string = "#0059a5"
-    static readonly groupIconColor : string = "rgb(221, 173, 0)"
+    static readonly groupIconColor : string = "rgb(211 165 0)"
     static readonly descriptionIconColor : string = "rgb(157 43 96)"
     static readonly errorIconColor : string = "#FF66CC"
     static readonly controlIconColor : string = "rgb(88 167 94)"

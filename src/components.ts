@@ -79,6 +79,7 @@ ko.components.register('hierarchy-node', {
         this.key = params.data.key;
         this.parentKey = params.data.parentKey;
         this.expanded = params.data.expanded;
+        this.color = params.data.color;
 
         this.select = params.select;
     },
