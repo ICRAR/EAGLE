@@ -4039,6 +4039,11 @@ export class Eagle {
             allFieldNames.push(field.getIdText() + " (" + field.getType() + ")");
         }
 
+        // if we are summoning this editField modal from the params table, close the params table
+        if (modalType === Eagle.ModalType.Field){
+            $('#parameterTableModal').modal("hide");
+        }
+
         //if creating a new field component parameter
         if (modalType === Eagle.ModalType.Add) {
             if (fieldType == Eagle.FieldType.ComponentParameter){
@@ -4105,6 +4110,10 @@ export class Eagle {
                 $("#editFieldModalTitle").html("Edit Output Port");
                 field = this.selectedNode().getOutputPorts()[fieldIndex];
                 break;
+            case Eagle.FieldType.Unknown:
+                $("#editFieldModalTitle").html("Edit Parameter");
+                field = this.selectedNode().getFields()[fieldIndex];
+                break;
             }
 
             // check that we found a field
@@ -4136,6 +4145,11 @@ export class Eagle {
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
+
+                // if we summoned this editField modal from the params table, now that we are done, re-open the params table
+                if (modalType === Eagle.ModalType.Field){
+                    $('#parameterTableModal').modal("show");
+                }
             });
         }
     };
@@ -4823,7 +4837,8 @@ export namespace Eagle
 
     export enum ModalType {
         Add = "Add",
-        Edit = "Edit"
+        Edit = "Edit",
+        Field = "Field"
     }
 
     export enum FieldType {
