@@ -1146,6 +1146,36 @@ export class Utils {
         return result;
     }
 
+    static getDataComponentsWithInputsAndOutputs(palettes: Palette[], numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
+        console.log("getDataComponentsWithInputsAndOutputs");
+
+        const result: Node[] = [];
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (!node.isData()){
+                    continue;
+                }
+
+                // if input ports required, skip nodes with too few
+                if (numRequiredInputs > node.maxInputs()){
+                    continue;
+                }
+
+                // if output ports required, skip nodes with too few
+                if (numRequiredOutputs > node.maxOutputs()){
+                    continue;
+                }
+
+                result.push(node);
+            }
+        }
+
+        return result;
+    }
+
     static getDataComponentMemory(palettes: Palette[]) : Node {
         console.log("getDataComponentMemory");
 

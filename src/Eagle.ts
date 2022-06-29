@@ -4518,32 +4518,35 @@ export class Eagle {
     }
 
     editNodeCategory = (eagle: Eagle) : void => {
-        // create array of all categories
-        let categories: Eagle.Category[] = [];
         let selectedIndex = 0;
         let i = 0;
 
-        for (const category of Object.values(Eagle.Category)){
-            categories.push(category);
-            if (category === this.selectedNode().getCategory()){
-                selectedIndex = i;
-            }
-            i++;
+        let eligibleComponents : Node[];
+
+        if (this.selectedNode().isData()){
+            eligibleComponents = Utils.getDataComponentsWithInputsAndOutputs(this.palettes(), this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else {
+            // TODO
         }
 
-        Utils.requestUserChoice("Edit Node Category", "NOTE: changing a node's category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category", categories, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+        const eligibleComponentNames: string[] = [];
+        for (const component of eligibleComponents){
+            eligibleComponentNames.push(component.getName());
+        }
+
+        Utils.requestUserChoice("Edit Node Category", "NOTE: changing a node's category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category", eligibleComponentNames, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
             if (!completed){
                 return;
             }
 
             // change the category of the node
-            this.selectedNode().setCategory(categories[userChoiceIndex]);
+            this.selectedNode().setCategory(eligibleComponents[userChoiceIndex].getCategory());
 
             // once the category is changed, some things about the node may no longer be valid
             // for example, the node may contain ports, but no ports are allowed
 
             // get category data
-            const categoryData = Eagle.getCategoryData(categories[userChoiceIndex]);
+            const categoryData = Eagle.getCategoryData(eligibleComponents[userChoiceIndex].getCategory());
 
             // delete parameters, if necessary
             if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){

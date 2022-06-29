@@ -524,6 +524,14 @@ export class Node {
         return Eagle.getCategoryData(this.category()).maxOutputs > 0;
     }
 
+    maxInputs = () : number => {
+        return Eagle.getCategoryData(this.category()).maxInputs;
+    }
+
+    maxOutputs = () : number => {
+        return Eagle.getCategoryData(this.category()).maxOutputs;
+    }
+
     canHaveInputApplication = () : boolean => {
         return Eagle.getCategoryData(this.category()).canHaveInputApplication;
     }
