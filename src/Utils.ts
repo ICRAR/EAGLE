@@ -1146,7 +1146,7 @@ export class Utils {
         return result;
     }
 
-    static getDataComponentsWithInputsAndOutputs(palettes: Palette[], numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
+    static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Eagle.CategoryType, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
         console.log("getDataComponentsWithInputsAndOutputs");
 
         const result: Node[] = [];
@@ -1155,7 +1155,17 @@ export class Utils {
         for (const palette of palettes){
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
-                if (!node.isData()){
+                if (categoryType === Eagle.CategoryType.Data && !node.isData()){
+                    continue;
+                }
+
+                // skip nodes that are not application components
+                if (categoryType === Eagle.CategoryType.Application && !node.isApplication()){
+                    continue;
+                }
+
+                // skip nodes that are not group components
+                if (categoryType === Eagle.CategoryType.Group && !node.isGroup()){
                     continue;
                 }
 

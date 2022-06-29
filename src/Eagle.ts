@@ -4524,9 +4524,14 @@ export class Eagle {
         let eligibleComponents : Node[];
 
         if (this.selectedNode().isData()){
-            eligibleComponents = Utils.getDataComponentsWithInputsAndOutputs(this.palettes(), this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleComponents = Utils.getComponentsWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else if (this.selectedNode().isApplication()){
+            eligibleComponents = Utils.getComponentsWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else if (this.selectedNode().isGroup()){
+            eligibleComponents = Utils.getComponentsWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Group, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         } else {
-            // TODO
+            console.warn("Not sure which other nodes are suitable for change, show user all");
+            eligibleComponents = Utils.getComponentsWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         }
 
         const eligibleComponentNames: string[] = [];
@@ -4861,6 +4866,14 @@ export namespace Eagle
         UnknownApplication = "UnknownApplication", // when we know the component is an application, but know wlmost nothing else about it
 
         Component = "Component" // legacy only
+    }
+
+    // TODO: add to CategoryData somehow? use in Node.isData() etc?
+    export enum CategoryType {
+        Data = "Data",
+        Application = "Application",
+        Group = "Group",
+        Unknown = "Unknown"
     }
 
     export enum Direction {
