@@ -495,7 +495,7 @@ export class Eagle {
     getTotalText = () : string => {
         var text
         var nodeCount = this.logicalGraph().getNodes().length
-        var edgeCount = this.logicalGraph().getEdges().length        
+        var edgeCount = this.logicalGraph().getEdges().length
 
         text =  nodeCount + " nodes and " + edgeCount + " edges."
 
@@ -4009,12 +4009,12 @@ export class Eagle {
 
         if(!e.shiftKey){
             this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
-    
+
         }else if(e.shiftKey){
             this.editSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph)
         }
         this.logicalGraph.valueHasMutated();
-        
+
     }
 
     selectInputApplicationNode = () : void => {
@@ -4608,15 +4608,27 @@ export class Eagle {
     }
 
     hierarchyNodeIsHidden = (key:number) : string => {
-        var node= this.logicalGraph().findNodeByKey(key)
-        if(!this.showDataNodes()){
-            if(node.getInputPorts().length === 0 || node.getOutputPorts().length === 0){
-                return 'hidden'
+        const node = this.logicalGraph().findNodeByKey(key);
+        let nodeHasConnectedInput: boolean = false;
+        let nodeHasConnectedOutput: boolean = false;
+
+        // check if node has connected input and output
+        for (const edge of this.logicalGraph().getEdges()){
+            if (edge.getDestNodeKey() === node.getKey()){
+                nodeHasConnectedInput = true;
             }
-            return 'visible'
+
+            if (edge.getSrcNodeKey() === node.getKey()){
+                nodeHasConnectedOutput = true;
+            }
         }
-        return 'hidden'
-    } 
+
+        if (!this.showDataNodes() && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
+            return 'visible';
+        }
+
+        return 'hidden';
+    }
 
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
