@@ -4786,7 +4786,7 @@ export namespace Eagle
         String = "String",
         Integer = "Integer",
         Float = "Float",
-        Complex = "Complex",
+        Object = "Object",
         Boolean = "Boolean",
         Select = "Select",
         Password = "Password",
