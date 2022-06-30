@@ -4521,37 +4521,32 @@ export class Eagle {
         let selectedIndex = 0;
         let i = 0;
 
-        let eligibleComponents : Node[];
+        let eligibleCategories : Eagle.Category[];
 
         if (this.selectedNode().isData()){
-            eligibleComponents = Utils.getComponentsWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         } else if (this.selectedNode().isApplication()){
-            eligibleComponents = Utils.getComponentsWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         } else if (this.selectedNode().isGroup()){
-            eligibleComponents = Utils.getComponentsWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Group, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Group, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         } else {
             console.warn("Not sure which other nodes are suitable for change, show user all");
-            eligibleComponents = Utils.getComponentsWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         }
 
-        const eligibleComponentNames: string[] = [];
-        for (const component of eligibleComponents){
-            eligibleComponentNames.push(component.getName());
-        }
-
-        Utils.requestUserChoice("Edit Node Category", "NOTE: changing a node's category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category", eligibleComponentNames, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+        Utils.requestUserChoice("Edit Node Category", "NOTE: changing a node's category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category", eligibleCategories, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
             if (!completed){
                 return;
             }
 
             // change the category of the node
-            this.selectedNode().setCategory(eligibleComponents[userChoiceIndex].getCategory());
+            this.selectedNode().setCategory(eligibleCategories[userChoiceIndex]);
 
             // once the category is changed, some things about the node may no longer be valid
             // for example, the node may contain ports, but no ports are allowed
 
             // get category data
-            const categoryData = Eagle.getCategoryData(eligibleComponents[userChoiceIndex].getCategory());
+            const categoryData = Eagle.getCategoryData(eligibleCategories[userChoiceIndex]);
 
             // delete parameters, if necessary
             if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){

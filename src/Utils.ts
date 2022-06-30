@@ -1186,6 +1186,47 @@ export class Utils {
         return result;
     }
 
+    static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: Eagle.CategoryType, numRequiredInputs: number, numRequiredOutputs: number) : Eagle.Category[] {
+        console.log("getDataComponentsWithInputsAndOutputs");
+
+        const result: Eagle.Category[] = [];
+
+        // loop through all categories
+        for (const category in Eagle.cData){
+            // get category data
+            const categoryData = Eagle.getCategoryData(<Eagle.Category>category);
+
+
+            if (categoryType === Eagle.CategoryType.Data && !categoryData.isData){
+                continue;
+            }
+
+            // skip nodes that are not application components
+            if (categoryType === Eagle.CategoryType.Application && !categoryData.isApplication){
+                continue;
+            }
+
+            // skip nodes that are not group components
+            if (categoryType === Eagle.CategoryType.Group && !categoryData.isGroup){
+                continue;
+            }
+
+            // if input ports required, skip nodes with too few
+            if (numRequiredInputs > categoryData.maxInputs){
+                continue;
+            }
+
+            // if output ports required, skip nodes with too few
+            if (numRequiredOutputs > categoryData.maxOutputs){
+                continue;
+            }
+
+            result.push(<Eagle.Category>category);
+        }
+
+        return result;
+    }
+
     static getDataComponentMemory(palettes: Palette[]) : Node {
         console.log("getDataComponentMemory");
 
