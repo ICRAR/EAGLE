@@ -4534,6 +4534,15 @@ export class Eagle {
             eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         }
 
+        // set selectedIndex to the index of the current category within the eligibleCategories list
+        for (let i = 0 ; i < eligibleCategories.length ; i++){
+            if (eligibleCategories[i] === this.selectedNode().getCategory()){
+                selectedIndex = i;
+                break;
+            }
+        }
+
+        // launch modal
         Utils.requestUserChoice("Edit Node Category", "NOTE: changing a node's category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category", eligibleCategories, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
             if (!completed){
                 return;
