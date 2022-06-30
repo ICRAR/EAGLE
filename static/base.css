@@ -1208,6 +1208,11 @@ select.form-control{
     top: 3px;
 }
 
+.navbar-center .navbar-btn.navbar-btn-active{
+    color: #002349;
+    background: rgb(211, 211, 211);
+}
+
 .navbar-center .navbar-btn:hover{
     color: #002349;
     background: white;
