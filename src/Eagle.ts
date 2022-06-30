@@ -3369,7 +3369,8 @@ export class Eagle {
             return;
         }
 
-        $('#editFieldModalTypeInput').val(newType);
+        // NOTE: this changes the value (using val()), then triggers a change event, so that validation can be done
+        $('#editFieldModalTypeInput').val(newType).change();
     }
 
     changeNodeParent = () : void => {
