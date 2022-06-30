@@ -1225,7 +1225,7 @@ select.form-control{
 }
 
 .navbar-center .navbar-btn:hover{
-    color: #002349;
+    color: #002349 !important;
     background: white;
 }
 
