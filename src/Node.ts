@@ -524,6 +524,14 @@ export class Node {
         return Eagle.getCategoryData(this.category()).maxOutputs > 0;
     }
 
+    maxInputs = () : number => {
+        return Eagle.getCategoryData(this.category()).maxInputs;
+    }
+
+    maxOutputs = () : number => {
+        return Eagle.getCategoryData(this.category()).maxOutputs;
+    }
+
     canHaveInputApplication = () : boolean => {
         return Eagle.getCategoryData(this.category()).canHaveInputApplication;
     }
@@ -1004,6 +1012,14 @@ export class Node {
     removeAllInputPorts = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
             if (this.fields()[i].getFieldType() === Eagle.FieldType.InputPort){
+                this.fields.splice(i, 1);
+            }
+        }
+    }
+
+    removeAllOutputPorts = () : void => {
+        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
+            if (this.fields()[i].getFieldType() === Eagle.FieldType.OutputPort){
                 this.fields.splice(i, 1);
             }
         }

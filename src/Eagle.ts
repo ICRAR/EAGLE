@@ -4459,89 +4459,103 @@ export class Eagle {
             ineligibleCategories.push(Eagle.Category.Memory);
         }
 
-        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), srcPort.getIdText(), srcPort.getType(), ineligibleCategories);
+        const memoryComponent = Utils.getDataComponentMemory(this.palettes());
 
-        // if edge DOES connect two applications, insert data component (of type chosen by user except ineligibleTypes)
-        this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
-            if (node === null) {
-                return;
-            }
+        // if node not found, exit
+        if (memoryComponent === null) {
+            return;
+        }
 
-            // Add a data component to the graph.
-            const newNode : Node = this.logicalGraph().addDataComponentToGraph(node, dataComponentPosition);
-            const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
-            newNode.setKey(newNodeKey);
+        // Add a data component to the graph.
+        const newNode : Node = this.logicalGraph().addDataComponentToGraph(memoryComponent, dataComponentPosition);
+        const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
+        newNode.setKey(newNodeKey);
 
-            // set name of new node (use user-facing name)
-            newNode.setName(srcPort.getDisplayText());
+        // set name of new node (use user-facing name)
+        newNode.setName(srcPort.getDisplayText());
 
-            // add input port and output port for dataType (if they don't exist)
-            // TODO: check by type, not name
-            let newInputPort = newNode.findPortByIdText(srcPort.getIdText(), true, false);
-            let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
+        // remove existing ports from the memory node
+        newNode.removeAllInputPorts();
+        newNode.removeAllOutputPorts();
 
-            if (!newInputPort){
-                newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort);
-                newNode.addField(newInputPort);
-            }
-            if (!newOutputPort){
-                newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort);
-                newNode.addField(newOutputPort);
-            }
+        // add input port and output port for dataType (if they don't exist)
+        // TODO: check by type, not name
+        let newInputPort = newNode.findPortByIdText(srcPort.getIdText(), true, false);
+        let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
 
-            // set the parent of the new node
-            // by default, set parent to parent of source node,
-            newNode.setParentKey(srcNode.getParentKey());
+        if (!newInputPort){
+            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort);
+            newNode.addField(newInputPort);
+        }
+        if (!newOutputPort){
+            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort);
+            newNode.addField(newOutputPort);
+        }
 
-            // if source node is a child of dest node, make the new node a child too
-            if (srcNode.getParentKey() === destNode.getKey()){
-                newNode.setParentKey(destNode.getKey());
-            }
+        // set the parent of the new node
+        // by default, set parent to parent of source node,
+        newNode.setParentKey(srcNode.getParentKey());
 
-            // if dest node is a child of source node, make the new node a child too
-            if (destNode.getParentKey() === srcNode.getKey()){
-                newNode.setParentKey(srcNode.getKey());
-            }
+        // if source node is a child of dest node, make the new node a child too
+        if (srcNode.getParentKey() === destNode.getKey()){
+            newNode.setParentKey(destNode.getKey());
+        }
 
-            // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop);
-            const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop);
+        // if dest node is a child of source node, make the new node a child too
+        if (destNode.getParentKey() === srcNode.getKey()){
+            newNode.setParentKey(srcNode.getKey());
+        }
 
-            this.logicalGraph().addEdgeComplete(firstEdge);
-            this.logicalGraph().addEdgeComplete(secondEdge);
+        // create TWO edges, one from src to data component, one from data component to dest
+        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop);
+        const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop);
 
-            // reply with one of the edges
-            if (callback !== null) callback(firstEdge);
-        });
+        this.logicalGraph().addEdgeComplete(firstEdge);
+        this.logicalGraph().addEdgeComplete(secondEdge);
+
+        // reply with one of the edges
+        if (callback !== null) callback(firstEdge);
     }
 
     editNodeCategory = (eagle: Eagle) : void => {
-        // create array of all categories
-        let categories: Eagle.Category[] = [];
         let selectedIndex = 0;
         let i = 0;
 
-        for (const category of Object.values(Eagle.Category)){
-            categories.push(category);
-            if (category === this.selectedNode().getCategory()){
-                selectedIndex = i;
-            }
-            i++;
+        let eligibleCategories : Eagle.Category[];
+
+        if (this.selectedNode().isData()){
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else if (this.selectedNode().isApplication()){
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else if (this.selectedNode().isGroup()){
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Group, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else {
+            console.warn("Not sure which other nodes are suitable for change, show user all");
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Eagle.CategoryType.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         }
 
-        Utils.requestUserChoice("Edit Node Category", "NOTE: changing a node's category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category", categories, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+        // set selectedIndex to the index of the current category within the eligibleCategories list
+        for (let i = 0 ; i < eligibleCategories.length ; i++){
+            if (eligibleCategories[i] === this.selectedNode().getCategory()){
+                selectedIndex = i;
+                break;
+            }
+        }
+
+        // launch modal
+        Utils.requestUserChoice("Edit Node Category", "NOTE: changing a node's category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category", eligibleCategories, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
             if (!completed){
                 return;
             }
 
             // change the category of the node
-            this.selectedNode().setCategory(categories[userChoiceIndex]);
+            this.selectedNode().setCategory(eligibleCategories[userChoiceIndex]);
 
             // once the category is changed, some things about the node may no longer be valid
             // for example, the node may contain ports, but no ports are allowed
 
             // get category data
-            const categoryData = Eagle.getCategoryData(categories[userChoiceIndex]);
+            const categoryData = Eagle.getCategoryData(eligibleCategories[userChoiceIndex]);
 
             // delete parameters, if necessary
             if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){
@@ -4601,7 +4615,7 @@ export class Eagle {
             const nodePosition = newNode.getPosition();
 
             // build a list of ineligible types
-            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), null, null, [Eagle.Category.Memory, Eagle.Category.SharedMemory]);
+            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), [Eagle.Category.Memory, Eagle.Category.SharedMemory]);
 
             // ask the user which data type should be added
             this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
@@ -4856,6 +4870,14 @@ export namespace Eagle
         UnknownApplication = "UnknownApplication", // when we know the component is an application, but know wlmost nothing else about it
 
         Component = "Component" // legacy only
+    }
+
+    // TODO: add to CategoryData somehow? use in Node.isData() etc?
+    export enum CategoryType {
+        Data = "Data",
+        Application = "Application",
+        Group = "Group",
+        Unknown = "Unknown"
     }
 
     export enum Direction {

@@ -1114,7 +1114,7 @@ export class Utils {
         return uniquePorts;
     }
 
-    static getDataComponentsWithPortTypeList(palettes: Palette[], portName: string, portType: string, ineligibleCategories: Eagle.Category[]){
+    static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Eagle.Category[]) : Node[] {
         console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
 
         const result: Node[] = [];
@@ -1144,6 +1144,103 @@ export class Utils {
         }
 
         return result;
+    }
+
+    static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Eagle.CategoryType, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
+        console.log("getDataComponentsWithInputsAndOutputs");
+
+        const result: Node[] = [];
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (categoryType === Eagle.CategoryType.Data && !node.isData()){
+                    continue;
+                }
+
+                // skip nodes that are not application components
+                if (categoryType === Eagle.CategoryType.Application && !node.isApplication()){
+                    continue;
+                }
+
+                // skip nodes that are not group components
+                if (categoryType === Eagle.CategoryType.Group && !node.isGroup()){
+                    continue;
+                }
+
+                // if input ports required, skip nodes with too few
+                if (numRequiredInputs > node.maxInputs()){
+                    continue;
+                }
+
+                // if output ports required, skip nodes with too few
+                if (numRequiredOutputs > node.maxOutputs()){
+                    continue;
+                }
+
+                result.push(node);
+            }
+        }
+
+        return result;
+    }
+
+    static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: Eagle.CategoryType, numRequiredInputs: number, numRequiredOutputs: number) : Eagle.Category[] {
+        console.log("getDataComponentsWithInputsAndOutputs");
+
+        const result: Eagle.Category[] = [];
+
+        // loop through all categories
+        for (const category in Eagle.cData){
+            // get category data
+            const categoryData = Eagle.getCategoryData(<Eagle.Category>category);
+
+
+            if (categoryType === Eagle.CategoryType.Data && !categoryData.isData){
+                continue;
+            }
+
+            // skip nodes that are not application components
+            if (categoryType === Eagle.CategoryType.Application && !categoryData.isApplication){
+                continue;
+            }
+
+            // skip nodes that are not group components
+            if (categoryType === Eagle.CategoryType.Group && !categoryData.isGroup){
+                continue;
+            }
+
+            // if input ports required, skip nodes with too few
+            if (numRequiredInputs > categoryData.maxInputs){
+                continue;
+            }
+
+            // if output ports required, skip nodes with too few
+            if (numRequiredOutputs > categoryData.maxOutputs){
+                continue;
+            }
+
+            result.push(<Eagle.Category>category);
+        }
+
+        return result;
+    }
+
+    static getDataComponentMemory(palettes: Palette[]) : Node {
+        console.log("getDataComponentMemory");
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (node.getName() === Eagle.Category.Memory){
+                    return node;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static _addPortIfUnique = (ports : Field[], port: Field) : void => {
