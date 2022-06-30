@@ -1461,12 +1461,8 @@ div.rightWindow h5.card-header {
     border-radius: 0px;
 }
 
-#edgeInspectorToggleLoopAware, #edgeInspectorToggleClosesLoop{
+#edgeInspectorToggleLoopAware, #edgeInspectorToggleClosesLoop, #edgeInspectorChangeDataType {
     height:100%;
-}
-
-#edgeInspectorToggleClosesLoop{
-    height: 100%;
 }
 
 #edgeInspectorIcons{

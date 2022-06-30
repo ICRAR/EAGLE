@@ -3471,6 +3471,10 @@ export class Eagle {
         });
     }
 
+    changeEdgeDataType = (edge: Edge) : void => {
+        console.log("changeEdgeDataType()");
+    }
+
     removeParamFromNodeByIndex = (node: Node, index: number) : void => {
         if (node === null){
             console.warn("Could not remove param from null node");
