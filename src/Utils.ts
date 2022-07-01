@@ -1666,6 +1666,23 @@ export class Utils {
             }
         }
 
+        // check that all edges have same data type as their source and destination ports
+        for (const edge of graph.getEdges()){
+            const sourceNode = graph.findNodeByKey(edge.getSrcNodeKey());
+            const destNode = graph.findNodeByKey(edge.getDestNodeKey());
+
+            const sourcePort = sourceNode.findPortById(edge.getSrcPortId());
+            const destPort = destNode.findPortById(edge.getDestPortId());
+
+            if (edge.getDataType() !== sourcePort.getType()){
+                errors.push("Edge (" + edge.getId() + ") data type (" + edge.getDataType() + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + "). " + "<a href='javascript:Utils.fixEdgeType(eagle, \"" + edge.getId() + "\", \"" + sourcePort.getType() + "\");'>Fix</a>");
+            }
+
+            if (edge.getDataType() !== destPort.getType()){
+                errors.push("Edge (" + edge.getId() + ") data type (" + edge.getDataType() + ") does not match end port (" + destPort.getDisplayText() + ") data type (" + destPort.getType() + ").");
+            }
+        }
+
         return {warnings: warnings, errors: errors};
     }
 
@@ -1876,5 +1893,14 @@ export class Utils {
 
     static asBool(value: string) : boolean {
         return value.toLowerCase() === "true";
+    }
+
+    static fixEdgeType(eagle: Eagle, edgeId: string, newType: string) : void {
+        console.log("fix edge type", eagle, edgeId, newType);
+
+        eagle.logicalGraph().findEdgeById(edgeId).setDataType(newType);
+
+        eagle.checkGraph();
+        eagle.undo().pushSnapshot(eagle, "Fix Edge Type: " + newType);
     }
 }

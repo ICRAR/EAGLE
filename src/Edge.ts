@@ -91,6 +91,10 @@ export class Edge {
         return this.dataType;
     }
 
+    setDataType = (dataType: string) : void => {
+        this.dataType = dataType;
+    }
+
     isLoopAware = () : boolean => {
         return this.loopAware;
     }
