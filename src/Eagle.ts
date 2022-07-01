@@ -2551,11 +2551,11 @@ export class Eagle {
         Eagle.parameterTableSelection(null);
     }
 
-    // TODO: fill the datatype select element with all the types known within the current graph and palettes
+    // fill the datatype select element with all the types known within the current graph and palettes
     fillParametersTable = (type:string):string => {
         let options:string = "";
 
-        // TODO: determine the list of all types in this graph and palettes
+        // determine the list of all types in this graph and palettes
         const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
 
         for (let dataType of allTypes){
@@ -3500,11 +3500,26 @@ export class Eagle {
             return;
         }
 
-        // TODO: build list of known types
+        // build list of known types
+        const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
 
-        // TODO: launch modal
+        // set selectedIndex to the index of the current data type within the allTypes list
+        let selectedIndex = 0;
+        for (let i = 0 ; i < allTypes.length ; i++){
+            if (allTypes[i] === selectedEdge.getDataType()){
+                selectedIndex = i;
+                break;
+            }
+        }
 
+        // launch modal
+        Utils.requestUserChoice("Change Edge Data Type", "NOTE: changing a edge's data type will also change the data type of the source and destination ports", allTypes, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+            if (!completed){
+                return;
+            }
 
+            // TODO
+        });
     }
 
     removeParamFromNodeByIndex = (node: Node, index: number) : void => {
