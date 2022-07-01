@@ -524,10 +524,11 @@
                             <p>Type:</p>
                         </div>
                         <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="editFieldModalTypeSelect">
-                                    <!-- options are added dynamically -->
-                                </select>
+                            <div class="input-group mb-3">
+                                <input id="editFieldModalTypeInput" type="text" class="form-control" aria-label="Text input with dropdown button">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Types</button>
+                                <ul id="editFieldModalTypeSelect" class="dropdown-menu dropdown-menu-end">
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -682,6 +683,7 @@
                                     <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                     <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                     <td>
+                                        <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', Eagle.FieldType.Unknown, $index());}, disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
                                         <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
                                         <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
                                         <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.selectedNode(), $index());}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>

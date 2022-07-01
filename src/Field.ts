@@ -11,7 +11,7 @@ export class Field {
     private defaultValue : ko.Observable<string>;  // default value
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
-    private type : ko.Observable<Eagle.DataType>;
+    private type : ko.Observable<string>;
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
@@ -22,7 +22,7 @@ export class Field {
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
-    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean, fieldType: Eagle.FieldType){
+    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, fieldType: Eagle.FieldType){
         this.displayText = ko.observable(displayText);
         this.idText = ko.observable(idText);
         this.value = ko.observable(value);
@@ -104,15 +104,19 @@ export class Field {
         this.readonly(readonly);
     }
 
-    getType = () : Eagle.DataType => {
+    getType = () : string => {
         return this.type();
+    }
+
+    isType = (type: string) => {
+        return this.type() === type;
     }
 
     valIsTrue = (val:string) : boolean => {
         return Utils.asBool(val);
     }
 
-    setType = (type: Eagle.DataType) : void => {
+    setType = (type: string) : void => {
         this.type(type);
     }
 
@@ -167,7 +171,7 @@ export class Field {
         this.defaultValue("");
         this.description("");
         this.readonly(false);
-        this.type(Eagle.DataType.Unknown);
+        this.type(Eagle.DataType_Unknown);
         this.precious(false);
         this.options([]);
         this.positional(false);
@@ -252,13 +256,13 @@ export class Field {
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
-    static string2Type = (value: string, type: Eagle.DataType) : any => {
+    static stringAsType = (value: string, type: string) : any => {
         switch (type){
-            case Eagle.DataType.Boolean:
+            case Eagle.DataType_Boolean:
                 return Utils.asBool(value);
-            case Eagle.DataType.Float:
+            case Eagle.DataType_Float:
                 return parseFloat(value);
-            case Eagle.DataType.Integer:
+            case Eagle.DataType_Integer:
                 return parseInt(value, 10);
             default:
                 return value;
@@ -269,7 +273,7 @@ export class Field {
         return {
             text:field.displayText(),
             name:field.idText(),
-            value:Field.string2Type(field.value(), field.type()),
+            value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
@@ -284,7 +288,7 @@ export class Field {
         return {
             text:field.displayText(),
             name:field.idText(),
-            value:Field.string2Type(field.value(), field.type()),
+            value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
@@ -301,7 +305,7 @@ export class Field {
         let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
-        let type: Eagle.DataType = Eagle.DataType.Unknown;
+        let type: string = Eagle.DataType_Unknown;
         let value: string = "";
         let defaultValue: string = "";
         let precious: boolean = false;
@@ -365,7 +369,7 @@ export class Field {
     static fromOJSJsonPort = (data : any) : Field => {
         let text: string = "";
         let event: boolean = false;
-        let type: Eagle.DataType;
+        let type: string;
         let description: string = "";
 
         if (typeof data.text !== 'undefined')
