@@ -30,6 +30,7 @@ import {Config} from './Config';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
+import {Errors} from './Errors';
 
 class Snapshot {
     description: ko.Observable<string>;
@@ -169,7 +170,7 @@ export class Undo {
         }
 
         const dataObject = JSON.parse(snapshot.data());
-        const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
 
         eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));

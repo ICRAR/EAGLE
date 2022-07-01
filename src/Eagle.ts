@@ -52,6 +52,7 @@ import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
 import {Undo} from './Undo';
+import {Errors} from './Errors';
 import { selection, text, treemapSquarify } from "d3";
 
 export class Eagle {
@@ -88,8 +89,8 @@ export class Eagle {
 
     explorePalettes : ko.Observable<ExplorePalettes>;
 
-    graphWarnings : ko.ObservableArray<string>;
-    graphErrors : ko.ObservableArray<string>;
+    graphWarnings : ko.ObservableArray<Errors.Issue>;
+    graphErrors : ko.ObservableArray<Errors.Issue>;
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -789,7 +790,7 @@ export class Eagle {
         });
     }
 
-    private _handleLoadingErrors = (errorsWarnings: Eagle.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
+    private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
         const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // show errors (if found)
@@ -825,7 +826,7 @@ export class Eagle {
         // attempt to determine schema version from FileInfo
         const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-        const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
         // use the correct parsing function based on schema version
@@ -1124,7 +1125,7 @@ export class Eagle {
             return;
         }
 
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
@@ -1652,7 +1653,7 @@ export class Eagle {
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         for (let i = 0 ; i < paletteList.length ; i++){
             results.push(null);
@@ -1664,7 +1665,7 @@ export class Eagle {
 
                 if  (error !== null){
                     console.error(error);
-                    errorsWarnings.errors.push(error);
+                    errorsWarnings.errors.push(Errors.NoFix(error));
                 } else {
                     const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
                     palette.fileInfo().clear();
@@ -1936,7 +1937,7 @@ export class Eagle {
                     // attempt to determine schema version from FileInfo
                     const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-                    const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+                    const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // use the correct parsing function based on schema version
                     switch (schemaVersion){
@@ -2023,7 +2024,7 @@ export class Eagle {
             // attempt to determine schema version from FileInfo
             const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-            const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+            const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // use the correct parsing function based on schema version
             let lg: LogicalGraph;
@@ -2075,7 +2076,7 @@ export class Eagle {
         }
 
         // load the new palette
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
         // sort items in palette
@@ -3999,7 +4000,7 @@ export class Eagle {
                 openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
                     // if file fetched successfully
                     if (error === null){
-                        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+                        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
                         const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
                         const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errorsWarnings);
 
@@ -4018,7 +4019,7 @@ export class Eagle {
                         row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
 
                         // check the graph once loaded
-                        const results: Eagle.ErrorsWarnings = Utils.checkGraph(lg);
+                        const results: Errors.ErrorsWarnings = Utils.checkGraph(this);
                         row.numCheckWarnings = results.warnings.length;
                         row.numCheckErrors = results.errors.length;
                     }
@@ -4464,13 +4465,13 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        const checkResult = Utils.checkGraph(this.logicalGraph());
+        const checkResult = Utils.checkGraph(this);
 
         this.graphWarnings(checkResult.warnings);
         this.graphErrors(checkResult.errors);
     };
 
-    // TODO: maybe try to move some of this html out to a template
+    // maybe try to move some of this html out to a template
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
@@ -4731,6 +4732,14 @@ export class Eagle {
         }
     }
 
+    fixAll = () : void => {
+        console.log("fixAll()");
+
+        for (const error of this.graphErrors()){
+            error.fix();
+        }
+    }
+
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         const c = Eagle.cData[category];
 
@@ -4982,7 +4991,6 @@ export namespace Eagle
         expandedHeaderOffsetY: number,
         sortOrder: number
     };
-    export type ErrorsWarnings = {warnings: string[], errors: string[]};
 }
 
 

@@ -29,22 +29,36 @@
 
                     <div class="accordion-item" id="errorsModalErrorsAccordionItem">
                         <h2 class="accordion-header" id="checkGraphAccordionHeadingOne">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount"></span></button>
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount" data-bind="text: '[' + $root.graphErrors().length + ']'"></span></button>
                         </h2>
                         <div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">
                             <div class="accordion-body" id="errorsModalErrorsAccordionBody">
-                                message += this.graphErrors().join('<br/>')
+                                <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <button class="btn btn-primary btn-sm" data-bind="click: $root.fixAll">Fix All</button>
+                                </li>
+                                <!-- ko foreach: $root.graphErrors -->
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span data-bind="text: $data.message"></span>
+                                        <!-- ko if: $data.fix !== null -->
+                                            <button class="btn btn-primary btn-sm" data-bind="click: $data.fix, eagleTooltip: $data.fixDescription">Fix</button>
+                                        <!-- /ko -->
+                                    </li>
+                                <!-- /ko -->
+                                </ul>
                             </div>
                         </div>
                     </div>
 
                     <div class="accordion-item" id="errorsModalWarningsAccordionItem">
                         <h2 class="accordion-header" id="checkGraphAccordionHeadingTwo">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount"></span></button>
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount" data-bind="text: '[' + $root.graphWarnings().length + ']'"></span></button>
                         </h2>
                         <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
                             <div class="accordion-body" id="errorsModalWarningsAccordionBody">
-                                message += this.graphWarnings().join('<br/>')
+                                <!-- ko foreach: $root.graphWarnings -->
+                                    <span data-bind="text: $data.message"></span><br/>
+                                <!-- /ko -->
                             </div>
                         </div>
                     </div>

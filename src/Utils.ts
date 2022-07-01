@@ -37,6 +37,7 @@ import {Field} from './Field';
 import {Repository} from './Repository';
 import {PaletteInfo} from './PaletteInfo';
 import {KeyboardShortcut} from './KeyboardShortcut';
+import {Errors} from './Errors';
 
 export class Utils {
     // Allowed file extenstions.
@@ -447,7 +448,7 @@ export class Utils {
         }
     }
 
-    static showErrorsModal(title: string, errors: string[], warnings: string[]){
+    static showErrorsModal(title: string, errors: Errors.Issue[], warnings: Errors.Issue[]){
         console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
 
         $('#errorsModalTitle').text(title);
@@ -455,14 +456,6 @@ export class Utils {
         // hide whole errors or warnings sections if none are found
         $('#errorsModalErrorsAccordionItem').toggle(errors.length > 0);
         $('#errorsModalWarningsAccordionItem').toggle(warnings.length > 0);
-
-        // set count of errors and warnings
-        $('#errorsModalErrorCount').html('[' + errors.length.toString() + ']');
-        $('#errorsModalWarningCount').html('[' + warnings.length.toString() + ']');
-
-        // add error and warning text to those sections
-        $('#errorsModalErrorsAccordionBody').html(errors.join('<br/>'));
-        $('#errorsModalWarningsAccordionBody').html(warnings.join('<br/>'));
 
         $('#errorsModal').modal("toggle");
     }
@@ -1500,8 +1493,8 @@ export class Utils {
         return port0.getType() === port1.getType();
     }
 
-    static checkPalette(palette: Palette): string[] {
-        const results: string[] = [];
+    static checkPalette(palette: Palette): Errors.Issue[] {
+        const results: Errors.Issue[] = [];
 
         // check for duplicate keys
         const keys: number[] = [];
@@ -1509,7 +1502,7 @@ export class Utils {
         for (const node of palette.getNodes()){
             // check existing keys
             if (keys.indexOf(node.getKey()) !== -1){
-                results.push("Key " + node.getKey() + " used by multiple components in palette.");
+                results.push(Errors.NoFix("Key " + node.getKey() + " used by multiple components in palette."));
             } else {
                 keys.push(node.getKey());
             }
@@ -1518,44 +1511,46 @@ export class Utils {
         return results;
     }
 
-    static checkGraph(graph: LogicalGraph): Eagle.ErrorsWarnings {
-        const warnings: string[] = [];
-        const errors: string[] = [];
+    static checkGraph(eagle: Eagle): Errors.ErrorsWarnings {
+        const warnings: Errors.Issue[] = [];
+        const errors: Errors.Issue[] = [];
+
+        const graph: LogicalGraph = eagle.logicalGraph();
 
         // check that all port dataTypes have been defined
         for (const node of graph.getNodes()){
             for (const port of node.getInputPorts()){
                 if (port.isType(Eagle.DataType_Unknown)){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getIdText() + ") whose type is not specified");
+                    warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getIdText() + ") whose type is not specified"));
                 }
             }
             for (const port of node.getOutputPorts()){
                 if (port.isType(Eagle.DataType_Unknown)){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getIdText() + ") whose type is not specified");
+                    warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getIdText() + ") whose type is not specified"));
                 }
             }
 
             for (const port of node.getInputApplicationInputPorts()){
                 if (port.isType(Eagle.DataType_Unknown)){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
+                    warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified"));
                 }
             }
 
             for (const port of node.getInputApplicationOutputPorts()){
                 if (port.isType(Eagle.DataType_Unknown)){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
+                    warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified"));
                 }
             }
 
             for (const port of node.getOutputApplicationInputPorts()){
                 if (port.isType(Eagle.DataType_Unknown)){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
+                    warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified"));
                 }
             }
 
             for (const port of node.getOutputApplicationOutputPorts()){
                 if (port.isType(Eagle.DataType_Unknown)){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
+                    warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified"));
                 }
             }
         }
@@ -1564,7 +1559,7 @@ export class Utils {
         for (const node of graph.getNodes()){
             for (const field of node.getFields()){
                 if (field.getDefaultValue() === "" && !field.isType(Eagle.DataType_String)){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") whose default value is not specified");
+                    warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") whose default value is not specified"));
                 }
             }
         }
@@ -1575,7 +1570,7 @@ export class Utils {
             for (const field0 of node.getFields()){
                 for (const field1 of node.getFields()){
                     if (field0.getId() !== field1.getId() && field0.getIdText() === field1.getIdText() && field0.getFieldType() === field1.getFieldType()){
-                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getIdText() + ").");
+                        warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getIdText() + ")."));
                     }
                 }
             }
@@ -1591,16 +1586,16 @@ export class Utils {
             const maxOutputs = cData.maxOutputs;
 
             if (node.getInputPorts().length < minInputs){
-                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + minInputs);
+                warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + minInputs));
             }
             if (node.getInputPorts().length > maxInputs){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs);
+                errors.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs));
             }
             if (node.getOutputPorts().length < minOutputs){
-                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + minOutputs);
+                warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + minOutputs));
             }
             if (node.getOutputPorts().length > maxOutputs){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + maxOutputs);
+                errors.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + maxOutputs));
             }
 
             // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
@@ -1614,20 +1609,20 @@ export class Utils {
 
             // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
             if (!isConnected && !(maxInputs === 0 && maxOutputs === 0)){
-                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
+                warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way"));
             }
 
             // check embedded application categories are not 'None'
             if (node.hasInputApplication() && node.getInputApplication().getCategory() === Eagle.Category.None){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.");
+                errors.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'."));
             }
             if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Eagle.Category.None){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.");
+                errors.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'."));
             }
 
             // check that Service nodes have inputApplications with no output ports!
             if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
+                errors.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output."));
             }
         }
 
@@ -1650,19 +1645,19 @@ export class Utils {
             const destNode = graph.findNodeByKey(edge.getDestNodeKey());
 
             if (!sourceNode.isData()){
-                errors.push("Closes Loop Edge (" + edge.getId() + ") does not start from a Data component.");
+                errors.push(Errors.NoFix("Closes Loop Edge (" + edge.getId() + ") does not start from a Data component."));
             }
 
             if (!destNode.isApplication()){
-                errors.push("Closes Loop Edge (" + edge.getId() + ") does not end at an Application component.");
+                errors.push(Errors.NoFix("Closes Loop Edge (" + edge.getId() + ") does not end at an Application component."));
             }
 
             if (!sourceNode.hasFieldWithIdText('group_end') || !Utils.asBool(sourceNode.getFieldByIdText('group_end').getValue())){
-                errors.push("'Closes Loop' Edge (" + edge.getId() + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.");
+                errors.push(Errors.NoFix("'Closes Loop' Edge (" + edge.getId() + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true."));
             }
 
             if (!destNode.hasFieldWithIdText('group_start') || !Utils.asBool(destNode.getFieldByIdText('group_start').getValue())){
-                errors.push("'Closes Loop' Edge (" + edge.getId() + ") end node (" + destNode.getName() + ") does not have 'group_start' set to true.");
+                errors.push(Errors.NoFix("'Closes Loop' Edge (" + edge.getId() + ") end node (" + destNode.getName() + ") does not have 'group_start' set to true."));
             }
         }
 
@@ -1675,11 +1670,11 @@ export class Utils {
             const destPort = destNode.findPortById(edge.getDestPortId());
 
             if (edge.getDataType() !== sourcePort.getType()){
-                errors.push("Edge (" + edge.getId() + ") data type (" + edge.getDataType() + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + "). " + "<a href='javascript:Utils.fixEdgeType(eagle, \"" + edge.getId() + "\", \"" + sourcePort.getType() + "\");'>Fix</a>");
+                errors.push(Errors.Fix("Edge (" + edge.getId() + ") data type (" + edge.getDataType() + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + ").", function(){Utils.fixEdgeType(eagle, edge.getId(), sourcePort.getType());}, "Change edge data type to match source port type"));
             }
 
             if (edge.getDataType() !== destPort.getType()){
-                errors.push("Edge (" + edge.getId() + ") data type (" + edge.getDataType() + ") does not match end port (" + destPort.getDisplayText() + ") data type (" + destPort.getType() + ").");
+                errors.push(Errors.Fix("Edge (" + edge.getId() + ") data type (" + edge.getDataType() + ") does not match end port (" + destPort.getDisplayText() + ") data type (" + destPort.getType() + ").", function(){Utils.fixEdgeType(eagle, edge.getId(), destPort.getType());}, "Change edge data type to match destination port type"));
             }
         }
 

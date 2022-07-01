@@ -27,6 +27,7 @@ import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
 import {Field} from './Field';
 import {Utils} from './Utils';
+import {Errors} from './Errors';
 
 export class Edge {
     private _id : string
@@ -151,16 +152,18 @@ export class Edge {
         return "alert alert-success";
     }
 
+    // TODO: probably, this should be something like validHTML, and should return some HTML for each error or warning.
+    // TODO: don't just use error 0 and warning 0
     validText = (graph: LogicalGraph) : string => {
-        const warnings: string[] = [];
-        const errors: string[] = [];
+        const warnings: Errors.Issue[] = [];
+        const errors: Errors.Issue[] = [];
         const linkValid: Eagle.LinkValid = Edge.isValid(graph, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, false, false, errors, warnings);
 
         if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Warning){
             if (errors.length > 0){
-                return errors[0];
+                return errors[0].message;
             } else {
-                return warnings[0];
+                return warnings[0].message;
             }
         }
 
@@ -190,7 +193,7 @@ export class Edge {
         }
     }
 
-    static fromV3Json = (edgeData: any, errorsWarnings: Eagle.ErrorsWarnings): Edge => {
+    static fromV3Json = (edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge => {
         return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, "", edgeData.loop_aware === "1", edgeData.closesLoop);
     }
 
@@ -220,11 +223,11 @@ export class Edge {
         return result;
     }
 
-    static fromAppRefJson = (edgeData: any, errorsWarnings: Eagle.ErrorsWarnings): Edge => {
+    static fromAppRefJson = (edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge => {
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware, edgeData.closesLoop);
     }
 
-    static isValid = (graph : LogicalGraph, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, showNotification : boolean, showConsole : boolean, errors: string[], warnings: string[]) : Eagle.LinkValid => {
+    static isValid = (graph : LogicalGraph, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, showNotification : boolean, showConsole : boolean, errors: Errors.Issue[], warnings: Errors.Issue[]) : Eagle.LinkValid => {
         // check for problems
         if (isNaN(sourceNodeKey)){
             return Eagle.LinkValid.Unknown;
@@ -378,7 +381,7 @@ export class Edge {
         return Eagle.LinkValid.Valid
     }
 
-    private static isValidLog = (edgeId : string, linkValid : Eagle.LinkValid, message : string, type : "success" | "info" | "warning" | "danger", showNotification : boolean, showConsole : boolean, errors: string[], warnings: string[]) : void => {
+    private static isValidLog = (edgeId : string, linkValid : Eagle.LinkValid, message : string, type : "success" | "info" | "warning" | "danger", showNotification : boolean, showConsole : boolean, errors: Errors.Issue[], warnings: Errors.Issue[]) : void => {
         // determine correct title
         let title = "Edge Invalid";
         if (linkValid === Eagle.LinkValid.Warning){
@@ -396,10 +399,10 @@ export class Edge {
         if (showConsole)
             console.warn(title + ":" + message);
         if (type === "danger" && errors !== null){
-            errors.push(message);
+            errors.push(Errors.NoFix(message));
         }
         if (type === "warning" && warnings !== null){
-            warnings.push(message);
+            warnings.push(Errors.NoFix(message));
         }
     }
 }
