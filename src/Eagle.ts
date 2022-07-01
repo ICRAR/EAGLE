@@ -250,6 +250,34 @@ export class Eagle {
         this.graphErrors = ko.observableArray([]);
 
         this.showDataNodes = ko.observable(true);
+
+
+        this.selectedObjects.subscribe(function(){
+            //this part of the function flags edges that are selected or directly connected to the selected object
+            //reset the edges boolean values
+            console.log("finding selected relatives")
+            if(this.logicalGraph()=== null){
+                return
+            }
+            this.logicalGraph().getEdges().forEach(function(element:Edge){
+                element.setSelectionRelative(false)
+            })
+            var that = this
+            this.selectedObjects().forEach(function(element:any){
+                if (element instanceof Node){
+                    var key = element.getKey()
+
+                    that.logicalGraph().getEdges().forEach(function(element:Edge){
+                        if(element.getDestNodeKey() === key || element.getSrcNodeKey() === key){
+                            console.log("is a relative edge: ", element)
+                            element.setSelectionRelative(true)
+                        }
+                    })
+                }else if(element instanceof Edge){
+                    element.setSelectionRelative(true)
+                }
+            })
+        }, this)
     }
 
     areAnyFilesModified = () : boolean => {
@@ -310,6 +338,9 @@ export class Eagle {
             this.logicalGraph().fileInfo().modified = true;
         }
     }
+
+    
+
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
         // Adding a star symbol in front of the title if file is modified.
@@ -2656,7 +2687,7 @@ export class Eagle {
         }
 
         // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "", false, false);
+        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "", false, false, false);
 
         // display edge editing modal UI
         Utils.requestUserEditEdge(newEdge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
@@ -3850,7 +3881,8 @@ export class Eagle {
                 "destNodeKey":edge.getDestNodeKey(),
                 "destPortId":edge.getDestPortId(),
                 "dataType":edge.getDataType(),
-                "loopAware":edge.isLoopAware()
+                "loopAware":edge.isLoopAware(),
+                "isSelectionRelative":edge.getSelectionRelative()
             });
         }
 
@@ -4452,7 +4484,7 @@ export class Eagle {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop);
+            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             if (callback !== null) callback(edge);
             return;
@@ -4527,8 +4559,8 @@ export class Eagle {
             }
 
             // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop);
-            const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop);
+            const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
+            const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop,false);
 
             this.logicalGraph().addEdgeComplete(firstEdge);
             this.logicalGraph().addEdgeComplete(secondEdge);
