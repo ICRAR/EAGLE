@@ -3473,6 +3473,20 @@ export class Eagle {
 
     changeEdgeDataType = (edge: Edge) : void => {
         console.log("changeEdgeDataType()");
+
+        // get reference to selected Edge
+        const selectedEdge: Edge = this.selectedEdge();
+
+        if (selectedEdge === null){
+            console.error("Attempt to change edge data type when no edge selected");
+            return;
+        }
+
+        // TODO: build list of known types
+
+        // TODO: launch modal
+
+
     }
 
     removeParamFromNodeByIndex = (node: Node, index: number) : void => {
