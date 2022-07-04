@@ -139,8 +139,8 @@ export class Edge {
         return result;
     }
 
-    validClass = (graph: LogicalGraph) : string => {
-        const linkValid: Eagle.LinkValid = Edge.isValid(graph, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, false, false, null, null);
+    validClass = (eagle: Eagle) : string => {
+        const linkValid: Eagle.LinkValid = Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, false, false, null, null);
 
         if (linkValid === Eagle.LinkValid.Invalid){
             return "alert alert-danger";
@@ -154,17 +154,20 @@ export class Edge {
 
     // TODO: probably, this should be something like validHTML, and should return some HTML for each error or warning.
     // TODO: don't just use error 0 and warning 0
-    validText = (graph: LogicalGraph) : string => {
+    validText = (eagle: Eagle) : string => {
         const warnings: Errors.Issue[] = [];
         const errors: Errors.Issue[] = [];
-        const linkValid: Eagle.LinkValid = Edge.isValid(graph, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, false, false, errors, warnings);
+        const linkValid: Eagle.LinkValid = Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, false, false, errors, warnings);
+        console.log("warnings", warnings, "errors", errors);
 
         if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Warning){
             if (errors.length > 0){
                 return errors[0].message;
-            } else {
+            }
+            if (warnings.length > 0){
                 return warnings[0].message;
             }
+            return "Unknown error!";
         }
 
         return "Edge is valid";
@@ -227,7 +230,7 @@ export class Edge {
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware, edgeData.closesLoop);
     }
 
-    static isValid = (graph : LogicalGraph, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, showNotification : boolean, showConsole : boolean, errors: Errors.Issue[], warnings: Errors.Issue[]) : Eagle.LinkValid => {
+    static isValid = (eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, dataType: string, loopAware: boolean, showNotification : boolean, showConsole : boolean, errors: Errors.Issue[], warnings: Errors.Issue[]) : Eagle.LinkValid => {
         // check for problems
         if (isNaN(sourceNodeKey)){
             return Eagle.LinkValid.Unknown;
@@ -254,8 +257,8 @@ export class Edge {
         }
 
         // get references to actual source and destination nodes (from the keys)
-        const sourceNode : Node = graph.findNodeByKey(sourceNodeKey);
-        const destinationNode : Node = graph.findNodeByKey(destinationNodeKey);
+        const sourceNode : Node = eagle.logicalGraph().findNodeByKey(sourceNodeKey);
+        const destinationNode : Node = eagle.logicalGraph().findNodeByKey(destinationNodeKey);
 
         if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
             return Eagle.LinkValid.Unknown;
@@ -268,7 +271,7 @@ export class Edge {
 
         // check that we are not connecting two ports within the same node
         if (sourceNodeKey === destinationNodeKey){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "sourceNodeKey and destinationNodeKey are the same", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("sourceNodeKey and destinationNodeKey are the same"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
@@ -277,7 +280,7 @@ export class Edge {
         // this is not supported. How would a BashShellApp read data from another process?
         if ((sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.getCategory() === Eagle.Category.BashShellApp) ||
             (sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.hasInputApplication() && destinationNode.getInputApplication().getCategory() === Eagle.Category.BashShellApp)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
@@ -290,25 +293,25 @@ export class Edge {
 
         // check that we are not connecting a port to itself
         if (sourcePortId === destinationPortId){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "sourcePort and destinationPort are the same", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("sourcePort and destinationPort are the same"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // check if source and destination are both input
         if (sourceNode.findPortIsInputById(sourcePortId) && destinationNode.findPortIsInputById(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "sourcePort and destinationPort are both input", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("sourcePort and destinationPort are both input"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // check if source and destination are both output
         if (!sourceNode.findPortIsInputById(sourcePortId) && !destinationNode.findPortIsInputById(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "sourcePort and destinationPort are both output", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("sourcePort and destinationPort are both output"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // check that source and destination port are both event, or both not event
         if ((sourcePort.getIsEvent() && !destinationPort.getIsEvent()) || (!sourcePort.getIsEvent() && destinationPort.getIsEvent())){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "sourcePort and destinationPort are mix of event and non-event ports", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("sourcePort and destinationPort are mix of event and non-event ports"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
@@ -322,13 +325,13 @@ export class Edge {
 
         // determine if the new edge is crossing a ExclusiveForceNode boundary
         if (destinationNode.getParentKey() !== null){
-            if (graph.findNodeByKey(destinationNode.getParentKey()) !== null){
-                parentIsEFN = graph.findNodeByKey(destinationNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
+            if (eagle.logicalGraph().findNodeByKey(destinationNode.getParentKey()) !== null){
+                parentIsEFN = eagle.logicalGraph().findNodeByKey(destinationNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
             }
         }
         if (sourceNode.getParentKey() !== null){
-            if (graph.findNodeByKey(sourceNode.getParentKey()) !== null){
-                parentIsEFN = graph.findNodeByKey(sourceNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
+            if (eagle.logicalGraph().findNodeByKey(sourceNode.getParentKey()) !== null){
+                parentIsEFN = eagle.logicalGraph().findNodeByKey(sourceNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
             }
         }
 
@@ -337,60 +340,83 @@ export class Edge {
 
         // if a node is connecting to its parent, it must connect to the local port
         if (isParent && !destinationNode.hasLocalPortWithId(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "Source port is connecting to its parent, yet destination port is not local", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Source port is connecting to its parent, yet destination port is not local"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // if a node is connecting to a child, it must start from the local port
         if (isChild && !sourceNode.hasLocalPortWithId(sourcePortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "Source connecting to child, yet source port is not local", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Source connecting to child, yet source port is not local"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // if destination node is not a child, destination port cannot be a local port
         if (!parentIsEFN && !isParent && destinationNode.hasLocalPortWithId(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "Source is not a child of destination, yet destination port is local", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Source is not a child of destination, yet destination port is local"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         if (!parentIsEFN && !isChild && sourceNode.hasLocalPortWithId(sourcePortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "Destination is not a child of source, yet source port is local", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Destination is not a child of source, yet source port is local"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // abort if source port and destination port have different data types
         if (!Utils.portsMatch(sourcePort, destinationPort)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "Ports don't match: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")", "danger", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Ports don't match: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
         // if link is not a parent, child or sibling, then warn user
         if (!parentIsEFN && !isParent && !isChild && !isSibling && !loopAware && !isParentOfConstruct && !isChildOfConstruct){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, "Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive", "warning", showNotification, showConsole, errors, warnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.NoFix("Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive"), showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Warning;
         }
 
         // check if the edge already exists in the graph, there is no point in a duplicate
-        for (const edge of graph.getEdges()){
+        for (const edge of eagle.logicalGraph().getEdges()){
             if (edge.getSrcPortId() === sourcePortId && edge.getDestPortId() === destinationPortId && edge.getId() !== edgeId){
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "Edge is a duplicate. Another edge with the same source port and destination port already exists", "danger", showNotification, showConsole, errors, warnings);
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Edge is a duplicate. Another edge with the same source port and destination port already exists"), showNotification, showConsole, errors, warnings);
                 return Eagle.LinkValid.Invalid;
             }
+        }
+
+        // check that all edges have same data type as their source and destination ports
+        if (dataType !== sourcePort.getType()){
+            const x = Errors.Fix("Edge data type (" + dataType + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + ").", function(){Utils.visitEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, sourcePort.getType());}, "Change edge data type to match source port type");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors, warnings);
+            return Eagle.LinkValid.Invalid;
+        }
+
+        if (dataType !== destinationPort.getType()){
+            const x = Errors.Fix("Edge data type (" + dataType + ") does not match end port (" + destinationPort.getDisplayText() + ") data type (" + destinationPort.getType() + ").", function(){Utils.visitEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, destinationPort.getType());}, "Change edge data type to match destination port type");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors, warnings);
+            return Eagle.LinkValid.Invalid;
         }
 
         return Eagle.LinkValid.Valid
     }
 
-    private static isValidLog = (edgeId : string, linkValid : Eagle.LinkValid, message : string, type : "success" | "info" | "warning" | "danger", showNotification : boolean, showConsole : boolean, errors: Errors.Issue[], warnings: Errors.Issue[]) : void => {
+    private static isValidLog = (edgeId : string, linkValid : Eagle.LinkValid, issue: Errors.Issue, showNotification : boolean, showConsole : boolean, errors: Errors.Issue[], warnings: Errors.Issue[]) : void => {
         // determine correct title
-        let title = "Edge Invalid";
-        if (linkValid === Eagle.LinkValid.Warning){
+        let title = "Edge Valid";
+        let type : "success" | "info" | "warning" | "danger" = "success";
+        let message = "";
+
+        switch (linkValid){
+            case Eagle.LinkValid.Warning:
             title = "Edge Warning";
+            type = "warning";
+            break;
+            case Eagle.LinkValid.Invalid:
+            title = "Edge Invalid";
+            type = "danger";
+            break;
         }
 
         // add edge id to message, if id is known
         if (edgeId !== null){
-            message = "Edge (" + edgeId + ") " + message;
+            message = "Edge (" + edgeId + ") " + issue.message;
         }
 
         // add log message to correct location(s)
@@ -399,10 +425,10 @@ export class Edge {
         if (showConsole)
             console.warn(title + ":" + message);
         if (type === "danger" && errors !== null){
-            errors.push(Errors.NoFix(message));
+            errors.push(issue);
         }
         if (type === "warning" && warnings !== null){
-            warnings.push(Errors.NoFix(message));
+            warnings.push(issue);
         }
     }
 }

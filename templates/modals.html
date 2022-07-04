@@ -49,7 +49,7 @@
                                                     <button class="btn btn-secondary btn-sm" data-bind="click: $data.visit, eagleTooltip: 'Visit Edge'">Visit</button>
                                                 <!-- /ko -->
                                                 <!-- ko if: $data.fix !== null -->
-                                                    <button class="btn btn-primary btn-sm" data-bind="click: $data.fix, eagleTooltip: $data.fixDescription">Fix</button>
+                                                    <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
                                                 <!-- /ko -->
                                                 </div>
                                             </li>

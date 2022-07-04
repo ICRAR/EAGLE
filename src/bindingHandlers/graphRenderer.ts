@@ -910,7 +910,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     }
 
                                     // check if link is valid
-                                    const linkValid : Eagle.LinkValid = Edge.isValid(graph, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, true, true, null, null);
+                                    const linkValid : Eagle.LinkValid = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), realSourcePort.getType(), false, true, true, null, null);
 
                                     // abort if edge is invalid
                                     if (Eagle.allowInvalidEdges() || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
@@ -3041,7 +3041,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // check if link has a warning or is invalid
-        const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false, null, null);
+        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), false, false, null, null);
 
         if (linkValid === Eagle.LinkValid.Invalid){
             normalColor = LINK_COLORS.INVALID;
@@ -3565,7 +3565,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         destinationPort = port;
         destinationNode = graph.findNodeByKey(port.getNodeKey());
 
-        isDraggingPortValid = Edge.isValid(graph, null, sourceNode.getKey(), sourcePort.getId(), destinationNode.getKey(), destinationPort.getId(), true, true, true, null, null);
+        isDraggingPortValid = Edge.isValid(eagle, null, sourceNode.getKey(), sourcePort.getId(), destinationNode.getKey(), destinationPort.getId(), sourcePort.getType(), true, true, true, null, null);
     }
 
     function mouseLeavePort(port : Field) : void {

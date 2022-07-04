@@ -2663,7 +2663,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, true, null, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), false, true, null, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2702,7 +2702,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, true, null, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), false, true, null, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -3814,7 +3814,7 @@ export class Eagle {
             return Eagle.LinkValid.Unknown;
         }
 
-        return Edge.isValid(this.logicalGraph(), selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.isLoopAware(), false, true, null, null);
+        return Edge.isValid(this, selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.getDataType(), selectedEdge.isLoopAware(), false, true, null, null);
     }
 
     printUndoTable = () : void => {
@@ -4738,6 +4738,8 @@ export class Eagle {
         for (const error of this.graphErrors()){
             error.fix();
         }
+
+        Utils.postFixFunc(this);
     }
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {

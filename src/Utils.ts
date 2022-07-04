@@ -1628,7 +1628,7 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(graph, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false, errors, warnings);
+            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), false, false, errors, warnings);
         }
 
         // check that all "closes loop" edges:
@@ -1658,23 +1658,6 @@ export class Utils {
 
             if (!destNode.hasFieldWithIdText('group_start') || !Utils.asBool(destNode.getFieldByIdText('group_start').getValue())){
                 errors.push(Errors.NoFix("'Closes Loop' Edge (" + edge.getId() + ") end node (" + destNode.getName() + ") does not have 'group_start' set to true."));
-            }
-        }
-
-        // check that all edges have same data type as their source and destination ports
-        for (const edge of graph.getEdges()){
-            const sourceNode = graph.findNodeByKey(edge.getSrcNodeKey());
-            const destNode = graph.findNodeByKey(edge.getDestNodeKey());
-
-            const sourcePort = sourceNode.findPortById(edge.getSrcPortId());
-            const destPort = destNode.findPortById(edge.getDestPortId());
-
-            if (edge.getDataType() !== sourcePort.getType()){
-                errors.push(Errors.Fix("Edge data type (" + edge.getDataType() + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + ").", function(){Utils.visitEdge(eagle, edge.getId())}, function(){Utils.fixEdgeType(eagle, edge.getId(), sourcePort.getType());}, "Change edge data type to match source port type"));
-            }
-
-            if (edge.getDataType() !== destPort.getType()){
-                errors.push(Errors.Fix("Edge data type (" + edge.getDataType() + ") does not match end port (" + destPort.getDisplayText() + ") data type (" + destPort.getType() + ").", function(){Utils.visitEdge(eagle, edge.getId())}, function(){Utils.fixEdgeType(eagle, edge.getId(), destPort.getType());}, "Change edge data type to match destination port type"));
             }
         }
 
@@ -1891,12 +1874,19 @@ export class Utils {
     }
 
     static fixEdgeType(eagle: Eagle, edgeId: string, newType: string) : void {
-        console.log("fix edge type", eagle, edgeId, newType);
-
         eagle.logicalGraph().findEdgeById(edgeId).setDataType(newType);
+    }
+
+    static callFixFunc(eagle: Eagle, fixFunc: () => void){
+        fixFunc();
+        Utils.postFixFunc(eagle);
+    }
+
+    static postFixFunc(eagle: Eagle){
+        eagle.selectedObjects.valueHasMutated();
 
         eagle.checkGraph();
-        eagle.undo().pushSnapshot(eagle, "Fix Edge Type: " + newType);
+        eagle.undo().pushSnapshot(eagle, "Fix");
     }
 
     static visitEdge(eagle: Eagle, edgeId: string): void {
