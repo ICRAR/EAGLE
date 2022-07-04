@@ -340,6 +340,18 @@ export class Eagle {
         }
     }, this);
 
+    getNumFixableErrors : ko.PureComputed<number> = ko.pureComputed(() => {
+        let count: number = 0;
+
+        for (const error of this.graphErrors()){
+            if (error.fix !== null){
+                count += 1;
+            }
+        }
+
+        return count;
+    }, this);
+
     // generate a list of Application nodes within the open palettes
     getApplications = () : Node[] => {
         const list: Node[] = [];
@@ -4736,7 +4748,9 @@ export class Eagle {
         console.log("fixAll()");
 
         for (const error of this.graphErrors()){
-            error.fix();
+            if (error.fix !== null){
+                error.fix();
+            }
         }
 
         Utils.postFixFunc(this);

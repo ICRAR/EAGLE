@@ -25,58 +25,50 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="container">
-                    <div class="row mb-2">
-                        <div class="col">
-                            <button class="btn btn-primary" data-bind="click: $root.fixAll">Fix All</button>
+                <div class='accordion' id='errorsModalAccordion'>
+
+                    <div class="accordion-item" id="errorsModalErrorsAccordionItem">
+                        <h2 class="accordion-header" id="checkGraphAccordionHeadingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount" data-bind="text: '[' + $root.graphErrors().length + ']'"></span></button>
+                        </h2>
+                        <div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">
+                            <div class="accordion-body" id="errorsModalErrorsAccordionBody">
+                                <ul class="list-group">
+                                <!-- ko foreach: $root.graphErrors -->
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span data-bind="text: $data.message"></span>
+                                        <div>
+                                        <!-- ko if: $data.visit !== null -->
+                                            <button class="btn btn-secondary btn-sm" data-bind="click: $data.visit, eagleTooltip: 'Visit Edge'">Visit</button>
+                                        <!-- /ko -->
+                                        <!-- ko if: $data.fix !== null -->
+                                            <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
+                                        <!-- /ko -->
+                                        </div>
+                                    </li>
+                                <!-- /ko -->
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class='accordion' id='errorsModalAccordion'>
 
-                            <div class="accordion-item" id="errorsModalErrorsAccordionItem">
-                                <h2 class="accordion-header" id="checkGraphAccordionHeadingOne">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount" data-bind="text: '[' + $root.graphErrors().length + ']'"></span></button>
-                                </h2>
-                                <div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">
-                                    <div class="accordion-body" id="errorsModalErrorsAccordionBody">
-                                        <ul class="list-group">
-                                        <!-- ko foreach: $root.graphErrors -->
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                <span data-bind="text: $data.message"></span>
-                                                <div>
-                                                <!-- ko if: $data.visit !== null -->
-                                                    <button class="btn btn-secondary btn-sm" data-bind="click: $data.visit, eagleTooltip: 'Visit Edge'">Visit</button>
-                                                <!-- /ko -->
-                                                <!-- ko if: $data.fix !== null -->
-                                                    <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
-                                                <!-- /ko -->
-                                                </div>
-                                            </li>
-                                        <!-- /ko -->
-                                        </ul>
-                                    </div>
-                                </div>
+                    <div class="accordion-item" id="errorsModalWarningsAccordionItem">
+                        <h2 class="accordion-header" id="checkGraphAccordionHeadingTwo">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount" data-bind="text: '[' + $root.graphWarnings().length + ']'"></span></button>
+                        </h2>
+                        <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
+                            <div class="accordion-body" id="errorsModalWarningsAccordionBody">
+                                <!-- ko foreach: $root.graphWarnings -->
+                                    <span data-bind="text: $data.message"></span><br/>
+                                <!-- /ko -->
                             </div>
-
-                            <div class="accordion-item" id="errorsModalWarningsAccordionItem">
-                                <h2 class="accordion-header" id="checkGraphAccordionHeadingTwo">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount" data-bind="text: '[' + $root.graphWarnings().length + ']'"></span></button>
-                                </h2>
-                                <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
-                                    <div class="accordion-body" id="errorsModalWarningsAccordionBody">
-                                        <!-- ko foreach: $root.graphWarnings -->
-                                            <span data-bind="text: $data.message"></span><br/>
-                                        <!-- /ko -->
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
+
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button class="btn btn-primary" data-bind="click: $root.fixAll, disable: $root.getNumFixableErrors() === 0, eagleTooltip: $root.getNumFixableErrors() + ' fix(es) available'">Fix All</button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
