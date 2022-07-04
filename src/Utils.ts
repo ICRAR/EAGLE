@@ -1670,11 +1670,11 @@ export class Utils {
             const destPort = destNode.findPortById(edge.getDestPortId());
 
             if (edge.getDataType() !== sourcePort.getType()){
-                errors.push(Errors.Fix("Edge (" + edge.getId() + ") data type (" + edge.getDataType() + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + ").", function(){Utils.fixEdgeType(eagle, edge.getId(), sourcePort.getType());}, "Change edge data type to match source port type"));
+                errors.push(Errors.Fix("Edge data type (" + edge.getDataType() + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + ").", function(){Utils.visitEdge(eagle, edge.getId())}, function(){Utils.fixEdgeType(eagle, edge.getId(), sourcePort.getType());}, "Change edge data type to match source port type"));
             }
 
             if (edge.getDataType() !== destPort.getType()){
-                errors.push(Errors.Fix("Edge (" + edge.getId() + ") data type (" + edge.getDataType() + ") does not match end port (" + destPort.getDisplayText() + ") data type (" + destPort.getType() + ").", function(){Utils.fixEdgeType(eagle, edge.getId(), destPort.getType());}, "Change edge data type to match destination port type"));
+                errors.push(Errors.Fix("Edge data type (" + edge.getDataType() + ") does not match end port (" + destPort.getDisplayText() + ") data type (" + destPort.getType() + ").", function(){Utils.visitEdge(eagle, edge.getId())}, function(){Utils.fixEdgeType(eagle, edge.getId(), destPort.getType());}, "Change edge data type to match destination port type"));
             }
         }
 
@@ -1897,5 +1897,12 @@ export class Utils {
 
         eagle.checkGraph();
         eagle.undo().pushSnapshot(eagle, "Fix Edge Type: " + newType);
+    }
+
+    static visitEdge(eagle: Eagle, edgeId: string): void {
+        // close errors modal if visible
+        $('#errorsModal').modal("hide");
+
+        eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 }
