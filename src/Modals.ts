@@ -280,7 +280,8 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            const id : string = $('#editFieldModalIdInput').val().toString();
+            //const id : string = $('#editFieldModalIdInput').val().toString();
+            const id : string = "";
             const idText : string = $('#editFieldModalIdTextInput').val().toString();
             const displayText : string = $('#editFieldModalDisplayTextInput').val().toString();
 
@@ -288,22 +289,31 @@ export class Modals {
             // but we get all three and then choose correctly based on field type
             const valueText : string = $('#editFieldModalValueInputText').val().toString();
             const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
-            const valueSelect : string = $('#editFieldModalValueInputSelect').val().toString();
+            let valueSelect : string = "";
+            if ($('#editFieldModalValueInputSelect').val()){
+                valueSelect = $('#editFieldModalValueInputSelect').val().toString();
+            }
 
             // only one of these three ui elements contains the "real" default value,
             // but we get all three and then choose correctly based on field type
             const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
-            const defaultValueSelect : string = $('#editFieldModalDefaultValueInputSelect').val().toString();
+            let defaultValueSelect : string = "";
+            if ($('#editFieldModalDefaultValueInputSelect').val()){
+                defaultValueSelect = $('#editFieldModalDefaultValueInputSelect').val().toString();
+            }
 
             const description: string = $('#editFieldModalDescriptionInput').val().toString();
             const type: string = $('#editFieldModalTypeInput').val().toString();
-            const fieldType: string = $('#editFieldModalFieldTypeInput').val().toString();
-            const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
+            let fieldType: string = "";
+            if ($('#editFieldModalFieldTypeSelect').val()){
+                fieldType = $('#editFieldModalFieldTypeSelect').val().toString();
+            }
 
             // NOTE: currently no way to edit options in the "select"-type fields
             const options: string[] = [];
 
+            const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
             const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
             const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
 
