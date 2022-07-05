@@ -143,7 +143,7 @@
 }
 
 #tableInspectorSelection{
-    width: 300px !important;
+    width: 299px !important;
     padding: 0px 5px;
     margin: 0px;
     border-right:1px solid rgba(0, 0, 0, 0.336) !important;
@@ -227,15 +227,15 @@ td:first-child input {
 }
 
 #parameter_table_actions{
-    width: 117px;
+    width: 101px;
 }
 
 #parameter_table_precious{
-    width: 80px;
+    width: 71px;
 }
 
 #parameter_table_positional{
-    width: 90px;
+    width: 79px;
 }
 
 #parameter_table_isPort{
@@ -243,7 +243,7 @@ td:first-child input {
 }
 
 #parameter_table_read_only{
-    width: 90px;
+    width: 81px;
 }
 
 #parameter_table_type{
@@ -251,11 +251,11 @@ td:first-child input {
 }
 
 #parameter_table_text{
-    width: 200px;
+    width: 160px;
 }
 
 #parameter_table_name{
-    width: 200px;
+    width: 160px;
 }
 
 #parameterTableModal .modal-header{
@@ -320,11 +320,45 @@ td:first-child input {
 
 #paramsTableWrapper input{
     background-color: transparent;
-    font-size: 15px;
+}
+
+#paramsTableWrapper th, #paramsTableWrapper td, #paramsTableWrapper input{
+    font-size: 14px;
+}
+
+#paramsTableWrapper i{
+    font-size:20px;
 }
 
 #paramsTableWrapper input:focus{
     outline: none;
+}
+
+@media only screen and (max-width: 2010px) {
+    
+    #parameterTableModal .modal-dialog {
+        max-width: 90vw;
+    }
+
+    #parameter_table_isPort{
+        width: 90px;
+    }
+
+    #parameter_table_type{
+        width: 100px;
+    }
+
+    #parameter_table_text{
+        width: 150px;
+    }
+
+    #parameter_table_name{
+        width: 53px;
+    }
+
+    #parameter_table_description{
+        width:91px;
+    }
 }
 
 /*Animation must have unfill path strokes to work*/
