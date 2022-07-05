@@ -3489,13 +3489,39 @@ export class Eagle {
         });
     }
 
-    removeParamFromNodeByIndex = (node: Node, index: number) : void => {
+    removeParamFromNodeByIndex = (node: Node, fieldType: Eagle.FieldType, index: number) : void => {
         if (node === null){
             console.warn("Could not remove param from null node");
             return;
         }
 
-        node.removeFieldByIndex(index);
+        // if we want to delete the Nth application arg, then the real index
+        // into the fields array is probably larger than N, since all four types
+        // of fields are stored there
+        let realIndex = -1;
+        let fieldTypeCount = 0;
+
+        for (let i = 0 ; i < node.getFields().length; i++){
+            const field: Field = node.getFields()[i];
+
+            if (field.getFieldType() === fieldType){
+                fieldTypeCount += 1;
+            }
+
+            // check if we have found the Nth field of desired type
+            if (fieldTypeCount > index){
+                realIndex = i;
+                break;
+            }
+        }
+
+        // check that we actually found the right field, otherwise abort
+        if (realIndex === -1){
+            console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
+            return;
+        }
+
+        node.removeFieldByIndex(realIndex);
 
         this.checkGraph();
         this.undo().pushSnapshot(this, "Remove param from node");
