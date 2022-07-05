@@ -1877,7 +1877,16 @@ export class Utils {
         eagle.logicalGraph().findEdgeById(edgeId).setDataType(newType);
     }
 
+    static fixDeleteEdge(eagle: Eagle, edgeId: string): void {
+        eagle.logicalGraph().removeEdgeById(edgeId);
+    }
+
+    static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
+        destinationPort.setType(sourcePort.getType());
+    }
+
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
+        console.log("callFixFunc");
         fixFunc();
         Utils.postFixFunc(eagle);
     }
@@ -1894,5 +1903,12 @@ export class Utils {
         $('#errorsModal').modal("hide");
 
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
+    }
+
+    static visitNode(eagle: Eagle, nodeKey: number): void {
+        // close errors modal if visible
+        $('#errorsModal').modal("hide");
+
+        eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findNodeByKey(nodeKey), Eagle.FileType.Graph);
     }
 }

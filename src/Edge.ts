@@ -139,6 +139,14 @@ export class Edge {
         return result;
     }
 
+    getErrorsWarnings = (eagle: Eagle): Errors.ErrorsWarnings => {
+        const result: {warnings: Errors.Issue[], errors: Errors.Issue[]} = {warnings: [], errors: []};
+
+        Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, false, false, result.errors, result.warnings);
+
+        return result;
+    }
+
     validClass = (eagle: Eagle) : string => {
         const linkValid: Eagle.LinkValid = Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, false, false, null, null);
 
@@ -158,7 +166,8 @@ export class Edge {
         const warnings: Errors.Issue[] = [];
         const errors: Errors.Issue[] = [];
         const linkValid: Eagle.LinkValid = Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, false, false, errors, warnings);
-        console.log("warnings", warnings, "errors", errors);
+
+        console.log("validText() linkValid", linkValid, "errors length", errors.length, "warnings length", warnings.length);
 
         if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Warning){
             if (errors.length > 0){
@@ -173,6 +182,44 @@ export class Edge {
         return "Edge is valid";
     }
 
+    getFix = (eagle: Eagle): () => void => {
+        const warnings: Errors.Issue[] = [];
+        const errors: Errors.Issue[] = [];
+        const linkValid: Eagle.LinkValid = Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, false, false, errors, warnings);
+
+        console.log("getFix() linkValid", linkValid, "errors length", errors.length, "warnings length", warnings.length);
+
+        if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Warning){
+            if (errors.length > 0){
+                console.log("getFix() return error fix");
+                return errors[0].fix;
+            }
+            if (warnings.length > 0){
+                console.log("getFix() return warning fix");
+                return warnings[0].fix;
+            }
+        }
+
+        console.log("getFix() return null");
+        return null;
+    }
+
+    getFixDescription = (eagle: Eagle): string => {
+        const warnings: Errors.Issue[] = [];
+        const errors: Errors.Issue[] = [];
+        const linkValid: Eagle.LinkValid = Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, false, false, errors, warnings);
+
+        if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Warning){
+            if (errors.length > 0){
+                return errors[0].fixDescription;
+            }
+            if (warnings.length > 0){
+                return warnings[0].fixDescription;
+            }
+        }
+
+        return "";
+    }
 
     static toOJSJson = (edge : Edge) : object => {
         return {
@@ -180,6 +227,7 @@ export class Edge {
             fromPort: edge.srcPortId,
             to: -1,
             toPort: edge.destPortId,
+            dataType: edge.dataType,
             loop_aware: edge.loopAware ? "1" : "0",
             closesLoop: edge.closesLoop
         };
@@ -230,6 +278,7 @@ export class Edge {
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware, edgeData.closesLoop);
     }
 
+    // TODO: modify to accept an ErrorsWarnings object instead of a errors array and a warnings array?
     static isValid = (eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, dataType: string, loopAware: boolean, showNotification : boolean, showConsole : boolean, errors: Errors.Issue[], warnings: Errors.Issue[]) : Eagle.LinkValid => {
         // check for problems
         if (isNaN(sourceNodeKey)){
@@ -363,7 +412,8 @@ export class Edge {
 
         // abort if source port and destination port have different data types
         if (!Utils.portsMatch(sourcePort, destinationPort)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Ports don't match: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")"), showNotification, showConsole, errors, warnings);
+            const x = Errors.Fix("Ports don't match: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")", function(){Utils.visitNode(eagle, sourceNode.getKey());}, function(){Utils.fixPortType(eagle, sourcePort, destinationPort);}, "Overwrite destination port type with source port type");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors, warnings);
             return Eagle.LinkValid.Invalid;
         }
 
@@ -376,7 +426,8 @@ export class Edge {
         // check if the edge already exists in the graph, there is no point in a duplicate
         for (const edge of eagle.logicalGraph().getEdges()){
             if (edge.getSrcPortId() === sourcePortId && edge.getDestPortId() === destinationPortId && edge.getId() !== edgeId){
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Edge is a duplicate. Another edge with the same source port and destination port already exists"), showNotification, showConsole, errors, warnings);
+                const x = Errors.Fix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.visitEdge(eagle, edgeId);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors, warnings);
                 return Eagle.LinkValid.Invalid;
             }
         }

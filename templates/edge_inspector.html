@@ -85,9 +85,17 @@
             </div>
             <div class="card-body">
                 <!-- ko if: selectedEdge() != null -->
-                <div data-bind="class: selectedEdge().validClass($root)" role="alert">
-                    <span data-bind="text: selectedEdge().validText($root)"></span>
-                </div>
+                    <!-- ko with: selectedEdge().getErrorsWarnings($root) -->
+                        <!-- ko foreach: errors -->
+                            <div class="alert alert-danger" role="alert">
+                                <span data-bind="text: $data.message"></span>
+                                <!-- ko if: fix !== null -->
+                                    <button class="btn btn-primary btn-sm float-end" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
+                                <!-- /ko -->
+                            </div>
+                        <!-- /ko -->
+                        <!-- TODO: loop over warnings too -->
+                    <!-- /ko -->
                 <!-- /ko -->
             </div>
         </div>
