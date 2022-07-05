@@ -81,6 +81,10 @@
     background-color: #b6c3cf;
 }
 
+#editFieldModal .modal-body{
+    min-height: 585px;
+}
+
 #editFieldModalTypeSelect{
     position: absolute;
     background: white;
