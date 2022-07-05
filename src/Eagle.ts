@@ -253,30 +253,43 @@ export class Eagle {
 
 
         this.selectedObjects.subscribe(function(){
-            //this part of the function flags edges that are selected or directly connected to the selected object
-            //reset the edges boolean values
-            console.log("finding selected relatives")
+            //return if the graph is not loaded yet
             if(this.logicalGraph()=== null){
                 return
             }
+            //reset allselection relatives to false
+            $(".positionPointer").remove()
             this.logicalGraph().getEdges().forEach(function(element:Edge){
                 element.setSelectionRelative(false)
             })
+            //this part of the function flags edges that are selected or directly connected to the selected object
             var that = this
+            var count=0
             this.selectedObjects().forEach(function(element:any){
+                count++
                 if (element instanceof Node){
+                    console.log("node")
                     var key = element.getKey()
 
                     that.logicalGraph().getEdges().forEach(function(element:Edge){
                         if(element.getDestNodeKey() === key || element.getSrcNodeKey() === key){
                             console.log("is a relative edge: ", element)
                             element.setSelectionRelative(true)
+                            that.drawHierarchyEdge(element)
                         }
                     })
                 }else if(element instanceof Edge){
+                    console.log("edge")
+
                     element.setSelectionRelative(true)
+                    that.drawHierarchyEdge(element)
                 }
             })
+            console.log(count)
+
+
+            //hadles drawing edges in the hierarchy
+
         }, this)
     }
 
@@ -339,8 +352,40 @@ export class Eagle {
         }
     }
 
-    
+    drawHierarchyEdge = (edge:Edge) : void =>{
+        var srcNode = $('.hierarchyNode #'+edge.getSrcNodeKey())
+        var destNode = $('.hierarchyNode #'+edge.getDestNodeKey())
 
+        var p1x = srcNode[0].offsetLeft;
+        var p1y = srcNode[0].offsetTop+250;
+        var p2x = destNode[0].offsetLeft;
+        var p2y = destNode[0].offsetTop+250;
+        console.log(p1y)
+        console.log('srcNode', p1x, p1y, 'destNode',p2x, p2y)
+        $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;left:'+p1x+'px;"></div>')
+        $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;left:'+p2x+'px;"></div>')
+        
+        return
+
+        // mid-point of line:
+        var mpx = (p2x + p1x) * 0.5;
+        var mpy = (p2y + p1y) * 0.5;
+
+        // angle of perpendicular to line:
+        var theta = Math.atan2(p2y - p1y, p2x - p1x) - Math.PI / 2;
+
+        // distance of control point from mid-point of line:
+        var offset = 30;
+
+        // location of control point:
+        var c1x = mpx + offset * Math.cos(theta);
+        var c1y = mpy + offset * Math.sin(theta);
+
+        // construct the command to draw a quadratic curve
+        // var curve = "M" + p1x + " " + p1y + " Q " + c1x + " " + c1y + " " + p2x + " " + p2y;
+        // var curveElement = document.getElementById("curve");
+        // curveElement.setAttribute("d", curve);
+    }
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
         // Adding a star symbol in front of the title if file is modified.

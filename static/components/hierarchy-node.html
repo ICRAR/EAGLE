@@ -1,6 +1,6 @@
 <!-- ko if: $data.parentKey === parentKey -->
     <li>
-        <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($root.objectIsSelectedById(_id)), click:select, clickBubble:false" params="data:$data, parentKey: key, select: $root.selectNodeInHierarchy">
+        <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($root.objectIsSelectedById(_id)), attr: { id:key} , click:select, clickBubble:false" params="data:$data, parentKey: key, select: $root.selectNodeInHierarchy">
             <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
             <div class="hierarchyNodeVisibilityIcon" data-bind="style: {'visibility': $root.hierarchyNodeIsHidden(key())}">
                 <i class="material-icons md-18">visibility_off</i>

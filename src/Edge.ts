@@ -51,7 +51,6 @@ export class Edge {
         this.loopAware = loopAware;
         this.closesLoop = closesLoop;
         this.selectionRelative = selectionRelative;
-        console.log("selectionrelative: ",selectionRelative)
     }
 
     getId = () : string => {

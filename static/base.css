@@ -1348,6 +1348,10 @@ select.form-control{
     color: black;
 }
 
+#nodeList .col{
+    position: relative;
+}
+
 #nodeInspectorAddField, #nodeInspectorAddApplicationParam{
     padding:0px;
 }
