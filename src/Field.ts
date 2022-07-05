@@ -126,12 +126,8 @@ export class Field {
     }
 
     isType = (type: string) => {
-        return this.type() === type;
+        return Utils.dataTypePrefix(this.type()) === type;
     }
-
-    getTypePrefix : ko.PureComputed<string> = ko.pureComputed(() => {
-        return Utils.dataTypePrefix(this.type());
-    }, this);
 
     valIsTrue = (val:string) : boolean => {
         return Utils.asBool(val);
@@ -267,10 +263,7 @@ export class Field {
         return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.idText()) > -1;
     }, this);
 
-    // TODO: rename select
-    select2 = (name: string, readOnly: boolean, parent: Field, index: number) : void => {
-        //console.log("select2", parent, parent instanceof Field, typeof parent);
-
+    select = (name: string, readOnly: boolean, parent: Field, index: number) : void => {
         Eagle.parameterTableSelectionName(name);
         Eagle.parameterTableSelectionParent(parent);
         Eagle.parameterTableSelectionParentIndex(index);
