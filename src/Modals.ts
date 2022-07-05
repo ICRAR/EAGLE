@@ -337,7 +337,7 @@ export class Modals {
             callback(true, newField);
         });
 
-        $('#editFieldModal').on('show.bs.modal', function(){
+        $('#editFieldModal').on('shown.bs.modal', function(){
             const type: string = $('#editFieldModalTypeInput').val().toString();
             const realType = Utils.translateStringToDataType(type);
 
@@ -500,7 +500,7 @@ export class Modals {
         $('#editFieldModalValueInputSelect').toggle(dataType === Eagle.DataType_Select);
 
         $('#editFieldModalDefaultValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select);
-        $('#editFieldModalDefaultValueInputCheckbox').toggle(dataType === Eagle.DataType_Boolean);
+        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Eagle.DataType_Boolean);
         $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Eagle.DataType_Select);
 
         // handle float and integer

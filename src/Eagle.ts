@@ -4050,7 +4050,7 @@ export class Eagle {
             if (fieldType == Eagle.FieldType.ComponentParameter){
                 $("#editFieldModalTitle").html("Add Component Parameter")
             } else {
-                $("#editFieldModalTitle").html("Add Application Parameter")
+                $("#editFieldModalTitle").html("Add Application Argument")
             }
             $("#addParameterWrapper").show();
             $("#customParameterOptionsWrapper").hide();
