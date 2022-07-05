@@ -2468,6 +2468,7 @@ export class Eagle {
         }
     }
 
+    // TODO: remove if possible
     getCurrentParamReadonly = (index: number) : boolean => {
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(Eagle.allowPaletteEditing()){
@@ -2522,6 +2523,7 @@ export class Eagle {
     // TODO: maybe move to Field.ts
     // TODO: add comments
     // TODO: a "get" function probably should not alter state
+    // TODO: we need the logic for the boolean case, but otherwise, can remove?
     getFieldType = (type:string, id:string, value:string) : string => {
         const typePrefix = Utils.dataTypePrefix(type);
 

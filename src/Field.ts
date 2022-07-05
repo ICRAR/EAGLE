@@ -104,6 +104,23 @@ export class Field {
         this.readonly(readonly);
     }
 
+    // determine if this field is readonly given the current state of eagle
+    isEagleReadonly : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            if(Eagle.allowPaletteEditing()){
+                return false;
+            }else{
+                return this.isReadonly();
+            }
+        }else{
+            if(Eagle.allowComponentEditing()){
+                return false;
+            }else{
+                return this.isReadonly();
+            }
+        }
+    }, this);
+
     getType = () : string => {
         return this.type();
     }
@@ -111,6 +128,10 @@ export class Field {
     isType = (type: string) => {
         return this.type() === type;
     }
+
+    getTypePrefix : ko.PureComputed<string> = ko.pureComputed(() => {
+        return Utils.dataTypePrefix(this.type());
+    }, this);
 
     valIsTrue = (val:string) : boolean => {
         return Utils.asBool(val);
@@ -246,12 +267,34 @@ export class Field {
         return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.idText()) > -1;
     }, this);
 
-    select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
-        Eagle.parameterTableSelectionName(selectionName);
-        Eagle.parameterTableSelectionParent(selectionParent);
-        Eagle.parameterTableSelectionParentIndex(selectionIndex);
-        Eagle.parameterTableSelection(selection);
-        Eagle.parameterTableSelectionReadonly(readOnlyState);
+    // TODO: rename select
+    select2 = (name: string, readOnly: boolean, parent: Field, index: number) : void => {
+        //console.log("select2", parent, parent instanceof Field, typeof parent);
+
+        Eagle.parameterTableSelectionName(name);
+        Eagle.parameterTableSelectionParent(parent);
+        Eagle.parameterTableSelectionParentIndex(index);
+        switch(name){
+            case 'value':
+            Eagle.parameterTableSelection(parent.value());
+            break;
+            case 'defaultValue':
+            Eagle.parameterTableSelection(parent.defaultValue());
+            break;
+            case 'description':
+            Eagle.parameterTableSelection(parent.description());
+            break;
+            case 'displayText':
+            Eagle.parameterTableSelection(parent.displayText());
+            break;
+            case 'idText':
+            Eagle.parameterTableSelection(parent.idText());
+            break;
+            default:
+            console.warn("Field.select(): unknown name:", name);
+            break;
+        }
+        Eagle.parameterTableSelectionReadonly(readOnly);
     }
 
     // used to transform the value attribute of a field into a variable with the correct type
