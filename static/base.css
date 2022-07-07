@@ -1263,7 +1263,7 @@ select.form-control{
 }
 
 .navbar-center .navbar-btn.navbar-btn-active{
-    color: #002349;
+    color: #002349 !important;
     background: rgb(211, 211, 211);
 }
 
