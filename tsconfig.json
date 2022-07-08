@@ -18,6 +18,7 @@
         "./src/bindingHandlers/graphRenderer.ts",
         "./src/bindingHandlers/nodeDataProperty.ts",
         "./src/bindingHandlers/eagleTooltip.ts",
+        "./src/bindingHandlers/eagleChecked.ts",
         "./src/components.ts",
         "./src/main.ts",
         "./src/Config.ts",

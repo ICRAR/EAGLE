@@ -18,6 +18,7 @@ require.config({
         "bindingHandlers/graphRenderer":"./static/built/bindingHandlers/graphRenderer",
         "bindingHandlers/nodeDataProperty":"./static/built/bindingHandlers/nodeDataProperty",
         "bindingHandlers/eagleTooltip":"./static/built/bindingHandlers/eagleTooltip",
+        "bindingHandlers/eagleChecked":"./static/built/bindingHandlers/eagleChecked",
         "components":"./static/built/components",
         "main":"./static/built/main",
         "Config": "./static/built/Config",
