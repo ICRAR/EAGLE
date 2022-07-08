@@ -268,28 +268,20 @@ export class Eagle {
             this.selectedObjects().forEach(function(element:any){
                 count++
                 if (element instanceof Node){
-                    console.log("node")
                     var key = element.getKey()
 
                     that.logicalGraph().getEdges().forEach(function(element:Edge){
                         if(element.getDestNodeKey() === key || element.getSrcNodeKey() === key){
-                            console.log("is a relative edge: ", element)
                             element.setSelectionRelative(true)
-                            that.drawHierarchyEdge(element)
+                            // that.drawHierarchyEdge(element)
                         }
                     })
                 }else if(element instanceof Edge){
-                    console.log("edge")
 
                     element.setSelectionRelative(true)
-                    that.drawHierarchyEdge(element)
+                    // that.drawHierarchyEdge(element)
                 }
             })
-            console.log(count)
-
-
-            //hadles drawing edges in the hierarchy
-
         }, this)
     }
 
@@ -671,6 +663,9 @@ export class Eagle {
             this.selectedObjects.push(selection);
         }
 
+        if(this.rightWindow().mode() !== Eagle.RightWindowMode.Inspector && this.rightWindow().mode() !== Eagle.RightWindowMode.Hierarchy){
+            this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
+        }
     }
 
     objectIsSelected = (object: Node | Edge): boolean => {
