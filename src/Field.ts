@@ -262,8 +262,6 @@ export class Field {
             return "number";
         }else if(typePrefix === Eagle.DataType_Boolean){
             return "checkbox";
-        }else if(typePrefix === Eagle.DataType_Select){
-            return "select";
         }else if(typePrefix === Eagle.DataType_Password){
             return "password";
         }else{
