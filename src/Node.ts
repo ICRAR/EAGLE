@@ -524,6 +524,14 @@ export class Node {
         return Eagle.getCategoryData(this.category()).maxOutputs > 0;
     }
 
+    maxInputs = () : number => {
+        return Eagle.getCategoryData(this.category()).maxInputs;
+    }
+
+    maxOutputs = () : number => {
+        return Eagle.getCategoryData(this.category()).maxOutputs;
+    }
+
     canHaveInputApplication = () : boolean => {
         return Eagle.getCategoryData(this.category()).canHaveInputApplication;
     }
@@ -950,7 +958,7 @@ export class Node {
 
     setGroupStart = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_start")){
-            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType.Boolean, false, [], false, Eagle.FieldType.ComponentParameter));
+            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter));
         } else {
             this.getFieldByIdText("group_start").setValue(value.toString());
         }
@@ -958,7 +966,7 @@ export class Node {
 
     setGroupEnd = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_end")){
-            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType.Boolean, false, [], false, Eagle.FieldType.ComponentParameter));
+            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter));
         } else {
             this.getFieldByIdText("group_end").setValue(value.toString());
         }
@@ -1004,6 +1012,14 @@ export class Node {
     removeAllInputPorts = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
             if (this.fields()[i].getFieldType() === Eagle.FieldType.InputPort){
+                this.fields.splice(i, 1);
+            }
+        }
+    }
+
+    removeAllOutputPorts = () : void => {
+        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
+            if (this.fields()[i].getFieldType() === Eagle.FieldType.OutputPort){
                 this.fields.splice(i, 1);
             }
         }
@@ -1176,14 +1192,14 @@ export class Node {
 
         // if no fields exist, create at least one, to store the custom data
         if (this.fields().length === 0){
-            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType.Unknown, false, [], false, Eagle.FieldType.ComponentParameter));
+            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Unknown, false, [], false, Eagle.FieldType.ComponentParameter));
         }
 
         this.fields()[0].setValue(e.value);
     }
 
     addEmptyField = (index:number) :void => {
-        var newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType.String, false, [], false, Eagle.FieldType.ComponentParameter)
+        var newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType_String, false, [], false, Eagle.FieldType.ComponentParameter)
         if(index === -1){
             this.addField(newField);
         }else{
