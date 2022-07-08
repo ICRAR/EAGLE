@@ -2609,17 +2609,7 @@ export class Eagle {
         if (typePrefix === Eagle.DataType_Float || typePrefix === Eagle.DataType_Integer){
             return "number"
         }else if(type === Eagle.DataType_Boolean){
-            $("#"+id).addClass("form-check-input")
-            if (Utils.asBool(value)){
-                $("#"+id).addClass("inputChecked")
-                $("#"+id).html("Checked")
-            }else {
-                $("#"+id).removeClass("inputChecked")
-                $("#"+id).html("Check")
-            }
             return "checkbox"
-        }else if(type === Eagle.DataType_Select){
-            return "select";
         }else if(type === Eagle.DataType_Password){
             return "password";
         }else{
