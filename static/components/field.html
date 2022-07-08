@@ -5,7 +5,7 @@
     </div>
 
     <!-- ko if: !isType(Eagle.DataType_Boolean) && !isType(Eagle.DataType_Select) -->
-    <input class="form-control" type="text" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: isEagleReadonly, attr: {id: $data.fieldType() + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue()">
+    <input class="form-control" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: isEagleReadonly, attr: {id: $data.fieldType() + $index(), type: getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue()">
     <!-- /ko -->
 
     <!-- ko if: isType(Eagle.DataType_Boolean) -->
