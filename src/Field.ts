@@ -109,7 +109,7 @@ export class Field {
     }
 
     isType = (type: string) => {
-        return this.type() === type;
+        return Utils.dataTypePrefix(this.type()) === type;
     }
 
     valIsTrue = (val:string) : boolean => {
@@ -246,13 +246,47 @@ export class Field {
         return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.idText()) > -1;
     }, this);
 
-    select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
+    select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
         Eagle.parameterTableSelectionName(selectionName);
         Eagle.parameterTableSelectionParent(selectionParent);
         Eagle.parameterTableSelectionParentIndex(selectionIndex);
         Eagle.parameterTableSelection(selection);
         Eagle.parameterTableSelectionReadonly(readOnlyState);
     }
+
+    // get the value for the "type" attribute that is appropriate for a <input> element for this field
+    getHtmlInputType = () : string => {
+        const typePrefix = Utils.dataTypePrefix(this.type());
+
+        if (typePrefix === Eagle.DataType_Float || typePrefix === Eagle.DataType_Integer){
+            return "number";
+        }else if(typePrefix === Eagle.DataType_Boolean){
+            return "checkbox";
+        }else if(typePrefix === Eagle.DataType_Select){
+            return "select";
+        }else if(typePrefix === Eagle.DataType_Password){
+            return "password";
+        }else{
+            return "text";
+        }
+    }
+
+    // determine if this field is readonly given the current state of eagle
+   isEagleReadonly : ko.PureComputed<boolean> = ko.pureComputed(() => {
+       if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+           if(Eagle.allowPaletteEditing()){
+               return false;
+           }else{
+               return this.isReadonly();
+           }
+       }else{
+           if(Eagle.allowComponentEditing()){
+               return false;
+           }else{
+               return this.isReadonly();
+           }
+       }
+   }, this);
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally

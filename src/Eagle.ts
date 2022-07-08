@@ -2468,22 +2468,6 @@ export class Eagle {
         }
     }
 
-    getCurrentParamReadonly = (index: number) : boolean => {
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(Eagle.allowPaletteEditing()){
-                return false;
-            }else{
-                return this.selectedNode().getFields()[index].isReadonly();
-            }
-        }else{
-            if(Eagle.allowComponentEditing()){
-                return false;
-            }else{
-                return this.selectedNode().getFields()[index].isReadonly();
-            }
-        }
-    }
-
     toggleSettingsTab = (btn:any, target:any) :void => {
         //deselect and deactivate current tab content and buttons
         $(".settingsModalButton").removeClass("settingCategoryBtnActive");
@@ -2519,30 +2503,14 @@ export class Eagle {
         return null;
     }
 
-    // TODO: maybe move to Field.ts
-    // TODO: add comments
-    // TODO: a "get" function probably should not alter state
-    getFieldType = (type:string, id:string, value:string) : string => {
-        const typePrefix = Utils.dataTypePrefix(type);
-
-        if (typePrefix === Eagle.DataType_Float || typePrefix === Eagle.DataType_Integer){
-            return "number"
-        }else if(type === Eagle.DataType_Boolean){
-            $("#"+id).addClass("form-check-input")
-            if (Utils.asBool(value)){
-                $("#"+id).addClass("inputChecked")
-                $("#"+id).html("Checked")
-            }else {
-                $("#"+id).removeClass("inputChecked")
-                $("#"+id).html("Check")
-            }
-            return "checkbox"
-        }else if(type === Eagle.DataType_Select){
-            return "select";
-        }else if(type === Eagle.DataType_Password){
-            return "password";
-        }else{
-            return "text"
+    setupBoolean = (id:string, value:string) => {
+        $("#"+id).addClass("form-check-input")
+        if (Utils.asBool(value)){
+            $("#"+id).addClass("inputChecked")
+            $("#"+id).html("Checked")
+        }else {
+            $("#"+id).removeClass("inputChecked")
+            $("#"+id).html("Check")
         }
     }
 
