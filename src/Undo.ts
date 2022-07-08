@@ -81,7 +81,7 @@ export class Undo {
             console.log("newContent", newContent);
         }
         */
-        
+
         // check if newContent matches old content, if so, no need to push
         // TODO: maybe speed this up with checksums? or maybe not required
         if (previousSnapshot !== null && previousSnapshot.data() === newContent){
@@ -130,6 +130,8 @@ export class Undo {
         if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
             eagle.printUndoTable();
         }
+
+        eagle.checkGraph();
     }
 
     nextSnapshot = (eagle: Eagle) : void => {
@@ -145,6 +147,8 @@ export class Undo {
         if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
             eagle.printUndoTable();
         }
+
+        eagle.checkGraph();
     }
 
     toString = () : string => {

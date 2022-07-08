@@ -1627,37 +1627,7 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), false, false, errorsWarnings);
-        }
-
-        // check that all "closes loop" edges:
-        // - begin from a Data component
-        // - end with a App component
-        // - sourceNode has a 'group_end' field set to true
-        // - destNode has a 'group_start' field set to true
-        for (const edge of graph.getEdges()){
-            if (!edge.isClosesLoop()){
-                continue;
-            }
-
-            const sourceNode = graph.findNodeByKey(edge.getSrcNodeKey());
-            const destNode = graph.findNodeByKey(edge.getDestNodeKey());
-
-            if (!sourceNode.isData()){
-                errorsWarnings.errors.push(Errors.NoFix("Closes Loop Edge (" + edge.getId() + ") does not start from a Data component."));
-            }
-
-            if (!destNode.isApplication()){
-                errorsWarnings.errors.push(Errors.NoFix("Closes Loop Edge (" + edge.getId() + ") does not end at an Application component."));
-            }
-
-            if (!sourceNode.hasFieldWithIdText('group_end') || !Utils.asBool(sourceNode.getFieldByIdText('group_end').getValue())){
-                errorsWarnings.errors.push(Errors.NoFix("'Closes Loop' Edge (" + edge.getId() + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true."));
-            }
-
-            if (!destNode.hasFieldWithIdText('group_start') || !Utils.asBool(destNode.getFieldByIdText('group_start').getValue())){
-                errorsWarnings.errors.push(Errors.NoFix("'Closes Loop' Edge (" + edge.getId() + ") end node (" + destNode.getName() + ") does not have 'group_start' set to true."));
-            }
+            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
         }
 
         return errorsWarnings;
@@ -1909,5 +1879,18 @@ export class Utils {
         $('#errorsModal').modal("hide");
 
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findNodeByKey(nodeKey), Eagle.FileType.Graph);
+    }
+
+    // only update result if it is worse that current result
+    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
+        if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
+            return Eagle.LinkValid.Valid;
+        }
+
+        if (errorsWarnings.errors.length !== 0){
+            return Eagle.LinkValid.Invalid;
+        }
+
+        return Eagle.LinkValid.Warning;
     }
 }
