@@ -2503,17 +2503,6 @@ export class Eagle {
         return null;
     }
 
-    setupBoolean = (id:string, value:string) => {
-        $("#"+id).addClass("form-check-input")
-        if (Utils.asBool(value)){
-            $("#"+id).addClass("inputChecked")
-            $("#"+id).html("Checked")
-        }else {
-            $("#"+id).removeClass("inputChecked")
-            $("#"+id).html("Check")
-        }
-    }
-
     static resetParamsTableSelection = ():void => {
         Eagle.parameterTableSelectionParentIndex(-1);
         Eagle.parameterTableSelection(null);
