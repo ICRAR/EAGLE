@@ -1108,11 +1108,79 @@ select.form-control{
 }
 
 #inspectorSelectionSummaryNodes {
-    margin-top: 8px;
+    margin-top: 3px;
     background-color: #c2c8dc;
-    padding: 5px 15px;
+    padding: 1px 15px;
     border-radius: 5px;
     display: block;
+}
+
+.hierarchyDividerLine{
+    border-bottom: 1px solid black;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.hierarchyGraphInfoPre{
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.hierarchyNode {
+    margin-top: 4px;
+    background-color: #e9ecef;
+    padding: 3px 15px;
+    border-radius: 5px;
+    border: 1px solid #002349;
+    overflow: hidden;
+    position: relative;
+}
+
+.hierarchyNodeIsSelected {
+    border: 3px solid #002349;
+    background-color: #c3cfda;
+}
+
+.hierarchyNode .hierarchyNodeColor{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 10px;
+    height: 100%;
+}
+
+.hierarchyNode h5{
+    margin-bottom: 0px;
+    font-size: 15px;
+    pointer-events: none;
+    user-select: none; /* CSS3 (little to no support) */
+        -ms-user-select: none; /* IE 10+ */
+       -moz-user-select: none; /* Gecko (Firefox) */
+    -webkit-user-select: none; /* Webkit (Safari, Chrome) */
+}
+
+.hierarchyNodeIsSelected h5{
+    font-weight: 700;
+}
+
+.hierarchyNode span{
+    font-size:12px;
+    display:block;
+    pointer-events: none;
+    user-select: none; /* CSS3 (little to no support) */
+        -ms-user-select: none; /* IE 10+ */
+       -moz-user-select: none; /* Gecko (Firefox) */
+    -webkit-user-select: none; /* Webkit (Safari, Chrome) */
+}
+
+.hierarchyNodeVisibilityIcon{
+    position: absolute;
+    width: auto;
+    height: auto;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-40%);
+    color: grey;
 }
 
 .accordion-button.collapsed::after {
@@ -1331,6 +1399,16 @@ select.form-control{
 
 #nodeList ul.nodes {
     list-style-type: none;
+    padding: 0px 20px;
+}
+
+#nodeList .hierarchyNode div ul.nodes{
+    padding:0px;
+    color: black;
+}
+
+#nodeList .col{
+    position: relative;
 }
 
 #nodeInspectorAddField, #nodeInspectorAddApplicationParam{

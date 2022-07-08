@@ -392,7 +392,7 @@ export class Modals {
             const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
             const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop);
+            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop,false);
 
             callback(true, newEdge);
         });
