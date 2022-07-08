@@ -3529,8 +3529,8 @@ export class Eagle {
         this.selectedObjects.valueHasMutated();
     }
 
-    removePortFromNodeByIndex = (node : Node, index : number, input : boolean) : void => {
-        console.log("removePortFromNodeByIndex(): node", node.getName(), "index", index, "input", input);
+    removePortFromNodeByIndex = (node : Node, fieldId:string, input : boolean) : void => {
+        console.log("removePortFromNodeByIndex(): node", node.getName(), "index",fieldId, "input", input);
 
         if (node === null){
             console.warn("Could not remove port from null node");
@@ -3538,20 +3538,17 @@ export class Eagle {
         }
 
         // remember port id
-        let portId;
-        if (input){
-            portId = node.getInputPorts()[index].getId();
-        } else {
-            portId = node.getOutputPorts()[index].getId();
-        }
+        let portId = fieldId
+        //doing this so this function will work both in context of being in a port only loop as well as a fields loop
+        let portIndex = node.findPortIndexById(portId)
 
         console.log("Found portId to remove:", portId);
 
         // remove port
         if (input){
-            node.removeFieldTypeByIndex(index, Eagle.FieldType.InputPort);
+            node.removeFieldTypeByIndex(portIndex, Eagle.FieldType.InputPort);
         } else {
-            node.removeFieldTypeByIndex(index, Eagle.FieldType.OutputPort);
+            node.removeFieldTypeByIndex(portIndex, Eagle.FieldType.OutputPort);
         }
 
         // remove any edges connected to that port
@@ -4628,14 +4625,14 @@ export class Eagle {
             // delete extra input ports
             if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
                 for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removePortFromNodeByIndex(this.selectedNode(), i, true);
+                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId(), true);
                 }
             }
 
             // delete extra output ports
             if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
                 for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removePortFromNodeByIndex(this.selectedNode(), i, false);
+                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId(), false);
                 }
             }
 
