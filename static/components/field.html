@@ -10,7 +10,7 @@
 
     <!-- ko if: isType(Eagle.DataType_Boolean) -->
     <div class="form-control checkboxParent">
-        <input class="inspectorCheckbox form-check-input btn-check" placeholder="" aria-label="Label" onclick="$(this).val(this.checked ? true : false)" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], disabled: function(){return $root.getCurrentParamReadonly($index(),$data.fieldType())}, attr: {type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()), id: $data.fieldType() + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();$root.checkGraph();}}, eagleTooltip: getFieldValue()">
+        <input class="inspectorCheckbox form-check-input btn-check" placeholder="" aria-label="Label" onclick="$(this).val(this.checked ? true : false)" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, checked: valIsTrue($data.value()), disabled: function(){return $root.getCurrentParamReadonly($index(),$data.fieldType())}, attr: {type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()), id: $data.fieldType() + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();$root.checkGraph();}}, eagleTooltip: getFieldValue()">
         <label class="btn btn-outline-primary" data-bind="attr:{for: $data.fieldType() + $index()}, html: $data.value() "></label><br>
     </div>
     <!-- /ko -->
