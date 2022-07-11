@@ -271,17 +271,27 @@ export class Eagle {
                     var key = element.getKey()
 
                     that.logicalGraph().getEdges().forEach(function(e:Edge){
-                        if(e.getDestNodeKey() === key || e.getSrcNodeKey() === key){
+                        // if(e.getDestNodeKey() === key || e.getSrcNodeKey() === key){
+                        //     e.setSelectionRelative(true)
+                        //     that.drawHierarchyEdge(e)
+                        // }
+                        if(e.getDestNodeKey() === key){
                             e.setSelectionRelative(true)
-                            that.drawHierarchyEdge(e)
+                            that.drawHierarchyEdge(e,"input")
+                            console.log("From ",that.logicalGraph().findNodeByKey(e.getSrcNodeKey()).getName())
+                        }else if(e.getSrcNodeKey() === key){
+                            e.setSelectionRelative(true)
+                            that.drawHierarchyEdge(e,"output")
+                            console.log("To ",that.logicalGraph().findNodeByKey(e.getDestNodeKey()).getName())
                         }
                     })
                 }else if(element instanceof Edge){
 
                     element.setSelectionRelative(true)
-                    that.drawHierarchyEdge(element)
+                    that.drawHierarchyEdge(element, "edge")
                 }
             })
+            console.log('----------------------------------------')
         }, this)
     }
 
@@ -344,19 +354,38 @@ export class Eagle {
         }
     }
 
-    drawHierarchyEdge = (edge:Edge) : void =>{
-        var srcNode = $('.hierarchyNode #'+edge.getSrcNodeKey())
-        var destNode = $('.hierarchyNode #'+edge.getDestNodeKey())
+    drawHierarchyEdge = (edge:Edge, use:string) : void =>{
+        var srcNodePos = $('.hierarchyNode #'+edge.getSrcNodeKey())[0].getBoundingClientRect()
+        var destNodePos = $('.hierarchyNode #'+edge.getDestNodeKey())[0].getBoundingClientRect()
+        var parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
+        console.log('srcId', edge.getSrcNodeKey(), srcNodePos)
+        console.log('destId', edge.getDestNodeKey(), destNodePos)
 
-        var p1x = srcNode[0].offsetLeft;
-        var p1y = srcNode[0].offsetTop+250;
-        var p2x = destNode[0].offsetLeft;
-        var p2y = destNode[0].offsetTop+250;
-        console.log('srcNode', p1x, p1y, 'destNode',p2x, p2y)
-        $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;left:'+p1x+'px;"></div>')
-        $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;left:'+p2x+'px;"></div>')
+        if(use==="input"){
+            console.log("input")
+            var p1x = (srcNodePos.left - parentPos.left)-4
+            var p1y = (srcNodePos.top - parentPos.top)+8
+            var p2x = (destNodePos.left - parentPos.left)-4
+            var p2y = (destNodePos.top - parentPos.top)+8
+            $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;left:'+p1x+'px;"></div>')
+            $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;left:'+p2x+'px;"></div>')
+           
+        }else if(use==="output"){
+            console.log("output")
+            var p1x = (parentPos.right-srcNodePos.right )-9
+            var p1y = (srcNodePos.top - parentPos.top)+9
+            var p2x = (parentPos.right-destNodePos.right)-9
+            var p2y = (destNodePos.top - parentPos.top)+9
+            $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;right:'+p1x+'px;"></div>')
+            $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;right:'+p2x+'px;"></div>')
+           
+        }else{
+            console.log("edge")
+        }
         
-        return
+        console.log('srcNode', p1x, p1y, 'destNode',p2x, p2y)
+       
+        // return
 
         // mid-point of line:
         var mpx = (p2x + p1x) * 0.5;
@@ -373,7 +402,7 @@ export class Eagle {
         var c1y = mpy + offset * Math.sin(theta);
 
         // construct the command to draw a quadratic curve
-        // var curve = "M" + p1x + " " + p1y + " Q " + c1x + " " + c1y + " " + p2x + " " + p2y;
+        var curve = "M" + p1x + " " + p1y + " Q " + c1x + " " + c1y + " " + p2x + " " + p2y;
         // var curveElement = document.getElementById("curve");
         // curveElement.setAttribute("d", curve);
     }
