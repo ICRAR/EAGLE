@@ -481,15 +481,12 @@
                             <p>Value:</p>
                         </div>
                         <div class="col">
-                            <div class="input-group mb-3">
-                                <div class="input-group mb-3 has-validation">
-                                    <textarea type="text" class="form-control" id="editFieldModalValueInputText"></textarea>
-                                </div>
-                                <div class="input-group mb-3 componentCheckbox" id="componentValueCheckbox">
-                                    <span>wat</span>
+                            <div class="input-group mb-3 has-validation">
+                                <textarea type="text" class="form-control" id="editFieldModalValueInputText"></textarea>
+                                <div class="input-group componentCheckbox" id="componentValueCheckbox">
                                     <input type="checkbox" class="form-control form-check-input" id="editFieldModalValueInputCheckbox">
                                 </div>
-                                <select class="form-control mb-3" id="editFieldModalValueInputSelect">
+                                <select class="form-control" id="editFieldModalValueInputSelect">
                                     <!-- options are added dynamically -->
                                 </select>
                             </div>
@@ -500,10 +497,12 @@
                             <p>Default Value:</p>
                         </div>
                         <div class="col">
-                            <div class="input-group mb-3">
+                            <div class="input-group">
                                 <textarea type="text" class="form-control" id="editFieldModalDefaultValueInputText"></textarea>
-                                <input type="checkbox" class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox">
-                                <select class="form-control mb-3" id="editFieldModalDefaultValueInputSelect">
+                                <div class="input-group componentCheckbox" id="componentDefaultValueCheckbox">
+                                    <input type="checkbox" class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox">
+                                </div>
+                                <select class="form-control" id="editFieldModalDefaultValueInputSelect">
                                     <!-- options are added dynamically -->
                                 </select>
                             </div>
@@ -524,10 +523,11 @@
                             <p>Type:</p>
                         </div>
                         <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="editFieldModalTypeSelect">
-                                    <!-- options are added dynamically -->
-                                </select>
+                            <div class="input-group mb-3">
+                                <input id="editFieldModalTypeInput" type="text" class="form-control" aria-label="Text input with dropdown button">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Types</button>
+                                <ul id="editFieldModalTypeSelect" class="dropdown-menu dropdown-menu-end">
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -616,15 +616,15 @@
                         <tr>
                             <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">Display Text</th>
                             <th id="parameter_table_name" data-bind="eagleTooltip:'Internal name used by DALiuGE'" data-bs-placement="top">idText</th>
-                            <th id="parameter_table_value">Value</th>
+                            <th id="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">Value</th>
                             <th id="parameter_table_read_only" data-bind="eagleTooltip:'No write access when checked'" data-bs-placement="top">Read Only</th>
-                            <th id="parameter_table_default_value">Default Value</th>
-                            <th id="parameter_table_description">Description</th>
-                            <th id="parameter_table_type">Type</th>
-                            <th id="parameter_table_isPort">Use As</th>
+                            <th id="parameter_table_default_value" data-bind="eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">Default Value</th>
+                            <th id="parameter_table_description" data-bind="eagleTooltip:'A description of the purpose of this parameter'" data-bs-placement="top">Description</th>
+                            <th id="parameter_table_type" data-bind="eagleTooltip:'The type of the data stored in this parameter (e.g. Integer, Float, String etc)'" data-bs-placement="top">Type</th>
+                            <th id="parameter_table_isPort" data-bind="eagleTooltip:'The way this parameter will be used by the component. ComponentParameters are passed to the DALiuGE execution framework. ApplicationArguments are passed to the Application executed by this component. InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">Use As</th>
                             <th id="parameter_table_precious" data-bind="eagleTooltip:'Argument never suppressed'" data-bs-placement="top">Precious</th>
                             <th id="parameter_table_positional" data-bind="eagleTooltip:'If checked only the value of this argument will be put on the command line'" data-bs-placement="top">Positional</th>
-                            <th id="parameter_table_actions">Actions</th>
+                            <th id="parameter_table_actions" data-bind="eagleTooltip:'Additional operations that are possible on this parameter (e.g. Delete, Duplicate etc)'" data-bs-placement="top">Actions</th>
                         </tr>
                         </thead>
                             <tbody data-bind="foreach: $root.selectedNode().getFields()">
@@ -640,6 +640,9 @@
                                     <!-- /ko -->
                                     <!-- ko if: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'checkbox' -->
                                     <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                    <!-- /ko -->
+                                    <!-- ko if: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'select' -->
+                                        <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                     <!-- /ko -->
 
                                     <!-- ko ifnot: $root.selectedNode().isLocked() -->
@@ -664,7 +667,6 @@
 
                                     <!-- selection input -->
                                     <!-- ko if: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value()) === 'select' -->
-                                        <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.value())},  event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                         <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $root.getFieldType(getType(), $data.fieldType() + $index(), $data.defaultValue())}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                     <!-- /ko -->
 
@@ -682,9 +684,18 @@
                                     <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                     <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                     <td>
+                                        <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', Eagle.FieldType.Unknown, $index());}, disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
                                         <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
                                         <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
-                                        <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.selectedNode(), $data.fieldType(), $index());}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                        <!-- ko if: $data.fieldType() === Eagle.FieldType.InputPort -->
+                                            <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(),$data.getId(), true);}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                        <!-- /ko -->
+                                        <!-- ko if: $data.fieldType() === Eagle.FieldType.OutputPort -->
+                                            <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(),$data.getId(), false);}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                        <!-- /ko -->
+                                        <!-- ko if: $data.fieldType() === Eagle.FieldType.ApplicationArgument || $data.fieldType() === Eagle.FieldType.ComponentParameter -->
+                                            <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.selectedNode(), $data.fieldType(), $index());}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                        <!-- /ko -->
                                     </td>
                                 </tr>
                                 <!-- /ko -->

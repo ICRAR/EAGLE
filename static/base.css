@@ -81,6 +81,26 @@
     background-color: #b6c3cf;
 }
 
+#editFieldModal .modal-body{
+    min-height: 585px;
+}
+
+#editFieldModalTypeSelect{
+    position: absolute;
+    background: white;
+    padding: 0px;
+    height: 130px;
+    overflow-y: scroll;
+    margin: 0px;
+    transform: none !important;
+    inset: 40px 0px auto auto !important;
+}
+
+#editFieldModalTypeSelect .dropdown-item:hover{
+    background: #002e5f;
+    color: white;
+}
+
 #explorePalettesModal li.list-group-item span{
     pointer-events: none;
 }
@@ -123,7 +143,7 @@
 }
 
 #tableInspectorSelection{
-    width: 300px !important;
+    width: 299px !important;
     padding: 0px 5px;
     margin: 0px;
     border-right:1px solid rgba(0, 0, 0, 0.336) !important;
@@ -207,15 +227,15 @@ td:first-child input {
 }
 
 #parameter_table_actions{
-    width: 88px;
+    width: 101px;
 }
 
 #parameter_table_precious{
-    width: 80px;
+    width: 71px;
 }
 
 #parameter_table_positional{
-    width: 90px;
+    width: 79px;
 }
 
 #parameter_table_isPort{
@@ -223,7 +243,7 @@ td:first-child input {
 }
 
 #parameter_table_read_only{
-    width: 90px;
+    width: 81px;
 }
 
 #parameter_table_type{
@@ -231,11 +251,11 @@ td:first-child input {
 }
 
 #parameter_table_text{
-    width: 200px;
+    width: 160px;
 }
 
 #parameter_table_name{
-    width: 200px;
+    width: 160px;
 }
 
 #parameterTableModal .modal-header{
@@ -300,11 +320,45 @@ td:first-child input {
 
 #paramsTableWrapper input{
     background-color: transparent;
-    font-size: 15px;
+}
+
+#paramsTableWrapper th, #paramsTableWrapper td, #paramsTableWrapper input{
+    font-size: 14px;
+}
+
+#paramsTableWrapper i{
+    font-size:20px;
 }
 
 #paramsTableWrapper input:focus{
     outline: none;
+}
+
+@media only screen and (max-width: 2010px) {
+    
+    #parameterTableModal .modal-dialog {
+        max-width: 90vw;
+    }
+
+    #parameter_table_isPort{
+        width: 90px;
+    }
+
+    #parameter_table_type{
+        width: 100px;
+    }
+
+    #parameter_table_text{
+        width: 150px;
+    }
+
+    #parameter_table_name{
+        width: 53px;
+    }
+
+    #parameter_table_description{
+        width:91px;
+    }
 }
 
 /*Animation must have unfill path strokes to work*/
@@ -1276,8 +1330,13 @@ select.form-control{
     top: 3px;
 }
 
+.navbar-center .navbar-btn.navbar-btn-active{
+    color: #002349 !important;
+    background: rgb(211, 211, 211);
+}
+
 .navbar-center .navbar-btn:hover{
-    color: #002349;
+    color: #002349 !important;
     background: white;
 }
 
@@ -1431,12 +1490,12 @@ div.rightWindow h5.card-header {
     top: 2px;
 }
 
-.btn-outline-secondary {
+ul.nav.navbar-nav .btn-outline-secondary {
     border-color: #dadada;
     color:white;
 }
 
-.btn-outline-secondary:hover{
+ul.nav.navbat-nav .btn-outline-secondary:hover{
     background-color: white;
     color: #002349;
 }
@@ -1486,7 +1545,7 @@ div.rightWindow h5.card-header {
      margin-left:4px;
  }
 
-.dropdown-menu{
+ul.nav.navbar-nav .dropdown-menu{
     border:solid 1px #000c1a;
     border-radius: 6px;
      position: absolute;
@@ -1494,16 +1553,16 @@ div.rightWindow h5.card-header {
      background-color: #0059a5;
 }
 
-.dropdown-menu-right{
+ul.nav.navbar-nav .dropdown-menu-right{
     right: 0;
     left: auto !important;
 }
 
-.dropdown-item{
+ul.nav.navbar-nav .dropdown-item{
     color: white;
 }
 
-.dropdown-item:hover{
+ul.nav.navbar-nav .dropdown-item:hover{
     background-color: #001d3b;
     color: white;
 }

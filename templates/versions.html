@@ -1,3 +1,21 @@
+v4.5.0 (2022/06/28)
+- Improvements to shift-clicking (add to selection), shift-dragging (select region) and selection of iconified nodes
+- Display edge errors/warnings in edge inspector
+- Detect duplicate edges in graphs and add to error messages
+- Improved display of errors/warning during file loading
+- Switched to matching ports based on underlying data type, rather than port name
+- Undo/redo memory savings
+- Improved display of node titles in graph view
+- Shift-Delete will delete selection but maintain children of selection
+- More info when deleting nodes on how many nodes and children will be deleted
+- Cleanup of 'Expert mode' setting, addition of new 'Developer' section in settings (visible in Expert Mode)
+- Easier resizing of side panels
+- New navbar button to hide/show data nodes in graph view
+- Updated navbar introduction text
+- Clicks on input/output application names drawn within constructs in the graph view now open the app in the inspector
+- Single parameters table now contains all component parameters, application arguments and input/output ports
+- Connecting two application components with an edge now generates a Memory component by default, instead of prompting the user to choose
+- Param/Arg/Port types are all stored as strings now, to allow for a completely custom ports
 v4.4.0 (2022/05/25)
 - Undo/Redo (Z/Shift-Z)
 - Overhaul of editing permissions settings, and addition of 'Expert mode'

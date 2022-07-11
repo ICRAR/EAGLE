@@ -226,9 +226,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 }
             }
 
-            eagle.selectedObjects.push(...objects);
-            Eagle.selectedLocation(Eagle.FileType.Graph);
-            eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector);
+            objects.forEach(function(element){
+                eagle.editSelection(Eagle.RightWindowMode.Hierarchy, element, Eagle.FileType.Graph )
+            })
 
             if (isDraggingWithAlt){
                 for (const node of nodes){
