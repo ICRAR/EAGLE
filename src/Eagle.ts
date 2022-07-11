@@ -270,16 +270,16 @@ export class Eagle {
                 if (element instanceof Node){
                     var key = element.getKey()
 
-                    that.logicalGraph().getEdges().forEach(function(element:Edge){
-                        if(element.getDestNodeKey() === key || element.getSrcNodeKey() === key){
-                            element.setSelectionRelative(true)
-                            // that.drawHierarchyEdge(element)
+                    that.logicalGraph().getEdges().forEach(function(e:Edge){
+                        if(e.getDestNodeKey() === key || e.getSrcNodeKey() === key){
+                            e.setSelectionRelative(true)
+                            that.drawHierarchyEdge(e)
                         }
                     })
                 }else if(element instanceof Edge){
 
                     element.setSelectionRelative(true)
-                    // that.drawHierarchyEdge(element)
+                    that.drawHierarchyEdge(element)
                 }
             })
         }, this)
@@ -352,7 +352,6 @@ export class Eagle {
         var p1y = srcNode[0].offsetTop+250;
         var p2x = destNode[0].offsetLeft;
         var p2y = destNode[0].offsetTop+250;
-        console.log(p1y)
         console.log('srcNode', p1x, p1y, 'destNode',p2x, p2y)
         $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;left:'+p1x+'px;"></div>')
         $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;left:'+p2x+'px;"></div>')
@@ -623,12 +622,15 @@ export class Eagle {
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         if (selection === null){
             this.selectedObjects([]);
+            this.rightWindow().mode(rightWindowMode);
         } else {
             this.selectedObjects([selection]);
+            if(this.rightWindow().mode() !== Eagle.RightWindowMode.Inspector && this.rightWindow().mode() !== Eagle.RightWindowMode.Hierarchy){
+                this.rightWindow().mode(Eagle.RightWindowMode.Inspector)
+            }
         }
 
         Eagle.selectedLocation(selectedLocation);
-        this.rightWindow().mode(rightWindowMode);
 
         // update the display of all the sections of the node inspector (collapse/expand as appropriate)
         this.inspectorState().updateAllInspectorSections();
