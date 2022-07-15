@@ -245,19 +245,23 @@ export class Edge {
         }
 
         if (sourcePortId === ""){
-            return Eagle.LinkValid.Unknown;
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "source port has no id", "danger", showNotification, showConsole, errors, warnings);
+            return Eagle.LinkValid.Invalid;
         }
 
         if (destinationPortId === ""){
-            return Eagle.LinkValid.Unknown;
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "destination port has no id", "danger", showNotification, showConsole, errors, warnings);
+            return Eagle.LinkValid.Invalid;
         }
 
         if (sourcePortId === null){
-            return Eagle.LinkValid.Unknown;
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "source port id is null", "danger", showNotification, showConsole, errors, warnings);
+            return Eagle.LinkValid.Invalid;
         }
 
         if (destinationPortId === null){
-            return Eagle.LinkValid.Unknown;
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, "destination port id is null", "danger", showNotification, showConsole, errors, warnings);
+            return Eagle.LinkValid.Invalid;
         }
 
         // get references to actual source and destination nodes (from the keys)
