@@ -3539,6 +3539,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     continue;
                 }
 
+                // if port has no id (broken) then don't consider it as a auto-complete target
+                if (port.getId() === ""){
+                    continue;
+                }
+
                 // get position of port
                 const portX = node.getPosition().x;
                 const portY = node.getPosition().y;
