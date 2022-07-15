@@ -9,6 +9,21 @@
             <!-- ko foreach: selectedNode().getInputPorts() -->
             <port params="id: $data.getId(), name: $data.getDisplayText(), description: $data.getDescriptionText(), multiplicity: $root.logicalGraph().findMultiplicity($root.selectedNode()), isEventPort: $data.isEvent(), toggleEvent: $data.toggleEvent, input: true, fieldType: Eagle.FieldType.InputPort"></port>
             <!-- /ko -->
+
+            <!-- ko ifnot: selectedNode().isLocked()-->
+                <button class="btn btn-secondary btn-block nodeInspectorDropDown btn_wide" id="nodeInspectorAddInputPort" type="button" data-bind="click: $root.addInputPortHTML, eagleTooltip:'Add input port'" data-bs-placement="left">
+                    <i class="material-icons md-18">add</i>
+                </button>
+                <div id="nodeInspectorAddInputPortDiv" class="nodeInspectorDropdownDiv">
+                    <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:function(){hideDropDown('nodeInspectorAddInputPortDiv')}}">
+                        <div id="nodeInspectorInputPortDropDownKO">
+                            <a href="#" data-bind="click:nodeInspectorDropdownClick">hi</a>
+                            <a href="#">hi2</a>
+                            <a href="#">hi3</a>
+                        </div>
+                    </div>
+                </div>
+            <!-- /ko -->
         </div>
     </div>
 </div>
