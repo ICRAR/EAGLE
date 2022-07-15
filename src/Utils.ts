@@ -1564,6 +1564,15 @@ export class Utils {
             }
         }
 
+        // check that all fields have ids
+        for (const node of graph.getNodes()){
+            for (const field of node.getFields()){
+                if (field.getId() === "" || field.getId() === null){
+                    errors.push("Node " + node.getKey() + " (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id");
+                }
+            }
+        }
+
         // check that all fields have default values
         for (const node of graph.getNodes()){
             for (const field of node.getFields()){
