@@ -280,8 +280,7 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            //const id : string = $('#editFieldModalIdInput').val().toString();
-            const id : string = "";
+            const id : string = Utils.uuidv4();
             const idText : string = $('#editFieldModalIdTextInput').val().toString();
             const displayText : string = $('#editFieldModalDisplayTextInput').val().toString();
 

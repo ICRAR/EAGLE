@@ -356,7 +356,7 @@ export class Eagle {
         console.log('srcNode', p1x, p1y, 'destNode',p2x, p2y)
         $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;left:'+p1x+'px;"></div>')
         $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;left:'+p2x+'px;"></div>')
-        
+
         return
 
         // mid-point of line:
@@ -3330,6 +3330,7 @@ export class Eagle {
     /**
      * Adds an field to the selected node via HTML.
      */
+    // TODO: are these still used?
     addFieldHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -3348,6 +3349,7 @@ export class Eagle {
     /**
      * Adds an application param to the selected node via HTML.
      */
+    // TODO: are these still used?
     addApplicationArgHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -3410,6 +3412,8 @@ export class Eagle {
         }, 100);
     }
 
+    // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
+    // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
         let selectSectionID;
         let modalID;
@@ -3429,8 +3433,13 @@ export class Eagle {
             $("#"+divID).hide();
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
+
+            // triggers the 'add application argument' modal to show
             $("#"+modalID).removeClass("forceHide");
+
+            // triggers the modal 'lightbox' to show
             $(".modal-backdrop").removeClass("forceHide");
+
         }else{
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
@@ -3968,6 +3977,29 @@ export class Eagle {
             for (const node of palette.getNodes()){
                 tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "category":node.getCategory()});
             }
+        }
+
+        console.table(tableData);
+    }
+
+    printNodeFieldsTable = (nodeIndex: number) : void => {
+        const tableData : any[] = [];
+
+        // check that node at nodeIndex exists
+        if (nodeIndex >= this.logicalGraph().getNumNodes()){
+            console.warn("Unable to print node fields table, node", nodeIndex, "does not exist.");
+            return;
+        }
+
+        // add logical graph nodes to table
+        for (const field of this.logicalGraph().getNodes()[nodeIndex].getFields()){
+            tableData.push({
+                "id":field.getId(),
+                "idText":field.getIdText(),
+                "displayText":field.getDisplayText(),
+                "type":field.getType(),
+                "fieldType":field.getFieldType()
+            });
         }
 
         console.table(tableData);
@@ -4640,7 +4672,7 @@ export class Eagle {
         if (srcNode.getParentKey() === destNode.getKey()){
             newNode.setParentKey(destNode.getKey());
         }
-        
+
          // if dest node is a child of source node, make the new node a child too
         if (destNode.getParentKey() === srcNode.getKey()){
             newNode.setParentKey(srcNode.getKey());
@@ -4649,7 +4681,7 @@ export class Eagle {
         // create TWO edges, one from src to data component, one from data component to dest
         const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
         const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop,false);
-       
+
         this.logicalGraph().addEdgeComplete(firstEdge);
         this.logicalGraph().addEdgeComplete(secondEdge);
 
