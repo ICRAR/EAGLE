@@ -1131,13 +1131,13 @@ select.form-control{
     background-color: #e9ecef;
     padding: 3px 15px;
     border-radius: 5px;
-    border: 1px solid #002349;
+    border: 2px solid #787f87;
     overflow: hidden;
     position: relative;
 }
 
 .hierarchyNodeIsSelected {
-    border: 3px solid #002349;
+    border: 2px solid #002349;
     background-color: #c3cfda;
 }
 

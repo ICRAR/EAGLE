@@ -253,46 +253,60 @@ export class Eagle {
 
 
         this.selectedObjects.subscribe(function(){
-            //return if the graph is not loaded yet
-            if(this.logicalGraph()=== null){
-                return
-            }
-            //reset allselection relatives to false
-            $(".positionPointer").remove()
-            this.logicalGraph().getEdges().forEach(function(element:Edge){
-                element.setSelectionRelative(false)
-            })
-            //this part of the function flags edges that are selected or directly connected to the selected object
-            var that = this
-            var count=0
-            this.selectedObjects().forEach(function(element:any){
-                count++
-                if (element instanceof Node){
-                    var key = element.getKey()
-
-                    that.logicalGraph().getEdges().forEach(function(e:Edge){
-                        // if(e.getDestNodeKey() === key || e.getSrcNodeKey() === key){
-                        //     e.setSelectionRelative(true)
-                        //     that.drawHierarchyEdge(e)
-                        // }
-                        if(e.getDestNodeKey() === key){
-                            e.setSelectionRelative(true)
-                            that.drawHierarchyEdge(e,"input")
-                            console.log("From ",that.logicalGraph().findNodeByKey(e.getSrcNodeKey()).getName())
-                        }else if(e.getSrcNodeKey() === key){
-                            e.setSelectionRelative(true)
-                            that.drawHierarchyEdge(e,"output")
-                            console.log("To ",that.logicalGraph().findNodeByKey(e.getDestNodeKey()).getName())
-                        }
-                    })
-                }else if(element instanceof Edge){
-
-                    element.setSelectionRelative(true)
-                    that.drawHierarchyEdge(element, "edge")
-                }
-            })
-            console.log('----------------------------------------')
+            this.hierarchySelectionHandler()
         }, this)
+
+        this.rightWindow.subscribe(function(){
+            console.log("rightwindowmode changed")
+            if(Eagle.RightWindowMode.Hierarchy){
+                this.hierarchySelectionHandler()
+            }
+        },this)
+    }
+
+    hierarchySelectionHandler = () : void => {
+
+        //return if the graph is not loaded yet
+        if(this.logicalGraph()=== null){
+            return
+        }
+         //reset allselection relatives to false
+         $(".positionPointer").remove()
+         this.logicalGraph().getEdges().forEach(function(element:Edge){
+             element.setSelectionRelative(false)
+         })
+         //this part of the function flags edges that are selected or directly connected to the selected object
+         var that = this
+         var count=0
+         this.selectedObjects().forEach(function(element:any){
+             console.log(Eagle.selectedLocation())
+             if(Eagle.selectedLocation() === "Palette"){return}
+             count++
+             if (element instanceof Node){
+                 var key = element.getKey()
+
+                 that.logicalGraph().getEdges().forEach(function(e:Edge){
+                     // if(e.getDestNodeKey() === key || e.getSrcNodeKey() === key){
+                     //     e.setSelectionRelative(true)
+                     //     that.drawHierarchyEdge(e)
+                     // }
+                     if(e.getDestNodeKey() === key){
+                         e.setSelectionRelative(true)
+                         that.drawHierarchyEdge(e,"input")
+                         console.log("From ",that.logicalGraph().findNodeByKey(e.getSrcNodeKey()).getName())
+                     }else if(e.getSrcNodeKey() === key){
+                         e.setSelectionRelative(true)
+                         that.drawHierarchyEdge(e,"output")
+                         console.log("To ",that.logicalGraph().findNodeByKey(e.getDestNodeKey()).getName())
+                     }
+                 })
+             }else if(element instanceof Edge){
+
+                 element.setSelectionRelative(true)
+                 that.drawHierarchyEdge(element, "edge")
+             }
+         })
+         console.log('----------------------------------------')
     }
 
     areAnyFilesModified = () : boolean => {
@@ -355,27 +369,29 @@ export class Eagle {
     }
 
     drawHierarchyEdge = (edge:Edge, use:string) : void =>{
-        var srcNodePos = $('.hierarchyNode #'+edge.getSrcNodeKey())[0].getBoundingClientRect()
-        var destNodePos = $('.hierarchyNode #'+edge.getDestNodeKey())[0].getBoundingClientRect()
+        console.log(edge.getDestNodeKey(), edge.getSrcNodeKey())
+        var srcNodePos = $('.hierarchyNode#'+edge.getSrcNodeKey())[0].getBoundingClientRect()
+        var destNodePos = $('.hierarchyNode#'+edge.getDestNodeKey())[0].getBoundingClientRect()
         var parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
+        var parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
         console.log('srcId', edge.getSrcNodeKey(), srcNodePos)
         console.log('destId', edge.getDestNodeKey(), destNodePos)
 
         if(use==="input"){
             console.log("input")
             var p1x = (srcNodePos.left - parentPos.left)-4
-            var p1y = (srcNodePos.top - parentPos.top)+8
+            var p1y = ((srcNodePos.top - parentPos.top)+8)+parentScrollOffset
             var p2x = (destNodePos.left - parentPos.left)-4
-            var p2y = (destNodePos.top - parentPos.top)+8
+            var p2y = ((destNodePos.top - parentPos.top)+8)+parentScrollOffset
             $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;left:'+p1x+'px;"></div>')
             $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;left:'+p2x+'px;"></div>')
            
         }else if(use==="output"){
             console.log("output")
             var p1x = (parentPos.right-srcNodePos.right )-9
-            var p1y = (srcNodePos.top - parentPos.top)+9
+            var p1y = ((srcNodePos.top - parentPos.top)+9)+parentScrollOffset
             var p2x = (parentPos.right-destNodePos.right)-9
-            var p2y = (destNodePos.top - parentPos.top)+9
+            var p2y = ((destNodePos.top - parentPos.top)+9)+parentScrollOffset
             $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;right:'+p1x+'px;"></div>')
             $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;right:'+p2x+'px;"></div>')
            
