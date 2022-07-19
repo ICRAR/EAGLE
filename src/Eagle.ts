@@ -3327,10 +3327,7 @@ export class Eagle {
         Utils.showPalettesModal(this);
     }
 
-    /**
-     * Adds an field to the selected node via HTML.
-     */
-    // TODO: are these still used?
+    // Adds an field to the selected node via HTML
     addFieldHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -3346,10 +3343,7 @@ export class Eagle {
         $("#nodeInspectorAddFieldDiv").show();
     }
 
-    /**
-     * Adds an application param to the selected node via HTML.
-     */
-    // TODO: are these still used?
+    // Adds an application param to the selected node via HTML
     addApplicationArgHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -3363,6 +3357,38 @@ export class Eagle {
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
         $("#nodeInspectorAddApplicationParamDiv").show();
+    }
+
+    // Adds an output port to the selected node via HTML
+    addInputPortHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add input port when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.InputPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddInputPortDiv").show();
+    }
+
+    // Adds an output port to the selected node via HTML
+    addOutputPortHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add output port when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.OutputPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddOutputPortDiv").show();
     }
 
     getInspectorHeadingTooltip = (title:string, category:any, description:any) : string => {
@@ -3415,6 +3441,8 @@ export class Eagle {
     // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
     // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
+        console.log("nodeInspectorDropdownClick()", val, num, divID);
+
         let selectSectionID;
         let modalID;
         let submitBtnID;
@@ -4163,16 +4191,11 @@ export class Eagle {
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
     editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
         console.log("editField node:", node, "modalType:", modalType, "fieldType:", fieldType, "fieldIndex:", fieldIndex);
+        console.trace();
 
         // get field names list from the logical graph
-        let allFields: Field[];
-        let allFieldNames: string[] = [];
-
-        if (fieldType === Eagle.FieldType.ComponentParameter){
-            allFields = Utils.getUniqueFieldsList(this.logicalGraph());
-        } else {
-            allFields = Utils.getUniqueapplicationArgsList(this.logicalGraph());
-        }
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), fieldType);
+        const allFieldNames: string[] = [];
 
         // once done, sort fields and then collect names into the allFieldNames list
         allFields.sort(Field.sortFunc);

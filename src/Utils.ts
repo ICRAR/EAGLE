@@ -636,15 +636,30 @@ export class Utils {
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+        console.log("requestUserEditField()", modalType, fieldType, choices);
+        console.trace();
+
         let dropDownKO;
         let divID;
 
-        if (fieldType === Eagle.FieldType.ComponentParameter){
-            dropDownKO = $("#nodeInspectorFieldDropDownKO");
-            divID = "nodeInspectorAddFieldDiv";
-        } else {
+        // determine which dropdown menu should be filled with appropriate items
+        switch(fieldType){
+            case Eagle.FieldType.ApplicationArgument:
             dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
             divID = "nodeInspectorAddApplicationParamDiv";
+            break;
+            case Eagle.FieldType.ComponentParameter:
+            dropDownKO = $("#nodeInspectorFieldDropDownKO");
+            divID = "nodeInspectorAddFieldDiv";
+            break;
+            case Eagle.FieldType.InputPort:
+            dropDownKO = $("#nodeInspectorInputPortDropDownKO");
+            divID = "nodeInspectorAddInputPortDiv";
+            break;
+            case Eagle.FieldType.OutputPort:
+            dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
+            divID = "nodeInspectorAddOutputPortDiv";
+            break;
         }
 
         if (modalType === Eagle.ModalType.Add){
@@ -680,6 +695,7 @@ export class Utils {
                 }));
             }
 
+            // TODO: add custom choice first
             // add custom choice
             $('#fieldModalSelect').append($('<option>', {
                 value: choices.length,
@@ -1309,35 +1325,22 @@ export class Utils {
     }
 
     /**
-     * Returns a list of all fields in the given palette or logical graph
+     * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsList = (diagram : Palette | LogicalGraph) : Field[] => {
+    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, fieldType: Eagle.FieldType) : Field[] => {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
             for (const field of node.getFields()) {
+                if (field.getFieldType() !== fieldType){
+                    continue;
+                }
                 Utils._addFieldIfUnique(uniqueFields, field.clone());
             }
         }
 
         return uniqueFields;
-    }
-
-    /**
-     * Returns a list of all fields in the given palette or logical graph
-     */
-    static getUniqueapplicationArgsList = (diagram : Palette | LogicalGraph) : Field[] => {
-        const uniqueapplicationArgs : Field[] = [];
-
-        // build a list from all nodes, add fields into the list
-        for (const node of diagram.getNodes()) {
-            for (const param of node.getApplicationArguments()) {
-                Utils._addFieldIfUnique(uniqueapplicationArgs, param.clone());
-            }
-        }
-
-        return uniqueapplicationArgs;
     }
 
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
