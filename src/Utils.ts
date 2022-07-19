@@ -732,6 +732,8 @@ export class Utils {
         }
 
         // show the correct entry field based on the field type
+        /*
+        console.log("!debug", field.getType(), field.isType(Eagle.DataType_Boolean), field.isType(Eagle.DataType_Select), "combined", !field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
         $('#editFieldModalValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
         $('#editFieldModalValueInputCheckbox').parent().toggle(field.isType(Eagle.DataType_Boolean));
         $('#editFieldModalValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
@@ -739,6 +741,8 @@ export class Utils {
         $('#editFieldModalDefaultValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
         $('#editFieldModalDefaultValueInputCheckbox').toggle(field.isType(Eagle.DataType_Boolean));
         $('#editFieldModalDefaultValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
+        */
+
 
         $('#editFieldModalTypeInput').val(field.getType());
 
@@ -764,12 +768,12 @@ export class Utils {
 
         // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
         $('#editFieldModalFieldTypeSelect').empty();
-        for (let fieldType of [Eagle.FieldType.ComponentParameter, Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
+        for (let ft of [Eagle.FieldType.ComponentParameter, Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
             $('#editFieldModalFieldTypeSelect').append(
                 $('<option>', {
-                    value: fieldType,
-                    text: fieldType,
-                    selected: field.getFieldType() === fieldType
+                    value: ft,
+                    text: ft,
+                    selected: field.getFieldType() === ft
                 })
             );
         }
@@ -1554,6 +1558,16 @@ export class Utils {
             }
         }
 
+        // check that all fields have ids
+        for (const node of graph.getNodes()){
+            for (const field of node.getFields()){
+                if (field.getId() === "" || field.getId() === null){
+                    const issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id", function(){Utils.visitNode(eagle, node.getKey());}, function(){Utils.fixFieldId(eagle, field)}, "Generate id for field");
+                    errorsWarnings.errors.push(issue);
+                }
+            }
+        }
+
         // check that all fields have default values
         for (const node of graph.getNodes()){
             for (const field of node.getFields()){
@@ -1852,6 +1866,20 @@ export class Utils {
 
     static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
         destinationPort.setType(sourcePort.getType());
+    }
+
+    static fixNodeFieldIds(eagle: Eagle, nodeKey: number){
+        const node: Node = eagle.logicalGraph().findNodeByKey(nodeKey);
+
+        for (const field of node.getFields()){
+            if (field.getId() === ""){
+                field.setId(Utils.uuidv4());
+            }
+        }
+    }
+
+    static fixFieldId(eagle: Eagle, field: Field){
+        field.setId(Utils.uuidv4());
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){

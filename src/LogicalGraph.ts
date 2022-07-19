@@ -208,7 +208,7 @@ export class LogicalGraph {
             // try to read the dataType attribute
             let dataType: string = Eagle.DataType_Unknown;
             if (typeof linkData.dataType !== 'undefined'){
-                dataType = linkData.dateType;
+                dataType = linkData.dataType;
             }
 
             // try to read loop_aware attribute
@@ -225,7 +225,7 @@ export class LogicalGraph {
                 closesLoop = linkData.closesLoop;
             }
 
-            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, dataType, loopAware, closesLoop));
+            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, linkData.dataType, loopAware, closesLoop, false));
         }
 
         // check for missing name

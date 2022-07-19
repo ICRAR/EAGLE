@@ -251,6 +251,39 @@ export class Eagle {
         this.graphErrors = ko.observableArray([]);
 
         this.showDataNodes = ko.observable(true);
+
+
+        this.selectedObjects.subscribe(function(){
+            //return if the graph is not loaded yet
+            if(this.logicalGraph()=== null){
+                return
+            }
+            //reset allselection relatives to false
+            $(".positionPointer").remove()
+            this.logicalGraph().getEdges().forEach(function(element:Edge){
+                element.setSelectionRelative(false)
+            })
+            //this part of the function flags edges that are selected or directly connected to the selected object
+            var that = this
+            var count=0
+            this.selectedObjects().forEach(function(element:any){
+                count++
+                if (element instanceof Node){
+                    var key = element.getKey()
+
+                    that.logicalGraph().getEdges().forEach(function(element:Edge){
+                        if(element.getDestNodeKey() === key || element.getSrcNodeKey() === key){
+                            element.setSelectionRelative(true)
+                            // that.drawHierarchyEdge(element)
+                        }
+                    })
+                }else if(element instanceof Edge){
+
+                    element.setSelectionRelative(true)
+                    // that.drawHierarchyEdge(element)
+                }
+            })
+        }, this)
     }
 
     areAnyFilesModified = () : boolean => {
@@ -310,6 +343,41 @@ export class Eagle {
         if (this.logicalGraph()){
             this.logicalGraph().fileInfo().modified = true;
         }
+    }
+
+    drawHierarchyEdge = (edge:Edge) : void =>{
+        var srcNode = $('.hierarchyNode #'+edge.getSrcNodeKey())
+        var destNode = $('.hierarchyNode #'+edge.getDestNodeKey())
+
+        var p1x = srcNode[0].offsetLeft;
+        var p1y = srcNode[0].offsetTop+250;
+        var p2x = destNode[0].offsetLeft;
+        var p2y = destNode[0].offsetTop+250;
+        console.log(p1y)
+        console.log('srcNode', p1x, p1y, 'destNode',p2x, p2y)
+        $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;left:'+p1x+'px;"></div>')
+        $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;left:'+p2x+'px;"></div>')
+
+        return
+
+        // mid-point of line:
+        var mpx = (p2x + p1x) * 0.5;
+        var mpy = (p2y + p1y) * 0.5;
+
+        // angle of perpendicular to line:
+        var theta = Math.atan2(p2y - p1y, p2x - p1x) - Math.PI / 2;
+
+        // distance of control point from mid-point of line:
+        var offset = 30;
+
+        // location of control point:
+        var c1x = mpx + offset * Math.cos(theta);
+        var c1y = mpy + offset * Math.sin(theta);
+
+        // construct the command to draw a quadratic curve
+        // var curve = "M" + p1x + " " + p1y + " Q " + c1x + " " + c1y + " " + p2x + " " + p2y;
+        // var curveElement = document.getElementById("curve");
+        // curveElement.setAttribute("d", curve);
     }
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -500,7 +568,17 @@ export class Eagle {
             }
         })
 
-        text = nodeCount + " nodes and " + edgeCount + " edges selected."
+        text =  nodeCount + " nodes and " + edgeCount + " edges."
+
+        return text
+    }
+
+    getTotalText = () : string => {
+        var text
+        var nodeCount = this.logicalGraph().getNodes().length
+        var edgeCount = this.logicalGraph().getEdges().length
+
+        text =  nodeCount + " nodes and " + edgeCount + " edges."
 
         return text
     }
@@ -598,6 +676,9 @@ export class Eagle {
             this.selectedObjects.push(selection);
         }
 
+        if(this.rightWindow().mode() !== Eagle.RightWindowMode.Inspector && this.rightWindow().mode() !== Eagle.RightWindowMode.Hierarchy){
+            this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
+        }
     }
 
     objectIsSelected = (object: Node | Edge): boolean => {
@@ -2541,17 +2622,7 @@ export class Eagle {
         if (typePrefix === Eagle.DataType_Float || typePrefix === Eagle.DataType_Integer){
             return "number"
         }else if(type === Eagle.DataType_Boolean){
-            $("#"+id).addClass("form-check-input")
-            if (Utils.asBool(value)){
-                $("#"+id).addClass("inputChecked")
-                $("#"+id).html("Checked")
-            }else {
-                $("#"+id).removeClass("inputChecked")
-                $("#"+id).html("Check")
-            }
             return "checkbox"
-        }else if(type === Eagle.DataType_Select){
-            return "select";
         }else if(type === Eagle.DataType_Password){
             return "password";
         }else{
@@ -2665,7 +2736,7 @@ export class Eagle {
         }
 
         // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "", false, false);
+        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "", false, false, false);
 
         // display edge editing modal UI
         Utils.requestUserEditEdge(newEdge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
@@ -2694,6 +2765,15 @@ export class Eagle {
                 this.logicalGraph.valueHasMutated();
             });
         });
+    }
+
+    isHierarchyNodeSelected = (selectState:boolean) : string => {
+        var className : string = ""
+        if(selectState){
+            className = "hierarchyNodeIsSelected"
+        }
+
+        return className
     }
 
     editSelectedEdge = () : void => {
@@ -3263,6 +3343,7 @@ export class Eagle {
     /**
      * Adds an field to the selected node via HTML.
      */
+    // TODO: are these still used?
     addFieldHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -3281,6 +3362,7 @@ export class Eagle {
     /**
      * Adds an application param to the selected node via HTML.
      */
+    // TODO: are these still used?
     addApplicationArgHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -3343,6 +3425,8 @@ export class Eagle {
         }, 100);
     }
 
+    // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
+    // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
         let selectSectionID;
         let modalID;
@@ -3362,8 +3446,13 @@ export class Eagle {
             $("#"+divID).hide();
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
+
+            // triggers the 'add application argument' modal to show
             $("#"+modalID).removeClass("forceHide");
+
+            // triggers the modal 'lightbox' to show
             $(".modal-backdrop").removeClass("forceHide");
+
         }else{
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
@@ -3535,13 +3624,39 @@ export class Eagle {
         });
     }
 
-    removeParamFromNodeByIndex = (node: Node, index: number) : void => {
+    removeParamFromNodeByIndex = (node: Node, fieldType: Eagle.FieldType, index: number) : void => {
         if (node === null){
             console.warn("Could not remove param from null node");
             return;
         }
 
-        node.removeFieldByIndex(index);
+        // if we want to delete the Nth application arg, then the real index
+        // into the fields array is probably larger than N, since all four types
+        // of fields are stored there
+        let realIndex = -1;
+        let fieldTypeCount = 0;
+
+        for (let i = 0 ; i < node.getFields().length; i++){
+            const field: Field = node.getFields()[i];
+
+            if (field.getFieldType() === fieldType){
+                fieldTypeCount += 1;
+            }
+
+            // check if we have found the Nth field of desired type
+            if (fieldTypeCount > index){
+                realIndex = i;
+                break;
+            }
+        }
+
+        // check that we actually found the right field, otherwise abort
+        if (realIndex === -1){
+            console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
+            return;
+        }
+
+        node.removeFieldByIndex(realIndex);
 
         this.checkGraph();
         this.undo().pushSnapshot(this, "Remove param from node");
@@ -3549,8 +3664,8 @@ export class Eagle {
         this.selectedObjects.valueHasMutated();
     }
 
-    removePortFromNodeByIndex = (node : Node, index : number, input : boolean) : void => {
-        console.log("removePortFromNodeByIndex(): node", node.getName(), "index", index, "input", input);
+    removePortFromNodeByIndex = (node : Node, fieldId:string, input : boolean) : void => {
+        console.log("removePortFromNodeByIndex(): node", node.getName(), "index",fieldId, "input", input);
 
         if (node === null){
             console.warn("Could not remove port from null node");
@@ -3558,20 +3673,17 @@ export class Eagle {
         }
 
         // remember port id
-        let portId;
-        if (input){
-            portId = node.getInputPorts()[index].getId();
-        } else {
-            portId = node.getOutputPorts()[index].getId();
-        }
+        let portId = fieldId
+        //doing this so this function will work both in context of being in a port only loop as well as a fields loop
+        let portIndex = node.findPortIndexById(portId)
 
         console.log("Found portId to remove:", portId);
 
         // remove port
         if (input){
-            node.removeFieldTypeByIndex(index, Eagle.FieldType.InputPort);
+            node.removeFieldTypeByIndex(portIndex, Eagle.FieldType.InputPort);
         } else {
-            node.removeFieldTypeByIndex(index, Eagle.FieldType.OutputPort);
+            node.removeFieldTypeByIndex(portIndex, Eagle.FieldType.OutputPort);
         }
 
         // remove any edges connected to that port
@@ -3895,7 +4007,8 @@ export class Eagle {
                 "destNodeKey":edge.getDestNodeKey(),
                 "destPortId":edge.getDestPortId(),
                 "dataType":edge.getDataType(),
-                "loopAware":edge.isLoopAware()
+                "loopAware":edge.isLoopAware(),
+                "isSelectionRelative":edge.getSelectionRelative()
             });
         }
 
@@ -3910,6 +4023,29 @@ export class Eagle {
             for (const node of palette.getNodes()){
                 tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "category":node.getCategory()});
             }
+        }
+
+        console.table(tableData);
+    }
+
+    printNodeFieldsTable = (nodeIndex: number) : void => {
+        const tableData : any[] = [];
+
+        // check that node at nodeIndex exists
+        if (nodeIndex >= this.logicalGraph().getNumNodes()){
+            console.warn("Unable to print node fields table, node", nodeIndex, "does not exist.");
+            return;
+        }
+
+        // add logical graph nodes to table
+        for (const field of this.logicalGraph().getNodes()[nodeIndex].getFields()){
+            tableData.push({
+                "id":field.getId(),
+                "idText":field.getIdText(),
+                "displayText":field.getDisplayText(),
+                "type":field.getType(),
+                "fieldType":field.getFieldType()
+            });
         }
 
         console.table(tableData);
@@ -4044,18 +4180,22 @@ export class Eagle {
 
 
     // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
-    selectNodeInHierarchy = (nodeViewModel : any) : void => {
+    selectNodeInHierarchy = (nodeViewModel : any, e : any) : void => {
         const node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key());
         if (node === null){
             console.warn("Unable to find node in hierarchy!");
             return;
         }
-
         node.toggleExpanded();
 
-        this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
+        if(!e.shiftKey){
+            this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
 
+        }else if(e.shiftKey){
+            this.editSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph)
+        }
         this.logicalGraph.valueHasMutated();
+
     }
 
     selectInputApplicationNode = () : void => {
@@ -4096,7 +4236,7 @@ export class Eagle {
             if (fieldType == Eagle.FieldType.ComponentParameter){
                 $("#editFieldModalTitle").html("Add Component Parameter")
             } else {
-                $("#editFieldModalTitle").html("Add Application Parameter")
+                $("#editFieldModalTitle").html("Add Application Argument")
             }
             $("#addParameterWrapper").show();
             $("#customParameterOptionsWrapper").hide();
@@ -4508,7 +4648,7 @@ export class Eagle {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop);
+            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             if (callback !== null) callback(edge);
             return;
@@ -4580,14 +4720,14 @@ export class Eagle {
             newNode.setParentKey(destNode.getKey());
         }
 
-        // if dest node is a child of source node, make the new node a child too
+         // if dest node is a child of source node, make the new node a child too
         if (destNode.getParentKey() === srcNode.getKey()){
             newNode.setParentKey(srcNode.getKey());
         }
 
         // create TWO edges, one from src to data component, one from data component to dest
-        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop);
-        const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop);
+        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
+        const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop,false);
 
         this.logicalGraph().addEdgeComplete(firstEdge);
         this.logicalGraph().addEdgeComplete(secondEdge);
@@ -4649,14 +4789,14 @@ export class Eagle {
             // delete extra input ports
             if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
                 for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removePortFromNodeByIndex(this.selectedNode(), i, true);
+                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId(), true);
                 }
             }
 
             // delete extra output ports
             if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
                 for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removePortFromNodeByIndex(this.selectedNode(), i, false);
+                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId(), false);
                 }
             }
 
@@ -4675,6 +4815,29 @@ export class Eagle {
             this.undo().pushSnapshot(this, "Edit Node Category");
             this.logicalGraph.valueHasMutated();
         });
+    }
+
+    hierarchyNodeIsHidden = (key:number) : string => {
+        const node = this.logicalGraph().findNodeByKey(key);
+        let nodeHasConnectedInput: boolean = false;
+        let nodeHasConnectedOutput: boolean = false;
+
+        // check if node has connected input and output
+        for (const edge of this.logicalGraph().getEdges()){
+            if (edge.getDestNodeKey() === node.getKey()){
+                nodeHasConnectedInput = true;
+            }
+
+            if (edge.getSrcNodeKey() === node.getKey()){
+                nodeHasConnectedOutput = true;
+            }
+        }
+
+        if (!this.showDataNodes() && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
+            return 'visible';
+        }
+
+        return 'hidden';
     }
 
     // NOTE: clones the node internally
@@ -4788,7 +4951,7 @@ export class Eagle {
 
     static readonly dataIconColor : string = "#2c2c2c"
     static readonly appIconColor : string = "#0059a5"
-    static readonly groupIconColor : string = "rgb(221, 173, 0)"
+    static readonly groupIconColor : string = "rgb(211 165 0)"
     static readonly descriptionIconColor : string = "rgb(157 43 96)"
     static readonly errorIconColor : string = "#FF66CC"
     static readonly controlIconColor : string = "rgb(88 167 94)"

@@ -280,7 +280,7 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            const id : string = $('#editFieldModalIdInput').val().toString();
+            const id : string = Utils.uuidv4();
             const idText : string = $('#editFieldModalIdTextInput').val().toString();
             const displayText : string = $('#editFieldModalDisplayTextInput').val().toString();
 
@@ -288,22 +288,31 @@ export class Modals {
             // but we get all three and then choose correctly based on field type
             const valueText : string = $('#editFieldModalValueInputText').val().toString();
             const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
-            const valueSelect : string = $('#editFieldModalValueInputSelect').val().toString();
+            let valueSelect : string = "";
+            if ($('#editFieldModalValueInputSelect').val()){
+                valueSelect = $('#editFieldModalValueInputSelect').val().toString();
+            }
 
             // only one of these three ui elements contains the "real" default value,
             // but we get all three and then choose correctly based on field type
             const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
-            const defaultValueSelect : string = $('#editFieldModalDefaultValueInputSelect').val().toString();
+            let defaultValueSelect : string = "";
+            if ($('#editFieldModalDefaultValueInputSelect').val()){
+                defaultValueSelect = $('#editFieldModalDefaultValueInputSelect').val().toString();
+            }
 
             const description: string = $('#editFieldModalDescriptionInput').val().toString();
             const type: string = $('#editFieldModalTypeInput').val().toString();
-            const fieldType: string = $('#editFieldModalFieldTypeInput').val().toString();
-            const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
+            let fieldType: string = "";
+            if ($('#editFieldModalFieldTypeSelect').val()){
+                fieldType = $('#editFieldModalFieldTypeSelect').val().toString();
+            }
 
             // NOTE: currently no way to edit options in the "select"-type fields
             const options: string[] = [];
 
+            const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
             const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
             const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
 
@@ -327,7 +336,7 @@ export class Modals {
             callback(true, newField);
         });
 
-        $('#editFieldModal').on('show.bs.modal', function(){
+        $('#editFieldModal').on('shown.bs.modal', function(){
             const type: string = $('#editFieldModalTypeInput').val().toString();
             const realType = Utils.translateStringToDataType(type);
 
@@ -382,7 +391,7 @@ export class Modals {
             const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
             const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop);
+            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop,false);
 
             callback(true, newEdge);
         });
@@ -490,7 +499,7 @@ export class Modals {
         $('#editFieldModalValueInputSelect').toggle(dataType === Eagle.DataType_Select);
 
         $('#editFieldModalDefaultValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select);
-        $('#editFieldModalDefaultValueInputCheckbox').toggle(dataType === Eagle.DataType_Boolean);
+        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Eagle.DataType_Boolean);
         $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Eagle.DataType_Select);
 
         // handle float and integer

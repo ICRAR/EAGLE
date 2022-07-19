@@ -227,9 +227,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 }
             }
 
-            eagle.selectedObjects.push(...objects);
-            Eagle.selectedLocation(Eagle.FileType.Graph);
-            eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector);
+            objects.forEach(function(element){
+                eagle.editSelection(Eagle.RightWindowMode.Hierarchy, element, Eagle.FileType.Graph )
+            })
 
             if (isDraggingWithAlt){
                 for (const node of nodes){
@@ -1140,7 +1140,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                     if (srcHasConnectedInput){
                         // build a new edge
                         const newSrc = findInputToDataNode(graph.getEdges(), edge.getSrcNodeKey());
-                        edges.push(new Edge(newSrc.nodeKey, newSrc.portId, edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop()));
+                        edges.push(new Edge(newSrc.nodeKey, newSrc.portId, edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false));
                     } else {
                         // draw edge as normal
                         edges.push(edge);
@@ -1733,7 +1733,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let draggingY2 : number;
 
         if (isDraggingPort){
-            const tempEdge: Edge = new Edge(sourceNode.getKey(), sourcePort.getId(), 0, "", "", false, false);
+            const tempEdge: Edge = new Edge(sourceNode.getKey(), sourcePort.getId(), 0, "", "", false, false,false);
             draggingX1 = edgeGetX1(tempEdge);
             draggingY1 = edgeGetY1(tempEdge);
             draggingX2 = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
@@ -1765,7 +1765,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // autocomplete link
         if (isDraggingPort && suggestedNode !== null){
-            const tempEdge: Edge = new Edge(sourceNode.getKey(), sourcePort.getId(), suggestedNode.getKey(), suggestedPort.getId(), "", false, false);
+            const tempEdge: Edge = new Edge(sourceNode.getKey(), sourcePort.getId(), suggestedNode.getKey(), suggestedPort.getId(), "", false, false,false);
             const x2 : number = edgeGetX2(tempEdge);
             const y2 : number = edgeGetY2(tempEdge);
 
@@ -3537,6 +3537,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             for (const port of portList){
                 if (!Utils.portsMatch(port, sourcePort)){
+                    continue;
+                }
+
+                // if port has no id (broken) then don't consider it as a auto-complete target
+                if (port.getId() === ""){
                     continue;
                 }
 
