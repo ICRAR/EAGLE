@@ -1878,6 +1878,10 @@ export class Utils {
         }
     }
 
+    static fixNodeCategory(eagle: Eagle, node: Node, category: Eagle.Category){
+        node.setCategory(category);
+    }
+
     static fixFieldId(eagle: Eagle, field: Field){
         field.setId(Utils.uuidv4());
     }

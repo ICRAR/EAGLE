@@ -275,7 +275,8 @@ export class Edge {
         // this is not supported. How would a BashShellApp read data from another process?
         if ((sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.getCategory() === Eagle.Category.BashShellApp) ||
             (sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.hasInputApplication() && destinationNode.getInputApplication().getCategory() === Eagle.Category.BashShellApp)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType"), showNotification, showConsole, errorsWarnings);
+            const issue: Errors.Issue = Errors.Fix("output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", function(){Utils.visitNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeCategory(eagle, sourceNode, Eagle.Category.File)}, "Change data component type to File");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
         }
 
         const sourcePort : Field = sourceNode.findPortById(sourcePortId);
@@ -427,6 +428,8 @@ export class Edge {
         // add edge id to message, if id is known
         if (edgeId !== null){
             message = "Edge (" + edgeId + ") " + issue.message;
+        } else {
+            message = issue.message;
         }
 
         // add log message to correct location(s)

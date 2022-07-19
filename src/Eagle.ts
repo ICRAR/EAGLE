@@ -3976,6 +3976,7 @@ export class Eagle {
             tableData.push({
                 "name":node.getName(),
                 "key":node.getKey(),
+                "id":node.getId(),
                 "parentKey":node.getParentKey(),
                 "category":node.getCategory(),
                 "expanded":node.getExpanded(),
@@ -4688,6 +4689,7 @@ export class Eagle {
         // Add a data component to the graph.
         const newNode : Node = this.logicalGraph().addDataComponentToGraph(memoryComponent, dataComponentPosition);
         const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
+        newNode.setId(Utils.uuidv4());
         newNode.setKey(newNodeKey);
 
         // set name of new node (use user-facing name)

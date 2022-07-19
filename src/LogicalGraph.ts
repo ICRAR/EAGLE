@@ -517,7 +517,7 @@ export class LogicalGraph {
     }
 
     /**
-     * Adds data component to the graph
+     * Adds data component to the graph (with a new id)
      */
     addDataComponentToGraph = (node: Node, location : {x: number, y:number}) : Node => {
         // clone the template node, set position and add to logicalGraph
