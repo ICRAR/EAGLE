@@ -1073,6 +1073,14 @@ export class Node {
         return result;
     }
 
+    getErrorsWarnings = (eagle: Eagle): Errors.ErrorsWarnings => {
+        const result: {warnings: Errors.Issue[], errors: Errors.Issue[]} = {warnings: [], errors: []};
+
+        Node.isValid(eagle, this, false, false, result);
+
+        return result;
+    }
+
     // find the right icon for this node
     getIcon = () : string => {
         return Eagle.getCategoryData(this.category()).icon;
@@ -2041,5 +2049,117 @@ export class Node {
         const node = new Node(key, name, description, category);
         node.setEmbedKey(embedKey);
         return node;
+    }
+
+    static isValid = (eagle: Eagle, node: Node, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
+        // check that all port dataTypes have been defined
+        for (const port of node.getInputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getIdText() + ") whose type is not specified"));
+            }
+        }
+        for (const port of node.getOutputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getIdText() + ") whose type is not specified"));
+            }
+        }
+
+        for (const port of node.getInputApplicationInputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified"));
+            }
+        }
+
+        for (const port of node.getInputApplicationOutputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified"));
+            }
+        }
+
+        for (const port of node.getOutputApplicationInputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified"));
+            }
+        }
+
+        for (const port of node.getOutputApplicationOutputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified"));
+            }
+        }
+
+        // check that all fields have ids
+        for (const field of node.getFields()){
+            if (field.getId() === "" || field.getId() === null){
+                const issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id", function(){Utils.visitNode(eagle, node.getKey());}, function(){Utils.fixFieldId(eagle, field)}, "Generate id for field");
+                errorsWarnings.errors.push(issue);
+            }
+        }
+
+        // check that all fields have default values
+        for (const field of node.getFields()){
+            if (field.getDefaultValue() === "" && !field.isType(Eagle.DataType_String)){
+                errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") whose default value is not specified"));
+            }
+        }
+
+        // check that fields and application parameters don't share the same name
+        // NOTE: this code checks many pairs of fields twice
+        for (const field0 of node.getFields()){
+            for (const field1 of node.getFields()){
+                if (field0.getId() !== field1.getId() && field0.getIdText() === field1.getIdText() && field0.getFieldType() === field1.getFieldType()){
+                    errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getIdText() + ")."));
+                }
+            }
+        }
+
+        // check that all nodes have correct numbers of inputs and outputs
+        const cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
+        const minInputs  = cData.minInputs;
+        const maxInputs  = cData.maxInputs;
+        const minOutputs = cData.minOutputs;
+        const maxOutputs = cData.maxOutputs;
+
+        if (node.getInputPorts().length < minInputs){
+            errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + minInputs));
+        }
+        if (node.getInputPorts().length > maxInputs){
+            errorsWarnings.errors.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs));
+        }
+        if (node.getOutputPorts().length < minOutputs){
+            errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + minOutputs));
+        }
+        if (node.getOutputPorts().length > maxOutputs){
+            errorsWarnings.errors.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + maxOutputs));
+        }
+
+        // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
+        let isConnected: boolean = false;
+        for (const edge of eagle.logicalGraph().getEdges()){
+            if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+                isConnected = true;
+                break;
+            }
+        }
+
+        // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
+        if (!isConnected && !(maxInputs === 0 && maxOutputs === 0)){
+            errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way"));
+        }
+
+        // check embedded application categories are not 'None'
+        if (node.hasInputApplication() && node.getInputApplication().getCategory() === Eagle.Category.None){
+            errorsWarnings.errors.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'."));
+        }
+        if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Eagle.Category.None){
+            errorsWarnings.errors.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'."));
+        }
+
+        // check that Service nodes have inputApplications with no output ports!
+        if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
+            errorsWarnings.errors.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output."));
+        }
+
+        return Utils.worstEdgeError(errorsWarnings);
     }
 }
