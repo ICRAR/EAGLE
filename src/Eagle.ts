@@ -256,15 +256,25 @@ export class Eagle {
             this.hierarchySelectionHandler()
         }, this)
 
-        this.rightWindow.subscribe(function(){
-            console.log("rightwindowmode changed")
-            if(Eagle.RightWindowMode.Hierarchy){
-                this.hierarchySelectionHandler()
+        this.rightWindow().mode.subscribe(function(){
+            var that:Eagle = this
+
+            var x = function() {
+                console.log("rightwindowmode changed",this.eagle)
+                if(that.rightWindow().mode() === Eagle.RightWindowMode.Hierarchy){
+                    that.hierarchySelectionHandler()
+                }
+
             }
+
+            window.setTimeout(x,500)
+            
         },this)
     }
 
     hierarchySelectionHandler = () : void => {
+
+        $("#hierarchyEdgesSvg").empty()
 
         //return if the graph is not loaded yet
         if(this.logicalGraph()=== null){
@@ -369,6 +379,7 @@ export class Eagle {
     }
 
     drawHierarchyEdge = (edge:Edge, use:string) : void =>{
+
         console.log(edge.getDestNodeKey(), edge.getSrcNodeKey())
         var srcNodePos = $('.hierarchyNode#'+edge.getSrcNodeKey())[0].getBoundingClientRect()
         var destNodePos = $('.hierarchyNode#'+edge.getDestNodeKey())[0].getBoundingClientRect()
@@ -418,7 +429,23 @@ export class Eagle {
         var c1y = mpy + offset * Math.sin(theta);
 
         // construct the command to draw a quadratic curve
-        var curve = "M" + p1x + " " + p1y + " Q " + c1x + " " + c1y + " " + p2x + " " + p2y;
+        var positions = "M " + p1x + " " + p1y + " q " + c1x + " " + c1y + " " + (p1x-p2x) + " " + (p1y-p2x);
+        // var curve = '<path id="curve" d="'+positions+'" stroke="green" stroke-width="4" stroke-linecap="round" fill="transparent"></path>'
+        // var curve = '<path d="M 100 350 q 150 -300 300 0" stroke="blue" stroke-width="5" fill="none" />'
+        
+        // variable for the namespace 
+        const svgns = "http://www.w3.org/2000/svg";
+
+        // make a simple rectangle
+        let curve = document.createElementNS(svgns, "path");
+
+        curve.setAttribute("d",positions);
+        curve.setAttribute("stroke", "red");
+        curve.setAttribute("stroke-width", "5");
+        curve.setAttribute("fill", "none");
+
+        // append the new rectangle to the svg
+        $("#hierarchyEdgesSvg")[0].appendChild(curve)
         // var curveElement = document.getElementById("curve");
         // curveElement.setAttribute("d", curve);
     }
@@ -665,6 +692,8 @@ export class Eagle {
     }, this);
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+        Eagle.selectedLocation(selectedLocation);
+        
         if (selection === null){
             this.selectedObjects([]);
             this.rightWindow().mode(rightWindowMode);
@@ -674,8 +703,6 @@ export class Eagle {
                 this.rightWindow().mode(Eagle.RightWindowMode.Inspector)
             }
         }
-
-        Eagle.selectedLocation(selectedLocation);
 
         // update the display of all the sections of the node inspector (collapse/expand as appropriate)
         this.inspectorState().updateAllInspectorSections();
