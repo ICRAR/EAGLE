@@ -3443,15 +3443,9 @@ export class Eagle {
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
         console.log("nodeInspectorDropdownClick()", val, num, divID);
 
-        let selectSectionID;
-        let modalID;
-        let submitBtnID;
-
-        if(divID==="nodeInspectorAddFieldDiv" || divID==="nodeInspectorAddApplicationParamDiv"){
-            selectSectionID = "fieldModalSelect"
-            modalID = "editFieldModal"
-            submitBtnID = "editFieldModalAffirmativeButton"
-        }
+        const selectSectionID : string = "fieldModalSelect";
+        const modalID : string = "editFieldModal";
+        const submitBtnID: string = "editFieldModalAffirmativeButton";
 
         if (val===-1){
             this.hideDropDown(divID)
@@ -4208,13 +4202,26 @@ export class Eagle {
             $('#parameterTableModal').modal("hide");
         }
 
-        //if creating a new field component parameter
+        //if creating a new field
         if (modalType === Eagle.ModalType.Add) {
-            if (fieldType == Eagle.FieldType.ComponentParameter){
-                $("#editFieldModalTitle").html("Add Component Parameter")
-            } else {
-                $("#editFieldModalTitle").html("Add Application Argument")
+
+            // set the title of the modal based on the field type
+            switch(fieldType){
+                case Eagle.FieldType.ApplicationArgument:
+                $("#editFieldModalTitle").html("Add Application Argument");
+                break;
+                case Eagle.FieldType.ComponentParameter:
+                $("#editFieldModalTitle").html("Add Component Parameter");
+                break;
+                case Eagle.FieldType.InputPort:
+                $("#editFieldModalTitle").html("Add Input Port");
+                break;
+                case Eagle.FieldType.OutputPort:
+                $("#editFieldModalTitle").html("Add Output Port");
+                break;
             }
+
+            // show hide part of the UI appropriate for adding
             $("#addParameterWrapper").show();
             $("#customParameterOptionsWrapper").hide();
 
@@ -4245,6 +4252,7 @@ export class Eagle {
 
                 } else {
                     const clone : Field = allFields[choice].clone();
+                    clone.setId(Utils.uuidv4());
                     clone.setFieldType(fieldType);
                     node.addField(clone);
                 }
