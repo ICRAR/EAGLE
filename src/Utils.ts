@@ -636,9 +636,6 @@ export class Utils {
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
-        console.log("requestUserEditField()", modalType, fieldType, choices);
-        console.trace();
-
         let dropDownKO;
         let divID;
 

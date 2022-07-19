@@ -3441,8 +3441,6 @@ export class Eagle {
     // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
     // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
-        console.log("nodeInspectorDropdownClick()", val, num, divID);
-
         const selectSectionID : string = "fieldModalSelect";
         const modalID : string = "editFieldModal";
         const submitBtnID: string = "editFieldModalAffirmativeButton";
@@ -3473,8 +3471,6 @@ export class Eagle {
     }
 
     editFieldDropdownClick = (newType: string, oldType: string) : void => {
-        console.log("editFieldDropdownClick", newType, oldType);
-
         // check if the types already match, therefore nothing to do
         if (Utils.dataTypePrefix(oldType) === newType){
             return;
@@ -4184,9 +4180,6 @@ export class Eagle {
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
     editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
-        console.log("editField node:", node, "modalType:", modalType, "fieldType:", fieldType, "fieldIndex:", fieldIndex);
-        console.trace();
-
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), fieldType);
         const allFieldNames: string[] = [];
