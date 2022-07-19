@@ -124,21 +124,21 @@
         {% include 'node_inspector_graph_comment.html' %}
         <!-- /ko -->
 
+    <div class="card pt-2" id="nodeInspectorErrorsCard">
         <div class="card-body">
-            <!-- ko if: selectedNode() != null -->
-                <!-- ko with: selectedNode().getErrorsWarnings($root) -->
-                    <!-- ko foreach: errors -->
-                        <div class="alert alert-danger" role="alert">
-                            <span data-bind="text: $data.message"></span>
-                            <!-- ko if: fix !== null -->
-                                <button class="btn btn-primary btn-sm float-end" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
-                            <!-- /ko -->
-                        </div>
-                    <!-- /ko -->
-                    <!-- TODO: loop over warnings too -->
+            <!-- ko with: selectedNode().getErrorsWarnings($root) -->
+                <!-- ko foreach: errors -->
+                    <div class="alert alert-danger" role="alert">
+                        <span data-bind="text: $data.message"></span>
+                        <!-- ko if: fix !== null -->
+                            <button class="btn btn-primary btn-sm float-end" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
+                        <!-- /ko -->
+                    </div>
                 <!-- /ko -->
+                <!-- TODO: loop over warnings too -->
             <!-- /ko -->
         </div>
+    </div>
 
     <!-- /ko -->
 </div>
