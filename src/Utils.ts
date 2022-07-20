@@ -1742,7 +1742,13 @@ export class Utils {
     }
 
     static fixEdgeType(eagle: Eagle, edgeId: string, newType: string) : void {
-        eagle.logicalGraph().findEdgeById(edgeId).setDataType(newType);
+        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+
+        if (edge === null){
+            return;
+        }
+
+        edge.setDataType(newType);
     }
 
     static fixDeleteEdge(eagle: Eagle, edgeId: string): void {
@@ -1755,6 +1761,10 @@ export class Utils {
 
     static fixNodeFieldIds(eagle: Eagle, nodeKey: number){
         const node: Node = eagle.logicalGraph().findNodeByKey(nodeKey);
+
+        if (node === null){
+            return;
+        }
 
         for (const field of node.getFields()){
             if (field.getId() === ""){
