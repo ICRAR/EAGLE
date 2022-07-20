@@ -677,34 +677,33 @@ export class Utils {
                 text: ""
             }));
 
+            // add custom choice first
+            $('#fieldModalSelect').append($('<option>', {
+                value: 0,
+                text: "<Custom>"
+            }));
+            dropDownKO.append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+0+", "+choices.length+",'" + divID + "')}",
+                value: 0,
+                text: "<Custom>"
+            }));
+
             // add options to the modal select tag
             for (let i = 0 ; i < choices.length ; i++){
                 $('#fieldModalSelect').append($('<option>', {
-                    value: i,
+                    value: i+1,
                     text: choices[i]
                 }));
                 dropDownKO.append($('<a>', {
                     href: "#",
                     class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'" + divID + "')}",
-                    value: i,
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+(i+1)+", "+choices.length+",'" + divID + "')}",
+                    value: i+1,
                     text: choices[i]
                 }));
             }
-
-            // TODO: add custom choice first
-            // add custom choice
-            $('#fieldModalSelect').append($('<option>', {
-                value: choices.length,
-                text: "Custom (enter below)"
-            }));
-            dropDownKO.append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'" + divID + "')}",
-                value: choices.length,
-                text: "Custom"
-            }));
 
             //applying knockout bindings for the new buttons generated above
             ko.cleanNode(dropDownKO[0]);
