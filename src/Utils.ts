@@ -639,12 +639,24 @@ export class Utils {
         let dropDownKO;
         let divID;
 
-        if (fieldType === Eagle.FieldType.ComponentParameter){
-            dropDownKO = $("#nodeInspectorFieldDropDownKO");
-            divID = "nodeInspectorAddFieldDiv";
-        } else {
+        // determine which dropdown menu should be filled with appropriate items
+        switch(fieldType){
+            case Eagle.FieldType.ApplicationArgument:
             dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
             divID = "nodeInspectorAddApplicationParamDiv";
+            break;
+            case Eagle.FieldType.ComponentParameter:
+            dropDownKO = $("#nodeInspectorFieldDropDownKO");
+            divID = "nodeInspectorAddFieldDiv";
+            break;
+            case Eagle.FieldType.InputPort:
+            dropDownKO = $("#nodeInspectorInputPortDropDownKO");
+            divID = "nodeInspectorAddInputPortDiv";
+            break;
+            case Eagle.FieldType.OutputPort:
+            dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
+            divID = "nodeInspectorAddOutputPortDiv";
+            break;
         }
 
         if (modalType === Eagle.ModalType.Add){
@@ -665,33 +677,33 @@ export class Utils {
                 text: ""
             }));
 
+            // add custom choice first
+            $('#fieldModalSelect').append($('<option>', {
+                value: 0,
+                text: "<Custom>"
+            }));
+            dropDownKO.append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+0+", "+choices.length+",'" + divID + "')}",
+                value: 0,
+                text: "<Custom>"
+            }));
+
             // add options to the modal select tag
             for (let i = 0 ; i < choices.length ; i++){
                 $('#fieldModalSelect').append($('<option>', {
-                    value: i,
+                    value: i+1,
                     text: choices[i]
                 }));
                 dropDownKO.append($('<a>', {
                     href: "#",
                     class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'" + divID + "')}",
-                    value: i,
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+(i+1)+", "+choices.length+",'" + divID + "')}",
+                    value: i+1,
                     text: choices[i]
                 }));
             }
-
-            // add custom choice
-            $('#fieldModalSelect').append($('<option>', {
-                value: choices.length,
-                text: "Custom (enter below)"
-            }));
-            dropDownKO.append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'" + divID + "')}",
-                value: choices.length,
-                text: "Custom"
-            }));
 
             //applying knockout bindings for the new buttons generated above
             ko.cleanNode(dropDownKO[0]);
@@ -1309,35 +1321,22 @@ export class Utils {
     }
 
     /**
-     * Returns a list of all fields in the given palette or logical graph
+     * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsList = (diagram : Palette | LogicalGraph) : Field[] => {
+    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, fieldType: Eagle.FieldType) : Field[] => {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
             for (const field of node.getFields()) {
+                if (field.getFieldType() !== fieldType){
+                    continue;
+                }
                 Utils._addFieldIfUnique(uniqueFields, field.clone());
             }
         }
 
         return uniqueFields;
-    }
-
-    /**
-     * Returns a list of all fields in the given palette or logical graph
-     */
-    static getUniqueapplicationArgsList = (diagram : Palette | LogicalGraph) : Field[] => {
-        const uniqueapplicationArgs : Field[] = [];
-
-        // build a list from all nodes, add fields into the list
-        for (const node of diagram.getNodes()) {
-            for (const param of node.getApplicationArguments()) {
-                Utils._addFieldIfUnique(uniqueapplicationArgs, param.clone());
-            }
-        }
-
-        return uniqueapplicationArgs;
     }
 
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {

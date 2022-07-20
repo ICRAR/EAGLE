@@ -3327,10 +3327,7 @@ export class Eagle {
         Utils.showPalettesModal(this);
     }
 
-    /**
-     * Adds an field to the selected node via HTML.
-     */
-    // TODO: are these still used?
+    // Adds an field to the selected node via HTML
     addFieldHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -3346,10 +3343,7 @@ export class Eagle {
         $("#nodeInspectorAddFieldDiv").show();
     }
 
-    /**
-     * Adds an application param to the selected node via HTML.
-     */
-    // TODO: are these still used?
+    // Adds an application param to the selected node via HTML
     addApplicationArgHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -3363,6 +3357,38 @@ export class Eagle {
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
         $("#nodeInspectorAddApplicationParamDiv").show();
+    }
+
+    // Adds an output port to the selected node via HTML
+    addInputPortHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add input port when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.InputPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddInputPortDiv").show();
+    }
+
+    // Adds an output port to the selected node via HTML
+    addOutputPortHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add output port when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.OutputPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddOutputPortDiv").show();
     }
 
     getInspectorHeadingTooltip = (title:string, category:any, description:any) : string => {
@@ -3415,20 +3441,17 @@ export class Eagle {
     // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
     // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
-        let selectSectionID;
-        let modalID;
-        let submitBtnID;
+        const selectSectionID : string = "fieldModalSelect";
+        const modalID : string = "editFieldModal";
+        const submitBtnID: string = "editFieldModalAffirmativeButton";
 
-        if(divID==="nodeInspectorAddFieldDiv" || divID==="nodeInspectorAddApplicationParamDiv"){
-            selectSectionID = "fieldModalSelect"
-            modalID = "editFieldModal"
-            submitBtnID = "editFieldModalAffirmativeButton"
+        // val -1 is an empty option, so just close the dropdown
+        if (val===-1){
+            this.hideDropDown(divID);
+            return;
         }
 
-        if (val===-1){
-            this.hideDropDown(divID)
-            return
-        }else if(val===num){
+        if (val===0){
             //select custom field externally and open custom properties menu
             $("#"+divID).hide();
             $("#"+selectSectionID).val(val).trigger('change');
@@ -3439,9 +3462,8 @@ export class Eagle {
 
             // triggers the modal 'lightbox' to show
             $(".modal-backdrop").removeClass("forceHide");
-
         }else{
-            $("#"+selectSectionID).val(val).trigger('change');
+            $("#"+selectSectionID).val(val-1).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
             $("#"+modalID).removeClass("forceHide");
             $(".modal-backdrop").removeClass("forceHide");
@@ -3451,8 +3473,6 @@ export class Eagle {
     }
 
     editFieldDropdownClick = (newType: string, oldType: string) : void => {
-        console.log("editFieldDropdownClick", newType, oldType);
-
         // check if the types already match, therefore nothing to do
         if (Utils.dataTypePrefix(oldType) === newType){
             return;
@@ -4162,17 +4182,9 @@ export class Eagle {
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
     editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
-        console.log("editField node:", node, "modalType:", modalType, "fieldType:", fieldType, "fieldIndex:", fieldIndex);
-
         // get field names list from the logical graph
-        let allFields: Field[];
-        let allFieldNames: string[] = [];
-
-        if (fieldType === Eagle.FieldType.ComponentParameter){
-            allFields = Utils.getUniqueFieldsList(this.logicalGraph());
-        } else {
-            allFields = Utils.getUniqueapplicationArgsList(this.logicalGraph());
-        }
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), fieldType);
+        const allFieldNames: string[] = [];
 
         // once done, sort fields and then collect names into the allFieldNames list
         allFields.sort(Field.sortFunc);
@@ -4185,13 +4197,26 @@ export class Eagle {
             $('#parameterTableModal').modal("hide");
         }
 
-        //if creating a new field component parameter
+        //if creating a new field
         if (modalType === Eagle.ModalType.Add) {
-            if (fieldType == Eagle.FieldType.ComponentParameter){
-                $("#editFieldModalTitle").html("Add Component Parameter")
-            } else {
-                $("#editFieldModalTitle").html("Add Application Argument")
+
+            // set the title of the modal based on the field type
+            switch(fieldType){
+                case Eagle.FieldType.ApplicationArgument:
+                $("#editFieldModalTitle").html("Add Application Argument");
+                break;
+                case Eagle.FieldType.ComponentParameter:
+                $("#editFieldModalTitle").html("Add Component Parameter");
+                break;
+                case Eagle.FieldType.InputPort:
+                $("#editFieldModalTitle").html("Add Input Port");
+                break;
+                case Eagle.FieldType.OutputPort:
+                $("#editFieldModalTitle").html("Add Output Port");
+                break;
             }
+
+            // show hide part of the UI appropriate for adding
             $("#addParameterWrapper").show();
             $("#customParameterOptionsWrapper").hide();
 
@@ -4213,15 +4238,16 @@ export class Eagle {
                     return;
                 }
 
-                // hide the custom text input unless the last option in the select is chosen
-                if (choice === choices.length){
+                // hide the custom text input unless the first option in the select is chosen
+                if (choice === 0){
                     newField.setFieldType(fieldType);
 
                     //create field from user input in modal
                     node.addField(newField);
 
                 } else {
-                    const clone : Field = allFields[choice].clone();
+                    const clone : Field = allFields[choice-1].clone();
+                    clone.setId(Utils.uuidv4());
                     clone.setFieldType(fieldType);
                     node.addField(clone);
                 }
