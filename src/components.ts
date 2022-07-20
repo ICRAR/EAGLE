@@ -103,3 +103,12 @@ ko.components.register('palette-component', {
     },
     template: { require: "text!static/components/palette-component.html" }
 });
+
+// custom component for a fix
+ko.components.register('fix', {
+    viewModel: function(params : {data : any}){
+        const vm = params.data;
+        return vm;
+    },
+    template: { require: "text!static/components/fix.html" }
+});

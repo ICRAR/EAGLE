@@ -128,14 +128,7 @@
         <div class="card-body">
             <!-- ko with: selectedNode().getErrorsWarnings($root) -->
                 <!-- ko foreach: errors -->
-                    <div class="alert alert-danger" role="alert">
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <span data-bind="text: $data.message"></span>
-                            <!-- ko if: fix !== null -->
-                                <button class="btn btn-danger btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
-                            <!-- /ko -->
-                        </div>
-                    </div>
+                    <fix params="data: $data"></fix>
                 <!-- /ko -->
                 <!-- TODO: loop over warnings too -->
             <!-- /ko -->
