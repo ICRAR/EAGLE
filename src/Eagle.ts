@@ -3445,10 +3445,13 @@ export class Eagle {
         const modalID : string = "editFieldModal";
         const submitBtnID: string = "editFieldModalAffirmativeButton";
 
+        // val -1 is an empty option, so just close the dropdown
         if (val===-1){
-            this.hideDropDown(divID)
-            return
-        }else if(val===num){
+            this.hideDropDown(divID);
+            return;
+        }
+
+        if (val===0){
             //select custom field externally and open custom properties menu
             $("#"+divID).hide();
             $("#"+selectSectionID).val(val).trigger('change');
@@ -3459,9 +3462,8 @@ export class Eagle {
 
             // triggers the modal 'lightbox' to show
             $(".modal-backdrop").removeClass("forceHide");
-
         }else{
-            $("#"+selectSectionID).val(val).trigger('change');
+            $("#"+selectSectionID).val(val-1).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
             $("#"+modalID).removeClass("forceHide");
             $(".modal-backdrop").removeClass("forceHide");
@@ -4236,15 +4238,15 @@ export class Eagle {
                     return;
                 }
 
-                // hide the custom text input unless the last option in the select is chosen
-                if (choice === choices.length){
+                // hide the custom text input unless the first option in the select is chosen
+                if (choice === 0){
                     newField.setFieldType(fieldType);
 
                     //create field from user input in modal
                     node.addField(newField);
 
                 } else {
-                    const clone : Field = allFields[choice].clone();
+                    const clone : Field = allFields[choice-1].clone();
                     clone.setId(Utils.uuidv4());
                     clone.setFieldType(fieldType);
                     node.addField(clone);
