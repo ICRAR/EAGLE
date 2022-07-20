@@ -263,7 +263,7 @@ export class Modals {
             const choice : number = parseInt($('#fieldModalSelect').val().toString(), 10);
 
             // hide the custom text input unless the last option in the select is chosen
-            if (choice === choices.length){
+            if (choice === 0){
                 $('#customParameterOptionsWrapper').slideDown();
             } else {
                 $('#customParameterOptionsWrapper').slideUp();
