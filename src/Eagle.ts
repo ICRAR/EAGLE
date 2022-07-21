@@ -4065,7 +4065,9 @@ export class Eagle {
                 "idText":field.getIdText(),
                 "displayText":field.getDisplayText(),
                 "type":field.getType(),
-                "fieldType":field.getFieldType()
+                "fieldType":field.getFieldType(),
+                "value":field.getValue(),
+                "defaultValue": field.getDefaultValue()
             });
         }
 

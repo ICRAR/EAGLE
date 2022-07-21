@@ -2099,7 +2099,8 @@ export class Node {
         // check that all fields have default values
         for (const field of node.getFields()){
             if (field.getDefaultValue() === "" && !field.isType(Eagle.DataType_String)){
-                errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") whose default value is not specified"));
+                const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") whose default value is not specified", function(){Utils.visitNode(eagle, node.getKey())}, function(){Utils.fixFieldDefaultValue(eagle, field)}, "Generate default value for parameter");
+                errorsWarnings.warnings.push(issue);
             }
         }
 
