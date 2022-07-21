@@ -78,7 +78,7 @@
                 </div>
             </div>
             <div class="modal-footer" style="justify-content: space-between;">
-                <button class="btn btn-primary" data-bind="click: $root.fixAll, disable: $root.getNumFixableErrors() === 0, eagleTooltip: $root.getNumFixableErrors() + ' fix(es) available'">Fix All</button>
+                <button class="btn btn-primary" data-bind="click: $root.fixAll, disable: $root.getNumFixableIssues() === 0, eagleTooltip: $root.getNumFixableIssues() + ' fix(es) available'">Fix All</button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>
         </div>

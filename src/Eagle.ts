@@ -408,11 +408,17 @@ export class Eagle {
         }
     }, this);
 
-    getNumFixableErrors : ko.PureComputed<number> = ko.pureComputed(() => {
+    getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
         let count: number = 0;
 
         for (const error of this.graphErrors()){
             if (error.fix !== null){
+                count += 1;
+            }
+        }
+
+        for (const warning of this.graphWarnings()){
+            if (warning.fix !== null){
                 count += 1;
             }
         }
@@ -4944,6 +4950,12 @@ export class Eagle {
         for (const error of this.graphErrors()){
             if (error.fix !== null){
                 error.fix();
+            }
+        }
+
+        for (const warning of this.graphWarnings()){
+            if (warning.fix !== null){
+                warning.fix();
             }
         }
 
