@@ -106,8 +106,9 @@ ko.components.register('palette-component', {
 
 // custom component for a fix
 ko.components.register('fix', {
-    viewModel: function(params : {data : any}){
+    viewModel: function(params : {data : any, isError: boolean}){
         const vm = params.data;
+        vm.isError = params.isError;
         return vm;
     },
     template: { require: "text!static/components/fix.html" }

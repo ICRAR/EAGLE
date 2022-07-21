@@ -87,9 +87,11 @@
                 <!-- ko if: selectedEdge() != null -->
                     <!-- ko with: selectedEdge().getErrorsWarnings($root) -->
                         <!-- ko foreach: errors -->
-                            <fix params="data: $data"></fix>
+                            <fix params="data: $data, isError: true"></fix>
                         <!-- /ko -->
-                        <!-- TODO: loop over warnings too -->
+                        <!-- ko foreach: warnings -->
+                            <fix params="data: $data, isError: false"></fix>
+                        <!-- /ko -->
                     <!-- /ko -->
                 <!-- /ko -->
             </div>
