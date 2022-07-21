@@ -2098,8 +2098,16 @@ export class Node {
 
         // check that all fields have default values
         for (const field of node.getFields()){
-            if (field.getDefaultValue() === "" && !field.isType(Eagle.DataType_String)){
+            if (field.getDefaultValue() === "" && !field.isType(Eagle.DataType_String) && !field.isType(Eagle.DataType_Password) && !field.isType(Eagle.DataType_Object)) {
                 const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") whose default value is not specified", function(){Utils.visitNode(eagle, node.getKey())}, function(){Utils.fixFieldDefaultValue(eagle, field)}, "Generate default value for parameter");
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+
+        // check that all fields have known types
+        for (const field of node.getFields()){
+            if (!Utils.validateType(field.getType())) {
+                const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.visitNode(eagle, node.getKey())}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
                 errorsWarnings.warnings.push(issue);
             }
         }

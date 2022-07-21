@@ -1584,7 +1584,7 @@ export class Utils {
         return true;
     }
 
-    static validateField(type: string, value: string){
+    static validateField(type: string, value: string) : boolean {
         let valid: boolean = true;
 
         // make sure JSON fields are parse-able
@@ -1597,6 +1597,18 @@ export class Utils {
         }
 
         return valid;
+    }
+
+    static validateType(type: string) : boolean {
+        const typePrefix = Utils.dataTypePrefix(type);
+
+        for (const dt of Eagle.DataTypes){
+            if (dt === typePrefix){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static downloadFile(error : string, data : string, fileName : string) : void {
@@ -1789,14 +1801,21 @@ export class Utils {
             break;
             case Eagle.DataType_Integer:
             case Eagle.DataType_Float:
-            console.log("set float");
             field.setDefaultValue("0");
-            console.log("after", field.getDefaultValue());
+            break;
+            case Eagle.DataType_Json:
+            case Eagle.DataType_Python:
+            field.setDefaultValue("{}");
             break;
             default:
+            console.warn("No specific way to fix default value for field of this type:", field.getType());
             field.setDefaultValue("");
             break;
         }
+    }
+
+    static fixFieldType(eagle: Eagle, field: Field){
+        field.setType("Object." + field.getType());
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){

@@ -109,7 +109,7 @@ export class Field {
     }
 
     isType = (type: string) => {
-        return this.type() === type;
+        return Utils.dataTypePrefix(this.type()) === type;
     }
 
     valIsTrue = (val:string) : boolean => {
