@@ -1782,8 +1782,6 @@ export class Utils {
     }
 
     static fixFieldDefaultValue(eagle: Eagle, field: Field){
-        console.log("fieldId", field.getId(), "field.getType()", field.getType());
-
         // depends on the type
         switch(field.getType()){
             case Eagle.DataType_Boolean:
@@ -1794,6 +1792,7 @@ export class Utils {
             console.log("set float");
             field.setDefaultValue("0");
             console.log("after", field.getDefaultValue());
+            break;
             default:
             field.setDefaultValue("");
             break;
