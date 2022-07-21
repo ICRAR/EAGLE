@@ -59,7 +59,17 @@
                         <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
                             <div class="accordion-body" id="errorsModalWarningsAccordionBody">
                                 <!-- ko foreach: $root.graphWarnings -->
-                                    <span data-bind="text: $data.message"></span><br/>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span data-bind="text: $data.message"></span>
+                                        <div>
+                                        <!-- ko if: $data.visit !== null -->
+                                            <button class="btn btn-secondary btn-sm" data-bind="click: $data.visit, eagleTooltip: 'Visit Edge'">Visit</button>
+                                        <!-- /ko -->
+                                        <!-- ko if: $data.fix !== null -->
+                                            <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
+                                        <!-- /ko -->
+                                        </div>
+                                    </li>
                                 <!-- /ko -->
                             </div>
                         </div>

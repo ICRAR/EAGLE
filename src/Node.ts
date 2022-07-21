@@ -2153,7 +2153,8 @@ export class Node {
 
         // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
         if (!isConnected && !(maxInputs === 0 && maxOutputs === 0)){
-            errorsWarnings.warnings.push(Errors.NoFix("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way"));
+            const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.visitNode(eagle, node.getKey())}, null, "");
+            errorsWarnings.warnings.push(issue);
         }
 
         // check embedded application categories are not 'None'
