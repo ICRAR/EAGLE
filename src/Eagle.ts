@@ -390,46 +390,56 @@ export class Eagle {
 
         if(use==="input"){
             console.log("input")
+            //values adjusted for node points
             var p1x = (srcNodePos.left - parentPos.left)-4
             var p1y = ((srcNodePos.top - parentPos.top)+8)+parentScrollOffset
             var p2x = (destNodePos.left - parentPos.left)-4
             var p2y = ((destNodePos.top - parentPos.top)+8)+parentScrollOffset
             $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;left:'+p1x+'px;"></div>')
             $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;left:'+p2x+'px;"></div>')
-           
+            var mpx = parentPos.left-srcNodePos.left-10
+
+           //values re-adjusted for edges
+            p1x = p1x+3
+            p2x = p2x+3
         }else if(use==="output"){
             console.log("output")
+            //values adjusted for node points
             var p1x = (parentPos.right-srcNodePos.right )-9
             var p1y = ((srcNodePos.top - parentPos.top)+9)+parentScrollOffset
             var p2x = (parentPos.right-destNodePos.right)-9
             var p2y = ((destNodePos.top - parentPos.top)+9)+parentScrollOffset
+            $('#nodeList .col').append('<div class="positionPointer" style="position:absolute;z-index:1000000;top:'+p1y+'px;right:'+p1x+'px;transform:rotate(-90deg);fill:red;"><svg id="triangle" viewBox="0 0 6 6"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
             $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;right:'+p1x+'px;"></div>')
             $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;right:'+p2x+'px;"></div>')
-           
+            var p1x =  $('#nodeList .col').width() - p1x + 9 
+            var p2x =  $('#nodeList .col').width() - p2x + 9
+            var mpx = parentPos.right-srcNodePos.right+10
+
+           //values re-adjusted for edges
+           p1x = p1x+12
+           p2x = p2x+12
         }else{
             console.log("edge")
         }
         
+        //values re-adjusted for edges
+        p1y = p1y+9
+        p2y = p2y+9
+
         console.log('srcNode', p1x, p1y, 'destNode',p2x, p2y)
-       
-        // return
 
         // mid-point of line:
-        var mpx = (p2x + p1x) * 0.5;
-        var mpy = (p2y + p1y) * 0.5;
+        var mpy 
 
-        // angle of perpendicular to line:
-        var theta = Math.atan2(p2y - p1y, p2x - p1x) - Math.PI / 2;
-
-        // distance of control point from mid-point of line:
-        var offset = 30;
-
-        // location of control point:
-        var c1x = mpx + offset * Math.cos(theta);
-        var c1y = mpy + offset * Math.sin(theta);
+        if(p1y > p2y){
+            mpy = -((p1y - p2y)/2)
+        }else{
+            mpy = (p2y - p1y)/2
+        }
 
         // construct the command to draw a quadratic curve
-        var positions = "M " + p1x + " " + p1y + " q " + c1x + " " + c1y + " " + (p1x-p2x) + " " + (p1y-p2x);
+        var positions = "M " + p1x + " " + p1y + " q " + mpx + " " + mpy + " " + (p2x - p1x) + " " + (p2y - p1y);
         // var curve = '<path id="curve" d="'+positions+'" stroke="green" stroke-width="4" stroke-linecap="round" fill="transparent"></path>'
         // var curve = '<path d="M 100 350 q 150 -300 300 0" stroke="blue" stroke-width="5" fill="none" />'
         

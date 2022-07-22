@@ -58,7 +58,7 @@
     overflow-x: hidden;
 }
 
-.rightWindowDisplay.hierarchy {
+.rightWindowDisplay.hierarchy #nodeList{
     position: relative;
 }
 
