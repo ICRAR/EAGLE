@@ -10,77 +10,77 @@
     <!-- /ko -->
 
     <!-- ko if: selectedNode() != null -->
-    <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: selectedNode().color}, click: inspectorState().toggleAll">
-        <div class="col-12 headerBtns" data-bs-placement="left" data-bind="eagleTooltip: getInspectorHeadingTooltip(selectedNode().getName(), selectedNode().getCategory(),selectedNode().description())">
-            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: inspectorState().toggleAll, eagleTooltip: 'Expand/Collapse All'">
-                <i class="material-icons md-24" data-bind="css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
-            </button>
-            <span data-bind="text: selectedNode().getName()"></span>
+        <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: selectedNode().color}, click: inspectorState().toggleAll">
+            <div class="col-12 headerBtns" data-bs-placement="left" data-bind="eagleTooltip: getInspectorHeadingTooltip(selectedNode().getName(), selectedNode().getCategory(),selectedNode().description())">
+                <button type="button" class="btn btn-secondary btn-sm" data-bind="click: inspectorState().toggleAll, eagleTooltip: 'Expand/Collapse All'">
+                    <i class="material-icons md-24" data-bind="css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
+                </button>
+                <span data-bind="text: selectedNode().getName()"></span>
+            </div>
+            <div class="col-12 headerBtns" id="inspectorHeaderIconRow">
+                <div class="row">
+                    <div class="col-6">
+                        <!-- ko if: selectedNode().isLocked() -->
+                        <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: getReadOnlyText">
+                            <i class="material-icons md-20">lock</i>
+                        </button>
+                        <!-- /ko -->
+                        <!-- ko ifnot: selectedNode().isLocked() -->
+                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'readwrite'">
+                            <i class="material-icons md-20">lock_open</i>
+                        </button>
+                        <!-- /ko -->
+                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph -->
+                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node In Graph'">
+                            <i class="material-icons md-20">account_tree</i>
+                        </button>
+                        <!-- /ko -->
+                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Palette -->
+                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node In Palette'">
+                            <i class="material-icons md-20">palette</i>
+                        </button>
+                        <!-- /ko -->
+                    </div>
+                    <div class="col-6 text-right">
+                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
+                        <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                            <i  class="material-icons md-20">content_copy</i>
+                        </button>
+                        <!-- /ko -->
+                        <!-- ko if: Eagle.allowPaletteEditing() -->
+                        <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodesToPalette, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
+                            <i  class="material-icons md-20">library_add</i>
+                        </button>
+                        <!-- /ko -->
+                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
+                        <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
+                            <i class="material-icons md-20">delete</i>
+                        </button>
+                        <!-- /ko -->
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-12 headerBtns" id="inspectorHeaderIconRow">
+
+        <div class="card pt-2" id="nodeInspectorInfoCard">
             <div class="row">
                 <div class="col-6">
-                    <!-- ko if: selectedNode().isLocked() -->
-                    <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: getReadOnlyText">
-                        <i class="material-icons md-20">lock</i>
-                    </button>
-                    <!-- /ko -->
-                    <!-- ko ifnot: selectedNode().isLocked() -->
-                    <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'readwrite'">
-                        <i class="material-icons md-20">lock_open</i>
-                    </button>
-                    <!-- /ko -->
-                    <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph -->
-                    <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node In Graph'">
-                        <i class="material-icons md-20">account_tree</i>
-                    </button>
-                    <!-- /ko -->
-                    <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Palette -->
-                    <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node In Palette'">
-                        <i class="material-icons md-20">palette</i>
-                    </button>
+                    <h4 class="nodeInspectorSubTitle">Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
+                </div>
+                <div class="col-3">
+                    <!-- ko if: displayNodeKeys() -->
+                    <h4 class="nodeInspectorSubTitle">Key: <span data-bind="text: selectedNode().getKey()"></span></h4>
                     <!-- /ko -->
                 </div>
-                <div class="col-6 text-right">
-                    <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
-                    <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
-                        <i  class="material-icons md-20">content_copy</i>
-                    </button>
+                <div class="col-3 text-right">
+                    <!-- ko if: !$root.selectedNode().isLocked() -->
+                    <i class="material-icons interactive me-1" data-bs-placement="left" data-bind="click: editNodeCategory, eagleTooltip: 'Edit Node Category'">edit</i>
                     <!-- /ko -->
-                    <!-- ko if: Eagle.allowPaletteEditing() -->
-                    <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodesToPalette, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                        <i  class="material-icons md-20">library_add</i>
-                    </button>
-                    <!-- /ko -->
-                    <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
-                    <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
-                        <i class="material-icons md-20">delete</i>
-                    </button>
-                    <!-- /ko -->
+                    <i class="material-icons interactive me-3" data-bs-placement="left" data-bind="eagleTooltip: selectedNode().getGitHTML()">info</i>
                 </div>
+
             </div>
         </div>
-    </div>
-
-    <div class="card pt-2" id="nodeInspectorInfoCard">
-        <div class="row">
-            <div class="col-6">
-                <h4 class="nodeInspectorSubTitle">Category: <span data-bind="text: selectedNode().getCategory()"></span></h4>
-            </div>
-            <div class="col-3">
-                <!-- ko if: displayNodeKeys() -->
-                <h4 class="nodeInspectorSubTitle">Key: <span data-bind="text: selectedNode().getKey()"></span></h4>
-                <!-- /ko -->
-            </div>
-            <div class="col-3 text-right">
-                <!-- ko if: !$root.selectedNode().isLocked() -->
-                <i class="material-icons interactive me-1" data-bs-placement="left" data-bind="click: editNodeCategory, eagleTooltip: 'Edit Node Category'">edit</i>
-                <!-- /ko -->
-                <i class="material-icons interactive me-3" data-bs-placement="left" data-bind="eagleTooltip: selectedNode().getGitHTML()">info</i>
-            </div>
-
-        </div>
-    </div>
 
         <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
         {% include 'node_inspector_description.html' %}
@@ -124,18 +124,20 @@
         {% include 'node_inspector_graph_comment.html' %}
         <!-- /ko -->
 
-    <div class="card pt-2" id="nodeInspectorErrorsCard">
-        <div class="card-body">
-            <!-- ko with: selectedNode().getErrorsWarnings($root) -->
-                <!-- ko foreach: errors -->
-                    <fix params="data: $data, isError: true"></fix>
-                <!-- /ko -->
-                <!-- ko foreach: warnings -->
-                    <fix params="data: $data, isError: false"></fix>
-                <!-- /ko -->
-            <!-- /ko -->
-        </div>
-    </div>
+        <!-- ko if: selectedNode().getErrorsWarnings($root).errors.length + selectedNode().getErrorsWarnings($root).warnings.length > 0 -->
+            <div class="card pt-2" id="nodeInspectorErrorsCard">
+                <div class="card-body">
+                    <!-- ko with: selectedNode().getErrorsWarnings($root) -->
+                        <!-- ko foreach: errors -->
+                            <fix params="data: $data, isError: true"></fix>
+                        <!-- /ko -->
+                        <!-- ko foreach: warnings -->
+                            <fix params="data: $data, isError: false"></fix>
+                        <!-- /ko -->
+                    <!-- /ko -->
+                </div>
+            </div>
+        <!-- /ko -->
 
     <!-- /ko -->
 </div>

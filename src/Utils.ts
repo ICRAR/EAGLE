@@ -1815,7 +1815,18 @@ export class Utils {
     }
 
     static fixFieldType(eagle: Eagle, field: Field){
-        field.setType("Object." + field.getType());
+        if (field.getType() === Eagle.DataType_Unknown){
+            field.setType(Eagle.DataType_Object);
+            return;
+        }
+
+        // fix for redundant 'Complex' type
+        if (field.getType() === 'Complex'){
+            field.setType(Eagle.DataType_Object);
+            return;
+        }
+
+        field.setType(Eagle.DataType_Object + "." + field.getType());
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
