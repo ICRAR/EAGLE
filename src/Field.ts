@@ -335,6 +335,8 @@ export class Field {
             options = data.options;
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
+        if (typeof data.fieldType !== 'undefined')
+            fieldType = data.fieldType;
 
         return new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
     }
