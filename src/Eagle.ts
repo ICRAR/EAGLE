@@ -385,45 +385,33 @@ export class Eagle {
         var destNodePos = $('.hierarchyNode#'+edge.getDestNodeKey())[0].getBoundingClientRect()
         var parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
         var parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
-        console.log('srcId', edge.getSrcNodeKey(), srcNodePos)
-        console.log('destId', edge.getDestNodeKey(), destNodePos)
 
         if(use==="input"){
-            console.log("input")
-            //values adjusted for node points
-            var p1x = (srcNodePos.left - parentPos.left)-4
+            var p1x = (srcNodePos.left - parentPos.left)-1
             var p1y = ((srcNodePos.top - parentPos.top)+8)+parentScrollOffset
-            var p2x = (destNodePos.left - parentPos.left)-4
+            var p2x = (destNodePos.left - parentPos.left)-15
             var p2y = ((destNodePos.top - parentPos.top)+8)+parentScrollOffset
-            $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;left:'+p1x+'px;"></div>')
-            $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;left:'+p2x+'px;"></div>')
+            var arrowX = (destNodePos.left - parentPos.left)-17
             var mpx = parentPos.left-srcNodePos.left-10
 
-           //values re-adjusted for edges
-            p1x = p1x+3
-            p2x = p2x+3
+            //append arrows
+            $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:rgb(47 22 213);"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
+
         }else if(use==="output"){
-            console.log("output")
-            //values adjusted for node points
-            var p1x = (parentPos.right-srcNodePos.right )-9
+            var p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+30
             var p1y = ((srcNodePos.top - parentPos.top)+9)+parentScrollOffset
-            var p2x = (parentPos.right-destNodePos.right)-9
+            var p2x = ($('#nodeList .col').width() - (parentPos.right-destNodePos.right))+23
             var p2y = ((destNodePos.top - parentPos.top)+9)+parentScrollOffset
-            $('#nodeList .col').append('<div class="positionPointer" style="position:absolute;z-index:1000000;top:'+p1y+'px;right:'+p1x+'px;transform:rotate(-90deg);fill:red;"><svg id="triangle" viewBox="0 0 6 6"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
-            $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:red;z-index:1000000;top:'+p1y+'px;right:'+p1x+'px;"></div>')
-            $('#nodeList .col').append('<div class="positionPointer" style="width:5px; height:5px;position:absolute;background-color:blue;z-index:1000000;top:'+p2y+'px;right:'+p2x+'px;"></div>')
-            var p1x =  $('#nodeList .col').width() - p1x + 9 
-            var p2x =  $('#nodeList .col').width() - p2x + 9
+            var arrowX = (parentPos.right-destNodePos.right) - 19
             var mpx = parentPos.right-srcNodePos.right+10
 
-           //values re-adjusted for edges
-           p1x = p1x+12
-           p2x = p2x+12
+            //append arrows
+            $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:1001;top:'+p2y+'px;right:'+arrowX+'px;transform:rotate(-90deg);fill:rgb(47 22 213);"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(40%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
         }else{
             console.log("edge")
         }
         
-        //values re-adjusted for edges
+        //Y values re-adjusted for edges
         p1y = p1y+9
         p2y = p2y+9
 
@@ -450,8 +438,8 @@ export class Eagle {
         let curve = document.createElementNS(svgns, "path");
 
         curve.setAttribute("d",positions);
-        curve.setAttribute("stroke", "red");
-        curve.setAttribute("stroke-width", "5");
+        curve.setAttribute("stroke", "rgb(47 22 213)");
+        curve.setAttribute("stroke-width", "3");
         curve.setAttribute("fill", "none");
 
         // append the new rectangle to the svg
