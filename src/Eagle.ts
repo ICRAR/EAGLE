@@ -398,11 +398,11 @@ export class Eagle {
             $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:rgb(47 22 213);"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
 
         }else if(use==="output"){
-            var p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+30
+            var p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+32
             var p1y = ((srcNodePos.top - parentPos.top)+9)+parentScrollOffset
-            var p2x = ($('#nodeList .col').width() - (parentPos.right-destNodePos.right))+23
+            var p2x = ($('#nodeList .col').width() - (parentPos.right-destNodePos.right))+42
             var p2y = ((destNodePos.top - parentPos.top)+9)+parentScrollOffset
-            var arrowX = (parentPos.right-destNodePos.right) - 19
+            var arrowX = (parentPos.right-destNodePos.right) - 20
             var mpx = parentPos.right-srcNodePos.right+10
 
             //append arrows
