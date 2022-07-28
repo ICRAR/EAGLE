@@ -58,6 +58,7 @@
                         </h2>
                         <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
                             <div class="accordion-body" id="errorsModalWarningsAccordionBody">
+                                <ul class="list-group">
                                 <!-- ko foreach: $root.graphWarnings -->
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span data-bind="text: $data.message"></span>
@@ -71,6 +72,7 @@
                                         </div>
                                     </li>
                                 <!-- /ko -->
+                                </ul>
                             </div>
                         </div>
                     </div>
