@@ -58,7 +58,7 @@
                     </div>
                     <input type="text" class="form-control" id="edge-data-type" placeholder="" aria-label="DataType" aria-describedby="edge-addon5" readonly data-bind="value: selectedEdge().dataType">
                     <div class="input-group-append">
-                        <button class="btn btn-secondary btn-sm" id="edgeInspectorChangeDataType" type="button" data-bind="click: $root.changeEdgeDataType">
+                        <button class="btn btn-secondary btn-sm" id="edgeInspectorChangeDataType" type="button" data-bind="click: function(){$root.changeEdgeDataType(selectedEdge());}">
                             <i class="material-icons md-18">edit</i>
                         </button>
                     </div>

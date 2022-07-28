@@ -3618,8 +3618,6 @@ export class Eagle {
     }
 
     changeEdgeDataType = (edge: Edge) : void => {
-        console.log("changeEdgeDataType()");
-
         // get reference to selected Edge
         const selectedEdge: Edge = this.selectedEdge();
 
@@ -3646,7 +3644,25 @@ export class Eagle {
                 return;
             }
 
-            // TODO
+            // get user selection
+            const newType = allTypes[userChoiceIndex];
+
+            // get references to the source and destination ports of this edge
+            const sourceNode = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const sourcePort = sourceNode.findPortById(edge.getSrcPortId());
+            const destinationNode = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destinationPort = destinationNode.findPortById(edge.getDestPortId());
+
+            // update the edge and ports
+            edge.setDataType(newType);
+            sourcePort.setType(newType);
+            destinationPort.setType(newType);
+
+            // flag changes
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Change Edge Data Type");
+            this.selectedObjects.valueHasMutated();
+            this.logicalGraph.valueHasMutated();
         });
     }
 
