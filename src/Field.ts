@@ -282,6 +282,7 @@ export class Field {
             description:field.description(),
             readonly:field.readonly(),
             type:field.type(),
+            event:field.isEvent(),
             precious:field.precious(),
             options:field.options(),
             positional:field.positional()
@@ -297,6 +298,7 @@ export class Field {
             description:field.description(),
             readonly:field.readonly(),
             type:field.type(),
+            event:field.isEvent(),
             precious:field.precious(),
             options:field.options(),
             positional: field.positional()
@@ -316,6 +318,7 @@ export class Field {
         let options: string[] = [];
         let positional: boolean = false;
         let fieldType: Eagle.FieldType = Eagle.FieldType.Unknown;
+        let event: boolean = false;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -341,8 +344,12 @@ export class Field {
             positional = data.positional;
         if (typeof data.fieldType !== 'undefined')
             fieldType = data.fieldType;
+        if (typeof data.event !== 'undefined')
+            event = data.event;
 
-        return new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
+        const f: Field = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
+        f.setIsEvent(event);
+        return f;
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
