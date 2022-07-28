@@ -4088,6 +4088,7 @@ export class Eagle {
                 "displayText":field.getDisplayText(),
                 "type":field.getType(),
                 "fieldType":field.getFieldType(),
+                "isEvent":field.getIsEvent(),
                 "value":field.getValue(),
                 "defaultValue": field.getDefaultValue()
             });

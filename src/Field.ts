@@ -156,6 +156,10 @@ export class Field {
         this.isEvent(isEvent);
     }
 
+    toggleEvent = (): void => {
+        this.isEvent(!this.isEvent());
+    }
+
     getNodeKey = () : number => {
         return this.nodeKey();
     }
