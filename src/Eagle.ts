@@ -260,15 +260,11 @@ export class Eagle {
             var that:Eagle = this
 
             var x = function() {
-                console.log("rightwindowmode changed",this.eagle)
                 if(that.rightWindow().mode() === Eagle.RightWindowMode.Hierarchy){
                     that.hierarchySelectionHandler()
                 }
-
             }
-
             window.setTimeout(x,500)
-            
         },this)
     }
 
@@ -280,43 +276,34 @@ export class Eagle {
         if(this.logicalGraph()=== null){
             return
         }
-         //reset allselection relatives to false
-         $(".positionPointer").remove()
-         this.logicalGraph().getEdges().forEach(function(element:Edge){
-             element.setSelectionRelative(false)
-         })
-         //this part of the function flags edges that are selected or directly connected to the selected object
-         var that = this
-         var count=0
-         this.selectedObjects().forEach(function(element:any){
-             console.log(Eagle.selectedLocation())
-             if(Eagle.selectedLocation() === "Palette"){return}
-             count++
-             if (element instanceof Node){
-                 var key = element.getKey()
+        //reset allselection relatives to false
+        $(".positionPointer").remove()
+        this.logicalGraph().getEdges().forEach(function(element:Edge){
+            element.setSelectionRelative(false)
+        })
+        //this part of the function flags edges that are selected or directly connected to the selected object
+        var that = this
+        var count=0
+        this.selectedObjects().forEach(function(element:any){
+            if(Eagle.selectedLocation() === "Palette"){return}
+            count++
+            if (element instanceof Node){
+            var key = element.getKey()
 
-                 that.logicalGraph().getEdges().forEach(function(e:Edge){
-                     // if(e.getDestNodeKey() === key || e.getSrcNodeKey() === key){
-                     //     e.setSelectionRelative(true)
-                     //     that.drawHierarchyEdge(e)
-                     // }
-                     if(e.getDestNodeKey() === key){
-                         e.setSelectionRelative(true)
-                         that.drawHierarchyEdge(e,"input")
-                         console.log("From ",that.logicalGraph().findNodeByKey(e.getSrcNodeKey()).getName())
-                     }else if(e.getSrcNodeKey() === key){
-                         e.setSelectionRelative(true)
-                         that.drawHierarchyEdge(e,"output")
-                         console.log("To ",that.logicalGraph().findNodeByKey(e.getDestNodeKey()).getName())
-                     }
-                 })
-             }else if(element instanceof Edge){
-
-                 element.setSelectionRelative(true)
-                 that.drawHierarchyEdge(element, "edge")
-             }
-         })
-         console.log('----------------------------------------')
+            that.logicalGraph().getEdges().forEach(function(e:Edge){
+                if(e.getDestNodeKey() === key){
+                    e.setSelectionRelative(true)
+                    that.drawHierarchyEdge(e,"input")
+                }else if(e.getSrcNodeKey() === key){
+                    e.setSelectionRelative(true)
+                    that.drawHierarchyEdge(e,"output")
+                }
+            })
+            }else if(element instanceof Edge){
+                element.setSelectionRelative(true)
+                that.drawHierarchyEdge(element,"input")
+            }
+        })
     }
 
     areAnyFilesModified = () : boolean => {
@@ -380,7 +367,6 @@ export class Eagle {
 
     drawHierarchyEdge = (edge:Edge, use:string) : void =>{
 
-        console.log(edge.getDestNodeKey(), edge.getSrcNodeKey())
         var srcNodePos = $('.hierarchyNode#'+edge.getSrcNodeKey())[0].getBoundingClientRect()
         var destNodePos = $('.hierarchyNode#'+edge.getDestNodeKey())[0].getBoundingClientRect()
         var parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
@@ -408,14 +394,12 @@ export class Eagle {
             //append arrows
             $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:1001;top:'+p2y+'px;right:'+arrowX+'px;transform:rotate(-90deg);fill:rgb(47 22 213);"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(40%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
         }else{
-            console.log("edge")
-        }
+            console.log("error")
+        } 
         
         //Y values re-adjusted for edges
         p1y = p1y+9
         p2y = p2y+9
-
-        console.log('srcNode', p1x, p1y, 'destNode',p2x, p2y)
 
         // mid-point of line:
         var mpy 
@@ -437,7 +421,7 @@ export class Eagle {
         // make a simple rectangle
         let curve = document.createElementNS(svgns, "path");
 
-        curve.setAttribute("d",positions);
+        curve.setAttribute("d", positions);
         curve.setAttribute("stroke", "rgb(47 22 213)");
         curve.setAttribute("stroke-width", "3");
         curve.setAttribute("fill", "none");
