@@ -1968,3 +1968,7 @@ palette-component input.form-control.selected {
 #errorsModal ul.list-group .list-group-item span {
     max-width: 80%;
 }
+
+#nodeInspectorErrorsCard fix .alert {
+    overflow: hidden;
+}
