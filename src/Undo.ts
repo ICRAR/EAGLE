@@ -74,14 +74,6 @@ export class Undo {
         const previousSnapshot : Snapshot = this.memory()[previousIndex];
         const newContent : string = JSON.stringify(LogicalGraph.toOJSJson(eagle.logicalGraph(), false));
 
-        //debug
-        /*
-        if (previousSnapshot !== null){
-            console.log("previousSnapshot.data", previousSnapshot.data());
-            console.log("newContent", newContent);
-        }
-        */
-
         // check if newContent matches old content, if so, no need to push
         // TODO: maybe speed this up with checksums? or maybe not required
         if (previousSnapshot !== null && previousSnapshot.data() === newContent){

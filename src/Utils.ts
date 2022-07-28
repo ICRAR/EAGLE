@@ -1843,14 +1843,14 @@ export class Utils {
         eagle.undo().pushSnapshot(eagle, "Fix");
     }
 
-    static visitEdge(eagle: Eagle, edgeId: string): void {
+    static showEdge(eagle: Eagle, edgeId: string): void {
         // close errors modal if visible
         $('#errorsModal').modal("hide");
 
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
-    static visitNode(eagle: Eagle, nodeKey: number): void {
+    static showNode(eagle: Eagle, nodeKey: number): void {
         // close errors modal if visible
         $('#errorsModal').modal("hide");
 

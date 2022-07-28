@@ -229,25 +229,25 @@ export class Edge {
         }
 
         if (sourcePortId === ""){
-            const issue = Errors.Fix("source port has no id", function(){Utils.visitNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on source node");
+            const issue = Errors.Fix("source port has no id", function(){Utils.showNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on source node");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
             return Eagle.LinkValid.Invalid;
         }
 
         if (destinationPortId === ""){
-            const issue = Errors.Fix("destination port has no id", function(){Utils.visitNode(eagle, destinationNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
+            const issue = Errors.Fix("destination port has no id", function(){Utils.showNode(eagle, destinationNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
             return Eagle.LinkValid.Invalid;
         }
 
         if (sourcePortId === null){
-            const issue = Errors.Fix("source port id is null", function(){Utils.visitNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on source node");
+            const issue = Errors.Fix("source port id is null", function(){Utils.showNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on source node");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
             return Eagle.LinkValid.Invalid;
         }
 
         if (destinationPortId === null){
-            const issue = Errors.Fix("destination port id is null", function(){Utils.visitNode(eagle, destinationNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
+            const issue = Errors.Fix("destination port id is null", function(){Utils.showNode(eagle, destinationNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
             return Eagle.LinkValid.Invalid;
         }
@@ -275,7 +275,7 @@ export class Edge {
         // this is not supported. How would a BashShellApp read data from another process?
         if ((sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.getCategory() === Eagle.Category.BashShellApp) ||
             (sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.hasInputApplication() && destinationNode.getInputApplication().getCategory() === Eagle.Category.BashShellApp)){
-            const issue: Errors.Issue = Errors.Fix("output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", function(){Utils.visitNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeCategory(eagle, sourceNode, Eagle.Category.File)}, "Change data component type to File");
+            const issue: Errors.Issue = Errors.Fix("output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", function(){Utils.showNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeCategory(eagle, sourceNode, Eagle.Category.File)}, "Change data component type to File");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
         }
 
@@ -350,7 +350,7 @@ export class Edge {
 
         // abort if source port and destination port have different data types
         if (!Utils.portsMatch(sourcePort, destinationPort)){
-            const x = Errors.Fix("Source and destination ports don't match: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")", function(){Utils.visitEdge(eagle, edgeId);}, function(){Utils.fixPortType(eagle, sourcePort, destinationPort);}, "Overwrite destination port type with source port type");
+            const x = Errors.Fix("Source and destination ports don't match: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixPortType(eagle, sourcePort, destinationPort);}, "Overwrite destination port type with source port type");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
         }
 
@@ -362,19 +362,19 @@ export class Edge {
         // check if the edge already exists in the graph, there is no point in a duplicate
         for (const edge of eagle.logicalGraph().getEdges()){
             if (edge.getSrcPortId() === sourcePortId && edge.getDestPortId() === destinationPortId && edge.getId() !== edgeId){
-                const x = Errors.Fix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.visitEdge(eagle, edgeId);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");
+                const x = Errors.Fix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
         }
 
         // check that all edges have same data type as their source and destination ports
         if (dataType !== sourcePort.getType()){
-            const x = Errors.Fix("Edge data type (" + dataType + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + ").", function(){Utils.visitEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, sourcePort.getType());}, "Change edge data type to match source port type");
+            const x = Errors.Fix("Edge data type (" + dataType + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + ").", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, sourcePort.getType());}, "Change edge data type to match source port type");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
         }
 
         if (dataType !== destinationPort.getType()){
-            const x = Errors.Fix("Edge data type (" + dataType + ") does not match end port (" + destinationPort.getDisplayText() + ") data type (" + destinationPort.getType() + ").", function(){Utils.visitEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, destinationPort.getType());}, "Change edge data type to match destination port type");
+            const x = Errors.Fix("Edge data type (" + dataType + ") does not match end port (" + destinationPort.getDisplayText() + ") data type (" + destinationPort.getType() + ").", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, destinationPort.getType());}, "Change edge data type to match destination port type");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
         }
 
