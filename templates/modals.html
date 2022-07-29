@@ -694,7 +694,7 @@
                                             <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(),$data.getId(), false);}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                         <!-- /ko -->
                                         <!-- ko if: $data.fieldType() === Eagle.FieldType.ApplicationArgument || $data.fieldType() === Eagle.FieldType.ComponentParameter -->
-                                            <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.selectedNode(), $data.fieldType(), $index());}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                            <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.selectedNode(), Eagle.FieldType.Unknown, $index());}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                         <!-- /ko -->
                                     </td>
                                 </tr>

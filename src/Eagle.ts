@@ -3613,7 +3613,7 @@ export class Eagle {
         for (let i = 0 ; i < node.getFields().length; i++){
             const field: Field = node.getFields()[i];
 
-            if (field.getFieldType() === fieldType){
+            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
                 fieldTypeCount += 1;
             }
 
