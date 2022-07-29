@@ -371,7 +371,7 @@ export class Eagle {
         var destNodePos = $('.hierarchyNode#'+edge.getDestNodeKey())[0].getBoundingClientRect()
         var parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
         var parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
-
+        console.log(edge.getId())
         if(use==="input"){
             var p1x = (srcNodePos.left - parentPos.left)-1
             var p1y = ((srcNodePos.top - parentPos.top)+8)+parentScrollOffset
@@ -412,8 +412,6 @@ export class Eagle {
 
         // construct the command to draw a quadratic curve
         var positions = "M " + p1x + " " + p1y + " q " + mpx + " " + mpy + " " + (p2x - p1x) + " " + (p2y - p1y);
-        // var curve = '<path id="curve" d="'+positions+'" stroke="green" stroke-width="4" stroke-linecap="round" fill="transparent"></path>'
-        // var curve = '<path d="M 100 350 q 150 -300 300 0" stroke="blue" stroke-width="5" fill="none" />'
         
         // variable for the namespace 
         const svgns = "http://www.w3.org/2000/svg";
@@ -425,11 +423,19 @@ export class Eagle {
         curve.setAttribute("stroke", "rgb(47 22 213)");
         curve.setAttribute("stroke-width", "3");
         curve.setAttribute("fill", "none");
+        curve.setAttribute("id", edge.getId());
+        curve.setAttribute("class", "hierarchyEdge");
+        curve.setAttribute("onclick", "testingEdge()")
 
         // append the new rectangle to the svg
         $("#hierarchyEdgesSvg")[0].appendChild(curve)
-        // var curveElement = document.getElementById("curve");
-        // curveElement.setAttribute("d", curve);
+        $(".hierarchyEdge").on("click", function(){console.log("clicked")})
+
+    }
+
+
+    testingEdge = () : void => {
+        console.log("edgeBeyingTested")
     }
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -675,7 +681,7 @@ export class Eagle {
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
-        
+        console.log("boop")
         if (selection === null){
             this.selectedObjects([]);
             this.rightWindow().mode(rightWindowMode);
@@ -5184,6 +5190,10 @@ $( document ).ready(function() {
     $(".tableParameter").on("click", function(){
         console.log(this)
     })
+
+    // $(".hierarchyEdge").on("click",function(){
+    //     console.log("edgeclicked")
+    // })
 
     //expand palettes when using searchbar and return to prior collapsed state on completion.
     $("#paletteList .componentSearchBar").on("keyup",function(){
