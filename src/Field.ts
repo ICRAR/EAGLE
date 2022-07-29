@@ -312,7 +312,7 @@ export class Field {
         let options: string[] = [];
         let positional: boolean = false;
         let fieldType: Eagle.FieldType = Eagle.FieldType.Unknown;
-        let isEvent: Boolean = false;
+        let isEvent: boolean = false;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
