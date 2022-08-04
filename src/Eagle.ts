@@ -118,7 +118,7 @@ export class Eagle {
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
-        this.selectedObjects = ko.observableArray([]);
+        this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.translator = ko.observable(new Translator());
@@ -296,7 +296,7 @@ export class Eagle {
             //for selected nodes we must find the related egdes to draw
             if (element instanceof Node){
                 var key = element.getKey()
-                
+
                 that.logicalGraph().getEdges().forEach(function(e:Edge){
                     if(e.getDestNodeKey() === key){
                         e.setSelectionRelative(true)
@@ -426,14 +426,14 @@ export class Eagle {
             $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:1001;top:'+p2y+'px;right:'+arrowX+'px;transform:rotate(-90deg);fill:rgb(47 22 213);"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(40%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
         }else{
             console.log("error")
-        } 
-        
+        }
+
         //Y values re-adjusted for edges
         p1y = p1y+9
         p2y = p2y+9
 
         // mid-point of line:
-        var mpy 
+        var mpy
 
         if(p1y > p2y){
             mpy = -((p1y - p2y)/2)
@@ -443,8 +443,8 @@ export class Eagle {
 
         // construct the command to draw a quadratic curve
         var positions = "M " + p1x + " " + p1y + " q " + mpx + " " + mpy + " " + (p2x - p1x) + " " + (p2y - p1y);
-        
-        // variable for the namespace 
+
+        // variable for the namespace
         const svgns = "http://www.w3.org/2000/svg";
 
         // make a simple rectangle
@@ -4741,7 +4741,7 @@ export class Eagle {
         if (srcNode.getParentKey() === destNode.getKey()){
             newNode.setParentKey(destNode.getKey());
         }
-        
+
          // if dest node is a child of source node, make the new node a child too
         if (destNode.getParentKey() === srcNode.getKey()){
             newNode.setParentKey(srcNode.getKey());
@@ -4750,7 +4750,7 @@ export class Eagle {
         // create TWO edges, one from src to data component, one from data component to dest
         const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
         const secondEdge : Edge = new Edge(newNodeKey, newOutputPort.getId(), destNode.getKey(), destPort.getId(), destPort.getType(), loopAware, closesLoop,false);
-       
+
         this.logicalGraph().addEdgeComplete(firstEdge);
         this.logicalGraph().addEdgeComplete(secondEdge);
 
