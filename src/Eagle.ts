@@ -254,6 +254,7 @@ export class Eagle {
 
         this.selectedObjects.subscribe(function(){
             this.hierarchySelectionHandler()
+            console.log("selectedobjects changed")
         }, this)
 
         this.rightWindow().mode.subscribe(function(){
@@ -276,34 +277,65 @@ export class Eagle {
         if(this.logicalGraph()=== null){
             return
         }
+
         //reset allselection relatives to false
         $(".positionPointer").remove()
         this.logicalGraph().getEdges().forEach(function(element:Edge){
             element.setSelectionRelative(false)
         })
+
         //this part of the function flags edges that are selected or directly connected to the selected object
         var that = this
         var count=0
+        var hierarchyEdgesList : {edge:Edge , use:string}[] = []
+        //loop over selected objects
         this.selectedObjects().forEach(function(element:any){
+            //ignore palette selections
             if(Eagle.selectedLocation() === "Palette"){return}
             count++
+            //for selected nodes we must find the related egdes to draw
             if (element instanceof Node){
-            var key = element.getKey()
-
-            that.logicalGraph().getEdges().forEach(function(e:Edge){
-                if(e.getDestNodeKey() === key){
-                    e.setSelectionRelative(true)
-                    that.drawHierarchyEdge(e,"input")
-                }else if(e.getSrcNodeKey() === key){
-                    e.setSelectionRelative(true)
-                    that.drawHierarchyEdge(e,"output")
-                }
-            })
+                var key = element.getKey()
+                
+                that.logicalGraph().getEdges().forEach(function(e:Edge){
+                    if(e.getDestNodeKey() === key){
+                        e.setSelectionRelative(true)
+                        that.addUniqueHierarchyEdge(e, "input", hierarchyEdgesList)
+                    }else if(e.getSrcNodeKey() === key){
+                        e.setSelectionRelative(true)
+                        that.addUniqueHierarchyEdge(e, "output", hierarchyEdgesList)
+                    }
+                })
+            //for edges we must check if a related node is selected to decide if it should be drawn as input or output edge
             }else if(element instanceof Edge){
                 element.setSelectionRelative(true)
-                that.drawHierarchyEdge(element,"input")
+                if(that.objectIsSelected(that.logicalGraph().findNodeByKey(element.getSrcNodeKey()))){
+                    that.addUniqueHierarchyEdge(element, "output", hierarchyEdgesList)
+                }else{
+                    that.addUniqueHierarchyEdge(element, "input", hierarchyEdgesList)
+                }
             }
         })
+
+        //an array of edges is used as we have to ensure there are no duplicate edges drawn.
+        console.log("drawing now")
+        hierarchyEdgesList.forEach(function(e:{edge:Edge , use:string}){
+            that.drawHierarchyEdge(e.edge,e.use)
+        })
+
+    }
+
+    addUniqueHierarchyEdge = (edge:Edge, use:string, hierarchyEdgeList:{edge:Edge , use:string}[] ) : void => {
+        var unique = true
+        hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string}){
+            if(e.edge.getId()===edge.getId()){
+                unique = false
+            }
+        })
+
+        if(unique){
+            hierarchyEdgeList.push({edge:edge,use:use})
+        }
     }
 
     areAnyFilesModified = () : boolean => {
@@ -424,6 +456,7 @@ export class Eagle {
         curve.setAttribute("fill", "none");
         curve.setAttribute("class", "hierarchyEdge");
 
+        //curve extras as click targets, invisible thicker stroke
         let curveExtra = document.createElementNS(svgns, "path");
 
         curveExtra.setAttribute("d", positions);
@@ -433,15 +466,15 @@ export class Eagle {
         curveExtra.setAttribute("id", edge.getId());
         curveExtra.setAttribute("class", "hierarchyEdgeExtra");
 
-        // append the new rectangle to the svg
+        // append the edge paths to the svg
         $("#hierarchyEdgesSvg")[0].appendChild(curve)
         $("#hierarchyEdgesSvg")[0].appendChild(curveExtra)
-
     }
 
 
     testingEdge = () : void => {
-        console.log("edgeBeyingTested")
+        console.log("edgeBeyingTeste", event.target)
+
     }
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -5211,7 +5244,19 @@ $( document ).ready(function() {
             $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
         }
     })
-    $(document).on('click', '.hierarchyEdgeExtra', function() {
-        console.log("edgeclicked")
-    });
+
+    $(document).on('click', '.hierarchyEdgeExtra', function(){
+        var selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+
+        if(!selectEdge){
+            console.log("no edge found")
+            return
+        }
+        if(!(<PointerEvent>event).shiftKey){
+            (<any>window).eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+        }else{
+            (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+        }
+
+    })
 });
