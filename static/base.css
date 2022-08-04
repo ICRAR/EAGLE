@@ -1140,6 +1140,11 @@ select.form-control{
     left: 0px;
 }
 
+#hierarchyEdgesSvg .hierarchyEdgeExtra{
+    pointer-events: visibleStroke;
+
+}
+
 .hierarchyNode {
     margin-top: 4px;
     background-color: #e9ecef;

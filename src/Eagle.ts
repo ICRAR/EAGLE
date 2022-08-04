@@ -371,7 +371,6 @@ export class Eagle {
         var destNodePos = $('.hierarchyNode#'+edge.getDestNodeKey())[0].getBoundingClientRect()
         var parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
         var parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
-        console.log(edge.getId())
         if(use==="input"){
             var p1x = (srcNodePos.left - parentPos.left)-1
             var p1y = ((srcNodePos.top - parentPos.top)+8)+parentScrollOffset
@@ -423,13 +422,20 @@ export class Eagle {
         curve.setAttribute("stroke", "rgb(47 22 213)");
         curve.setAttribute("stroke-width", "3");
         curve.setAttribute("fill", "none");
-        curve.setAttribute("id", edge.getId());
         curve.setAttribute("class", "hierarchyEdge");
-        curve.setAttribute("onclick", "testingEdge()")
+
+        let curveExtra = document.createElementNS(svgns, "path");
+
+        curveExtra.setAttribute("d", positions);
+        curveExtra.setAttribute("stroke", "transparent");
+        curveExtra.setAttribute("stroke-width", "10");
+        curveExtra.setAttribute("fill", "none");
+        curveExtra.setAttribute("id", edge.getId());
+        curveExtra.setAttribute("class", "hierarchyEdgeExtra");
 
         // append the new rectangle to the svg
         $("#hierarchyEdgesSvg")[0].appendChild(curve)
-        $(".hierarchyEdge").on("click", function(){console.log("clicked")})
+        $("#hierarchyEdgesSvg")[0].appendChild(curveExtra)
 
     }
 
@@ -5205,6 +5211,7 @@ $( document ).ready(function() {
             $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
         }
     })
-
-
+    $(document).on('click', '.hierarchyEdgeExtra', function() {
+        console.log("edgeclicked")
+    });
 });
