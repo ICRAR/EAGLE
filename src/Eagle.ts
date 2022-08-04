@@ -254,7 +254,6 @@ export class Eagle {
 
         this.selectedObjects.subscribe(function(){
             this.hierarchySelectionHandler()
-            console.log("selectedobjects changed")
         }, this)
 
         this.rightWindow().mode.subscribe(function(){
@@ -318,7 +317,6 @@ export class Eagle {
         })
 
         //an array of edges is used as we have to ensure there are no duplicate edges drawn.
-        console.log("drawing now")
         hierarchyEdgesList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
             that.drawHierarchyEdge(e.edge,e.use, e.edgeSelected)
         })
@@ -332,6 +330,16 @@ export class Eagle {
                 unique = false
             }
         })
+
+        if(this.objectIsSelected(edge)){
+            if(!unique){
+                hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
+                    if(e.edge.getId()===edge.getId()){
+                        e.edgeSelected=true
+                    }
+                })
+            }
+        }
 
         if(unique){
             hierarchyEdgeList.push({edge:edge,use:use,edgeSelected:edgeSelected})
@@ -410,6 +418,8 @@ export class Eagle {
 
         if(edgeSelected){
             colour = selectedColour
+        }else{
+            colour = defaultColour
         }
 
         if(use==="input"){
@@ -421,7 +431,7 @@ export class Eagle {
             var mpx = parentPos.left-srcNodePos.left-10
 
             //append arrows
-            $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:"'+colour+'";"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
+            $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
 
         }else if(use==="output"){
             var p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+32
@@ -432,7 +442,7 @@ export class Eagle {
             var mpx = parentPos.right-srcNodePos.right+10
 
             //append arrows
-            $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:1001;top:'+p2y+'px;right:'+arrowX+'px;transform:rotate(-90deg);fill:rgb(47 22 213);"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(40%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
+            $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:1001;top:'+p2y+'px;right:'+arrowX+'px;transform:rotate(-90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(40%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
         }else{
             console.log("error")
         }
@@ -460,7 +470,7 @@ export class Eagle {
         let curve = document.createElementNS(svgns, "path");
 
         curve.setAttribute("d", positions);
-        curve.setAttribute("stroke", "black");
+        curve.setAttribute("stroke", colour);
         curve.setAttribute("stroke-width", "3");
         curve.setAttribute("fill", "none");
         curve.setAttribute("class", "hierarchyEdge");
@@ -729,7 +739,6 @@ export class Eagle {
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
-        console.log("boop")
         if (selection === null){
             this.selectedObjects([]);
             this.rightWindow().mode(rightWindowMode);
