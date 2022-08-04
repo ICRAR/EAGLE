@@ -52,7 +52,7 @@ import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
 import {Undo} from './Undo';
-import { selection, text, treemapSquarify } from "d3";
+import { schemeBlues, select, selection, text, treemapSquarify } from "d3";
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -287,7 +287,7 @@ export class Eagle {
         //this part of the function flags edges that are selected or directly connected to the selected object
         var that = this
         var count=0
-        var hierarchyEdgesList : {edge:Edge , use:string}[] = []
+        var hierarchyEdgesList : {edge:Edge, use:string, edgeSelected:boolean}[] = []
         //loop over selected objects
         this.selectedObjects().forEach(function(element:any){
             //ignore palette selections
@@ -300,41 +300,41 @@ export class Eagle {
                 that.logicalGraph().getEdges().forEach(function(e:Edge){
                     if(e.getDestNodeKey() === key){
                         e.setSelectionRelative(true)
-                        that.addUniqueHierarchyEdge(e, "input", hierarchyEdgesList)
+                        that.addUniqueHierarchyEdge(e, "input", hierarchyEdgesList, false)
                     }else if(e.getSrcNodeKey() === key){
                         e.setSelectionRelative(true)
-                        that.addUniqueHierarchyEdge(e, "output", hierarchyEdgesList)
+                        that.addUniqueHierarchyEdge(e, "output", hierarchyEdgesList,false)
                     }
                 })
             //for edges we must check if a related node is selected to decide if it should be drawn as input or output edge
             }else if(element instanceof Edge){
                 element.setSelectionRelative(true)
                 if(that.objectIsSelected(that.logicalGraph().findNodeByKey(element.getSrcNodeKey()))){
-                    that.addUniqueHierarchyEdge(element, "output", hierarchyEdgesList)
+                    that.addUniqueHierarchyEdge(element, "output", hierarchyEdgesList,true)
                 }else{
-                    that.addUniqueHierarchyEdge(element, "input", hierarchyEdgesList)
+                    that.addUniqueHierarchyEdge(element, "input", hierarchyEdgesList,true)
                 }
             }
         })
 
         //an array of edges is used as we have to ensure there are no duplicate edges drawn.
         console.log("drawing now")
-        hierarchyEdgesList.forEach(function(e:{edge:Edge , use:string}){
-            that.drawHierarchyEdge(e.edge,e.use)
+        hierarchyEdgesList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
+            that.drawHierarchyEdge(e.edge,e.use, e.edgeSelected)
         })
 
     }
 
-    addUniqueHierarchyEdge = (edge:Edge, use:string, hierarchyEdgeList:{edge:Edge , use:string}[] ) : void => {
+    addUniqueHierarchyEdge = (edge:Edge, use:string, hierarchyEdgeList:{edge:Edge , use:string, edgeSelected:boolean}[],edgeSelected:boolean) : void => {
         var unique = true
-        hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string}){
+        hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
             if(e.edge.getId()===edge.getId()){
                 unique = false
             }
         })
 
         if(unique){
-            hierarchyEdgeList.push({edge:edge,use:use})
+            hierarchyEdgeList.push({edge:edge,use:use,edgeSelected:edgeSelected})
         }
     }
 
@@ -397,12 +397,21 @@ export class Eagle {
         }
     }
 
-    drawHierarchyEdge = (edge:Edge, use:string) : void =>{
+    drawHierarchyEdge = (edge:Edge, use:string, edgeSelected:boolean) : void =>{
 
         var srcNodePos = $('.hierarchyNode#'+edge.getSrcNodeKey())[0].getBoundingClientRect()
         var destNodePos = $('.hierarchyNode#'+edge.getDestNodeKey())[0].getBoundingClientRect()
         var parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
         var parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
+
+        var selectedColour = "rgb(47 22 213)"
+        var defaultColour = "black"
+        var colour
+
+        if(edgeSelected){
+            colour = selectedColour
+        }
+
         if(use==="input"){
             var p1x = (srcNodePos.left - parentPos.left)-1
             var p1y = ((srcNodePos.top - parentPos.top)+8)+parentScrollOffset
@@ -412,7 +421,7 @@ export class Eagle {
             var mpx = parentPos.left-srcNodePos.left-10
 
             //append arrows
-            $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:rgb(47 22 213);"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
+            $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:"'+colour+'";"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
 
         }else if(use==="output"){
             var p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+32
@@ -451,7 +460,7 @@ export class Eagle {
         let curve = document.createElementNS(svgns, "path");
 
         curve.setAttribute("d", positions);
-        curve.setAttribute("stroke", "rgb(47 22 213)");
+        curve.setAttribute("stroke", "black");
         curve.setAttribute("stroke-width", "3");
         curve.setAttribute("fill", "none");
         curve.setAttribute("class", "hierarchyEdge");
