@@ -5248,10 +5248,6 @@ $( document ).ready(function() {
         console.log(this)
     })
 
-    // $(".hierarchyEdge").on("click",function(){
-    //     console.log("edgeclicked")
-    // })
-
     //expand palettes when using searchbar and return to prior collapsed state on completion.
     $("#paletteList .componentSearchBar").on("keyup",function(){
         if ($("#paletteList .componentSearchBar").val() !== ""){
@@ -5276,5 +5272,8 @@ $( document ).ready(function() {
             (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
         }
 
+    })
+    $(".hierarchy").on("click", function(){
+        (<any>window).eagle.selectedObjects([]);
     })
 });
