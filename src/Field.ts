@@ -281,8 +281,7 @@ export class Field {
             defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
-            type:field.type(),
-            event:field.isEvent(),
+            type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
             positional:field.positional()
@@ -297,8 +296,7 @@ export class Field {
             defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
-            type:field.type(),
-            event:field.isEvent(),
+            type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
             positional: field.positional()
@@ -318,7 +316,7 @@ export class Field {
         let options: string[] = [];
         let positional: boolean = false;
         let fieldType: Eagle.FieldType = Eagle.FieldType.Unknown;
-        let event: boolean = false;
+        let isEvent: boolean = false;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -330,8 +328,15 @@ export class Field {
             description = data.description;
         if (typeof data.readonly !== 'undefined')
             readonly = data.readonly;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
+        if (typeof data.type !== 'undefined'){
+            if (data.type === "Event"){
+                isEvent = true;
+                type = Eagle.DataType_Unknown;
+            } else {
+                isEvent = false;
+                type = data.type;
+            }
+        }
         if (typeof data.value !== 'undefined' && data.value !== null)
             value = data.value.toString();
         if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null)
@@ -347,9 +352,9 @@ export class Field {
         if (typeof data.event !== 'undefined')
             event = data.event;
 
-        const f: Field = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
-        f.setIsEvent(event);
-        return f;
+        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
+        result.setIsEvent(isEvent);
+        return result;
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {

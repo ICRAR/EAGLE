@@ -664,8 +664,8 @@ def open_git_hub_file():
     # get the file from this commit
     try:
         f = repo.get_contents(filename, ref=most_recent_commit.sha)
-        raw_data = f.decoded_content
         download_url = f.download_url
+        raw_data = f.decoded_content
     except github.GithubException as e:
         # first get the branch reference
         ref = repo.get_git_ref(f'heads/{repo_branch}')
@@ -684,6 +684,11 @@ def open_git_hub_file():
 
         # manually build the download url
         download_url = "https://raw.githubusercontent.com/" + repo_name + "/" + most_recent_commit.sha + "/" + filename
+    except AssertionError as e:
+        # download via http get
+        import certifi
+        import ssl
+        raw_data = urllib.request.urlopen(download_url, context=ssl.create_default_context(cafile=certifi.where())).read()
 
     # parse JSON
     graph = json.loads(raw_data)

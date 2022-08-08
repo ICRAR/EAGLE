@@ -958,9 +958,9 @@ export class Eagle {
     tableInspectorUpdateSelection = (value:string) : void => {
         var selected = Eagle.parameterTableSelectionName()
         var selectedForm = Eagle.parameterTableSelectionParent()
-        if(selected === 'text'){
+        if(selected === 'displayText'){
             selectedForm.setDisplayText(value)
-        } else if(selected === 'name'){
+        } else if(selected === 'idText'){
             selectedForm.setIdText(value)
         } else if(selected === 'value'){
             selectedForm.setValue(value)
@@ -968,8 +968,6 @@ export class Eagle {
             selectedForm.setDefaultValue(value)
         } else if(selected === 'description'){
             selectedForm.setDescription(value)
-        } else{
-            return
         }
     }
 
@@ -3681,7 +3679,7 @@ export class Eagle {
         for (let i = 0 ; i < node.getFields().length; i++){
             const field: Field = node.getFields()[i];
 
-            if (field.getFieldType() === fieldType){
+            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
                 fieldTypeCount += 1;
             }
 
