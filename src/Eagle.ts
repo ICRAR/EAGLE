@@ -2566,18 +2566,45 @@ export class Eagle {
         }
     }
 
-    getCurrentParamReadonly = (index: number) : boolean => {
+    getCurrentParamReadonly = (index: number, fieldType: Eagle.FieldType) : boolean => {
+        // if we want to get readonly-ness the Nth application arg, then the real index
+        // into the fields array is probably larger than N, since all four types
+        // of fields are stored there
+        const node = this.selectedNode();
+        let realIndex = -1;
+        let fieldTypeCount = 0;
+
+        for (let i = 0 ; i < node.getFields().length; i++){
+            const field: Field = node.getFields()[i];
+
+            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
+                fieldTypeCount += 1;
+            }
+
+            // check if we have found the Nth field of desired type
+            if (fieldTypeCount > index){
+                realIndex = i;
+                break;
+            }
+        }
+
+        // check that we actually found the right field, otherwise abort
+        if (realIndex === -1){
+            console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
+            return false;
+        }
+
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(Eagle.allowPaletteEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[index].isReadonly();
+                return this.selectedNode().getFields()[realIndex].isReadonly();
             }
         }else{
             if(Eagle.allowComponentEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[index].isReadonly();
+                return this.selectedNode().getFields()[realIndex].isReadonly();
             }
         }
     }
@@ -4088,7 +4115,8 @@ export class Eagle {
                 "fieldType":field.getFieldType(),
                 "isEvent":field.getIsEvent(),
                 "value":field.getValue(),
-                "defaultValue": field.getDefaultValue()
+                "defaultValue": field.getDefaultValue(),
+                "readonly":field.isReadonly()
             });
         }
 
