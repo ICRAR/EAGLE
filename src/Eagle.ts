@@ -89,8 +89,12 @@ export class Eagle {
 
     explorePalettes : ko.Observable<ExplorePalettes>;
 
+    errorsMode : ko.Observable<Eagle.ErrorsMode>;
     graphWarnings : ko.ObservableArray<Errors.Issue>;
     graphErrors : ko.ObservableArray<Errors.Issue>;
+    loadingWarnings : ko.ObservableArray<Errors.Issue>;
+    loadingErrors : ko.ObservableArray<Errors.Issue>;
+
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -247,11 +251,13 @@ export class Eagle {
 
         this.explorePalettes = ko.observable(new ExplorePalettes());
 
+        this.errorsMode = ko.observable(Eagle.ErrorsMode.Loading);
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
+        this.loadingWarnings = ko.observableArray([]);
+        this.loadingErrors = ko.observableArray([]);
 
         this.showDataNodes = ko.observable(true);
-
 
         this.selectedObjects.subscribe(function(){
             //return if the graph is not loaded yet
@@ -410,14 +416,27 @@ export class Eagle {
 
     getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
         let count: number = 0;
+        let errors: Errors.Issue[];
+        let warnings: Errors.Issue[];
 
-        for (const error of this.graphErrors()){
+        // choose the correct array to count based on the error mode
+        if (this.errorsMode() === Eagle.ErrorsMode.Graph){
+            errors = this.graphErrors();
+            warnings = this.graphWarnings();
+        } else {
+            errors = this.loadingErrors();
+            warnings = this.loadingWarnings();
+        }
+
+        // count the errors
+        for (const error of errors){
             if (error.fix !== null){
                 count += 1;
             }
         }
 
-        for (const warning of this.graphWarnings()){
+        // count the warnings
+        for (const warning of warnings){
             if (warning.fix !== null){
                 count += 1;
             }
@@ -895,6 +914,11 @@ export class Eagle {
         // show errors (if found)
         if (errorsWarnings.errors.length > 0 || errorsWarnings.warnings.length > 0){
             if (showErrors){
+
+                // add warnings/errors to the arrays
+                this.loadingErrors(errorsWarnings.errors);
+                this.loadingWarnings(errorsWarnings.warnings);
+
                 Utils.showErrorsModal("Loading File", errorsWarnings.errors, errorsWarnings.warnings);
             }
         } else {
@@ -4696,7 +4720,7 @@ export class Eagle {
 
     checkGraph = (): void => {
         const checkResult = Utils.checkGraph(this);
-        //console.log("checkGraph() warnings", checkResult.warnings.length, "errors", checkResult.errors.length);
+        console.log("checkGraph() warnings", checkResult.warnings.length, "errors", checkResult.errors.length);
 
         this.graphWarnings(checkResult.warnings);
         this.graphErrors(checkResult.errors);
@@ -5022,6 +5046,24 @@ export class Eagle {
         Utils.postFixFunc(this);
     }
 
+    getWarnings : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
+        switch (this.errorsMode()){
+            case Eagle.ErrorsMode.Loading:
+                return this.loadingWarnings();
+            case Eagle.ErrorsMode.Graph:
+                return this.graphWarnings();
+        }
+    }, this);
+
+    getErrors : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
+        switch (this.errorsMode()){
+            case Eagle.ErrorsMode.Loading:
+                return this.loadingErrors();
+            case Eagle.ErrorsMode.Graph:
+                return this.graphErrors();
+        }
+    }, this);
+
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         const c = Eagle.cData[category];
 
@@ -5273,6 +5315,11 @@ export namespace Eagle
         expandedHeaderOffsetY: number,
         sortOrder: number
     };
+
+    export enum ErrorsMode {
+        Loading = "Loading",
+        Graph = "Graph"
+    }
 }
 
 

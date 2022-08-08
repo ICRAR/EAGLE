@@ -29,12 +29,12 @@
 
                     <div class="accordion-item" id="errorsModalErrorsAccordionItem">
                         <h2 class="accordion-header" id="checkGraphAccordionHeadingOne">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount" data-bind="text: '[' + $root.graphErrors().length + ']'"></span></button>
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount" data-bind="text: '[' + $root.getErrors().length + ']'"></span></button>
                         </h2>
                         <div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">
                             <div class="accordion-body" id="errorsModalErrorsAccordionBody">
                                 <ul class="list-group">
-                                <!-- ko foreach: $root.graphErrors -->
+                                <!-- ko foreach: $root.getErrors -->
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span data-bind="text: $data.message"></span>
                                         <div>
@@ -54,12 +54,12 @@
 
                     <div class="accordion-item" id="errorsModalWarningsAccordionItem">
                         <h2 class="accordion-header" id="checkGraphAccordionHeadingTwo">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount" data-bind="text: '[' + $root.graphWarnings().length + ']'"></span></button>
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount" data-bind="text: '[' + $root.getWarnings().length + ']'"></span></button>
                         </h2>
                         <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
                             <div class="accordion-body" id="errorsModalWarningsAccordionBody">
                                 <ul class="list-group">
-                                <!-- ko foreach: $root.graphWarnings -->
+                                <!-- ko foreach: $root.getWarnings -->
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span data-bind="text: $data.message"></span>
                                         <div>
