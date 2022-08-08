@@ -4668,7 +4668,7 @@ export class Eagle {
 
     checkGraph = (): void => {
         const checkResult = Utils.checkGraph(this);
-        console.log("checkGraph() warnings", checkResult.warnings.length, "errors", checkResult.errors.length);
+        //console.log("checkGraph() warnings", checkResult.warnings.length, "errors", checkResult.errors.length);
 
         this.graphWarnings(checkResult.warnings);
         this.graphErrors(checkResult.errors);
@@ -4961,17 +4961,34 @@ export class Eagle {
 
     fixAll = () : void => {
         console.log("fixAll()");
+        let numErrors   = Infinity;
+        let numWarnings = Infinity;
+        let numIterations = 0;
 
-        for (const error of this.graphErrors()){
-            if (error.fix !== null){
-                error.fix();
+        while (numWarnings !== this.graphWarnings().length || numErrors !== this.graphErrors().length){
+            if (numIterations > 10){
+                console.warn("Too many iterations in fixAll()");
+                break;
             }
-        }
+            numIterations = numIterations+1;
 
-        for (const warning of this.graphWarnings()){
-            if (warning.fix !== null){
-                warning.fix();
+            numWarnings = this.graphWarnings().length;
+            numErrors = this.graphErrors().length;
+            console.log(numIterations, "numWarnings:", numWarnings, "numErrors:", numErrors);
+
+            for (const error of this.graphErrors()){
+                if (error.fix !== null){
+                    error.fix();
+                }
             }
+
+            for (const warning of this.graphWarnings()){
+                if (warning.fix !== null){
+                    warning.fix();
+                }
+            }
+
+            this.checkGraph();
         }
 
         Utils.postFixFunc(this);
