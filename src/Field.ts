@@ -109,7 +109,7 @@ export class Field {
     }
 
     isType = (type: string) => {
-        return this.type() === type;
+        return Utils.dataTypePrefix(this.type()) === type;
     }
 
     valIsTrue = (val:string) : boolean => {
@@ -154,6 +154,10 @@ export class Field {
 
     setIsEvent = (isEvent: boolean) : void => {
         this.isEvent(isEvent);
+    }
+
+    toggleEvent = (): void => {
+        this.isEvent(!this.isEvent());
     }
 
     getNodeKey = () : number => {
@@ -345,6 +349,8 @@ export class Field {
             positional = data.positional;
         if (typeof data.fieldType !== 'undefined')
             fieldType = data.fieldType;
+        if (typeof data.event !== 'undefined')
+            event = data.event;
 
         const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
         result.setIsEvent(isEvent);

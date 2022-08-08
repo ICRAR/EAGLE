@@ -52,6 +52,7 @@ import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
 import {Undo} from './Undo';
+import {Errors} from './Errors';
 import { selection, text, treemapSquarify } from "d3";
 
 export class Eagle {
@@ -88,8 +89,8 @@ export class Eagle {
 
     explorePalettes : ko.Observable<ExplorePalettes>;
 
-    graphWarnings : ko.ObservableArray<string>;
-    graphErrors : ko.ObservableArray<string>;
+    graphWarnings : ko.ObservableArray<Errors.Issue>;
+    graphErrors : ko.ObservableArray<Errors.Issue>;
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -405,6 +406,24 @@ export class Eagle {
         } else {
             return mod + "EAGLE: " + fileName;
         }
+    }, this);
+
+    getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
+        let count: number = 0;
+
+        for (const error of this.graphErrors()){
+            if (error.fix !== null){
+                count += 1;
+            }
+        }
+
+        for (const warning of this.graphWarnings()){
+            if (warning.fix !== null){
+                count += 1;
+            }
+        }
+
+        return count;
     }, this);
 
     // generate a list of Application nodes within the open palettes
@@ -870,7 +889,7 @@ export class Eagle {
         });
     }
 
-    private _handleLoadingErrors = (errorsWarnings: Eagle.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
+    private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
         const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // show errors (if found)
@@ -906,7 +925,7 @@ export class Eagle {
         // attempt to determine schema version from FileInfo
         const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-        const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
         // use the correct parsing function based on schema version
@@ -1203,7 +1222,7 @@ export class Eagle {
             return;
         }
 
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
@@ -1731,7 +1750,7 @@ export class Eagle {
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         for (let i = 0 ; i < paletteList.length ; i++){
             results.push(null);
@@ -1743,7 +1762,7 @@ export class Eagle {
 
                 if  (error !== null){
                     console.error(error);
-                    errorsWarnings.errors.push(error);
+                    errorsWarnings.errors.push(Errors.Message(error));
                 } else {
                     const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
                     palette.fileInfo().clear();
@@ -2015,7 +2034,7 @@ export class Eagle {
                     // attempt to determine schema version from FileInfo
                     const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-                    const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+                    const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // use the correct parsing function based on schema version
                     switch (schemaVersion){
@@ -2102,7 +2121,7 @@ export class Eagle {
             // attempt to determine schema version from FileInfo
             const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-            const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+            const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // use the correct parsing function based on schema version
             let lg: LogicalGraph;
@@ -2154,7 +2173,7 @@ export class Eagle {
         }
 
         // load the new palette
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
         // sort items in palette
@@ -2647,11 +2666,11 @@ export class Eagle {
         Eagle.parameterTableSelection(null);
     }
 
-    // TODO: fill the datatype select element with all the types known within the current graph and palettes
+    // fill the datatype select element with all the types known within the current graph and palettes
     fillParametersTable = (type:string):string => {
         let options:string = "";
 
-        // TODO: determine the list of all types in this graph and palettes
+        // determine the list of all types in this graph and palettes
         const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
 
         for (let dataType of allTypes){
@@ -2758,7 +2777,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, true, null, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2806,7 +2825,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, true, null, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -3623,6 +3642,55 @@ export class Eagle {
         });
     }
 
+    changeEdgeDataType = (edge: Edge) : void => {
+        // get reference to selected Edge
+        const selectedEdge: Edge = this.selectedEdge();
+
+        if (selectedEdge === null){
+            console.error("Attempt to change edge data type when no edge selected");
+            return;
+        }
+
+        // build list of known types
+        const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
+
+        // set selectedIndex to the index of the current data type within the allTypes list
+        let selectedIndex = 0;
+        for (let i = 0 ; i < allTypes.length ; i++){
+            if (allTypes[i] === selectedEdge.getDataType()){
+                selectedIndex = i;
+                break;
+            }
+        }
+
+        // launch modal
+        Utils.requestUserChoice("Change Edge Data Type", "NOTE: changing a edge's data type will also change the data type of the source and destination ports", allTypes, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+            if (!completed){
+                return;
+            }
+
+            // get user selection
+            const newType = allTypes[userChoiceIndex];
+
+            // get references to the source and destination ports of this edge
+            const sourceNode = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const sourcePort = sourceNode.findPortById(edge.getSrcPortId());
+            const destinationNode = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destinationPort = destinationNode.findPortById(edge.getDestPortId());
+
+            // update the edge and ports
+            edge.setDataType(newType);
+            sourcePort.setType(newType);
+            destinationPort.setType(newType);
+
+            // flag changes
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Change Edge Data Type");
+            this.selectedObjects.valueHasMutated();
+            this.logicalGraph.valueHasMutated();
+        });
+    }
+
     removeParamFromNodeByIndex = (node: Node, fieldType: Eagle.FieldType, index: number) : void => {
         if (node === null){
             console.warn("Could not remove param from null node");
@@ -3937,7 +4005,7 @@ export class Eagle {
             return Eagle.LinkValid.Unknown;
         }
 
-        return Edge.isValid(this.logicalGraph(), selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.isLoopAware(), false, true, null, null);
+        return Edge.isValid(this, selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.getDataType(), selectedEdge.isLoopAware(), selectedEdge.isClosesLoop(), false, true, null);
     }
 
     printUndoTable = () : void => {
@@ -3975,6 +4043,7 @@ export class Eagle {
             tableData.push({
                 "name":node.getName(),
                 "key":node.getKey(),
+                "id":node.getId(),
                 "parentKey":node.getParentKey(),
                 "category":node.getCategory(),
                 "expanded":node.getExpanded(),
@@ -4044,6 +4113,9 @@ export class Eagle {
                 "displayText":field.getDisplayText(),
                 "type":field.getType(),
                 "fieldType":field.getFieldType(),
+                "isEvent":field.getIsEvent(),
+                "value":field.getValue(),
+                "defaultValue": field.getDefaultValue(),
                 "readonly":field.isReadonly()
             });
         }
@@ -4148,7 +4220,7 @@ export class Eagle {
                 openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
                     // if file fetched successfully
                     if (error === null){
-                        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+                        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
                         const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
                         const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errorsWarnings);
 
@@ -4167,7 +4239,7 @@ export class Eagle {
                         row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
 
                         // check the graph once loaded
-                        const results: Eagle.ErrorsWarnings = Utils.checkGraph(lg);
+                        const results: Errors.ErrorsWarnings = Utils.checkGraph(this);
                         row.numCheckWarnings = results.warnings.length;
                         row.numCheckErrors = results.errors.length;
                     }
@@ -4623,13 +4695,14 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        const checkResult = Utils.checkGraph(this.logicalGraph());
+        const checkResult = Utils.checkGraph(this);
+        //console.log("checkGraph() warnings", checkResult.warnings.length, "errors", checkResult.errors.length);
 
         this.graphWarnings(checkResult.warnings);
         this.graphErrors(checkResult.errors);
     };
 
-    // TODO: maybe try to move some of this html out to a template
+    // maybe try to move some of this html out to a template
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
@@ -4693,6 +4766,7 @@ export class Eagle {
         // Add a data component to the graph.
         const newNode : Node = this.logicalGraph().addDataComponentToGraph(memoryComponent, dataComponentPosition);
         const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
+        newNode.setId(Utils.uuidv4());
         newNode.setKey(newNodeKey);
 
         // set name of new node (use user-facing name)
@@ -4913,6 +4987,41 @@ export class Eagle {
         }
     }
 
+    fixAll = () : void => {
+        console.log("fixAll()");
+        let numErrors   = Infinity;
+        let numWarnings = Infinity;
+        let numIterations = 0;
+
+        while (numWarnings !== this.graphWarnings().length || numErrors !== this.graphErrors().length){
+            if (numIterations > 10){
+                console.warn("Too many iterations in fixAll()");
+                break;
+            }
+            numIterations = numIterations+1;
+
+            numWarnings = this.graphWarnings().length;
+            numErrors = this.graphErrors().length;
+            console.log(numIterations, "numWarnings:", numWarnings, "numErrors:", numErrors);
+
+            for (const error of this.graphErrors()){
+                if (error.fix !== null){
+                    error.fix();
+                }
+            }
+
+            for (const warning of this.graphWarnings()){
+                if (warning.fix !== null){
+                    warning.fix();
+                }
+            }
+
+            this.checkGraph();
+        }
+
+        Utils.postFixFunc(this);
+    }
+
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         const c = Eagle.cData[category];
 
@@ -5046,7 +5155,7 @@ export namespace Eagle
     export const DataType_String = "String";
     export const DataType_Integer = "Integer";
     export const DataType_Float = "Float";
-    export const DataType_Complex = "Complex";
+    export const DataType_Object = "Object";
     export const DataType_Boolean = "Boolean";
     export const DataType_Select = "Select";
     export const DataType_Password = "Password";
@@ -5057,7 +5166,7 @@ export namespace Eagle
         DataType_String,
         DataType_Integer,
         DataType_Float,
-        DataType_Complex,
+        DataType_Object,
         DataType_Boolean,
         DataType_Select,
         DataType_Password,
@@ -5164,7 +5273,6 @@ export namespace Eagle
         expandedHeaderOffsetY: number,
         sortOrder: number
     };
-    export type ErrorsWarnings = {warnings: string[], errors: string[]};
 }
 
 

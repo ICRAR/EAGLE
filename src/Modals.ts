@@ -451,6 +451,12 @@ export class Modals {
             }
             */
         });
+
+        $('#parameterTableModal').on('hidden.bs.modal', function(){
+            //console.log("parameterTableModal hidden");
+
+            eagle.checkGraph();
+        });
     }
 
     static _validateFieldModalIdText(){
