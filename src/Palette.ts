@@ -67,7 +67,7 @@ export class Palette {
             if (newNode.getParentKey() !== null){
                 const error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
                 console.warn(error);
-                errorsWarnings.errors.push(Errors.NoFix(error));
+                errorsWarnings.errors.push(Errors.Message(error));
 
                 newNode.setParentKey(null);
             }
@@ -76,7 +76,7 @@ export class Palette {
             if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
                 const error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
                 console.warn(error);
-                errorsWarnings.errors.push(Errors.NoFix(error));
+                errorsWarnings.errors.push(Errors.Message(error));
 
                 newNode.setPosition(0, 0);
             }
@@ -89,7 +89,7 @@ export class Palette {
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
             console.warn(error);
-            errorsWarnings.errors.push(Errors.NoFix(error));
+            errorsWarnings.errors.push(Errors.Message(error));
 
             result.fileInfo().name = file.name;
         }

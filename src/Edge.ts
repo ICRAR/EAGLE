@@ -267,7 +267,7 @@ export class Edge {
 
         // check that we are not connecting two ports within the same node
         if (sourceNodeKey === destinationNodeKey){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("sourceNodeKey and destinationNodeKey are the same"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("sourceNodeKey and destinationNodeKey are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // if source node is a memory, and destination is a BashShellApp, OR
@@ -288,22 +288,22 @@ export class Edge {
 
         // check that we are not connecting a port to itself
         if (sourcePortId === destinationPortId){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("sourcePort and destinationPort are the same"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("sourcePort and destinationPort are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // check if source and destination are both input
         if (sourceNode.findPortIsInputById(sourcePortId) && destinationNode.findPortIsInputById(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("sourcePort and destinationPort are both input"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("sourcePort and destinationPort are both input", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // check if source and destination are both output
         if (!sourceNode.findPortIsInputById(sourcePortId) && !destinationNode.findPortIsInputById(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("sourcePort and destinationPort are both output"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("sourcePort and destinationPort are both output", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // check that source and destination port are both event, or both not event
         if ((sourcePort.getIsEvent() && !destinationPort.getIsEvent()) || (!sourcePort.getIsEvent() && destinationPort.getIsEvent())){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("sourcePort and destinationPort are mix of event and non-event ports"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("sourcePort and destinationPort are mix of event and non-event ports", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // check relationship between destination and source node
@@ -331,21 +331,21 @@ export class Edge {
 
         // if a node is connecting to its parent, it must connect to the local port
         if (isParent && !destinationNode.hasLocalPortWithId(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Source port is connecting to its parent, yet destination port is not local"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port is connecting to its parent, yet destination port is not local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // if a node is connecting to a child, it must start from the local port
         if (isChild && !sourceNode.hasLocalPortWithId(sourcePortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Source connecting to child, yet source port is not local"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source connecting to child, yet source port is not local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // if destination node is not a child, destination port cannot be a local port
         if (!parentIsEFN && !isParent && destinationNode.hasLocalPortWithId(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Source is not a child of destination, yet destination port is local"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source is not a child of destination, yet destination port is local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         if (!parentIsEFN && !isChild && sourceNode.hasLocalPortWithId(sourcePortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.NoFix("Destination is not a child of source, yet source port is local"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Destination is not a child of source, yet source port is local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // abort if source port and destination port have different data types
@@ -356,7 +356,7 @@ export class Edge {
 
         // if link is not a parent, child or sibling, then warn user
         if (!parentIsEFN && !isParent && !isChild && !isSibling && !loopAware && !isParentOfConstruct && !isChildOfConstruct){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.NoFix("Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.Show("Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // check if the edge already exists in the graph, there is no point in a duplicate
@@ -385,22 +385,22 @@ export class Edge {
         // - destNode has a 'group_start' field set to true
         if (closesLoop){
             if (!sourceNode.isData()){
-                const x = Errors.NoFix("Closes Loop Edge (" + edgeId + ") does not start from a Data component.");
+                const x = Errors.Show("Closes Loop Edge (" + edgeId + ") does not start from a Data component.", function(){Utils.showEdge(eagle, edgeId);});
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
             if (!destinationNode.isApplication()){
-                const x = Errors.NoFix("Closes Loop Edge (" + edgeId + ") does not end at an Application component.");
+                const x = Errors.Show("Closes Loop Edge (" + edgeId + ") does not end at an Application component.", function(){Utils.showEdge(eagle, edgeId);});
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
             if (!sourceNode.hasFieldWithIdText('group_end') || !Utils.asBool(sourceNode.getFieldByIdText('group_end').getValue())){
-                const x = Errors.NoFix("'Closes Loop' Edge (" + edgeId + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.");
+                const x = Errors.Show("'Closes Loop' Edge (" + edgeId + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.", function(){Utils.showEdge(eagle, edgeId);});
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
             if (!destinationNode.hasFieldWithIdText('group_start') || !Utils.asBool(destinationNode.getFieldByIdText('group_start').getValue())){
-                const x = Errors.NoFix("'Closes Loop' Edge (" + edgeId + ") end node (" + destinationNode.getName() + ") does not have 'group_start' set to true.");
+                const x = Errors.Show("'Closes Loop' Edge (" + edgeId + ") end node (" + destinationNode.getName() + ") does not have 'group_start' set to true.", function(){Utils.showEdge(eagle, edgeId);});
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
         }

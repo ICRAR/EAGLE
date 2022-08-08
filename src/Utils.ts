@@ -1505,7 +1505,7 @@ export class Utils {
         for (const node of palette.getNodes()){
             // check existing keys
             if (keys.indexOf(node.getKey()) !== -1){
-                results.push(Errors.NoFix("Key " + node.getKey() + " used by multiple components in palette."));
+                results.push(Errors.Message("Key " + node.getKey() + " used by multiple components in palette."));
             } else {
                 keys.push(node.getKey());
             }

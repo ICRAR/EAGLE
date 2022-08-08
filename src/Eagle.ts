@@ -1764,7 +1764,7 @@ export class Eagle {
 
                 if  (error !== null){
                     console.error(error);
-                    errorsWarnings.errors.push(Errors.NoFix(error));
+                    errorsWarnings.errors.push(Errors.Message(error));
                 } else {
                     const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
                     palette.fileInfo().clear();
