@@ -292,28 +292,43 @@ export class Eagle {
             //ignore palette selections
             if(Eagle.selectedLocation() === "Palette"){return}
             count++
-            //for selected nodes we must find the related egdes to draw
-            if (element instanceof Node){
-                var key = element.getKey()
 
-                that.logicalGraph().getEdges().forEach(function(e:Edge){
-                    if(e.getDestNodeKey() === key){
-                        e.setSelectionRelative(true)
-                        that.addUniqueHierarchyEdge(e, "input", hierarchyEdgesList, false)
-                    }else if(e.getSrcNodeKey() === key){
-                        e.setSelectionRelative(true)
-                        that.addUniqueHierarchyEdge(e, "output", hierarchyEdgesList,false)
-                    }
-                })
-            //for edges we must check if a related node is selected to decide if it should be drawn as input or output edge
-            }else if(element instanceof Edge){
-                element.setSelectionRelative(true)
-                if(that.objectIsSelected(that.logicalGraph().findNodeByKey(element.getSrcNodeKey()))){
-                    that.addUniqueHierarchyEdge(element, "output", hierarchyEdgesList,true)
-                }else{
-                    that.addUniqueHierarchyEdge(element, "input", hierarchyEdgesList,true)
-                }
+            var elementsToProcess = [element]
+
+            if(element.isGroup()){
+                console.log("adding group elements")
+                elementsToProcess.push(element.getInputApplicationInputPorts())
+                elementsToProcess.push(element.getInputApplicationOutputPorts())
+                elementsToProcess.push(element.getOutputApplicationInputPorts())
+                elementsToProcess.push(element.getOutputApplicationOutputPorts())
             }
+
+            elementsToProcess.forEach(function(element){
+                console.log(element.getKey())
+                //for selected nodes we must find the related egdes to draw
+                if (element instanceof Node){
+                    var key = element.getKey()
+
+                    that.logicalGraph().getEdges().forEach(function(e:Edge){
+                        if(e.getDestNodeKey() === key){
+                            e.setSelectionRelative(true)
+                            that.addUniqueHierarchyEdge(e, "input", hierarchyEdgesList, false)
+                        }else if(e.getSrcNodeKey() === key){
+                            e.setSelectionRelative(true)
+                            that.addUniqueHierarchyEdge(e, "output", hierarchyEdgesList,false)
+                        }
+                    })
+                //for edges we must check if a related node is selected to decide if it should be drawn as input or output edge
+                }else if(element instanceof Edge){
+                    element.setSelectionRelative(true)
+                    if(that.objectIsSelected(that.logicalGraph().findNodeByKey(element.getSrcNodeKey()))){
+                        that.addUniqueHierarchyEdge(element, "output", hierarchyEdgesList,true)
+                    }else{
+                        that.addUniqueHierarchyEdge(element, "input", hierarchyEdgesList,true)
+                    }
+                }
+            })
+           
         })
 
         //an array of edges is used as we have to ensure there are no duplicate edges drawn.
@@ -407,8 +422,30 @@ export class Eagle {
 
     drawHierarchyEdge = (edge:Edge, use:string, edgeSelected:boolean) : void =>{
 
-        var srcNodePos = $('.hierarchyNode#'+edge.getSrcNodeKey())[0].getBoundingClientRect()
-        var destNodePos = $('.hierarchyNode#'+edge.getDestNodeKey())[0].getBoundingClientRect()
+        var srcKey
+        var destKey
+        var srcEmbedKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
+        var destEmbedKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
+
+
+        if(srcEmbedKey !== null){
+            srcKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
+            console.log("srcNodeCHanged"+srcKey)
+        }else{
+            srcKey = edge.getSrcNodeKey()
+            console.log("normal node"+ srcKey + ", "+destKey)
+        }
+
+        if(destEmbedKey !== null){
+            destKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
+            console.log("destNodeCHanged"+destKey)
+        }else{
+            destKey = edge.getDestNodeKey()
+            console.log("normal node"+ srcKey + ", "+destKey)
+        }
+
+        var srcNodePos = $('.hierarchyNode#'+ srcKey)[0].getBoundingClientRect()
+        var destNodePos = $('.hierarchyNode#'+ destKey)[0].getBoundingClientRect()
         var parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
         var parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
 
@@ -434,9 +471,9 @@ export class Eagle {
             $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
 
         }else if(use==="output"){
-            var p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+32
+            var p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+29
             var p1y = ((srcNodePos.top - parentPos.top)+9)+parentScrollOffset
-            var p2x = ($('#nodeList .col').width() - (parentPos.right-destNodePos.right))+42
+            var p2x = ($('#nodeList .col').width() - (parentPos.right-destNodePos.right))+39
             var p2y = ((destNodePos.top - parentPos.top)+9)+parentScrollOffset
             var arrowX = (parentPos.right-destNodePos.right) - 20
             var mpx = parentPos.right-srcNodePos.right+10
