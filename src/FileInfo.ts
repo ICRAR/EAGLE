@@ -17,6 +17,7 @@ export class FileInfo {
     private _schemaVersion : ko.Observable<Eagle.DALiuGESchemaVersion>;
     private _readonly : ko.Observable<boolean>;
     private _builtIn : ko.Observable<boolean>;
+    private _signature : ko.Observable<string>;
 
     private _sha : ko.Observable<string>;
     private _gitUrl : ko.Observable<string>;
@@ -39,6 +40,7 @@ export class FileInfo {
         this._schemaVersion = ko.observable(Eagle.DALiuGESchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
+        this._signature = ko.observable("");
 
         this._sha = ko.observable("");
         this._gitUrl = ko.observable("");
@@ -145,6 +147,14 @@ export class FileInfo {
         this._builtIn(builtIn);
     }
 
+    get signature() : string{
+        return this._signature();
+    }
+
+    set signature(signature : string){
+        this._signature(signature);
+    }
+
     get sha() : string{
         return this._sha();
     }
@@ -206,6 +216,7 @@ export class FileInfo {
         this._schemaVersion(Eagle.DALiuGESchemaVersion.Unknown);
         this._readonly(true);
         this._builtIn(true);
+        this._signature("");
 
         this._sha("");
         this._gitUrl("");
@@ -231,6 +242,7 @@ export class FileInfo {
         result.schemaVersion = this._schemaVersion();
         result.readonly = this._readonly();
         result.builtIn = this._builtIn();
+        result.signature = this._signature();
 
         result.sha = this._sha();
         result.gitUrl = this._gitUrl();
@@ -255,6 +267,7 @@ export class FileInfo {
         this._repositoryService(Eagle.RepositoryService.Unknown);
         this._repositoryBranch("");
         this._repositoryName("");
+        this._signature("");
         this._path("");
         this._sha("");
         this._gitUrl("");
@@ -311,6 +324,7 @@ export class FileInfo {
         s += " Schema Version:" + this._schemaVersion();
         s += " readonly:" + this._readonly();
         s += " builtIn:" + this._builtIn();
+        s += " signature:" + this._signature();
 
         s += " SHA:" + this._sha();
         s += " Git URL:" + this._gitUrl();
@@ -334,6 +348,7 @@ export class FileInfo {
             eagleCommitHash: fileInfo.eagleCommitHash,
             schemaVersion: fileInfo.schemaVersion,
             readonly: fileInfo.readonly,
+            signature: fileInfo.signature,
 
             sha: fileInfo.sha,
             gitUrl: fileInfo.gitUrl,
@@ -364,6 +379,7 @@ export class FileInfo {
 
         result.readonly = modelData.readonly == undefined ? true : modelData.readonly;
 
+        result.signature = modelData.signature == undefined ? "" : modelData.signature;
         result.sha = modelData.sha == undefined ? "" : modelData.sha;
         result.gitUrl = modelData.gitUrl == undefined ? "" : modelData.gitUrl;
         result.lastModifiedName = modelData.lastModifiedName == undefined ? "" : modelData.lastModifiedName;
