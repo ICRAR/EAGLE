@@ -269,7 +269,8 @@ export class Eagle {
     }
 
     hierarchySelectionHandler = () : void => {
-
+        // console.log(this.logicalGraph().getNodes())
+        // console.log(this.selectedObjects())
         $("#hierarchyEdgesSvg").empty()
 
         //return if the graph is not loaded yet
@@ -295,16 +296,7 @@ export class Eagle {
 
             var elementsToProcess = [element]
 
-            if(element.isGroup()){
-                console.log("adding group elements")
-                elementsToProcess.push(element.getInputApplicationInputPorts())
-                elementsToProcess.push(element.getInputApplicationOutputPorts())
-                elementsToProcess.push(element.getOutputApplicationInputPorts())
-                elementsToProcess.push(element.getOutputApplicationOutputPorts())
-            }
-
             elementsToProcess.forEach(function(element){
-                console.log(element.getKey())
                 //for selected nodes we must find the related egdes to draw
                 if (element instanceof Node){
                     var key = element.getKey()
@@ -428,21 +420,21 @@ export class Eagle {
         var destEmbedKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
 
 
-        if(srcEmbedKey !== null){
-            srcKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
-            console.log("srcNodeCHanged"+srcKey)
-        }else{
+        // if(srcEmbedKey !== null){
+        //     srcKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
+        //     console.log("srcNodeCHanged"+srcKey)
+        // }else{
             srcKey = edge.getSrcNodeKey()
-            console.log("normal node"+ srcKey + ", "+destKey)
-        }
+            // console.log("normal node"+ srcKey + ", "+destKey)
+        // }
 
-        if(destEmbedKey !== null){
-            destKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
-            console.log("destNodeCHanged"+destKey)
-        }else{
+        // if(destEmbedKey !== null){
+        //     destKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
+        //     console.log("destNodeCHanged"+destKey)
+        // }else{
             destKey = edge.getDestNodeKey()
-            console.log("normal node"+ srcKey + ", "+destKey)
-        }
+            // console.log("normal node"+ srcKey + ", "+destKey)
+        // }
 
         var srcNodePos = $('.hierarchyNode#'+ srcKey)[0].getBoundingClientRect()
         var destNodePos = $('.hierarchyNode#'+ destKey)[0].getBoundingClientRect()
@@ -2914,6 +2906,15 @@ export class Eagle {
         var className : string = ""
         if(selectState){
             className = "hierarchyNodeIsSelected"
+        }
+
+        return className
+    }
+
+    isHierarchyApplicationSelected = (selectState:boolean) : string => {
+        var className : string = ""
+        if(selectState){
+            className = "hierarchyApplicationIsSelected"
         }
 
         return className

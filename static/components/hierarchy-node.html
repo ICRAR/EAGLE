@@ -1,4 +1,5 @@
 <!-- ko if: $data.parentKey === parentKey -->
+<div data-bind="text: console.log($data)"></div>
     <li>
         <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($root.objectIsSelectedById(_id)), attr: { id:key} , click:select, clickBubble:false" params="data:$data, parentKey: key, select: $root.selectNodeInHierarchy">
             <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
@@ -8,12 +9,28 @@
             <h5 data-bind="text: name"></h5>
             <span data-bind="text: category"></span>
             <div>
+                <!-- ko if: inputApplication -->
+                    <div class="hierarchyNode hierarchyApplication" data-bind="class: $root.isHierarchyApplicationSelected($root.objectIsSelectedById(inputApplication().key())),attr:{id:inputApplication().key()}, style:{'background-color':color}, click:inputApplication().select, clickBubble:false">
+                        <div class="hierarchyNodeColor" data-bind=" style: {'background-color': inputApplication().color()}"></div>
+                        <h5 data-bind="text:inputApplication().name()"></h5>
+                        <span data-bind="text: inputApplication().category()"></span>
+                    </div>
+                <!-- /ko -->
+               
                 <ul class="nodes" data-bind="foreach: $root.logicalGraph().getNodes()">
                     <!--<li><span data-bind="text: parentKey() + ' ' + key() + ' ' + $parentContext.key + ' ' + $component.key()"></span></li>-->
                     <!-- ko if: parentKey() === $component.key() -->
                         <hierarchy-node params="data: $data, parentKey: key, select: $root.selectNodeInHierarchy"></hierarchy-node>
                     <!-- /ko -->
                 </ul>
+
+                <!-- ko if: outputApplication -->
+                    <div class="hierarchyNode hierarchyApplication" data-bind="class: $root.isHierarchyApplicationSelected($root.objectIsSelectedById(_id)),attr:{id:outputApplication().key()}, style:{'background-color':color}, click:select, clickBubble:false">
+                        <div class="hierarchyNodeColor" data-bind=" style: {'background-color': outputApplication().color()}"></div>
+                        <h5 data-bind="text:outputApplication().name()"></h5>
+                        <span data-bind="text: outputApplication().category()"></span>
+                    </div>
+                <!-- /ko -->
             </div>
         </div>
     </li>
