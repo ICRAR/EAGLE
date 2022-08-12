@@ -4730,6 +4730,9 @@ export class Eagle {
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
+            // switch to graph errors mode
+            this.errorsMode(Eagle.ErrorsMode.Graph);
+
             // show graph modal
             Utils.showErrorsModal("Check Graph", this.graphErrors(), this.graphWarnings());
         } else {
