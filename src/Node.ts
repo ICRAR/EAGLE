@@ -65,6 +65,7 @@ export class Node {
 
     private gitUrl : ko.Observable<string>;
     private gitHash : ko.Observable<string>;
+    private dataHash : ko.Observable<string>;
 
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 72;
@@ -121,6 +122,7 @@ export class Node {
 
         this.gitUrl = ko.observable("");
         this.gitHash = ko.observable("");
+        this.dataHash = ko.observable("");
     }
 
     getId = () : string => {
@@ -477,6 +479,14 @@ export class Node {
         this.color(Utils.getColorForNode(category));
     }
 
+    getGitUrl = () : string => {
+        return this.gitUrl();
+    }
+
+    getDataHash = () : string => {
+        return this.dataHash();
+    }
+
     isData = () : boolean => {
         return Eagle.getCategoryData(this.category()).isData;
     }
@@ -664,6 +674,7 @@ export class Node {
 
         this.gitUrl("");
         this.gitHash("");
+        this.dataHash("");
     }
 
     getDisplayWidth = () : number => {
@@ -1069,6 +1080,7 @@ export class Node {
 
         result.gitUrl(this.gitUrl());
         result.gitHash(this.gitHash());
+        result.dataHash(this.dataHash());
 
         return result;
     }
@@ -1634,6 +1646,9 @@ export class Node {
         if (typeof nodeData.sha !== 'undefined'){
             node.gitHash(nodeData.sha);
         }
+        if (typeof nodeData.dataHash !== 'undefined'){
+            node.dataHash(nodeData.dataHash);
+        }
 
         return node;
     }
@@ -1706,6 +1721,7 @@ export class Node {
 
         result.git_url = node.gitUrl();
         result.sha = node.gitHash();
+        result.dataHash = node.dataHash();
 
         if (node.parentKey() !== null){
             result.group = node.parentKey();
@@ -1834,6 +1850,7 @@ export class Node {
         result.expanded = node.expanded();
         result.git_url = node.gitUrl();
         result.sha = node.gitHash();
+        result.dataHash = node.dataHash();
 
         if (node.parentKey() !== null){
             result.group = node.parentKey();
@@ -1955,6 +1972,7 @@ export class Node {
         result.expanded = node.expanded();
         result.gitUrl = node.gitUrl();
         result.gitHash = node.gitHash();
+        result.dataHash = node.dataHash();
 
         return result;
     }
@@ -1975,6 +1993,7 @@ export class Node {
         result.expanded(nodeData.expanded);
         result.gitUrl(nodeData.gitUrl);
         result.gitHash(nodeData.gitHash);
+        result.dataHash(nodeData.dataHash);
 
         return result;
     }

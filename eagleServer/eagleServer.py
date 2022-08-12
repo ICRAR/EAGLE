@@ -522,8 +522,9 @@ def save_git_hub_file():
     graph["modelData"]["repoService"] = "GitHub"
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
-    graph["modelData"]["sha"] = ""
-    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["repositoryUrl"] = ""
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = ""
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
     graph["modelData"]["lastModifiedDatetime"] = 0
@@ -592,8 +593,9 @@ def save_git_lab_file():
     graph["modelData"]["repoService"] = "GitLab"
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
-    graph["modelData"]["sha"] = ""
-    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["repositoryUrl"] = ""
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = ""
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
     graph["modelData"]["lastModifiedDatetime"] = 0
@@ -705,8 +707,9 @@ def open_git_hub_file():
     graph["modelData"]["repoService"] = "GitHub"
     graph["modelData"]["filePath"] = filename
 
-    graph["modelData"]["sha"] = most_recent_commit.sha
-    graph["modelData"]["gitUrl"] = download_url
+    graph["modelData"]["repositoryUrl"] = "TODO"
+    graph["modelData"]["commitHash"] = most_recent_commit.sha
+    graph["modelData"]["downloadUrl"] = download_url
     graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
     graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
     graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
@@ -771,8 +774,9 @@ def open_git_lab_file():
     graph["modelData"]["filePath"] = filename
 
     # TODO: Add the GitLab file information
-    graph["modelData"]["sha"] = f.commit_id
-    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["repositoryUrl"] = "TODO"
+    graph["modelData"]["commitHash"] = f.commit_id
+    graph["modelData"]["downloadUrl"] = "TODO"
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
     graph["modelData"]["lastModifiedDatetime"] = 0

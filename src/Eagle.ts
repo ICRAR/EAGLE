@@ -1292,8 +1292,10 @@ export class Eagle {
         const cloneLG: LogicalGraph = this.logicalGraph().clone();
 
         // zero-out some info that isn't useful for comparison
-        cloneLG.fileInfo().sha = "";
-        cloneLG.fileInfo().gitUrl = "";
+        cloneLG.fileInfo().repositoryUrl = "";
+        cloneLG.fileInfo().commitHash = "";
+        cloneLG.fileInfo().downloadUrl = "";
+        cloneLG.fileInfo().signature = "";
         cloneLG.fileInfo().lastModifiedName = "";
         cloneLG.fileInfo().lastModifiedEmail = "";
         cloneLG.fileInfo().lastModifiedDatetime = 0;
@@ -1356,7 +1358,7 @@ export class Eagle {
             case Eagle.RepositoryService.Url:
                 // TODO: new code
                 this.loadPalettes([
-                    {name:palette.fileInfo().name, filename:palette.fileInfo().gitUrl, readonly:palette.fileInfo().readonly}
+                    {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
                 ], (palettes: Palette[]):void => {
                     for (const palette of palettes){
                         if (palette !== null){
@@ -1769,8 +1771,7 @@ export class Eagle {
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
                     palette.fileInfo().builtIn = true;
-                    palette.fileInfo().gitUrl = paletteList[index].filename;
-                    palette.fileInfo().sha = "master";
+                    palette.fileInfo().downloadUrl = paletteList[index].filename;
                     palette.fileInfo().type = Eagle.FileType.Palette;
                     palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
 
@@ -2292,8 +2293,9 @@ export class Eagle {
             palette.fileInfo().modified = false;
             palette.fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
             palette.fileInfo().repositoryName = "";
-            palette.fileInfo().gitUrl = "";
-            palette.fileInfo().sha = "";
+            palette.fileInfo().repositoryUrl = "";
+            palette.fileInfo().commitHash = "";
+            palette.fileInfo().downloadUrl = "";
             palette.fileInfo.valueHasMutated();
         });
     }
@@ -2349,8 +2351,9 @@ export class Eagle {
             graph.fileInfo().modified = false;
             graph.fileInfo().repositoryService = Eagle.RepositoryService.File;
             graph.fileInfo().repositoryName = "";
-            graph.fileInfo().gitUrl = "";
-            graph.fileInfo().sha = "";
+            graph.fileInfo().repositoryUrl = "";
+            graph.fileInfo().commitHash = "";
+            graph.fileInfo().downloadUrl = "";
             graph.fileInfo.valueHasMutated();
         });
     }
@@ -4089,7 +4092,16 @@ export class Eagle {
         // add logical graph nodes to table
         for (const palette of this.palettes()){
             for (const node of palette.getNodes()){
-                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "category":node.getCategory()});
+                tableData.push({
+                    "palette":palette.fileInfo().name,
+                    "name":node.getName(),
+                    "key":node.getKey(),
+                    "id":node.getId(),
+                    "embedKey":node.getEmbedKey(),
+                    "category":node.getCategory(),
+                    "gitUrl":node.getGitUrl(),
+                    "dataHash":node.getDataHash(),
+                });
             }
         }
 
@@ -4231,8 +4243,11 @@ export class Eagle {
                         // use git-related info within file
                         row.eagleVersion = lg.fileInfo().eagleVersion;
                         row.lastModifiedBy = lg.fileInfo().lastModifiedName;
-                        row.sha = lg.fileInfo().sha;
-                        row.gitUrl = lg.fileInfo().gitUrl;
+
+                        row.repositoryUrl = lg.fileInfo().repositoryUrl;
+                        row.commitHash = lg.fileInfo().commitHash;
+                        row.downloadUrl = lg.fileInfo().downloadUrl;
+                        row.signature = lg.fileInfo().signature;
 
                         // convert date from timestamp to date string
                         const date = new Date(lg.fileInfo().lastModifiedDatetime * 1000);

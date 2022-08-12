@@ -17,10 +17,12 @@ export class FileInfo {
     private _schemaVersion : ko.Observable<Eagle.DALiuGESchemaVersion>;
     private _readonly : ko.Observable<boolean>;
     private _builtIn : ko.Observable<boolean>;
+
+    private _repositoryUrl : ko.Observable<string>;
+    private _commitHash : ko.Observable<string>;
+    private _downloadUrl : ko.Observable<string>;
     private _signature : ko.Observable<string>;
 
-    private _sha : ko.Observable<string>;
-    private _gitUrl : ko.Observable<string>;
     private _lastModifiedName : ko.Observable<string>;
     private _lastModifiedEmail : ko.Observable<string>;
     private _lastModifiedDatetime : ko.Observable<number>;
@@ -40,10 +42,12 @@ export class FileInfo {
         this._schemaVersion = ko.observable(Eagle.DALiuGESchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
+
+        this._repositoryUrl = ko.observable("");
+        this._commitHash = ko.observable("");
+        this._downloadUrl = ko.observable("");
         this._signature = ko.observable("");
 
-        this._sha = ko.observable("");
-        this._gitUrl = ko.observable("");
         this._lastModifiedName = ko.observable("");
         this._lastModifiedEmail = ko.observable("");
         this._lastModifiedDatetime = ko.observable(0);
@@ -147,28 +151,36 @@ export class FileInfo {
         this._builtIn(builtIn);
     }
 
+    get repositoryUrl() : string {
+        return this._repositoryUrl();
+    }
+
+    set repositoryUrl(repositoryUrl : string){
+        this._repositoryUrl(repositoryUrl);
+    }
+
+    get commitHash() : string{
+        return this._commitHash();
+    }
+
+    set commitHash(commitHash : string){
+        this._commitHash(commitHash);
+    }
+
+    get downloadUrl() : string {
+        return this._downloadUrl();
+    }
+
+    set downloadUrl(downloadUrl : string){
+        this._downloadUrl(downloadUrl);
+    }
+
     get signature() : string{
         return this._signature();
     }
 
     set signature(signature : string){
         this._signature(signature);
-    }
-
-    get sha() : string{
-        return this._sha();
-    }
-
-    set sha(sha : string){
-        this._sha(sha);
-    }
-
-    get gitUrl() : string {
-        return this._gitUrl();
-    }
-
-    set gitUrl(gitUrl : string){
-        this._gitUrl(gitUrl);
     }
 
     get lastModifiedName() : string{
@@ -216,10 +228,12 @@ export class FileInfo {
         this._schemaVersion(Eagle.DALiuGESchemaVersion.Unknown);
         this._readonly(true);
         this._builtIn(true);
+
+        this._repositoryUrl("");
+        this._commitHash("");
+        this._downloadUrl("");
         this._signature("");
 
-        this._sha("");
-        this._gitUrl("");
         this._lastModifiedName("");
         this._lastModifiedEmail("");
         this._lastModifiedDatetime(0);
@@ -242,10 +256,12 @@ export class FileInfo {
         result.schemaVersion = this._schemaVersion();
         result.readonly = this._readonly();
         result.builtIn = this._builtIn();
+
+        result.repositoryUrl = this._repositoryUrl();
+        result.commitHash = this._commitHash();
+        result.downloadUrl = this._downloadUrl();
         result.signature = this._signature();
 
-        result.sha = this._sha();
-        result.gitUrl = this._gitUrl();
         result.lastModifiedName = this._lastModifiedName();
         result.lastModifiedEmail = this._lastModifiedEmail();
         result.lastModifiedDatetime = this._lastModifiedDatetime();
@@ -267,10 +283,12 @@ export class FileInfo {
         this._repositoryService(Eagle.RepositoryService.Unknown);
         this._repositoryBranch("");
         this._repositoryName("");
-        this._signature("");
         this._path("");
-        this._sha("");
-        this._gitUrl("");
+
+        this._repositoryUrl("");
+        this._commitHash("");
+        this._downloadUrl("");
+
         this._lastModifiedName("");
         this._lastModifiedEmail("");
         this._lastModifiedDatetime(0);
@@ -288,11 +306,10 @@ export class FileInfo {
     getSummaryHTML = (title : string) : string => {
         var text
         if (this._repositoryService() === Eagle.RepositoryService.Unknown){
-            text = "- Location -</br>Url:&nbsp;" + this._gitUrl() + "</br>Hash:&nbsp;" + this._sha();
-        }else{
+            text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._commitHash();
+        } else {
             text = "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
         }
-
 
         return "<p><h5>" + title + "<h5><p><p>" + text + "</p>";
     }
@@ -324,10 +341,12 @@ export class FileInfo {
         s += " Schema Version:" + this._schemaVersion();
         s += " readonly:" + this._readonly();
         s += " builtIn:" + this._builtIn();
+
+        s += " Repository URL:" + this._repositoryUrl();
+        s += " Commit Hash:" + this._commitHash();
+        s += " Download URL:" + this._downloadUrl();
         s += " signature:" + this._signature();
 
-        s += " SHA:" + this._sha();
-        s += " Git URL:" + this._gitUrl();
         s += " Last Modified Name:" + this._lastModifiedName();
         s += " Last Modified Email:" + this._lastModifiedEmail();
         s += " Last Modified Date:" + this._lastModifiedDatetime();
@@ -348,10 +367,12 @@ export class FileInfo {
             eagleCommitHash: fileInfo.eagleCommitHash,
             schemaVersion: fileInfo.schemaVersion,
             readonly: fileInfo.readonly,
+
+            repositoryUrl: fileInfo.repositoryUrl,
+            commitHash: fileInfo.commitHash,
+            downloadUrl: fileInfo.downloadUrl,
             signature: fileInfo.signature,
 
-            sha: fileInfo.sha,
-            gitUrl: fileInfo.gitUrl,
             lastModifiedName: fileInfo.lastModifiedName,
             lastModifiedEmail: fileInfo.lastModifiedEmail,
             lastModifiedDatetime: fileInfo.lastModifiedDatetime,
@@ -379,9 +400,11 @@ export class FileInfo {
 
         result.readonly = modelData.readonly == undefined ? true : modelData.readonly;
 
+        result.repositoryUrl = modelData.repositoryUrl == undefined ? "" : modelData.repositoryUrl;
+        result.commitHash = modelData.commitHash == undefined ? "" : modelData.commitHash;
+        result.downloadUrl = modelData.downloadUrl == undefined ? "" : modelData.downloadUrl;
         result.signature = modelData.signature == undefined ? "" : modelData.signature;
-        result.sha = modelData.sha == undefined ? "" : modelData.sha;
-        result.gitUrl = modelData.gitUrl == undefined ? "" : modelData.gitUrl;
+
         result.lastModifiedName = modelData.lastModifiedName == undefined ? "" : modelData.lastModifiedName;
         result.lastModifiedEmail = modelData.lastModifiedEmail == undefined ? "" : modelData.lastModifiedEmail;
         result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? 0 : modelData.lastModifiedDatetime;
