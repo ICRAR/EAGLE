@@ -226,6 +226,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_translation", "Open Translation", [">"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.TranslationMenu)}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_hierarchy", "Open Hierarchy", ["h"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Hierarchy)}));
         Eagle.shortcuts.push(new KeyboardShortcut("toggle_show_data_nodes", "Toggle Show Data Nodes", ["j"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleShowDataNodes(); }));
+        Eagle.shortcuts.push(new KeyboardShortcut("check_for_component_updates", "Check for Component Updates", ["q"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.checkForComponentUpdates(); }));
 
 
         this.globalOffsetX = 0;
@@ -4059,7 +4060,11 @@ export class Eagle {
                 "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
                 "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
                 "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
-                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey()
+                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey(),
+                "repositoryUrl": node.getRepositoryUrl(),
+                "commitHash": node.getCommitHash(),
+                "paletteDownloadUrl": node.getPaletteDownloadUrl(),
+                "dataHash": node.getDataHash()
             });
         }
 
@@ -5037,6 +5042,10 @@ export class Eagle {
         }
 
         Utils.postFixFunc(this);
+    }
+
+    checkForComponentUpdates = () : void => {
+        console.log("checkForComponentUpdates()");
     }
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
