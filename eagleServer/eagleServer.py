@@ -714,6 +714,10 @@ def open_git_hub_file():
     graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
     graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
 
+    # put downloadUrl in every component
+    for component in graph["nodeDataArray"]:
+        component["paletteDownloadUrl"] = download_url
+
     json_data = json.dumps(graph, indent=4)
 
     response = app.response_class(
@@ -780,6 +784,10 @@ def open_git_lab_file():
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
     graph["modelData"]["lastModifiedDatetime"] = 0
+
+    # put downloadUrl in every component
+    for component in graph["nodeDataArray"]:
+        component["paletteDownloadUrl"] = "TODO"
 
     json_data = json.dumps(graph, indent=4)
 
