@@ -63,8 +63,9 @@ export class Node {
 
     private subject : ko.Observable<number>;       // the key of another node that is the subject of this node. used by comment nodes only.
 
-    private gitUrl : ko.Observable<string>;
-    private gitHash : ko.Observable<string>;
+    private repositoryUrl : ko.Observable<string>;
+    private commitHash : ko.Observable<string>;
+    private paletteDownloadUrl : ko.Observable<string>;
     private dataHash : ko.Observable<string>;
 
     public static readonly DEFAULT_WIDTH : number = 200;
@@ -120,8 +121,9 @@ export class Node {
 
         this.expanded = ko.observable(false); // indicates whether the node is shown expanded in the hierarchy display
 
-        this.gitUrl = ko.observable("");
-        this.gitHash = ko.observable("");
+        this.repositoryUrl = ko.observable("");
+        this.commitHash = ko.observable("");
+        this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
     }
 
@@ -479,8 +481,16 @@ export class Node {
         this.color(Utils.getColorForNode(category));
     }
 
-    getGitUrl = () : string => {
-        return this.gitUrl();
+    getRepositoryUrl = () : string => {
+        return this.repositoryUrl();
+    }
+
+    getCommitHash = () : string => {
+        return this.commitHash();
+    }
+
+    getPaletteDownloadUrl = () : string => {
+        return this.paletteDownloadUrl();
     }
 
     getDataHash = () : string => {
@@ -672,8 +682,9 @@ export class Node {
 
         this.expanded(false);
 
-        this.gitUrl("");
-        this.gitHash("");
+        this.repositoryUrl("");
+        this.commitHash("");
+        this.paletteDownloadUrl("");
         this.dataHash("");
     }
 
@@ -736,11 +747,11 @@ export class Node {
         let url = "Unknown";
         let hash = "Unknown";
 
-        if (this.gitUrl() !== ""){
-            url = this.gitUrl();
+        if (this.repositoryUrl() !== ""){
+            url = this.repositoryUrl();
         }
-        if (this.gitHash() !== ""){
-            hash = this.gitHash();
+        if (this.commitHash() !== ""){
+            hash = this.commitHash();
         }
 
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
@@ -1078,8 +1089,9 @@ export class Node {
             result.fields.push(field.clone());
         }
 
-        result.gitUrl(this.gitUrl());
-        result.gitHash(this.gitHash());
+        result.repositoryUrl(this.repositoryUrl());
+        result.commitHash(this.commitHash());
+        result.paletteDownloadUrl(this.paletteDownloadUrl());
         result.dataHash(this.dataHash());
 
         return result;
@@ -1640,11 +1652,14 @@ export class Node {
         }
 
         // add git url and hash
-        if (typeof nodeData.git_url !== 'undefined'){
-            node.gitUrl(nodeData.git_url);
+        if (typeof nodeData.repositoryUrl !== 'undefined'){
+            node.repositoryUrl(nodeData.repositoryUrl);
         }
-        if (typeof nodeData.sha !== 'undefined'){
-            node.gitHash(nodeData.sha);
+        if (typeof nodeData.commitHash !== 'undefined'){
+            node.commitHash(nodeData.commitHash);
+        }
+        if (typeof nodeData.paletteDownloadUrl != 'undefined'){
+            node.paletteDownloadUrl(nodeData.paletteDownloadUrl);
         }
         if (typeof nodeData.dataHash !== 'undefined'){
             node.dataHash(nodeData.dataHash);
@@ -1719,8 +1734,9 @@ export class Node {
         result.streaming = node.streaming();
         result.precious = node.precious();
 
-        result.git_url = node.gitUrl();
-        result.sha = node.gitHash();
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
         if (node.parentKey() !== null){
@@ -1848,8 +1864,9 @@ export class Node {
         result.precious = node.precious();
         result.subject = node.subject();
         result.expanded = node.expanded();
-        result.git_url = node.gitUrl();
-        result.sha = node.gitHash();
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
         if (node.parentKey() !== null){
@@ -1970,8 +1987,10 @@ export class Node {
         result.flipPorts = node.flipPorts();
 
         result.expanded = node.expanded();
-        result.gitUrl = node.gitUrl();
-        result.gitHash = node.gitHash();
+
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
         return result;
@@ -1991,8 +2010,10 @@ export class Node {
         result.flipPorts(nodeData.flipPorts);
 
         result.expanded(nodeData.expanded);
-        result.gitUrl(nodeData.gitUrl);
-        result.gitHash(nodeData.gitHash);
+
+        result.repositoryUrl(nodeData.repositoryUrl);
+        result.commitHash(nodeData.commitHash);
+        result.paletteDownloadUrl(nodeData.paletteDownloadUrl);
         result.dataHash(nodeData.dataHash);
 
         return result;

@@ -4099,7 +4099,9 @@ export class Eagle {
                     "id":node.getId(),
                     "embedKey":node.getEmbedKey(),
                     "category":node.getCategory(),
-                    "gitUrl":node.getGitUrl(),
+                    "repositoryUrl":node.getRepositoryUrl(),
+                    "commitHash":node.getCommitHash(),
+                    "paletteDownloadUrl":node.getPaletteDownloadUrl(),
                     "dataHash":node.getDataHash(),
                 });
             }
