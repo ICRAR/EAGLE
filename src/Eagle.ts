@@ -52,6 +52,7 @@ import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
 import {Undo} from './Undo';
+import {Errors} from './Errors';
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -87,8 +88,8 @@ export class Eagle {
 
     explorePalettes : ko.Observable<ExplorePalettes>;
 
-    graphWarnings : ko.ObservableArray<string>;
-    graphErrors : ko.ObservableArray<string>;
+    graphWarnings : ko.ObservableArray<Errors.Issue>;
+    graphErrors : ko.ObservableArray<Errors.Issue>;
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -527,6 +528,24 @@ export class Eagle {
         } else {
             return mod + "EAGLE: " + fileName;
         }
+    }, this);
+
+    getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
+        let count: number = 0;
+
+        for (const error of this.graphErrors()){
+            if (error.fix !== null){
+                count += 1;
+            }
+        }
+
+        for (const warning of this.graphWarnings()){
+            if (warning.fix !== null){
+                count += 1;
+            }
+        }
+
+        return count;
     }, this);
 
     // generate a list of Application nodes within the open palettes
@@ -994,7 +1013,7 @@ export class Eagle {
         });
     }
 
-    private _handleLoadingErrors = (errorsWarnings: Eagle.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
+    private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
         const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // show errors (if found)
@@ -1030,7 +1049,7 @@ export class Eagle {
         // attempt to determine schema version from FileInfo
         const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-        const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
         // use the correct parsing function based on schema version
@@ -1063,9 +1082,9 @@ export class Eagle {
     tableInspectorUpdateSelection = (value:string) : void => {
         var selected = Eagle.parameterTableSelectionName()
         var selectedForm = Eagle.parameterTableSelectionParent()
-        if(selected === 'text'){
+        if(selected === 'displayText'){
             selectedForm.setDisplayText(value)
-        } else if(selected === 'name'){
+        } else if(selected === 'idText'){
             selectedForm.setIdText(value)
         } else if(selected === 'value'){
             selectedForm.setValue(value)
@@ -1073,8 +1092,6 @@ export class Eagle {
             selectedForm.setDefaultValue(value)
         } else if(selected === 'description'){
             selectedForm.setDescription(value)
-        } else{
-            return
         }
     }
 
@@ -1329,7 +1346,7 @@ export class Eagle {
             return;
         }
 
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
@@ -1857,7 +1874,7 @@ export class Eagle {
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         for (let i = 0 ; i < paletteList.length ; i++){
             results.push(null);
@@ -1869,7 +1886,7 @@ export class Eagle {
 
                 if  (error !== null){
                     console.error(error);
-                    errorsWarnings.errors.push(error);
+                    errorsWarnings.errors.push(Errors.Message(error));
                 } else {
                     const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
                     palette.fileInfo().clear();
@@ -2141,7 +2158,7 @@ export class Eagle {
                     // attempt to determine schema version from FileInfo
                     const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-                    const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+                    const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // use the correct parsing function based on schema version
                     switch (schemaVersion){
@@ -2228,7 +2245,7 @@ export class Eagle {
             // attempt to determine schema version from FileInfo
             const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-            const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+            const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // use the correct parsing function based on schema version
             let lg: LogicalGraph;
@@ -2280,7 +2297,7 @@ export class Eagle {
         }
 
         // load the new palette
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
         // sort items in palette
@@ -2673,18 +2690,45 @@ export class Eagle {
         }
     }
 
-    getCurrentParamReadonly = (index: number) : boolean => {
+    getCurrentParamReadonly = (index: number, fieldType: Eagle.FieldType) : boolean => {
+        // if we want to get readonly-ness the Nth application arg, then the real index
+        // into the fields array is probably larger than N, since all four types
+        // of fields are stored there
+        const node = this.selectedNode();
+        let realIndex = -1;
+        let fieldTypeCount = 0;
+
+        for (let i = 0 ; i < node.getFields().length; i++){
+            const field: Field = node.getFields()[i];
+
+            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
+                fieldTypeCount += 1;
+            }
+
+            // check if we have found the Nth field of desired type
+            if (fieldTypeCount > index){
+                realIndex = i;
+                break;
+            }
+        }
+
+        // check that we actually found the right field, otherwise abort
+        if (realIndex === -1){
+            console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
+            return false;
+        }
+
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(Eagle.allowPaletteEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[index].isReadonly();
+                return this.selectedNode().getFields()[realIndex].isReadonly();
             }
         }else{
             if(Eagle.allowComponentEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[index].isReadonly();
+                return this.selectedNode().getFields()[realIndex].isReadonly();
             }
         }
     }
@@ -2746,11 +2790,11 @@ export class Eagle {
         Eagle.parameterTableSelection(null);
     }
 
-    // TODO: fill the datatype select element with all the types known within the current graph and palettes
+    // fill the datatype select element with all the types known within the current graph and palettes
     fillParametersTable = (type:string):string => {
         let options:string = "";
 
-        // TODO: determine the list of all types in this graph and palettes
+        // determine the list of all types in this graph and palettes
         const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
 
         for (let dataType of allTypes){
@@ -2857,7 +2901,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, true, null, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2916,7 +2960,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, true, null, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -3462,9 +3506,7 @@ export class Eagle {
         Utils.showPalettesModal(this);
     }
 
-    /**
-     * Adds an field to the selected node via HTML.
-     */
+    // Adds an field to the selected node via HTML
     addFieldHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -3480,9 +3522,7 @@ export class Eagle {
         $("#nodeInspectorAddFieldDiv").show();
     }
 
-    /**
-     * Adds an application param to the selected node via HTML.
-     */
+    // Adds an application param to the selected node via HTML
     addApplicationArgHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -3496,6 +3536,38 @@ export class Eagle {
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
         $("#nodeInspectorAddApplicationParamDiv").show();
+    }
+
+    // Adds an output port to the selected node via HTML
+    addInputPortHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add input port when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.InputPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddInputPortDiv").show();
+    }
+
+    // Adds an output port to the selected node via HTML
+    addOutputPortHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add output port when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.OutputPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddOutputPortDiv").show();
     }
 
     getInspectorHeadingTooltip = (title:string, category:any, description:any) : string => {
@@ -3545,29 +3617,32 @@ export class Eagle {
         }, 100);
     }
 
+    // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
+    // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
-        let selectSectionID;
-        let modalID;
-        let submitBtnID;
+        const selectSectionID : string = "fieldModalSelect";
+        const modalID : string = "editFieldModal";
+        const submitBtnID: string = "editFieldModalAffirmativeButton";
 
-        if(divID==="nodeInspectorAddFieldDiv" || divID==="nodeInspectorAddApplicationParamDiv"){
-            selectSectionID = "fieldModalSelect"
-            modalID = "editFieldModal"
-            submitBtnID = "editFieldModalAffirmativeButton"
+        // val -1 is an empty option, so just close the dropdown
+        if (val===-1){
+            this.hideDropDown(divID);
+            return;
         }
 
-        if (val===-1){
-            this.hideDropDown(divID)
-            return
-        }else if(val===num){
+        if (val===0){
             //select custom field externally and open custom properties menu
             $("#"+divID).hide();
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
+
+            // triggers the 'add application argument' modal to show
             $("#"+modalID).removeClass("forceHide");
+
+            // triggers the modal 'lightbox' to show
             $(".modal-backdrop").removeClass("forceHide");
         }else{
-            $("#"+selectSectionID).val(val).trigger('change');
+            $("#"+selectSectionID).val(val-1).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
             $("#"+modalID).removeClass("forceHide");
             $(".modal-backdrop").removeClass("forceHide");
@@ -3577,8 +3652,6 @@ export class Eagle {
     }
 
     editFieldDropdownClick = (newType: string, oldType: string) : void => {
-        console.log("editFieldDropdownClick", newType, oldType);
-
         // check if the types already match, therefore nothing to do
         if (Utils.dataTypePrefix(oldType) === newType){
             return;
@@ -3704,6 +3777,55 @@ export class Eagle {
         });
     }
 
+    changeEdgeDataType = (edge: Edge) : void => {
+        // get reference to selected Edge
+        const selectedEdge: Edge = this.selectedEdge();
+
+        if (selectedEdge === null){
+            console.error("Attempt to change edge data type when no edge selected");
+            return;
+        }
+
+        // build list of known types
+        const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
+
+        // set selectedIndex to the index of the current data type within the allTypes list
+        let selectedIndex = 0;
+        for (let i = 0 ; i < allTypes.length ; i++){
+            if (allTypes[i] === selectedEdge.getDataType()){
+                selectedIndex = i;
+                break;
+            }
+        }
+
+        // launch modal
+        Utils.requestUserChoice("Change Edge Data Type", "NOTE: changing a edge's data type will also change the data type of the source and destination ports", allTypes, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+            if (!completed){
+                return;
+            }
+
+            // get user selection
+            const newType = allTypes[userChoiceIndex];
+
+            // get references to the source and destination ports of this edge
+            const sourceNode = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const sourcePort = sourceNode.findPortById(edge.getSrcPortId());
+            const destinationNode = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destinationPort = destinationNode.findPortById(edge.getDestPortId());
+
+            // update the edge and ports
+            edge.setDataType(newType);
+            sourcePort.setType(newType);
+            destinationPort.setType(newType);
+
+            // flag changes
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Change Edge Data Type");
+            this.selectedObjects.valueHasMutated();
+            this.logicalGraph.valueHasMutated();
+        });
+    }
+
     removeParamFromNodeByIndex = (node: Node, fieldType: Eagle.FieldType, index: number) : void => {
         if (node === null){
             console.warn("Could not remove param from null node");
@@ -3719,7 +3841,7 @@ export class Eagle {
         for (let i = 0 ; i < node.getFields().length; i++){
             const field: Field = node.getFields()[i];
 
-            if (field.getFieldType() === fieldType){
+            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
                 fieldTypeCount += 1;
             }
 
@@ -4018,7 +4140,7 @@ export class Eagle {
             return Eagle.LinkValid.Unknown;
         }
 
-        return Edge.isValid(this.logicalGraph(), selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.isLoopAware(), false, true, null, null);
+        return Edge.isValid(this, selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.getDataType(), selectedEdge.isLoopAware(), selectedEdge.isClosesLoop(), false, true, null);
     }
 
     printUndoTable = () : void => {
@@ -4056,6 +4178,7 @@ export class Eagle {
             tableData.push({
                 "name":node.getName(),
                 "key":node.getKey(),
+                "id":node.getId(),
                 "parentKey":node.getParentKey(),
                 "category":node.getCategory(),
                 "expanded":node.getExpanded(),
@@ -4103,6 +4226,33 @@ export class Eagle {
             for (const node of palette.getNodes()){
                 tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "category":node.getCategory()});
             }
+        }
+
+        console.table(tableData);
+    }
+
+    printNodeFieldsTable = (nodeIndex: number) : void => {
+        const tableData : any[] = [];
+
+        // check that node at nodeIndex exists
+        if (nodeIndex >= this.logicalGraph().getNumNodes()){
+            console.warn("Unable to print node fields table, node", nodeIndex, "does not exist.");
+            return;
+        }
+
+        // add logical graph nodes to table
+        for (const field of this.logicalGraph().getNodes()[nodeIndex].getFields()){
+            tableData.push({
+                "id":field.getId(),
+                "idText":field.getIdText(),
+                "displayText":field.getDisplayText(),
+                "type":field.getType(),
+                "fieldType":field.getFieldType(),
+                "isEvent":field.getIsEvent(),
+                "value":field.getValue(),
+                "defaultValue": field.getDefaultValue(),
+                "readonly":field.isReadonly()
+            });
         }
 
         console.table(tableData);
@@ -4205,7 +4355,7 @@ export class Eagle {
                 openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
                     // if file fetched successfully
                     if (error === null){
-                        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+                        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
                         const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
                         const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errorsWarnings);
 
@@ -4224,7 +4374,7 @@ export class Eagle {
                         row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
 
                         // check the graph once loaded
-                        const results: Eagle.ErrorsWarnings = Utils.checkGraph(lg);
+                        const results: Errors.ErrorsWarnings = Utils.checkGraph(this);
                         row.numCheckWarnings = results.warnings.length;
                         row.numCheckErrors = results.errors.length;
                     }
@@ -4265,17 +4415,9 @@ export class Eagle {
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
     editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
-        console.log("editField node:", node, "modalType:", modalType, "fieldType:", fieldType, "fieldIndex:", fieldIndex);
-
         // get field names list from the logical graph
-        let allFields: Field[];
-        let allFieldNames: string[] = [];
-
-        if (fieldType === Eagle.FieldType.ComponentParameter){
-            allFields = Utils.getUniqueFieldsList(this.logicalGraph());
-        } else {
-            allFields = Utils.getUniqueapplicationArgsList(this.logicalGraph());
-        }
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), fieldType);
+        const allFieldNames: string[] = [];
 
         // once done, sort fields and then collect names into the allFieldNames list
         allFields.sort(Field.sortFunc);
@@ -4288,13 +4430,26 @@ export class Eagle {
             $('#parameterTableModal').modal("hide");
         }
 
-        //if creating a new field component parameter
+        //if creating a new field
         if (modalType === Eagle.ModalType.Add) {
-            if (fieldType == Eagle.FieldType.ComponentParameter){
-                $("#editFieldModalTitle").html("Add Component Parameter")
-            } else {
-                $("#editFieldModalTitle").html("Add Application Argument")
+
+            // set the title of the modal based on the field type
+            switch(fieldType){
+                case Eagle.FieldType.ApplicationArgument:
+                $("#editFieldModalTitle").html("Add Application Argument");
+                break;
+                case Eagle.FieldType.ComponentParameter:
+                $("#editFieldModalTitle").html("Add Component Parameter");
+                break;
+                case Eagle.FieldType.InputPort:
+                $("#editFieldModalTitle").html("Add Input Port");
+                break;
+                case Eagle.FieldType.OutputPort:
+                $("#editFieldModalTitle").html("Add Output Port");
+                break;
             }
+
+            // show hide part of the UI appropriate for adding
             $("#addParameterWrapper").show();
             $("#customParameterOptionsWrapper").hide();
 
@@ -4316,15 +4471,16 @@ export class Eagle {
                     return;
                 }
 
-                // hide the custom text input unless the last option in the select is chosen
-                if (choice === choices.length){
+                // hide the custom text input unless the first option in the select is chosen
+                if (choice === 0){
                     newField.setFieldType(fieldType);
 
                     //create field from user input in modal
                     node.addField(newField);
 
                 } else {
-                    const clone : Field = allFields[choice].clone();
+                    const clone : Field = allFields[choice-1].clone();
+                    clone.setId(Utils.uuidv4());
                     clone.setFieldType(fieldType);
                     node.addField(clone);
                 }
@@ -4674,13 +4830,14 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        const checkResult = Utils.checkGraph(this.logicalGraph());
+        const checkResult = Utils.checkGraph(this);
+        //console.log("checkGraph() warnings", checkResult.warnings.length, "errors", checkResult.errors.length);
 
         this.graphWarnings(checkResult.warnings);
         this.graphErrors(checkResult.errors);
     };
 
-    // TODO: maybe try to move some of this html out to a template
+    // maybe try to move some of this html out to a template
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
@@ -4744,6 +4901,7 @@ export class Eagle {
         // Add a data component to the graph.
         const newNode : Node = this.logicalGraph().addDataComponentToGraph(memoryComponent, dataComponentPosition);
         const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
+        newNode.setId(Utils.uuidv4());
         newNode.setKey(newNodeKey);
 
         // set name of new node (use user-facing name)
@@ -4964,6 +5122,41 @@ export class Eagle {
         }
     }
 
+    fixAll = () : void => {
+        console.log("fixAll()");
+        let numErrors   = Infinity;
+        let numWarnings = Infinity;
+        let numIterations = 0;
+
+        while (numWarnings !== this.graphWarnings().length || numErrors !== this.graphErrors().length){
+            if (numIterations > 10){
+                console.warn("Too many iterations in fixAll()");
+                break;
+            }
+            numIterations = numIterations+1;
+
+            numWarnings = this.graphWarnings().length;
+            numErrors = this.graphErrors().length;
+            console.log(numIterations, "numWarnings:", numWarnings, "numErrors:", numErrors);
+
+            for (const error of this.graphErrors()){
+                if (error.fix !== null){
+                    error.fix();
+                }
+            }
+
+            for (const warning of this.graphWarnings()){
+                if (warning.fix !== null){
+                    warning.fix();
+                }
+            }
+
+            this.checkGraph();
+        }
+
+        Utils.postFixFunc(this);
+    }
+
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         const c = Eagle.cData[category];
 
@@ -5019,13 +5212,13 @@ export class Eagle {
         GroupBy              : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-group", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
         Loop                 : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-loop", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
 
-        PythonApp            : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-python", color: Eagle.appIconColor, collapsedHeaderOffsetY: 10, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        BashShellApp         : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-bash", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        DynlibApp            : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-dynamic_library", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        DynlibProcApp        : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-dynamic_library", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        Mpi                  : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-mpi", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        Docker               : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-docker", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        Singularity          : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-singularity", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        PythonApp            : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-python", color: Eagle.appIconColor, collapsedHeaderOffsetY: 10, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        BashShellApp         : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-bash", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        DynlibApp            : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-dynamic_library", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        DynlibProcApp        : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-dynamic_library", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        Mpi                  : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-mpi", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        Docker               : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-docker", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
+        Singularity          : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-singularity", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
 
         File                 : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-hard-drive", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
         Memory               : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-memory", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 16, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
@@ -5097,7 +5290,7 @@ export namespace Eagle
     export const DataType_String = "String";
     export const DataType_Integer = "Integer";
     export const DataType_Float = "Float";
-    export const DataType_Complex = "Complex";
+    export const DataType_Object = "Object";
     export const DataType_Boolean = "Boolean";
     export const DataType_Select = "Select";
     export const DataType_Password = "Password";
@@ -5108,7 +5301,7 @@ export namespace Eagle
         DataType_String,
         DataType_Integer,
         DataType_Float,
-        DataType_Complex,
+        DataType_Object,
         DataType_Boolean,
         DataType_Select,
         DataType_Password,
@@ -5215,7 +5408,6 @@ export namespace Eagle
         expandedHeaderOffsetY: number,
         sortOrder: number
     };
-    export type ErrorsWarnings = {warnings: string[], errors: string[]};
 }
 
 

@@ -263,7 +263,7 @@ export class Modals {
             const choice : number = parseInt($('#fieldModalSelect').val().toString(), 10);
 
             // hide the custom text input unless the last option in the select is chosen
-            if (choice === choices.length){
+            if (choice === 0){
                 $('#customParameterOptionsWrapper').slideDown();
             } else {
                 $('#customParameterOptionsWrapper').slideUp();
@@ -280,8 +280,7 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            //const id : string = $('#editFieldModalIdInput').val().toString();
-            const id : string = "";
+            const id : string = Utils.uuidv4();
             const idText : string = $('#editFieldModalIdTextInput').val().toString();
             const displayText : string = $('#editFieldModalDisplayTextInput').val().toString();
 
@@ -451,6 +450,12 @@ export class Modals {
                 }
             }
             */
+        });
+
+        $('#parameterTableModal').on('hidden.bs.modal', function(){
+            //console.log("parameterTableModal hidden");
+
+            eagle.checkGraph();
         });
     }
 
