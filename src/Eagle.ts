@@ -4047,6 +4047,7 @@ export class Eagle {
                 "id":node.getId(),
                 "parentKey":node.getParentKey(),
                 "category":node.getCategory(),
+                "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,

@@ -116,6 +116,7 @@ export class Node {
         this.fields = ko.observableArray([]);
 
         this.category = ko.observable(category);
+        this.categoryType = ko.observable(CategoryType.Type.Unknown);
 
         this.subject = ko.observable(null);
 
@@ -479,6 +480,10 @@ export class Node {
         this.color(Utils.getColorForNode(category));
     }
 
+    getCategoryType = () : CategoryType.Type => {
+        return this.categoryType();
+    }
+
     isData = () : boolean => {
         return this.categoryType() === CategoryType.Type.Data;
     }
@@ -659,6 +664,7 @@ export class Node {
         this.fields([]);
 
         this.category(Eagle.Category.Unknown);
+        this.categoryType(CategoryType.Type.Unknown);
 
         this.subject(null);
 
@@ -1036,6 +1042,7 @@ export class Node {
         result.y = this.y;
         result.width = this.width;
         result.height = this.height;
+        result.categoryType(this.categoryType());
         result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
 
@@ -1313,6 +1320,9 @@ export class Node {
 
         // set position
         node.setPosition(x, y);
+
+        // set categoryType based on the category
+        node.categoryType(Eagle.getCategoryData(category).categoryType);
 
         // get description (if exists)
         if (typeof nodeData.description !== 'undefined'){
@@ -1699,6 +1709,7 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.categoryType = node.categoryType();
 
         result.key = node.key();
         result.text = node.name();
@@ -1817,6 +1828,8 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.categoryType = node.categoryType();
+
         result.isGroup = node.isGroup();
         result.color = node.color();
         result.drawOrderHint = node.drawOrderHint();
@@ -1942,6 +1955,7 @@ export class Node {
     static toV3NodeJson = (node : Node, index : number) : object => {
         const result : any = {};
 
+        result.categoryType = node.categoryType();
         result.componentKey = index.toString();
 
         result.color = node.color();
@@ -1964,6 +1978,7 @@ export class Node {
     static fromV3NodeJson = (nodeData : any, key: string, errorsWarnings: Errors.ErrorsWarnings) : Node => {
         const result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown);
 
+        result.categoryType(nodeData.categoryType);
         result.color(nodeData.color);
         result.drawOrderHint(nodeData.drawOrderHint);
 
