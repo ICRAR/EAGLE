@@ -10,7 +10,7 @@ export namespace CategoryType {
         Container = "Container",
         Control = "Control",
         Data = "Data",
-        Group = "Group",
+        Construct = "Construct",
         Other = "Other",
         Service = "Service",
         Socket = "Socket",

@@ -488,8 +488,8 @@ export class Node {
         return this.categoryType() === CategoryType.Type.Data;
     }
 
-    isGroup = () : boolean => {
-        return this.categoryType() === CategoryType.Type.Group;
+    isConstruct = () : boolean => {
+        return this.categoryType() === CategoryType.Type.Construct;
     }
 
     isApplication = () : boolean => {
@@ -522,6 +522,10 @@ export class Node {
 
     isResizable = () : boolean => {
         return Eagle.getCategoryData(this.category()).isResizable;
+    }
+
+    isGroup = () : boolean => {
+        return Eagle.getCategoryData(this.category()).canContainComponents;
     }
 
     canHaveInputs = () : boolean => {

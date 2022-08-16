@@ -1213,8 +1213,8 @@ export class Utils {
                     continue;
                 }
 
-                // skip nodes that are not group components
-                if (categoryType === CategoryType.Type.Group && !node.isGroup()){
+                // skip nodes that are not construct components
+                if (categoryType === CategoryType.Type.Construct && !node.isConstruct()){
                     continue;
                 }
 
