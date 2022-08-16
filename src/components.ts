@@ -72,15 +72,8 @@ ko.components.register('hierarchy', {
 });
 
 ko.components.register('hierarchy-node', {
-    viewModel: function(params : {data : any, parentKey : number | null, select : Function}){
-        this._id = params.data._id;
-        this.name = params.data.name().trim() === "" ? params.data.category : params.data.name;
-        this.category = params.data.category;
-        this.key = params.data.key;
-        this.parentKey = params.data.parentKey;
-        this.expanded = params.data.expanded;
-        this.color = params.data.color;
-        this.select = params.select;
+    viewModel: function(params : {data : any}){
+        return params.data;
     },
     template: { require: "text!static/components/hierarchy-node.html" }
 });
