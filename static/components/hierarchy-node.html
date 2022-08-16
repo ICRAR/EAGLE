@@ -3,9 +3,14 @@
     <li>
         <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($root.objectIsSelectedById(_id)), attr: { id:key} , click:select, clickBubble:false" params="data:$data, parentKey: key, select: $root.selectNodeInHierarchy">
             <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
-            <div class="hierarchyNodeVisibilityIcon" data-bind="style: {'visibility': $root.hierarchyNodeIsHidden(key())}">
+            <div class="hierarchyNodeIcons" data-bind="style: {'visibility': $root.hierarchyNodeIsHidden(key())}">
                 <i class="material-icons md-18">visibility_off</i>
             </div>
+            <!-- ko if: isGroup -->
+                <button class="">
+                    <i class="material-icons closedIcon" data-bs-placement="top" data-bind="" data-bs-toggle="tooltip" data-html="true" data-bs-original-title="Expand/Collapse">keyboard_arrow_down</i>
+                </button>
+            <!-- /ko -->
             <h5 data-bind="text: name"></h5>
             <span data-bind="text: category"></span>
             <div>
