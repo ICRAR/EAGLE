@@ -52,7 +52,6 @@ import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
 import {Undo} from './Undo';
-import { schemeBlues, select, selection, text, treemapSquarify } from "d3";
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -269,8 +268,6 @@ export class Eagle {
     }
 
     hierarchySelectionHandler = () : void => {
-        // console.log(this.logicalGraph().getNodes())
-        // console.log(this.selectedObjects())
         $("#hierarchyEdgesSvg").empty()
 
         //return if the graph is not loaded yet
@@ -502,12 +499,6 @@ export class Eagle {
         // append the edge paths to the svg
         $("#hierarchyEdgesSvg")[0].appendChild(curve)
         $("#hierarchyEdgesSvg")[0].appendChild(curveExtra)
-    }
-
-
-    testingEdge = () : void => {
-        console.log("edgeBeyingTeste", event.target)
-
     }
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
