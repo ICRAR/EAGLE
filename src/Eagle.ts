@@ -418,22 +418,8 @@ export class Eagle {
         var srcEmbedKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
         var destEmbedKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
 
-
-        // if(srcEmbedKey !== null){
-        //     srcKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
-        //     console.log("srcNodeCHanged"+srcKey)
-        // }else{
-            srcKey = edge.getSrcNodeKey()
-            // console.log("normal node"+ srcKey + ", "+destKey)
-        // }
-
-        // if(destEmbedKey !== null){
-        //     destKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
-        //     console.log("destNodeCHanged"+destKey)
-        // }else{
-            destKey = edge.getDestNodeKey()
-            // console.log("normal node"+ srcKey + ", "+destKey)
-        // }
+        srcKey = edge.getSrcNodeKey()
+        destKey = edge.getDestNodeKey()
 
         var srcNodePos = $('.hierarchyNode#'+ srcKey)[0].getBoundingClientRect()
         var destNodePos = $('.hierarchyNode#'+ destKey)[0].getBoundingClientRect()
