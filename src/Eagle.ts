@@ -253,7 +253,7 @@ export class Eagle {
 
 
         this.selectedObjects.subscribe(function(){
-            this.hierarchySelectionHandler()
+            this.updateHierarchyDisplay()
         }, this)
 
         this.rightWindow().mode.subscribe(function(){
@@ -261,14 +261,14 @@ export class Eagle {
 
             var x = function() {
                 if(that.rightWindow().mode() === Eagle.RightWindowMode.Hierarchy){
-                    that.hierarchySelectionHandler()
+                    that.updateHierarchyDisplay()
                 }
             }
             window.setTimeout(x,500)
         },this)
     }
 
-    hierarchySelectionHandler = () : void => {
+    updateHierarchyDisplay = () : void => {
         $("#hierarchyEdgesSvg").empty()
 
         //return if the graph is not loaded yet
