@@ -29,6 +29,7 @@ import {GraphUpdater} from './GraphUpdater';
 import {Eagle} from './Eagle';
 import {Field} from './Field';
 import {Errors} from './Errors';
+import {CategoryType} from './CategoryType';
 
 export class Node {
     private _id : string
@@ -60,6 +61,7 @@ export class Node {
     private fields : ko.ObservableArray<Field>;
 
     private category : ko.Observable<Eagle.Category>;
+    private categoryType : ko.Observable<CategoryType.Type>;
 
     private subject : ko.Observable<number>;       // the key of another node that is the subject of this node. used by comment nodes only.
 
@@ -478,15 +480,15 @@ export class Node {
     }
 
     isData = () : boolean => {
-        return Eagle.getCategoryData(this.category()).isData;
+        return this.categoryType() === CategoryType.Type.Data;
     }
 
     isGroup = () : boolean => {
-        return Eagle.getCategoryData(this.category()).isGroup;
+        return this.categoryType() === CategoryType.Type.Group;
     }
 
     isApplication = () : boolean => {
-        return Eagle.getCategoryData(this.category()).isApplication;
+        return this.categoryType() === CategoryType.Type.Application;
     }
 
     isScatter = () : boolean => {
@@ -1379,7 +1381,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (Eagle.getCategoryData(nodeData.inputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.inputApplicationType).categoryType === CategoryType.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputAppName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node."));
@@ -1392,7 +1394,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (Eagle.getCategoryData(nodeData.inputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.inputApplicationType).categoryType === CategoryType.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputApplicationName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node."));
@@ -1405,7 +1407,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (Eagle.getCategoryData(nodeData.outputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.outputApplicationType).categoryType === CategoryType.Type.Application){
                     node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputAppName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node."));
@@ -1417,7 +1419,7 @@ export class Node {
             if (!Eagle.getCategoryData(category).canHaveOutputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                if (Eagle.getCategoryData(nodeData.outputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.outputApplicationType).categoryType === CategoryType.Type.Application){
                     node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputApplicationName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node."));
@@ -1442,7 +1444,7 @@ export class Node {
             if (!Eagle.getCategoryData(category).canHaveInputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
-                if (Eagle.getCategoryData(category).isApplication){
+                if (Eagle.getCategoryData(category).categoryType === CategoryType.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, "", node.getKey()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + category + ", to node."));
@@ -2048,7 +2050,7 @@ export class Node {
     */
 
     static createEmbeddedApplicationNode = (key: number, name : string, category: Eagle.Category, description: string, embedKey: number) : Node => {
-        console.assert(Eagle.getCategoryData(category).isApplication);
+        console.assert(Eagle.getCategoryData(category).categoryType === CategoryType.Type.Application);
 
         const node = new Node(key, name, description, category);
         node.setEmbedKey(embedKey);
