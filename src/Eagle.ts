@@ -2905,6 +2905,8 @@ export class Eagle {
         var className : string = ""
         if(selectState){
             className = "hierarchyNodeIsSelected"
+        }else{
+            className = "hierarchyNodeIsntSelected"
         }
 
         return className

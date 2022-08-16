@@ -1181,6 +1181,9 @@ select.form-control{
 .hierarchyNodeIsSelected h5{
     font-weight: 700;
 }
+.hierarchyNodeIsntSelected h5{
+    font-weight: 500;
+}
 
 .hierarchyNode span{
     font-size:12px;
