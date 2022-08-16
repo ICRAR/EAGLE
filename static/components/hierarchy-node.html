@@ -4,10 +4,10 @@
         <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($root.objectIsSelectedById(_id)), attr: { id:key} , click:select, clickBubble:false" params="data:$data, parentKey: key, select: $root.selectNodeInHierarchy">
             <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
             <div class="hierarchyNodeIcons" data-bind="style: {'visibility': $root.hierarchyNodeIsHidden(key())}">
-                <i class="material-icons md-18">visibility_off</i>
+                <i class="material-icons md-18" data-bind="eagleTooltip:'Data node display is toggled off in graph ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true)">visibility_off</i>
             </div>
             <!-- ko if: isGroup -->
-                <button class="">
+                <button class="hierarchyGroupCollapse">
                     <i class="material-icons closedIcon" data-bs-placement="top" data-bind="" data-bs-toggle="tooltip" data-html="true" data-bs-original-title="Expand/Collapse">keyboard_arrow_down</i>
                 </button>
             <!-- /ko -->

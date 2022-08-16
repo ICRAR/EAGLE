@@ -1202,6 +1202,17 @@ select.form-control{
     color: grey;
 }
 
+.hierarchyGroupCollapse{
+    position: absolute;
+    width: auto;
+    height: auto;
+    right: 10px;
+    top: 20px;
+    transform: translateY(-40%) rotate(90deg);
+    border:none;
+    background-color: transparent;
+}
+
 .hierarchyApplicationIsSelected {
     border: 2px solid #002349;
 }
