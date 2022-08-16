@@ -320,7 +320,6 @@ export class Eagle {
                     }
                 }
             })
-           
         })
 
         //an array of edges is used as we have to ensure there are no duplicate edges drawn.
