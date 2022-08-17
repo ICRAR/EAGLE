@@ -27,6 +27,7 @@ import * as Showdown from "showdown";
 import * as ko from "knockout";
 
 import {Config} from './Config';
+import {CategoryType} from './CategoryType';
 
 import {Eagle} from './Eagle';
 import {Palette} from './Palette';
@@ -1194,7 +1195,7 @@ export class Utils {
         return result;
     }
 
-    static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Eagle.CategoryType, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
+    static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: CategoryType.Type, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
         console.log("getDataComponentsWithInputsAndOutputs");
 
         const result: Node[] = [];
@@ -1203,17 +1204,17 @@ export class Utils {
         for (const palette of palettes){
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
-                if (categoryType === Eagle.CategoryType.Data && !node.isData()){
+                if (categoryType === CategoryType.Type.Data && !node.isData()){
                     continue;
                 }
 
                 // skip nodes that are not application components
-                if (categoryType === Eagle.CategoryType.Application && !node.isApplication()){
+                if (categoryType === CategoryType.Type.Application && !node.isApplication()){
                     continue;
                 }
 
-                // skip nodes that are not group components
-                if (categoryType === Eagle.CategoryType.Group && !node.isGroup()){
+                // skip nodes that are not construct components
+                if (categoryType === CategoryType.Type.Construct && !node.isConstruct()){
                     continue;
                 }
 
@@ -1234,7 +1235,7 @@ export class Utils {
         return result;
     }
 
-    static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: Eagle.CategoryType, numRequiredInputs: number, numRequiredOutputs: number) : Eagle.Category[] {
+    static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: CategoryType.Type, numRequiredInputs: number, numRequiredOutputs: number) : Eagle.Category[] {
         console.log("getDataComponentsWithInputsAndOutputs");
 
         const result: Eagle.Category[] = [];
@@ -1245,17 +1246,7 @@ export class Utils {
             const categoryData = Eagle.getCategoryData(<Eagle.Category>category);
 
 
-            if (categoryType === Eagle.CategoryType.Data && !categoryData.isData){
-                continue;
-            }
-
-            // skip nodes that are not application components
-            if (categoryType === Eagle.CategoryType.Application && !categoryData.isApplication){
-                continue;
-            }
-
-            // skip nodes that are not group components
-            if (categoryType === Eagle.CategoryType.Group && !categoryData.isGroup){
+            if (categoryData.categoryType === categoryType){
                 continue;
             }
 

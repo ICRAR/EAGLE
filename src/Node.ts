@@ -29,6 +29,7 @@ import {GraphUpdater} from './GraphUpdater';
 import {Eagle} from './Eagle';
 import {Field} from './Field';
 import {Errors} from './Errors';
+import {CategoryType} from './CategoryType';
 
 export class Node {
     private _id : string
@@ -60,6 +61,7 @@ export class Node {
     private fields : ko.ObservableArray<Field>;
 
     private category : ko.Observable<Eagle.Category>;
+    private categoryType : ko.Observable<CategoryType.Type>;
 
     private subject : ko.Observable<number>;       // the key of another node that is the subject of this node. used by comment nodes only.
 
@@ -114,6 +116,7 @@ export class Node {
         this.fields = ko.observableArray([]);
 
         this.category = ko.observable(category);
+        this.categoryType = ko.observable(CategoryType.Type.Unknown);
 
         this.subject = ko.observable(null);
 
@@ -477,16 +480,20 @@ export class Node {
         this.color(Utils.getColorForNode(category));
     }
 
-    isData = () : boolean => {
-        return Eagle.getCategoryData(this.category()).isData;
+    getCategoryType = () : CategoryType.Type => {
+        return this.categoryType();
     }
 
-    isGroup = () : boolean => {
-        return Eagle.getCategoryData(this.category()).isGroup;
+    isData = () : boolean => {
+        return this.categoryType() === CategoryType.Type.Data;
+    }
+
+    isConstruct = () : boolean => {
+        return this.categoryType() === CategoryType.Type.Construct;
     }
 
     isApplication = () : boolean => {
-        return Eagle.getCategoryData(this.category()).isApplication;
+        return this.categoryType() === CategoryType.Type.Application;
     }
 
     isScatter = () : boolean => {
@@ -515,6 +522,10 @@ export class Node {
 
     isResizable = () : boolean => {
         return Eagle.getCategoryData(this.category()).isResizable;
+    }
+
+    isGroup = () : boolean => {
+        return Eagle.getCategoryData(this.category()).canContainComponents;
     }
 
     canHaveInputs = () : boolean => {
@@ -657,6 +668,7 @@ export class Node {
         this.fields([]);
 
         this.category(Eagle.Category.Unknown);
+        this.categoryType(CategoryType.Type.Unknown);
 
         this.subject(null);
 
@@ -1034,6 +1046,7 @@ export class Node {
         result.y = this.y;
         result.width = this.width;
         result.height = this.height;
+        result.categoryType(this.categoryType());
         result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
 
@@ -1312,6 +1325,9 @@ export class Node {
         // set position
         node.setPosition(x, y);
 
+        // set categoryType based on the category
+        node.categoryType(Eagle.getCategoryData(category).categoryType);
+
         // get description (if exists)
         if (typeof nodeData.description !== 'undefined'){
             node.description(nodeData.description);
@@ -1379,7 +1395,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (Eagle.getCategoryData(nodeData.inputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.inputApplicationType).categoryType === CategoryType.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputAppName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node."));
@@ -1392,7 +1408,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (Eagle.getCategoryData(nodeData.inputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.inputApplicationType).categoryType === CategoryType.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputApplicationName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node."));
@@ -1405,7 +1421,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (Eagle.getCategoryData(nodeData.outputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.outputApplicationType).categoryType === CategoryType.Type.Application){
                     node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputAppName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node."));
@@ -1417,7 +1433,7 @@ export class Node {
             if (!Eagle.getCategoryData(category).canHaveOutputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                if (Eagle.getCategoryData(nodeData.outputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.outputApplicationType).categoryType === CategoryType.Type.Application){
                     node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputApplicationName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node."));
@@ -1442,7 +1458,7 @@ export class Node {
             if (!Eagle.getCategoryData(category).canHaveInputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
-                if (Eagle.getCategoryData(category).isApplication){
+                if (Eagle.getCategoryData(category).categoryType === CategoryType.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, "", node.getKey()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + category + ", to node."));
@@ -1697,6 +1713,7 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.categoryType = node.categoryType();
 
         result.key = node.key();
         result.text = node.name();
@@ -1815,6 +1832,8 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.categoryType = node.categoryType();
+
         result.isGroup = node.isGroup();
         result.color = node.color();
         result.drawOrderHint = node.drawOrderHint();
@@ -1940,6 +1959,7 @@ export class Node {
     static toV3NodeJson = (node : Node, index : number) : object => {
         const result : any = {};
 
+        result.categoryType = node.categoryType();
         result.componentKey = index.toString();
 
         result.color = node.color();
@@ -1962,6 +1982,7 @@ export class Node {
     static fromV3NodeJson = (nodeData : any, key: string, errorsWarnings: Errors.ErrorsWarnings) : Node => {
         const result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown);
 
+        result.categoryType(nodeData.categoryType);
         result.color(nodeData.color);
         result.drawOrderHint(nodeData.drawOrderHint);
 
@@ -2048,7 +2069,7 @@ export class Node {
     */
 
     static createEmbeddedApplicationNode = (key: number, name : string, category: Eagle.Category, description: string, embedKey: number) : Node => {
-        console.assert(Eagle.getCategoryData(category).isApplication);
+        console.assert(Eagle.getCategoryData(category).categoryType === CategoryType.Type.Application);
 
         const node = new Node(key, name, description, category);
         node.setEmbedKey(embedKey);
