@@ -4171,6 +4171,22 @@ export class Eagle {
         console.table(tableData);
     }
 
+    printCategories = () : void => {
+        const tableData : any[] = [];
+
+        for (const category in Eagle.cData){
+            const cData = Eagle.getCategoryData(<Eagle.Category>category);
+
+            tableData.push({
+                category: <Eagle.Category>category,
+                categoryType: cData.categoryType,
+            });
+
+        }
+
+        console.table(tableData);
+    }
+
     printLogicalGraphNodesTable = () : void => {
         const tableData : any[] = [];
 
