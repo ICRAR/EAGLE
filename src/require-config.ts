@@ -44,7 +44,8 @@ require.config({
         "PaletteInfo": "./static/built/PaletteInfo",
         "ExplorePalettes": "./static/built/ExplorePalettes",
         "Undo": "./static/built/Undo",
-        "Errors": "./static/built/Errors"
+        "Errors": "./static/built/Errors",
+        "CategoryType": "./static/built/CategoryType"
     },
     shim: {
         "bootstrap": {
