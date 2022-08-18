@@ -5202,6 +5202,19 @@ export class Eagle {
 
     checkForComponentUpdates = () : void => {
         console.log("checkForComponentUpdates()");
+        const tableData: any[] = [];
+
+        for (const node of this.logicalGraph().getNodes()){
+            tableData.push({
+                name:node.getName(),
+                repositoryUrl:node.getRepositoryUrl(),
+                commitHash:node.getCommitHash(),
+                paletteDownloadUrl:node.getPaletteDownloadUrl(),
+                dataHash:node.getDataHash()
+            });
+        }
+
+        console.table(tableData);
     }
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
