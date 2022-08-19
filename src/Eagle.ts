@@ -1884,8 +1884,9 @@ export class Eagle {
             results.push(null);
             complete.push(false);
             const index = i;
+            const data = {url: paletteList[i].filename};
 
-            Utils.httpGet(paletteList[i].filename, (error: string, data: string) => {
+            Utils.httpPostJSON("/openRemoteUrlFile", data, (error: string, data: string) => {
                 complete[index] = true;
 
                 if  (error !== null){
@@ -4204,10 +4205,8 @@ export class Eagle {
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),
-                "x":node.getPosition().x,
-                "y":node.getPosition().y,
-                "width":node.getWidth(),
-                "height":node.getHeight(),
+                "pos":"(" + node.getPosition().x + "," + node.getPosition().y + ")",
+                "size":node.getWidth() + "x" + node.getHeight(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
                 "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
                 "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
