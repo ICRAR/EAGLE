@@ -44,6 +44,7 @@
         "./src/PaletteInfo.ts",
         "./src/ExplorePalettes.ts",
         "./src/Undo.ts",
-        "./src/Errors.ts"
+        "./src/Errors.ts",
+        "./src/ComponentUpdater.ts"
     ]
 }

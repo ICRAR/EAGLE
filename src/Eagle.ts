@@ -54,6 +54,7 @@ import {ExplorePalettes} from './ExplorePalettes';
 import {PaletteInfo} from './PaletteInfo';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
+import {ComponentUpdater} from './ComponentUpdater';
 
 export class Eagle {
     palettes : ko.ObservableArray<Palette>;
@@ -5201,19 +5202,10 @@ export class Eagle {
 
     checkForComponentUpdates = () : void => {
         console.log("checkForComponentUpdates()");
-        const tableData: any[] = [];
 
-        for (const node of this.logicalGraph().getNodes()){
-            tableData.push({
-                name:node.getName(),
-                repositoryUrl:node.getRepositoryUrl(),
-                commitHash:node.getCommitHash(),
-                paletteDownloadUrl:node.getPaletteDownloadUrl(),
-                dataHash:node.getDataHash()
-            });
-        }
-
-        console.table(tableData);
+        ComponentUpdater.update(this.logicalGraph(), function(error:string, data:string){
+            console.log("callback");
+        });
     }
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {

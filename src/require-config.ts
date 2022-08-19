@@ -45,7 +45,8 @@ require.config({
         "ExplorePalettes": "./static/built/ExplorePalettes",
         "Undo": "./static/built/Undo",
         "Errors": "./static/built/Errors",
-        "CategoryType": "./static/built/CategoryType"
+        "CategoryType": "./static/built/CategoryType",
+        "ComponentUpdater": "./static/built/ComponentUpdater"
     },
     shim: {
         "bootstrap": {
