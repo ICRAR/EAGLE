@@ -1195,7 +1195,7 @@ select.form-control{
     -webkit-user-select: none; /* Webkit (Safari, Chrome) */
 }
 
-.hierarchyNodeVisibilityIcon{
+.hierarchyNodeIcons{
     position: absolute;
     width: auto;
     height: auto;
