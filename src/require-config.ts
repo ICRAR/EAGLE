@@ -43,7 +43,9 @@ require.config({
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
         "PaletteInfo": "./static/built/PaletteInfo",
         "ExplorePalettes": "./static/built/ExplorePalettes",
-        "Undo": "./static/built/Undo"
+        "Undo": "./static/built/Undo",
+        "Errors": "./static/built/Errors",
+        "CategoryType": "./static/built/CategoryType"
     },
     shim: {
         "bootstrap": {

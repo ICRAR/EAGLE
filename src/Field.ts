@@ -109,7 +109,7 @@ export class Field {
     }
 
     isType = (type: string) => {
-        return this.type() === type;
+        return Utils.dataTypePrefix(this.type()) === type;
     }
 
     valIsTrue = (val:string) : boolean => {
@@ -154,6 +154,10 @@ export class Field {
 
     setIsEvent = (isEvent: boolean) : void => {
         this.isEvent(isEvent);
+    }
+
+    toggleEvent = (): void => {
+        this.isEvent(!this.isEvent());
     }
 
     getNodeKey = () : number => {
@@ -277,7 +281,7 @@ export class Field {
             defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
-            type:field.type(),
+            type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
             positional:field.positional()
@@ -292,7 +296,7 @@ export class Field {
             defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
-            type:field.type(),
+            type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
             positional: field.positional()
@@ -312,6 +316,7 @@ export class Field {
         let options: string[] = [];
         let positional: boolean = false;
         let fieldType: Eagle.FieldType = Eagle.FieldType.Unknown;
+        let isEvent: boolean = false;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -323,8 +328,15 @@ export class Field {
             description = data.description;
         if (typeof data.readonly !== 'undefined')
             readonly = data.readonly;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
+        if (typeof data.type !== 'undefined'){
+            if (data.type === "Event"){
+                isEvent = true;
+                type = Eagle.DataType_Unknown;
+            } else {
+                isEvent = false;
+                type = data.type;
+            }
+        }
         if (typeof data.value !== 'undefined' && data.value !== null)
             value = data.value.toString();
         if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null)
@@ -335,8 +347,14 @@ export class Field {
             options = data.options;
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
+        if (typeof data.fieldType !== 'undefined')
+            fieldType = data.fieldType;
+        if (typeof data.event !== 'undefined')
+            event = data.event;
 
-        return new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
+        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
+        result.setIsEvent(isEvent);
+        return result;
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
