@@ -5203,7 +5203,7 @@ export class Eagle {
     checkForComponentUpdates = () : void => {
         console.log("checkForComponentUpdates()");
 
-        ComponentUpdater.update(this.logicalGraph(), function(error:string, data:string){
+        ComponentUpdater.update(this.palettes(), this.logicalGraph(), function(error:string, data:string){
             console.log("callback");
         });
     }
