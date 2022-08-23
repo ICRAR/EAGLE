@@ -488,6 +488,10 @@ export class Node {
         return this.categoryType();
     }
 
+    setRepositoryUrl = (url: string) : void => {
+        this.repositoryUrl(url);
+    }
+
     getRepositoryUrl = () : string => {
         return this.repositoryUrl();
     }
