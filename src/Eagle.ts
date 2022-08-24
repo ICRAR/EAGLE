@@ -5253,6 +5253,7 @@ export class Eagle {
         S3                   : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-s3_bucket", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
         ParameterSet         : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
         EnvironmentVariables : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
+        Data                 : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-hard-drive", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
 
         Plasma               : {categoryType: CategoryType.Type.Service, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-plasma", color: Eagle.serviceIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.serviceSortOrder},
         PlasmaFlight         : {categoryType: CategoryType.Type.Service, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-plasmaflight", color: Eagle.serviceIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.serviceSortOrder},
@@ -5376,6 +5377,7 @@ export namespace Eagle
         File = "File",
         Plasma = "Plasma",
         PlasmaFlight = "PlasmaFlight",
+        Data = "Data",
 
         ParameterSet = "ParameterSet",
         EnvironmentVariables = "EnvironmentVariables",
