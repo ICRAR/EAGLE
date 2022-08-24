@@ -766,6 +766,18 @@ export class LogicalGraph {
         return depth;
     }
 
+    getChildrenOfNodeByKey = (key: number) : Node[] => {
+        const result: Node[] = [];
+
+        for (const node of this.nodes){
+            if (node.getParentKey() === key){
+                result.push(node);
+            }
+        }
+
+        return result;
+    }
+
     static normaliseNodes = (nodes: Node[]) : {x: number, y: number} => {
         let minX = Number.MAX_SAFE_INTEGER;
         let maxX = Number.MIN_SAFE_INTEGER;
