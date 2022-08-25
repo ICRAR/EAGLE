@@ -4729,44 +4729,44 @@ export class Eagle {
         });
     }
 
-    setNodeInputApplication = () : void => {
+    setNodeInputApplication = (nodeKey: number) : void => {
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
             return;
         }
 
-        this.setNodeApplication("Input Application", "Choose an input application", (node: Node) => {
-            const selectedNode: Node = this.selectedNode();
-            const oldApp: Node = selectedNode.getInputApplication();
+        this.setNodeApplication("Input Application", "Choose an input application", (inputApplication: Node) => {
+            const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
+            const oldApp: Node = node.getInputApplication();
 
             // remove all edges incident on the old input application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
             }
 
-            selectedNode.setInputApplication(node);
+            node.setInputApplication(inputApplication);
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Set Node Input Application");
         });
     }
 
-    setNodeOutputApplication = () : void => {
+    setNodeOutputApplication = (nodeKey: number) : void => {
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
             return;
         }
 
-        this.setNodeApplication("Output Application", "Choose an output application", (node: Node) => {
-            const selectedNode: Node = this.selectedNode();
-            const oldApp: Node = selectedNode.getOutputApplication();
+        this.setNodeApplication("Output Application", "Choose an output application", (outputApplication: Node) => {
+            const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
+            const oldApp: Node = node.getOutputApplication();
 
             // remove all edges incident on the old output application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
             }
 
-            selectedNode.setOutputApplication(node);
+            node.setOutputApplication(outputApplication);
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Set Node Output Application");

@@ -45,7 +45,7 @@ enum LINK_COLORS {
     AUTO_COMPLETE = 'purple',
     CLOSES_LOOP = 'dimgrey',
     CLOSES_LOOP_SELECTED = 'rgb(47 22 213)'
-};
+}
 
 function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const startTime: number = performance.now();
@@ -613,7 +613,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (node.hasInputApplication()){
                 eagle.setSelection(Eagle.RightWindowMode.Inspector, node.getInputApplication(), Eagle.FileType.Graph);
             } else {
-                eagle.setNodeInputApplication();
+                eagle.setNodeInputApplication(node.getKey());
             }
         });
 
@@ -623,7 +623,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (node.hasOutputApplication()){
                 eagle.setSelection(Eagle.RightWindowMode.Inspector, node.getOutputApplication(), Eagle.FileType.Graph);
             } else {
-                eagle.setNodeOutputApplication();
+                eagle.setNodeOutputApplication(node.getKey());
             }
         });
 
