@@ -539,17 +539,8 @@ export class Eagle {
 
     getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
         let count: number = 0;
-        let errors: Errors.Issue[];
-        let warnings: Errors.Issue[];
-
-        // choose the correct array to count based on the error mode
-        if (this.errorsMode() === Eagle.ErrorsMode.Graph){
-            errors = this.graphErrors();
-            warnings = this.graphWarnings();
-        } else {
-            errors = this.loadingErrors();
-            warnings = this.loadingWarnings();
-        }
+        const errors: Errors.Issue[] = this.getErrors();
+        const warnings: Errors.Issue[] = this.getWarnings();
 
         // count the errors
         for (const error of errors){
@@ -1044,7 +1035,8 @@ export class Eagle {
                 this.loadingErrors(errorsWarnings.errors);
                 this.loadingWarnings(errorsWarnings.warnings);
 
-                Utils.showErrorsModal("Loading File", errorsWarnings.errors, errorsWarnings.warnings);
+                this.errorsMode(Eagle.ErrorsMode.Loading);
+                Utils.showErrorsModal("Loading File", this);
             }
         } else {
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
@@ -4873,7 +4865,6 @@ export class Eagle {
 
     checkGraph = (): void => {
         const checkResult = Utils.checkGraph(this);
-        console.log("checkGraph() warnings", checkResult.warnings.length, "errors", checkResult.errors.length);
 
         this.graphWarnings(checkResult.warnings);
         this.graphErrors(checkResult.errors);
@@ -4887,7 +4878,7 @@ export class Eagle {
             this.errorsMode(Eagle.ErrorsMode.Graph);
 
             // show graph modal
-            Utils.showErrorsModal("Check Graph", this.graphErrors(), this.graphWarnings());
+            Utils.showErrorsModal("Check Graph", this);
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
@@ -5182,7 +5173,6 @@ export class Eagle {
 
             numWarnings = this.graphWarnings().length;
             numErrors = this.graphErrors().length;
-            console.log(numIterations, "numWarnings:", numWarnings, "numErrors:", numErrors);
 
             for (const error of this.graphErrors()){
                 if (error.fix !== null){
@@ -5208,6 +5198,9 @@ export class Eagle {
                 return this.loadingWarnings();
             case Eagle.ErrorsMode.Graph:
                 return this.graphWarnings();
+            default:
+                console.warn("Unknown errorsMode (" + this.errorsMode() + "). Unable to getWarnings()");
+                return [];
         }
     }, this);
 
@@ -5217,6 +5210,9 @@ export class Eagle {
                 return this.loadingErrors();
             case Eagle.ErrorsMode.Graph:
                 return this.graphErrors();
+            default:
+                console.warn("Unknown errorsMode (" + this.errorsMode() + "). Unable to getErrors()");
+                return [];
         }
     }, this);
 
