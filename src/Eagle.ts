@@ -89,8 +89,12 @@ export class Eagle {
 
     explorePalettes : ko.Observable<ExplorePalettes>;
 
+    errorsMode : ko.Observable<Eagle.ErrorsMode>;
     graphWarnings : ko.ObservableArray<Errors.Issue>;
     graphErrors : ko.ObservableArray<Errors.Issue>;
+    loadingWarnings : ko.ObservableArray<Errors.Issue>;
+    loadingErrors : ko.ObservableArray<Errors.Issue>;
+
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -247,11 +251,13 @@ export class Eagle {
 
         this.explorePalettes = ko.observable(new ExplorePalettes());
 
+        this.errorsMode = ko.observable(Eagle.ErrorsMode.Loading);
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
+        this.loadingWarnings = ko.observableArray([]);
+        this.loadingErrors = ko.observableArray([]);
 
         this.showDataNodes = ko.observable(true);
-
 
         this.selectedObjects.subscribe(function(){
             this.updateHierarchyDisplay()
@@ -533,14 +539,18 @@ export class Eagle {
 
     getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
         let count: number = 0;
+        const errors: Errors.Issue[] = this.getErrors();
+        const warnings: Errors.Issue[] = this.getWarnings();
 
-        for (const error of this.graphErrors()){
+        // count the errors
+        for (const error of errors){
             if (error.fix !== null){
                 count += 1;
             }
         }
 
-        for (const warning of this.graphWarnings()){
+        // count the warnings
+        for (const warning of warnings){
             if (warning.fix !== null){
                 count += 1;
             }
@@ -1020,7 +1030,13 @@ export class Eagle {
         // show errors (if found)
         if (errorsWarnings.errors.length > 0 || errorsWarnings.warnings.length > 0){
             if (showErrors){
-                Utils.showErrorsModal("Loading File", errorsWarnings.errors, errorsWarnings.warnings);
+
+                // add warnings/errors to the arrays
+                this.loadingErrors(errorsWarnings.errors);
+                this.loadingWarnings(errorsWarnings.warnings);
+
+                this.errorsMode(Eagle.ErrorsMode.Loading);
+                Utils.showErrorsModal("Loading File", this);
             }
         } else {
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
@@ -4849,7 +4865,6 @@ export class Eagle {
 
     checkGraph = (): void => {
         const checkResult = Utils.checkGraph(this);
-        //console.log("checkGraph() warnings", checkResult.warnings.length, "errors", checkResult.errors.length);
 
         this.graphWarnings(checkResult.warnings);
         this.graphErrors(checkResult.errors);
@@ -4859,8 +4874,11 @@ export class Eagle {
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
+            // switch to graph errors mode
+            this.errorsMode(Eagle.ErrorsMode.Graph);
+
             // show graph modal
-            Utils.showErrorsModal("Check Graph", this.graphErrors(), this.graphWarnings());
+            Utils.showErrorsModal("Check Graph", this);
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
@@ -5155,7 +5173,6 @@ export class Eagle {
 
             numWarnings = this.graphWarnings().length;
             numErrors = this.graphErrors().length;
-            console.log(numIterations, "numWarnings:", numWarnings, "numErrors:", numErrors);
 
             for (const error of this.graphErrors()){
                 if (error.fix !== null){
@@ -5174,6 +5191,30 @@ export class Eagle {
 
         Utils.postFixFunc(this);
     }
+
+    getWarnings : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
+        switch (this.errorsMode()){
+            case Eagle.ErrorsMode.Loading:
+                return this.loadingWarnings();
+            case Eagle.ErrorsMode.Graph:
+                return this.graphWarnings();
+            default:
+                console.warn("Unknown errorsMode (" + this.errorsMode() + "). Unable to getWarnings()");
+                return [];
+        }
+    }, this);
+
+    getErrors : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
+        switch (this.errorsMode()){
+            case Eagle.ErrorsMode.Loading:
+                return this.loadingErrors();
+            case Eagle.ErrorsMode.Graph:
+                return this.graphErrors();
+            default:
+                console.warn("Unknown errorsMode (" + this.errorsMode() + "). Unable to getErrors()");
+                return [];
+        }
+    }, this);
 
     static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
         const c = Eagle.cData[category];
@@ -5421,6 +5462,11 @@ export namespace Eagle
         expandedHeaderOffsetY: number,
         sortOrder: number
     };
+
+    export enum ErrorsMode {
+        Loading = "Loading",
+        Graph = "Graph"
+    }
 }
 
 

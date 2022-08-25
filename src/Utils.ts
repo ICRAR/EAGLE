@@ -296,6 +296,10 @@ export class Utils {
     }
 
     static dataTypePrefix(dataType: string): string {
+        if (typeof dataType === 'undefined'){
+            return Eagle.DataType_Unknown;
+        }
+
         return dataType.split(".")[0];
     }
 
@@ -449,7 +453,10 @@ export class Utils {
         }
     }
 
-    static showErrorsModal(title: string, errors: Errors.Issue[], warnings: Errors.Issue[]){
+    static showErrorsModal(title: string, eagle: Eagle){
+        const errors: Errors.Issue[] = eagle.getErrors();
+        const warnings: Errors.Issue[] = eagle.getWarnings();
+
         console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
 
         $('#errorsModalTitle').text(title);
