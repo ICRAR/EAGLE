@@ -258,6 +258,22 @@ export class Field {
         Eagle.parameterTableSelectionReadonly(readOnlyState);
     }
 
+    getHtmlInputType = () : string => {
+        const typePrefix = Utils.dataTypePrefix(this.type());
+
+        switch (typePrefix){
+            case Eagle.DataType_Float:
+            case Eagle.DataType_Integer:
+                return "number";
+            case Eagle.DataType_Boolean:
+                return "checkbox";
+            case Eagle.DataType_Password:
+                return "password";
+            default:
+                return "text";
+        }
+    }
+
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
     static stringAsType = (value: string, type: string) : any => {

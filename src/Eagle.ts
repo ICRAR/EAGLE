@@ -2734,23 +2734,6 @@ export class Eagle {
         return null;
     }
 
-    // TODO: maybe move to Field.ts
-    // TODO: add comments
-    // TODO: a "get" function probably should not alter state
-    getFieldType = (type:string, id:string, value:string) : string => {
-        const typePrefix = Utils.dataTypePrefix(type);
-
-        if (typePrefix === Eagle.DataType_Float || typePrefix === Eagle.DataType_Integer){
-            return "number"
-        }else if(type === Eagle.DataType_Boolean){
-            return "checkbox"
-        }else if(type === Eagle.DataType_Password){
-            return "password";
-        }else{
-            return "text"
-        }
-    }
-
     static resetParamsTableSelection = ():void => {
         Eagle.parameterTableSelectionParentIndex(-1);
         Eagle.parameterTableSelection(null);
