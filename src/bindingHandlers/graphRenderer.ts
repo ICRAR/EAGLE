@@ -12,6 +12,7 @@ import {Field} from '../Field';
 import {Utils} from '../Utils';
 import {Errors} from '../Errors';
 import {Category} from '../Category';
+import {CategoryData} from '../CategoryData';
 
 ko.bindingHandlers.graphRenderer = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -1864,9 +1865,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function getHeaderBackgroundDisplay(node : Node) : string {
         // don't show header background for comment, description and ExclusiveForceNode nodes
         if (node.getCategory() === Category.Comment ||
-            node.getCategory() === Eagle.Category.Description ||
-            node.getCategory() === Eagle.Category.ExclusiveForceNode ||
-            node.getCategory() === Eagle.Category.Branch) {
+            node.getCategory() === Category.Description ||
+            node.getCategory() === Category.ExclusiveForceNode ||
+            node.getCategory() === Category.Branch) {
             return "none";
         }
 
@@ -1892,7 +1893,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeaderDisplay(node : Node) : string {
         // don't show header background for comment and description nodes
-        if (node.getCategory() === Eagle.Category.Comment || node.getCategory() === Eagle.Category.Description){
+        if (node.getCategory() === Category.Comment || node.getCategory() === Category.Description){
             return "none";
         } else {
             return "inline";
@@ -1923,11 +1924,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return Node.GROUP_COLLAPSED_HEIGHT / 2;
         }
 
-
         if (!node.isCollapsed() || node.isPeek()){
-            return Eagle.getCategoryData(node.getCategory()).expandedHeaderOffsetY;
+            return CategoryData.getCategoryData(node.getCategory()).expandedHeaderOffsetY;
         } else {
-            return Eagle.getCategoryData(node.getCategory()).collapsedHeaderOffsetY;
+            return CategoryData.getCategoryData(node.getCategory()).collapsedHeaderOffsetY;
         }
     }
 
@@ -1939,7 +1939,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return "black";
         }
 
-        if (node.getCategory() === Eagle.Category.ExclusiveForceNode){
+        if (node.getCategory() === Category.ExclusiveForceNode){
             return "black";
         }
 
@@ -2519,15 +2519,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getContentDisplay(node : Node) : string {
         // only show content for comment and description nodes
-        if ((node.getCategory() === Eagle.Category.Comment || node.getCategory() === Eagle.Category.Description) && (!node.isCollapsed() || node.isPeek())){
+        if ((node.getCategory() === Category.Comment || node.getCategory() === Category.Description) && (!node.isCollapsed() || node.isPeek())){
             return "inline";
         } else {
             return "none";
         }
-    }
-
-    function nodeGetIcon(node : Node) : string {
-        return node.getIcon();
     }
 
     function getIconDisplay(node : Node) : string {
@@ -2550,7 +2546,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // no fill color for "ExclusiveForceNode" nodes
-        if (node.getCategory() === Eagle.Category.ExclusiveForceNode){
+        if (node.getCategory() === Category.ExclusiveForceNode){
             return "white";
         }
 
@@ -2570,7 +2566,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function nodeGetStrokeDashArray(node: Node) : string {
-        if (node.getCategory() === Eagle.Category.ExclusiveForceNode){
+        if (node.getCategory() === Category.ExclusiveForceNode){
             return "8";
         }
         return "";
@@ -3135,7 +3131,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function createCommentLink(node : Node){
         // abort if node is not comment
-        if (node.getCategory() !== Eagle.Category.Comment){
+        if (node.getCategory() !== Category.Comment){
             return "";
         }
 
@@ -3192,7 +3188,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getCommentLinkDisplay(node : Node) : string {
-        if (node.getCategory() !== Eagle.Category.Comment){
+        if (node.getCategory() !== Category.Comment){
             return "none";
         }
 
@@ -3379,7 +3375,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getNodeCustomShapePoints(node: Node): string {
         switch(node.getCategory()){
-            case Eagle.Category.Branch:
+            case Category.Branch:
                 let half_width = 200 / 2;
                 let half_height = 100 / 2;
                 let offsetX = 0;
@@ -3488,7 +3484,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
-        let result: Node[] = [];
+        const result: Node[] = [];
 
         for (let i = 0; i < nodeData.length; i++){
             // skip the source node
@@ -3604,17 +3600,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
     function DISPLAY_TO_REAL_SCALE(n: number) : number {
         return n / eagle.globalScale;
-    }
-
-    function printDrawOrder(ns : Node[]) : string {
-        let s : string = "";
-
-        // loop through all nodes, if they belong to the parent's group, move them too
-        for (const node of ns){
-            s += node.getKey() + ', ';
-        }
-
-        return s;
     }
 
     function getWrapWidth(node: Node) {
