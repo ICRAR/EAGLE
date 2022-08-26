@@ -4,6 +4,7 @@
         "sourceMap": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
         "module": "umd",
         "moduleResolution": "node",
         "target": "es5",

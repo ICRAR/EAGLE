@@ -47,6 +47,11 @@ export class Modals {
         });
         $('#inputTextModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, userString : string) => void = $('#inputTextModal').data('callback');
+
+            if (callback === null){
+                // TODO: don't call the callback!
+            }
+
             callback($('#inputTextModal').data('completed'), $('#inputTextModalInput').val().toString());
         });
         $('#inputTextModal').on('shown.bs.modal', function(){

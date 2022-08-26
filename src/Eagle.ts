@@ -26,11 +26,9 @@
 
 import * as ko from "knockout";
 import * as ij from "intro.js";
-import * as bootstrap from 'bootstrap';
 
 
 import {Utils} from './Utils';
-import {Modals} from './Modals'
 import {Config} from './Config';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
@@ -264,15 +262,14 @@ export class Eagle {
         }, this)
 
         this.rightWindow().mode.subscribe(function(){
-            var that:Eagle = this
+            const that:Eagle = this
 
-            var x = function() {
+            window.setTimeout(function(){
                 if(that.rightWindow().mode() === Eagle.RightWindowMode.Hierarchy){
                     that.updateHierarchyDisplay()
                 }
-            }
-            window.setTimeout(x,500)
-        },this)
+            }, 500)
+        }, this)
     }
 
     updateHierarchyDisplay = () : void => {
@@ -290,21 +287,21 @@ export class Eagle {
         })
 
         //this part of the function flags edges that are selected or directly connected to the selected object
-        var that = this
-        var count=0
-        var hierarchyEdgesList : {edge:Edge, use:string, edgeSelected:boolean}[] = []
+        const that = this
+        let count: number = 0
+        const hierarchyEdgesList : {edge:Edge, use:string, edgeSelected:boolean}[] = []
         //loop over selected objects
         this.selectedObjects().forEach(function(element:any){
             //ignore palette selections
             if(Eagle.selectedLocation() === "Palette"){return}
             count++
 
-            var elementsToProcess = [element]
+            const elementsToProcess = [element]
 
             elementsToProcess.forEach(function(element){
                 //for selected nodes we must find the related egdes to draw
                 if (element instanceof Node){
-                    var key = element.getKey()
+                    const key = element.getKey()
 
                     that.logicalGraph().getEdges().forEach(function(e:Edge){
                         if(e.getDestNodeKey() === key){
@@ -335,7 +332,7 @@ export class Eagle {
     }
 
     addUniqueHierarchyEdge = (edge:Edge, use:string, hierarchyEdgeList:{edge:Edge , use:string, edgeSelected:boolean}[],edgeSelected:boolean) : void => {
-        var unique = true
+        let unique = true
         hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
             if(e.edge.getId()===edge.getId()){
                 unique = false
@@ -417,48 +414,38 @@ export class Eagle {
     }
 
     drawHierarchyEdge = (edge:Edge, use:string, edgeSelected:boolean) : void =>{
+        const srcKey = edge.getSrcNodeKey()
+        const destKey = edge.getDestNodeKey()
+        //const srcEmbedKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
+        //const destEmbedKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
 
-        var srcKey
-        var destKey
-        var srcEmbedKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
-        var destEmbedKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
+        const srcNodePos = $('.hierarchyNode#'+ srcKey)[0].getBoundingClientRect()
+        const destNodePos = $('.hierarchyNode#'+ destKey)[0].getBoundingClientRect()
+        const parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
+        const parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
 
-        srcKey = edge.getSrcNodeKey()
-        destKey = edge.getDestNodeKey()
+        // determine colour of edge
+        const colour: string = edgeSelected ? Config.HIERARCHY_EDGE_SELECTED_COLOR : Config.HIERARCHY_EDGE_DEFAULT_COLOR;
 
-        var srcNodePos = $('.hierarchyNode#'+ srcKey)[0].getBoundingClientRect()
-        var destNodePos = $('.hierarchyNode#'+ destKey)[0].getBoundingClientRect()
-        var parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
-        var parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
-
-        var selectedColour = "rgb(47 22 213)"
-        var defaultColour = "black"
-        var colour
-
-        if(edgeSelected){
-            colour = selectedColour
-        }else{
-            colour = defaultColour
-        }
-
+        let p1x, p1y, p2x, p2y, arrowX, mpx;
         if(use==="input"){
-            var p1x = (srcNodePos.left - parentPos.left)-1
-            var p1y = ((srcNodePos.top - parentPos.top)+8)+parentScrollOffset
-            var p2x = (destNodePos.left - parentPos.left)-15
-            var p2y = ((destNodePos.top - parentPos.top)+8)+parentScrollOffset
-            var arrowX = (destNodePos.left - parentPos.left)-17
-            var mpx = parentPos.left-srcNodePos.left-10
+            p1x = (srcNodePos.left - parentPos.left)-1
+            p1y = ((srcNodePos.top - parentPos.top)+8)+parentScrollOffset
+            p2x = (destNodePos.left - parentPos.left)-15
+            p2y = ((destNodePos.top - parentPos.top)+8)+parentScrollOffset
+            arrowX = (destNodePos.left - parentPos.left)-17
+            mpx = parentPos.left-srcNodePos.left-10
 
             //append arrows
             $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
 
         }else if(use==="output"){
-            var p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+29
-            var p1y = ((srcNodePos.top - parentPos.top)+9)+parentScrollOffset
-            var p2x = ($('#nodeList .col').width() - (parentPos.right-destNodePos.right))+39
-            var p2y = ((destNodePos.top - parentPos.top)+9)+parentScrollOffset
-            var arrowX = (parentPos.right-destNodePos.right) - 20
-            var mpx = parentPos.right-srcNodePos.right+10
+            p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+29
+            p1y = ((srcNodePos.top - parentPos.top)+9)+parentScrollOffset
+            p2x = ($('#nodeList .col').width() - (parentPos.right-destNodePos.right))+39
+            p2y = ((destNodePos.top - parentPos.top)+9)+parentScrollOffset
+            arrowX = (parentPos.right-destNodePos.right) - 20
+            mpx = parentPos.right-srcNodePos.right+10
 
             //append arrows
             $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:1001;top:'+p2y+'px;right:'+arrowX+'px;transform:rotate(-90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(40%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
@@ -471,7 +458,7 @@ export class Eagle {
         p2y = p2y+9
 
         // mid-point of line:
-        var mpy
+        let mpy
 
         if(p1y > p2y){
             mpy = -((p1y - p2y)/2)
@@ -480,13 +467,13 @@ export class Eagle {
         }
 
         // construct the command to draw a quadratic curve
-        var positions = "M " + p1x + " " + p1y + " q " + mpx + " " + mpy + " " + (p2x - p1x) + " " + (p2y - p1y);
+        const positions = "M " + p1x + " " + p1y + " q " + mpx + " " + mpy + " " + (p2x - p1x) + " " + (p2y - p1y);
 
         // variable for the namespace
         const svgns = "http://www.w3.org/2000/svg";
 
         // make a simple rectangle
-        let curve = document.createElementNS(svgns, "path");
+        const curve = document.createElementNS(svgns, "path");
 
         curve.setAttribute("d", positions);
         curve.setAttribute("stroke", colour);
@@ -495,7 +482,7 @@ export class Eagle {
         curve.setAttribute("class", "hierarchyEdge");
 
         //curve extras as click targets, invisible thicker stroke
-        let curveExtra = document.createElementNS(svgns, "path");
+        const curveExtra = document.createElementNS(svgns, "path");
 
         curveExtra.setAttribute("d", positions);
         curveExtra.setAttribute("stroke", "transparent");
@@ -696,9 +683,8 @@ export class Eagle {
     }
 
     getSelectedText = () : string => {
-        var text
-        var nodeCount = 0
-        var edgeCount = 0
+        let nodeCount = 0
+        let edgeCount = 0
         this.selectedObjects().forEach(function(element){
             if(element instanceof Node){
                 nodeCount++
@@ -707,17 +693,15 @@ export class Eagle {
             }
         })
 
-        text =  nodeCount + " nodes and " + edgeCount + " edges."
+        const text =  nodeCount + " nodes and " + edgeCount + " edges."
 
         return text
     }
 
     getTotalText = () : string => {
-        var text
-        var nodeCount = this.logicalGraph().getNodes().length
-        var edgeCount = this.logicalGraph().getEdges().length
-
-        text =  nodeCount + " nodes and " + edgeCount + " edges."
+        const nodeCount = this.logicalGraph().getNodes().length
+        const edgeCount = this.logicalGraph().getEdges().length
+        const text =  nodeCount + " nodes and " + edgeCount + " edges."
 
         return text
     }
@@ -1097,8 +1081,8 @@ export class Eagle {
     }
 
     tableInspectorUpdateSelection = (value:string) : void => {
-        var selected = Eagle.parameterTableSelectionName()
-        var selectedForm = Eagle.parameterTableSelectionParent()
+        const selected = Eagle.parameterTableSelectionName()
+        const selectedForm = Eagle.parameterTableSelectionParent()
         if(selected === 'displayText'){
             selectedForm.setDisplayText(value)
         } else if(selected === 'idText'){
@@ -1293,7 +1277,7 @@ export class Eagle {
             }
 
             // check if parent of original node was also mapped to a new node
-            let mappedParent: Node = keyMap.get(node.getParentKey());
+            const mappedParent: Node = keyMap.get(node.getParentKey());
 
             // make sure parent is set correctly
             // if no mapping is available for the parent, then use the original parent as the parent for the new node
@@ -1441,7 +1425,7 @@ export class Eagle {
 
         const jsonString: string = JSON.stringify(LogicalGraph.toOJSJson(cloneLG, false), null, 4);
 
-        Utils.requestUserText("Export Graph to JSON", "", jsonString, (completed: boolean, userText: string): void => {});
+        Utils.requestUserText("Export Graph to JSON", "", jsonString, null);
     }
 
 
@@ -2386,7 +2370,7 @@ export class Eagle {
             return ""
         }
 
-        var parentText = this.logicalGraph().findNodeByKey(parentKey).getName() + ' | Key: ' + parentKey;
+        const parentText = this.logicalGraph().findNodeByKey(parentKey).getName() + ' | Key: ' + parentKey;
 
         return parentText
     }
@@ -2814,8 +2798,8 @@ export class Eagle {
         // determine the list of all types in this graph and palettes
         const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
 
-        for (let dataType of allTypes){
-            var selected=""
+        for (const dataType of allTypes){
+            let selected=""
             if(type === dataType){
                 selected = "selected=true"
             }
@@ -2848,14 +2832,14 @@ export class Eagle {
     }
 
     getShortcutDisplay = () : {description:string, shortcut : string}[] => {
-        var displayShorcuts : {description:string, shortcut : string} []=[];
+        const displayShorcuts : {description:string, shortcut : string} []=[];
 
         for (const object of Eagle.shortcuts()){
             if (object.display === KeyboardShortcut.Display.Disabled){
                 continue;
             }
 
-            var shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
+            const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
             displayShorcuts.push({description: object.name, shortcut: shortcut});
         }
 
@@ -2940,7 +2924,7 @@ export class Eagle {
     }
 
     isHierarchyNodeSelected = (selectState:boolean) : string => {
-        var className : string = ""
+        let className : string = ""
         if(selectState){
             className = "hierarchyNodeIsSelected"
         }else{
@@ -2951,7 +2935,7 @@ export class Eagle {
     }
 
     isHierarchyApplicationSelected = (selectState:boolean) : string => {
-        var className : string = ""
+        let className : string = ""
         if(selectState){
             className = "hierarchyApplicationIsSelected"
         }
@@ -3219,7 +3203,7 @@ export class Eagle {
     }
 
     private _findChildren = (parent : Node) : Node[] => {
-        let children: Node[] = [];
+        const children: Node[] = [];
 
         for(const node of this.logicalGraph().getNodes()){
             if (node.getParentKey() === parent.getKey()){
@@ -3588,7 +3572,7 @@ export class Eagle {
     }
 
     getInspectorHeadingTooltip = (title:string, category:any, description:any) : string => {
-        var tooltipText = "<h5>"+title+":</h5>"+category+"<br>"+description;
+        const tooltipText = "<h5>"+title+":</h5>"+category+"<br>"+description;
         return tooltipText;
     }
 
@@ -3607,7 +3591,7 @@ export class Eagle {
     }
 
     addEmptyTableRow = () : void => {
-        var fieldIndex:number
+        let fieldIndex:number
 
         if(Eagle.parameterTableSelectionParentIndex() != -1){
             // A cell in the table is selected well insert new row instead of adding at the end
@@ -3623,7 +3607,7 @@ export class Eagle {
         //a timeout was necessary to wait for the element to be added before counting how many there are
         setTimeout(function() {
             //handling selecting and highlighting the newly created row
-            let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+            const clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
 
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
 
@@ -3691,7 +3675,7 @@ export class Eagle {
         let selectedChoiceIndex = 0;
 
         //this is needed for the selected choice index as the index of the function will not work because many entries a skipped, the selected choice index was generally higher than the amount of legitimate choices available
-        var validChoiceIndex = 0
+        let validChoiceIndex = 0
 
         // build list of nodes that are candidates to be the parent
         for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
@@ -3892,9 +3876,9 @@ export class Eagle {
         }
 
         // remember port id
-        let portId = fieldId
+        const portId = fieldId
         //doing this so this function will work both in context of being in a port only loop as well as a fields loop
-        let portIndex = node.findPortIndexById(portId)
+        const portIndex = node.findPortIndexById(portId)
 
         console.log("Found portId to remove:", portId);
 
@@ -4589,7 +4573,7 @@ export class Eagle {
     };
 
     duplicateParameter = (index:number) :void => {
-        var fieldIndex:number //variable holds the index of which row to highlight after creation
+        let fieldIndex:number //variable holds the index of which row to highlight after creation
         if(Eagle.parameterTableSelectionParentIndex() != -1){
             //if a cell in the table is selected in this case the new node will be placed below the currently selected node
             fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
@@ -4602,7 +4586,7 @@ export class Eagle {
 
         setTimeout(function() {
             //handling selecting and highlighting the newly created node
-            let clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+            const clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
             $("#parameterTableModal .modal-content").animate({
                 scrollTop: (fieldIndex*30)
@@ -4615,7 +4599,7 @@ export class Eagle {
             return;
         }
 
-        var newState = !data.isSelected()
+        const newState = !data.isSelected()
         data.isSelected(newState)
 
         if (typeof event === "undefined"){
