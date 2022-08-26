@@ -28,6 +28,7 @@ import * as ko from "knockout";
 
 import {Config} from './Config';
 import {Category} from './Category';
+import {CategoryData} from "./CategoryData";
 
 import {Eagle} from './Eagle';
 import {Palette} from './Palette';
@@ -304,7 +305,7 @@ export class Utils {
     }
 
     static translateStringToDataType(dataType: string): string {
-        for (let dt of Eagle.DataTypes){
+        for (const dt of Eagle.DataTypes){
             if (dt.toLowerCase() === dataType.toLowerCase()){
                 return dt;
             }
@@ -315,7 +316,7 @@ export class Utils {
     }
 
     static translateStringToFieldType(fieldType: string): Eagle.FieldType {
-        for (let ft of Object.values(Eagle.FieldType)){
+        for (const ft of Object.values(Eagle.FieldType)){
             if (ft.toLowerCase() === fieldType.toLowerCase()){
                 return ft;
             }
@@ -719,7 +720,7 @@ export class Utils {
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalValueInputSelect').empty();
-        for (let option of field.getOptions()){
+        for (const option of field.getOptions()){
             $('#editFieldModalValueInputSelect').append($('<option>', {
                 value: option,
                 text: option,
@@ -730,7 +731,7 @@ export class Utils {
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
         $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Eagle.DataType_Boolean));
         $('#editFieldModalDefaultValueInputSelect').empty();
-        for (let option of field.getOptions()){
+        for (const option of field.getOptions()){
             $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
                 value: option,
                 text: option,
@@ -771,7 +772,7 @@ export class Utils {
 
         // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();
-        for (let dataType of allTypes){
+        for (const dataType of allTypes){
             const li = $('<li></li>');
             const a = $('<a class="dropdown-item" href="#">' + dataType + '</a>');
 
@@ -788,7 +789,7 @@ export class Utils {
 
         // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
         $('#editFieldModalFieldTypeSelect').empty();
-        for (let ft of [Eagle.FieldType.ComponentParameter, Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
+        for (const ft of [Eagle.FieldType.ComponentParameter, Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
             $('#editFieldModalFieldTypeSelect').append(
                 $('<option>', {
                     value: ft,
@@ -1170,7 +1171,7 @@ export class Utils {
         return uniquePorts;
     }
 
-    static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Eagle.Category[]) : Node[] {
+    static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Category[]) : Node[] {
         console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
 
         const result: Node[] = [];
@@ -1202,7 +1203,7 @@ export class Utils {
         return result;
     }
 
-    static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: CategoryType.Type, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
+    static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
         console.log("getDataComponentsWithInputsAndOutputs");
 
         const result: Node[] = [];
@@ -1211,17 +1212,17 @@ export class Utils {
         for (const palette of palettes){
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
-                if (categoryType === CategoryType.Type.Data && !node.isData()){
+                if (categoryType === Category.Type.Data && !node.isData()){
                     continue;
                 }
 
                 // skip nodes that are not application components
-                if (categoryType === CategoryType.Type.Application && !node.isApplication()){
+                if (categoryType === Category.Type.Application && !node.isApplication()){
                     continue;
                 }
 
                 // skip nodes that are not construct components
-                if (categoryType === CategoryType.Type.Construct && !node.isConstruct()){
+                if (categoryType === Category.Type.Construct && !node.isConstruct()){
                     continue;
                 }
 
@@ -1242,16 +1243,15 @@ export class Utils {
         return result;
     }
 
-    static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: CategoryType.Type, numRequiredInputs: number, numRequiredOutputs: number) : Eagle.Category[] {
+    static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
         console.log("getDataComponentsWithInputsAndOutputs");
 
-        const result: Eagle.Category[] = [];
+        const result: Category[] = [];
 
         // loop through all categories
-        for (const category in Eagle.cData){
+        for (const category in CategoryData.cData){
             // get category data
-            const categoryData = Eagle.getCategoryData(<Eagle.Category>category);
-
+            const categoryData = CategoryData.getCategoryData(<Category>category);
 
             if (categoryData.categoryType === categoryType){
                 continue;
@@ -1267,7 +1267,7 @@ export class Utils {
                 continue;
             }
 
-            result.push(<Eagle.Category>category);
+            result.push(<Category>category);
         }
 
         return result;
@@ -1280,7 +1280,7 @@ export class Utils {
         for (const palette of palettes){
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
-                if (node.getName() === Eagle.Category.Memory){
+                if (node.getName() === Category.Memory){
                     return node;
                 }
             }
@@ -1343,11 +1343,11 @@ export class Utils {
     }
 
     static isKnownCategory(category : string) : boolean {
-        return typeof Eagle.cData[category] !== 'undefined';
+        return typeof CategoryData.cData[category] !== 'undefined';
     }
 
-    static getColorForNode(category : Eagle.Category) : string {
-        return Eagle.getCategoryData(category).color;
+    static getColorForNode(category : Category) : string {
+        return CategoryData.getCategoryData(category).color;
     }
 
     static saveAsPNG(selector: string, filename: string) : void {
@@ -1439,13 +1439,13 @@ export class Utils {
         return repositoryName+"|"+repositoryBranch;
     }
 
-    static buildComponentList(filter: (cData: Eagle.CategoryData) => boolean) : Eagle.Category[] {
-        const result : Eagle.Category[] = [];
+    static buildComponentList(filter: (cData: CategoryData) => boolean) : Category[] {
+        const result : Category[] = [];
 
-        for (const category in Eagle.cData){
-            const cData = Eagle.getCategoryData(<Eagle.Category>category);
+        for (const category in CategoryData.cData){
+            const cData = CategoryData.getCategoryData(<Category>category);
             if (filter(cData)){
-                result.push(<Eagle.Category>category);
+                result.push(<Category>category);
             }
         }
 
@@ -1715,7 +1715,7 @@ export class Utils {
     static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
         for (const shortcut of Eagle.shortcuts()){
             if (shortcut.key === key){
-                let ks = [];
+                const ks = [];
                 for (const k of shortcut.keys){
                     if (shortcut.modifier === KeyboardShortcut.Modifier.None){
                         //some processing of the return
@@ -1743,7 +1743,7 @@ export class Utils {
     }
 
     static markdown2html(markdown: string) : string {
-        var converter = new Showdown.Converter();
+        const converter = new Showdown.Converter();
         return converter.makeHtml(markdown);
     }
 
@@ -1783,7 +1783,7 @@ export class Utils {
         }
     }
 
-    static fixNodeCategory(eagle: Eagle, node: Node, category: Eagle.Category){
+    static fixNodeCategory(eagle: Eagle, node: Node, category: Category){
         node.setCategory(category);
     }
 
