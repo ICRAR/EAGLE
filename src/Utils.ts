@@ -27,7 +27,7 @@ import * as Showdown from "showdown";
 import * as ko from "knockout";
 
 import {Config} from './Config';
-import {CategoryType} from './CategoryType';
+import {Category} from './Category';
 
 import {Eagle} from './Eagle';
 import {Palette} from './Palette';

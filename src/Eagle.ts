@@ -37,6 +37,7 @@ import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
 import {Translator} from './Translator';
 import {Category} from './Category';
+import {CategoryData} from './CategoryData';
 
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
@@ -1137,8 +1138,8 @@ export class Eagle {
     createConstructFromSelection = () : void => {
         console.log("createConstructFromSelection()");
 
-        const constructs : string[] = Utils.buildComponentList((cData: Eagle.CategoryData) => {
-            return cData.categoryType === CategoryType.Type.Construct;
+        const constructs : string[] = Utils.buildComponentList((cData: Category.CategoryData) => {
+            return cData.categoryType === Category.Type.Construct;
         });
 
         // ask the user what type of construct to use
@@ -1151,7 +1152,7 @@ export class Eagle {
             const userChoice: string = constructs[userChoiceIndex];
 
             // create new subgraph
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Eagle.Category>userChoice);
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Category>userChoice);
 
             // add the parent node to the logical graph
             this.logicalGraph().addNodeComplete(parentNode);
@@ -1387,9 +1388,9 @@ export class Eagle {
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
-            const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description);
+            const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Category.Description);
             const pos = this.getNewNodePosition(node.getDisplayWidth(), node.getDisplayHeight());
-            node.setColor(Utils.getColorForNode(Eagle.Category.Description));
+            node.setColor(Utils.getColorForNode(Category.Description));
             this.addNode(node, pos.x, pos.y, null);
             this.checkGraph();
             this.undo().pushSnapshot(this, "New Logical Graph");
@@ -2223,7 +2224,7 @@ export class Eagle {
             }
 
             // create parent node
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph);
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
@@ -3226,7 +3227,7 @@ export class Eagle {
         let pos : {x:number, y:number};
 
         // if node is a construct, set width and height a little larger
-        if (Eagle.getCategoryData(node.getCategory()).canContainComponents){
+        if (CategoryData.getCategoryData(node.getCategory()).canContainComponents){
             node.setWidth(Node.GROUP_DEFAULT_WIDTH);
             node.setHeight(Node.GROUP_DEFAULT_HEIGHT);
         }
@@ -3700,7 +3701,7 @@ export class Eagle {
             }
 
             // comment and description nodes can't be the subject of comment nodes
-            if (node.getCategory() === Eagle.Category.Comment || node.getCategory() === Eagle.Category.Description){
+            if (node.getCategory() === Category.Comment || node.getCategory() === Category.Description){
                 continue;
             }
 
@@ -4122,11 +4123,11 @@ export class Eagle {
     printCategories = () : void => {
         const tableData : any[] = [];
 
-        for (const category in Eagle.cData){
-            const cData = Eagle.getCategoryData(<Eagle.Category>category);
+        for (const category in CategoryData.cData){
+            const cData = CategoryData.getCategoryData(<Category>category);
 
             tableData.push({
-                category: <Eagle.Category>category,
+                category: <Category>category,
                 categoryType: cData.categoryType,
             });
 
@@ -4856,9 +4857,9 @@ export class Eagle {
         };
 
         // if destination node is a BashShellApp, then the inserted data component may not be a Memory
-        const ineligibleCategories : Eagle.Category[] = [];
-        if (destNode.getCategory() === Eagle.Category.BashShellApp){
-            ineligibleCategories.push(Eagle.Category.Memory);
+        const ineligibleCategories : Category[] = [];
+        if (destNode.getCategory() === Category.BashShellApp){
+            ineligibleCategories.push(Category.Memory);
         }
 
         const memoryComponent = Utils.getDataComponentMemory(this.palettes());
@@ -4922,17 +4923,17 @@ export class Eagle {
 
     editNodeCategory = (eagle: Eagle) : void => {
         let selectedIndex = 0;
-        let eligibleCategories : Eagle.Category[];
+        let eligibleCategories : Category[];
 
         if (this.selectedNode().isData()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), CategoryType.Type.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         } else if (this.selectedNode().isApplication()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), CategoryType.Type.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         } else if (this.selectedNode().isConstruct()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), CategoryType.Type.Construct, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Construct, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         } else {
             console.warn("Not sure which other nodes are suitable for change, show user all");
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), CategoryType.Type.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         }
 
         // set selectedIndex to the index of the current category within the eligibleCategories list
@@ -4956,7 +4957,7 @@ export class Eagle {
             // for example, the node may contain ports, but no ports are allowed
 
             // get category data
-            const categoryData = Eagle.getCategoryData(eligibleCategories[userChoiceIndex]);
+            const categoryData = CategoryData.getCategoryData(eligibleCategories[userChoiceIndex]);
 
             // delete parameters, if necessary
             if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){
@@ -5034,12 +5035,12 @@ export class Eagle {
         newNode.setEmbedKey(null);
 
         // convert start of end nodes to data components
-        if (newNode.getCategory() === Eagle.Category.Start) {
+        if (newNode.getCategory() === Category.Start) {
             // Store the node's location.
             const nodePosition = newNode.getPosition();
 
             // build a list of ineligible types
-            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), [Eagle.Category.Memory, Eagle.Category.SharedMemory]);
+            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), [Category.Memory, Category.SharedMemory]);
 
             // ask the user which data type should be added
             this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
