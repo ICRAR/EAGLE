@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
+import {Errors} from './Errors';
 
 export class FileInfo {
     private _name : ko.Observable<string>;
@@ -346,7 +347,7 @@ export class FileInfo {
 
     // TODO: use errors array if attributes cannot be found
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    static fromOJSJson = (modelData : any, errorsWarnings: Eagle.ErrorsWarnings) : FileInfo => {
+    static fromOJSJson = (modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo => {
         const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
@@ -372,7 +373,7 @@ export class FileInfo {
         // check that lastModifiedDatetime is a Number, if not correct
         if (typeof result.lastModifiedDatetime !== 'number'){
             result.lastModifiedDatetime = 0;
-            errorsWarnings.errors.push("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value.");
+            errorsWarnings.errors.push(Errors.Message("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value."));
         }
 
         result.numLGNodes = modelData.numLGNodes == undefined ? 0 : modelData.numLGNodes;

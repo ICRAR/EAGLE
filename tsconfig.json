@@ -21,6 +21,7 @@
         "./src/components.ts",
         "./src/main.ts",
         "./src/Config.ts",
+        "./src/CategoryType.ts",
         "./src/Eagle.ts",
         "./src/GitHub.ts",
         "./src/GitLab.ts",
@@ -42,6 +43,7 @@
         "./src/KeyboardShortcut.ts",
         "./src/PaletteInfo.ts",
         "./src/ExplorePalettes.ts",
-        "./src/Undo.ts"
+        "./src/Undo.ts",
+        "./src/Errors.ts"
     ]
 }

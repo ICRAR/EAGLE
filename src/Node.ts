@@ -28,6 +28,8 @@ import {Utils} from './Utils';
 import {GraphUpdater} from './GraphUpdater';
 import {Eagle} from './Eagle';
 import {Field} from './Field';
+import {Errors} from './Errors';
+import {CategoryType} from './CategoryType';
 
 export class Node {
     private _id : string
@@ -59,6 +61,7 @@ export class Node {
     private fields : ko.ObservableArray<Field>;
 
     private category : ko.Observable<Eagle.Category>;
+    private categoryType : ko.Observable<CategoryType.Type>;
 
     private subject : ko.Observable<number>;       // the key of another node that is the subject of this node. used by comment nodes only.
 
@@ -113,6 +116,7 @@ export class Node {
         this.fields = ko.observableArray([]);
 
         this.category = ko.observable(category);
+        this.categoryType = ko.observable(CategoryType.Type.Unknown);
 
         this.subject = ko.observable(null);
 
@@ -476,16 +480,20 @@ export class Node {
         this.color(Utils.getColorForNode(category));
     }
 
-    isData = () : boolean => {
-        return Eagle.getCategoryData(this.category()).isData;
+    getCategoryType = () : CategoryType.Type => {
+        return this.categoryType();
     }
 
-    isGroup = () : boolean => {
-        return Eagle.getCategoryData(this.category()).isGroup;
+    isData = () : boolean => {
+        return this.categoryType() === CategoryType.Type.Data;
+    }
+
+    isConstruct = () : boolean => {
+        return this.categoryType() === CategoryType.Type.Construct;
     }
 
     isApplication = () : boolean => {
-        return Eagle.getCategoryData(this.category()).isApplication;
+        return this.categoryType() === CategoryType.Type.Application;
     }
 
     isScatter = () : boolean => {
@@ -514,6 +522,10 @@ export class Node {
 
     isResizable = () : boolean => {
         return Eagle.getCategoryData(this.category()).isResizable;
+    }
+
+    isGroup = () : boolean => {
+        return Eagle.getCategoryData(this.category()).canContainComponents;
     }
 
     canHaveInputs = () : boolean => {
@@ -656,6 +668,7 @@ export class Node {
         this.fields([]);
 
         this.category(Eagle.Category.Unknown);
+        this.categoryType(CategoryType.Type.Unknown);
 
         this.subject(null);
 
@@ -1033,6 +1046,7 @@ export class Node {
         result.y = this.y;
         result.width = this.width;
         result.height = this.height;
+        result.categoryType(this.categoryType());
         result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
 
@@ -1068,6 +1082,14 @@ export class Node {
 
         result.gitUrl(this.gitUrl());
         result.gitHash(this.gitHash());
+
+        return result;
+    }
+
+    getErrorsWarnings = (eagle: Eagle): Errors.ErrorsWarnings => {
+        const result: {warnings: Errors.Issue[], errors: Errors.Issue[]} = {warnings: [], errors: []};
+
+        Node.isValid(eagle, this, Eagle.selectedLocation(), false, false, result);
 
         return result;
     }
@@ -1256,12 +1278,12 @@ export class Node {
         return Eagle.getCategoryData(node.getCategory()).canHaveOutputApplication;
     }
 
-    static fromOJSJson = (nodeData : any, errorsWarnings: Eagle.ErrorsWarnings, generateKeyFunc: () => number) : Node => {
+    static fromOJSJson = (nodeData : any, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number) : Node => {
         let name = "";
         if (typeof nodeData.text !== 'undefined'){
             name = nodeData.text;
         } else {
-            errorsWarnings.errors.push("Node " + nodeData.key + " has undefined text " + nodeData + "!");
+            errorsWarnings.errors.push(Errors.Message("Node " + nodeData.key + " has undefined text " + nodeData + "!"));
         }
 
         let x = 0;
@@ -1294,7 +1316,7 @@ export class Node {
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            errorsWarnings.errors.push("Node with name " + name + " has unknown category: " + category);
+            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
             category = Eagle.Category.Unknown;
         }
 
@@ -1302,6 +1324,9 @@ export class Node {
 
         // set position
         node.setPosition(x, y);
+
+        // set categoryType based on the category
+        node.categoryType(Eagle.getCategoryData(category).categoryType);
 
         // get description (if exists)
         if (typeof nodeData.description !== 'undefined'){
@@ -1367,51 +1392,51 @@ export class Node {
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
         if (nodeData.inputAppName !== undefined && nodeData.inputAppName !== ""){
             if (!Eagle.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push("Attempt to add inputApplication to unsuitable node: " + category);
+                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (Eagle.getCategoryData(nodeData.inputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.inputApplicationType).categoryType === CategoryType.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputAppName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node.");
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node."));
                 }
             }
         }
 
         if (nodeData.inputApplicationName !== undefined && nodeData.inputApplicationType !== Eagle.Category.None){
             if (!Eagle.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push("Attempt to add inputApplication to unsuitable node: " + category);
+                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (Eagle.getCategoryData(nodeData.inputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.inputApplicationType).categoryType === CategoryType.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputApplicationName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node.");
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node."));
                 }
             }
         }
 
         if (nodeData.outputAppName !== undefined && nodeData.outputAppName !== ""){
             if (!Eagle.getCategoryData(category).canHaveOutputApplication){
-                errorsWarnings.errors.push("Attempt to add outputApplication to unsuitable node: " + category);
+                errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (Eagle.getCategoryData(nodeData.outputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.outputApplicationType).categoryType === CategoryType.Type.Application){
                     node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputAppName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node.");
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node."));
                 }
             }
         }
 
         if (nodeData.outputApplicationName !== undefined && nodeData.outputApplicationType !== Eagle.Category.None){
             if (!Eagle.getCategoryData(category).canHaveOutputApplication){
-                errorsWarnings.errors.push("Attempt to add outputApplication to unsuitable node: " + category);
+                errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                if (Eagle.getCategoryData(nodeData.outputApplicationType).isApplication){
+                if (Eagle.getCategoryData(nodeData.outputApplicationType).categoryType === CategoryType.Type.Application){
                     node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputApplicationName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node.");
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node."));
                 }
             }
         }
@@ -1428,15 +1453,15 @@ export class Node {
 
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
         if (nodeData.application !== undefined && nodeData.application !== ""){
-            errorsWarnings.errors.push("Only found old application type, not new input application type and output application type: " + category);
+            errorsWarnings.errors.push(Errors.Message("Only found old application type, not new input application type and output application type: " + category));
 
             if (!Eagle.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push("Attempt to add inputApplication to unsuitable node: " + category);
+                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
-                if (Eagle.getCategoryData(category).isApplication){
+                if (Eagle.getCategoryData(category).categoryType === CategoryType.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, "", node.getKey()));
                 } else {
-                    errorsWarnings.errors.push("Attempt to add inputApplication of unsuitable type: " + category + ", to node.");
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + category + ", to node."));
                 }
             }
         }
@@ -1444,7 +1469,7 @@ export class Node {
         // read the 'real' input and output apps, correctly specified as nested nodes
         if (typeof nodeData.inputApplication !== 'undefined' && nodeData.inputApplication !== null){
             if (!Eagle.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push("Attempt to add inputApplication to unsuitable node: " + category);
+                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, generateKeyFunc));
                 node.inputApplication().setEmbedKey(node.getKey());
@@ -1452,7 +1477,7 @@ export class Node {
         }
         if (typeof nodeData.outputApplication !== 'undefined' && nodeData.outputApplication !== null){
             if (!Eagle.getCategoryData(category).canHaveOutputApplication){
-                errorsWarnings.errors.push("Attempt to add outputApplication to unsuitable node: " + category);
+                errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, generateKeyFunc));
                 node.outputApplication().setEmbedKey(node.getKey());
@@ -1501,14 +1526,18 @@ export class Node {
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
                 const field = Field.fromOJSJson(fieldData);
-                field.setFieldType(Eagle.FieldType.ComponentParameter);
+
+                // if the field type is not specified, assume it is a ComponentParameter
+                if (field.getFieldType() === Eagle.FieldType.Unknown){
+                    field.setFieldType(Eagle.FieldType.ComponentParameter);
+                }
 
                 // we should support comment and description nodes, these need to use one component parameter, even though they don't officially support them
                 const isCommentOrDescriptionContentField : boolean = (category === Eagle.Category.Description || category === Eagle.Category.Comment) && field.getIdText() === "";
 
                 // check
                 if (!node.canHaveFieldType(field.getFieldType()) && !isCommentOrDescriptionContentField){
-                    errorsWarnings.warnings.push("Node '" + node.getName() + "' (category: " + category + ") should not have any " + field.getFieldType() + ". Removed " + field.getDisplayText());
+                    errorsWarnings.warnings.push(Errors.Message("Node '" + node.getName() + "' (category: " + category + ") should not have any " + field.getFieldType() + ". Removed " + field.getDisplayText()));
                     continue;
                 }
 
@@ -1524,7 +1553,7 @@ export class Node {
 
                 // check
                 if (!node.canHaveFieldType(field.getFieldType())){
-                    errorsWarnings.warnings.push("Node '" + node.getName() + "' (category: " + category + ") should not have any " + field.getFieldType() + ". Removed " + field.getDisplayText());
+                    errorsWarnings.warnings.push(Errors.Message("Node '" + node.getName() + "' (category: " + category + ") should not have any " + field.getFieldType() + ". Removed " + field.getDisplayText()));
                     continue;
                 }
 
@@ -1540,7 +1569,7 @@ export class Node {
                     field.setFieldType(Eagle.FieldType.ComponentParameter);
                     node.inputApplication().addField(field);
                 } else {
-                    errorsWarnings.errors.push("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application.");
+                    errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
                 }
             }
         }
@@ -1553,7 +1582,7 @@ export class Node {
                     field.setFieldType(Eagle.FieldType.ComponentParameter);
                     node.outputApplication().addField(field);
                 } else {
-                    errorsWarnings.errors.push("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application.");
+                    errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
                 }
             }
         }
@@ -1595,7 +1624,7 @@ export class Node {
 
                     node.inputApplication().addField(port);
                 } else {
-                    errorsWarnings.errors.push("Can't add inputLocal port " + inputLocalPort.IdText + " to node " + node.getName() + ". No input application.");
+                    errorsWarnings.errors.push(Errors.Message("Can't add inputLocal port " + inputLocalPort.IdText + " to node " + node.getName() + ". No input application."));
                 }
             }
         }
@@ -1609,7 +1638,7 @@ export class Node {
                 if (node.hasOutputApplication()){
                     node.outputApplication().addField(port);
                 } else {
-                    errorsWarnings.errors.push("Can't add outputLocal port " + outputLocalPort.IdText + " to node " + node.getName() + ". No output application.");
+                    errorsWarnings.errors.push(Errors.Message("Can't add outputLocal port " + outputLocalPort.IdText + " to node " + node.getName() + ". No output application."));
                 }
             }
         }
@@ -1631,34 +1660,34 @@ export class Node {
         }
     }
 
-    private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Eagle.ErrorsWarnings, generateKeyFunc: () => number){
+    private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number){
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
             if (!node.hasInputApplication()){
                 if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                     node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Eagle.Category.UnknownApplication, "", node.getKey()));
-                    errorsWarnings.errors.push("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention.");
+                    errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention."));
                 } else {
-                    errorsWarnings.errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getIdText() );
+                    errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
                     return;
                 }
             }
             node.inputApplication().addField(port);
-            errorsWarnings.warnings.push("Moved input port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")");
+            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")"));
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
             if (node.canHaveOutputApplication()){
                 if (!node.hasOutputApplication()){
                     if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                         node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Eagle.Category.UnknownApplication, "", node.getKey()));
-                        errorsWarnings.errors.push("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention.");
+                        errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
                     } else {
-                        errorsWarnings.errors.push("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getIdText() );
+                        errorsWarnings.errors.push(Errors.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
                         return;
                     }
                 }
                 node.outputApplication().addField(port);
-                errorsWarnings.warnings.push("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")");
+                errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")"));
             } else {
                 // if possible, add port to output side of input application
                 if (node.canHaveInputApplication()){
@@ -1666,14 +1695,14 @@ export class Node {
                         if (Eagle.findSettingValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                             node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Eagle.Category.UnknownApplication, "", node.getKey()));
                         } else {
-                            errorsWarnings.errors.push("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name", port.getIdText() );
+                            errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
                             return;
                         }
                     }
                     node.inputApplication().addField(port);
-                    errorsWarnings.warnings.push("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application");
+                    errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application"));
                 } else {
-                    errorsWarnings.errors.push("Can't add port to embedded application. Node can't have output OR exit application.");
+                    errorsWarnings.errors.push(Errors.Message("Can't add port to embedded application. Node can't have output OR exit application."));
                 }
             }
         }
@@ -1684,6 +1713,7 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.categoryType = node.categoryType();
 
         result.key = node.key();
         result.text = node.name();
@@ -1802,6 +1832,8 @@ export class Node {
         const useNewCategories : boolean = Eagle.findSettingValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.categoryType = node.categoryType();
+
         result.isGroup = node.isGroup();
         result.color = node.color();
         result.drawOrderHint = node.drawOrderHint();
@@ -1927,6 +1959,7 @@ export class Node {
     static toV3NodeJson = (node : Node, index : number) : object => {
         const result : any = {};
 
+        result.categoryType = node.categoryType();
         result.componentKey = index.toString();
 
         result.color = node.color();
@@ -1946,9 +1979,10 @@ export class Node {
         return result;
     }
 
-    static fromV3NodeJson = (nodeData : any, key: string, errorsWarnings: Eagle.ErrorsWarnings) : Node => {
+    static fromV3NodeJson = (nodeData : any, key: string, errorsWarnings: Errors.ErrorsWarnings) : Node => {
         const result = new Node(parseInt(key, 10), "", "", Eagle.Category.Unknown);
 
+        result.categoryType(nodeData.categoryType);
         result.color(nodeData.color);
         result.drawOrderHint(nodeData.drawOrderHint);
 
@@ -2035,10 +2069,140 @@ export class Node {
     */
 
     static createEmbeddedApplicationNode = (key: number, name : string, category: Eagle.Category, description: string, embedKey: number) : Node => {
-        console.assert(Eagle.getCategoryData(category).isApplication);
+        console.assert(Eagle.getCategoryData(category).categoryType === CategoryType.Type.Application);
 
         const node = new Node(key, name, description, category);
         node.setEmbedKey(embedKey);
         return node;
+    }
+
+    static isValid = (eagle: Eagle, node: Node, selectedLocation: Eagle.FileType, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
+        // check that all port dataTypes have been defined
+        for (const port of node.getInputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+        for (const port of node.getOutputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+
+        for (const port of node.getInputApplicationInputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+
+        for (const port of node.getInputApplicationOutputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+
+        for (const port of node.getOutputApplicationInputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+
+        for (const port of node.getOutputApplicationOutputPorts()){
+            if (port.isType(Eagle.DataType_Unknown)){
+                const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+
+        // check that all fields have ids
+        for (const field of node.getFields()){
+            if (field.getId() === "" || field.getId() === null){
+                const issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldId(eagle, field)}, "Generate id for field");
+                errorsWarnings.errors.push(issue);
+            }
+        }
+
+        // check that all fields have default values
+        for (const field of node.getFields()){
+            if (field.getDefaultValue() === "" && !field.isType(Eagle.DataType_String) && !field.isType(Eagle.DataType_Password) && !field.isType(Eagle.DataType_Object) && !field.isType(Eagle.DataType_Unknown)) {
+                const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose default value is not specified", function(){Utils.showNode(eagle, node.getKey())}, function(){Utils.fixFieldDefaultValue(eagle, field)}, "Generate default value for parameter");
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+
+        // check that all fields have known types
+        for (const field of node.getFields()){
+            if (!Utils.validateType(field.getType())) {
+                const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showNode(eagle, node.getKey())}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+
+        // check that fields and application parameters don't share the same name
+        // NOTE: this code checks many pairs of fields twice
+        for (const field0 of node.getFields()){
+            for (const field1 of node.getFields()){
+                if (field0.getId() !== field1.getId() && field0.getIdText() === field1.getIdText() && field0.getFieldType() === field1.getFieldType()){
+                    const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, null, "");
+                    errorsWarnings.warnings.push(issue);
+                }
+            }
+        }
+
+        // check that all nodes have correct numbers of inputs and outputs
+        const cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
+        const minInputs  = cData.minInputs;
+        const maxInputs  = cData.maxInputs;
+        const minOutputs = cData.minOutputs;
+        const maxOutputs = cData.maxOutputs;
+
+        if (node.getInputPorts().length < minInputs){
+            errorsWarnings.warnings.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + minInputs));
+        }
+        if (node.getInputPorts().length > maxInputs){
+            errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs));
+        }
+        if (node.getOutputPorts().length < minOutputs){
+            errorsWarnings.warnings.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + minOutputs));
+        }
+        if (node.getOutputPorts().length > maxOutputs){
+            errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + maxOutputs));
+        }
+
+        // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
+        let isConnected: boolean = false;
+        for (const edge of eagle.logicalGraph().getEdges()){
+            if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+                isConnected = true;
+                break;
+            }
+        }
+
+        // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
+        // only check this if the component has been selected in the graph. If it was selected from the palette, it doesnt make sense to complain that it is not connected.
+        if (!isConnected && !(maxInputs === 0 && maxOutputs === 0) && selectedLocation === Eagle.FileType.Graph){
+            const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, node.getKey())}, null, "");
+            errorsWarnings.warnings.push(issue);
+        }
+
+        // check embedded application categories are not 'None'
+        if (node.hasInputApplication() && node.getInputApplication().getCategory() === Eagle.Category.None){
+            errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'."));
+        }
+        if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Eagle.Category.None){
+            errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'."));
+        }
+
+        // check that Service nodes have inputApplications with no output ports!
+        if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
+            errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output."));
+        }
+
+        return Utils.worstEdgeError(errorsWarnings);
     }
 }
