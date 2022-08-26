@@ -3914,9 +3914,9 @@ export class Eagle {
         //this is for dealing with drag and drop actions while there is already one ore more palette components selected
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
 
-            var paletteIndex = $(e.target).data("palette-index")
-            var componentIndex = $(e.target).data("component-index")
-            var draggedNode = this.palettes()[paletteIndex].getNodes()[componentIndex]
+            const paletteIndex = $(e.target).data("palette-index")
+            const componentIndex = $(e.target).data("component-index")
+            const draggedNode = this.palettes()[paletteIndex].getNodes()[componentIndex]
 
             if(!this.objectIsSelected(draggedNode)){
                 $(e.target).find("div").click()
@@ -4612,15 +4612,17 @@ export class Eagle {
         }
     }
 
+    // TODO: move to 'ExplorePalettes.ts'
     getExplorePaletteText = (number:number): string => {
-        var text = " branch"
+        let text = " branch"
         if (number > 1){
             text = " branches"
         }
-        var text = "Click to view " + number + text;
+        text = "Click to view " + number + text;
         return text;
     }
 
+    // TODO: cleanup
     disableClickToLoadDefault = (data:string, event:any):void =>{
         console.log("blop")
         console.log(event.target)
@@ -4972,8 +4974,6 @@ export class Eagle {
 
     editNodeCategory = (eagle: Eagle) : void => {
         let selectedIndex = 0;
-        let i = 0;
-
         let eligibleCategories : Eagle.Category[];
 
         if (this.selectedNode().isData()){
@@ -5511,7 +5511,7 @@ $( document ).ready(function() {
     })
 
     $(document).on('click', '.hierarchyEdgeExtra', function(){
-        var selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
 
         if(!selectEdge){
             console.log("no edge found")

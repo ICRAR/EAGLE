@@ -256,9 +256,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const wheelDelta = e.originalEvent.deltaY;
         const zoomDivisor = Eagle.findSettingValue(Utils.GRAPH_ZOOM_DIVISOR);
 
-        var xs = (e.clientX - eagle.globalOffsetX) / eagle.globalScale,
-        ys = (e.clientY - eagle.globalOffsetY) / eagle.globalScale,
-        delta = (e.originalEvent.deltaY < 0 ? e.originalEvent.deltaY > 0 : -e.originalEvent.deltaY);
+        const xs = (e.clientX - eagle.globalOffsetX) / eagle.globalScale
+        const ys = (e.clientY - eagle.globalOffsetY) / eagle.globalScale
+        const delta = (e.originalEvent.deltaY < 0 ? e.originalEvent.deltaY > 0 : -e.originalEvent.deltaY);
         eagle.globalScale *= (1-(wheelDelta/zoomDivisor));
         eagle.globalOffsetX = e.clientX - xs * eagle.globalScale;
         eagle.globalOffsetY = e.clientY - ys * eagle.globalScale;
@@ -393,8 +393,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             let posX, posY, width, height = 0;
             if (node.isCollapsed()){
                 // find center of node
-                let centerX = node.getPosition().x + node.getWidth()/2;
-                let centerY = node.getPosition().y + node.getHeight()/2;
+                const centerX = node.getPosition().x + node.getWidth()/2;
+                const centerY = node.getPosition().y + node.getHeight()/2;
 
                 // top left corner of icon
                 posX = centerX - Node.DATA_COMPONENT_WIDTH/2;
@@ -450,7 +450,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     nodeDragHandler(rootContainer.selectAll("g.node"));
 
-    var customTriangle = d3.symbol().type(d3.symbolTriangle)
+    const customTriangle = d3.symbol().type(d3.symbolTriangle)
 
     // add a header background to each node
     nodes
@@ -556,7 +556,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
        .attr("y", function(node:Node){return getIconLocationY(node);})
        .style("display", getIconDisplay)
        .append('xhtml:div')
-       .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Eagle.selectionColor+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"};})
+       .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Eagle.selectionColor+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
        .append('xhtml:span')
        .attr("style", function(node:Node){ return node.getGraphIconAttr()})
        .attr("class", function(node:Node){return node.getIcon();});
@@ -1361,7 +1361,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("y", function(node:Node){return getIconLocationY(node);})
             .style("display", getIconDisplay)
             .append('xhtml:div')
-            .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Eagle.selectionColor+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"};})
+            .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Eagle.selectionColor+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
             .append('xhtml:span')
             .attr("style", function(node:Node){ return node.getGraphIconAttr()})
             .attr("class", function(node:Node){return node.getIcon();});

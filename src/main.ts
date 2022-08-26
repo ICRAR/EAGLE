@@ -92,7 +92,7 @@ $(function(){
     eagle.loadSchemas();
 
     // enable bootstrap accordion collapse
-    var bsCollapse = new bootstrap.Collapse('.collapse', {});
+    const bsCollapse = new bootstrap.Collapse('.collapse', {});
 
     // initialise all the modal dialogs. event handlers etc
     Modals.init(eagle);

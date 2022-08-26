@@ -747,9 +747,9 @@ export class LogicalGraph {
     }
 
     findDepthByKey = (key: number) : number => {
-        let depth = 0;
-        let node = this.findNodeByKey(key);
+        const node = this.findNodeByKey(key);
         let parentKey = node.getParentKey();
+        let depth = 0;
         let iterations = 0;
 
         while (parentKey !== null){

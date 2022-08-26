@@ -1,8 +1,3 @@
-import * as ko from "knockout";
-
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-
 export namespace CategoryType {
     // TODO: add to CategoryData somehow? use in Node.isData() etc?
     export enum Type {
