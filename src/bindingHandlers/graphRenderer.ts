@@ -11,6 +11,7 @@ import {Edge} from '../Edge';
 import {Field} from '../Field';
 import {Utils} from '../Utils';
 import {Errors} from '../Errors';
+import {Category} from '../Category';
 
 ko.bindingHandlers.graphRenderer = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -1862,7 +1863,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeaderBackgroundDisplay(node : Node) : string {
         // don't show header background for comment, description and ExclusiveForceNode nodes
-        if (node.getCategory() === Eagle.Category.Comment ||
+        if (node.getCategory() === Category.Comment ||
             node.getCategory() === Eagle.Category.Description ||
             node.getCategory() === Eagle.Category.ExclusiveForceNode ||
             node.getCategory() === Eagle.Category.Branch) {
@@ -2316,29 +2317,29 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getInputPortTranslatePosition(port:Field, index:number) : string {
-        var posX = getInputPortCirclePositionX(port, index)
-        var posY = getInputPortCirclePositionY(port,index)
+        const posX = getInputPortCirclePositionX(port, index)
+        const posY = getInputPortCirclePositionY(port,index)
 
         return "transform: translate("+posX+"px,"+posY+"px) rotate(90deg)"
     }
 
     function getOutputPortTranslatePosition(port:Field, index:number) : string {
-        var posX = getOutputPortCirclePositionX(port, index)
-        var posY = getOutputPortCirclePositionY(port,index)
+        const posX = getOutputPortCirclePositionX(port, index)
+        const posY = getOutputPortCirclePositionY(port,index)
 
         return "transform:translate("+posX+"px,"+posY+"px) rotate(270deg)"
     }
 
     function getInputLocalPortTranslatePosition(port:Field, index:number) : string {
-        var posX = getInputLocalPortCirclePositionX(port, index)
-        var posY = getInputLocalPortCirclePositionY(port,index)
+        const posX = getInputLocalPortCirclePositionX(port, index)
+        const posY = getInputLocalPortCirclePositionY(port,index)
 
         return "transform: translate("+posX+"px,"+posY+"px) rotate(90deg)"
     }
 
     function getOutputLocalPortTranslatePosition(port:Field, index:number) : string {
-        var posX = getOutputLocalPortCirclePositionX(port, index)
-        var posY = getOutputLocalPortCirclePositionY(port,index)
+        const posX = getOutputLocalPortCirclePositionX(port, index)
+        const posY = getOutputLocalPortCirclePositionY(port,index)
 
         return "transform:translate("+posX+"px,"+posY+"px) rotate(270deg)"
     }

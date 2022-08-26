@@ -36,7 +36,7 @@ import {Repository} from './Repository';
 import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
 import {Translator} from './Translator';
-import {CategoryType} from './CategoryType';
+import {Category} from './Category';
 
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
@@ -997,7 +997,7 @@ export class Eagle {
             }
 
             this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph);
+                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
                 this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
 
@@ -1100,7 +1100,7 @@ export class Eagle {
         console.log("createSubgraphFromSelection()");
 
         // create new subgraph
-        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph);
+        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Category.SubGraph);
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -5148,94 +5148,7 @@ export class Eagle {
         }
     }, this);
 
-    static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
-        const c = Eagle.cData[category];
-
-        if (typeof c === 'undefined'){
-            console.error("Could not fetch category data for category", category);
-            return {
-                categoryType: CategoryType.Type.Unknown,
-                isResizable: false,
-                canContainComponents: false,
-                minInputs: 0,
-                maxInputs: 0,
-                minOutputs: 0,
-                maxOutputs: 0,
-                canHaveInputApplication: false,
-                canHaveOutputApplication: false,
-                canHaveComponentParameters: false,
-                canHaveApplicationArguments: false,
-                icon: "error",
-                color: "pink",
-                collapsedHeaderOffsetY: 0,
-                expandedHeaderOffsetY: 20,
-                sortOrder: Number.MAX_SAFE_INTEGER,
-            };
-        }
-
-        return c;
-    }
-
-    static readonly dataIconColor : string = "#2c2c2c"
-    static readonly appIconColor : string = "#0059a5"
-    static readonly groupIconColor : string = "rgb(211 165 0)"
-    static readonly descriptionIconColor : string = "rgb(157 43 96)"
-    static readonly errorIconColor : string = "#FF66CC"
-    static readonly controlIconColor : string = "rgb(88 167 94)"
-    static readonly selectionColor : string = "rgb(47 22 213)"
-    static readonly serviceIconColor : string = "purple"
-
-    static readonly controlSortOrder = 0;
-    static readonly appSortOrder = 1;
-    static readonly dataSortOrder = 2;
-    static readonly constructSortOrder = 3;
-    static readonly documentationSortOrder = 4;
-    static readonly serviceSortOrder = 5;
-    static readonly otherSortOrder = 6;
-
-    static readonly cData : {[category:string] : Eagle.CategoryData} = {
-        Start                : {categoryType: CategoryType.Type.Control, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-play_arrow", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.controlSortOrder},
-        End                  : {categoryType: CategoryType.Type.Control, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-stop", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.controlSortOrder},
-        Branch               : {categoryType: CategoryType.Type.Control, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-share", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 54, sortOrder: Eagle.controlSortOrder},
-        ExclusiveForceNode   : {categoryType: CategoryType.Type.Control, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, icon: "icon-force_node", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.controlSortOrder},
-
-        Comment              : {categoryType: CategoryType.Type.Other, isResizable: true, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, icon: "icon-comment", color: Eagle.descriptionIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.documentationSortOrder},
-        Description          : {categoryType: CategoryType.Type.Other, isResizable: true, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, icon: "icon-description", color: Eagle.descriptionIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.documentationSortOrder},
-
-        Scatter              : {categoryType: CategoryType.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-call_split", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
-        Gather               : {categoryType: CategoryType.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-merge_type", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
-        MKN                  : {categoryType: CategoryType.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-many-to-many", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
-        GroupBy              : {categoryType: CategoryType.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-group", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
-        Loop                 : {categoryType: CategoryType.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-loop", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
-        SubGraph             : {categoryType: CategoryType.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, icon: "icon-subgraph", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.constructSortOrder},
-
-        PythonApp            : {categoryType: CategoryType.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-python", color: Eagle.appIconColor, collapsedHeaderOffsetY: 10, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        PyFuncApp            : {categoryType: CategoryType.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-python", color: Eagle.appIconColor, collapsedHeaderOffsetY: 10, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        BashShellApp         : {categoryType: CategoryType.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-bash", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        DynlibApp            : {categoryType: CategoryType.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-dynamic_library", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        DynlibProcApp        : {categoryType: CategoryType.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-dynamic_library", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        Mpi                  : {categoryType: CategoryType.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-mpi", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        Docker               : {categoryType: CategoryType.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-docker", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        Singularity          : {categoryType: CategoryType.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-singularity", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.appSortOrder},
-        UnknownApplication   : {categoryType: CategoryType.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.otherSortOrder},
-
-        File                 : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-hard-drive", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
-        Memory               : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-memory", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 16, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
-        SharedMemory         : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-shared_memory", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 16, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
-        NGAS                 : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-ngas", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
-        S3                   : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-s3_bucket", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
-        ParameterSet         : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
-        EnvironmentVariables : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
-        Data                 : {categoryType: CategoryType.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-hard-drive", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.dataSortOrder},
-
-        Plasma               : {categoryType: CategoryType.Type.Service, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-plasma", color: Eagle.serviceIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.serviceSortOrder},
-        PlasmaFlight         : {categoryType: CategoryType.Type.Service, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-plasmaflight", color: Eagle.serviceIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.serviceSortOrder},
-        RDBMS                : {categoryType: CategoryType.Type.Service, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, icon: "icon-hard-drive", color: Eagle.serviceIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Eagle.serviceSortOrder},
-
-        Unknown              : {categoryType: CategoryType.Type.Unknown, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.otherSortOrder},
-        None                 : {categoryType: CategoryType.Type.Unknown, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, icon: "icon-none", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Eagle.otherSortOrder},
-
-    };
+    static readonly selectionColor : string = "rgb(47 22 213)";
 }
 
 export namespace Eagle
@@ -5325,75 +5238,12 @@ export namespace Eagle
         Unknown = "Unknown"
     }
 
-    export enum Category {
-        Start = "Start",
-        End = "End",
-        Comment = "Comment",
-        Description = "Description",
-        Scatter = "Scatter",
-        Gather = "Gather",
-        MKN = "MKN",
-        GroupBy = "GroupBy",
-        Loop = "Loop",
-
-        PythonApp = "PythonApp",
-        BashShellApp = "BashShellApp",
-        DynlibApp = "DynlibApp",
-        DynlibProcApp = "DynlibProcApp",
-        MPI = "Mpi",
-        Docker = "Docker",
-
-        NGAS = "NGAS",
-        S3 = "S3",
-        Memory = "Memory",
-        SharedMemory = "SharedMemory",
-        File = "File",
-        Plasma = "Plasma",
-        PlasmaFlight = "PlasmaFlight",
-        Data = "Data",
-
-        ParameterSet = "ParameterSet",
-        EnvironmentVariables = "EnvironmentVariables",
-
-        Service = "Service",
-        ExclusiveForceNode = "ExclusiveForceNode",
-
-        Branch = "Branch",
-
-        SubGraph = "SubGraph",
-
-        Unknown = "Unknown",
-        None = "None",
-        UnknownApplication = "UnknownApplication", // when we know the component is an application, but know wlmost nothing else about it
-
-        Component = "Component" // legacy only
-    }
-
     export enum Direction {
         Up = "Up",
         Down = "Down",
         Left = "Left",
         Right = "Right"
     }
-
-    export type CategoryData = {
-        categoryType: CategoryType.Type,
-        isResizable:boolean,
-        canContainComponents:boolean,
-        minInputs: number,
-        maxInputs: number,
-        minOutputs: number,
-        maxOutputs: number,
-        canHaveInputApplication: boolean,
-        canHaveOutputApplication: boolean,
-        canHaveComponentParameters: boolean,
-        canHaveApplicationArguments: boolean,
-        icon: string,
-        color: string,
-        collapsedHeaderOffsetY: number,
-        expandedHeaderOffsetY: number,
-        sortOrder: number
-    };
 
     export enum ErrorsMode {
         Loading = "Loading",

@@ -29,7 +29,7 @@ import {GraphUpdater} from './GraphUpdater';
 import {Eagle} from './Eagle';
 import {Field} from './Field';
 import {Errors} from './Errors';
-import {CategoryType} from './CategoryType';
+import {Category} from './Category';
 
 export class Node {
     private _id : string
