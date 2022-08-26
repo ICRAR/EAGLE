@@ -1942,28 +1942,6 @@ export class Eagle {
         GitLab.loadRepoList(this);
     };
 
-    // TODO: move to Repository class?
-    selectRepository = (repository : Repository) : void => {
-        console.log("selectRepository(" + repository.name + ")");
-
-        // if we have already fetched data for this repo, just expand or collapse the list as appropriate
-        // otherwise fetch the data
-        if (repository.fetched()){
-            repository.expanded(!repository.expanded());
-        } else {
-            switch(repository.service){
-                case Eagle.RepositoryService.GitHub:
-                    GitHub.loadRepoContent(repository);
-                    break;
-                case Eagle.RepositoryService.GitLab:
-                    GitLab.loadRepoContent(repository);
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
-            }
-        }
-    };
-
     selectFolder = (folder : RepositoryFolder) : void => {
         console.log("selectFolder()", folder.name);
 
@@ -2008,19 +1986,6 @@ export class Eagle {
         console.log("insertFile() repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
 
         this.insertRemoteFile(file);
-    }
-
-    refreshRepository = (repository : Repository) : void => {
-        switch(repository.service){
-            case Eagle.RepositoryService.GitHub:
-                GitHub.loadRepoContent(repository);
-                break;
-            case Eagle.RepositoryService.GitLab:
-                GitLab.loadRepoContent(repository);
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
-        }
     }
 
     // use a custom modal to ask user for repository service and url at the same time
@@ -4353,7 +4318,7 @@ export class Eagle {
     fetchAllRepositories = () : void => {
         for (const repo of this.repositories()){
             if (!repo.fetched()){
-                this.selectRepository(repo);
+                repo.select();
             }
         }
     }
