@@ -1,13 +1,12 @@
 
 <li>
-    <div data-bind="text: console.log(isGroup())"></div>
-    <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($root.objectIsSelectedById($data._id)), css:{'hierarchyCollapsed':!$data.expanded()}, attr: {id:key} , click:function(node, e){$root.selectNodeInHierarchy($data, e);}, clickBubble:false">
+    <div class="hierarchyNode" data-bind="class: $root.isHierarchyNodeSelected($root.objectIsSelectedById($data._id)), css:{'hierarchyCollapsed':$data.expanded()===false}, attr: {id:key} , click:function(node, e){$root.selectNodeInHierarchy($data, e);}, clickBubble:false">
         <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
         <div class="hierarchyNodeVisibilityIcon" data-bind="style: {'visibility': $root.hierarchyNodeIsHidden($data.key())}">
             <i class="material-icons md-18">visibility_off</i>
         </div>
             <!-- ko if: isGroup() -->
-                <button class="hierarchyGroupCollapse"  data-bind="click:function(){$root.logicalGraph().findNodeByKey(key).toggleExpanded()}">
+                <button class="hierarchyGroupCollapse"  data-bind="click:function(){$root.logicalGraph().findNodeByKey(key()).toggleExpanded(); $root.selectedObjects.valueHasMutated()}, clickBubble:false;">
                     <i class="material-icons closedIcon" data-bs-placement="top" data-bind="" data-bs-toggle="tooltip" data-html="true" data-bs-original-title="Expand/Collapse">keyboard_arrow_down</i>
                 </button>
             <!-- /ko -->

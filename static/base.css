@@ -1205,6 +1205,13 @@ select.form-control{
     color: grey;
 }
 
+.hierarchyCollapsed{
+    height:47px;
+    overflow: hidden;
+    outline: none;
+    outline: 0;
+}
+
 .hierarchyGroupCollapse{
     position: absolute;
     width: auto;
