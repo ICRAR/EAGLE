@@ -28,18 +28,16 @@ import "jqueryMigrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
+import {Category} from './Category';
 import {Config} from './Config';
 import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-import {Modals} from './Modals';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
-import {Undo} from './Undo';
-
-import {LogicalGraph} from './LogicalGraph';
-import {Palette} from './Palette';
-
 import {KeyboardShortcut} from './KeyboardShortcut';
+import {LogicalGraph} from './LogicalGraph';
+import {Modals} from './Modals';
+import {Palette} from './Palette';
+import {Utils} from './Utils';
 
 let eagle : Eagle;
 
@@ -52,6 +50,7 @@ $(function(){
     (<any>window).Eagle = Eagle;
     (<any>window).Utils = Utils;
     (<any>window).Config = Config;
+    (<any>window).Category = Category;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
