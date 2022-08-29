@@ -1221,6 +1221,8 @@ select.form-control{
     transform: translateY(-40%) rotate(90deg);
     border:none;
     background-color: transparent;
+    outline: none;
+    outline: 0;
 }
 
 .hierarchyApplicationIsSelected {
@@ -1854,8 +1856,12 @@ nav.navbar .introjs-helperLayer {
     padding:0px 5px;
 }
 
-.closedIcon{
-    transform:rotate(270deg)
+.hierarchyCollapseRotate{
+    transform: rotate(270deg);
+}
+
+.hierarchyCollapseDisabled{
+    color: grey;
 }
 
 .translationTitle{
