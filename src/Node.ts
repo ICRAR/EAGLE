@@ -122,7 +122,7 @@ export class Node {
         this.subject = ko.observable(null);
 
         this.expanded = ko.observable(true);
-        this.keepExpanded = ko.observable(true);
+        this.keepExpanded = ko.observable(false);
 
         this.gitUrl = ko.observable("");
         this.gitHash = ko.observable("");
@@ -1380,13 +1380,10 @@ export class Node {
 
         // expanded
         if (typeof nodeData.expanded !== 'undefined'){
+            node.expanded(nodeData.expanded)
+        }else{
             node.expanded(true);
         }
-
-        if (typeof nodeData.keepExpanded !== 'undefined'){
-            node.keepExpanded(false);
-        }
-        
 
         // NOTE: use color from Eagle CategoryData instead of from the input file
 
