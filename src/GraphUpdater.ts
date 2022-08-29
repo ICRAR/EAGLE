@@ -22,6 +22,7 @@
 #
 */
 
+import { Category } from './Category';
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
 
@@ -145,64 +146,58 @@ export class GraphUpdater {
         }
     ];
 
-    static translateOldCategory(category : string) : Eagle.Category {
+    static translateOldCategory(category : string) : Category {
         if (typeof category === "undefined"){
-            return Eagle.Category.Unknown;
+            return Category.Unknown;
         }
 
         if (category === "SplitData"){
-            return Eagle.Category.Scatter;
+            return Category.Scatter;
         }
 
         if (category === "DataGather"){
-            return Eagle.Category.Gather;
+            return Category.Gather;
         }
 
         if (category === "Component"){
-            return Eagle.Category.PythonApp;
+            return Category.PythonApp;
         }
 
         if (category === "ngas"){
-            return Eagle.Category.NGAS;
+            return Category.NGAS;
         }
 
         if (category === "s3"){
-            return Eagle.Category.S3;
+            return Category.S3;
         }
 
         if (category === "mpi"){
-            return Eagle.Category.MPI;
+            return Category.MPI;
         }
 
         if (category === "docker"){
-            return Eagle.Category.Docker;
+            return Category.Docker;
         }
 
         if (category === "memory"){
-            return Eagle.Category.Memory;
+            return Category.Memory;
         }
 
         if (category === "file"){
-            return Eagle.Category.File;
+            return Category.File;
         }
 
         if (category === "Data"){
-            return Eagle.Category.File;
+            return Category.File;
         }
 
-        return <Eagle.Category>category;
+        return <Category>category;
     }
 
     static translateNewCategory(category : string) : string {
-        if (category === Eagle.Category.PythonApp){
+        if (category === Category.PythonApp){
             console.warn("Translated category from", category, "to Component");
             return "Component";
-        }
-
-        // NOTE: temporary fix until the translator supports Plasma nodes
-        if (category === Eagle.Category.Plasma || category === Eagle.Category.PlasmaFlight){
-            console.warn("Translated category from", category, "to", Eagle.Category.File);
-            return Eagle.Category.File;
         }
 
         return category;
