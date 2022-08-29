@@ -1,6 +1,9 @@
 import * as ko from "knockout";
 
+import {Eagle} from './Eagle';
 import {PaletteInfo} from './PaletteInfo';
+import {Repository} from "./Repository";
+import {RepositoryFile} from "./RepositoryFile";
 
 export class ExplorePalettesProject {
     name: ko.Observable<string>;
@@ -82,5 +85,33 @@ export class ExplorePalettes {
         this.showFiles(false);
         this.currentProjectIndex(-1);
 
+    }
+
+    getText = (number:number): string => {
+        let text = " branch"
+        if (number > 1){
+            text = " branches"
+        }
+        text = "Click to view " + number + text;
+        return text;
+    }
+
+    clickHelper = (eagle: Eagle, data: PaletteInfo, event:any): void => {
+        if (data === null){
+            console.warn("No paletteinfo supplied to clickHelper");
+            return;
+        }
+
+        if (typeof event === "undefined"){
+            // load immediately
+            eagle.openRemoteFile(new RepositoryFile(new Repository(data.repositoryService, data.repositoryName, data.repositoryBranch, false), data.path, data.name));
+            $('#explorePalettesModal').modal('hide');
+        } else {
+            const newState = !data.isSelected()
+            data.isSelected(newState)
+
+            // mark as checked
+            $(event.target).find('input').prop("checked", newState);
+        }
     }
 }

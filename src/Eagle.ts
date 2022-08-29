@@ -4543,34 +4543,6 @@ export class Eagle {
         }, 100);
     }
 
-    explorePalettesClickHelper = (data: PaletteInfo, event:any): void => {
-        if (data === null){
-            return;
-        }
-
-        const newState = !data.isSelected()
-        data.isSelected(newState)
-
-        if (typeof event === "undefined"){
-            // load immediately
-            this.openRemoteFile(new RepositoryFile(new Repository(data.repositoryService, data.repositoryName, data.repositoryBranch, false), data.path, data.name));
-            $('#explorePalettesModal').modal('hide');
-        } else {
-            // mark as checked
-            $(event.target).find('input').prop("checked", newState);
-        }
-    }
-
-    // TODO: move to 'ExplorePalettes.ts'
-    getExplorePaletteText = (number:number): string => {
-        let text = " branch"
-        if (number > 1){
-            text = " branches"
-        }
-        text = "Click to view " + number + text;
-        return text;
-    }
-
     // TODO: cleanup
     disableClickToLoadDefault = (data:string, event:any):void =>{
         console.log("blop")
