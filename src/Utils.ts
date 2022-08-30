@@ -455,8 +455,8 @@ export class Utils {
     }
 
     static showErrorsModal(title: string, eagle: Eagle){
-        const errors: Errors.Issue[] = eagle.getErrors();
-        const warnings: Errors.Issue[] = eagle.getWarnings();
+        const errors: Errors.Issue[] = Errors.getErrors();
+        const warnings: Errors.Issue[] = Errors.getWarnings();
 
         console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
 

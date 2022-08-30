@@ -31,6 +31,7 @@ import * as bootstrap from 'bootstrap';
 import {Category} from './Category';
 import {Config} from './Config';
 import {Eagle} from './Eagle';
+import {Errors} from './Errors';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
 import {KeyboardShortcut} from './KeyboardShortcut';
@@ -53,6 +54,7 @@ $(function(){
     (<any>window).Utils = Utils;
     (<any>window).Config = Config;
     (<any>window).Category = Category;
+    (<any>window).Errors = Errors;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);

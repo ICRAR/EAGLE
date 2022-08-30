@@ -280,6 +280,7 @@ export class Eagle {
         return Eagle._instance;
     }
 
+    // TODO: move to Hierarchy.ts
     updateHierarchyDisplay = () : void => {
         $("#hierarchyEdgesSvg").empty()
         this.logicalGraph().getNodes().forEach(function(element){
@@ -569,28 +570,6 @@ export class Eagle {
         } else {
             return mod + "EAGLE: " + fileName;
         }
-    }, this);
-
-    getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
-        let count: number = 0;
-        const errors: Errors.Issue[] = this.getErrors();
-        const warnings: Errors.Issue[] = this.getWarnings();
-
-        // count the errors
-        for (const error of errors){
-            if (error.fix !== null){
-                count += 1;
-            }
-        }
-
-        // count the warnings
-        for (const warning of warnings){
-            if (warning.fix !== null){
-                count += 1;
-            }
-        }
-
-        return count;
     }, this);
 
     // generate a list of Application nodes within the open palettes
@@ -4950,64 +4929,6 @@ export class Eagle {
             if (callback !== null) callback(newNode);
         }
     }
-
-    fixAll = () : void => {
-        console.log("fixAll()");
-        let numErrors   = Infinity;
-        let numWarnings = Infinity;
-        let numIterations = 0;
-
-        while (numWarnings !== this.graphWarnings().length || numErrors !== this.graphErrors().length){
-            if (numIterations > 10){
-                console.warn("Too many iterations in fixAll()");
-                break;
-            }
-            numIterations = numIterations+1;
-
-            numWarnings = this.graphWarnings().length;
-            numErrors = this.graphErrors().length;
-
-            for (const error of this.graphErrors()){
-                if (error.fix !== null){
-                    error.fix();
-                }
-            }
-
-            for (const warning of this.graphWarnings()){
-                if (warning.fix !== null){
-                    warning.fix();
-                }
-            }
-
-            this.checkGraph();
-        }
-
-        Utils.postFixFunc(this);
-    }
-
-    getWarnings : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
-        switch (this.errorsMode()){
-            case Eagle.ErrorsMode.Loading:
-                return this.loadingWarnings();
-            case Eagle.ErrorsMode.Graph:
-                return this.graphWarnings();
-            default:
-                console.warn("Unknown errorsMode (" + this.errorsMode() + "). Unable to getWarnings()");
-                return [];
-        }
-    }, this);
-
-    getErrors : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
-        switch (this.errorsMode()){
-            case Eagle.ErrorsMode.Loading:
-                return this.loadingErrors();
-            case Eagle.ErrorsMode.Graph:
-                return this.graphErrors();
-            default:
-                console.warn("Unknown errorsMode (" + this.errorsMode() + "). Unable to getErrors()");
-                return [];
-        }
-    }, this);
 
     static readonly selectionColor : string = "rgb(47 22 213)";
 }
