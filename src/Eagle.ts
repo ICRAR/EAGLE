@@ -54,6 +54,8 @@ import {Undo} from './Undo';
 import {Errors} from './Errors';
 
 export class Eagle {
+    static _instance : Eagle;
+
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
 
@@ -113,6 +115,8 @@ export class Eagle {
     static shortcutModalCooldown : number;
 
     constructor(){
+        Eagle._instance = this;
+
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
 
@@ -270,6 +274,10 @@ export class Eagle {
                 }
             }, 500)
         }, this)
+    }
+
+    static getInstance = () : Eagle => {
+        return Eagle._instance;
     }
 
     updateHierarchyDisplay = () : void => {
@@ -4297,14 +4305,6 @@ export class Eagle {
         }
     }
 
-    fetchAllRepositories = () : void => {
-        for (const repo of this.repositories()){
-            if (!repo.fetched()){
-                repo.select();
-            }
-        }
-    }
-
     attemptLoadLogicalGraphTable = async(data: any[]) : Promise<void> => {
         for (const row of data){
             // determine the correct function to load the file
@@ -4428,7 +4428,6 @@ export class Eagle {
                 }
 
                 // check selected option in select tag
-                const choices : string[] = $('#editFieldModal').data('choices');
                 const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
 
                 // abort if -1 selected
@@ -4539,12 +4538,6 @@ export class Eagle {
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
-    }
-
-    // TODO: cleanup
-    disableClickToLoadDefault = (data:string, event:any):void =>{
-        console.log("blop")
-        console.log(event.target)
     }
 
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
@@ -4751,6 +4744,7 @@ export class Eagle {
         Utils.showNotification("Graph URL", "Copied to clipboard", "success");
     }
 
+    // TODO: move to Utils.ts?
     copyInputTextModalInput = (): void => {
         navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
     }
@@ -4762,7 +4756,6 @@ export class Eagle {
         this.graphErrors(checkResult.errors);
     };
 
-    // maybe try to move some of this html out to a template
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
@@ -4776,6 +4769,7 @@ export class Eagle {
         }
     }
 
+    // TODO: move to Utils.ts?
     showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
     }, this);
@@ -4957,6 +4951,7 @@ export class Eagle {
         });
     }
 
+    // TODO: move to Hierarchy.ts?
     hierarchyNodeIsHidden = (key:number) : string => {
         const node = this.logicalGraph().findNodeByKey(key);
         let nodeHasConnectedInput: boolean = false;
