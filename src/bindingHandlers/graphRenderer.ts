@@ -259,9 +259,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         var xs = (e.clientX - eagle.globalOffsetX) / eagle.globalScale,
         ys = (e.clientY - eagle.globalOffsetY) / eagle.globalScale,
         delta = (e.originalEvent.deltaY < 0 ? e.originalEvent.deltaY > 0 : -e.originalEvent.deltaY);
+
         eagle.globalScale *= (1-(wheelDelta/zoomDivisor));
+        if(eagle.globalScale<0){
+            eagle.globalScale = Math.abs(eagle.globalScale)
+        }
         eagle.globalOffsetX = e.clientX - xs * eagle.globalScale;
         eagle.globalOffsetY = e.clientY - ys * eagle.globalScale;
+        
 
         tick();
     });
