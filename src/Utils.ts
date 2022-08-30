@@ -1876,6 +1876,86 @@ export class Utils {
         }
     }
 
+    static printCategories = () : void => {
+        const tableData : any[] = [];
+
+        for (const category in CategoryData.cData){
+            const cData = CategoryData.getCategoryData(<Category>category);
+
+            tableData.push({
+                category: <Category>category,
+                categoryType: cData.categoryType,
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    static printLogicalGraphNodesTable = () : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const node of eagle.logicalGraph().getNodes()){
+            tableData.push({
+                "name":node.getName(),
+                "key":node.getKey(),
+                "id":node.getId(),
+                "parentKey":node.getParentKey(),
+                "category":node.getCategory(),
+                "categoryType":node.getCategoryType(),
+                "expanded":node.getExpanded(),
+                "x":node.getPosition().x,
+                "y":node.getPosition().y,
+                "width":node.getWidth(),
+                "height":node.getHeight(),
+                "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
+                "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
+                "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
+                "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
+                "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
+                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey()
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    printLogicalGraphEdgesTable = () : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const edge of eagle.logicalGraph().getEdges()){
+            tableData.push({
+                "_id":edge.getId(),
+                "sourceNodeKey":edge.getSrcNodeKey(),
+                "sourcePortId":edge.getSrcPortId(),
+                "destNodeKey":edge.getDestNodeKey(),
+                "destPortId":edge.getDestPortId(),
+                "dataType":edge.getDataType(),
+                "loopAware":edge.isLoopAware(),
+                "isSelectionRelative":edge.getSelectionRelative()
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    printPalettesTable = () : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const palette of eagle.palettes()){
+            for (const node of palette.getNodes()){
+                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "category":node.getCategory(), "categoryType":node.getCategoryType()});
+            }
+        }
+
+        console.table(tableData);
+    }
+
     static printNodeFieldsTable = (nodeIndex: number) : void => {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
