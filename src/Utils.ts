@@ -1875,4 +1875,32 @@ export class Utils {
             }
         }
     }
+
+    static printNodeFieldsTable = (nodeIndex: number) : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // check that node at nodeIndex exists
+        if (nodeIndex >= eagle.logicalGraph().getNumNodes()){
+            console.warn("Unable to print node fields table, node", nodeIndex, "does not exist.");
+            return;
+        }
+
+        // add logical graph nodes to table
+        for (const field of eagle.logicalGraph().getNodes()[nodeIndex].getFields()){
+            tableData.push({
+                "id":field.getId(),
+                "idText":field.getIdText(),
+                "displayText":field.getDisplayText(),
+                "type":field.getType(),
+                "fieldType":field.getFieldType(),
+                "isEvent":field.getIsEvent(),
+                "value":field.getValue(),
+                "defaultValue": field.getDefaultValue(),
+                "readonly":field.isReadonly()
+            });
+        }
+
+        console.table(tableData);
+    }
 }

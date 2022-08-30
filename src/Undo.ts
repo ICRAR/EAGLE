@@ -103,7 +103,7 @@ export class Undo {
         }
 
         if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
-            eagle.printUndoTable();
+            Undo.printTable();
         }
     }
 
@@ -120,7 +120,7 @@ export class Undo {
         this.current((this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE);
 
         if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
-            eagle.printUndoTable();
+            Undo.printTable();
         }
 
         eagle.checkGraph();
@@ -137,7 +137,7 @@ export class Undo {
         this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
 
         if (Eagle.findSettingValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
-            eagle.printUndoTable();
+            Undo.printTable();
         }
 
         eagle.checkGraph();
@@ -178,5 +178,33 @@ export class Undo {
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
 
         eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
+    }
+
+    static printTable = () : void => {
+        const eagle: Eagle = Eagle.getInstance();
+        const tableData : any[] = [];
+        const realCurrent: number = (eagle.undo().current() - 1 + Config.UNDO_MEMORY_SIZE) % Config.UNDO_MEMORY_SIZE;
+
+        for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){
+            const snapshot = eagle.undo().memory()[i];
+
+            if (snapshot === null){
+                continue;
+            }
+
+            tableData.push({
+                "current": realCurrent === i ? "->" : "",
+                "description": snapshot.description(),
+                "buffer position": i,
+            });
+        }
+
+        // cycle the table rows (move top row to bottom) X times so that we have "front" at the top of the table
+        const numCycles = tableData.length - eagle.undo().front();
+        for (let i = 0 ; i < numCycles ; i++){
+            tableData.push(tableData.shift());
+        }
+
+        console.table(tableData);
     }
 }

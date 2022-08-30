@@ -4204,33 +4204,6 @@ export class Eagle {
         console.table(tableData);
     }
 
-    printNodeFieldsTable = (nodeIndex: number) : void => {
-        const tableData : any[] = [];
-
-        // check that node at nodeIndex exists
-        if (nodeIndex >= this.logicalGraph().getNumNodes()){
-            console.warn("Unable to print node fields table, node", nodeIndex, "does not exist.");
-            return;
-        }
-
-        // add logical graph nodes to table
-        for (const field of this.logicalGraph().getNodes()[nodeIndex].getFields()){
-            tableData.push({
-                "id":field.getId(),
-                "idText":field.getIdText(),
-                "displayText":field.getDisplayText(),
-                "type":field.getType(),
-                "fieldType":field.getFieldType(),
-                "isEvent":field.getIsEvent(),
-                "value":field.getValue(),
-                "defaultValue": field.getDefaultValue(),
-                "readonly":field.isReadonly()
-            });
-        }
-
-        console.table(tableData);
-    }
-
     generateLogicalGraphsTable = () : any[] => {
         // check that all repos have been fetched
         let foundUnfetched = false;
