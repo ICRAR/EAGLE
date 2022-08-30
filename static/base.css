@@ -1205,6 +1205,26 @@ select.form-control{
     color: grey;
 }
 
+.hierarchyCollapsed{
+    height:47px;
+    overflow: hidden;
+    outline: none;
+    outline: 0;
+}
+
+.hierarchyGroupCollapse{
+    position: absolute;
+    width: auto;
+    height: auto;
+    right: 10px;
+    top: 20px;
+    transform: translateY(-40%) rotate(90deg);
+    border:none;
+    background-color: transparent;
+    outline: none;
+    outline: 0;
+}
+
 .hierarchyApplicationIsSelected {
     border: 2px solid #002349;
 }
@@ -1838,6 +1858,14 @@ nav.navbar .introjs-helperLayer {
 
 .closedIcon{
     transform:rotate(270deg)
+}
+
+.hierarchyCollapseRotate{
+    transform: rotate(90deg);
+}
+
+.hierarchyCollapseDisabled{
+    color: grey;
 }
 
 .translationTitle{

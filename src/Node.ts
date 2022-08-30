@@ -49,6 +49,7 @@ export class Node {
     private embedKey : ko.Observable<number>;
     private collapsed : ko.Observable<boolean>;    // indicates whether the node is shown collapsed in the graph display
     private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
+    private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
 
     private streaming : ko.Observable<boolean>;
     private precious : ko.Observable<boolean>;
@@ -120,7 +121,8 @@ export class Node {
 
         this.subject = ko.observable(null);
 
-        this.expanded = ko.observable(false); // indicates whether the node is shown expanded in the hierarchy display
+        this.expanded = ko.observable(true);
+        this.keepExpanded = ko.observable(false);
 
         this.gitUrl = ko.observable("");
         this.gitHash = ko.observable("");
@@ -673,6 +675,7 @@ export class Node {
         this.subject(null);
 
         this.expanded(false);
+        this.keepExpanded(false)
 
         this.gitUrl("");
         this.gitHash("");
@@ -1055,6 +1058,7 @@ export class Node {
 
         result.collapsed(this.collapsed());
         result.expanded(this.expanded());
+        result.keepExpanded(this.expanded());
         result.streaming(this.streaming());
         result.precious(this.precious());
 
@@ -1230,7 +1234,9 @@ export class Node {
     }
 
     toggleExpanded = () : void => {
-        this.expanded(!this.expanded());
+        if(!this.keepExpanded()){
+            this.expanded(!this.expanded());
+        }
     }
 
     getExpanded = () : boolean => {
@@ -1238,7 +1244,19 @@ export class Node {
     }
 
     setExpanded = (value : boolean) : void => {
-        this.expanded(value);
+        if(!this.keepExpanded()){
+            this.expanded(value);
+        }else{
+            this.expanded(true)
+        }
+    }
+
+    getKeepExpanded = () : boolean => {
+        return this.keepExpanded();
+    }
+
+    setKeepExpanded = (value : boolean) : void => {
+        this.keepExpanded(value);
     }
 
     fillFieldTypeCell = (fieldType: Eagle.FieldType):string => {
@@ -1362,7 +1380,9 @@ export class Node {
 
         // expanded
         if (typeof nodeData.expanded !== 'undefined'){
-            node.expanded(nodeData.expanded);
+            node.expanded(nodeData.expanded)
+        }else{
+            node.expanded(true);
         }
 
         // NOTE: use color from Eagle CategoryData instead of from the input file
