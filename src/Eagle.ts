@@ -50,7 +50,6 @@ import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
-import {PaletteInfo} from './PaletteInfo';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
 
@@ -289,13 +288,12 @@ export class Eagle {
 
         //this part of the function flags edges that are selected or directly connected to the selected object
         const that = this
-        let count: number = 0
         const hierarchyEdgesList : {edge:Edge, use:string, edgeSelected:boolean}[] = []
+
         //loop over selected objects
         this.selectedObjects().forEach(function(element:any){
             //ignore palette selections
             if(Eagle.selectedLocation() === "Palette"){return}
-            count++
 
             const elementsToProcess = [element]
 
@@ -4726,19 +4724,6 @@ export class Eagle {
         return {x:x, y:y};
     }
 
-    autoLoad = (service: Eagle.RepositoryService, repository: string, branch: string, path: string, filename: string): void => {
-        console.log("autoLoadUrl()", service, repository, branch, path, filename);
-
-        // skip empty string urls
-        if (service === Eagle.RepositoryService.Unknown || repository === "" || branch === "" || filename === ""){
-            console.log("No auto load");
-            return;
-        }
-
-        // load
-        this.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
-    }
-
     copyGraphUrl = (): void => {
         // get reference to the LG fileInfo object
         const fileInfo: FileInfo = this.logicalGraph().fileInfo();
@@ -5223,79 +5208,3 @@ export namespace Eagle
         Graph = "Graph"
     }
 }
-
-
-$( document ).ready(function() {
-    // jquery event listeners start here
-
-    //hides the dropdown navbar elements when stopping hovering over the element
-    $(".dropdown-menu").mouseleave(function(){
-      $(".dropdown-toggle").removeClass("show")
-      $(".dropdown-menu").removeClass("show")
-    })
-
-    $('.modal').on('hidden.bs.modal', function () {
-        $('.modal-dialog').css({"left":"0px", "top":"0px"})
-        $("#editFieldModal textarea").attr('style','')
-        $("#errorsModalAccordion").parent().parent().attr('style','')
-
-        //reset parameter table selecction
-        Eagle.resetParamsTableSelection()
-    });
-
-    $('.modal').on('shown.bs.modal',function(){
-        // modal draggables
-        //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
-        (<any>$('.modal-dialog')).draggable({
-            handle: ".modal-header"
-        });
-    })
-
-    //increased click bubble for edit modal flag booleans
-    $(".componentCheckbox").on("click",function(){
-        $(event.target).find("input").click()
-    })
-
-    $('#editFieldModalValueInputCheckbox').on("change",function(){
-        $(event.target).parent().find("span").text($(event.target).prop('checked'))
-    })
-
-    //removes focus from input and textareas when using the canvas
-    $("#logicalGraphParent").on("mousedown", function(){
-        $("input").blur();
-        $("textarea").blur();
-    });
-
-    $(".tableParameter").on("click", function(){
-        console.log(this)
-    })
-
-    //expand palettes when using searchbar and return to prior collapsed state on completion.
-    $("#paletteList .componentSearchBar").on("keyup",function(){
-        if ($("#paletteList .componentSearchBar").val() !== ""){
-            $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
-            $("#paletteList .accordion-button.collapsed").click()
-        }else{
-            $("#paletteList .accordion-button.wasCollapsed").click()
-            $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
-        }
-    })
-
-    $(document).on('click', '.hierarchyEdgeExtra', function(){
-        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
-
-        if(!selectEdge){
-            console.log("no edge found")
-            return
-        }
-        if(!(<PointerEvent>event).shiftKey){
-            (<any>window).eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
-        }else{
-            (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
-        }
-
-    })
-    $(".hierarchy").on("click", function(){
-        (<any>window).eagle.selectedObjects([]);
-    })
-});
