@@ -282,6 +282,9 @@ export class Eagle {
 
     updateHierarchyDisplay = () : void => {
         $("#hierarchyEdgesSvg").empty()
+        this.logicalGraph().getNodes().forEach(function(element){
+            element.setKeepExpanded(false)
+        })
 
         //return if the graph is not loaded yet
         if(this.logicalGraph()=== null){
@@ -297,6 +300,7 @@ export class Eagle {
         //this part of the function flags edges that are selected or directly connected to the selected object
         const that = this
         const hierarchyEdgesList : {edge:Edge, use:string, edgeSelected:boolean}[] = []
+        const nodeRelative : Node[]=[]
 
         //loop over selected objects
         this.selectedObjects().forEach(function(element:any){
@@ -314,9 +318,13 @@ export class Eagle {
                         if(e.getDestNodeKey() === key){
                             e.setSelectionRelative(true)
                             that.addUniqueHierarchyEdge(e, "input", hierarchyEdgesList, false)
+                            nodeRelative.push(that.logicalGraph().findNodeByKey(e.getDestNodeKey()))
+                            nodeRelative.push(that.logicalGraph().findNodeByKey(e.getSrcNodeKey()))
                         }else if(e.getSrcNodeKey() === key){
                             e.setSelectionRelative(true)
                             that.addUniqueHierarchyEdge(e, "output", hierarchyEdgesList,false)
+                            nodeRelative.push(that.logicalGraph().findNodeByKey(e.getDestNodeKey()))
+                            nodeRelative.push(that.logicalGraph().findNodeByKey(e.getSrcNodeKey()))
                         }
                     })
                 //for edges we must check if a related node is selected to decide if it should be drawn as input or output edge
@@ -327,8 +335,40 @@ export class Eagle {
                     }else{
                         that.addUniqueHierarchyEdge(element, "input", hierarchyEdgesList,true)
                     }
+                    nodeRelative.push(that.logicalGraph().findNodeByKey(element.getDestNodeKey()))
+                    nodeRelative.push(that.logicalGraph().findNodeByKey(element.getSrcNodeKey()))
                 }
             })
+        })
+
+        nodeRelative.forEach(function(element:Node){
+            let iterations = 0;
+
+            if (element === null){
+                return
+            }
+
+            while (true){
+                if (iterations > 32){
+                    console.error("too many iterations in nodeRelativeForEach");
+                    return
+                }
+
+                element.setExpanded(true)
+                element.setKeepExpanded(true)
+
+                iterations += 1;
+
+                // otherwise keep traversing upwards
+                const parentKey = element.getParentKey();
+
+                // if we reach a null parent, we are done looking
+                if (parentKey === null){
+                    return 
+                }
+
+                element = that.logicalGraph().findNodeByKey(parentKey);
+            }
         })
 
         //an array of edges is used as we have to ensure there are no duplicate edges drawn.
@@ -4226,7 +4266,7 @@ export class Eagle {
             console.warn("Unable to find node in hierarchy!");
             return;
         }
-        node.toggleExpanded();
+        // node.toggleExpanded();
 
         if(!e.shiftKey){
             this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
