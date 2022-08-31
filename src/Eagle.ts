@@ -4001,6 +4001,7 @@ export class Eagle {
         }
     }
 
+    // TODO: move to Utils.ts
     getReadOnlyText = () : string => {
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             return "Read Only - Turn on 'Allow Component Editing' in the settings to unlock"
@@ -4032,6 +4033,7 @@ export class Eagle {
         return {x:x, y:y};
     };
 
+    // TODO: move to SideWindow.ts
     rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
         Eagle.dragStartX = e.clientX;
         this.leftWindow().adjusting(false);
@@ -4040,6 +4042,7 @@ export class Eagle {
         return true;
     }
 
+    // TODO: move to SideWindow.ts
     //workaround to aviod left or right window adjusting on any and all drag events
     sideWindowAdjustEnd = () : boolean => {
         this.leftWindow().adjusting(false);
@@ -4048,6 +4051,7 @@ export class Eagle {
         return true;
     }
 
+    // TODO: move to SideWindow.ts
     sideWindowAdjust = (eagle : Eagle, e : JQueryEventObject) : boolean => {
         // workaround to avoid final dragEvent at 0,0!
         if (e.clientX === 0){
@@ -4091,6 +4095,7 @@ export class Eagle {
         return true;
     }
 
+    // TODO: move to SideWindow.ts
     leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
 
         Eagle.dragStartX = e.clientX;
@@ -4107,6 +4112,7 @@ export class Eagle {
             this.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
     }
 
+    /*
     selectedEdgeValid = () : Eagle.LinkValid => {
         const selectedEdge = this.selectedEdge();
 
@@ -4117,6 +4123,7 @@ export class Eagle {
 
         return Edge.isValid(this, selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.getDataType(), selectedEdge.isLoopAware(), selectedEdge.isClosesLoop(), false, true, null);
     }
+    */
 
     generateLogicalGraphsTable = () : any[] => {
         // check that all repos have been fetched
@@ -4405,6 +4412,7 @@ export class Eagle {
         }
     };
 
+    // TODO: move to Node.ts?
     duplicateParameter = (index:number) :void => {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
         if(Eagle.parameterTableSelectionParentIndex() != -1){
