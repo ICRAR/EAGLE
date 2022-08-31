@@ -50,6 +50,7 @@ import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
+import {Hierarchy} from './Hierarchy';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
 
@@ -262,144 +263,20 @@ export class Eagle {
         this.showDataNodes = ko.observable(true);
 
         this.selectedObjects.subscribe(function(){
-            this.updateHierarchyDisplay()
+            Hierarchy.updateDisplay()
         }, this)
 
-        this.rightWindow().mode.subscribe(function(){
-            const that:Eagle = this
-
-            window.setTimeout(function(){
-                if(that.rightWindow().mode() === Eagle.RightWindowMode.Hierarchy){
-                    that.updateHierarchyDisplay()
-                }
-            }, 500)
+        this.rightWindow().mode.subscribe(function(newValue){
+            if (newValue === Eagle.RightWindowMode.Hierarchy){
+                window.setTimeout(function(){
+                    Hierarchy.updateDisplay()
+                }, 500)
+            }
         }, this)
     }
 
     static getInstance = () : Eagle => {
         return Eagle._instance;
-    }
-
-    // TODO: move to Hierarchy.ts
-    updateHierarchyDisplay = () : void => {
-        $("#hierarchyEdgesSvg").empty()
-        this.logicalGraph().getNodes().forEach(function(element){
-            element.setKeepExpanded(false)
-        })
-
-        //return if the graph is not loaded yet
-        if(this.logicalGraph()=== null){
-            return
-        }
-
-        //reset allselection relatives to false
-        $(".positionPointer").remove()
-        this.logicalGraph().getEdges().forEach(function(element:Edge){
-            element.setSelectionRelative(false)
-        })
-
-        //this part of the function flags edges that are selected or directly connected to the selected object
-        const that = this
-        const hierarchyEdgesList : {edge:Edge, use:string, edgeSelected:boolean}[] = []
-        const nodeRelative : Node[]=[]
-
-        //loop over selected objects
-        this.selectedObjects().forEach(function(element:any){
-            //ignore palette selections
-            if(Eagle.selectedLocation() === "Palette"){return}
-
-            const elementsToProcess = [element]
-
-            elementsToProcess.forEach(function(element){
-                //for selected nodes we must find the related egdes to draw
-                if (element instanceof Node){
-                    const key = element.getKey()
-
-                    that.logicalGraph().getEdges().forEach(function(e:Edge){
-                        if(e.getDestNodeKey() === key){
-                            e.setSelectionRelative(true)
-                            that.addUniqueHierarchyEdge(e, "input", hierarchyEdgesList, false)
-                            nodeRelative.push(that.logicalGraph().findNodeByKey(e.getDestNodeKey()))
-                            nodeRelative.push(that.logicalGraph().findNodeByKey(e.getSrcNodeKey()))
-                        }else if(e.getSrcNodeKey() === key){
-                            e.setSelectionRelative(true)
-                            that.addUniqueHierarchyEdge(e, "output", hierarchyEdgesList,false)
-                            nodeRelative.push(that.logicalGraph().findNodeByKey(e.getDestNodeKey()))
-                            nodeRelative.push(that.logicalGraph().findNodeByKey(e.getSrcNodeKey()))
-                        }
-                    })
-                //for edges we must check if a related node is selected to decide if it should be drawn as input or output edge
-                }else if(element instanceof Edge){
-                    element.setSelectionRelative(true)
-                    if(that.objectIsSelected(that.logicalGraph().findNodeByKey(element.getSrcNodeKey()))){
-                        that.addUniqueHierarchyEdge(element, "output", hierarchyEdgesList,true)
-                    }else{
-                        that.addUniqueHierarchyEdge(element, "input", hierarchyEdgesList,true)
-                    }
-                    nodeRelative.push(that.logicalGraph().findNodeByKey(element.getDestNodeKey()))
-                    nodeRelative.push(that.logicalGraph().findNodeByKey(element.getSrcNodeKey()))
-                }
-            })
-        })
-
-        nodeRelative.forEach(function(element:Node){
-            let iterations = 0;
-
-            if (element === null){
-                return
-            }
-
-            while (true){
-                if (iterations > 32){
-                    console.error("too many iterations in nodeRelativeForEach");
-                    return
-                }
-
-                element.setExpanded(true)
-                element.setKeepExpanded(true)
-
-                iterations += 1;
-
-                // otherwise keep traversing upwards
-                const parentKey = element.getParentKey();
-
-                // if we reach a null parent, we are done looking
-                if (parentKey === null){
-                    return 
-                }
-
-                element = that.logicalGraph().findNodeByKey(parentKey);
-            }
-        })
-
-        //an array of edges is used as we have to ensure there are no duplicate edges drawn.
-        hierarchyEdgesList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
-            that.drawHierarchyEdge(e.edge,e.use, e.edgeSelected)
-        })
-
-    }
-
-    addUniqueHierarchyEdge = (edge:Edge, use:string, hierarchyEdgeList:{edge:Edge , use:string, edgeSelected:boolean}[],edgeSelected:boolean) : void => {
-        let unique = true
-        hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
-            if(e.edge.getId()===edge.getId()){
-                unique = false
-            }
-        })
-
-        if(this.objectIsSelected(edge)){
-            if(!unique){
-                hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
-                    if(e.edge.getId()===edge.getId()){
-                        e.edgeSelected=true
-                    }
-                })
-            }
-        }
-
-        if(unique){
-            hierarchyEdgeList.push({edge:edge,use:use,edgeSelected:edgeSelected})
-        }
     }
 
     areAnyFilesModified = () : boolean => {
@@ -417,6 +294,7 @@ export class Eagle {
         return false;
     }
 
+    // TODO: move to Setting.ts?
     static allowInvalidEdges = () : boolean => {
         return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_INVALID_EDGES);
     }
@@ -454,94 +332,10 @@ export class Eagle {
         this.showDataNodes(!this.showDataNodes());
     }
 
-    // TODO: remove?
     flagActiveFileModified = () : void => {
         if (this.logicalGraph()){
             this.logicalGraph().fileInfo().modified = true;
         }
-    }
-
-    drawHierarchyEdge = (edge:Edge, use:string, edgeSelected:boolean) : void =>{
-        const srcKey = edge.getSrcNodeKey()
-        const destKey = edge.getDestNodeKey()
-        //const srcEmbedKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
-        //const destEmbedKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
-
-        const srcNodePos = $('.hierarchyNode#'+ srcKey)[0].getBoundingClientRect()
-        const destNodePos = $('.hierarchyNode#'+ destKey)[0].getBoundingClientRect()
-        const parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
-        const parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
-
-        // determine colour of edge
-        const colour: string = edgeSelected ? Config.HIERARCHY_EDGE_SELECTED_COLOR : Config.HIERARCHY_EDGE_DEFAULT_COLOR;
-
-        let p1x, p1y, p2x, p2y, arrowX, mpx;
-        if(use==="input"){
-            p1x = (srcNodePos.left - parentPos.left)-1
-            p1y = ((srcNodePos.top - parentPos.top)+8)+parentScrollOffset
-            p2x = (destNodePos.left - parentPos.left)-15
-            p2y = ((destNodePos.top - parentPos.top)+8)+parentScrollOffset
-            arrowX = (destNodePos.left - parentPos.left)-17
-            mpx = parentPos.left-srcNodePos.left-10
-
-            //append arrows
-            $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
-
-        }else if(use==="output"){
-            p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+29
-            p1y = ((srcNodePos.top - parentPos.top)+9)+parentScrollOffset
-            p2x = ($('#nodeList .col').width() - (parentPos.right-destNodePos.right))+39
-            p2y = ((destNodePos.top - parentPos.top)+9)+parentScrollOffset
-            arrowX = (parentPos.right-destNodePos.right) - 20
-            mpx = parentPos.right-srcNodePos.right+10
-
-            //append arrows
-            $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:1001;top:'+p2y+'px;right:'+arrowX+'px;transform:rotate(-90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(40%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
-        }else{
-            console.log("error")
-        }
-
-        //Y values re-adjusted for edges
-        p1y = p1y+9
-        p2y = p2y+9
-
-        // mid-point of line:
-        let mpy
-
-        if(p1y > p2y){
-            mpy = -((p1y - p2y)/2)
-        }else{
-            mpy = (p2y - p1y)/2
-        }
-
-        // construct the command to draw a quadratic curve
-        const positions = "M " + p1x + " " + p1y + " q " + mpx + " " + mpy + " " + (p2x - p1x) + " " + (p2y - p1y);
-
-        // variable for the namespace
-        const svgns = "http://www.w3.org/2000/svg";
-
-        // make a simple rectangle
-        const curve = document.createElementNS(svgns, "path");
-
-        curve.setAttribute("d", positions);
-        curve.setAttribute("stroke", colour);
-        curve.setAttribute("stroke-width", "3");
-        curve.setAttribute("fill", "none");
-        curve.setAttribute("class", "hierarchyEdge");
-
-        //curve extras as click targets, invisible thicker stroke
-        const curveExtra = document.createElementNS(svgns, "path");
-
-        curveExtra.setAttribute("d", positions);
-        curveExtra.setAttribute("stroke", "transparent");
-        curveExtra.setAttribute("stroke-width", "10");
-        curveExtra.setAttribute("fill", "none");
-        curveExtra.setAttribute("id", edge.getId());
-        curveExtra.setAttribute("class", "hierarchyEdgeExtra");
-
-        // append the edge paths to the svg
-        $("#hierarchyEdgesSvg")[0].appendChild(curve)
-        $("#hierarchyEdgesSvg")[0].appendChild(curveExtra)
     }
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -962,7 +756,6 @@ export class Eagle {
 
     /**
      * Uploads a file from a local file location.
-     * @param e The event to be handled.
      */
     uploadGraphFile = () : void => {
         const uploadedGraphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToLoad");
@@ -1000,7 +793,6 @@ export class Eagle {
 
     /**
      * Uploads a file from a local file location. File will be "insert"ed into the current graph
-     * @param e The event to be handled.
      */
     insertGraphFile = () : void => {
         const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
@@ -2743,6 +2535,7 @@ export class Eagle {
         return
     }
 
+    // TODO: move to Setting.ts
     private static findSetting = (key : string) : Setting => {
         // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
         if (typeof Eagle.settings === 'undefined'){
@@ -2783,6 +2576,7 @@ export class Eagle {
         return options
     }
 
+    // TODO: move to Setting.ts
     static findSettingValue = (key : string) : any => {
         const setting = Eagle.findSetting(key);
 
@@ -2794,6 +2588,7 @@ export class Eagle {
         return setting.value();
     }
 
+    // TODO: move to Setting.ts
     static setSettingValue = (key : string, value : any) : void => {
         const setting = Eagle.findSetting(key);
 
@@ -2805,6 +2600,7 @@ export class Eagle {
         return setting.value(value);
     }
 
+    // TODO: move to KeyboardShortcut.ts
     getShortcutDisplay = () : {description:string, shortcut : string}[] => {
         const displayShorcuts : {description:string, shortcut : string} []=[];
 
@@ -2820,6 +2616,7 @@ export class Eagle {
         return displayShorcuts;
     }
 
+    // TODO: move to Utils.ts
     resetSettingsDefaults = () : void => {
         // if a reset would turn off the expert mode setting,
         // AND we are currently on the 'advanced editing' or 'developer' tabs of the setting modal,
@@ -2895,26 +2692,6 @@ export class Eagle {
                 this.logicalGraph.valueHasMutated();
             });
         });
-    }
-
-    isHierarchyNodeSelected = (selectState:boolean) : string => {
-        let className : string = ""
-        if(selectState){
-            className = "hierarchyNodeIsSelected"
-        }else{
-            className = "hierarchyNodeIsntSelected"
-        }
-
-        return className
-    }
-
-    isHierarchyApplicationSelected = (selectState:boolean) : string => {
-        let className : string = ""
-        if(selectState){
-            className = "hierarchyApplicationIsSelected"
-        }
-
-        return className
     }
 
     editSelectedEdge = () : void => {
@@ -3879,6 +3656,7 @@ export class Eagle {
         this.selectedObjects.valueHasMutated();
     }
 
+    // TODO: move to SideWindow.ts
     // dragdrop
     nodeDragStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
         // retrieve data about the node being dragged
@@ -3911,12 +3689,14 @@ export class Eagle {
         return true;
     }
 
+    // TODO: move to SideWindow.ts
     nodeDragEnd = () : boolean => {
         $(".rightWindow").removeClass("noDropTarget");
         $(".navbar").removeClass("noDropTarget");
         return true;
     }
 
+    // TODO: move to SideWindow.ts
     nodeDragOver = () : boolean => {
         return false;
     }
@@ -4242,26 +4022,6 @@ export class Eagle {
                 });
             });
         }
-    }
-
-
-    // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
-    selectNodeInHierarchy = (nodeViewModel : any, e : any) : void => {
-        const node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key());
-        if (node === null){
-            console.warn("Unable to find node in hierarchy!");
-            return;
-        }
-        // node.toggleExpanded();
-
-        if(!e.shiftKey){
-            this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
-
-        }else if(e.shiftKey){
-            this.editSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph)
-        }
-        this.logicalGraph.valueHasMutated();
-
     }
 
     selectInputApplicationNode = () : void => {
@@ -4844,30 +4604,6 @@ export class Eagle {
             this.undo().pushSnapshot(this, "Edit Node Category");
             this.logicalGraph.valueHasMutated();
         });
-    }
-
-    // TODO: move to Hierarchy.ts?
-    hierarchyNodeIsHidden = (key:number) : string => {
-        const node = this.logicalGraph().findNodeByKey(key);
-        let nodeHasConnectedInput: boolean = false;
-        let nodeHasConnectedOutput: boolean = false;
-
-        // check if node has connected input and output
-        for (const edge of this.logicalGraph().getEdges()){
-            if (edge.getDestNodeKey() === node.getKey()){
-                nodeHasConnectedInput = true;
-            }
-
-            if (edge.getSrcNodeKey() === node.getKey()){
-                nodeHasConnectedOutput = true;
-            }
-        }
-
-        if (!this.showDataNodes() && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
-            return 'visible';
-        }
-
-        return 'hidden';
     }
 
     // NOTE: clones the node internally

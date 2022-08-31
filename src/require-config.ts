@@ -46,7 +46,8 @@ require.config({
         "Undo": "./static/built/Undo",
         "Errors": "./static/built/Errors",
         "Category": "./static/built/Category",
-        "CategoryData": "./static/built/CategoryData"
+        "CategoryData": "./static/built/CategoryData",
+        "Hierarchy": "./static/built/Hierarchy"
     },
     shim: {
         "bootstrap": {

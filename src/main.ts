@@ -34,6 +34,7 @@ import {Eagle} from './Eagle';
 import {Errors} from './Errors';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
+import {Hierarchy} from './Hierarchy';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
 import {Modals} from './Modals';
@@ -55,6 +56,7 @@ $(function(){
     (<any>window).Config = Config;
     (<any>window).Category = Category;
     (<any>window).Errors = Errors;
+    (<any>window).Hierarchy = Hierarchy;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
