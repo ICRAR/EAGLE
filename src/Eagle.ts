@@ -2562,27 +2562,6 @@ export class Eagle {
         return options
     }
 
-    // TODO: move to Utils.ts
-    resetSettingsDefaults = () : void => {
-        // if a reset would turn off the expert mode setting,
-        // AND we are currently on the 'advanced editing' or 'developer' tabs of the setting modal,
-        // then those tabs will disappear and we'll be left looking at nothing, so switch to the 'User Options' tab
-        const expertModeSetting: Setting = Setting.find(Utils.ENABLE_EXPERT_MODE);
-        const turningOffExpertMode = expertModeSetting.value() && !expertModeSetting.getOldValue();
-        const currentSettingsTab: string = $('.settingsModalButton.settingCategoryBtnActive').attr('id');
-
-        if (turningOffExpertMode && (currentSettingsTab === "settingCategoryAdvancedEditing" || currentSettingsTab === "settingCategoryDeveloper")){
-            // switch back to "User Options" tab
-            $('#settingCategoryUserOptions').click();
-        }
-
-        for (const group of Eagle.settings){
-            for (const setting of group.getSettings()){
-                setting.resetDefault();
-            }
-        }
-    }
-
     //copies currently set settings in case the user wishes to cancel chenges in the setting modal
     copyCurrentSettings = () : void => {
         for (const group of Eagle.settings){
@@ -3725,19 +3704,6 @@ export class Eagle {
             destinationPalette.fileInfo().modified = true;
             destinationPalette.sort();
         }
-    }
-
-    // TODO: move to Utils.ts
-    getReadOnlyText = () : string => {
-        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
-            return "Read Only - Turn on 'Allow Component Editing' in the settings to unlock"
-        }
-
-        // if a node or nodes in the palette are selected, then assume those are being moved to the destination
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-            return "Read Only - Turn on 'Allow Palette Editing' in the settings to unlock"
-        }
-        return ''
     }
 
     getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number} => {

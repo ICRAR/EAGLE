@@ -1936,7 +1936,7 @@ export class Utils {
         console.table(tableData);
     }
 
-    printLogicalGraphEdgesTable = () : void => {
+    static printLogicalGraphEdgesTable = () : void => {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
@@ -1957,7 +1957,7 @@ export class Utils {
         console.table(tableData);
     }
 
-    printPalettesTable = () : void => {
+    static printPalettesTable = () : void => {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
@@ -2001,5 +2001,18 @@ export class Utils {
 
     static copyInputTextModalInput = (): void => {
         navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
+    }
+
+    static getReadOnlyText = () : string => {
+        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
+            return "Read Only - Turn on 'Expert Mode' and 'Allow Component Editing' in the settings to unlock"
+        }
+
+        // if a node or nodes in the palette are selected, then assume those are being moved to the destination
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+            return "Read Only - Turn on 'Expert Mode' and 'Allow Palette Editing' in the settings to unlock"
+        }
+        
+        return ''
     }
 }

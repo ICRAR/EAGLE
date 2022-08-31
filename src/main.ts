@@ -58,6 +58,7 @@ $(function(){
     (<any>window).Category = Category;
     (<any>window).Errors = Errors;
     (<any>window).Hierarchy = Hierarchy;
+    (<any>window).Setting = Setting;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);

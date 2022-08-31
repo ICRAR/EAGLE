@@ -426,7 +426,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger" id="resetSettingsDefaults" type="button" data-bind="click: $root.resetSettingsDefaults">Reset Defaults</button>
+                <button class="btn btn-danger" id="resetSettingsDefaults" type="button" data-bind="click: Setting.resetDefaults">Reset Defaults</button>
                 <button type="button" class="btn btn-secondary" id="settingsModalNegativeButton" data-bs-dismiss="modal"><span id="settingsModalNegativeAnswer">Cancel</span></button>
                 <button type="button" class="btn btn-primary" id="settingsModalAffirmativeButton" data-bs-dismiss="modal"><span id="settingsModalAffirmativeAnswer">OK</span></button>
             </div>
@@ -618,7 +618,7 @@
             <div class="modal-header" data-bind="click: function(){Eagle.resetParamsTableSelection()}">
                 <h5 class="modal-title" id="parameterTableModalTitle">Attributes</h5>
                 <!-- ko if: selectedNode().isLocked() -->
-                    <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: getReadOnlyText">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText">
                         <i class="material-icons md-20">lock</i>
                     </button>
                 <!-- /ko -->
@@ -679,7 +679,7 @@
                                     <!-- /ko -->
                                     <!-- ko if: $root.selectedNode().isLocked() -->
                                         <!-- ko if: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown) -->
-                                            <td><i class="material-icons md-20" data-bind="eagleTooltip: $root.getReadOnlyText">lock</i></td>
+                                            <td><i class="material-icons md-20" data-bind="eagleTooltip: Utils.getReadOnlyText">lock</i></td>
                                         <!-- /ko -->
                                         <!-- ko ifnot: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown) -->
                                             <td><i class="material-icons md-20" data-bind="eagleTooltip: 'value is readwrite'">lock_open</i></td>

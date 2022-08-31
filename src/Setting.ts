@@ -174,6 +174,26 @@ export class Setting {
 
         return setting.value(value);
     }
+
+    static resetDefaults = () : void => {
+        // if a reset would turn off the expert mode setting,
+        // AND we are currently on the 'advanced editing' or 'developer' tabs of the setting modal,
+        // then those tabs will disappear and we'll be left looking at nothing, so switch to the 'User Options' tab
+        const expertModeSetting: Setting = Setting.find(Utils.ENABLE_EXPERT_MODE);
+        const turningOffExpertMode = expertModeSetting.value() && !expertModeSetting.getOldValue();
+        const currentSettingsTab: string = $('.settingsModalButton.settingCategoryBtnActive').attr('id');
+
+        if (turningOffExpertMode && (currentSettingsTab === "settingCategoryAdvancedEditing" || currentSettingsTab === "settingCategoryDeveloper")){
+            // switch back to "User Options" tab
+            $('#settingCategoryUserOptions').click();
+        }
+
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
+                setting.resetDefault();
+            }
+        }
+    }
 }
 
 export namespace Setting {
