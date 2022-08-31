@@ -6,6 +6,7 @@ import * as $ from "jquery";
 
 import {Category} from '../Category';
 import {CategoryData} from '../CategoryData';
+import {Config} from '../Config';
 import {Eagle} from '../Eagle';
 import {Edge} from '../Edge';
 import {Errors} from '../Errors';
@@ -560,7 +561,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
        .attr("y", function(node:Node){return getIconLocationY(node);})
        .style("display", getIconDisplay)
        .append('xhtml:div')
-       .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Eagle.selectionColor+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
+       .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Config.SELECTED_NODE_COLOR+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
        .append('xhtml:span')
        .attr("style", function(node:Node){ return node.getGraphIconAttr()})
        .attr("class", function(node:Node){return node.getIcon();});
@@ -1365,7 +1366,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("y", function(node:Node){return getIconLocationY(node);})
             .style("display", getIconDisplay)
             .append('xhtml:div')
-            .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Eagle.selectionColor+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
+            .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Config.SELECTED_NODE_COLOR+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
             .append('xhtml:span')
             .attr("style", function(node:Node){ return node.getGraphIconAttr()})
             .attr("class", function(node:Node){return node.getIcon();});
@@ -1935,7 +1936,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function getHeaderFill(node : Node) : string {
         if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){
-            return Eagle.selectionColor
+            return Config.SELECTED_NODE_COLOR;
         }
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
             return "black";

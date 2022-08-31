@@ -134,7 +134,7 @@
                             <div class="input-group mb-3">
                                 <textarea class="form-control" id="inputTextModalInput" rows="10"></textarea>
                             </div>
-                            <button id="copyInputTextModalInput" class="btn btn-secondary" type="button" data-bs-placement="bottom" data-bind="click: copyInputTextModalInput, eagleTooltip: 'Copy Text'">
+                            <button id="copyInputTextModalInput" class="btn btn-secondary" type="button" data-bs-placement="bottom" data-bind="click: Utils.copyInputTextModalInput, eagleTooltip: 'Copy Text'">
                                 <i class="material-icons md-18">content_copy</i>
                             </button>
                         </div>
@@ -445,7 +445,7 @@
             <div class="modal-body">
 
                 <div class="row">
-                    <!-- ko foreach: getShortcutDisplay() -->
+                    <!-- ko foreach: Utils.getShortcutDisplay() -->
                         <div class="col-lg-6">
                             <div class="shortCutsModalItem">
                                 <span data-bind="text: $data.description"></span>

@@ -1712,6 +1712,21 @@ export class Utils {
         });
     }
 
+    static getShortcutDisplay = () : {description:string, shortcut : string}[] => {
+        const displayShorcuts : {description:string, shortcut : string} []=[];
+
+        for (const object of Eagle.shortcuts()){
+            if (object.display === KeyboardShortcut.Display.Disabled){
+                continue;
+            }
+
+            const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
+            displayShorcuts.push({description: object.name, shortcut: shortcut});
+        }
+
+        return displayShorcuts;
+    }
+
     static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
         for (const shortcut of Eagle.shortcuts()){
             if (shortcut.key === key){
@@ -1982,5 +1997,9 @@ export class Utils {
         }
 
         console.table(tableData);
+    }
+
+    static copyInputTextModalInput = (): void => {
+        navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
     }
 }

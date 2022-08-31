@@ -2562,22 +2562,6 @@ export class Eagle {
         return options
     }
 
-    // TODO: move to KeyboardShortcut.ts
-    getShortcutDisplay = () : {description:string, shortcut : string}[] => {
-        const displayShorcuts : {description:string, shortcut : string} []=[];
-
-        for (const object of Eagle.shortcuts()){
-            if (object.display === KeyboardShortcut.Display.Disabled){
-                continue;
-            }
-
-            const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
-            displayShorcuts.push({description: object.name, shortcut: shortcut});
-        }
-
-        return displayShorcuts;
-    }
-
     // TODO: move to Utils.ts
     resetSettingsDefaults = () : void => {
         // if a reset would turn off the expert mode setting,
@@ -4361,11 +4345,6 @@ export class Eagle {
         Utils.showNotification("Graph URL", "Copied to clipboard", "success");
     }
 
-    // TODO: move to Utils.ts?
-    copyInputTextModalInput = (): void => {
-        navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
-    }
-
     checkGraph = (): void => {
         const checkResult = Utils.checkGraph(this);
 
@@ -4630,8 +4609,6 @@ export class Eagle {
             if (callback !== null) callback(newNode);
         }
     }
-
-    static readonly selectionColor : string = "rgb(47 22 213)";
 }
 
 export namespace Eagle
