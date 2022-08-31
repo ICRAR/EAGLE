@@ -24,16 +24,16 @@
 
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
-import {GraphUpdater} from './GraphUpdater';
-
 import {Eagle} from './Eagle';
-import {Node} from './Node';
-import {Field} from './Field';
 import {Edge} from './Edge';
-import {FileInfo} from './FileInfo';
-import {RepositoryFile} from './RepositoryFile';
 import {Errors} from './Errors';
+import {Field} from './Field';
+import {FileInfo} from './FileInfo';
+import {GraphUpdater} from './GraphUpdater';
+import {Node} from './Node';
+import {RepositoryFile} from './RepositoryFile';
+import {Setting} from './Setting';
+import {Utils} from './Utils';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -64,7 +64,7 @@ export class LogicalGraph {
         // add links
         result.linkDataArray = [];
         for (const edge of graph.getEdges()){
-            if (forTranslation && Eagle.findSettingValue(Utils.SKIP_CLOSE_LOOP_EDGES)){
+            if (forTranslation && Setting.findValue(Utils.SKIP_CLOSE_LOOP_EDGES)){
                 if (edge.isClosesLoop()){
                     continue;
                 }

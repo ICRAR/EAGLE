@@ -159,7 +159,7 @@ export class Eagle {
             ),
             new SettingsGroup(
                 "Advanced Editing",
-                (eagle) => {return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE);},
+                (eagle) => {return Setting.findValue(Utils.ENABLE_EXPERT_MODE);},
                 [
                     new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, true),
                     new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, true),
@@ -181,7 +181,7 @@ export class Eagle {
             ),
             new SettingsGroup(
                 "Developer",
-                (eagle) => {return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE);},
+                (eagle) => {return Setting.findValue(Utils.ENABLE_EXPERT_MODE);},
                 [
                     new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
                     new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
@@ -296,32 +296,36 @@ export class Eagle {
 
     // TODO: move to Setting.ts?
     static allowInvalidEdges = () : boolean => {
-        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_INVALID_EDGES);
+        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.ALLOW_INVALID_EDGES);
     }
 
     static allowPaletteEditing = () : boolean => {
-        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_PALETTE_EDITING);
+        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.ALLOW_PALETTE_EDITING);
     }
 
     static allowReadonlyPaletteEditing = () : boolean => {
-        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
+        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
     }
 
     static allowComponentEditing = () : boolean => {
-        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
+        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.ALLOW_COMPONENT_EDITING);
     }
 
     static allowEdgeEditing = (): boolean => {
-        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
+        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.ALLOW_EDGE_EDITING);
     }
 
     static showDaliugeRuntimeParameters = () : boolean => {
-        return Eagle.findSettingValue(Utils.ENABLE_EXPERT_MODE) && Eagle.findSettingValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
     }
 
     displayNodeKeys = () :boolean => {
-        return Eagle.findSetting(Utils.DISPLAY_NODE_KEYS).value();
+        return Setting.findValue(Utils.DISPLAY_NODE_KEYS);
     }
+
+    showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return Setting.findValue(Utils.ENABLE_PERFORMANCE_DISPLAY);
+    }, this);
 
     toggleShowDataNodes = () : void => {
         // when we switch show/hide data nodes, some of the selected objects may become invisible,
@@ -668,7 +672,7 @@ export class Eagle {
     }
 
     showSimplifiedTranslatorOptions : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Eagle.findSetting(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value();
+        return Setting.findValue(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS);
     }, this);
 
     //----------------- Physical Graph Generation --------------------------------
@@ -687,7 +691,7 @@ export class Eagle {
             return;
         }
 
-        const translatorURL : string = Eagle.findSetting(Utils.TRANSLATOR_URL).value();
+        const translatorURL : string = Setting.findValue(Utils.TRANSLATOR_URL);
         console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
 
         // set the schema version
@@ -726,7 +730,7 @@ export class Eagle {
         }
 
         // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, format, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
@@ -827,7 +831,7 @@ export class Eagle {
     }
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
-        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+        const showErrors: boolean = Setting.findValue(Utils.SHOW_FILE_LOADING_ERRORS);
 
         // show errors (if found)
         if (errorsWarnings.errors.length > 0 || errorsWarnings.warnings.length > 0){
@@ -838,7 +842,7 @@ export class Eagle {
                 this.loadingWarnings(errorsWarnings.warnings);
 
                 this.errorsMode(Eagle.ErrorsMode.Loading);
-                Utils.showErrorsModal("Loading File", this);
+                Utils.showErrorsModal("Loading File");
             }
         } else {
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
@@ -1650,10 +1654,10 @@ export class Eagle {
 
         switch (repository.service){
             case Eagle.RepositoryService.GitHub:
-                token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+                token = Setting.findValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
                 break;
             case Eagle.RepositoryService.GitLab:
-                token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+                token = Setting.findValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
                 break;
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
@@ -1667,7 +1671,7 @@ export class Eagle {
         }
 
         // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
@@ -1786,7 +1790,7 @@ export class Eagle {
         }
 
         // if the file is modified, get the user to confirm they want to overwrite changes
-        if (isModified && Eagle.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()){
+        if (isModified && Setting.findValue(Utils.CONFIRM_DISCARD_CHANGES)){
             Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", (confirmed : boolean) : void => {
                 if (!confirmed){
                     console.log("selectFile() cancelled");
@@ -1849,7 +1853,7 @@ export class Eagle {
 
     removeCustomRepository = (repository : Repository) : void => {
         // if settings dictates that we don't confirm with user, remove immediately
-        if (!Eagle.findSetting(Utils.CONFIRM_REMOVE_REPOSITORES).value()){
+        if (!Setting.findValue(Utils.CONFIRM_REMOVE_REPOSITORES)){
             this._removeCustomRepository(repository);
             return;
         }
@@ -2063,7 +2067,7 @@ export class Eagle {
         const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
 
         // if dictated by settings, reload the palette immediately
-        if (alreadyLoadedPalette !== null && Eagle.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
+        if (alreadyLoadedPalette !== null && Setting.findValue(Utils.CONFIRM_RELOAD_PALETTES)){
             Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
                 if (confirmed){
                     this._reloadPalette(file, data, alreadyLoadedPalette);
@@ -2133,7 +2137,7 @@ export class Eagle {
             if (p.fileInfo().name === palette.fileInfo().name){
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
-                if (p.fileInfo().modified && Eagle.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()){
+                if (p.fileInfo().modified && Setting.findValue(Utils.CONFIRM_DISCARD_CHANGES)){
                     Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", (confirmed : boolean) : void => {
                         if (confirmed){
                             this.palettes.splice(i, 1);
@@ -2176,7 +2180,7 @@ export class Eagle {
         const json = Palette.toOJSJson(p_clone);
 
         // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Palette);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
@@ -2233,7 +2237,7 @@ export class Eagle {
         const json : object = LogicalGraph.toOJSJson(lg_clone, false);
 
         // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
+        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
@@ -2287,10 +2291,10 @@ export class Eagle {
 
             switch (repositoryService){
                 case Eagle.RepositoryService.GitHub:
-                    token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+                    token = Setting.findValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
                     break;
                 case Eagle.RepositoryService.GitLab:
-                    token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+                    token = Setting.findValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
                     break;
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
@@ -2326,7 +2330,7 @@ export class Eagle {
     }
 
     setTranslatorUrl = () : void => {
-        const translatorURLSetting : Setting = Eagle.findSetting(Utils.TRANSLATOR_URL);
+        const translatorURLSetting : Setting = Setting.find(Utils.TRANSLATOR_URL);
 
         Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false, (completed : boolean, userString : string) : void => {
             // abort if user cancelled the action
@@ -2535,24 +2539,6 @@ export class Eagle {
         return
     }
 
-    // TODO: move to Setting.ts
-    private static findSetting = (key : string) : Setting => {
-        // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
-        if (typeof Eagle.settings === 'undefined'){
-            return null;
-        }
-
-        for (const group of Eagle.settings){
-            for (const setting of group.getSettings()){
-                if (setting.getKey() === key){
-                    return setting;
-                }
-            }
-        }
-
-        return null;
-    }
-
     static resetParamsTableSelection = ():void => {
         Eagle.parameterTableSelectionParentIndex(-1);
         Eagle.parameterTableSelection(null);
@@ -2576,30 +2562,6 @@ export class Eagle {
         return options
     }
 
-    // TODO: move to Setting.ts
-    static findSettingValue = (key : string) : any => {
-        const setting = Eagle.findSetting(key);
-
-        if (setting === null){
-            console.warn("No setting", key);
-            return null;
-        }
-
-        return setting.value();
-    }
-
-    // TODO: move to Setting.ts
-    static setSettingValue = (key : string, value : any) : void => {
-        const setting = Eagle.findSetting(key);
-
-        if (setting === null){
-            console.warn("No setting", key);
-            return;
-        }
-
-        return setting.value(value);
-    }
-
     // TODO: move to KeyboardShortcut.ts
     getShortcutDisplay = () : {description:string, shortcut : string}[] => {
         const displayShorcuts : {description:string, shortcut : string} []=[];
@@ -2621,7 +2583,7 @@ export class Eagle {
         // if a reset would turn off the expert mode setting,
         // AND we are currently on the 'advanced editing' or 'developer' tabs of the setting modal,
         // then those tabs will disappear and we'll be left looking at nothing, so switch to the 'User Options' tab
-        const expertModeSetting: Setting = Eagle.findSetting(Utils.ENABLE_EXPERT_MODE);
+        const expertModeSetting: Setting = Setting.find(Utils.ENABLE_EXPERT_MODE);
         const turningOffExpertMode = expertModeSetting.value() && !expertModeSetting.getOldValue();
         const currentSettingsTab: string = $('.settingsModalButton.settingCategoryBtnActive').attr('id');
 
@@ -2877,7 +2839,7 @@ export class Eagle {
         }
 
         // skip confirmation if setting dictates
-        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
+        if (!Setting.find(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
             this._deleteSelection(deleteChildren);
             return;
         }
@@ -3184,7 +3146,7 @@ export class Eagle {
         Utils.showNotification("EAGLE", "Fetching data from Docker Hub", "info");
 
         const that = this;
-        const username = Eagle.findSettingValue(Utils.DOCKER_HUB_USERNAME);
+        const username = Setting.findValue(Utils.DOCKER_HUB_USERNAME);
 
         // request eagle server to fetch a list of docker hub images
         Utils.httpPostJSON("/getDockerImages", {username:username}, function(error : string, data: any){
@@ -4418,16 +4380,11 @@ export class Eagle {
             this.errorsMode(Eagle.ErrorsMode.Graph);
 
             // show graph modal
-            Utils.showErrorsModal("Check Graph", this);
+            Utils.showErrorsModal("Check Graph");
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
     }
-
-    // TODO: move to Utils.ts?
-    showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
-    }, this);
 
     addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
         const edgeConnectsTwoApplications : boolean =

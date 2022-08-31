@@ -23,10 +23,11 @@
 */
 
 import {Eagle} from './Eagle';
-import {Utils} from './Utils';
 import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
+import {RepositoryFolder} from './RepositoryFolder';
+import {Setting} from './Setting';
+import {Utils} from './Utils';
 
 export class GitHub {
     /**
@@ -83,7 +84,7 @@ export class GitHub {
      * Shows the remote files on the GitHub.
      */
     static loadRepoContent(repository : Repository) : void {
-        const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
@@ -186,7 +187,7 @@ export class GitHub {
      * @param filePath File path.
      */
     static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");

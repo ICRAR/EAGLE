@@ -23,10 +23,11 @@
 */
 
 import {Eagle} from './Eagle';
-import {Utils} from './Utils';
 import {Repository} from './Repository';
 import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
+import {Setting} from './Setting';
+import {Utils} from './Utils';
 
 export class GitLab {
     /**
@@ -78,7 +79,7 @@ export class GitLab {
      * Shows the remote files
      */
     static loadRepoContent(repository : Repository) : void {
-        const token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
@@ -174,7 +175,7 @@ export class GitLab {
      * @param filePath File path.
      */
     static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        const token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");

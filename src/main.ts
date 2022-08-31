@@ -39,6 +39,7 @@ import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
 import {Modals} from './Modals';
 import {Palette} from './Palette';
+import {Setting} from './Setting';
 import {Utils} from './Utils';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
@@ -78,7 +79,7 @@ $(function(){
     GitLab.loadRepoList(eagle);
 
     // load the default palette
-    if (Eagle.findSettingValue(Utils.OPEN_DEFAULT_PALETTE)){
+    if (Setting.findValue(Utils.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
             {name:"DALiuGE Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true},
@@ -103,7 +104,7 @@ $(function(){
     Modals.init(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
-    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Eagle.findSettingValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
+    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
 
     // keyboard shortcut event listener
     document.onkeydown = KeyboardShortcut.processKey;

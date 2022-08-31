@@ -25,6 +25,7 @@
 import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
+import {Setting} from './Setting';
 import {Utils} from './Utils';
 
 export class Translator {
@@ -59,7 +60,7 @@ export class Translator {
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
         // consult EAGLE settings to determine whether to open the transator in a new tab
-        const spawnTranslationTab: boolean = Eagle.findSettingValue(Utils.SPAWN_TRANSLATION_TAB);
+        const spawnTranslationTab: boolean = Setting.findValue(Utils.SPAWN_TRANSLATION_TAB);
 
         // create form element
         const form = document.createElement("form");

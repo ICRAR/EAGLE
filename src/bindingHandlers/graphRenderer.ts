@@ -4,15 +4,17 @@ import * as ko from "knockout";
 import * as d3 from "d3";
 import * as $ from "jquery";
 
-import {Eagle} from '../Eagle';
-import {LogicalGraph} from '../LogicalGraph';
-import {Node} from '../Node';
-import {Edge} from '../Edge';
-import {Field} from '../Field';
-import {Utils} from '../Utils';
-import {Errors} from '../Errors';
 import {Category} from '../Category';
 import {CategoryData} from '../CategoryData';
+import {Eagle} from '../Eagle';
+import {Edge} from '../Edge';
+import {Errors} from '../Errors';
+import {Field} from '../Field';
+import {LogicalGraph} from '../LogicalGraph';
+import {Node} from '../Node';
+import {Setting} from '../Setting';
+import {Utils} from '../Utils';
+
 
 ko.bindingHandlers.graphRenderer = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -256,7 +258,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         e.preventDefault()
         // Somehow only the eagle.globalScale does something...
         const wheelDelta = e.originalEvent.deltaY;
-        const zoomDivisor = Eagle.findSettingValue(Utils.GRAPH_ZOOM_DIVISOR);
+        const zoomDivisor = Setting.findValue(Utils.GRAPH_ZOOM_DIVISOR);
 
         const xs = (e.clientX - eagle.globalOffsetX) / eagle.globalScale
         const ys = (e.clientY - eagle.globalOffsetY) / eagle.globalScale

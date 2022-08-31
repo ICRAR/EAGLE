@@ -26,20 +26,20 @@ import * as Ajv from "ajv";
 import * as Showdown from "showdown";
 import * as ko from "knockout";
 
-import {Config} from './Config';
 import {Category} from './Category';
 import {CategoryData} from "./CategoryData";
-
+import {Config} from './Config';
 import {Eagle} from './Eagle';
-import {Palette} from './Palette';
+import {Edge} from './Edge';
+import {Errors} from './Errors';
+import {Field} from './Field';
+import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
-import {Edge} from './Edge';
-import {Field} from './Field';
-import {Repository} from './Repository';
+import {Palette} from './Palette';
 import {PaletteInfo} from './PaletteInfo';
-import {KeyboardShortcut} from './KeyboardShortcut';
-import {Errors} from './Errors';
+import {Repository} from './Repository';
+import {Setting} from './Setting';
 
 export class Utils {
     // Allowed file extenstions.
@@ -454,7 +454,7 @@ export class Utils {
         }
     }
 
-    static showErrorsModal(title: string, eagle: Eagle){
+    static showErrorsModal(title: string){
         const errors: Errors.Issue[] = Errors.getErrors();
         const warnings: Errors.Issue[] = Errors.getWarnings();
 
@@ -888,7 +888,7 @@ export class Utils {
     }
 
     static showPalettesModal(eagle: Eagle) : void {
-        const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
