@@ -47,7 +47,8 @@ require.config({
         "Errors": "./static/built/Errors",
         "Category": "./static/built/Category",
         "CategoryData": "./static/built/CategoryData",
-        "Hierarchy": "./static/built/Hierarchy"
+        "Hierarchy": "./static/built/Hierarchy",
+        "Repositories": "./static/built/Repositories"
     },
     shim: {
         "bootstrap": {

@@ -41,6 +41,7 @@ import {Modals} from './Modals';
 import {Palette} from './Palette';
 import {Setting} from './Setting';
 import {Utils} from './Utils';
+import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 
@@ -59,6 +60,7 @@ $(function(){
     (<any>window).Errors = Errors;
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).Setting = Setting;
+    (<any>window).Repositories = Repositories;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
@@ -210,5 +212,5 @@ function autoLoad(eagle: Eagle, service: Eagle.RepositoryService, repository: st
     }
 
     // load
-    eagle.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+    Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
 }

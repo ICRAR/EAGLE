@@ -1,0 +1,154 @@
+import {Eagle} from './Eagle';
+import {GitHub} from './GitHub';
+import {GitLab} from './GitLab';
+import {Palette} from './Palette';
+import {Repository} from './Repository';
+import {RepositoryFolder} from './RepositoryFolder';
+import {RepositoryFile} from './RepositoryFile';
+import {Setting} from './Setting';
+import {Utils} from './Utils';
+
+export class Repositories {
+
+    refreshRepositoryList = () : void => {
+        console.log("refreshRepositoryList()");
+        const eagle: Eagle = Eagle.getInstance();
+
+        GitHub.loadRepoList(eagle);
+        GitLab.loadRepoList(eagle);
+    };
+
+    selectFolder = (folder : RepositoryFolder) : void => {
+        console.log("selectFolder()", folder.name);
+
+        // toggle expanded state
+        folder.expanded(!folder.expanded());
+    }
+
+    static selectFile = (file : RepositoryFile) : void => {
+        console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
+        const eagle: Eagle = Eagle.getInstance();
+
+        // check if the current file has been modified
+        let isModified = false;
+        switch (file.type){
+            case Eagle.FileType.Graph:
+                isModified = eagle.logicalGraph().fileInfo().modified;
+                break;
+            case Eagle.FileType.Palette:
+                const palette: Palette = eagle.findPalette(file.name, false);
+                isModified = palette !== null && palette.fileInfo().modified;
+                break;
+            case Eagle.FileType.JSON:
+                isModified = eagle.logicalGraph().fileInfo().modified;
+                break;
+        }
+
+        // if the file is modified, get the user to confirm they want to overwrite changes
+        if (isModified && Setting.findValue(Utils.CONFIRM_DISCARD_CHANGES)){
+            Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", (confirmed : boolean) : void => {
+                if (!confirmed){
+                    console.log("selectFile() cancelled");
+                    return;
+                }
+
+                eagle.openRemoteFile(file);
+            });
+        } else {
+            eagle.openRemoteFile(file);
+        }
+    }
+
+    // use a custom modal to ask user for repository service and url at the same time
+    addCustomRepository = () : void => {
+        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : void => {
+            console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
+            const eagle: Eagle = Eagle.getInstance();
+
+            if (!completed){
+                console.log("No repo entered");
+                return;
+            }
+
+            if (repositoryName.trim() == ""){
+                Utils.showUserMessage("Error", "Repository name is empty!");
+                return;
+            }
+
+            if (repositoryBranch.trim() == ""){
+                Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
+                return;
+            }
+
+            // debug
+            console.log("User entered new repo name:", repositoryService, repositoryName, repositoryBranch);
+
+            // add extension to userString to indicate repository service
+            const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
+            if (localStorageKey === null){
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
+                return;
+            }
+
+            // Adding the repo name into the local browser storage.
+            localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
+
+            // Reload the repository lists
+            if (repositoryService === Eagle.RepositoryService.GitHub)
+                GitHub.loadRepoList(eagle);
+            if (repositoryService === Eagle.RepositoryService.GitLab)
+                GitLab.loadRepoList(eagle);
+        });
+    };
+
+    removeCustomRepository = (repository : Repository) : void => {
+        // if settings dictates that we don't confirm with user, remove immediately
+        if (!Setting.findValue(Utils.CONFIRM_REMOVE_REPOSITORES)){
+            this._removeCustomRepository(repository);
+            return;
+        }
+
+        // otherwise, check with user
+        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", (confirmed : boolean) =>{
+            if (!confirmed){
+                console.log("User aborted removeCustomRepository()");
+                return;
+            }
+
+            this._removeCustomRepository(repository);
+        });
+    };
+
+    private _removeCustomRepository = (repository : Repository) : void => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        // abort if the repository is one of those that is builtin to the app
+        if (repository.isBuiltIn){
+            console.warn("User attempted to remove a builtin repository from the list");
+            return;
+        }
+
+        // remove from localStorage
+        switch(repository.service){
+            case Eagle.RepositoryService.GitHub:
+                localStorage.removeItem(repository.name + ".repository");
+                localStorage.removeItem(repository.name + ".github_repository");
+                localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
+                GitHub.loadRepoList(eagle);
+                break;
+            case Eagle.RepositoryService.GitLab:
+                localStorage.removeItem(repository.name + ".gitlab_repository");
+                localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
+                GitLab.loadRepoList(eagle);
+                break;
+            default:
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
+                return;
+        }
+    }
+
+    static sort = () : void => {
+        Eagle.getInstance().repositories.sort(Repository.repositoriesSortFunc);
+    }
+
+}

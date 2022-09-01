@@ -32,6 +32,7 @@ import {Utils} from './Utils';
 import {Config} from './Config';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
+import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
@@ -95,7 +96,6 @@ export class Eagle {
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
-
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -233,7 +233,6 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_translation", "Open Translation", [">"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.TranslationMenu)}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_hierarchy", "Open Hierarchy", ["h"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Hierarchy)}));
         Eagle.shortcuts.push(new KeyboardShortcut("toggle_show_data_nodes", "Toggle Show Data Nodes", ["j"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleShowDataNodes(); }));
-
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -441,7 +440,6 @@ export class Eagle {
         }
     }
 
-
     zoomIn = () : void => {
         this.globalScale += 0.05;
         this.logicalGraph.valueHasMutated();
@@ -527,14 +525,6 @@ export class Eagle {
         const text =  nodeCount + " nodes and " + edgeCount + " edges."
 
         return text
-    }
-
-    isTypeNode = (object : any) : boolean => {
-        if (object instanceof Node){
-            return true;
-        }else{
-            return false;
-        }
     }
 
     /**
@@ -885,6 +875,7 @@ export class Eagle {
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
     }
 
+    // TODO: move to ParameterTable.ts
     formatTableInspectorSelection = () : string => {
         if (Eagle.parameterTableSelection() === null){
             return "";
@@ -893,6 +884,7 @@ export class Eagle {
         return Eagle.parameterTableSelectionParent().getDisplayText()+" - "+Eagle.parameterTableSelectionName()
     }
 
+    // TODO: move to ParameterTable.ts
     formatTableInspectorValue = () : string => {
         if (Eagle.parameterTableSelection() === null){
             return "";
@@ -901,6 +893,7 @@ export class Eagle {
         return Eagle.parameterTableSelection();
     }
 
+    // TODO: move to ParameterTable.ts
     tableInspectorUpdateSelection = (value:string) : void => {
         const selected = Eagle.parameterTableSelectionName()
         const selectedForm = Eagle.parameterTableSelectionParent()
@@ -1297,7 +1290,7 @@ export class Eagle {
                 break;
             case Eagle.RepositoryService.GitLab:
             case Eagle.RepositoryService.GitHub:
-                this.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
+                Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
                 break;
             case Eagle.RepositoryService.Url:
                 // TODO: new code
@@ -1754,148 +1747,6 @@ export class Eagle {
             Utils.v3GraphSchema = JSON.parse(data);
             Utils.appRefGraphSchema = JSON.parse(data);
         });
-    }
-
-    refreshRepositoryList = () : void => {
-        console.log("refreshRepositoryList()");
-
-        GitHub.loadRepoList(this);
-        GitLab.loadRepoList(this);
-    };
-
-    selectFolder = (folder : RepositoryFolder) : void => {
-        console.log("selectFolder()", folder.name);
-
-        // toggle expanded state
-        folder.expanded(!folder.expanded());
-    }
-
-    selectFile = (file : RepositoryFile) : void => {
-        console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
-
-        // check if the current file has been modified
-        let isModified = false;
-        switch (file.type){
-            case Eagle.FileType.Graph:
-                isModified = this.logicalGraph().fileInfo().modified;
-                break;
-            case Eagle.FileType.Palette:
-                const palette: Palette = this.findPalette(file.name, false);
-                isModified = palette !== null && palette.fileInfo().modified;
-                break;
-            case Eagle.FileType.JSON:
-                isModified = this.logicalGraph().fileInfo().modified;
-                break;
-        }
-
-        // if the file is modified, get the user to confirm they want to overwrite changes
-        if (isModified && Setting.findValue(Utils.CONFIRM_DISCARD_CHANGES)){
-            Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", (confirmed : boolean) : void => {
-                if (!confirmed){
-                    console.log("selectFile() cancelled");
-                    return;
-                }
-
-                this.openRemoteFile(file);
-            });
-        } else {
-            this.openRemoteFile(file);
-        }
-    }
-
-    insertFile = (file : RepositoryFile) : void => {
-        console.log("insertFile() repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
-
-        this.insertRemoteFile(file);
-    }
-
-    // use a custom modal to ask user for repository service and url at the same time
-    addCustomRepository = () : void => {
-        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : void => {
-            console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
-
-            if (!completed){
-                console.log("No repo entered");
-                return;
-            }
-
-            if (repositoryName.trim() == ""){
-                Utils.showUserMessage("Error", "Repository name is empty!");
-                return;
-            }
-
-            if (repositoryBranch.trim() == ""){
-                Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
-                return;
-            }
-
-            // debug
-            console.log("User entered new repo name:", repositoryService, repositoryName, repositoryBranch);
-
-            // add extension to userString to indicate repository service
-            const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
-            if (localStorageKey === null){
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
-                return;
-            }
-
-            // Adding the repo name into the local browser storage.
-            localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
-
-            // Reload the repository lists
-            if (repositoryService === Eagle.RepositoryService.GitHub)
-                GitHub.loadRepoList(this);
-            if (repositoryService === Eagle.RepositoryService.GitLab)
-                GitLab.loadRepoList(this);
-        });
-    };
-
-    removeCustomRepository = (repository : Repository) : void => {
-        // if settings dictates that we don't confirm with user, remove immediately
-        if (!Setting.findValue(Utils.CONFIRM_REMOVE_REPOSITORES)){
-            this._removeCustomRepository(repository);
-            return;
-        }
-
-        // otherwise, check with user
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", (confirmed : boolean) =>{
-            if (!confirmed){
-                console.log("User aborted removeCustomRepository()");
-                return;
-            }
-
-            this._removeCustomRepository(repository);
-        });
-    };
-
-    private _removeCustomRepository = (repository : Repository) : void => {
-        // abort if the repository is one of those that is builtin to the app
-        if (repository.isBuiltIn){
-            console.warn("User attempted to remove a builtin repository from the list");
-            return;
-        }
-
-        // remove from localStorage
-        switch(repository.service){
-            case Eagle.RepositoryService.GitHub:
-                localStorage.removeItem(repository.name + ".repository");
-                localStorage.removeItem(repository.name + ".github_repository");
-                localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
-                GitHub.loadRepoList(this);
-                break;
-            case Eagle.RepositoryService.GitLab:
-                localStorage.removeItem(repository.name + ".gitlab_repository");
-                localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
-                GitLab.loadRepoList(this);
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
-                return;
-        }
-    }
-
-    sortRepositories = () : void => {
-        this.repositories.sort(Repository.repositoriesSortFunc);
     }
 
     openRemoteFile = (file : RepositoryFile) : void => {
@@ -3081,7 +2932,7 @@ export class Eagle {
         return paletteNames;
     }
 
-    private findPalette = (name: string, createIfNotFound: boolean) : Palette => {
+    findPalette = (name: string, createIfNotFound: boolean) : Palette => {
         let p: Palette = null;
 
         // look for palette in open palettes

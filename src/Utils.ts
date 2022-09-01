@@ -2012,7 +2012,11 @@ export class Utils {
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             return "Read Only - Turn on 'Expert Mode' and 'Allow Palette Editing' in the settings to unlock"
         }
-        
+
         return ''
+    }
+
+    static isTypeNode = (object : any) : boolean => {
+        return (object instanceof Node);
     }
 }

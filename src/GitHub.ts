@@ -23,6 +23,7 @@
 */
 
 import {Eagle} from './Eagle';
+import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {RepositoryFolder} from './RepositoryFolder';
@@ -76,7 +77,7 @@ export class GitHub {
             }
 
             // sort the repository list
-            eagle.sortRepositories();
+            Repositories.sort();
         });
     }
 

@@ -23,6 +23,7 @@
 */
 
 import {Eagle} from './Eagle';
+import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
@@ -71,7 +72,7 @@ export class GitLab {
             }
 
             // sort the repository list
-            eagle.sortRepositories();
+            Repositories.sort();
         });
     }
 

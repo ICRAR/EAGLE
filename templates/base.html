@@ -142,7 +142,7 @@
                                 <span data-bind="text: $root.getSelectedText()"></span>
                                 <span id="inspectorSelectionSummaryNodes">Selected Nodes:</span>
                                 <!-- ko foreach: $root.selectedObjects -->
-                                    <!-- ko if: $root.isTypeNode($data) -->
+                                    <!-- ko if: Utils.isTypeNode($data) -->
                                         <div class="inspectorSelectionSummaryItem">
                                             <h5 data-bind="text: $data.getName()"></h5>
                                             <span data-bind="text: $data.getCategory()"></span>
