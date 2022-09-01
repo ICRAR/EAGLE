@@ -3,7 +3,6 @@ import {Eagle} from './Eagle';
 import {Edge} from './Edge';
 import {Node} from './Node';
 
-
 export class Hierarchy {
 
     static updateDisplay = () : void => {
