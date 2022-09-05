@@ -98,7 +98,7 @@ $(function(){
     }
 
     // load schemas
-    eagle.loadSchemas();
+    Utils.loadSchemas();
 
     // enable bootstrap accordion collapse
     const bsCollapse = new bootstrap.Collapse('.collapse', {});

@@ -34,7 +34,6 @@ import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
 import {Repositories} from './Repositories';
 import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
 import {Translator} from './Translator';
 import {Category} from './Category';
@@ -323,6 +322,10 @@ export class Eagle {
 
     showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return Setting.findValue(Utils.ENABLE_PERFORMANCE_DISPLAY);
+    }, this);
+
+    showSimplifiedTranslatorOptions : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return Setting.findValue(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS);
     }, this);
 
     toggleShowDataNodes = () : void => {
@@ -658,93 +661,6 @@ export class Eagle {
         }
 
         return false;
-    }
-
-    showSimplifiedTranslatorOptions : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Setting.findValue(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS);
-    }, this);
-
-    //----------------- Physical Graph Generation --------------------------------
-    /**
-     * Generate Physical Graph Template.
-     * @param algorithmIndex Algorithm number.
-     */
-    genPGT = (algorithmIndex : number, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
-        if (this.logicalGraph().getNumNodes() === 0) {
-            Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
-            return;
-        }
-
-        if (this.logicalGraph().fileInfo().name === ""){
-            Utils.showUserMessage("Error", "Unable to translate. Logical graph does not have a name! Please save the graph first.");
-            return;
-        }
-
-        const translatorURL : string = Setting.findValue(Utils.TRANSLATOR_URL);
-        console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
-
-        // set the schema version
-        format = Eagle.DALiuGESchemaVersion.OJS;
-
-        /*
-        if (format === Eagle.DALiuGESchemaVersion.Unknown){
-            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS];
-
-            // ask user to specify graph format to be sent to translator
-            Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
-                if (!completed){
-                    console.log("User aborted translation.");
-                    return;
-                }
-
-                this._genPGT(translatorURL, algorithmIndex, testingMode, schemas[userChoiceIndex]);
-            });
-        } else {
-            this._genPGT(translatorURL, algorithmIndex, testingMode, format);
-        }
-        */
-        this._genPGT(translatorURL, algorithmIndex, testingMode, format);
-    }
-
-    _genPGT = (translatorURL: string, algorithmIndex : number, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
-        // get json for logical graph
-        let json;
-        switch (format){
-            case Eagle.DALiuGESchemaVersion.OJS:
-                json = LogicalGraph.toOJSJson(this.logicalGraph(), true);
-                break;
-            default:
-                console.error("Unsupported graph format for translator!");
-                return;
-        }
-
-        // validate json
-        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, format, Eagle.FileType.Graph);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
-
-        const translatorData = {
-            algo: Config.translationAlgorithms[algorithmIndex],
-            lg_name: this.logicalGraph().fileInfo().name,
-            json_data: JSON.stringify(json),
-            test: testingMode.toString()
-        };
-
-        this.translator().submit(translatorURL, translatorData);
-
-        // mostly for debugging purposes
-        console.log("translator data");
-        console.log("---------");
-        console.log(translatorData);
-        console.log("---------");
-        console.log(json);
-        console.log("---------");
     }
 
     /**
@@ -1730,23 +1646,6 @@ export class Eagle {
                 }
             });
         }
-    }
-
-    loadSchemas = () : void => {
-        console.log("loadSchemas()");
-
-        Utils.httpGet(Config.DALIUGE_GRAPH_SCHEMA_URL, (error : string, data : string) => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
-
-            Utils.ojsGraphSchema = JSON.parse(data);
-
-            // NOTE: we don't have a schema for the V3 or appRef versions
-            Utils.v3GraphSchema = JSON.parse(data);
-            Utils.appRefGraphSchema = JSON.parse(data);
-        });
     }
 
     openRemoteFile = (file : RepositoryFile) : void => {

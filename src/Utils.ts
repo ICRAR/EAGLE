@@ -2019,4 +2019,19 @@ export class Utils {
     static isTypeNode = (object : any) : boolean => {
         return (object instanceof Node);
     }
+
+    static loadSchemas = () : void => {
+        Utils.httpGet(Config.DALIUGE_GRAPH_SCHEMA_URL, (error : string, data : string) => {
+            if (error !== null){
+                console.error(error);
+                return;
+            }
+
+            Utils.ojsGraphSchema = JSON.parse(data);
+
+            // NOTE: we don't have a schema for the V3 or appRef versions
+            Utils.v3GraphSchema = JSON.parse(data);
+            Utils.appRefGraphSchema = JSON.parse(data);
+        });
+    }
 }
