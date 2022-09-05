@@ -34,6 +34,7 @@ export class GitLab {
     /**
      * Loads the GitLab repository list.
      */
+    // TODO: should callback with the list of repositories
     static loadRepoList(eagle : Eagle) : void {
         Utils.httpGetJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
             if (error != null){
@@ -42,14 +43,14 @@ export class GitLab {
             }
 
             // remove all GitLab repos from the list of repositories
-            for (let i = eagle.repositories().length - 1 ; i >= 0 ; i--){
-                if (eagle.repositories()[i].service === Eagle.RepositoryService.GitLab)
-                    eagle.repositories.splice(i, 1);
+            for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
+                if (Repositories.repositories()[i].service === Eagle.RepositoryService.GitLab)
+                    Repositories.repositories.splice(i, 1);
             }
 
             // add the repositories from the POST response
             for (const d of data){
-                eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, d.repository, d.branch, true));
+                Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitLab, d.repository, d.branch, true));
             }
 
             // search for custom repositories, and add them into the list.
@@ -60,14 +61,14 @@ export class GitLab {
 
                 // handle legacy repositories where the branch is not specified (assume master)
                 if (keyExtension === "gitlab_repository"){
-                    eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, value, "master", false));
+                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitLab, value, "master", false));
                 }
 
                 // handle the current method of storing repositories where both the service and branch are specified
                 if (keyExtension === "gitlab_repository_and_branch") {
                     const repositoryName = value.split("|")[0];
                     const repositoryBranch = value.split("|")[1];
-                    eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, repositoryName, repositoryBranch, false));
+                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitLab, repositoryName, repositoryBranch, false));
                 }
             }
 

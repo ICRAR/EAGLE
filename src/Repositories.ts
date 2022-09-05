@@ -1,3 +1,5 @@
+import * as ko from "knockout";
+
 import {Eagle} from './Eagle';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
@@ -9,6 +11,13 @@ import {Setting} from './Setting';
 import {Utils} from './Utils';
 
 export class Repositories {
+
+    // TODO: make this private?
+    static repositories : ko.ObservableArray<Repository>;
+
+    constructor(){
+        Repositories.repositories = ko.observableArray();
+    }
 
     refreshRepositoryList = () : void => {
         console.log("refreshRepositoryList()");
@@ -147,8 +156,40 @@ export class Repositories {
         }
     }
 
+    // TODO: the name seems weird here, does it need to be 
     static sort = () : void => {
-        Eagle.getInstance().repositories.sort(Repository.repositoriesSortFunc);
+        Repositories.repositories().sort(Repository.repositoriesSortFunc);
     }
 
+    static getList = (service : Eagle.RepositoryService) : Repository[] => {
+        const list : Repository[] = [];
+
+        for (const repository of Repositories.repositories()){
+            if (repository.service === service){
+                list.push(repository);
+            }
+        }
+
+        return list;
+    };
+
+    static get = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
+        console.log("getRepository()", service, name, branch);
+
+        for (const repository of Repositories.repositories()){
+            if (repository.service === service && repository.name === name && repository.branch === branch){
+                return repository;
+            }
+        }
+        console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
+        return null;
+    };
+
+    static fetchAll = () : void => {
+        for (const repository of Repositories.repositories()){
+            if (!repository.fetched()){
+                repository.select();
+            }
+        }
+    }
 }

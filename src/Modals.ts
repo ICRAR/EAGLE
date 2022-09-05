@@ -3,6 +3,7 @@ import * as ko from "knockout";
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {LogicalGraph} from './LogicalGraph';
+import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
@@ -160,7 +161,7 @@ export class Modals {
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
             const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
-            const repositories: Repository[] = eagle.getRepositoryList(repositoryService);
+            const repositories: Repository[] = Repositories.getList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
             Utils.updateGitCommitRepositoriesList(repositories, null);
         });

@@ -1883,14 +1883,6 @@ export class Utils {
         return Eagle.LinkValid.Warning;
     }
 
-    static fetchAllRepositories = () : void => {
-        for (const repo of Eagle.getInstance().repositories()){
-            if (!repo.fetched()){
-                repo.select();
-            }
-        }
-    }
-
     static printCategories = () : void => {
         const tableData : any[] = [];
 

@@ -28,6 +28,7 @@ import {Errors} from './Errors';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
 import {LogicalGraph} from './LogicalGraph';
+import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
@@ -264,7 +265,7 @@ export class GraphUpdater {
 
         // check that all repos have been fetched
         let foundUnfetched = false;
-        for (const repo of eagle.repositories()){
+        for (const repo of Repositories.repositories()){
             if (!repo.fetched()){
                 foundUnfetched = true;
                 console.warn("Unfetched repo:" + repo.getNameAndBranch());
@@ -277,7 +278,7 @@ export class GraphUpdater {
         const tableData : any[] = [];
 
         // add logical graph nodes to table
-        for (const repo of eagle.repositories()){
+        for (const repo of Repositories.repositories()){
             for (const folder of repo.folders()){
                 GraphUpdater._addGraphs(repo, folder, folder.name, tableData);
             }

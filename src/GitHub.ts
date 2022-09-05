@@ -34,6 +34,7 @@ export class GitHub {
     /**
      * Loads the GitHub repository list.
      */
+    // TODO: should callback with the list of repositories
     static loadRepoList(eagle : Eagle) : void {
         Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
             if (error != null){
@@ -42,14 +43,14 @@ export class GitHub {
             }
 
             // remove all GitHub repos from the list of repositories
-            for (let i = eagle.repositories().length - 1 ; i >= 0 ; i--){
-                if (eagle.repositories()[i].service === Eagle.RepositoryService.GitHub)
-                    eagle.repositories.splice(i, 1);
+            for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
+                if (Repositories.repositories()[i].service === Eagle.RepositoryService.GitHub)
+                    Repositories.repositories.splice(i, 1);
             }
 
             // add the repositories from the POST response
             for (const d of data){
-                eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, d.repository, d.branch, true));
+                Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitHub, d.repository, d.branch, true));
             }
 
             // search for custom repositories in localStorage, and add them into the list
@@ -60,19 +61,19 @@ export class GitHub {
 
                 // handle legacy repositories where the service and branch are not specified (assume github and master)
                 if (keyExtension === "repository"){
-                    eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, value, "master", false));
+                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitHub, value, "master", false));
                 }
 
                 // handle legacy repositories where the branch is not specified (assume master)
                 if (keyExtension === "github_repository") {
-                    eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, value, "master", false));
+                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitHub, value, "master", false));
                 }
 
                 // handle the current method of storing repositories where both the service and branch are specified
                 if (keyExtension === "github_repository_and_branch"){
                     const repositoryName = value.split("|")[0];
                     const repositoryBranch = value.split("|")[1];
-                    eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, repositoryName, repositoryBranch, false));
+                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitHub, repositoryName, repositoryBranch, false));
                 }
             }
 

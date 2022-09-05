@@ -27,7 +27,6 @@
 import * as ko from "knockout";
 import * as ij from "intro.js";
 
-
 import {Utils} from './Utils';
 import {Config} from './Config';
 import {GitHub} from './GitHub';
@@ -61,14 +60,13 @@ export class Eagle {
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
 
-    repositories : ko.ObservableArray<Repository>;
-
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
 
+    repositories: ko.Observable<Repositories>;
     translator : ko.Observable<Translator>;
     undo : ko.Observable<Undo>;
     parameterTable : ko.Observable<ParameterTable>;
@@ -116,14 +114,13 @@ export class Eagle {
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
 
-        this.repositories = ko.observableArray();
-
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
         this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
+        this.repositories = ko.observable(new Repositories());
         this.translator = ko.observable(new Translator());
         this.undo = ko.observable(new Undo());
         this.parameterTable = ko.observable(new ParameterTable());
@@ -391,32 +388,6 @@ export class Eagle {
 
         return fileInfo.getText();
     }, this);
-
-    // TODO: move to Repositories.ts?
-    getRepositoryList = (service : Eagle.RepositoryService) : Repository[] => {
-        const list : Repository[] = [];
-
-        for (const repository of this.repositories()){
-            if (repository.service === service){
-                list.push(repository);
-            }
-        }
-
-        return list;
-    };
-
-    // TODO: move to Repositories.ts?
-    getRepository = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
-        console.log("getRepository()", service, name, branch);
-
-        for (const repository of this.repositories()){
-            if (repository.service === service && repository.name === name && repository.branch === branch){
-                return repository;
-            }
-        }
-        console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
-        return null;
-    };
 
     toggleWindows = () : void  => {
         this.rightWindow().toggleShown()
@@ -1375,8 +1346,8 @@ export class Eagle {
             // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
             // just use any existing repo
             if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown || fileInfo().repositoryService === Eagle.RepositoryService.File){
-                const gitHubRepoList : Repository[] = this.getRepositoryList(Eagle.RepositoryService.GitHub);
-                const gitLabRepoList : Repository[] = this.getRepositoryList(Eagle.RepositoryService.GitLab);
+                const gitHubRepoList : Repository[] = Repositories.getList(Eagle.RepositoryService.GitHub);
+                const gitLabRepoList : Repository[] = Repositories.getList(Eagle.RepositoryService.GitLab);
 
                 // use first gitlab repo as second preference
                 if (gitLabRepoList.length > 0){
@@ -1396,7 +1367,7 @@ export class Eagle {
             }
         }
 
-        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(defaultRepository.service), fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -1404,7 +1375,7 @@ export class Eagle {
             }
 
             // check repository name
-            const repository : Repository = this.getRepository(repositoryService, repositoryName, repositoryBranch);
+            const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
 
             this._commit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
         });
@@ -1473,7 +1444,7 @@ export class Eagle {
         // set the EAGLE version etc according to this running version
         fileInfo().updateEagleInfo();
 
-        const repository = this.getRepository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
+        const repository = Repositories.get(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
 
         this._commit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
     };
@@ -1979,7 +1950,7 @@ export class Eagle {
 
         const defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
 
-        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(Eagle.RepositoryService.GitHub),  palette.fileInfo().path, palette.fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Eagle.RepositoryService.GitHub),  palette.fileInfo().path, palette.fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -1987,7 +1958,7 @@ export class Eagle {
             }
 
             // check repository name
-            const repository : Repository = this.getRepository(repositoryService, repositoryName, repositoryBranch);
+            const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
             if (repository === null){
                 console.log("Abort commit");
                 return;
