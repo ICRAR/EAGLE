@@ -53,6 +53,7 @@ import {ExplorePalettes} from './ExplorePalettes';
 import {Hierarchy} from './Hierarchy';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
+import {ParameterTable} from './ParameterTable';
 
 export class Eagle {
     static _instance : Eagle;
@@ -68,14 +69,9 @@ export class Eagle {
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
 
-    static parameterTableSelectionParent : ko.Observable<Field>; // row in the parameter table that is currently selected
-    static parameterTableSelectionParentIndex : ko.Observable<number> // id of the selected field
-    static parameterTableSelection : ko.Observable<string>; // cell in the parameter table that is currently selected
-    static parameterTableSelectionName : ko.Observable<string>; // name of selected parameter in field
-    static parameterTableSelectionReadonly : ko.Observable<boolean> // check if selection is readonly
-
     translator : ko.Observable<Translator>;
     undo : ko.Observable<Undo>;
+    parameterTable : ko.Observable<ParameterTable>;
 
     globalOffsetX : number;
     globalOffsetY : number;
@@ -130,6 +126,7 @@ export class Eagle {
 
         this.translator = ko.observable(new Translator());
         this.undo = ko.observable(new Undo());
+        this.parameterTable = ko.observable(new ParameterTable());
 
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("");
@@ -236,12 +233,6 @@ export class Eagle {
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
-
-        Eagle.parameterTableSelectionParent = ko.observable(null);
-        Eagle.parameterTableSelectionParentIndex = ko.observable(-1);
-        Eagle.parameterTableSelection = ko.observable(null);
-        Eagle.parameterTableSelectionName = ko.observable('');
-        Eagle.parameterTableSelectionReadonly = ko.observable(false);
 
         this.inspectorState = ko.observable(new InspectorState());
 
@@ -401,6 +392,7 @@ export class Eagle {
         return fileInfo.getText();
     }, this);
 
+    // TODO: move to Repositories.ts?
     getRepositoryList = (service : Eagle.RepositoryService) : Repository[] => {
         const list : Repository[] = [];
 
@@ -413,6 +405,7 @@ export class Eagle {
         return list;
     };
 
+    // TODO: move to Repositories.ts?
     getRepository = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
         console.log("getRepository()", service, name, branch);
 
@@ -789,41 +782,6 @@ export class Eagle {
         }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
-    }
-
-    // TODO: move to ParameterTable.ts
-    formatTableInspectorSelection = () : string => {
-        if (Eagle.parameterTableSelection() === null){
-            return "";
-        }
-
-        return Eagle.parameterTableSelectionParent().getDisplayText()+" - "+Eagle.parameterTableSelectionName()
-    }
-
-    // TODO: move to ParameterTable.ts
-    formatTableInspectorValue = () : string => {
-        if (Eagle.parameterTableSelection() === null){
-            return "";
-        }
-
-        return Eagle.parameterTableSelection();
-    }
-
-    // TODO: move to ParameterTable.ts
-    tableInspectorUpdateSelection = (value:string) : void => {
-        const selected = Eagle.parameterTableSelectionName()
-        const selectedForm = Eagle.parameterTableSelectionParent()
-        if(selected === 'displayText'){
-            selectedForm.setDisplayText(value)
-        } else if(selected === 'idText'){
-            selectedForm.setIdText(value)
-        } else if(selected === 'value'){
-            selectedForm.setValue(value)
-        } else if(selected === 'defaultValue'){
-            selectedForm.setDefaultValue(value)
-        } else if(selected === 'description'){
-            selectedForm.setDescription(value)
-        }
     }
 
     createSubgraphFromSelection = () : void => {
@@ -2288,30 +2246,7 @@ export class Eagle {
         return
     }
 
-    static resetParamsTableSelection = ():void => {
-        Eagle.parameterTableSelectionParentIndex(-1);
-        Eagle.parameterTableSelection(null);
-    }
-
-    // fill the datatype select element with all the types known within the current graph and palettes
-    fillParametersTable = (type:string):string => {
-        let options:string = "";
-
-        // determine the list of all types in this graph and palettes
-        const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
-
-        for (const dataType of allTypes){
-            let selected=""
-            if(type === dataType){
-                selected = "selected=true"
-            }
-            options = options + "<option value="+dataType+"  "+selected+">"+dataType+"</option>";
-        }
-
-        return options
-    }
-
-    //copies currently set settings in case the user wishes to cancel chenges in the setting modal
+    //copies currently set settings in case the user wishes to cancel changes in the setting modal
     copyCurrentSettings = () : void => {
         for (const group of Eagle.settings){
             for (const setting of group.getSettings()){
@@ -2320,7 +2255,7 @@ export class Eagle {
         }
     }
 
-    //returns settings values to the previously copied settings, cancelling the settings editing
+    //returns settings values to the previously copied settings, canceling the settings editing
     cancelSettingChanges = () : void => {
         for (const group of Eagle.settings){
             for (const setting of group.getSettings()){
@@ -3018,9 +2953,9 @@ export class Eagle {
     addEmptyTableRow = () : void => {
         let fieldIndex:number
 
-        if(Eagle.parameterTableSelectionParentIndex() != -1){
+        if(ParameterTable.hasSelection()){
             // A cell in the table is selected well insert new row instead of adding at the end
-            fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
+            fieldIndex = ParameterTable.selectionParentIndex() + 1
             this.selectedNode().addEmptyField(fieldIndex)
         }else{
             this.selectedNode().addEmptyField(-1)
@@ -3717,9 +3652,9 @@ export class Eagle {
     // TODO: move to Node.ts?
     duplicateParameter = (index:number) :void => {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
-        if(Eagle.parameterTableSelectionParentIndex() != -1){
+        if(ParameterTable.hasSelection()){
             //if a cell in the table is selected in this case the new node will be placed below the currently selected node
-            fieldIndex = Eagle.parameterTableSelectionParentIndex()+1
+            fieldIndex = ParameterTable.selectionParentIndex() + 1
             this.selectedNode().addFieldAtPosition(this.selectedNode().getFields()[index].clone(),fieldIndex)
         }else{
             //if no call in the table is selected, in this case the new node is appended

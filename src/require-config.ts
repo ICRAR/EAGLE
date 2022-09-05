@@ -48,7 +48,8 @@ require.config({
         "Category": "./static/built/Category",
         "CategoryData": "./static/built/CategoryData",
         "Hierarchy": "./static/built/Hierarchy",
-        "Repositories": "./static/built/Repositories"
+        "Repositories": "./static/built/Repositories",
+        "ParameterTable": "./static/built/ParameterTable"
     },
     shim: {
         "bootstrap": {

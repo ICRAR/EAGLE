@@ -767,7 +767,7 @@ export class Utils {
 
         $('#editFieldModalTypeInput').val(field.getType());
 
-        // TODO: this looks like Eagle.ts::fillParametersTable(), can we make them common
+        // TODO: this looks like ParameterTable.ts::fill(), can we make them common?
         const allTypes = Utils.findAllKnownTypes(eagle.palettes(), eagle.logicalGraph());
 
         // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select

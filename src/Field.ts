@@ -250,14 +250,6 @@ export class Field {
         return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.idText()) > -1;
     }, this);
 
-    select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
-        Eagle.parameterTableSelectionName(selectionName);
-        Eagle.parameterTableSelectionParent(selectionParent);
-        Eagle.parameterTableSelectionParentIndex(selectionIndex);
-        Eagle.parameterTableSelection(selection);
-        Eagle.parameterTableSelectionReadonly(readOnlyState);
-    }
-
     getHtmlInputType = () : string => {
         const typePrefix = Utils.dataTypePrefix(this.type());
 

@@ -48,6 +48,7 @@
         "./src/Undo.ts",
         "./src/Errors.ts",
         "./src/Hierarchy.ts",
-        "./src/Repositories.ts"
+        "./src/Repositories.ts",
+        "./src/ParameterTable.ts"
     ]
 }

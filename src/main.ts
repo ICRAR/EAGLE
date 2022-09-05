@@ -44,6 +44,7 @@ import {Utils} from './Utils';
 import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
+import { ParameterTable } from "./ParameterTable";
 
 let eagle : Eagle;
 
@@ -61,6 +62,7 @@ $(function(){
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).Setting = Setting;
     (<any>window).Repositories = Repositories;
+    (<any>window).ParameterTable = ParameterTable;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
@@ -142,7 +144,7 @@ $(function(){
           $("#errorsModalAccordion").parent().parent().attr('style','')
   
           //reset parameter table selecction
-          Eagle.resetParamsTableSelection()
+          ParameterTable.resetSelection()
       });
   
       $('.modal').on('shown.bs.modal',function(){
