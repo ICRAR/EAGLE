@@ -27,7 +27,7 @@ export class Repositories {
         GitLab.loadRepoList(eagle);
     };
 
-    selectFolder = (folder : RepositoryFolder) : void => {
+    static selectFolder = (folder : RepositoryFolder) : void => {
         console.log("selectFolder()", folder.name);
 
         // toggle expanded state
