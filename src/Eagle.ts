@@ -3236,51 +3236,6 @@ export class Eagle {
         this.selectedObjects.valueHasMutated();
     }
 
-    // TODO: move to SideWindow.ts
-    // dragdrop
-    nodeDragStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        // retrieve data about the node being dragged
-        // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
-        //       Using the native javascript works better, it always fetches the current value of the attribute
-
-        //this is for dealing with drag and drop actions while there is already one ore more palette components selected
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-
-            const paletteIndex = $(e.target).data("palette-index")
-            const componentIndex = $(e.target).data("component-index")
-            const draggedNode = this.palettes()[paletteIndex].getNodes()[componentIndex]
-
-            if(!this.objectIsSelected(draggedNode)){
-                $(e.target).find("div").click()
-            }
-        }
-
-        Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
-        Eagle.nodeDragComponentIndex = parseInt(e.target.getAttribute('data-component-index'), 10);
-
-        // discourage the rightWindow and navbar as drop targets
-        $(".rightWindow").addClass("noDropTarget");
-        $(".navbar").addClass("noDropTarget");
-
-        // grab and set the node's icon and sets it as drag image.
-        const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
-        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
-
-        return true;
-    }
-
-    // TODO: move to SideWindow.ts
-    nodeDragEnd = () : boolean => {
-        $(".rightWindow").removeClass("noDropTarget");
-        $(".navbar").removeClass("noDropTarget");
-        return true;
-    }
-
-    // TODO: move to SideWindow.ts
-    nodeDragOver = () : boolean => {
-        return false;
-    }
-
     nodeDropLogicalGraph = (eagle : Eagle, e : JQueryEventObject) : void => {
         // keep track of the drop location
         Eagle.nodeDropLocation = this.getNodeDropLocation(e);
@@ -3318,7 +3273,7 @@ export class Eagle {
 
     nodeDropPalette = (eagle: Eagle, e: JQueryEventObject) : void => {
         const sourceComponents : Node[] = [];
-
+        
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
@@ -3379,78 +3334,6 @@ export class Eagle {
 
         return {x:x, y:y};
     };
-
-    // TODO: move to SideWindow.ts
-    rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        Eagle.dragStartX = e.clientX;
-        this.leftWindow().adjusting(false);
-        this.rightWindow().adjusting(true);
-
-        return true;
-    }
-
-    // TODO: move to SideWindow.ts
-    //workaround to aviod left or right window adjusting on any and all drag events
-    sideWindowAdjustEnd = () : boolean => {
-        this.leftWindow().adjusting(false);
-        this.rightWindow().adjusting(false);
-
-        return true;
-    }
-
-    // TODO: move to SideWindow.ts
-    sideWindowAdjust = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        // workaround to avoid final dragEvent at 0,0!
-        if (e.clientX === 0){
-            return true;
-        }
-
-        if (isNaN(this.leftWindow().width())){
-            console.warn("Had to reset left window width from invalid state (NaN)!");
-            this.leftWindow().width(Config.defaultLeftWindowWidth);
-        }
-        if (isNaN(this.rightWindow().width())){
-            console.warn("Had to reset right window width from invalid state (NaN)!");
-            this.rightWindow().width(Config.defaultRightWindowWidth);
-        }
-
-        const dragDiff : number = e.clientX - Eagle.dragStartX;
-        let newWidth : number;
-
-        if (this.leftWindow().adjusting()){
-            newWidth = this.leftWindow().width() + dragDiff;
-            if(newWidth <= Config.defaultLeftWindowWidth){
-                this.leftWindow().width(Config.defaultLeftWindowWidth);
-                Utils.setLeftWindowWidth(Config.defaultLeftWindowWidth);
-            }else{
-                this.leftWindow().width(newWidth);
-                Utils.setLeftWindowWidth(newWidth);
-            }
-        } else if(this.rightWindow().adjusting()) {
-            newWidth = this.rightWindow().width() - dragDiff;
-            if(newWidth <= Config.defaultRightWindowWidth){
-                this.rightWindow().width(Config.defaultRightWindowWidth);
-                Utils.setRightWindowWidth(Config.defaultRightWindowWidth);
-            }else{
-                this.rightWindow().width(newWidth);
-                Utils.setRightWindowWidth(newWidth);
-            }
-        }
-
-        Eagle.dragStartX = e.clientX;
-
-        return true;
-    }
-
-    // TODO: move to SideWindow.ts
-    leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-
-        Eagle.dragStartX = e.clientX;
-        this.leftWindow().adjusting(true);
-        this.rightWindow().adjusting(false);
-
-        return true;
-    }
 
     paletteComponentClick = (node: Node, event:JQueryEventObject) : void => {
         if (event.shiftKey)

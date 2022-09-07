@@ -44,7 +44,8 @@ import {Utils} from './Utils';
 import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
-import { ParameterTable } from "./ParameterTable";
+import {ParameterTable} from "./ParameterTable";
+import {SideWindow} from "./SideWindow";
 
 let eagle : Eagle;
 
@@ -63,6 +64,7 @@ $(function(){
     (<any>window).Setting = Setting;
     (<any>window).Repositories = Repositories;
     (<any>window).ParameterTable = ParameterTable;
+    (<any>window).SideWindow = SideWindow;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
