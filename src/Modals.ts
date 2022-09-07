@@ -50,7 +50,8 @@ export class Modals {
             const callback : (completed : boolean, userString : string) => void = $('#inputTextModal').data('callback');
 
             if (callback === null){
-                // TODO: don't call the callback!
+                console.log("No callback called when #inputTextModal hidden");
+                return;
             }
 
             callback($('#inputTextModal').data('completed'), $('#inputTextModalInput').val().toString());
