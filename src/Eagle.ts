@@ -3503,8 +3503,7 @@ export class Eagle {
         }
     };
 
-    // TODO: move to Node.ts?
-    duplicateParameter = (index:number) :void => {
+    duplicateParameter = (index:number) : void => {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
         if(ParameterTable.hasSelection()){
             //if a cell in the table is selected in this case the new node will be placed below the currently selected node
