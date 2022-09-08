@@ -84,7 +84,7 @@ export class Utils {
     static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
-    static readonly ENABLE_EXPERT_MODE: string = "EnableExpertMode";
+    static readonly USER_INTERFACE_MODE: string = "UserInterfaceMode";
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
     static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";

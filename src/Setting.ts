@@ -36,8 +36,9 @@ export class Setting {
     private key : string;
     private defaultValue : any;
     private oldValue : any;
+    private options : string[];
 
-    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any){
+    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any, options?: string[]){
         this.name = name;
         this.description = description;
         this.type = type;
@@ -45,6 +46,7 @@ export class Setting {
         this.value = ko.observable(defaultValue);
         this.defaultValue = defaultValue;
         this.oldValue = "";
+        this.options = options;
 
         this.load();
 
@@ -142,6 +144,7 @@ export namespace Setting {
         String,
         Number,
         Boolean,
-        Password
+        Password,
+        Select
     }
 }

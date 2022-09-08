@@ -1298,6 +1298,10 @@ select.form-control{
     height:38px;
 }
 
+#settingsModal.modal select {
+    margin-bottom: 0px;
+}
+
 .leftWindow .leftWindowHandle {
     position: absolute;
     width: 48px;
