@@ -2808,7 +2808,7 @@ export class Eagle {
         return
     }
 
-    private static findSetting = (key : string) : Setting => {
+    static findSetting = (key : string) : Setting => {
         // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
         if (typeof Eagle.settings === 'undefined'){
             return null;

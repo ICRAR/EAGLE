@@ -76,6 +76,10 @@ export class Setting {
         return this.oldValue;
     }
 
+    setValue = (value: any) : void => {
+        this.value(value);
+    }
+
     save = () : void => {
         localStorage.setItem(this.key, this.valueToString(this.value()));
     }
