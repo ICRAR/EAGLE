@@ -77,6 +77,9 @@ $(function(){
         } else {
             console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Eagle.UIMode).join(','));
         }
+
+        // hide the ?mode=x part of the url
+        window.history.replaceState(null, null, window.location.origin + window.location.pathname);
     }
 
     // Get the list of git repos
