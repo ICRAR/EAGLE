@@ -150,13 +150,13 @@ export class Eagle {
                     new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false),
                     new Setting("Use Simplified Translator Options", "Hide the complex and rarely used translator options", Setting.Type.Boolean, Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS, true),
                     new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false),
-                    new Setting("UI Mode", "User Interface Mode. Simple Mode removes palettes, uses a single graph repository, simplifies the parameters table. Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Select, Utils.USER_INTERFACE_MODE, "normal", ["simple", "normal", "expert"]),
+                    new Setting("UI Mode", "User Interface Mode. Simple Mode removes palettes, uses a single graph repository, simplifies the parameters table. Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Select, Utils.USER_INTERFACE_MODE, Eagle.UIMode.Default, Object.values(Eagle.UIMode)),
                     new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000),
                 ]
             ),
             new SettingsGroup(
                 "Advanced Editing",
-                (eagle) => {return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === "expert";},
+                (eagle) => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
                 [
                     new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, true),
                     new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, true),
@@ -178,7 +178,7 @@ export class Eagle {
             ),
             new SettingsGroup(
                 "Developer",
-                (eagle) => {return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === "expert";},
+                (eagle) => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
                 [
                     new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
                     new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
@@ -413,27 +413,31 @@ export class Eagle {
     }
 
     static allowInvalidEdges = () : boolean => {
-        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === "expert" && Eagle.findSettingValue(Utils.ALLOW_INVALID_EDGES);
+        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === Eagle.UIMode.Expert && Eagle.findSettingValue(Utils.ALLOW_INVALID_EDGES);
     }
 
     static allowPaletteEditing = () : boolean => {
-        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === "expert" && Eagle.findSettingValue(Utils.ALLOW_PALETTE_EDITING);
+        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === Eagle.UIMode.Expert && Eagle.findSettingValue(Utils.ALLOW_PALETTE_EDITING);
     }
 
     static allowReadonlyPaletteEditing = () : boolean => {
-        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === "expert" && Eagle.findSettingValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
+        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === Eagle.UIMode.Expert && Eagle.findSettingValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
     }
 
     static allowComponentEditing = () : boolean => {
-        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === "expert" && Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
+        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === Eagle.UIMode.Expert && Eagle.findSettingValue(Utils.ALLOW_COMPONENT_EDITING);
     }
 
     static allowEdgeEditing = (): boolean => {
-        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === "expert" && Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
+        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === Eagle.UIMode.Expert && Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
     }
 
     static showDaliugeRuntimeParameters = () : boolean => {
-        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === "expert" && Eagle.findSettingValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === Eagle.UIMode.Expert && Eagle.findSettingValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+    }
+
+    static isInUIMode = (mode : Eagle.UIMode) : boolean => {
+        return Eagle.findSettingValue(Utils.USER_INTERFACE_MODE) === mode;
     }
 
     displayNodeKeys = () :boolean => {
@@ -5506,6 +5510,15 @@ export namespace Eagle
     export enum ErrorsMode {
         Loading = "Loading",
         Graph = "Graph"
+    }
+
+    export enum UIMode {
+        Student = "student",
+        Default = "default",
+        Graph = "graph",
+        Palette = "palette",
+        Expert = "expert",
+        Custom = "custom"
     }
 }
 
