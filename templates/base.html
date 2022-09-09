@@ -54,6 +54,8 @@
         {% include 'navbar.html' %}
 
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: sideWindowAdjust}">
+
+            <!-- ko ifnot: Eagle.isInUIMode(Eagle.UIMode.Student) -->
             <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: leftWindow().shown() ? 0 : -leftWindow().width()}">
                 <div class="leftWindowHandle" data-bind="click: leftWindow().toggleShown, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_left_window', true)">
                     <span style="display: none" data-bind="visible: leftWindow().shown()">
@@ -72,6 +74,7 @@
                     <div class="leftWindowSizeAdjusterLine"></div>
                 </div>
             </div>
+            <!-- /ko -->
 
             <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDropLogicalGraph }">
                 <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
