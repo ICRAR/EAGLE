@@ -964,8 +964,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("d", createLink)
         .attr("stroke", "transparent")
         .attr("stroke-width", "10px")
-        .attr("fill", "transparent")
-        .style("display", getEdgeDisplay)
+        .attr("fill", "none")
+        .attr("style","pointer-events:visible-stroke;")
+        .style("display", getEdgeDisplay);
 
     // draw links
     // TODO: ideally we would not use the 'any' type here
@@ -980,7 +981,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("d", createLink)
         .attr("stroke", edgeGetStrokeColor)
         .attr("stroke-dasharray", edgeGetStrokeDashArray)
-        .attr("fill", "transparent")
+        .attr("fill", "none")
         .attr("marker-end", edgeGetArrowheadUrl)
         .style("display", getEdgeDisplay)
 
@@ -1707,8 +1708,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         linkExtras
             .attr("class", "linkExtra")
             .attr("d", createLink)
-            .attr("fill", "transparent")
+            .attr("fill", "none")
             .attr("stroke", "transparent")
+            .attr("style","pointer-events:visible-stroke;")
             .attr("stroke-width", "10px")
             .style("display", getEdgeDisplay);
 
@@ -1718,7 +1720,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("d", createLink)
             .attr("stroke", edgeGetStrokeColor)
             .attr("stroke-dasharray", edgeGetStrokeDashArray)
-            .attr("fill", "transparent")
+            .attr("fill", "none")
             .attr("marker-end", edgeGetArrowheadUrl)
             .style("display", getEdgeDisplay);
 
@@ -1727,7 +1729,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("class", "commentLink")
             .attr("d", createCommentLink)
             .attr("stroke", LINK_COLORS.DEFAULT)
-            .attr("fill", "transparent")
+            .attr("fill", "none")
             .attr("marker-end", "ur(#DEFAULT)")
             .style("display", getCommentLinkDisplay);
 
