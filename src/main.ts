@@ -70,7 +70,7 @@ $(function(){
 
     // set UI Mode
     const user_interface_mode = (<any>window).mode;
-    if (typeof user_interface_mode !== 'undefined'){
+    if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
         // make sure that the specified user interface mode is a known mode
         if (Object.values(Eagle.UIMode).includes(user_interface_mode)){
             Eagle.findSetting(Utils.USER_INTERFACE_MODE).setValue(user_interface_mode);
@@ -83,7 +83,7 @@ $(function(){
     }
 
     // Get the list of git repos
-    if (Eagle.isInUIMode(Eagle.UIMode.Student)){
+    if (Eagle.isInUIMode(Eagle.UIMode.Minimal)){
         GitHub.loadStudentRepoList(eagle);
     } else {
         GitHub.loadRepoList(eagle);

@@ -131,6 +131,7 @@ export class Setting {
         switch (this.type){
             case Setting.Type.String:
             case Setting.Type.Password:
+            case Setting.Type.Select:
                 return s;
             case Setting.Type.Number:
                 return Number(s);

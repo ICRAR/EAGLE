@@ -5513,7 +5513,7 @@ export namespace Eagle
     }
 
     export enum UIMode {
-        Student = "student",
+        Minimal = "minimal",
         Default = "default",
         Graph = "graph",
         Palette = "palette",
