@@ -671,7 +671,6 @@ export class Eagle {
         }
     }
 
-
     zoomIn = () : void => {
         this.globalScale += 0.05;
         this.logicalGraph.valueHasMutated();
