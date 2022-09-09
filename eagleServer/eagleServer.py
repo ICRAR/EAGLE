@@ -42,6 +42,7 @@ from flask import Flask, request, render_template, jsonify, send_from_directory
 import config.config
 from config.config import GITHUB_DEFAULT_REPO_LIST
 from config.config import GITLAB_DEFAULT_REPO_LIST
+from config.config import STUDENT_GITHUB_DEFAULT_REPO_LIST
 from config.config import SERVER_PORT
 
 
@@ -221,6 +222,16 @@ def get_git_lab_repository_list():
     Returns the list of defined default GitLab repositories.
     """
     return jsonify(GITLAB_DEFAULT_REPO_LIST)
+
+
+@app.route("/getStudentRepositoryList", methods=["GET"])
+def get_student_repository_list():
+    """
+    FLASK GET routing method for '/getStudentRepositoryList'
+
+    Returns the list of defined default Student repositories.
+    """
+    return jsonify(STUDENT_GITHUB_DEFAULT_REPO_LIST)
 
 
 def extract_folder_and_repo_names(repo_name):

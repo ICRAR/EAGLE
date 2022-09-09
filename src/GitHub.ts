@@ -32,7 +32,7 @@ export class GitHub {
     /**
      * Loads the GitHub repository list.
      */
-    static loadRepoList(eagle : Eagle) : void {
+     static loadRepoList(eagle : Eagle) : void {
         Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);
@@ -72,6 +72,32 @@ export class GitHub {
                     const repositoryBranch = value.split("|")[1];
                     eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, repositoryName, repositoryBranch, false));
                 }
+            }
+
+            // sort the repository list
+            eagle.sortRepositories();
+        });
+    }
+
+    /**
+     * Loads the limited set of GitHub repositories intended for students.
+     */
+    static loadStudentRepoList(eagle : Eagle) : void {
+        Utils.httpGetJSON("/getStudentRepositoryList", null, function(error : string, data: any){
+            if (error != null){
+                console.error(error);
+                return;
+            }
+
+            // remove all GitHub repos from the list of repositories
+            for (let i = eagle.repositories().length - 1 ; i >= 0 ; i--){
+                if (eagle.repositories()[i].service === Eagle.RepositoryService.GitHub)
+                    eagle.repositories.splice(i, 1);
+            }
+
+            // add the repositories from the POST response
+            for (const d of data){
+                eagle.repositories.push(new Repository(Eagle.RepositoryService.GitHub, d.repository, d.branch, true));
             }
 
             // sort the repository list

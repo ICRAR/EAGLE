@@ -68,9 +68,24 @@ $(function(){
     // save initial state to undo memory
     eagle.undo().pushSnapshot(eagle, "EAGLE Startup");
 
-    // Show repository list.
-    GitHub.loadRepoList(eagle);
-    GitLab.loadRepoList(eagle);
+    // set UI Mode
+    const user_interface_mode = (<any>window).mode;
+    if (typeof user_interface_mode !== 'undefined'){
+        // make sure that the specified user interface mode is a known mode
+        if (Object.values(Eagle.UIMode).includes(user_interface_mode)){
+            Eagle.findSetting(Utils.USER_INTERFACE_MODE).setValue(user_interface_mode);
+        } else {
+            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Eagle.UIMode).join(','));
+        }
+    }
+
+    // Get the list of git repos
+    if (Eagle.isInUIMode(Eagle.UIMode.Student)){
+        GitHub.loadStudentRepoList(eagle);
+    } else {
+        GitHub.loadRepoList(eagle);
+        GitLab.loadRepoList(eagle);
+    }
 
     // load the default palette
     if (Eagle.findSettingValue(Utils.OPEN_DEFAULT_PALETTE)){
@@ -120,14 +135,4 @@ $(function(){
 
     // auto load the file
     eagle.autoLoad(service, auto_load_repository, auto_load_branch, auto_load_path, auto_load_filename);
-
-    const user_interface_mode = (<any>window).mode;
-    if (typeof user_interface_mode !== 'undefined'){
-        // make sure that the specified user interface mode is a known mode
-        if (Object.values(Eagle.UIMode).includes(user_interface_mode)){
-            Eagle.findSetting(Utils.USER_INTERFACE_MODE).setValue(user_interface_mode);
-        } else {
-            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Eagle.UIMode).join(','));
-        }
-    }
 });
