@@ -5535,6 +5535,40 @@ $( document ).ready(function() {
         });
     })
 
+    var defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
+    if(!defaultTranslatingAlgorithm){
+        localStorage.setItem('translationDefault','agl-1')
+        defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
+    }
+
+    $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').click()
+    $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
+
+    $(".translationDefault").on("click",function(){
+
+        var translationMethods = []
+        translationMethods.push($('.translationDefault'))
+        $('.translationDefault').each(function(element){
+            if($(this).is(':checked')){
+                $(this).prop('checked', false).change()
+                $(this).val('false')
+            }
+        })
+
+        var element = $(event.target)
+        
+        if(element.val() === "true"){
+            element.val('false')
+        }else{
+            element.val('true')
+        }
+
+        var translationId = element.closest('.accordion-item').attr('id')
+        localStorage.setItem('translationDefault',translationId)
+        
+        $(this).prop('checked',true).change()
+    })
+
     //increased click bubble for edit modal flag booleans
     $(".componentCheckbox").on("click",function(){
         $(event.target).find("input").click()
