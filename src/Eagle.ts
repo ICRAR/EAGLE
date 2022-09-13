@@ -5542,7 +5542,9 @@ $( document ).ready(function() {
     }
 
     $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').click()
-    $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
+    if(defaultTranslatingAlgorithm !== "agl-0"){
+        $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
+    }
 
     $(".translationDefault").on("click",function(){
 
