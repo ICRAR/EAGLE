@@ -7,7 +7,7 @@
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse1">
         <div class="card-body">
 
-            <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
+            <!-- ko if: selectedNode().getCategory() !== Category.Description && selectedNode().getCategory() !== Category.Comment -->
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Name</span>
@@ -45,7 +45,7 @@
                 </div>
             </div>
 
-            <!-- ko if: selectedNode().getCategory() === Eagle.Category.Comment -->
+            <!-- ko if: selectedNode().getCategory() === Category.Comment -->
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="node-subject" data-bind="eagleTooltip:'The subject of the comment text specified by this component'" data-bs-placement="left">Subject</span>

@@ -1678,7 +1678,20 @@ ul.nav.navbar-nav .dropdown-item:hover{
 }
 
 #translationMenu .accordion button{
-    padding: 9px 20px;
+    padding: 7px 30px;
+    cursor: default;
+}
+
+#translationMenu .accordion-header{
+    position: relative;
+}
+
+
+.translationDefault{
+    position:absolute;
+    top: 5px;
+    left:10px;
+    z-index: 99;
 }
 
 #translationMenu .accordion-body button{
