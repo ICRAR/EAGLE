@@ -81,9 +81,27 @@ $(function(){
     // save initial state to undo memory
     eagle.undo().pushSnapshot(eagle, "EAGLE Startup");
 
-    // Show repository list.
-    GitHub.loadRepoList(eagle);
-    GitLab.loadRepoList(eagle);
+    // set UI Mode
+    const user_interface_mode = (<any>window).mode;
+    if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
+        // make sure that the specified user interface mode is a known mode
+        if (Object.values(Eagle.UIMode).includes(user_interface_mode)){
+            Setting.find(Utils.USER_INTERFACE_MODE).setValue(user_interface_mode);
+        } else {
+            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Eagle.UIMode).join(','));
+        }
+
+        // hide the ?mode=x part of the url
+        window.history.replaceState(null, null, window.location.origin + window.location.pathname);
+    }
+
+    // Get the list of git repos
+    if (Eagle.isInUIMode(Eagle.UIMode.Minimal)){
+        GitHub.loadStudentRepoList(eagle);
+    } else {
+        GitHub.loadRepoList(eagle);
+        GitLab.loadRepoList(eagle);
+    }
 
     // load the default palette
     if (Setting.findValue(Utils.OPEN_DEFAULT_PALETTE)){

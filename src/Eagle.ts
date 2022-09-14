@@ -146,13 +146,13 @@ export class Eagle {
                     new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false),
                     new Setting("Use Simplified Translator Options", "Hide the complex and rarely used translator options", Setting.Type.Boolean, Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS, true),
                     new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false),
-                    new Setting("Enable Expert Mode", "Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Boolean, Utils.ENABLE_EXPERT_MODE, false),
+                    new Setting("UI Mode", "User Interface Mode. Simple Mode removes palettes, uses a single graph repository, simplifies the parameters table. Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Select, Utils.USER_INTERFACE_MODE, Eagle.UIMode.Default, Object.values(Eagle.UIMode)),
                     new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000),
                 ]
             ),
             new SettingsGroup(
                 "Advanced Editing",
-                (eagle) => {return Setting.findValue(Utils.ENABLE_EXPERT_MODE);},
+                (eagle) => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
                 [
                     new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, true),
                     new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, true),
@@ -174,7 +174,7 @@ export class Eagle {
             ),
             new SettingsGroup(
                 "Developer",
-                (eagle) => {return Setting.findValue(Utils.ENABLE_EXPERT_MODE);},
+                (eagle) => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
                 [
                     new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
                     new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
@@ -281,27 +281,31 @@ export class Eagle {
     }
 
     static allowInvalidEdges = () : boolean => {
-        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.ALLOW_INVALID_EDGES);
+        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_INVALID_EDGES);
     }
 
     static allowPaletteEditing = () : boolean => {
-        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.ALLOW_PALETTE_EDITING);
+        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_PALETTE_EDITING);
     }
 
     static allowReadonlyPaletteEditing = () : boolean => {
-        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
+        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
     }
 
     static allowComponentEditing = () : boolean => {
-        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.ALLOW_COMPONENT_EDITING);
+        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_COMPONENT_EDITING);
     }
 
     static allowEdgeEditing = (): boolean => {
-        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.ALLOW_EDGE_EDITING);
+        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_EDGE_EDITING);
     }
 
     static showDaliugeRuntimeParameters = () : boolean => {
-        return Setting.findValue(Utils.ENABLE_EXPERT_MODE) && Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+    }
+
+    static isInUIMode = (mode : Eagle.UIMode) : boolean => {
+        return Setting.findValue(Utils.USER_INTERFACE_MODE) === mode;
     }
 
     displayNodeKeys = () :boolean => {
@@ -2140,6 +2144,7 @@ export class Eagle {
         window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
     }
 
+    // TODO: move to Setting.ts?
     openSettings = () : void => {
         //if no tab is selected yet, default to the first tab
         if(!$(".settingCategoryActive").length){
@@ -2199,6 +2204,7 @@ export class Eagle {
         }
     }
 
+    // TODO: move to Setting.ts?
     toggleSettingsTab = (btn:any, target:any) :void => {
         //deselect and deactivate current tab content and buttons
         $(".settingsModalButton").removeClass("settingCategoryBtnActive");
@@ -2209,6 +2215,7 @@ export class Eagle {
         $("#"+target).addClass("settingCategoryActive");
     }
 
+    // TODO: move to KeyboardShortcut.ts?
     openShortcuts = () : void => {
         if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
             Eagle.shortcutModalCooldown = Date.now()
@@ -2217,6 +2224,7 @@ export class Eagle {
         return
     }
 
+    // TODO: move to Setting.ts?
     //copies currently set settings in case the user wishes to cancel changes in the setting modal
     copyCurrentSettings = () : void => {
         for (const group of Eagle.settings){
@@ -2226,6 +2234,7 @@ export class Eagle {
         }
     }
 
+    // TODO: move to Setting.ts?
     //returns settings values to the previously copied settings, canceling the settings editing
     cancelSettingChanges = () : void => {
         for (const group of Eagle.settings){
@@ -4092,5 +4101,14 @@ export namespace Eagle
     export enum ErrorsMode {
         Loading = "Loading",
         Graph = "Graph"
+    }
+
+    export enum UIMode {
+        Minimal = "minimal",
+        Default = "default",
+        Graph = "graph",
+        Palette = "palette",
+        Expert = "expert",
+        Custom = "custom"
     }
 }
