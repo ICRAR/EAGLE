@@ -52,7 +52,7 @@
 
         {% include 'navbar.html' %}
 
-        <div class="container-fluid" id="graphArea" data-bind="event: { dragover: sideWindowAdjust}">
+        <div class="container-fluid" id="graphArea" data-bind="event: { dragover: SideWindow.sideWindowAdjust}">
             <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: leftWindow().shown() ? 0 : -leftWindow().width()}">
                 <div class="leftWindowHandle" data-bind="click: leftWindow().toggleShown, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_left_window', true)">
                     <span style="display: none" data-bind="visible: leftWindow().shown()">
@@ -67,12 +67,12 @@
                     {% include 'palettes.html' %}
                 </div>
 
-                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart , dragend: sideWindowAdjustEnd }">
+                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: SideWindow.leftWindowAdjustStart , dragend: SideWindow.sideWindowAdjustEnd }">
                     <div class="leftWindowSizeAdjusterLine"></div>
                 </div>
             </div>
 
-            <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDropLogicalGraph }">
+            <div id="logicalGraphParent" data-bind="event: { dragover:SideWindow.nodeDragOver, drop: nodeDropLogicalGraph }">
                 <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
                 </div>
 
@@ -142,7 +142,7 @@
                                 <span data-bind="text: $root.getSelectedText()"></span>
                                 <span id="inspectorSelectionSummaryNodes">Selected Nodes:</span>
                                 <!-- ko foreach: $root.selectedObjects -->
-                                    <!-- ko if: $root.isTypeNode($data) -->
+                                    <!-- ko if: Utils.isTypeNode($data) -->
                                         <div class="inspectorSelectionSummaryItem">
                                             <h5 data-bind="text: $data.getName()"></h5>
                                             <span data-bind="text: $data.getCategory()"></span>
@@ -165,7 +165,7 @@
                         {% include 'hierarchy.html' %}
                     </div>
                 </div>
-                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart, dragend: sideWindowAdjustEnd }">
+                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: SideWindow.rightWindowAdjustStart, dragend: SideWindow.sideWindowAdjustEnd }">
                     <div class="rightWindowSizeAdjusterLine"></div>
                 </div>
             </div>

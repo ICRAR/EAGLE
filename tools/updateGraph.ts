@@ -1,5 +1,6 @@
 import * as fs from "fs";
 
+import {Category} from '../src/Category'
 import {Eagle} from '../src/Eagle';
 import {LogicalGraph} from '../src/LogicalGraph';
 import {Utils} from '../src/Utils';
@@ -116,9 +117,9 @@ function readNode(nodeData : any, index : number) : Node {
     }
 
     // translate categories if required
-    let category : Eagle.Category = GraphUpdater.translateOldCategory(nodeData.category);
+    let category : Category = GraphUpdater.translateOldCategory(nodeData.category);
 
-    if (category === Eagle.Category.Unknown){
+    if (category === Category.Unknown){
         logError("Unable to translate category '" + nodeData.category + "' of node " + index);
     } else {
         if (category !== nodeData.category){
@@ -128,7 +129,7 @@ function readNode(nodeData : any, index : number) : Node {
 
     if (!Utils.isKnownCategory(category)){
         logError("Unknown category '" + category + "' of node " + index);
-        category = Eagle.Category.Unknown;
+        category = Category.Unknown;
     }
 
     // create new node
@@ -297,7 +298,7 @@ function readNode(nodeData : any, index : number) : Node {
     }
 
     // make sure scatter nodes have a 'num_of_copies' field
-    if (node.getCategory() === Eagle.Category.Scatter){
+    if (node.getCategory() === Category.Scatter){
         if (node.getFieldByName('num_of_copies') === null){
             node.addField(new Field("Number of copies", "num_of_copies", "1", "", false, Eagle.DataType_Integer));
             logMessage("Added missing 'num_of_copies' field to Scatter node " + index);
@@ -309,7 +310,7 @@ function readNode(nodeData : any, index : number) : Node {
     }
 
     // make sure gather nodes have a 'num_of_inputs' field
-    if (node.getCategory() === Eagle.Category.Gather){
+    if (node.getCategory() === Category.Gather){
         if (node.getFieldByName('num_of_inputs') === null){
             node.addField(new Field("Number of inputs", "num_of_inputs", "1", "", false, Eagle.DataType_Integer));
             logMessage("Added missing 'num_of_inputs' field to Gather node " + index);
@@ -321,7 +322,7 @@ function readNode(nodeData : any, index : number) : Node {
     }
 
     // make sure MKN nodes have 'm', 'k', and 'n' fields
-    if (node.getCategory() === Eagle.Category.MKN){
+    if (node.getCategory() === Category.MKN){
         if (node.getFieldByName('m') === null){
             node.addField(new Field("M", "m", "1", "1", "", false, Eagle.DataType_Integer, false));
             logMessage("Added missing 'm' field to MKN node " + index);
@@ -337,7 +338,7 @@ function readNode(nodeData : any, index : number) : Node {
     }
 
     // make sure comment nodes have appropriate fields
-    if (node.getCategory() === Eagle.Category.Comment){
+    if (node.getCategory() === Category.Comment){
         if (node.getFieldByName('comment') === null){
             node.addField(new Field("Comment", "comment", node.getName(), node.getName(), "The text value of the comment", false, Eagle.DataType_String, false));
             node.setName("");
@@ -346,7 +347,7 @@ function readNode(nodeData : any, index : number) : Node {
     }
 
     // make sure description nodes have appropriate fields
-    if (node.getCategory() === Eagle.Category.Description){
+    if (node.getCategory() === Category.Description){
         if (node.getFieldByName('description') === null){
             node.addField(new Field("Description", "description", "", "", "The text value of the description", false, Eagle.DataType_String, false));
             logMessage("Added missing 'description' field to Description node " + index);
@@ -354,7 +355,7 @@ function readNode(nodeData : any, index : number) : Node {
     }
 
     // make sure "file" nodes that were created from old "Data" nodes have appropriate fields
-    if (node.getCategory() === Eagle.Category.File && nodeData.category === "Data"){
+    if (node.getCategory() === Category.File && nodeData.category === "Data"){
         if (node.getFieldByName('filepath') === null){
             node.addField(new Field("File path", "file_path", nodeData.text, nodeData.text, "", false, Eagle.DataType_String, false));
             logMessage("Copied old 'text' value (" + nodeData.text + ") as filepath field for old Data node translated to File node " + index);

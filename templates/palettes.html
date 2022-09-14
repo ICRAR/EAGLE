@@ -59,7 +59,7 @@
                     <a href="#" data-bind="click: $data.copyUrl"><span>Copy Palette URL</span></a>
                     <!-- /ko -->
                 </div>
-                <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
+                <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: SideWindow.nodeDragOver, drop: $root.nodeDropPalette }">
                     <div class="accordion-header">
                         <div class="headerIcons">
                             <div class="paletteHeaderIcon">
