@@ -2144,6 +2144,7 @@ export class Eagle {
         window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
     }
 
+    // TODO: move to Setting.ts?
     openSettings = () : void => {
         //if no tab is selected yet, default to the first tab
         if(!$(".settingCategoryActive").length){
@@ -2203,6 +2204,7 @@ export class Eagle {
         }
     }
 
+    // TODO: move to Setting.ts?
     toggleSettingsTab = (btn:any, target:any) :void => {
         //deselect and deactivate current tab content and buttons
         $(".settingsModalButton").removeClass("settingCategoryBtnActive");
@@ -2213,6 +2215,7 @@ export class Eagle {
         $("#"+target).addClass("settingCategoryActive");
     }
 
+    // TODO: move to KeyboardShortcut.ts?
     openShortcuts = () : void => {
         if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
             Eagle.shortcutModalCooldown = Date.now()
@@ -2221,6 +2224,7 @@ export class Eagle {
         return
     }
 
+    // TODO: move to Setting.ts?
     //copies currently set settings in case the user wishes to cancel changes in the setting modal
     copyCurrentSettings = () : void => {
         for (const group of Eagle.settings){
@@ -2230,6 +2234,7 @@ export class Eagle {
         }
     }
 
+    // TODO: move to Setting.ts?
     //returns settings values to the previously copied settings, canceling the settings editing
     cancelSettingChanges = () : void => {
         for (const group of Eagle.settings){
