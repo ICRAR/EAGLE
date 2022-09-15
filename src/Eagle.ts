@@ -2042,7 +2042,7 @@ export class Eagle {
     }
 
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        var showSimplifiedTranslatorOptions :any = Eagle.findSetting(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value()
+        var showSimplifiedTranslatorOptions :any = Setting.find(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value()
         if(!showSimplifiedTranslatorOptions){
             return true
         }
@@ -4158,7 +4158,7 @@ $( document ).ready(function() {
         $("#errorsModalAccordion").parent().parent().attr('style','')
 
         //reset parameter table selecction
-        Eagle.resetParamsTableSelection()
+        ParameterTable.resetSelection()
     });
 
     $('.modal').on('shown.bs.modal',function(){
