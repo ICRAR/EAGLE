@@ -1,281 +1,282 @@
 <div id="translationMenu" class="container px-0">
     <div class="row">
-    <div class="accordion" id="translatorAccordion" >
+        <div class="accordion" id="translatorAccordion" >
 
-        <div class="accordion-item" id="agl-0" data-bind="visible: translatorAlgorithmVisible('agl-0')">
-            <div class="accordion-header">
+            <div class="accordion-item" id="agl-0" data-bind="visible: translatorAlgorithmVisible('agl-0')">
+                <div class="accordion-header">
+                    <h5>
+                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <button  id="headingOne" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <span>Algorithm 0 (none)</span>
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-bs-parent="#translatorAccordion">
+                    <div class="accordion-body">
+                        <p class="card-text">Base PGT Generation</p>
+                        <button id="alg0PGT" class="btn btn-primary btn_wide generatePgt" data-bind="click: function(){eagle.translator().genPGT(0, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                        <button id="test0PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(0, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" id="agl-1" data-bind="visible: translatorAlgorithmVisible('agl-1')">
+                <div class="accordion-header">
+                    <h5>
+                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <button id="headingTwo" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                            <span>Algorithm 1 (metis)</span>
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#translatorAccordion">
+                    <div class="accordion-body">
+                        <p class="card-text">Minimise data movement while subject to load balancing (direct graph partitioning)</p>
+
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg1-islands">No. of islands</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-islands" data-bind="value: translator().numberOfIslands">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg1-nodes">No. of nodes</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-nodes" data-bind="value: translator().numberOfNodes">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg1-partition-label">Partition label</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-partition-label" data-bind="value: translator().partitionLabel">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg1-load-balancing">Load balancing</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-load-balancing" data-bind="value: translator().loadBalancing">
+                            <div class="input-group-append">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+
+                        <p class="card-text"></p>
+                        <button id="alg1PGT" class="btn btn-primary btn_wide generatePgt" data-bind="click: function(){eagle.translator().genPGT(1, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                        <button id="test1PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(1, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" id="agl-2" data-bind="visible: translatorAlgorithmVisible('agl-2')">
+                <div class="accordion-header">
+                    <h5>
+                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <button id="headingThree" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                            <span>Algorithm 2 (mysarkar)</span>
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-bs-parent="#translatorAccordion">
+                    <div class="accordion-body">
+                        <p class="card-text">Minimise execution time whilst subject to each partition's degree of parallelism (DoP) (edgezeroing)</p>
+
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg2-islands">No. of islands</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg2-islands" data-bind="value: translator().numberOfIslands">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg2-partition-label">Partition label</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg2-partition-label" data-bind="value: translator().partitionLabel">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg2-max-cpus-per-partition">Max CPUs per partition</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg2-max-cpus-per-partition" data-bind="value: translator().maxCPUsPerPartition">
+                        </div>
+
+                        <p class="card-text"></p>
+                        <button id="alg2PGT" class="btn btn-primary btn_wide generatePgt" data-bind="click: function(){eagle.translator().genPGT(2, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                        <button id="test2PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(2, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" id="agl-3" data-bind="visible: translatorAlgorithmVisible('agl-3')">
+                <div class="accordion-header">
                 <h5>
-                    <input class="form-check-input translationDefault" value="false" type="checkbox">
-                    <button  id="headingOne" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        <span>Algorithm 0 (none)</span>
-                    </button>
-                </h5>
-            </div>
-            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-bs-parent="#translatorAccordion">
-                <div class="accordion-body">
-                    <p class="card-text">Base PGT Generation</p>
-                    <button id="alg0PGT" class="btn btn-primary btn_wide generatePgt" data-bind="click: function(){eagle.translator().genPGT(0, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test0PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(0, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
+                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <button id="headingFour" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+                            <span>Algorithm 3 (min_num_parts)</span>
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-bs-parent="#translatorAccordion">
+                    <div class="accordion-body">
+                        <p class="card-text">Minimise number of partitions whilst subject to completion deadline (lookahead)</p>
+
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg3-islands">No. of islands</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-islands" data-bind="value: translator().numberOfIslands">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg3-greediness">Greediness of deadline pursuit</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-greediness" data-bind="value: translator().greediness">
+                            <div class="input-group-append">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg3-deadline">Deadline</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-deadline" data-bind="value: translator().deadline">
+                            <div class="input-group-append">
+                                <span class="input-group-text">time unit</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg3-partition-label">Partition label</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-partition-label" data-bind="value: translator().partitionLabel">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg3-max-cpus-per-partition">Max CPUs per partition</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-max-cpus-per-partition" data-bind="value: translator().maxCPUsPerPartition">
+                        </div>
+
+                        <p class="card-text"></p>
+                        <button id="alg3PGT" class="btn btn-primary btn_wide generatePgt" data-bind="click: function(){eagle.translator().genPGT(3, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                        <button id="test3PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(3, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="accordion-item" id="agl-1" data-bind="visible: translatorAlgorithmVisible('agl-1')">
-            <div class="accordion-header">
+            <div class="accordion-item" id="agl-4" data-bind="visible: translatorAlgorithmVisible('agl-4')">
+                <div class="accordion-header">
+                    <h5>
+                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <button id="headingFive" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+                            <span>Algorithm 4 (pso)</span>
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-bs-parent="#translatorAccordion">
+                    <div class="accordion-body">
+                        <p class="card-text">Minimise number of partitions whilst optionally subject to completion deadline (warning PSO is 10 times slower, a larger swarm size or dimension further decreases speed)</p>
+
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg4-islands">No. of islands</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-islands" data-bind="value: translator().numberOfIslands">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg4-swarm-size">Swarm size</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-swarm-size" data-bind="value: translator().swarmSize">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg4-dimension-search-space">Dimension of search space</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-dimensionSearchSpace" data-bind="value: translator().searchSpaceDimension">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg4-deadline">Deadline</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-deadline" data-bind="value: translator().deadline">
+                            <div class="input-group-append">
+                                <span class="input-group-text">time unit</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg4-partition-label">Partition label</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-partition-label" data-bind="value: translator().partitionLabel">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg4-max-cpus-per-partition">Max CPUs per partition</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-max-cpus-per-partition" data-bind="value: translator().maxCPUsPerPartition">
+                        </div>
+
+                        <p class="card-text"></p>
+                        <button id="alg4PGT" class="btn btn-primary  generatePgt" data-bind="click: function(){eagle.translator().genPGT(4, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                        <button id="test4PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(4, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" id="agl-5" data-bind="visible: translatorAlgorithmVisible('agl-5')">
+                <div class="accordion-header">
                 <h5>
-                    <input class="form-check-input translationDefault" value="false" type="checkbox">
-                    <button id="headingTwo" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                        <span>Algorithm 1 (metis)</span>
-                    </button>
-                </h5>
-            </div>
-            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#translatorAccordion">
-                <div class="accordion-body">
-                    <p class="card-text">Minimise data movement while subject to load balancing (direct graph partitioning)</p>
+                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <button id="headingSix" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
+                            <span>Algorithm 5 (simple)</span>
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-bs-parent="#translatorAccordion">
+                    <div class="accordion-body">
+                        <!--<p class="card-text">Base PGT Generation</p>-->
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg5-nodes">No. of nodes</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg5-nodes" data-bind="value: translator().numberOfNodes">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="alg5-parallel-task-streams">No. of parallel task streams</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg5-parallel-task-streams" data-bind="value: translator().numberOfParallelTaskStreams">
+                        </div>
 
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg1-islands">No. of islands</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-islands" data-bind="value: translator().numberOfIslands">
+                        <p class="card-text"></p>
+                        <button id="alg5PGT" class="btn btn-primary btn_wide generatePgt" data-bind="click: function(){eagle.translator().genPGT(5, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
+                        <button id="test5PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(5, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
                     </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg1-nodes">No. of nodes</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-nodes" data-bind="value: translator().numberOfNodes">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg1-partition-label">Partition label</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-partition-label" data-bind="value: translator().partitionLabel">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg1-load-balancing">Load balancing</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg1-load-balancing" data-bind="value: translator().loadBalancing">
-                        <div class="input-group-append">
-                            <span class="input-group-text">%</span>
-                        </div>
-                    </div>
-
-                    <p class="card-text"></p>
-                    <button id="alg1PGT" class="btn btn-primary btn_wide generatePgt" data-bind="click: function(){eagle.translator().genPGT(1, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test1PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(1, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
                 </div>
             </div>
         </div>
-
-        <div class="accordion-item" id="agl-2" data-bind="visible: translatorAlgorithmVisible('agl-2')">
-            <div class="accordion-header">
-                <h5>
-                    <input class="form-check-input translationDefault" value="false" type="checkbox">
-                    <button id="headingThree" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-                        <span>Algorithm 2 (mysarkar)</span>
-                    </button>
-                </h5>
+        <div class="hierarchyDividerLine"></div>
+        <div class="input-group mb-1">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="alg1-rmode-label">Rmode</span>
             </div>
-            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-bs-parent="#translatorAccordion">
-                <div class="accordion-body">
-                    <p class="card-text">Minimise execution time whilst subject to each partition's degree of parallelism (DoP) (edgezeroing)</p>
-
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg2-islands">No. of islands</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg2-islands" data-bind="value: translator().numberOfIslands">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg2-partition-label">Partition label</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg2-partition-label" data-bind="value: translator().partitionLabel">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg2-max-cpus-per-partition">Max CPUs per partition</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg2-max-cpus-per-partition" data-bind="value: translator().maxCPUsPerPartition">
-                    </div>
-
-                    <p class="card-text"></p>
-                    <button id="alg2PGT" class="btn btn-primary btn_wide generatePgt" data-bind="click: function(){eagle.translator().genPGT(2, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test2PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(2, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
-                </div>
-            </div>
+            <select id="alg1-rmode-options" class="form-control" data-bind="value: translator().rmode"
+                onchange="const textbox = document.getElementById('alg1-rmode-value'); textbox.value = (this.selectedIndex === -1 ? '0' : this.options[this.selectedIndex].value);">
+                <option value="0">NOTHING</option>
+                <option value="-1">ALL</option>
+                <option value="1">RERUN</option>
+                <option value="2">REPEAT</option>
+                <option value="4">RECOMPUTE</option>
+                <option value="5">REPRODUCE</option>
+                <option value="6">REPLICATE SCI</option>
+                <option value="7">REPLICATE COMP</option>
+                <option value="8">REPLICATE TOTALLY</option>
+            </select>
+            <input type="hidden" class="form-control" placeholder="0" id="alg1-rmode-value" aria-label="Key" aria-describedby="alg1-rmode-label" data-bind="value: translator().rmode">
         </div>
-
-        <div class="accordion-item" id="agl-3" data-bind="visible: translatorAlgorithmVisible('agl-3')">
-            <div class="accordion-header">
-               <h5>
-                    <input class="form-check-input translationDefault" value="false" type="checkbox">
-                    <button id="headingFour" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
-                        <span>Algorithm 3 (min_num_parts)</span>
-                    </button>
-                </h5>
-            </div>
-            <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-bs-parent="#translatorAccordion">
-                <div class="accordion-body">
-                    <p class="card-text">Minimise number of partitions whilst subject to completion deadline (lookahead)</p>
-
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg3-islands">No. of islands</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-islands" data-bind="value: translator().numberOfIslands">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg3-greediness">Greediness of deadline pursuit</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-greediness" data-bind="value: translator().greediness">
-                        <div class="input-group-append">
-                            <span class="input-group-text">%</span>
-                        </div>
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg3-deadline">Deadline</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-deadline" data-bind="value: translator().deadline">
-                        <div class="input-group-append">
-                            <span class="input-group-text">time unit</span>
-                        </div>
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg3-partition-label">Partition label</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-partition-label" data-bind="value: translator().partitionLabel">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg3-max-cpus-per-partition">Max CPUs per partition</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg3-max-cpus-per-partition" data-bind="value: translator().maxCPUsPerPartition">
-                    </div>
-
-                    <p class="card-text"></p>
-                    <button id="alg3PGT" class="btn btn-primary btn_wide generatePgt" data-bind="click: function(){eagle.translator().genPGT(3, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test3PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(3, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
-                </div>
-            </div>
+        <div class="input-group mb-1"> 
+            <button type="button" id="setTranslatorUrlBtn" class="btn btn-primary btn-block btn_wide" data-bind="click: setTranslatorUrl">Set Translator URL</button>
         </div>
-
-        <div class="accordion-item" id="agl-4" data-bind="visible: translatorAlgorithmVisible('agl-4')">
-            <div class="accordion-header">
-                <h5>
-                    <input class="form-check-input translationDefault" value="false" type="checkbox">
-                    <button id="headingFive" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
-                        <span>Algorithm 4 (pso)</span>
-                    </button>
-                </h5>
-            </div>
-            <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-bs-parent="#translatorAccordion">
-                <div class="accordion-body">
-                    <p class="card-text">Minimise number of partitions whilst optionally subject to completion deadline (warning PSO is 10 times slower, a larger swarm size or dimension further decreases speed)</p>
-
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg4-islands">No. of islands</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-islands" data-bind="value: translator().numberOfIslands">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg4-swarm-size">Swarm size</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-swarm-size" data-bind="value: translator().swarmSize">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg4-dimension-search-space">Dimension of search space</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-dimensionSearchSpace" data-bind="value: translator().searchSpaceDimension">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg4-deadline">Deadline</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-deadline" data-bind="value: translator().deadline">
-                        <div class="input-group-append">
-                            <span class="input-group-text">time unit</span>
-                        </div>
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg4-partition-label">Partition label</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-partition-label" data-bind="value: translator().partitionLabel">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg4-max-cpus-per-partition">Max CPUs per partition</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg4-max-cpus-per-partition" data-bind="value: translator().maxCPUsPerPartition">
-                    </div>
-
-                    <p class="card-text"></p>
-                    <button id="alg4PGT" class="btn btn-primary  generatePgt" data-bind="click: function(){eagle.translator().genPGT(4, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test4PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(4, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item" id="agl-5" data-bind="visible: translatorAlgorithmVisible('agl-5')">
-            <div class="accordion-header">
-               <h5>
-                    <input class="form-check-input translationDefault" value="false" type="checkbox">
-                    <button id="headingSix" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
-                        <span>Algorithm 5 (simple)</span>
-                    </button>
-                </h5>
-            </div>
-            <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-bs-parent="#translatorAccordion">
-                <div class="accordion-body">
-                    <!--<p class="card-text">Base PGT Generation</p>-->
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg5-nodes">No. of nodes</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg5-nodes" data-bind="value: translator().numberOfNodes">
-                    </div>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="alg5-parallel-task-streams">No. of parallel task streams</span>
-                        </div>
-                        <input type="text" class="form-control" placeholder="" aria-label="Key" aria-describedby="alg5-parallel-task-streams" data-bind="value: translator().numberOfParallelTaskStreams">
-                    </div>
-
-                    <p class="card-text"></p>
-                    <button id="alg5PGT" class="btn btn-primary btn_wide generatePgt" data-bind="click: function(){eagle.translator().genPGT(5, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test5PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT(5, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="hierarchyDividerLine"></div>
-    <div class="input-group mb-1">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="alg1-rmode-label">Rmode</span>
-        </div>
-        <select id="alg1-rmode-options" class="form-control" data-bind="value: translator().rmode"
-            onchange="const textbox = document.getElementById('alg1-rmode-value'); textbox.value = (this.selectedIndex === -1 ? '0' : this.options[this.selectedIndex].value);">
-            <option value="0">NOTHING</option>
-            <option value="-1">ALL</option>
-            <option value="1">RERUN</option>
-            <option value="2">REPEAT</option>
-            <option value="4">RECOMPUTE</option>
-            <option value="5">REPRODUCE</option>
-            <option value="6">REPLICATE SCI</option>
-            <option value="7">REPLICATE COMP</option>
-            <option value="8">REPLICATE TOTALLY</option>
-        </select>
-        <input type="hidden" class="form-control" placeholder="0" id="alg1-rmode-value" aria-label="Key" aria-describedby="alg1-rmode-label" data-bind="value: translator().rmode">
-    </div>
-    <div class="input-group mb-1"> 
-        <button type="button" id="setTranslatorUrlBtn" class="btn btn-primary btn-block btn_wide" data-bind="click: setTranslatorUrl">Set Translator URL</button>
     </div>
 </div>
