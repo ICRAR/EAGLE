@@ -940,7 +940,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                                     const eligibleComponents = Utils.getComponentsWithPort(eagle.palettes(), !sourcePort.isInputPort(), sourcePortType);
 
-                                    if (eligibleComponents.length > 0){
+                                    if (Setting.findValue(Utils.AUTO_SUGGEST_DESTINATION_NODES) && eligibleComponents.length > 0){
 
                                         // get list of strings from list of eligible components
                                         const eligibleComponentNames : string[] = [];
