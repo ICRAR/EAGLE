@@ -30,8 +30,8 @@ ko.components.register('repository', {
         this.files = params.data.files;
         this.folders = params.data.folders;
 
-        this.refresh = params.parent.refreshRepository;
-        this.select = params.parent.selectRepository;
+        this.refresh = params.data.refresh;
+        this.select = params.data.select;
         this.remove = params.parent.removeCustomRepository;
     },
     template: { require: "text!static/components/repository.html" }

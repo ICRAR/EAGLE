@@ -30,6 +30,8 @@ import {Node} from './Node';
 import {FileInfo} from './FileInfo';
 import {RepositoryFile} from './RepositoryFile';
 import {Errors} from './Errors';
+import {Category} from './Category';
+import {CategoryData} from './CategoryData';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
@@ -225,8 +227,8 @@ export class Palette {
     sort = () : void => {
 
         const sortFunc = function(a:Node, b:Node) : number {
-            const aCData : Eagle.CategoryData = Eagle.getCategoryData(a.getCategory());
-            const bCData : Eagle.CategoryData = Eagle.getCategoryData(b.getCategory());
+            const aCData : Category.CategoryData = CategoryData.getCategoryData(a.getCategory());
+            const bCData : Category.CategoryData = CategoryData.getCategoryData(b.getCategory());
 
             if (aCData.sortOrder < bCData.sortOrder) {
                 return -1;

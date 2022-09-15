@@ -4,6 +4,7 @@
         "sourceMap": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
         "module": "umd",
         "moduleResolution": "node",
         "target": "es5",
@@ -21,7 +22,8 @@
         "./src/components.ts",
         "./src/main.ts",
         "./src/Config.ts",
-        "./src/CategoryType.ts",
+        "./src/Category.ts",
+        "./src/CategoryData.ts",
         "./src/Eagle.ts",
         "./src/GitHub.ts",
         "./src/GitLab.ts",
@@ -44,6 +46,9 @@
         "./src/PaletteInfo.ts",
         "./src/ExplorePalettes.ts",
         "./src/Undo.ts",
-        "./src/Errors.ts"
+        "./src/Errors.ts",
+        "./src/Hierarchy.ts",
+        "./src/Repositories.ts",
+        "./src/ParameterTable.ts"
     ]
 }

@@ -22,6 +22,7 @@
 #
 */
 
+import {Category} from './Category';
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
@@ -261,7 +262,7 @@ export class Edge {
         }
 
         // if destination is a service construct, then pretty much anything is valid
-        if (destinationNode.getCategory() === Eagle.Category.Service){
+        if (destinationNode.getCategory() === Category.Service){
             return Eagle.LinkValid.Valid;
         }
 
@@ -273,9 +274,9 @@ export class Edge {
         // if source node is a memory, and destination is a BashShellApp, OR
         // if source node is a memory, and destination is a Group with inputApplicationType BashShellApp
         // this is not supported. How would a BashShellApp read data from another process?
-        if ((sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.getCategory() === Eagle.Category.BashShellApp) ||
-            (sourceNode.getCategory() === Eagle.Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.hasInputApplication() && destinationNode.getInputApplication().getCategory() === Eagle.Category.BashShellApp)){
-            const issue: Errors.Issue = Errors.Fix("output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", function(){Utils.showNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeCategory(eagle, sourceNode, Eagle.Category.File)}, "Change data component type to File");
+        if ((sourceNode.getCategory() === Category.Memory && destinationNode.getCategory() === Category.BashShellApp) ||
+            (sourceNode.getCategory() === Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.hasInputApplication() && destinationNode.getInputApplication().getCategory() === Category.BashShellApp)){
+            const issue: Errors.Issue = Errors.Fix("output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", function(){Utils.showNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeCategory(eagle, sourceNode, Category.File)}, "Change data component type to File");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
         }
 
@@ -317,12 +318,12 @@ export class Edge {
         // determine if the new edge is crossing a ExclusiveForceNode boundary
         if (destinationNode.getParentKey() !== null){
             if (eagle.logicalGraph().findNodeByKey(destinationNode.getParentKey()) !== null){
-                parentIsEFN = eagle.logicalGraph().findNodeByKey(destinationNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
+                parentIsEFN = eagle.logicalGraph().findNodeByKey(destinationNode.getParentKey()).getCategory() === Category.ExclusiveForceNode;
             }
         }
         if (sourceNode.getParentKey() !== null){
             if (eagle.logicalGraph().findNodeByKey(sourceNode.getParentKey()) !== null){
-                parentIsEFN = eagle.logicalGraph().findNodeByKey(sourceNode.getParentKey()).getCategory() === Eagle.Category.ExclusiveForceNode;
+                parentIsEFN = eagle.logicalGraph().findNodeByKey(sourceNode.getParentKey()).getCategory() === Category.ExclusiveForceNode;
             }
         }
 

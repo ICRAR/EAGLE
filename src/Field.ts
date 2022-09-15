@@ -250,12 +250,20 @@ export class Field {
         return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.idText()) > -1;
     }, this);
 
-    select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
-        Eagle.parameterTableSelectionName(selectionName);
-        Eagle.parameterTableSelectionParent(selectionParent);
-        Eagle.parameterTableSelectionParentIndex(selectionIndex);
-        Eagle.parameterTableSelection(selection);
-        Eagle.parameterTableSelectionReadonly(readOnlyState);
+    getHtmlInputType = () : string => {
+        const typePrefix = Utils.dataTypePrefix(this.type());
+
+        switch (typePrefix){
+            case Eagle.DataType_Float:
+            case Eagle.DataType_Integer:
+                return "number";
+            case Eagle.DataType_Boolean:
+                return "checkbox";
+            case Eagle.DataType_Password:
+                return "password";
+            default:
+                return "text";
+        }
     }
 
     // used to transform the value attribute of a field into a variable with the correct type
