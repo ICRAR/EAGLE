@@ -1289,6 +1289,29 @@ export class Utils {
         return null;
     }
 
+    static getComponentsWithInputPort(palettes: Palette[], type: string) : Node[] {
+        const result: Node[] = [];
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                let hasInputOfType: boolean = false;
+
+                for (const port of node.getInputPorts()){
+                    if (port.getType() === type){
+                        hasInputOfType = true;
+                    }
+                }
+
+                if (hasInputOfType){
+                    result.push(node);
+                }
+            }
+        }
+
+        return result;
+    }
+
     private static _addPortIfUnique = (ports : Field[], port: Field) : void => {
 
         // check if the new port matches an existing port (by name and type), if so, abort

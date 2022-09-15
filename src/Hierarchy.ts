@@ -138,8 +138,17 @@ export class Hierarchy {
         //const srcEmbedKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
         //const destEmbedKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
 
-        const srcNodePos = $('.hierarchyNode#'+ srcKey)[0].getBoundingClientRect()
-        const destNodePos = $('.hierarchyNode#'+ destKey)[0].getBoundingClientRect()
+        const srcNodeElement = $('.hierarchyNode#'+ srcKey)[0];
+        const destNodeElement = $('.hierarchyNode#'+ destKey)[0];
+
+        // check that HTML elements for the src and dest node already exist, otherwise we can't draw this edge, so abort
+        if (typeof srcNodeElement === 'undefined' || typeof destNodeElement === 'undefined'){
+            console.warn("Hierarchy.drawEdge() srcNode or destNode element not ready");
+            return;
+        }
+
+        const srcNodePos = srcNodeElement.getBoundingClientRect()
+        const destNodePos = destNodeElement.getBoundingClientRect()
         const parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
         const parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
 

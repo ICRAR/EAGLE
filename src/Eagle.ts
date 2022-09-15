@@ -2614,7 +2614,7 @@ export class Eagle {
         }
     }
 
-    addNodeToLogicalGraph = (node : Node) : void => {
+    addNodeToLogicalGraph = (node : Node, callback: (node: Node) => void) : void => {
         let pos : {x:number, y:number};
 
         // if node is a construct, set width and height a little larger
@@ -2655,6 +2655,10 @@ export class Eagle {
             this.checkGraph();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
+
+            if (callback !== null){
+                callback(newNode);
+            }
         });
     }
 
@@ -3269,7 +3273,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent);
+            this.addNodeToLogicalGraph(sourceComponent, null);
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += 20;
