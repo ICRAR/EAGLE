@@ -2617,6 +2617,27 @@ export class Eagle {
         });
     };
 
+    getTranslatorDefault = () : any => {
+        setTimeout(function(){
+            var defaultTransnlatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
+            $('.simplifiedTranslator').append(defaultTransnlatorHtml)
+            return defaultTransnlatorHtml
+        },10000)
+        
+    }
+
+    translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
+        var showSimplifiedTranslatorOptions :any = Eagle.findSetting(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value()
+        if(!showSimplifiedTranslatorOptions){
+            return true
+        }
+
+        if(currentAlg === Eagle.defaultTranslatorAlgorithm){
+            return true
+        }
+            return false
+    }
+
     saveAsPNG = () : void => {
         Utils.saveAsPNG('#logicalGraphD3Div svg', this.logicalGraph().fileInfo().name);
     };
@@ -5576,6 +5597,7 @@ $( document ).ready(function() {
 
         var translationId = element.closest('.accordion-item').attr('id')
         localStorage.setItem('translationDefault',translationId)
+        Eagle.defaultTranslatorAlgorithm = translationId
         
         $(this).prop('checked',true).change()
     })
