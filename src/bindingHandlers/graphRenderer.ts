@@ -937,7 +937,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     const sourcePortType: string = sourcePort.getType();
                                     
                                     // no destination, ask user to choose a new node
-                                    const eligibleComponents = Utils.getComponentsWithInputPort(eagle.palettes(), sourcePortType);
+
+                                    const eligibleComponents = Utils.getComponentsWithPort(eagle.palettes(), !sourcePort.isInputPort(), sourcePortType);
 
                                     if (eligibleComponents.length > 0){
 

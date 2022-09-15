@@ -1274,8 +1274,6 @@ export class Utils {
     }
 
     static getDataComponentMemory(palettes: Palette[]) : Node {
-        console.log("getDataComponentMemory");
-
         // add all data components (except ineligible)
         for (const palette of palettes){
             for (const node of palette.getNodes()){
@@ -1289,7 +1287,7 @@ export class Utils {
         return null;
     }
 
-    static getComponentsWithInputPort(palettes: Palette[], type: string) : Node[] {
+    static getComponentsWithPort(palettes: Palette[], input: boolean, type: string) : Node[] {
         const result: Node[] = [];
 
         // add all data components (except ineligible)
@@ -1297,7 +1295,9 @@ export class Utils {
             for (const node of palette.getNodes()){
                 let hasInputOfType: boolean = false;
 
-                for (const port of node.getInputPorts()){
+                const ports: Field[] = input ? node.getInputPorts() : node.getOutputPorts();
+
+                for (const port of ports){
                     if (port.getType() === type){
                         hasInputOfType = true;
                     }
