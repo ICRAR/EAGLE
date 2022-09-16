@@ -715,7 +715,7 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <select data-bind="html: $root.selectedNode().fillFieldTypeCell($data.fieldType()), value: fieldType, disabled: $root.selectedNode().isLocked()">
+                                        <select data-bind="options: Object.values(Eagle.ParameterType), value: parameterType, disabled: $root.selectedNode().isLocked()">
                                             <!-- options are added dynamically -->
                                         </select>
                                     </td>
