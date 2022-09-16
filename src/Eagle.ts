@@ -2908,7 +2908,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ApplicationArgument, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");

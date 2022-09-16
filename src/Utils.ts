@@ -316,15 +316,15 @@ export class Utils {
         return Eagle.DataType_Unknown;
     }
 
-    static translateStringToFieldType(fieldType: string): Eagle.FieldType {
-        for (const ft of Object.values(Eagle.FieldType)){
-            if (ft.toLowerCase() === fieldType.toLowerCase()){
-                return ft;
+    static translateStringToParameterType(parameterType: string): Eagle.ParameterType {
+        for (const pt of Object.values(Eagle.ParameterType)){
+            if (pt.toLowerCase() === parameterType.toLowerCase()){
+                return pt;
             }
         }
 
-        console.warn("Unknown FieldType", fieldType);
-        return Eagle.FieldType.Unknown;
+        console.warn("Unknown ParameterType", parameterType);
+        return Eagle.ParameterType.Unknown;
     }
 
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
@@ -1338,13 +1338,13 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, fieldType: Eagle.FieldType) : Field[] => {
+    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, parameterType: Eagle.ParameterType) : Field[] => {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
             for (const field of node.getFields()) {
-                if (field.getFieldType() !== fieldType){
+                if (field.getParameterType() !== parameterType){
                     continue;
                 }
                 Utils._addFieldIfUnique(uniqueFields, field.clone());
