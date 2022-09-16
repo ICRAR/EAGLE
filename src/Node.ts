@@ -449,7 +449,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
+            if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
                 result.push(field);
             }
         }
@@ -461,7 +461,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getFieldType() === Eagle.FieldType.ApplicationArgument){
+            if (field.getParameterType() === Eagle.ParameterType.ApplicationArgument){
                 result.push(field);
             }
         }
@@ -564,18 +564,12 @@ export class Node {
         return CategoryData.getCategoryData(this.category()).canHaveApplicationArguments;
     }
 
-    canHaveFieldType = (fieldType: Eagle.FieldType) : boolean => {
-        if (fieldType === Eagle.FieldType.ComponentParameter){
+    canHaveType = (parameterType: Eagle.ParameterType) : boolean => {
+        if (parameterType === Eagle.ParameterType.ComponentParameter){
             return this.canHaveComponentParameters()
         }
-        if (fieldType === Eagle.FieldType.ApplicationArgument){
+        if (parameterType === Eagle.ParameterType.ApplicationArgument){
             return this.canHaveApplicationArguments();
-        }
-        if (fieldType === Eagle.FieldType.InputPort){
-            return this.canHaveInputs();
-        }
-        if (fieldType === Eagle.FieldType.OutputPort){
-            return this.canHaveOutputs();
         }
 
         return false;
@@ -864,11 +858,12 @@ export class Node {
     findPortByIdText = (idText : string, input : boolean, local : boolean) : Field => {
         console.assert(!local);
 
-        const findFieldType = input ? Eagle.FieldType.InputPort : Eagle.FieldType.OutputPort;
-
         for (const field of this.fields()){
-            if (field.getFieldType() === findFieldType){
-                if (field.getIdText() === idText){
+            if (field.getIdText() === idText){
+                if (input && field.isInputPort()){
+                    return field;
+                }
+                if (!input && field.isOutputPort()){
                     return field;
                 }
             }
@@ -949,12 +944,12 @@ export class Node {
     }
 
     // WARN: dangerous! removes a field/arg/port without considering if it is a port is in use by an edge
-    removeFieldTypeByIndex = (index : number, fieldType: Eagle.FieldType) : void => {
+    removeFieldTypeByIndex = (index : number, parameterType: Eagle.ParameterType) : void => {
         let matchIndex = -1;
         for (let i = 0 ; i < this.fields().length ; i++){
             const field = this.fields()[i];
 
-            if (field.getFieldType() === fieldType){
+            if (field.getParameterType() === parameterType){
                 matchIndex += 1;
 
                 if (matchIndex === index){
@@ -976,7 +971,7 @@ export class Node {
 
     setGroupStart = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_start")){
-            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter));
+            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort));
         } else {
             this.getFieldByIdText("group_start").setValue(value.toString());
         }
@@ -984,7 +979,7 @@ export class Node {
 
     setGroupEnd = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_end")){
-            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter));
+            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort));
         } else {
             this.getFieldByIdText("group_end").setValue(value.toString());
         }
