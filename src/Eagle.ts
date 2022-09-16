@@ -2924,7 +2924,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.InputPort, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterUsage.InputPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3409,9 +3409,9 @@ export class Eagle {
     }
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
-    editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
+    editField = (node:Node, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage, fieldIndex: number) : void => {
         // get field names list from the logical graph
-        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), fieldType);
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), parameterType);
         const allFieldNames: string[] = [];
 
         // once done, sort fields and then collect names into the allFieldNames list
@@ -3429,19 +3429,24 @@ export class Eagle {
         if (modalType === Eagle.ModalType.Add) {
 
             // set the title of the modal based on the field type
-            switch(fieldType){
-                case Eagle.FieldType.ApplicationArgument:
-                $("#editFieldModalTitle").html("Add Application Argument");
-                break;
-                case Eagle.FieldType.ComponentParameter:
-                $("#editFieldModalTitle").html("Add Component Parameter");
-                break;
-                case Eagle.FieldType.InputPort:
-                $("#editFieldModalTitle").html("Add Input Port");
-                break;
-                case Eagle.FieldType.OutputPort:
-                $("#editFieldModalTitle").html("Add Output Port");
-                break;
+            if (usage === Eagle.ParameterUsage.NoPort){
+                switch(parameterType){
+                    case Eagle.ParameterType.ApplicationArgument:
+                    $("#editFieldModalTitle").html("Add Application Argument");
+                    break;
+                    case Eagle.ParameterType.ComponentParameter:
+                    $("#editFieldModalTitle").html("Add Component Parameter");
+                    break;
+                }
+            } else {
+                switch(usage){
+                    case Eagle.ParameterUsage.InputPort:
+                    $("#editFieldModalTitle").html("Add Input Port");
+                    break;
+                    case Eagle.ParameterUsage.OutputPort:
+                    $("#editFieldModalTitle").html("Add Output Port");
+                    break;
+                }
             }
 
             // show hide part of the UI appropriate for adding
@@ -3449,9 +3454,9 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.FieldType.ComponentParameter);
+            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort);
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
