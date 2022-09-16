@@ -2192,7 +2192,8 @@ export class Eagle {
         }
     }
 
-    getCurrentParamReadonly = (index: number, fieldType: Eagle.FieldType) : boolean => {
+    // TODO: this will probably require some more significant change
+    getCurrentParamReadonly = (index: number, parameterType: Eagle.ParameterType) : boolean => {
         // if we want to get readonly-ness the Nth application arg, then the real index
         // into the fields array is probably larger than N, since all four types
         // of fields are stored there
@@ -2203,7 +2204,7 @@ export class Eagle {
         for (let i = 0 ; i < node.getFields().length; i++){
             const field: Field = node.getFields()[i];
 
-            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
+            if (field.getParameterType() === parameterType || Eagle.ParameterType.Unknown === parameterType){
                 fieldTypeCount += 1;
             }
 
@@ -2216,7 +2217,7 @@ export class Eagle {
 
         // check that we actually found the right field, otherwise abort
         if (realIndex === -1){
-            console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
+            console.warn("Could not remove param index", index, "of type", parameterType, ". Not found.");
             return false;
         }
 
@@ -2891,7 +2892,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ComponentParameter, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ComponentParameter, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -4110,12 +4111,17 @@ export namespace Eagle
         Field = "Field"
     }
 
-    export enum FieldType {
+    export enum ParameterType {
+        Unknown = "Unknown",
         ComponentParameter = "ComponentParameter",
         ApplicationArgument = "ApplicationArgument",
+    }
+
+    export enum ParameterUsage {
+        NoPort = "NoPort",
         InputPort = "InputPort",
         OutputPort = "OutputPort",
-        Unknown = "Unknown"
+        InputOutput = "InputOutput"
     }
 
     export enum RepositoryService {

@@ -18,11 +18,12 @@ export class Field {
 
     // port-specific attributes
     private id : ko.Observable<string>;
-    private fieldType : ko.Observable<Eagle.FieldType>;
+    private parameterType : ko.Observable<Eagle.ParameterType>;
+    private usage : ko.Observable<Eagle.ParameterUsage>;
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
-    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, fieldType: Eagle.FieldType){
+    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage){
         this.displayText = ko.observable(displayText);
         this.idText = ko.observable(idText);
         this.value = ko.observable(value);
@@ -35,7 +36,8 @@ export class Field {
         this.positional = ko.observable(positional);
 
         this.id = ko.observable(id);
-        this.fieldType = ko.observable(fieldType);
+        this.parameterType = ko.observable(parameterType);
+        this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
     }
@@ -140,12 +142,20 @@ export class Field {
         this.positional(positional);
     }
 
-    getFieldType = (): Eagle.FieldType => {
-        return this.fieldType();
+    getParameterType = (): Eagle.ParameterType => {
+        return this.parameterType();
     }
 
-    setFieldType = (fieldType: Eagle.FieldType) : void => {
-        this.fieldType(fieldType);
+    setParameterType = (parameterType: Eagle.ParameterType) : void => {
+        this.parameterType(parameterType);
+    }
+
+    getUsage = (): Eagle.ParameterUsage => {
+        return this.usage();
+    }
+
+    setUsage = (usage: Eagle.ParameterUsage) : void => {
+        this.usage(usage);
     }
 
     getIsEvent = (): boolean => {
