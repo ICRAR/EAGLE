@@ -638,20 +638,21 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         let dropDownKO;
         let divID;
 
         // determine which dropdown menu should be filled with appropriate items
-        switch(fieldType){
-            case Eagle.FieldType.ApplicationArgument:
+        switch(parameterType){
+            case Eagle.ParameterType.ApplicationArgument:
             dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
             divID = "nodeInspectorAddApplicationParamDiv";
             break;
-            case Eagle.FieldType.ComponentParameter:
+            case Eagle.ParameterType.ComponentParameter:
             dropDownKO = $("#nodeInspectorFieldDropDownKO");
             divID = "nodeInspectorAddFieldDiv";
             break;
+            /*
             case Eagle.FieldType.InputPort:
             dropDownKO = $("#nodeInspectorInputPortDropDownKO");
             divID = "nodeInspectorAddInputPortDiv";
@@ -660,6 +661,9 @@ export class Utils {
             dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
             divID = "nodeInspectorAddOutputPortDiv";
             break;
+            */
+            default:
+            console.error("Unknown parameter type");
         }
 
         if (modalType === Eagle.ModalType.Add){
@@ -790,17 +794,17 @@ export class Utils {
 
         // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
         $('#editFieldModalFieldTypeSelect').empty();
-        for (const ft of [Eagle.FieldType.ComponentParameter, Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
+        for (const ft of [Eagle.ParameterType.ComponentParameter, Eagle.ParameterType.ApplicationArgument]){
             $('#editFieldModalFieldTypeSelect').append(
                 $('<option>', {
                     value: ft,
                     text: ft,
-                    selected: field.getFieldType() === ft
+                    selected: field.getParameterType() === ft
                 })
             );
         }
         // hide the fieldType select if the fieldType is ComponentParameter, since that can't be changed
-        if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
+        if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
             $('#editFieldModalFieldTypeSelectRow').hide();
         } else {
             $('#editFieldModalFieldTypeSelectRow').show();
@@ -2004,7 +2008,8 @@ export class Utils {
                 "idText":field.getIdText(),
                 "displayText":field.getDisplayText(),
                 "type":field.getType(),
-                "fieldType":field.getFieldType(),
+                "parameterType":field.getParameterType(),
+                "usage":field.getUsage(),
                 "isEvent":field.getIsEvent(),
                 "value":field.getValue(),
                 "defaultValue": field.getDefaultValue(),

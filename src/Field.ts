@@ -192,9 +192,8 @@ export class Field {
     }
 
     clone = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.fieldType());
+        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage());
         f.setIsEvent(this.isEvent());
-        f.setFieldType(this.fieldType());
         return f;
     }
 
@@ -221,11 +220,11 @@ export class Field {
     }
 
     isInputPort = () : boolean => {
-        return this.fieldType() === Eagle.FieldType.InputPort;
+        return this.usage() === Eagle.ParameterUsage.InputPort || this.usage() === Eagle.ParameterUsage.InputOutput;
     }
 
     isOutputPort = () : boolean => {
-        return this.fieldType() === Eagle.FieldType.OutputPort;
+        return this.usage() === Eagle.ParameterUsage.OutputPort || this.usage() === Eagle.ParameterUsage.InputOutput;
     }
 
     fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -333,7 +332,8 @@ export class Field {
         let precious: boolean = false;
         let options: string[] = [];
         let positional: boolean = false;
-        let fieldType: Eagle.FieldType = Eagle.FieldType.Unknown;
+        let parameterType: Eagle.ParameterType = Eagle.ParameterType.Unknown;
+        let usage: Eagle.ParameterUsage = Eagle.ParameterUsage.NoPort;
         let isEvent: boolean = false;
 
         if (typeof data.id !== 'undefined')
@@ -365,12 +365,14 @@ export class Field {
             options = data.options;
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
-        if (typeof data.fieldType !== 'undefined')
-            fieldType = data.fieldType;
+        if (typeof data.parameterType !== 'undefined')
+            parameterType = data.parameterType;
+        if (typeof data.usage !== 'undefined')
+            usage = data.usage;
         if (typeof data.event !== 'undefined')
             event = data.event;
 
-        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
+        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         result.setIsEvent(isEvent);
         return result;
     }
@@ -389,41 +391,5 @@ export class Field {
             return 1;
 
         return 0;
-    }
-
-    static toOJSJsonPort = (field : Field) : object => {
-        return {
-            Id:field.id(),
-            IdText:field.idText(),
-            text:field.displayText(),
-            event:field.isEvent(),
-            type:field.type(),
-            description:field.description()
-        };
-    }
-
-    static fromOJSJsonPort = (data : any) : Field => {
-        let text: string = "";
-        let event: boolean = false;
-        let type: string;
-        let description: string = "";
-
-        if (typeof data.text !== 'undefined')
-            text = data.text;
-        if (typeof data.event !== 'undefined')
-            event = data.event;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
-        if (typeof data.description !== 'undefined')
-            description = data.description;
-
-        // avoid empty text fields if we can
-        if (text === ""){
-            text = data.IdText;
-        }
-
-        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false, Eagle.FieldType.Unknown);
-        f.setIsEvent(event);
-        return f;
     }
 }
