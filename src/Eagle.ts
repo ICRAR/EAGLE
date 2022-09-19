@@ -3476,7 +3476,7 @@ export class Eagle {
 
                 // hide the custom text input unless the first option in the select is chosen
                 if (choice === 0){
-                    newField.setFieldType(fieldType);
+                    newField.setParameterType(parameterType);
 
                     //create field from user input in modal
                     node.addField(newField);
@@ -3484,7 +3484,7 @@ export class Eagle {
                 } else {
                     const clone : Field = allFields[choice-1].clone();
                     clone.setId(Utils.uuidv4());
-                    clone.setFieldType(fieldType);
+                    clone.setParameterType(parameterType);
                     node.addField(clone);
                 }
 
@@ -3496,7 +3496,7 @@ export class Eagle {
             //if editing an existing field
             let field: Field = null;
 
-            switch (fieldType){
+            switch (parameterType){
             case Eagle.FieldType.ComponentParameter:
                 $("#editFieldModalTitle").html("Edit Component Parameter");
                 field = this.selectedNode().getComponentParameters()[fieldIndex];
@@ -3521,14 +3521,14 @@ export class Eagle {
 
             // check that we found a field
             if (field === null || typeof field === 'undefined'){
-                console.error("Could not find the field to edit. fieldType", fieldType, "fieldIndex", fieldIndex);
+                console.error("Could not find the field to edit. parameterType", parameterType, "fieldIndex", fieldIndex);
                 return;
             }
 
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Edit, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -3544,7 +3544,7 @@ export class Eagle {
                 field.setType(newField.getType());
                 field.setPrecious(newField.isPrecious());
                 field.setPositionalArgument(newField.isPositionalArgument());
-                field.setFieldType(newField.getFieldType());
+                field.setParameterType(newField.getParameterType());
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
@@ -3868,11 +3868,11 @@ export class Eagle {
         let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
 
         if (!newInputPort){
-            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort);
+            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputPort);
             newNode.addField(newInputPort);
         }
         if (!newOutputPort){
-            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort);
+            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.OutputPort);
             newNode.addField(newOutputPort);
         }
 
