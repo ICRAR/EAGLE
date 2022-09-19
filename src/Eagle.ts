@@ -2892,7 +2892,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ComponentParameter, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -2908,7 +2908,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.NoPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -2924,7 +2924,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterUsage.InputPort, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -2940,7 +2940,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.OutputPort, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.OutputPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3203,7 +3203,7 @@ export class Eagle {
         });
     }
 
-    removeParamFromNodeByIndex = (node: Node, fieldType: Eagle.FieldType, index: number) : void => {
+    removeParamFromNodeByIndex = (node: Node, parameterType: Eagle.ParameterType, index: number) : void => {
         if (node === null){
             console.warn("Could not remove param from null node");
             return;
@@ -3218,7 +3218,7 @@ export class Eagle {
         for (let i = 0 ; i < node.getFields().length; i++){
             const field: Field = node.getFields()[i];
 
-            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
+            if (field.getParameterType() === parameterType || Eagle.ParameterType.Unknown === parameterType){
                 fieldTypeCount += 1;
             }
 
@@ -3243,6 +3243,7 @@ export class Eagle {
         this.selectedObjects.valueHasMutated();
     }
 
+    // TODO: this needs lots of changes
     removePortFromNodeByIndex = (node : Node, fieldId:string, input : boolean) : void => {
         console.log("removePortFromNodeByIndex(): node", node.getName(), "index",fieldId, "input", input);
 
@@ -3445,6 +3446,9 @@ export class Eagle {
                     break;
                     case Eagle.ParameterUsage.OutputPort:
                     $("#editFieldModalTitle").html("Add Output Port");
+                    break;
+                    case Eagle.ParameterUsage.InputOutput:
+                    $("#editFieldModalTitle").html("Add Input/Output Port");
                     break;
                 }
             }

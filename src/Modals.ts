@@ -325,18 +325,19 @@ export class Modals {
 
             // translate type
             const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
-            const realFieldType: Eagle.FieldType = Utils.translateStringToFieldType(fieldType);
+            const realFieldType: Eagle.ParameterType = Utils.translateStringToParameterType(fieldType);
             let newField;
 
+            // TODO: using Eagle.ParameterUsage.NoPort is incorrect here, we should get the actual value from new UI
             switch(realType){
                 case Eagle.DataType_Boolean:
-                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realFieldType);
+                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realFieldType, Eagle.ParameterUsage.NoPort);
                     break;
                 case Eagle.DataType_Select:
-                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realFieldType);
+                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realFieldType, Eagle.ParameterUsage.NoPort);
                     break;
                 default:
-                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realFieldType);
+                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realFieldType, Eagle.ParameterUsage.NoPort);
                     break;
             }
 

@@ -1524,7 +1524,7 @@ export class Node {
                 const isCommentOrDescriptionContentField : boolean = (category === Category.Description || category === Category.Comment) && field.getIdText() === "";
 
                 // check
-                if (!node.canHaveFieldType(field.getParameterType()) && !isCommentOrDescriptionContentField){
+                if (!isCommentOrDescriptionContentField){
                     errorsWarnings.warnings.push(Errors.Message("Node '" + node.getName() + "' (category: " + category + ") should not have any " + field.getParameterType() + ". Removed " + field.getDisplayText()));
                     continue;
                 }
@@ -1538,13 +1538,6 @@ export class Node {
             for (const paramData of nodeData.applicationArgs){
                 const field = Field.fromOJSJson(paramData);
                 field.setParameterType(Eagle.ParameterType.ApplicationArgument);
-
-                // check
-                if (!node.canHaveFieldType(field.getParameterType())){
-                    errorsWarnings.warnings.push(Errors.Message("Node '" + node.getName() + "' (category: " + category + ") should not have any " + field.getParameterType() + ". Removed " + field.getDisplayText()));
-                    continue;
-                }
-
                 node.addField(field);
             }
         }
