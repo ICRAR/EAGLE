@@ -253,7 +253,7 @@ export class Eagle {
         this.showDataNodes = ko.observable(true);
 
         this.selectedObjects.subscribe(function(){
-                Hierarchy.updateDisplay()
+            Hierarchy.updateDisplay()
         }, this)
 
         this.rightWindow().mode.subscribe(function(newValue){
@@ -3550,9 +3550,9 @@ export class Eagle {
     duplicateParameter = (index:number) : void => {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
 
-            var copiedField = this.selectedNode().getFields()[index].clone()
-            copiedField.setId(Utils.uuidv4())
-            copiedField.setIdText(copiedField.getIdText()+'copy')
+        var copiedField = this.selectedNode().getFields()[index].clone()
+        copiedField.setId(Utils.uuidv4())
+        copiedField.setIdText(copiedField.getIdText()+'copy')
         if(ParameterTable.hasSelection()){
             //if a cell in the table is selected in this case the new node will be placed below the currently selected node
             fieldIndex = ParameterTable.selectionParentIndex() + 1
