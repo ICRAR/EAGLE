@@ -1,6 +1,7 @@
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
+import { LogicalGraph } from './LogicalGraph';
 import {Node} from './Node';
 
 export class Hierarchy {
@@ -69,41 +70,56 @@ export class Hierarchy {
             })
         })
 
-        nodeRelative.forEach(function(element:Node){
-            let iterations = 0;
+        //using a caled async function here to wait for changes to the hierarchy to finish before drawing the edges
+        hierarchyDraw()
 
-            if (element === null){
-                return
-            }
-
-            while (true){
-                if (iterations > 32){
-                    console.error("too many iterations in nodeRelativeForEach");
-                    return
-                }
-
-                element.setExpanded(true)
-                element.setKeepExpanded(true)
-
-                iterations += 1;
-
-                // otherwise keep traversing upwards
-                const parentKey = element.getParentKey();
-
-                // if we reach a null parent, we are done looking
-                if (parentKey === null){
-                    return 
-                }
-
-                element = eagle.logicalGraph().findNodeByKey(parentKey);
-            }
-        })
 
         //an array of edges is used as we have to ensure there are no duplicate edges drawn.
-        hierarchyEdgesList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
-            Hierarchy.drawEdge(e.edge, e.use, e.edgeSelected)
-        })
-
+        async function hierarchyDraw() {
+            await setNodeRelatives()
+            hierarchyEdgesList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
+                Hierarchy.drawEdge(e.edge, e.use, e.edgeSelected)
+            })   
+        }
+        
+        //handle expanding groups that nades get drawn to, and hadle adding nodeRelative
+        function setNodeRelatives(){
+            nodeRelative.forEach(function(element:Node){
+                let iterations = 0;
+    
+                if (element === null){
+                    return
+                }
+    
+                while (true){
+                    if (iterations > 32){
+                        console.error("too many iterations in nodeRelativeForEach");
+                        return
+                    }
+    
+                    if(element.isEmbedded()){
+                        var localPortGroup = eagle.logicalGraph().findNodeByKey(element.getEmbedKey())
+                        localPortGroup.setExpanded(true)
+                        localPortGroup.setKeepExpanded(true)
+                    }else{  
+                        element.setExpanded(true)
+                        element.setKeepExpanded(true)
+                    }
+    
+                    iterations += 1;
+    
+                    // otherwise keep traversing upwards
+                    const parentKey = element.getParentKey();
+    
+                    // if we reach a null parent, we are done looking
+                    if (parentKey === null){
+                        return 
+                    }
+    
+                    element = eagle.logicalGraph().findNodeByKey(parentKey);
+                }
+            })
+        }
     }
 
     // TODO: rename to remove "hierarchy" from name
@@ -231,7 +247,6 @@ export class Hierarchy {
         }else{
             className = "hierarchyNodeIsntSelected"
         }
-
         return className
     }
 
