@@ -1,7 +1,6 @@
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
-import { LogicalGraph } from './LogicalGraph';
 import {Node} from './Node';
 
 export class Hierarchy {
