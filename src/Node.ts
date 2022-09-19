@@ -944,6 +944,7 @@ export class Node {
     }
 
     // WARN: dangerous! removes a field/arg/port without considering if it is a port is in use by an edge
+    /*
     removeFieldTypeByIndex = (index : number, parameterType: Eagle.ParameterType) : void => {
         let matchIndex = -1;
         for (let i = 0 ; i < this.fields().length ; i++){
@@ -958,6 +959,7 @@ export class Node {
             }
         }
     }
+    */
 
     addField = (field : Field) : void => {
         this.fields.push(field);

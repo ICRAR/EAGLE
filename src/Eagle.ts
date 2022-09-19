@@ -3231,7 +3231,7 @@ export class Eagle {
 
         // check that we actually found the right field, otherwise abort
         if (realIndex === -1){
-            console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
+            console.warn("Could not remove param index", index, "of type", parameterType, ". Not found.");
             return;
         }
 
@@ -3244,8 +3244,8 @@ export class Eagle {
     }
 
     // TODO: this needs lots of changes
-    removePortFromNodeByIndex = (node : Node, fieldId:string, input : boolean) : void => {
-        console.log("removePortFromNodeByIndex(): node", node.getName(), "index",fieldId, "input", input);
+    removePortFromNodeByIndex = (node : Node, fieldId:string) : void => {
+        console.log("removePortFromNodeByIndex(): node", node.getName(), "index",fieldId);
 
         if (node === null){
             console.warn("Could not remove port from null node");
@@ -3260,11 +3260,7 @@ export class Eagle {
         console.log("Found portId to remove:", portId);
 
         // remove port
-        if (input){
-            node.removeFieldTypeByIndex(portIndex, Eagle.FieldType.InputPort);
-        } else {
-            node.removeFieldTypeByIndex(portIndex, Eagle.FieldType.OutputPort);
-        }
+        node.removeFieldByIndex(portIndex);
 
         // remove any edges connected to that port
         const edges : Edge[] = this.logicalGraph().getEdges();
@@ -3494,29 +3490,26 @@ export class Eagle {
 
         } else {
             //if editing an existing field
-            let field: Field = null;
+            const field: Field = this.selectedNode().getFields()[fieldIndex];
 
-            switch (parameterType){
-            case Eagle.FieldType.ComponentParameter:
-                $("#editFieldModalTitle").html("Edit Component Parameter");
-                field = this.selectedNode().getComponentParameters()[fieldIndex];
-                break;
-            case Eagle.FieldType.ApplicationArgument:
-                $("#editFieldModalTitle").html("Edit Application Argument");
-                field = this.selectedNode().getApplicationArguments()[fieldIndex];
-                break;
-            case Eagle.FieldType.InputPort:
+            if (usage === Eagle.ParameterUsage.NoPort){
+                switch (parameterType){
+                    case Eagle.ParameterType.ComponentParameter:
+                    $("#editFieldModalTitle").html("Edit Component Parameter"); 
+                    break;
+                    case Eagle.ParameterType.ApplicationArgument:
+                    $("#editFieldModalTitle").html("Edit Application Argument");
+                    break;
+                }
+            } else {
+                switch (usage){
+                case Eagle.ParameterUsage.InputPort:
                 $("#editFieldModalTitle").html("Edit Input Port");
-                field = this.selectedNode().getInputPorts()[fieldIndex];
                 break;
-            case Eagle.FieldType.OutputPort:
+                case Eagle.ParameterUsage.OutputPort:
                 $("#editFieldModalTitle").html("Edit Output Port");
-                field = this.selectedNode().getOutputPorts()[fieldIndex];
                 break;
-            case Eagle.FieldType.Unknown:
-                $("#editFieldModalTitle").html("Edit Parameter");
-                field = this.selectedNode().getFields()[fieldIndex];
-                break;
+                }
             }
 
             // check that we found a field
@@ -3952,14 +3945,14 @@ export class Eagle {
             // delete extra input ports
             if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
                 for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId(), true);
+                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
                 }
             }
 
             // delete extra output ports
             if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
                 for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId(), false);
+                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
                 }
             }
 
