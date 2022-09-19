@@ -3549,13 +3549,17 @@ export class Eagle {
 
     duplicateParameter = (index:number) : void => {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
+
+        var copiedField = this.selectedNode().getFields()[index].clone()
+        copiedField.setId(Utils.uuidv4())
+        copiedField.setIdText(copiedField.getIdText()+'copy')
         if(ParameterTable.hasSelection()){
             //if a cell in the table is selected in this case the new node will be placed below the currently selected node
             fieldIndex = ParameterTable.selectionParentIndex() + 1
-            this.selectedNode().addFieldAtPosition(this.selectedNode().getFields()[index].clone(),fieldIndex)
+            this.selectedNode().addFieldAtPosition(copiedField,fieldIndex)
         }else{
-            //if no call in the table is selected, in this case the new node is appended
-            this.selectedNode().addField(this.selectedNode().getFields()[index].clone())
+            //if no call in the table is selected, in this case the new node is 
+            this.selectedNode().addField(copiedField)
             fieldIndex = this.selectedNode().getFields().length -1
         }
 
