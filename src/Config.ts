@@ -30,15 +30,6 @@ export class Config {
     static readonly paletteNodeHeight : number = 22;
     static readonly paletteNodeWidth : number = 130;
 
-    // translation algorithms
-    static readonly translationAlgorithms = [
-        "none",
-        "metis",
-        "mysarkar",
-        "min_num_parts",
-        "pso"
-    ];
-
     static readonly DALIUGE_PARAMETER_NAMES = [
         "data_volume",
         "execution_time",
