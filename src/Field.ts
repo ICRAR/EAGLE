@@ -404,6 +404,31 @@ export class Field {
         return result;
     }
 
+    static fromOJSJsonPort = (data : any) : Field => {
+        let text: string = "";
+        let event: boolean = false;
+        let type: string;
+        let description: string = "";
+    
+        if (typeof data.text !== 'undefined')
+            text = data.text;
+        if (typeof data.event !== 'undefined')
+            event = data.event;
+        if (typeof data.type !== 'undefined')
+            type = data.type;
+        if (typeof data.description !== 'undefined')
+            description = data.description;
+    
+        // avoid empty text fields if we can
+        if (text === ""){
+            text = data.IdText;
+        }
+     
+        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false, Eagle.ParameterType.Unknown, Eagle.ParameterUsage.NoPort);
+        f.setIsEvent(event);
+        return f;
+    }
+
     public static sortFunc = (a: Field, b: Field) : number => {
         if (a.idText() < b.idText())
             return -1;

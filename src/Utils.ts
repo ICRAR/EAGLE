@@ -819,7 +819,7 @@ export class Utils {
         // delete all options, then iterate through the values in the Eagle.ParameterUsage enum, adding each as an option to the select
         $('#editFieldModalParameterUsageSelect').empty();
         for (const pu of Object.values(Eagle.ParameterUsage)){
-            $('#editFieldModalParameterTypeSelect').append(
+            $('#editFieldModalParameterUsageSelect').append(
                 $('<option>', {
                     value: pu,
                     text: pu,
@@ -1355,6 +1355,22 @@ export class Utils {
             }
         }
         types.push(newType);
+    }
+
+    /**
+     * Returns a list of all fields in the given palette or logical graph, of a particular type
+     */
+    static getUniqueFields = (diagram : Palette | LogicalGraph) : Field[] => {
+        const uniqueFields : Field[] = [];
+
+        // build a list from all nodes, add fields into the list
+        for (const node of diagram.getNodes()) {
+            for (const field of node.getFields()) {
+                Utils._addFieldIfUnique(uniqueFields, field.clone());
+            }
+        }
+
+        return uniqueFields;
     }
 
     /**

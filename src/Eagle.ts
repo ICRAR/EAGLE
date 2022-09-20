@@ -3342,7 +3342,9 @@ export class Eagle {
     }
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
-    editField = (node:Node, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage, fieldIndex: number) : void => {
+    editField = (node:Node, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage, id: string) : void => {
+        console.log("editField", modalType, parameterType, usage, id);
+
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), parameterType);
         const allFieldNames: string[] = [];
@@ -3426,7 +3428,7 @@ export class Eagle {
 
         } else {
             //if editing an existing field
-            const field: Field = this.selectedNode().getFields()[fieldIndex];
+            const field: Field = this.selectedNode().findFieldById(id);
 
             if (usage === Eagle.ParameterUsage.NoPort){
                 switch (parameterType){
@@ -3450,7 +3452,7 @@ export class Eagle {
 
             // check that we found a field
             if (field === null || typeof field === 'undefined'){
-                console.error("Could not find the field to edit. parameterType", parameterType, "fieldIndex", fieldIndex);
+                console.error("Could not find the field to edit. parameterType", parameterType, "id", id);
                 return;
             }
 

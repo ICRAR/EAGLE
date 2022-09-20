@@ -1546,7 +1546,8 @@ export class Node {
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
-                const port = Field.fromOJSJson(inputPort);
+                const port = Field.fromOJSJsonPort(inputPort);
+                port.setParameterType(Eagle.ParameterType.ApplicationArgument);
                 port.setUsage(Eagle.ParameterUsage.InputPort);
 
                 if (node.canHaveInputs()){
@@ -1560,7 +1561,8 @@ export class Node {
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
-                const port = Field.fromOJSJson(outputPort);
+                const port = Field.fromOJSJsonPort(outputPort);
+                port.setParameterType(Eagle.ParameterType.ApplicationArgument);
                 port.setUsage(Eagle.ParameterUsage.OutputPort);
 
                 if (node.canHaveOutputs()){
@@ -1575,7 +1577,8 @@ export class Node {
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
-                    const port = Field.fromOJSJson(inputLocalPort);
+                    const port = Field.fromOJSJsonPort(inputLocalPort);
+                    port.setParameterType(Eagle.ParameterType.ApplicationArgument);
                     port.setUsage(Eagle.ParameterUsage.OutputPort);
 
                     node.inputApplication().addField(port);
@@ -1588,7 +1591,8 @@ export class Node {
         // add output local ports
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
-                const port = Field.fromOJSJson(outputLocalPort);
+                const port = Field.fromOJSJsonPort(outputLocalPort);
+                port.setParameterType(Eagle.ParameterType.ApplicationArgument);
                 port.setUsage(Eagle.ParameterUsage.InputPort);
 
                 if (node.hasOutputApplication()){
