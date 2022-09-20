@@ -26,17 +26,20 @@ import * as Ajv from "ajv";
 import * as Showdown from "showdown";
 import * as ko from "knockout";
 
+import {Category} from './Category';
+import {CategoryData} from "./CategoryData";
 import {Config} from './Config';
-
 import {Eagle} from './Eagle';
-import {Palette} from './Palette';
+import {Edge} from './Edge';
+import {Errors} from './Errors';
+import {Field} from './Field';
+import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
-import {Edge} from './Edge';
-import {Field} from './Field';
-import {Repository} from './Repository';
+import {Palette} from './Palette';
 import {PaletteInfo} from './PaletteInfo';
-import {KeyboardShortcut} from './KeyboardShortcut';
+import {Repository} from './Repository';
+import {Setting} from './Setting';
 
 export class Utils {
     // Allowed file extenstions.
@@ -64,6 +67,7 @@ export class Utils {
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
     static readonly SHOW_DALIUGE_RUNTIME_PARAMETERS : string = "ShowDaliugeRuntimeParameters";
+    static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
     static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
@@ -82,9 +86,10 @@ export class Utils {
     static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
-    static readonly ENABLE_EXPERT_MODE: string = "EnableExpertMode";
+    static readonly USER_INTERFACE_MODE: string = "UserInterfaceMode";
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
+    static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
 
     static ojsGraphSchema : object = {};
     static v3GraphSchema : object = {};
@@ -292,20 +297,27 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static translateStringToDataType(dataType: string): Eagle.DataType {
+    static dataTypePrefix(dataType: string): string {
+        if (typeof dataType === 'undefined'){
+            return Eagle.DataType_Unknown;
+        }
 
-        for (let dt of Object.values(Eagle.DataType)){
+        return dataType.split(".")[0];
+    }
+
+    static translateStringToDataType(dataType: string): string {
+        for (const dt of Eagle.DataTypes){
             if (dt.toLowerCase() === dataType.toLowerCase()){
                 return dt;
             }
         }
 
         console.warn("Unknown DataType", dataType);
-        return Eagle.DataType.Unknown;
+        return Eagle.DataType_Unknown;
     }
 
     static translateStringToFieldType(fieldType: string): Eagle.FieldType {
-        for (let ft of Object.values(Eagle.FieldType)){
+        for (const ft of Object.values(Eagle.FieldType)){
             if (ft.toLowerCase() === fieldType.toLowerCase()){
                 return ft;
             }
@@ -441,6 +453,21 @@ export class Utils {
         if (title === "Error"){
             Utils.addToHTMLElementLog(title + ":" + message);
         }
+    }
+
+    static showErrorsModal(title: string){
+        const errors: Errors.Issue[] = Errors.getErrors();
+        const warnings: Errors.Issue[] = Errors.getWarnings();
+
+        console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
+
+        $('#errorsModalTitle').text(title);
+
+        // hide whole errors or warnings sections if none are found
+        $('#errorsModalErrorsAccordionItem').toggle(errors.length > 0);
+        $('#errorsModalWarningsAccordionItem').toggle(warnings.length > 0);
+
+        $('#errorsModal').modal("toggle");
     }
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
@@ -615,12 +642,24 @@ export class Utils {
         let dropDownKO;
         let divID;
 
-        if (fieldType === Eagle.FieldType.ComponentParameter){
-            dropDownKO = $("#nodeInspectorFieldDropDownKO");
-            divID = "nodeInspectorAddFieldDiv";
-        } else {
+        // determine which dropdown menu should be filled with appropriate items
+        switch(fieldType){
+            case Eagle.FieldType.ApplicationArgument:
             dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
             divID = "nodeInspectorAddApplicationParamDiv";
+            break;
+            case Eagle.FieldType.ComponentParameter:
+            dropDownKO = $("#nodeInspectorFieldDropDownKO");
+            divID = "nodeInspectorAddFieldDiv";
+            break;
+            case Eagle.FieldType.InputPort:
+            dropDownKO = $("#nodeInspectorInputPortDropDownKO");
+            divID = "nodeInspectorAddInputPortDiv";
+            break;
+            case Eagle.FieldType.OutputPort:
+            dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
+            divID = "nodeInspectorAddOutputPortDiv";
+            break;
         }
 
         if (modalType === Eagle.ModalType.Add){
@@ -641,33 +680,33 @@ export class Utils {
                 text: ""
             }));
 
+            // add custom choice first
+            $('#fieldModalSelect').append($('<option>', {
+                value: 0,
+                text: "<Custom>"
+            }));
+            dropDownKO.append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+0+", "+choices.length+",'" + divID + "')}",
+                value: 0,
+                text: "<Custom>"
+            }));
+
             // add options to the modal select tag
             for (let i = 0 ; i < choices.length ; i++){
                 $('#fieldModalSelect').append($('<option>', {
-                    value: i,
+                    value: i+1,
                     text: choices[i]
                 }));
                 dropDownKO.append($('<a>', {
                     href: "#",
                     class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'" + divID + "')}",
-                    value: i,
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+(i+1)+", "+choices.length+",'" + divID + "')}",
+                    value: i+1,
                     text: choices[i]
                 }));
             }
-
-            // add custom choice
-            $('#fieldModalSelect').append($('<option>', {
-                value: choices.length,
-                text: "Custom (enter below)"
-            }));
-            dropDownKO.append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'" + divID + "')}",
-                value: choices.length,
-                text: "Custom"
-            }));
 
             //applying knockout bindings for the new buttons generated above
             ko.cleanNode(dropDownKO[0]);
@@ -679,10 +718,10 @@ export class Utils {
         $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
         $('#editFieldModalIdTextInput').val(field.getIdText());
         $('#editFieldModalValueInputText').val(field.getValue());
-        $('#editFieldModalValueInputCheckbox').prop('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
-        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalValueInputSelect').empty();
-        for (let option of field.getOptions()){
+        for (const option of field.getOptions()){
             $('#editFieldModalValueInputSelect').append($('<option>', {
                 value: option,
                 text: option,
@@ -691,9 +730,9 @@ export class Utils {
         }
 
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
-        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.string2Type(field.getDefaultValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Eagle.DataType_Boolean));
         $('#editFieldModalDefaultValueInputSelect').empty();
-        for (let option of field.getOptions()){
+        for (const option of field.getOptions()){
             $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
                 value: option,
                 text: option,
@@ -708,39 +747,57 @@ export class Utils {
         $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
-        if(field.getType() === Eagle.DataType.Boolean){
+        if(field.getType() === Eagle.DataType_Boolean){
             $("#editFieldModalDefaultValue").hide()
         }else{
             $("#editFieldModalDefaultValue").show()
         }
 
         // show the correct entry field based on the field type
-        $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
-        $('#editFieldModalValueInputCheckbox').parent().toggle(field.getType() === Eagle.DataType.Boolean);
-        $('#editFieldModalValueInputSelect').toggle(field.getType() === Eagle.DataType.Select);
+        /*
+        console.log("!debug", field.getType(), field.isType(Eagle.DataType_Boolean), field.isType(Eagle.DataType_Select), "combined", !field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
+        $('#editFieldModalValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
+        $('#editFieldModalValueInputCheckbox').parent().toggle(field.isType(Eagle.DataType_Boolean));
+        $('#editFieldModalValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
 
-        $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean && field.getType() !== Eagle.DataType.Select);
-        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
-        $('#editFieldModalDefaultValueInputSelect').toggle(field.getType() === Eagle.DataType.Select);
+        $('#editFieldModalDefaultValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
+        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.isType(Eagle.DataType_Boolean));
+        $('#editFieldModalDefaultValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
+        */
+
+
+        $('#editFieldModalTypeInput').val(field.getType());
+
+        // TODO: this looks like ParameterTable.ts::fill(), can we make them common?
+        const allTypes = Utils.findAllKnownTypes(eagle.palettes(), eagle.logicalGraph());
 
         // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();
-        for (let dataType of Object.values(Eagle.DataType)){
-            $('#editFieldModalTypeSelect').append($('<option>', {
-                value: dataType,
-                text: dataType,
-                selected: field.getType() === dataType
-            }));
+        for (const dataType of allTypes){
+            const li = $('<li></li>');
+            const a = $('<a class="dropdown-item" href="#">' + dataType + '</a>');
+
+            a.attr("href", "javascript:eagle.editFieldDropdownClick('" + dataType + "','" + field.getType() + "');");
+
+            if (Utils.dataTypePrefix(field.getType()) === dataType){
+                a.addClass("active");
+            }
+
+            // add to the html
+            li.append(a);
+            $('#editFieldModalTypeSelect').append(li);
         }
 
         // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
         $('#editFieldModalFieldTypeSelect').empty();
-        for (let fieldType of [Eagle.FieldType.ComponentParameter, Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
-            $('#editFieldModalFieldTypeSelect').append($('<option>', {
-                value: fieldType,
-                text: fieldType,
-                selected: field.getFieldType() === fieldType
-            }));
+        for (const ft of [Eagle.FieldType.ComponentParameter, Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
+            $('#editFieldModalFieldTypeSelect').append(
+                $('<option>', {
+                    value: ft,
+                    text: ft,
+                    selected: field.getFieldType() === ft
+                })
+            );
         }
         // hide the fieldType select if the fieldType is ComponentParameter, since that can't be changed
         if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
@@ -832,7 +889,7 @@ export class Utils {
     }
 
     static showPalettesModal(eagle: Eagle) : void {
-        const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
@@ -1014,6 +1071,28 @@ export class Utils {
         $('#editEdgeModalDataTypeInput').val(edge.getDataType());
     }
 
+    static findAllKnownTypes = (palettes : Palette[], graph: LogicalGraph): string[] => {
+        const uniqueTypes : string[] = [];
+
+        // build a list from all palettes
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                for (const field of node.getFields()) {
+                    Utils._addTypeIfUnique(uniqueTypes, field.getType());
+                }
+            }
+        }
+
+        // add all types in LG nodes
+        for (const node of graph.getNodes()){
+            for (const field of node.getFields()) {
+                Utils._addTypeIfUnique(uniqueTypes, field.getType());
+            }
+        }
+
+        return uniqueTypes;
+    }
+
     /**
      * Returns a list of unique port names (except event ports)
      */
@@ -1093,7 +1172,7 @@ export class Utils {
         return uniquePorts;
     }
 
-    static getDataComponentsWithPortTypeList(palettes: Palette[], portName: string, portType: string, ineligibleCategories: Eagle.Category[]){
+    static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Category[]) : Node[] {
         console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
 
         const result: Node[] = [];
@@ -1125,6 +1204,115 @@ export class Utils {
         return result;
     }
 
+    static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
+        console.log("getDataComponentsWithInputsAndOutputs");
+
+        const result: Node[] = [];
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (categoryType === Category.Type.Data && !node.isData()){
+                    continue;
+                }
+
+                // skip nodes that are not application components
+                if (categoryType === Category.Type.Application && !node.isApplication()){
+                    continue;
+                }
+
+                // skip nodes that are not construct components
+                if (categoryType === Category.Type.Construct && !node.isConstruct()){
+                    continue;
+                }
+
+                // if input ports required, skip nodes with too few
+                if (numRequiredInputs > node.maxInputs()){
+                    continue;
+                }
+
+                // if output ports required, skip nodes with too few
+                if (numRequiredOutputs > node.maxOutputs()){
+                    continue;
+                }
+
+                result.push(node);
+            }
+        }
+
+        return result;
+    }
+
+    static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
+        console.log("getDataComponentsWithInputsAndOutputs");
+
+        const result: Category[] = [];
+
+        // loop through all categories
+        for (const category in CategoryData.cData){
+            // get category data
+            const categoryData = CategoryData.getCategoryData(<Category>category);
+
+            if (categoryData.categoryType === categoryType){
+                continue;
+            }
+
+            // if input ports required, skip nodes with too few
+            if (numRequiredInputs > categoryData.maxInputs){
+                continue;
+            }
+
+            // if output ports required, skip nodes with too few
+            if (numRequiredOutputs > categoryData.maxOutputs){
+                continue;
+            }
+
+            result.push(<Category>category);
+        }
+
+        return result;
+    }
+
+    static getDataComponentMemory(palettes: Palette[]) : Node {
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (node.getName() === Category.Memory){
+                    return node;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    static getComponentsWithPort(palettes: Palette[], input: boolean, type: string) : Node[] {
+        const result: Node[] = [];
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                let hasInputOfType: boolean = false;
+
+                const ports: Field[] = input ? node.getInputPorts() : node.getOutputPorts();
+
+                for (const port of ports){
+                    if (port.getType() === type){
+                        hasInputOfType = true;
+                    }
+                }
+
+                if (hasInputOfType){
+                    result.push(node);
+                }
+            }
+        }
+
+        return result;
+    }
+
     private static _addPortIfUnique = (ports : Field[], port: Field) : void => {
 
         // check if the new port matches an existing port (by name and type), if so, abort
@@ -1138,36 +1326,32 @@ export class Utils {
         ports.push(port);
     }
 
+    private static _addTypeIfUnique = (types: string[], newType: string) : void => {
+        for (const t of types){
+            if (t === newType){
+                return;
+            }
+        }
+        types.push(newType);
+    }
+
     /**
-     * Returns a list of all fields in the given palette or logical graph
+     * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsList = (diagram : Palette | LogicalGraph) : Field[] => {
+    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, fieldType: Eagle.FieldType) : Field[] => {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
             for (const field of node.getFields()) {
+                if (field.getFieldType() !== fieldType){
+                    continue;
+                }
                 Utils._addFieldIfUnique(uniqueFields, field.clone());
             }
         }
 
         return uniqueFields;
-    }
-
-    /**
-     * Returns a list of all fields in the given palette or logical graph
-     */
-    static getUniqueapplicationArgsList = (diagram : Palette | LogicalGraph) : Field[] => {
-        const uniqueapplicationArgs : Field[] = [];
-
-        // build a list from all nodes, add fields into the list
-        for (const node of diagram.getNodes()) {
-            for (const param of node.getApplicationArgs()) {
-                Utils._addFieldIfUnique(uniqueapplicationArgs, param.clone());
-            }
-        }
-
-        return uniqueapplicationArgs;
     }
 
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
@@ -1183,11 +1367,11 @@ export class Utils {
     }
 
     static isKnownCategory(category : string) : boolean {
-        return typeof Eagle.cData[category] !== 'undefined';
+        return typeof CategoryData.cData[category] !== 'undefined';
     }
 
-    static getColorForNode(category : Eagle.Category) : string {
-        return Eagle.getCategoryData(category).color;
+    static getColorForNode(category : Category) : string {
+        return CategoryData.getCategoryData(category).color;
     }
 
     static saveAsPNG(selector: string, filename: string) : void {
@@ -1279,13 +1463,13 @@ export class Utils {
         return repositoryName+"|"+repositoryBranch;
     }
 
-    static buildComponentList(filter: (cData: Eagle.CategoryData) => boolean) : Eagle.Category[] {
-        const result : Eagle.Category[] = [];
+    static buildComponentList(filter: (cData: CategoryData) => boolean) : Category[] {
+        const result : Category[] = [];
 
-        for (const category in Eagle.cData){
-            const cData = Eagle.getCategoryData(<Eagle.Category>category);
+        for (const category in CategoryData.cData){
+            const cData = CategoryData.getCategoryData(<Category>category);
             if (filter(cData)){
-                result.push(<Eagle.Category>category);
+                result.push(<Category>category);
             }
         }
 
@@ -1330,8 +1514,12 @@ export class Utils {
         return Eagle.DALiuGESchemaVersion.Unknown;
     }
 
-    static checkPalette(palette: Palette): string[] {
-        const results: string[] = [];
+    static portsMatch(port0: Field, port1: Field){
+        return port0.getType() === port1.getType();
+    }
+
+    static checkPalette(palette: Palette): Errors.Issue[] {
+        const results: Errors.Issue[] = [];
 
         // check for duplicate keys
         const keys: number[] = [];
@@ -1339,7 +1527,7 @@ export class Utils {
         for (const node of palette.getNodes()){
             // check existing keys
             if (keys.indexOf(node.getKey()) !== -1){
-                results.push("Key " + node.getKey() + " used by multiple components in palette.");
+                results.push(Errors.Message("Key " + node.getKey() + " used by multiple components in palette."));
             } else {
                 keys.push(node.getKey());
             }
@@ -1348,171 +1536,22 @@ export class Utils {
         return results;
     }
 
-    static checkGraph(graph: LogicalGraph): Eagle.ErrorsWarnings {
-        const warnings: string[] = [];
-        const errors: string[] = [];
+    static checkGraph(eagle: Eagle): Errors.ErrorsWarnings {
+        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
 
-        // check that all port dataTypes have been defined
+        const graph: LogicalGraph = eagle.logicalGraph();
+
+        // check all nodes are valid
         for (const node of graph.getNodes()){
-            for (const port of node.getInputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getIdText() + ") whose type is not specified");
-                }
-            }
-            for (const port of node.getOutputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getIdText() + ") whose type is not specified");
-                }
-            }
-
-            for (const port of node.getInputApplicationInputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
-                }
-            }
-
-            for (const port of node.getInputApplicationOutputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
-                }
-            }
-
-            for (const port of node.getOutputApplicationInputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getIdText() + ") whose type is not specified");
-                }
-            }
-
-            for (const port of node.getOutputApplicationOutputPorts()){
-                if (port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getIdText() + ") whose type is not specified");
-                }
-            }
-        }
-
-        // check that all fields have default values
-        for (const node of graph.getNodes()){
-            for (const field of node.getFields()){
-                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") whose default value is not specified");
-                }
-            }
-        }
-
-        // check that all application params have default values
-        for (const node of graph.getNodes()){
-            for (const field of node.getApplicationArgs()){
-                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getIdText() + ") whose default value is not specified");
-                }
-            }
-        }
-
-        // check that fields and application parameters don't share the same name
-        // NOTE: this code checks many pairs of fields twice
-        for (const node of graph.getNodes()){
-            for (const field of node.getFields()){
-                for (const appArg of node.getApplicationArgs()){
-                    if (field.getIdText() == appArg.getIdText()){
-                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getIdText() + ") that shares the same name as an application argument.");
-                    }
-                }
-            }
-            for (const appArg of node.getApplicationArgs()){
-                for (const field of node.getFields()){
-                    if (appArg.getIdText() === field.getIdText()){
-                        warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application argument (" + appArg.getIdText() + ") that shares the same name as a component parameter.");
-                    }
-                }
-            }
-        }
-
-
-        // check that all nodes have correct numbers of inputs and outputs
-        for (const node of graph.getNodes()){
-            const cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
-            const minInputs  = cData.minInputs;
-            const maxInputs  = cData.maxInputs;
-            const minOutputs = cData.minOutputs;
-            const maxOutputs = cData.maxOutputs;
-
-            if (node.getInputPorts().length < minInputs){
-                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + minInputs);
-            }
-            if (node.getInputPorts().length > maxInputs){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs);
-            }
-            if (node.getOutputPorts().length < minOutputs){
-                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + minOutputs);
-            }
-            if (node.getOutputPorts().length > maxOutputs){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + maxOutputs);
-            }
-
-            // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
-            let isConnected: boolean = false;
-            for (const edge of graph.getEdges()){
-                if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
-                    isConnected = true;
-                    break;
-                }
-            }
-
-            // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
-            if (!isConnected && !(maxInputs === 0 && maxOutputs === 0)){
-                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
-            }
-
-            // check embedded application categories are not 'None'
-            if (node.hasInputApplication() && node.getInputApplication().getCategory() === Eagle.Category.None){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.");
-            }
-            if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Eagle.Category.None){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.");
-            }
-
-            // check that Service nodes have inputApplications with no output ports!
-            if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
-            }
+            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errorsWarnings);
         }
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(graph, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false, errors, warnings);
+            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
         }
 
-        // check that all "closes loop" edges:
-        // - begin from a Data component
-        // - end with a App component
-        // - sourceNode has a 'group_end' field set to true
-        // - destNode has a 'group_start' field set to true
-        for (const edge of graph.getEdges()){
-            if (!edge.isClosesLoop()){
-                continue;
-            }
-
-            const sourceNode = graph.findNodeByKey(edge.getSrcNodeKey());
-            const destNode = graph.findNodeByKey(edge.getDestNodeKey());
-
-            if (!sourceNode.isData()){
-                errors.push("Closes Loop Edge (" + edge.getId() + ") does not start from a Data component.");
-            }
-
-            if (!destNode.isApplication()){
-                errors.push("Closes Loop Edge (" + edge.getId() + ") does not end at an Application component.");
-            }
-
-            if (!sourceNode.hasFieldWithIdText('group_end') || !Utils.asBool(sourceNode.getFieldByIdText('group_end').getValue())){
-                errors.push("'Closes Loop' Edge (" + edge.getId() + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.");
-            }
-
-            if (!destNode.hasFieldWithIdText('group_start') || !Utils.asBool(destNode.getFieldByIdText('group_start').getValue())){
-                errors.push("'Closes Loop' Edge (" + edge.getId() + ") end node (" + destNode.getName() + ") does not have 'group_start' set to true.");
-            }
-        }
-
-        return {warnings: warnings, errors: errors};
+        return errorsWarnings;
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
@@ -1567,11 +1606,11 @@ export class Utils {
         return true;
     }
 
-    static validateField(type: Eagle.DataType, value: string){
+    static validateField(type: string, value: string) : boolean {
         let valid: boolean = true;
 
         // make sure JSON fields are parse-able
-        if (type === Eagle.DataType.Json){
+        if (type === Eagle.DataType_Json){
             try {
                 JSON.parse(value);
             } catch(e) {
@@ -1580,6 +1619,18 @@ export class Utils {
         }
 
         return valid;
+    }
+
+    static validateType(type: string) : boolean {
+        const typePrefix = Utils.dataTypePrefix(type);
+
+        for (const dt of Eagle.DataTypes){
+            if (dt === typePrefix){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static downloadFile(error : string, data : string, fileName : string) : void {
@@ -1685,10 +1736,25 @@ export class Utils {
         });
     }
 
+    static getShortcutDisplay = () : {description:string, shortcut : string}[] => {
+        const displayShorcuts : {description:string, shortcut : string} []=[];
+
+        for (const object of Eagle.shortcuts()){
+            if (object.display === KeyboardShortcut.Display.Disabled){
+                continue;
+            }
+
+            const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
+            displayShorcuts.push({description: object.name, shortcut: shortcut});
+        }
+
+        return displayShorcuts;
+    }
+
     static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
         for (const shortcut of Eagle.shortcuts()){
             if (shortcut.key === key){
-                let ks = [];
+                const ks = [];
                 for (const k of shortcut.keys){
                     if (shortcut.modifier === KeyboardShortcut.Modifier.None){
                         //some processing of the return
@@ -1716,11 +1782,272 @@ export class Utils {
     }
 
     static markdown2html(markdown: string) : string {
-        var converter = new Showdown.Converter();
+        const converter = new Showdown.Converter();
         return converter.makeHtml(markdown);
     }
 
     static asBool(value: string) : boolean {
         return value.toLowerCase() === "true";
+    }
+
+    static fixEdgeType(eagle: Eagle, edgeId: string, newType: string) : void {
+        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+
+        if (edge === null){
+            return;
+        }
+
+        edge.setDataType(newType);
+    }
+
+    static fixDeleteEdge(eagle: Eagle, edgeId: string): void {
+        eagle.logicalGraph().removeEdgeById(edgeId);
+    }
+
+    static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
+        destinationPort.setType(sourcePort.getType());
+    }
+
+    static fixNodeFieldIds(eagle: Eagle, nodeKey: number){
+        const node: Node = eagle.logicalGraph().findNodeByKey(nodeKey);
+
+        if (node === null){
+            return;
+        }
+
+        for (const field of node.getFields()){
+            if (field.getId() === ""){
+                field.setId(Utils.uuidv4());
+            }
+        }
+    }
+
+    static fixNodeCategory(eagle: Eagle, node: Node, category: Category){
+        node.setCategory(category);
+    }
+
+    static fixFieldId(eagle: Eagle, field: Field){
+        field.setId(Utils.uuidv4());
+    }
+
+    static fixFieldDefaultValue(eagle: Eagle, field: Field){
+        // depends on the type
+        switch(field.getType()){
+            case Eagle.DataType_Boolean:
+            field.setDefaultValue("false");
+            break;
+            case Eagle.DataType_Integer:
+            case Eagle.DataType_Float:
+            field.setDefaultValue("0");
+            break;
+            case Eagle.DataType_Json:
+            case Eagle.DataType_Python:
+            field.setDefaultValue("{}");
+            break;
+            default:
+            console.warn("No specific way to fix default value for field of this type:", field.getType());
+            field.setDefaultValue("");
+            break;
+        }
+    }
+
+    static fixFieldType(eagle: Eagle, field: Field){
+        if (field.getType() === Eagle.DataType_Unknown){
+            field.setType(Eagle.DataType_Object);
+            return;
+        }
+
+        // fix for redundant 'Complex' type
+        if (field.getType() === 'Complex'){
+            field.setType(Eagle.DataType_Object);
+            return;
+        }
+
+        field.setType(Eagle.DataType_Object + "." + field.getType());
+    }
+
+    static callFixFunc(eagle: Eagle, fixFunc: () => void){
+        console.log("callFixFunc");
+        fixFunc();
+        Utils.postFixFunc(eagle);
+    }
+
+    static postFixFunc(eagle: Eagle){
+        eagle.selectedObjects.valueHasMutated();
+        eagle.logicalGraph().fileInfo().modified = true;
+
+        eagle.checkGraph();
+        eagle.undo().pushSnapshot(eagle, "Fix");
+    }
+
+    static showEdge(eagle: Eagle, edgeId: string): void {
+        // close errors modal if visible
+        $('#errorsModal').modal("hide");
+
+        eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
+    }
+
+    static showNode(eagle: Eagle, nodeKey: number): void {
+        // close errors modal if visible
+        $('#errorsModal').modal("hide");
+
+        eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findNodeByKey(nodeKey), Eagle.FileType.Graph);
+    }
+
+    // only update result if it is worse that current result
+    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
+        if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
+            return Eagle.LinkValid.Valid;
+        }
+
+        if (errorsWarnings.errors.length !== 0){
+            return Eagle.LinkValid.Invalid;
+        }
+
+        return Eagle.LinkValid.Warning;
+    }
+
+    static printCategories = () : void => {
+        const tableData : any[] = [];
+
+        for (const category in CategoryData.cData){
+            const cData = CategoryData.getCategoryData(<Category>category);
+
+            tableData.push({
+                category: <Category>category,
+                categoryType: cData.categoryType,
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    static printLogicalGraphNodesTable = () : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const node of eagle.logicalGraph().getNodes()){
+            tableData.push({
+                "name":node.getName(),
+                "key":node.getKey(),
+                "id":node.getId(),
+                "parentKey":node.getParentKey(),
+                "category":node.getCategory(),
+                "categoryType":node.getCategoryType(),
+                "expanded":node.getExpanded(),
+                "x":node.getPosition().x,
+                "y":node.getPosition().y,
+                "width":node.getWidth(),
+                "height":node.getHeight(),
+                "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
+                "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
+                "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
+                "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
+                "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
+                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey()
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    static printLogicalGraphEdgesTable = () : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const edge of eagle.logicalGraph().getEdges()){
+            tableData.push({
+                "_id":edge.getId(),
+                "sourceNodeKey":edge.getSrcNodeKey(),
+                "sourcePortId":edge.getSrcPortId(),
+                "destNodeKey":edge.getDestNodeKey(),
+                "destPortId":edge.getDestPortId(),
+                "dataType":edge.getDataType(),
+                "loopAware":edge.isLoopAware(),
+                "isSelectionRelative":edge.getSelectionRelative()
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    static printPalettesTable = () : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const palette of eagle.palettes()){
+            for (const node of palette.getNodes()){
+                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "category":node.getCategory(), "categoryType":node.getCategoryType()});
+            }
+        }
+
+        console.table(tableData);
+    }
+
+    static printNodeFieldsTable = (nodeIndex: number) : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // check that node at nodeIndex exists
+        if (nodeIndex >= eagle.logicalGraph().getNumNodes()){
+            console.warn("Unable to print node fields table, node", nodeIndex, "does not exist.");
+            return;
+        }
+
+        // add logical graph nodes to table
+        for (const field of eagle.logicalGraph().getNodes()[nodeIndex].getFields()){
+            tableData.push({
+                "id":field.getId(),
+                "idText":field.getIdText(),
+                "displayText":field.getDisplayText(),
+                "type":field.getType(),
+                "fieldType":field.getFieldType(),
+                "isEvent":field.getIsEvent(),
+                "value":field.getValue(),
+                "defaultValue": field.getDefaultValue(),
+                "readonly":field.isReadonly()
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    static copyInputTextModalInput = (): void => {
+        navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
+    }
+
+    static getReadOnlyText = () : string => {
+        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
+            return "Read Only - Turn on 'Expert Mode' and 'Allow Component Editing' in the settings to unlock"
+        }
+
+        // if a node or nodes in the palette are selected, then assume those are being moved to the destination
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+            return "Read Only - Turn on 'Expert Mode' and 'Allow Palette Editing' in the settings to unlock"
+        }
+
+        return ''
+    }
+
+    static isTypeNode = (object : any) : boolean => {
+        return (object instanceof Node);
+    }
+
+    static loadSchemas = () : void => {
+        Utils.httpGet(Config.DALIUGE_GRAPH_SCHEMA_URL, (error : string, data : string) => {
+            if (error !== null){
+                console.error(error);
+                return;
+            }
+
+            Utils.ojsGraphSchema = JSON.parse(data);
+
+            // NOTE: we don't have a schema for the V3 or appRef versions
+            Utils.v3GraphSchema = JSON.parse(data);
+            Utils.appRefGraphSchema = JSON.parse(data);
+        });
     }
 }

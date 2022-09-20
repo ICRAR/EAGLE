@@ -36,8 +36,9 @@ export class Setting {
     private key : string;
     private defaultValue : any;
     private oldValue : any;
+    private options : string[];
 
-    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any){
+    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any, options?: string[]){
         this.name = name;
         this.description = description;
         this.type = type;
@@ -45,6 +46,7 @@ export class Setting {
         this.value = ko.observable(defaultValue);
         this.defaultValue = defaultValue;
         this.oldValue = "";
+        this.options = options;
 
         this.load();
 
@@ -72,6 +74,10 @@ export class Setting {
 
     getOldValue = () : any => {
         return this.oldValue;
+    }
+
+    setValue = (value: any) : void => {
+        this.value(value);
     }
 
     save = () : void => {
@@ -125,6 +131,7 @@ export class Setting {
         switch (this.type){
             case Setting.Type.String:
             case Setting.Type.Password:
+            case Setting.Type.Select:
                 return s;
             case Setting.Type.Number:
                 return Number(s);
@@ -135,6 +142,65 @@ export class Setting {
                 return s;
         }
     }
+
+    static find = (key : string) : Setting => {
+        // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
+        if (typeof Eagle.settings === 'undefined'){
+            return null;
+        }
+
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
+                if (setting.getKey() === key){
+                    return setting;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    static findValue = (key : string) : any => {
+        const setting = Setting.find(key);
+
+        if (setting === null){
+            console.warn("No setting", key);
+            return null;
+        }
+
+        return setting.value();
+    }
+
+    static setValue = (key : string, value : any) : void => {
+        const setting = Setting.find(key);
+
+        if (setting === null){
+            console.warn("No setting", key);
+            return;
+        }
+
+        return setting.value(value);
+    }
+
+    static resetDefaults = () : void => {
+        // if a reset would turn off the expert mode setting,
+        // AND we are currently on the 'advanced editing' or 'developer' tabs of the setting modal,
+        // then those tabs will disappear and we'll be left looking at nothing, so switch to the 'User Options' tab
+        const uiModeSetting: Setting = Setting.find(Utils.USER_INTERFACE_MODE);
+        const turningOffExpertMode = uiModeSetting.value() !== Eagle.UIMode.Expert && uiModeSetting.getOldValue() === Eagle.UIMode.Expert;
+        const currentSettingsTab: string = $('.settingsModalButton.settingCategoryBtnActive').attr('id');
+
+        if (turningOffExpertMode && (currentSettingsTab === "settingCategoryAdvancedEditing" || currentSettingsTab === "settingCategoryDeveloper")){
+            // switch back to "User Options" tab
+            $('#settingCategoryUserOptions').click();
+        }
+
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
+                setting.resetDefault();
+            }
+        }
+    }
 }
 
 export namespace Setting {
@@ -142,6 +208,7 @@ export namespace Setting {
         String,
         Number,
         Boolean,
-        Password
+        Password,
+        Select
     }
 }

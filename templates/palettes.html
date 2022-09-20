@@ -3,7 +3,7 @@
         <span id="explorePalettesWrapper">
             <button class="btn btn-primary btn-block btn_wide" id="explorePalettesButton" data-bind="click: showExplorePalettes, eagleTooltip: 'Retrieve information on all palettes in ' + Config.DEFAULT_PALETTE_REPOSITORY" data-bs-placement="bottom">Explore Palettes</button>
         </span>
-        <span id="paletteWindowdropdownWrapper" class="dropdown" data-intro='Create new palettes and logical graphs.'>
+        <span id="paletteWindowdropdownWrapper" class="dropdown">
             <a class="dropdown-toggle material-icons" href="#" id="paletteWindowdropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 more_vert
             </a>
@@ -59,7 +59,7 @@
                     <a href="#" data-bind="click: $data.copyUrl"><span>Copy Palette URL</span></a>
                     <!-- /ko -->
                 </div>
-                <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: $root.nodeDragOver, drop: $root.nodeDropPalette }">
+                <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: SideWindow.nodeDragOver, drop: $root.nodeDropPalette }">
                     <div class="accordion-header">
                         <div class="headerIcons">
                             <div class="paletteHeaderIcon">

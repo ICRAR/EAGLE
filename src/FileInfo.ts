@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
+import {Errors} from './Errors';
 
 export class FileInfo {
     private _name : ko.Observable<string>;
@@ -272,13 +273,12 @@ export class FileInfo {
     }, this);
 
     getSummaryHTML = (title : string) : string => {
-        var text
+        let text
         if (this._repositoryService() === Eagle.RepositoryService.Unknown){
             text = "- Location -</br>Url:&nbsp;" + this._gitUrl() + "</br>Hash:&nbsp;" + this._sha();
         }else{
             text = "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
         }
-
 
         return "<p><h5>" + title + "<h5><p><p>" + text + "</p>";
     }
@@ -346,7 +346,7 @@ export class FileInfo {
 
     // TODO: use errors array if attributes cannot be found
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    static fromOJSJson = (modelData : any, errorsWarnings: Eagle.ErrorsWarnings) : FileInfo => {
+    static fromOJSJson = (modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo => {
         const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
@@ -372,7 +372,7 @@ export class FileInfo {
         // check that lastModifiedDatetime is a Number, if not correct
         if (typeof result.lastModifiedDatetime !== 'number'){
             result.lastModifiedDatetime = 0;
-            errorsWarnings.errors.push("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value.");
+            errorsWarnings.errors.push(Errors.Message("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value."));
         }
 
         result.numLGNodes = modelData.numLGNodes == undefined ? 0 : modelData.numLGNodes;

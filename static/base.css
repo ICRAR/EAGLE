@@ -58,6 +58,10 @@
     overflow-x: hidden;
 }
 
+.rightWindowDisplay.hierarchy #nodeList{
+    position: relative;
+}
+
 #explorePalettesModal .list-group-item:hover{
     color: black;
     background-color: #f1f1f1;
@@ -79,6 +83,26 @@
 
 #explorePalettesModal li.list-group-item:hover{
     background-color: #b6c3cf;
+}
+
+#editFieldModal .modal-body{
+    min-height: 585px;
+}
+
+#editFieldModalTypeSelect{
+    position: absolute;
+    background: white;
+    padding: 0px;
+    height: 130px;
+    overflow-y: scroll;
+    margin: 0px;
+    transform: none !important;
+    inset: 40px 0px auto auto !important;
+}
+
+#editFieldModalTypeSelect .dropdown-item:hover{
+    background: #002e5f;
+    color: white;
 }
 
 #explorePalettesModal li.list-group-item span{
@@ -123,7 +147,7 @@
 }
 
 #tableInspectorSelection{
-    width: 300px !important;
+    width: 299px !important;
     padding: 0px 5px;
     margin: 0px;
     border-right:1px solid rgba(0, 0, 0, 0.336) !important;
@@ -207,15 +231,15 @@ td:first-child input {
 }
 
 #parameter_table_actions{
-    width: 88px;
+    width: 101px;
 }
 
 #parameter_table_precious{
-    width: 80px;
+    width: 71px;
 }
 
 #parameter_table_positional{
-    width: 90px;
+    width: 79px;
 }
 
 #parameter_table_isPort{
@@ -223,7 +247,7 @@ td:first-child input {
 }
 
 #parameter_table_read_only{
-    width: 90px;
+    width: 81px;
 }
 
 #parameter_table_type{
@@ -231,11 +255,11 @@ td:first-child input {
 }
 
 #parameter_table_text{
-    width: 200px;
+    width: 160px;
 }
 
 #parameter_table_name{
-    width: 200px;
+    width: 160px;
 }
 
 #parameterTableModal .modal-header{
@@ -300,11 +324,45 @@ td:first-child input {
 
 #paramsTableWrapper input{
     background-color: transparent;
-    font-size: 15px;
+}
+
+#paramsTableWrapper th, #paramsTableWrapper td, #paramsTableWrapper input{
+    font-size: 14px;
+}
+
+#paramsTableWrapper i{
+    font-size:20px;
 }
 
 #paramsTableWrapper input:focus{
     outline: none;
+}
+
+@media only screen and (max-width: 2010px) {
+
+    #parameterTableModal .modal-dialog {
+        max-width: 90vw;
+    }
+
+    #parameter_table_isPort{
+        width: 90px;
+    }
+
+    #parameter_table_type{
+        width: 100px;
+    }
+
+    #parameter_table_text{
+        width: 150px;
+    }
+
+    #parameter_table_name{
+        width: 53px;
+    }
+
+    #parameter_table_description{
+        width:91px;
+    }
 }
 
 /*Animation must have unfill path strokes to work*/
@@ -453,13 +511,21 @@ td:first-child input {
 
 .rightWindowSizeAdjuster {
     top: 0px;
-    left: -5px;
+    left: -6px;
     height: 100%;
     width: 10px;
     position: absolute;
     background-color: rgba(0,0,0,0);
-    cursor: col-resize;
     opacity: 0;
+}
+
+.rightWindowSizeAdjusterLine{
+    position: absolute;
+    top: 0px;
+    right: 2px;
+    bottom: 0px;
+    left: 4px;
+    cursor: col-resize;
 }
 
 .componentSearchBar{
@@ -776,30 +842,34 @@ select.form-control{
     border: 1px solid #c2c8dc;
 }
 
-#checkGraphAccordion .accordion-button{
+#errorsModalAccordion .accordion-button{
     color: white;
     background-color: #4a6b8f;
 }
 
-#checkGraphAccordion .accordion-button::after{
+#errorsModalAccordion .accordion-button::after{
     background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
 }
 
-#checkGraphAccordion .accordion-button:focus{
+#errorsModalAccordion .accordion-button:focus{
     border-color: transparent;
     box-shadow: none !important;
 }
 
-#checkGraphAccordion .accordion-item{
+#errorsModalAccordion .accordion-item{
     margin-bottom: 10px;
 }
 
-#graphErrorRed{
+#errorsModalErrorCount{
     color: #dc3545;
 }
 
-#graphErrorYellow{
+#errorsModalWarningCount{
     color: #ffc107;
+}
+
+#errorsModal .modal-content{
+    height: 70vh;
 }
 
 #resetSettingsDefaults{
@@ -1042,11 +1112,125 @@ select.form-control{
 }
 
 #inspectorSelectionSummaryNodes {
-    margin-top: 8px;
+    margin-top: 3px;
     background-color: #c2c8dc;
-    padding: 5px 15px;
+    padding: 1px 15px;
     border-radius: 5px;
     display: block;
+}
+
+.hierarchyDividerLine{
+    border-bottom: 1px solid black;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.hierarchyGraphInfoPre{
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#hierarchyEdgesSvg{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    pointer-events: none;
+    top:0px;
+    left: 0px;
+}
+
+#hierarchyEdgesSvg .hierarchyEdgeExtra{
+    pointer-events: visibleStroke;
+
+}
+
+.hierarchyNode {
+    margin-top: 4px;
+    background-color: #e9ecef;
+    padding: 3px 15px;
+    border-radius: 5px;
+    border: 2px solid #787f87;
+    overflow: hidden;
+    position: relative;
+}
+
+.hierarchyNodeIsSelected {
+    border: 2px solid #002349;
+    background-color: #c3cfda;
+}
+
+.hierarchyNode .hierarchyNodeColor{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 10px;
+    height: 100%;
+}
+
+.hierarchyNode h5{
+    margin-bottom: 0px;
+    font-size: 15px;
+    pointer-events: none;
+    user-select: none; /* CSS3 (little to no support) */
+        -ms-user-select: none; /* IE 10+ */
+       -moz-user-select: none; /* Gecko (Firefox) */
+    -webkit-user-select: none; /* Webkit (Safari, Chrome) */
+}
+
+.hierarchyNodeIsSelected h5{
+    font-weight: 700;
+}
+.hierarchyNodeIsntSelected h5{
+    font-weight: 500;
+}
+
+.hierarchyNode span{
+    font-size:12px;
+    display:block;
+    pointer-events: none;
+    user-select: none; /* CSS3 (little to no support) */
+        -ms-user-select: none; /* IE 10+ */
+       -moz-user-select: none; /* Gecko (Firefox) */
+    -webkit-user-select: none; /* Webkit (Safari, Chrome) */
+}
+
+.hierarchyNodeVisibilityIcon{
+    position: absolute;
+    width: auto;
+    height: auto;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-40%);
+    color: grey;
+}
+
+.hierarchyCollapsed{
+    height:47px;
+    overflow: hidden;
+    outline: none;
+    outline: 0;
+}
+
+.hierarchyGroupCollapse{
+    position: absolute;
+    width: auto;
+    height: auto;
+    right: 10px;
+    top: 20px;
+    transform: translateY(-40%) rotate(90deg);
+    border:none;
+    background-color: transparent;
+    outline: none;
+    outline: 0;
+}
+
+.hierarchyApplicationIsSelected {
+    border: 2px solid #002349;
+}
+
+.hierarchyApplicationIsSelected h5{
+    font-weight: 700;
 }
 
 .accordion-button.collapsed::after {
@@ -1114,6 +1298,10 @@ select.form-control{
     height:38px;
 }
 
+#settingsModal.modal select {
+    margin-bottom: 0px;
+}
+
 .leftWindow .leftWindowHandle {
     position: absolute;
     width: 48px;
@@ -1142,8 +1330,16 @@ select.form-control{
     width: 10px;
     position: absolute;
     background-color: rgba(0,0,0,0);
-    cursor: col-resize;
     opacity: 0;
+}
+
+.leftWindowSizeAdjusterLine{
+    position: absolute;
+    top: 0px;
+    right: 2px;
+    bottom: 0px;
+    left: 4px;
+    cursor: col-resize;
 }
 
 .loadDefaultDisabled{
@@ -1188,8 +1384,13 @@ select.form-control{
     top: 3px;
 }
 
+.navbar-center .navbar-btn.navbar-btn-active{
+    color: #002349 !important;
+    background: rgb(211, 211, 211);
+}
+
 .navbar-center .navbar-btn:hover{
-    color: #002349;
+    color: #002349 !important;
     background: white;
 }
 
@@ -1252,6 +1453,16 @@ select.form-control{
 
 #nodeList ul.nodes {
     list-style-type: none;
+    padding: 0px 20px;
+}
+
+#nodeList .hierarchyNode div ul.nodes{
+    padding:0px;
+    color: black;
+}
+
+#nodeList .col{
+    position: relative;
 }
 
 #nodeInspectorAddField, #nodeInspectorAddApplicationParam{
@@ -1333,12 +1544,12 @@ div.rightWindow h5.card-header {
     top: 2px;
 }
 
-.btn-outline-secondary {
+ul.nav.navbar-nav .btn-outline-secondary {
     border-color: #dadada;
     color:white;
 }
 
-.btn-outline-secondary:hover{
+ul.nav.navbat-nav .btn-outline-secondary:hover{
     background-color: white;
     color: #002349;
 }
@@ -1352,6 +1563,10 @@ div.rightWindow h5.card-header {
 
 .navbar a{
     color: white !important;
+}
+
+.navbar .introjs-tooltipbuttons a{
+    color: #002349 !important;
 }
 
 .inactiveLink {
@@ -1384,7 +1599,7 @@ div.rightWindow h5.card-header {
      margin-left:4px;
  }
 
-.dropdown-menu{
+ul.nav.navbar-nav .dropdown-menu{
     border:solid 1px #000c1a;
     border-radius: 6px;
      position: absolute;
@@ -1392,16 +1607,16 @@ div.rightWindow h5.card-header {
      background-color: #0059a5;
 }
 
-.dropdown-menu-right{
+ul.nav.navbar-nav .dropdown-menu-right{
     right: 0;
     left: auto !important;
 }
 
-.dropdown-item{
+ul.nav.navbar-nav .dropdown-item{
     color: white;
 }
 
-.dropdown-item:hover{
+ul.nav.navbar-nav .dropdown-item:hover{
     background-color: #001d3b;
     color: white;
 }
@@ -1437,12 +1652,8 @@ div.rightWindow h5.card-header {
     border-radius: 0px;
 }
 
-#edgeInspectorToggleLoopAware, #edgeInspectorToggleClosesLoop{
+#edgeInspectorToggleLoopAware, #edgeInspectorToggleClosesLoop, #edgeInspectorChangeDataType {
     height:100%;
-}
-
-#edgeInspectorToggleClosesLoop{
-    height: 100%;
 }
 
 #edgeInspectorIcons{
@@ -1467,7 +1678,20 @@ div.rightWindow h5.card-header {
 }
 
 #translationMenu .accordion button{
-    padding: 9px 20px;
+    padding: 7px 30px;
+    cursor: default;
+}
+
+#translationMenu .accordion-header{
+    position: relative;
+}
+
+
+.translationDefault{
+    position:absolute;
+    top: 5px;
+    left:10px;
+    z-index: 99;
 }
 
 #translationMenu .accordion-body button{
@@ -1627,7 +1851,7 @@ nav.navbar .introjs-helperLayer {
 .navbar-nav.navbar-center {
     position: absolute;
     left: 50%;
-    transform: translatex(-50%);
+    transform: translatex(-50%) !important;
 }
 
 .template-title {
@@ -1651,6 +1875,14 @@ nav.navbar .introjs-helperLayer {
 
 .closedIcon{
     transform:rotate(270deg)
+}
+
+.hierarchyCollapseRotate{
+    transform: rotate(90deg);
+}
+
+.hierarchyCollapseDisabled{
+    color: grey;
 }
 
 .translationTitle{
@@ -1806,4 +2038,22 @@ palette-component input.form-control.selected {
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
+}
+
+#errorsModal ul.list-group .list-group-item span {
+    max-width: 80%;
+}
+
+#nodeInspectorErrorsCard fix .alert {
+    overflow: hidden;
+}
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
 }

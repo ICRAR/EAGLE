@@ -11,7 +11,7 @@ export class Field {
     private defaultValue : ko.Observable<string>;  // default value
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
-    private type : ko.Observable<Eagle.DataType>;
+    private type : ko.Observable<string>;
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
@@ -22,7 +22,7 @@ export class Field {
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
-    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Eagle.DataType, precious: boolean, options: string[], positional: boolean){
+    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, fieldType: Eagle.FieldType){
         this.displayText = ko.observable(displayText);
         this.idText = ko.observable(idText);
         this.value = ko.observable(value);
@@ -35,7 +35,7 @@ export class Field {
         this.positional = ko.observable(positional);
 
         this.id = ko.observable(id);
-        this.fieldType = ko.observable(Eagle.FieldType.ComponentParameter);
+        this.fieldType = ko.observable(fieldType);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
     }
@@ -104,15 +104,19 @@ export class Field {
         this.readonly(readonly);
     }
 
-    getType = () : Eagle.DataType => {
+    getType = () : string => {
         return this.type();
+    }
+
+    isType = (type: string) => {
+        return Utils.dataTypePrefix(this.type()) === type;
     }
 
     valIsTrue = (val:string) : boolean => {
         return Utils.asBool(val);
     }
 
-    setType = (type: Eagle.DataType) : void => {
+    setType = (type: string) : void => {
         this.type(type);
     }
 
@@ -152,6 +156,10 @@ export class Field {
         this.isEvent(isEvent);
     }
 
+    toggleEvent = (): void => {
+        this.isEvent(!this.isEvent());
+    }
+
     getNodeKey = () : number => {
         return this.nodeKey();
     }
@@ -167,14 +175,14 @@ export class Field {
         this.defaultValue("");
         this.description("");
         this.readonly(false);
-        this.type(Eagle.DataType.Unknown);
+        this.type(Eagle.DataType_Unknown);
         this.precious(false);
         this.options([]);
         this.positional(false);
     }
 
     clone = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional());
+        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.fieldType());
         f.setIsEvent(this.isEvent());
         f.setFieldType(this.fieldType());
         return f;
@@ -242,23 +250,31 @@ export class Field {
         return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.idText()) > -1;
     }, this);
 
-    select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
-        Eagle.parameterTableSelectionName(selectionName);
-        Eagle.parameterTableSelectionParent(selectionParent);
-        Eagle.parameterTableSelectionParentIndex(selectionIndex);
-        Eagle.parameterTableSelection(selection);
-        Eagle.parameterTableSelectionReadonly(readOnlyState);
+    getHtmlInputType = () : string => {
+        const typePrefix = Utils.dataTypePrefix(this.type());
+
+        switch (typePrefix){
+            case Eagle.DataType_Float:
+            case Eagle.DataType_Integer:
+                return "number";
+            case Eagle.DataType_Boolean:
+                return "checkbox";
+            case Eagle.DataType_Password:
+                return "password";
+            default:
+                return "text";
+        }
     }
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
-    static string2Type = (value: string, type: Eagle.DataType) : any => {
+    static stringAsType = (value: string, type: string) : any => {
         switch (type){
-            case Eagle.DataType.Boolean:
+            case Eagle.DataType_Boolean:
                 return Utils.asBool(value);
-            case Eagle.DataType.Float:
+            case Eagle.DataType_Float:
                 return parseFloat(value);
-            case Eagle.DataType.Integer:
+            case Eagle.DataType_Integer:
                 return parseInt(value, 10);
             default:
                 return value;
@@ -269,11 +285,11 @@ export class Field {
         return {
             text:field.displayText(),
             name:field.idText(),
-            value:Field.string2Type(field.value(), field.type()),
+            value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
-            type:field.type(),
+            type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
             positional:field.positional()
@@ -284,11 +300,11 @@ export class Field {
         return {
             text:field.displayText(),
             name:field.idText(),
-            value:Field.string2Type(field.value(), field.type()),
+            value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
-            type:field.type(),
+            type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
             positional: field.positional()
@@ -301,12 +317,14 @@ export class Field {
         let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
-        let type: Eagle.DataType = Eagle.DataType.Unknown;
+        let type: string = Eagle.DataType_Unknown;
         let value: string = "";
         let defaultValue: string = "";
         let precious: boolean = false;
         let options: string[] = [];
         let positional: boolean = false;
+        let fieldType: Eagle.FieldType = Eagle.FieldType.Unknown;
+        let isEvent: boolean = false;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -318,20 +336,33 @@ export class Field {
             description = data.description;
         if (typeof data.readonly !== 'undefined')
             readonly = data.readonly;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
+        if (typeof data.type !== 'undefined'){
+            if (data.type === "Event"){
+                isEvent = true;
+                type = Eagle.DataType_Unknown;
+            } else {
+                isEvent = false;
+                type = data.type;
+            }
+        }
         if (typeof data.value !== 'undefined' && data.value !== null)
             value = data.value.toString();
-        if (typeof data.default !== 'undefined' && data.default !== null)
-            defaultValue = data.default.toString();
+        if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null)
+            defaultValue = data.defaultValue.toString();
         if (typeof data.precious !== 'undefined')
             precious = data.precious;
         if (typeof data.options !== 'undefined')
             options = data.options;
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
+        if (typeof data.fieldType !== 'undefined')
+            fieldType = data.fieldType;
+        if (typeof data.event !== 'undefined')
+            event = data.event;
 
-        return new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional);
+        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
+        result.setIsEvent(isEvent);
+        return result;
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
@@ -364,7 +395,7 @@ export class Field {
     static fromOJSJsonPort = (data : any) : Field => {
         let text: string = "";
         let event: boolean = false;
-        let type: Eagle.DataType;
+        let type: string;
         let description: string = "";
 
         if (typeof data.text !== 'undefined')
@@ -381,7 +412,7 @@ export class Field {
             text = data.IdText;
         }
 
-        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false);
+        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false, Eagle.FieldType.Unknown);
         f.setIsEvent(event);
         return f;
     }

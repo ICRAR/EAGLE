@@ -30,8 +30,8 @@ ko.components.register('repository', {
         this.files = params.data.files;
         this.folders = params.data.folders;
 
-        this.refresh = params.parent.refreshRepository;
-        this.select = params.parent.selectRepository;
+        this.refresh = params.data.refresh;
+        this.select = params.data.select;
         this.remove = params.parent.removeCustomRepository;
     },
     template: { require: "text!static/components/repository.html" }
@@ -72,14 +72,8 @@ ko.components.register('hierarchy', {
 });
 
 ko.components.register('hierarchy-node', {
-    viewModel: function(params : {data : any, parentKey : number | null, select : Function}){
-        this._id = params.data._id;
-        this.name = params.data.name().trim() === "" ? params.data.category : params.data.name;
-        this.key = params.data.key;
-        this.parentKey = params.data.parentKey;
-        this.expanded = params.data.expanded;
-
-        this.select = params.select;
+    viewModel: function(params : {data : any}){
+        return params.data;
     },
     template: { require: "text!static/components/hierarchy-node.html" }
 });
@@ -101,4 +95,14 @@ ko.components.register('palette-component', {
         return vm;
     },
     template: { require: "text!static/components/palette-component.html" }
+});
+
+// custom component for a fix
+ko.components.register('fix', {
+    viewModel: function(params : {data : any, isError: boolean}){
+        const vm = params.data;
+        vm.isError = params.isError;
+        return vm;
+    },
+    template: { require: "text!static/components/fix.html" }
 });

@@ -1,11 +1,13 @@
+import {Category} from '../src/Category';
 import {Eagle} from '../src/Eagle';
 import {Node} from '../src/Node';
 import {Field} from '../src/Field';
+import {Utils} from '../src/Utils';
 
 const KEY : number = -9;
 const NAME : string = "Test Node";
 const DESCRIPTION : string = "Test description";
-const CATEGORY : Eagle.Category = Eagle.Category.Loop;
+const CATEGORY : Category = Category.Loop;
 const X : number = 234;
 const Y : number = 567;
 
@@ -18,8 +20,8 @@ const DRAW_ORDER_HINT : number = 10;
 const PARENT_KEY : number = -10;
 const COLLAPSED : boolean = true;
 const STREAMING : boolean = true;
-const INPUT_APPLICATION_CATEGORY : Eagle.Category = Eagle.Category.BashShellApp;
-const OUTPUT_APPLICATION_CATEGORY : Eagle.Category = Eagle.Category.Docker;
+const INPUT_APPLICATION_CATEGORY : Category = Category.BashShellApp;
+const OUTPUT_APPLICATION_CATEGORY : Category = Category.Docker;
 const INPUT_APPLICATION_NAME : string = "Input App";
 const OUTPUT_APPLICATION_NAME : string = "Output App";
 const INPUT_APPLICATION_KEY : number = -2;
@@ -38,9 +40,9 @@ const OUTPUT_PORT_NAME : string = "Output Port";
 const OUTPUT_PORT_TYPE : string = "Boolean";
 const OUTPUT_PORT_DESCRIPTION : string = "Out Description";
 
-const FIELD : Field = new Field("Field Display Text", "Field Id Text", "Field Value", "Field Default Value", "Field Desc", true, Eagle.DataType.String, false, [], false);
-const INPUT_APP_FIELD : Field = new Field("Input App Field Display Text", "Input App Field Id Text", "Input App Field Value", "Input App Field Default Value", "Input App Field Desc", false, Eagle.DataType.Integer, false, [], false);
-const OUTPUT_APP_FIELD : Field = new Field("Output App Field Display Text", "Output App Field Id Text", "Output App Field Value", "Output App Field Default Value", "Output App Field Desc", false, Eagle.DataType.Boolean, false, [], false);
+const FIELD : Field = new Field(Utils.uuidv4(), "Field Display Text", "Field Id Text", "Field Value", "Field Default Value", "Field Desc", true, Eagle.DataType_String, false, [], false);
+const INPUT_APP_FIELD : Field = new Field(Utils.uuidv4(), "Input App Field Display Text", "Input App Field Id Text", "Input App Field Value", "Input App Field Default Value", "Input App Field Desc", false, Eagle.DataType_Integer, false, [], false);
+const OUTPUT_APP_FIELD : Field = new Field(Utils.uuidv4(), "Output App Field Display Text", "Output App Field Id Text", "Output App Field Value", "Output App Field Default Value", "Output App Field Desc", false, Eagle.DataType_Boolean, false, [], false);
 
 // create table to contain results
 var table : any[] = [];

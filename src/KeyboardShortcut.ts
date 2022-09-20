@@ -1,4 +1,5 @@
 import {Eagle} from './Eagle';
+import {Category} from './Category';
 
 export class KeyboardShortcut {
     key: string;
@@ -28,7 +29,7 @@ export class KeyboardShortcut {
 
     static commentNodeIsSelected = (eagle: Eagle) : boolean => {
         const selectedNode = eagle.selectedNode();
-        return selectedNode !== null && selectedNode.getCategory() === Eagle.Category.Comment;
+        return selectedNode !== null && selectedNode.getCategory() === Category.Comment;
     }
 
     static edgeIsSelected = (eagle: Eagle) : boolean => {

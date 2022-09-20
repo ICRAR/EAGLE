@@ -24,15 +24,16 @@
 
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
-import {GraphUpdater} from './GraphUpdater';
-
 import {Eagle} from './Eagle';
-import {Node} from './Node';
-import {Field} from './Field';
 import {Edge} from './Edge';
+import {Errors} from './Errors';
+import {Field} from './Field';
 import {FileInfo} from './FileInfo';
+import {GraphUpdater} from './GraphUpdater';
+import {Node} from './Node';
 import {RepositoryFile} from './RepositoryFile';
+import {Setting} from './Setting';
+import {Utils} from './Utils';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -63,7 +64,7 @@ export class LogicalGraph {
         // add links
         result.linkDataArray = [];
         for (const edge of graph.getEdges()){
-            if (forTranslation && Eagle.findSettingValue(Utils.SKIP_CLOSE_LOOP_EDGES)){
+            if (forTranslation && Setting.findValue(Utils.SKIP_CLOSE_LOOP_EDGES)){
                 if (edge.isClosesLoop()){
                     continue;
                 }
@@ -94,7 +95,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
+    static fromOJSJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
@@ -146,7 +147,7 @@ export class LogicalGraph {
             // abort if source node not found
             if (srcNode === null){
                 const error : string = "Unable to find node with key " + linkData.from + " used as source node in link " + i + ". Discarding link!";
-                errorsWarnings.errors.push(error);
+                errorsWarnings.errors.push(Errors.Message(error));
                 continue;
             }
 
@@ -161,14 +162,14 @@ export class LogicalGraph {
                     const message: string = "Updated edge " + i + " source node from construct " + linkData.from + " to embedded application node " + found.key+ " and port " + found.port.getId();
                     srcPort = found.port;
                     linkData.from = found.key;
-                    errorsWarnings.warnings.push(message);
+                    errorsWarnings.warnings.push(Errors.Message(message));
                 }
             }
 
             // abort if source port not found
             if (srcPort === null){
                 const error : string = "Unable to find port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i;
-                errorsWarnings.errors.push(error);
+                errorsWarnings.errors.push(Errors.Message(error));
                 continue;
             }
 
@@ -178,7 +179,7 @@ export class LogicalGraph {
             // abort if dest node not found
             if (destNode === null){
                 const error : string = "Unable to find node with key " + linkData.to + " used as destination node in link " + i + ". Discarding link!";
-                errorsWarnings.errors.push(error);
+                errorsWarnings.errors.push(Errors.Message(error));
                 continue;
             }
 
@@ -193,15 +194,21 @@ export class LogicalGraph {
                     const message: string = "Updated edge " + i + " destination node from construct " + linkData.to + " to embedded application node " + found.key + " and port " + found.port.getId();
                     destPort = found.port;
                     linkData.to = found.key;
-                    errorsWarnings.warnings.push(message);
+                    errorsWarnings.warnings.push(Errors.Message(message));
                 }
             }
 
             // abort if dest port not found
             if (destPort === null){
                 const error : string = "Unable to find port " + linkData.toPort + " on node " + linkData.to + " used in link " + i;
-                errorsWarnings.errors.push(error);
+                errorsWarnings.errors.push(Errors.Message(error));
                 continue;
+            }
+
+            // try to read the dataType attribute
+            let dataType: string = Eagle.DataType_Unknown;
+            if (typeof linkData.dataType !== 'undefined'){
+                dataType = linkData.dataType;
             }
 
             // try to read loop_aware attribute
@@ -218,13 +225,13 @@ export class LogicalGraph {
                 closesLoop = linkData.closesLoop;
             }
 
-            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getIdText(), loopAware, closesLoop));
+            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, linkData.dataType, loopAware, closesLoop, false));
         }
 
         // check for missing name
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            errorsWarnings.errors.push(error);
+            errorsWarnings.errors.push(Errors.Message(error));
 
             result.fileInfo().name = file.name;
         }
@@ -440,6 +447,10 @@ export class LogicalGraph {
         return this.edges;
     }
 
+    getNumEdges = () : number => {
+        return this.edges.length;
+    }
+
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Graph;
@@ -506,7 +517,7 @@ export class LogicalGraph {
     }
 
     /**
-     * Adds data component to the graph
+     * Adds data component to the graph (with a new id)
      */
     addDataComponentToGraph = (node: Node, location : {x: number, y:number}) : Node => {
         // clone the template node, set position and add to logicalGraph
@@ -736,9 +747,9 @@ export class LogicalGraph {
     }
 
     findDepthByKey = (key: number) : number => {
-        let depth = 0;
-        let node = this.findNodeByKey(key);
+        const node = this.findNodeByKey(key);
         let parentKey = node.getParentKey();
+        let depth = 0;
         let iterations = 0;
 
         while (parentKey !== null){
@@ -753,6 +764,18 @@ export class LogicalGraph {
         }
 
         return depth;
+    }
+
+    getChildrenOfNodeByKey = (key: number) : Node[] => {
+        const result: Node[] = [];
+
+        for (const node of this.nodes){
+            if (node.getParentKey() === key){
+                result.push(node);
+            }
+        }
+
+        return result;
     }
 
     static normaliseNodes = (nodes: Node[]) : {x: number, y: number} => {

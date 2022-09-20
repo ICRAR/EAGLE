@@ -4,7 +4,7 @@
         <i class="material-icons">archive</i>
         <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Wrapper parameters describing this component for the DALiuGE system.'">Component Parameters</span>
     </h5>
-    <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind=" click: function(data, event){openParamsTableModal(Eagle.FieldType.ComponentParameter)}, clickBubble: false, eagleTooltip: 'Open Component Parameters in Table ' + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)">
+    <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind=" click: function(data, event){openParamsTableModal()}, clickBubble: false, eagleTooltip: 'Open Component Parameters in Table ' + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)">
         <i class="material-icons md-18">table_chart</i>
     </button>
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse9">
@@ -16,10 +16,10 @@
                 </a>
                 <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.componentParamsSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}}"></input>
             </div>
-            <!-- ko foreach: selectedNode().getFields() -->
+            <!-- ko foreach: selectedNode().getComponentParameters() -->
                 <!-- ko if: $data.fitsComponentSearchQuery() -->
                     <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
-                        <field params="data: $data, ro: $parent.selectedNode().getFieldReadonly($index())"></field>
+                        <field params="data: $data, ro: $data.isReadonly()"></field>
                     <!-- /ko -->
                 <!-- /ko -->
             <!-- /ko -->
@@ -31,13 +31,11 @@
                 <div id="nodeInspectorAddFieldDiv" class="nodeInspectorDropdownDiv">
                     <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:function(){hideDropDown('nodeInspectorAddFieldDiv')}}">
                         <div id="nodeInspectorFieldDropDownKO">
-                            <a href="#" data-bind="click:nodeInspectorDropdownClick">hi</a>
-                            <a href="#">hi2</a>
-                            <a href="#">hi3</a>
+                            <!-- options added dynamically -->
                         </div>
                     </div>
                 </div>
-                <!-- ko if: selectedNode().category() === Eagle.Category.Docker -->
+                <!-- ko if: selectedNode().category() === Category.Docker -->
                     <button class="btn btn-secondary btn-block mt-1 btn_wide" id="nodeInspectorFetchDocker" type="button" data-bind="click: $root.fetchDockerHTML, eagleTooltip:'Fetch docker image data from Docker Hub'" data-bs-placement="left">Fetch from Docker Hub</button>
                 <!-- /ko -->
             <!-- /ko -->

@@ -29,6 +29,9 @@ import {Eagle} from './Eagle';
 import {Node} from './Node';
 import {FileInfo} from './FileInfo';
 import {RepositoryFile} from './RepositoryFile';
+import {Errors} from './Errors';
+import {Category} from './Category';
+import {CategoryData} from './CategoryData';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
@@ -45,7 +48,7 @@ export class Palette {
         this.searchExclude = ko.observable(false);
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : Palette => {
+    static fromOJSJson = (data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
@@ -66,7 +69,7 @@ export class Palette {
             if (newNode.getParentKey() !== null){
                 const error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
                 console.warn(error);
-                errorsWarnings.errors.push(error);
+                errorsWarnings.errors.push(Errors.Message(error));
 
                 newNode.setParentKey(null);
             }
@@ -75,7 +78,7 @@ export class Palette {
             if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
                 const error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
                 console.warn(error);
-                errorsWarnings.errors.push(error);
+                errorsWarnings.errors.push(Errors.Message(error));
 
                 newNode.setPosition(0, 0);
             }
@@ -88,7 +91,7 @@ export class Palette {
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
             console.warn(error);
-            errorsWarnings.errors.push(error);
+            errorsWarnings.errors.push(Errors.Message(error));
 
             result.fileInfo().name = file.name;
         }
@@ -224,8 +227,8 @@ export class Palette {
     sort = () : void => {
 
         const sortFunc = function(a:Node, b:Node) : number {
-            const aCData : Eagle.CategoryData = Eagle.getCategoryData(a.getCategory());
-            const bCData : Eagle.CategoryData = Eagle.getCategoryData(b.getCategory());
+            const aCData : Category.CategoryData = CategoryData.getCategoryData(a.getCategory());
+            const bCData : Category.CategoryData = CategoryData.getCategoryData(b.getCategory());
 
             if (aCData.sortOrder < bCData.sortOrder) {
                 return -1;

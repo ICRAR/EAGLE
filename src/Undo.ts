@@ -24,12 +24,15 @@
 
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {LogicalGraph} from './LogicalGraph';
 import {Config} from './Config';
+import {Eagle} from './Eagle';
+import {Errors} from './Errors';
+import {LogicalGraph} from './LogicalGraph';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
+import {Setting} from './Setting';
 import {Utils} from './Utils';
+
 
 class Snapshot {
     description: ko.Observable<string>;
@@ -89,6 +92,21 @@ export class Undo {
         if (this.rear() === this.front()){
             this.rear((this.rear() + 1) % Config.UNDO_MEMORY_SIZE);
         }
+
+        // delete items from current to rear
+        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
+            const index = (this.current() + i) % Config.UNDO_MEMORY_SIZE;
+
+            if (((index + 1) % Config.UNDO_MEMORY_SIZE) === this.rear()){
+                break;
+            }
+
+            this.memory()[index] = null;
+        }
+
+        if (Setting.findValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+            Undo.printTable();
+        }
     }
 
     prevSnapshot = (eagle: Eagle) : void => {
@@ -102,6 +120,12 @@ export class Undo {
 
         this._loadFromIndex(prevprevIndex, eagle);
         this.current((this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE);
+
+        if (Setting.findValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+            Undo.printTable();
+        }
+
+        eagle.checkGraph();
     }
 
     nextSnapshot = (eagle: Eagle) : void => {
@@ -113,6 +137,12 @@ export class Undo {
 
         this._loadFromIndex(this.current(), eagle);
         this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
+
+        if (Setting.findValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+            Undo.printTable();
+        }
+
+        eagle.checkGraph();
     }
 
     toString = () : string => {
@@ -146,9 +176,37 @@ export class Undo {
         }
 
         const dataObject = JSON.parse(snapshot.data());
-        const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
 
         eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
+    }
+
+    static printTable = () : void => {
+        const eagle: Eagle = Eagle.getInstance();
+        const tableData : any[] = [];
+        const realCurrent: number = (eagle.undo().current() - 1 + Config.UNDO_MEMORY_SIZE) % Config.UNDO_MEMORY_SIZE;
+
+        for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){
+            const snapshot = eagle.undo().memory()[i];
+
+            if (snapshot === null){
+                continue;
+            }
+
+            tableData.push({
+                "current": realCurrent === i ? "->" : "",
+                "description": snapshot.description(),
+                "buffer position": i,
+            });
+        }
+
+        // cycle the table rows (move top row to bottom) X times so that we have "front" at the top of the table
+        const numCycles = tableData.length - eagle.undo().front();
+        for (let i = 0 ; i < numCycles ; i++){
+            tableData.push(tableData.shift());
+        }
+
+        console.table(tableData);
     }
 }
