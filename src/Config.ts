@@ -36,8 +36,7 @@ export class Config {
         "metis",
         "mysarkar",
         "min_num_parts",
-        "pso",
-        "simple"
+        "pso"
     ];
 
     static readonly DALIUGE_PARAMETER_NAMES = [
