@@ -2282,9 +2282,9 @@ export class Eagle {
             }
 
             const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const srcPort: Field = srcNode.findPortById(edge.getSrcPortId());
+            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
             const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destPort: Field = destNode.findPortById(edge.getDestPortId());
+            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
@@ -2321,9 +2321,9 @@ export class Eagle {
             }
 
             const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const srcPort: Field = srcNode.findPortById(edge.getSrcPortId());
+            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
             const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destPort: Field = destNode.findPortById(edge.getDestPortId());
+            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
@@ -3167,9 +3167,9 @@ export class Eagle {
 
             // get references to the source and destination ports of this edge
             const sourceNode = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const sourcePort = sourceNode.findPortById(edge.getSrcPortId());
+            const sourcePort = sourceNode.findFieldById(edge.getSrcPortId());
             const destinationNode = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destinationPort = destinationNode.findPortById(edge.getDestPortId());
+            const destinationPort = destinationNode.findFieldById(edge.getDestPortId());
 
             // update the edge and ports
             edge.setDataType(newType);

@@ -327,6 +327,17 @@ export class Utils {
         return Eagle.ParameterType.Unknown;
     }
 
+    static translateStringToParameterUsage(parameterUsage: string): Eagle.ParameterUsage {
+        for (const pu of Object.values(Eagle.ParameterUsage)){
+            if (pu.toLowerCase() === parameterUsage.toLowerCase()){
+                return pu;
+            }
+        }
+
+        console.warn("Unknown ParameterUsage", parameterUsage);
+        return Eagle.ParameterUsage.NoPort;
+    }
+
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
         $.ajax({
             url: url,
@@ -792,10 +803,10 @@ export class Utils {
             $('#editFieldModalTypeSelect').append(li);
         }
 
-        // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
-        $('#editFieldModalFieldTypeSelect').empty();
+        // delete all options, then iterate through the values in the Eagle.ParameterType enum, adding each as an option to the select
+        $('#editFieldModalParameterTypeSelect').empty();
         for (const ft of [Eagle.ParameterType.ComponentParameter, Eagle.ParameterType.ApplicationArgument]){
-            $('#editFieldModalFieldTypeSelect').append(
+            $('#editFieldModalParameterTypeSelect').append(
                 $('<option>', {
                     value: ft,
                     text: ft,
@@ -803,11 +814,18 @@ export class Utils {
                 })
             );
         }
-        // hide the fieldType select if the fieldType is ComponentParameter, since that can't be changed
-        if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
-            $('#editFieldModalFieldTypeSelectRow').hide();
-        } else {
-            $('#editFieldModalFieldTypeSelectRow').show();
+
+
+        // delete all options, then iterate through the values in the Eagle.ParameterUsage enum, adding each as an option to the select
+        $('#editFieldModalParameterUsageSelect').empty();
+        for (const pu of Object.values(Eagle.ParameterUsage)){
+            $('#editFieldModalParameterTypeSelect').append(
+                $('<option>', {
+                    value: pu,
+                    text: pu,
+                    selected: field.getUsage() === pu
+                })
+            );
         }
 
 

@@ -943,24 +943,6 @@ export class Node {
         return this.findPortByIdText(idText, input, local) !== null;
     }
 
-    // WARN: dangerous! removes a field/arg/port without considering if it is a port is in use by an edge
-    /*
-    removeFieldTypeByIndex = (index : number, parameterType: Eagle.ParameterType) : void => {
-        let matchIndex = -1;
-        for (let i = 0 ; i < this.fields().length ; i++){
-            const field = this.fields()[i];
-
-            if (field.getParameterType() === parameterType){
-                matchIndex += 1;
-
-                if (matchIndex === index){
-                    this.fields.splice(i, 1);
-                }
-            }
-        }
-    }
-    */
-
     addField = (field : Field) : void => {
         this.fields.push(field);
         field.setNodeKey(this.key());

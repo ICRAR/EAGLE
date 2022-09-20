@@ -249,7 +249,8 @@ export class Modals {
             const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
             const type: string = $('#editFieldModalTypeInput').val().toString();
-            const fieldType: string = $('#editFieldModalFieldTypeSelect').val().toString();
+            const parameterType: string = $('#editFieldModalParameterTypeSelect').val().toString();
+            const parameterUsage: string = $('#editFieldModalParameterUsageSelect').val().toString();
 
             // translate type
             const realType: string = Utils.translateStringToDataType(type);
@@ -311,9 +312,13 @@ export class Modals {
 
             const description: string = $('#editFieldModalDescriptionInput').val().toString();
             const type: string = $('#editFieldModalTypeInput').val().toString();
-            let fieldType: string = "";
-            if ($('#editFieldModalFieldTypeSelect').val()){
-                fieldType = $('#editFieldModalFieldTypeSelect').val().toString();
+            let parameterType: string = "";
+            if ($('#editFieldModalParameterTypeSelect').val()){
+                parameterType = $('#editFieldModalParameterTypeSelect').val().toString();
+            }
+            let parameterUsage: string = "";
+            if ($('#editFieldModalParameterUsageSelect').val()){
+                parameterUsage = $('#editFieldModalParameterUsageSelect').val().toString();
             }
 
             // NOTE: currently no way to edit options in the "select"-type fields
@@ -325,19 +330,20 @@ export class Modals {
 
             // translate type
             const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
-            const realFieldType: Eagle.ParameterType = Utils.translateStringToParameterType(fieldType);
+            const realParameterType: Eagle.ParameterType = Utils.translateStringToParameterType(parameterType);
+            const realParameterUsage: Eagle.ParameterUsage = Utils.translateStringToParameterUsage(parameterUsage);
             let newField;
 
             // TODO: using Eagle.ParameterUsage.NoPort is incorrect here, we should get the actual value from new UI
             switch(realType){
                 case Eagle.DataType_Boolean:
-                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realFieldType, Eagle.ParameterUsage.NoPort);
+                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage);
                     break;
                 case Eagle.DataType_Select:
-                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realFieldType, Eagle.ParameterUsage.NoPort);
+                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage);
                     break;
                 default:
-                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realFieldType, Eagle.ParameterUsage.NoPort);
+                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage);
                     break;
             }
 

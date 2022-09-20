@@ -280,8 +280,8 @@ export class Edge {
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
         }
 
-        const sourcePort : Field = sourceNode.findPortById(sourcePortId);
-        const destinationPort : Field = destinationNode.findPortById(destinationPortId);
+        const sourcePort : Field = sourceNode.findFieldById(sourcePortId);
+        const destinationPort : Field = destinationNode.findFieldById(destinationPortId);
 
         if (sourcePort === null || destinationPort === null){
             return Eagle.LinkValid.Unknown;
