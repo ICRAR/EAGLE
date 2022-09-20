@@ -67,6 +67,7 @@ export class Utils {
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
     static readonly SHOW_DALIUGE_RUNTIME_PARAMETERS : string = "ShowDaliugeRuntimeParameters";
+    static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
     static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
@@ -1274,8 +1275,6 @@ export class Utils {
     }
 
     static getDataComponentMemory(palettes: Palette[]) : Node {
-        console.log("getDataComponentMemory");
-
         // add all data components (except ineligible)
         for (const palette of palettes){
             for (const node of palette.getNodes()){
@@ -1287,6 +1286,31 @@ export class Utils {
         }
 
         return null;
+    }
+
+    static getComponentsWithPort(palettes: Palette[], input: boolean, type: string) : Node[] {
+        const result: Node[] = [];
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                let hasInputOfType: boolean = false;
+
+                const ports: Field[] = input ? node.getInputPorts() : node.getOutputPorts();
+
+                for (const port of ports){
+                    if (port.getType() === type){
+                        hasInputOfType = true;
+                    }
+                }
+
+                if (hasInputOfType){
+                    result.push(node);
+                }
+            }
+        }
+
+        return result;
     }
 
     private static _addPortIfUnique = (ports : Field[], port: Field) : void => {
