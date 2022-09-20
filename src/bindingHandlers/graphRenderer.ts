@@ -932,8 +932,46 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         console.warn("link not valid, result", linkValid);
                                     }
                                 } else {
-                                    // no destination, don't draw an edge
-                                    //console.warn("destination port is null!", destinationPortId);
+                                    const srcNode: Node = sourceNode;
+                                    const srcPort: Field = sourcePort;
+                                    const sourcePortType: string = sourcePort.getType();
+                                    
+                                    // no destination, ask user to choose a new node
+
+                                    const eligibleComponents = Utils.getComponentsWithPort(eagle.palettes(), !sourcePort.isInputPort(), sourcePortType);
+
+                                    if (Setting.findValue(Utils.AUTO_SUGGEST_DESTINATION_NODES) && eligibleComponents.length > 0){
+
+                                        // get list of strings from list of eligible components
+                                        const eligibleComponentNames : string[] = [];
+                                        for (const c of eligibleComponents){
+                                            eligibleComponentNames.push(c.getDisplayName());
+                                        }
+
+                                        // ask the user to select which component they want
+                                        Utils.requestUserChoice("Choose a component", "Select a component to connect to the new edge", eligibleComponentNames, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
+                                            if (!completed){
+                                                return;
+                                            }
+
+                                            const choice: Node = eligibleComponents[userChoiceIndex];
+
+                                            // convert mouse position to graph coordinates
+                                            Eagle.nodeDropLocation.x = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
+                                            Eagle.nodeDropLocation.y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
+
+                                            eagle.addNodeToLogicalGraph(choice, (node: Node) => {                                            
+                                                const destPort = node.findPortByType(sourcePortType, !srcPort.isInputPort());
+                                                
+                                                // create edge (in correct direction)
+                                                if (srcPort.isInputPort()){
+                                                    addEdge(node, destPort, srcNode, srcPort, false, false);
+                                                } else {
+                                                    addEdge(srcNode, srcPort, node, destPort, false, false);
+                                                }
+                                            });
+                                        });
+                                    }
                                 }
 
                                 // stop peeking at any nodes
@@ -3113,7 +3151,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean) : void {
-        //console.log("addEdge()", "port", srcPortId, "on node", srcNodeKey, "to port", destPortId, "on node", destNodeKey, "loopAware", loopAware);
+        //console.log("addEdge()", "srcNode", srcNode, "srcPort", srcPort, "to port", destPort, "on node", destNode, "loopAware", loopAware, "closesLoop", closesLoop);
 
         if (srcPort.getId() === destPort.getId()){
             console.warn("Abort addLink() from port to itself!");
