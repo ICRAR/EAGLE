@@ -2,24 +2,6 @@
 
     <!-- ko ifnot: showSimplifiedTranslatorOptions() -->
     <div class="accordion" id="translatorAccordion">
-
-        <div class="accordion-item">
-            <div class="accordion-header">
-                <h5>
-                    <button  id="headingOne" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        <span>Algorithm 0 (none)</span>
-                    </button>
-                </h5>
-            </div>
-            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-bs-parent="#translatorAccordion">
-                <div class="accordion-body">
-                    <p class="card-text">Base PGT Generation</p>
-                    <button id="alg0PGT" class="btn btn-primary btn_wide" data-bind="click: function(){genPGT(0, false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                    <button id="test0PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){genPGT(0, true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
-                </div>
-            </div>
-        </div>
-
         <div class="accordion-item">
             <div class="accordion-header">
                 <h5>
