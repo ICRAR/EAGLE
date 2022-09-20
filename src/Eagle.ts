@@ -387,6 +387,14 @@ export class Eagle {
         return list;
     }
 
+    getKeyAttributeDisplay = (isKeyAttribute : boolean) : string => {
+        if(!isKeyAttribute){
+            return '<i class="material-icons">favorite_border</i>'
+        }else{
+            return '<i class="material-icons">favorite</i>'
+        }
+    }
+
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
         if (this.logicalGraph() === null){
             return "";

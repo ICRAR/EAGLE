@@ -652,6 +652,7 @@
                         </div>
                         <thead>
                         <tr>
+                            <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'This Attribute is a Key Graph Attribute'" data-bs-placement="top"></th>
                             <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">Display Text</th>
                             <th id="parameter_table_name" data-bind="eagleTooltip:'Internal name used by DALiuGE'" data-bs-placement="top">idText</th>
                             <th id="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">Value</th>
@@ -669,6 +670,9 @@
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                                 <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
                                 <tr>
+                                    <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }">
+                                        <button class="edit" data-bind="value: $data.keyAttribute, click: $data.toggleKeyAttribute(); $data.setKeyAttribute(!$data.keyAttribute)}, disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay()"></button>
+                                    </td>
                                     <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter" type="string" data-bind="value: displayText, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.selectedNode().isLocked(), $data, $index(), event)}, event:{keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.selectedNode().isLocked(), $data, $index(), event)}}"></td>
                                     <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'idText' }"><input class="tableParameter" type="string" data-bind="value: idText, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){select($data.idText(), 'idText', $root.selectedNode().isLocked(), $data, $index(), event)}, event:{keyup: function(event, data){select($data.idText(), 'idText', $root.selectedNode().isLocked(), $data, $index(), event)}}"></td>
 

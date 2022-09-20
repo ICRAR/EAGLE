@@ -258,6 +258,10 @@ td:first-child input {
     width: 160px;
 }
 
+#parameter_table_isKeyAttribute{
+    width: 27px;
+}
+
 #parameter_table_name{
     width: 160px;
 }

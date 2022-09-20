@@ -15,6 +15,7 @@ export class Field {
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
+    private keyAttribute : ko.Observable<boolean>;
 
     // port-specific attributes
     private id : ko.Observable<string>;
@@ -22,7 +23,7 @@ export class Field {
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
-    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, fieldType: Eagle.FieldType){
+    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, fieldType: Eagle.FieldType, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
         this.idText = ko.observable(idText);
         this.value = ko.observable(value);
@@ -33,6 +34,7 @@ export class Field {
         this.precious = ko.observable(precious);
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
+        this.keyAttribute = ko.observable(keyAttribute);
 
         this.id = ko.observable(id);
         this.fieldType = ko.observable(fieldType);
@@ -112,6 +114,17 @@ export class Field {
         return Utils.dataTypePrefix(this.type()) === type;
     }
 
+    isKeyAttribute = () : boolean => {
+        return this.keyAttribute();
+    }
+
+    setKeyAttribute = (keyAttribute: boolean) => {
+        this.keyAttribute(keyAttribute);
+    }
+
+    toggleKeyAttribute = () => {
+        this.keyAttribute(!this.keyAttribute)
+    }
     valIsTrue = (val:string) : boolean => {
         return Utils.asBool(val);
     }
@@ -182,7 +195,7 @@ export class Field {
     }
 
     clone = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.fieldType());
+        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.fieldType(),false);
         f.setIsEvent(this.isEvent());
         f.setFieldType(this.fieldType());
         return f;
@@ -325,6 +338,7 @@ export class Field {
         let positional: boolean = false;
         let fieldType: Eagle.FieldType = Eagle.FieldType.Unknown;
         let isEvent: boolean = false;
+        let keyAttribute: boolean = false;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -359,8 +373,9 @@ export class Field {
             fieldType = data.fieldType;
         if (typeof data.event !== 'undefined')
             event = data.event;
-
-        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
+        if (typeof data.keyAttribute !== 'undefined')
+            keyAttribute = data.keyAttribute;
+        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType, keyAttribute);
         result.setIsEvent(isEvent);
         return result;
     }
@@ -388,7 +403,8 @@ export class Field {
             text:field.displayText(),
             event:field.isEvent(),
             type:field.type(),
-            description:field.description()
+            description:field.description(),
+            keyAttribute:field.keyAttribute()
         };
     }
 
@@ -397,6 +413,7 @@ export class Field {
         let event: boolean = false;
         let type: string;
         let description: string = "";
+        let keyAttribute: boolean = false;
 
         if (typeof data.text !== 'undefined')
             text = data.text;
@@ -406,13 +423,15 @@ export class Field {
             type = data.type;
         if (typeof data.description !== 'undefined')
             description = data.description;
+        if (typeof data.keyAttribute !== 'undefined')
+            keyAttribute = data.keyAttribute;
 
         // avoid empty text fields if we can
         if (text === ""){
             text = data.IdText;
         }
 
-        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false, Eagle.FieldType.Unknown);
+        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false, Eagle.FieldType.Unknown, keyAttribute);
         f.setIsEvent(event);
         return f;
     }
