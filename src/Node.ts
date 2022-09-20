@@ -746,9 +746,9 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
-    findPortById = (portId: string) : Field => {
+    findFieldById = (id: string) : Field => {
         for (const field of this.fields()){
-            if (field.getId() === portId){
+            if (field.getId() === id){
                 return field;
             }
         }

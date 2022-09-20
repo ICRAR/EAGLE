@@ -2192,32 +2192,13 @@ export class Eagle {
         }
     }
 
-    // TODO: this will probably require some more significant change
-    getCurrentParamReadonly = (index: number, parameterType: Eagle.ParameterType) : boolean => {
-        // if we want to get readonly-ness the Nth application arg, then the real index
-        // into the fields array is probably larger than N, since all four types
-        // of fields are stored there
-        const node = this.selectedNode();
-        let realIndex = -1;
-        let fieldTypeCount = 0;
-
-        for (let i = 0 ; i < node.getFields().length; i++){
-            const field: Field = node.getFields()[i];
-
-            if (field.getParameterType() === parameterType || Eagle.ParameterType.Unknown === parameterType){
-                fieldTypeCount += 1;
-            }
-
-            // check if we have found the Nth field of desired type
-            if (fieldTypeCount > index){
-                realIndex = i;
-                break;
-            }
-        }
+    getCurrentParamReadonly = (id: string) : boolean => {
+        const node: Node = this.selectedNode();
+        const field: Field = node.findFieldById(id);
 
         // check that we actually found the right field, otherwise abort
-        if (realIndex === -1){
-            console.warn("Could not remove param index", index, "of type", parameterType, ". Not found.");
+        if (field === null){
+            console.warn("Could not find field id", id, "in node", node.getName(), ". Not found.");
             return false;
         }
 
@@ -2225,13 +2206,13 @@ export class Eagle {
             if(Eagle.allowPaletteEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[realIndex].isReadonly();
+                return field.isReadonly();
             }
         }else{
             if(Eagle.allowComponentEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[realIndex].isReadonly();
+                return field.isReadonly();
             }
         }
     }
@@ -3203,70 +3184,25 @@ export class Eagle {
         });
     }
 
-    removeParamFromNodeByIndex = (node: Node, parameterType: Eagle.ParameterType, index: number) : void => {
-        if (node === null){
-            console.warn("Could not remove param from null node");
-            return;
-        }
-
-        // if we want to delete the Nth application arg, then the real index
-        // into the fields array is probably larger than N, since all four types
-        // of fields are stored there
-        let realIndex = -1;
-        let fieldTypeCount = 0;
-
-        for (let i = 0 ; i < node.getFields().length; i++){
-            const field: Field = node.getFields()[i];
-
-            if (field.getParameterType() === parameterType || Eagle.ParameterType.Unknown === parameterType){
-                fieldTypeCount += 1;
-            }
-
-            // check if we have found the Nth field of desired type
-            if (fieldTypeCount > index){
-                realIndex = i;
-                break;
-            }
-        }
-
-        // check that we actually found the right field, otherwise abort
-        if (realIndex === -1){
-            console.warn("Could not remove param index", index, "of type", parameterType, ". Not found.");
-            return;
-        }
-
-        node.removeFieldByIndex(realIndex);
-
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Remove param from node");
-        this.flagActiveFileModified();
-        this.selectedObjects.valueHasMutated();
-    }
-
-    // TODO: this needs lots of changes
-    removePortFromNodeByIndex = (node : Node, fieldId:string) : void => {
-        console.log("removePortFromNodeByIndex(): node", node.getName(), "index",fieldId);
+    removeFieldFromNodeById = (node : Node, id: string) : void => {
+        console.log("removeFieldFromNodeById(): node", node.getName(), "id", id);
 
         if (node === null){
             console.warn("Could not remove port from null node");
             return;
         }
 
-        // remember port id
-        const portId = fieldId
-        //doing this so this function will work both in context of being in a port only loop as well as a fields loop
-        const portIndex = node.findPortIndexById(portId)
-
-        console.log("Found portId to remove:", portId);
+        // doing this so this function will work both in context of being in a port only loop as well as a fields loop
+        const fieldIndex = node.findPortIndexById(id)
 
         // remove port
-        node.removeFieldByIndex(portIndex);
+        node.removeFieldByIndex(fieldIndex);
 
         // remove any edges connected to that port
         const edges : Edge[] = this.logicalGraph().getEdges();
 
         for (let i = edges.length - 1; i >= 0; i--){
-            if (edges[i].getSrcPortId() === portId || edges[i].getDestPortId() === portId){
+            if (edges[i].getSrcPortId() === id || edges[i].getDestPortId() === id){
                 console.log("Remove incident edge", edges[i].getSrcPortId(), "->", edges[i].getDestPortId());
                 edges.splice(i, 1);
             }
@@ -3945,14 +3881,14 @@ export class Eagle {
             // delete extra input ports
             if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
                 for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+                    this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
                 }
             }
 
             // delete extra output ports
             if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
                 for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+                    this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
                 }
             }
 
