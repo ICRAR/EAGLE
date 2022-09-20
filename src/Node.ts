@@ -1522,15 +1522,6 @@ export class Node {
                     field.setParameterType(Eagle.ParameterType.ComponentParameter);
                 }
 
-                // we should support comment and description nodes, these need to use one component parameter, even though they don't officially support them
-                const isCommentOrDescriptionContentField : boolean = (category === Category.Description || category === Category.Comment) && field.getIdText() === "";
-
-                // check
-                if (!isCommentOrDescriptionContentField){
-                    errorsWarnings.warnings.push(Errors.Message("Node '" + node.getName() + "' (category: " + category + ") should not have any " + field.getParameterType() + ". Removed " + field.getDisplayText()));
-                    continue;
-                }
-
                 node.addField(field);
             }
         }

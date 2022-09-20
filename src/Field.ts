@@ -189,6 +189,8 @@ export class Field {
         this.precious(false);
         this.options([]);
         this.positional(false);
+        this.parameterType(Eagle.ParameterType.Unknown);
+        this.usage(Eagle.ParameterUsage.NoPort);
     }
 
     clone = () : Field => {
@@ -365,12 +367,37 @@ export class Field {
             options = data.options;
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
+
+        // handle legacy fieldType
+        if (typeof data.fieldType !== 'undefined'){
+            switch (data.fieldType){
+                case "ComponentParameter":
+                    parameterType = Eagle.ParameterType.ComponentParameter;
+                    usage = Eagle.ParameterUsage.NoPort;
+                    break;
+                case "ApplicationArgument":
+                    parameterType = Eagle.ParameterType.ApplicationArgument;
+                    usage = Eagle.ParameterUsage.NoPort;
+                    break;
+                case "InputPort":
+                    parameterType = Eagle.ParameterType.ApplicationArgument;
+                    usage = Eagle.ParameterUsage.InputPort;
+                    break;
+                case "OutputPort":
+                    parameterType = Eagle.ParameterType.ApplicationArgument;
+                    usage = Eagle.ParameterUsage.OutputPort;
+                    break;
+                default:
+                    console.log("Unhandled fieldType", data.fieldType);
+            }
+        }
+
         if (typeof data.parameterType !== 'undefined')
             parameterType = data.parameterType;
         if (typeof data.usage !== 'undefined')
             usage = data.usage;
         if (typeof data.event !== 'undefined')
-            event = data.event;
+            isEvent = data.event;
 
         const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         result.setIsEvent(isEvent);
