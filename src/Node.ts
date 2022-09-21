@@ -457,11 +457,35 @@ export class Node {
         return result;
     }
 
+    getComponentParametersWithNoPorts = () : Field[] => {
+        const result: Field[] = [];
+
+        for (const field of this.fields()){
+            if (field.getParameterType() === Eagle.ParameterType.ComponentParameter && field.getUsage() === Eagle.ParameterUsage.NoPort){
+                result.push(field);
+            }
+        }
+
+        return result;
+    }
+
     getApplicationArguments = () : Field[] => {
         const result: Field[] = [];
 
         for (const field of this.fields()){
             if (field.getParameterType() === Eagle.ParameterType.ApplicationArgument){
+                result.push(field);
+            }
+        }
+
+        return result;
+    }
+
+    getApplicationArgumentsWithNoPorts = () : Field[] => {
+        const result: Field[] = [];
+
+        for (const field of this.fields()){
+            if (field.getParameterType() === Eagle.ParameterType.ApplicationArgument && field.getUsage() === Eagle.ParameterUsage.NoPort){
                 result.push(field);
             }
         }

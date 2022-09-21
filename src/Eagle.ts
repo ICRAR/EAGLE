@@ -3476,6 +3476,7 @@ export class Eagle {
                 field.setPrecious(newField.isPrecious());
                 field.setPositionalArgument(newField.isPositionalArgument());
                 field.setParameterType(newField.getParameterType());
+                field.setUsage(newField.getUsage());
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
