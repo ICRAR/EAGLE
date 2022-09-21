@@ -303,7 +303,9 @@ export class Field {
             type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
-            positional:field.positional()
+            positional:field.positional(),
+            parameterType:field.parameterType(),
+            usage:field.usage()
         };
     }
 
@@ -318,7 +320,9 @@ export class Field {
             type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
-            positional: field.positional()
+            positional: field.positional(),
+            parameterType:field.parameterType(),
+            usage:field.usage()
         };
     }
 

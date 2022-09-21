@@ -1716,6 +1716,7 @@ export class Node {
             result.embedKey = node.embedKey();
         }
 
+        /*
         // add input ports
         result.inputPorts = [];
         if (node.hasInputApplication()){
@@ -1751,15 +1752,15 @@ export class Node {
                 result.outputLocalPorts.push(Field.toOJSJson(inputPort));
             }
         }
+        */
 
         // add fields
         result.fields = [];
         for (const field of node.fields()){
-            if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
-                result.fields.push(Field.toOJSJson(field));
-            }
+            result.fields.push(Field.toOJSJson(field));
         }
 
+        /*
         // add applicationArgs
         result.applicationArgs = [];
         for (const field of node.fields()){
@@ -1767,6 +1768,7 @@ export class Node {
                 result.applicationArgs.push(Field.toOJSJson(field));
             }
         }
+        */
 
         // add fields from inputApplication
         result.inputAppFields = [];
@@ -1846,6 +1848,7 @@ export class Node {
             result.embedKey = node.embedKey();
         }
 
+        /*
         // add input ports
         result.inputPorts = [];
         if (node.hasInputApplication()){
@@ -1879,15 +1882,15 @@ export class Node {
                 result.outputLocalPorts.push(Field.toOJSJson(inputPort));
             }
         }
+        */
 
         // add fields
         result.fields = [];
         for (const field of node.fields()){
-            if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
-                result.fields.push(Field.toOJSJson(field));
-            }
+            result.fields.push(Field.toOJSJson(field));
         }
 
+        /*
         // add applicationArgs
         result.applicationArgs = [];
         for (const field of node.fields()){
@@ -1895,6 +1898,7 @@ export class Node {
                 result.applicationArgs.push(Field.toOJSJson(field));
             }
         }
+        */
 
         // add fields from inputApplication
         result.inputAppFields = [];
