@@ -123,10 +123,9 @@ export class Field {
     }
 
     toggleKeyAttribute = () => {
-        console.log('fired, ', this.keyAttribute())
         this.keyAttribute(!this.keyAttribute())
     }
-    
+
     valIsTrue = (val:string) : boolean => {
         return Utils.asBool(val);
     }

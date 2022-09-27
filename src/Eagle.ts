@@ -89,6 +89,7 @@ export class Eagle {
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
+    tableModalType : ko.Observable<string>;
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -221,7 +222,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.onlineDocs();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Disabled, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('paremeterTableModal');}));
         Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["z"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().prevSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("redo", "Redo", ["z"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().nextSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("check_graph", "Check Graph", ["!"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.showGraphErrors();}));
@@ -237,7 +238,7 @@ export class Eagle {
 
         this.inspectorState = ko.observable(new InspectorState());
 
-        this.rendererFrameDisplay = ko.observable("");
+        this.rendererFrameDisplay = ko.observable("unset");
         this.rendererFrameMax = 0;
         this.rendererFrameCountRender = 0;
         this.rendererFrameCountTick = 0;
@@ -249,6 +250,8 @@ export class Eagle {
         this.graphErrors = ko.observableArray([]);
         this.loadingWarnings = ko.observableArray([]);
         this.loadingErrors = ko.observableArray([]);
+
+        this.tableModalType = ko.observable('')
 
         this.showDataNodes = ko.observable(true);
 
@@ -2193,11 +2196,11 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    openParamsTableModal = () : void => {
+    openParamsTableModal = (mode:string) : void => {
         if (!this.selectedNode()){
             Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
-            Utils.showOpenParamsTableModal();
+            Utils.showOpenParamsTableModal(mode, Eagle);
         }
     }
 

@@ -52,6 +52,26 @@ export class ParameterTable {
         }
     }
 
+    getTableFields = () : Field[] => {
+        const eagle: Eagle = Eagle.getInstance();
+        const tableModalType = eagle.tableModalType()
+        console.log(tableModalType)
+        let displayedFields:any = []
+        if(tableModalType === 'inspectorTableModal'){
+            displayedFields = eagle.selectedNode().getFields()
+        }else if (tableModalType === 'keyParametersTableModal'){
+            eagle.logicalGraph().getNodes().forEach(function(node){
+                node.getFields().forEach(function(field){
+                    if(field.isKeyAttribute()){
+                        displayedFields.push(field)
+                    }
+                })
+            })
+        }
+        console.log(displayedFields)
+        return displayedFields
+    }
+
     // fill the datatype select element with all the types known within the current graph and palettes
     fill = (type:string):string => {
         const eagle: Eagle = Eagle.getInstance();

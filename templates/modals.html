@@ -666,7 +666,7 @@
                             <th id="parameter_table_actions" data-bind="eagleTooltip:'Additional operations that are possible on this parameter (e.g. Delete, Duplicate etc)'" data-bs-placement="top">Actions</th>
                         </tr>
                         </thead>
-                            <tbody data-bind="foreach: $root.selectedNode().getFields()">
+                            <tbody data-bind="foreach: $root.parameterTable().getTableFields()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                                 <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
                                 <tr>

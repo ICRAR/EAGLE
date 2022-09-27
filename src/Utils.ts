@@ -879,7 +879,8 @@ export class Utils {
         $('#settingsModal').modal("toggle");
     }
 
-    static showOpenParamsTableModal() : void {
+    static showOpenParamsTableModal(mode:string, eagle:Eagle) : void {
+        eagle.tableModalType = ko.observable(mode)
         $('#parameterTableModal').modal("toggle");
     }
 
