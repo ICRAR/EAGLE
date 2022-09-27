@@ -97,7 +97,7 @@ export class Hierarchy {
                     }
     
                     if(element.isEmbedded()){
-                        var localPortGroup = eagle.logicalGraph().findNodeByKey(element.getEmbedKey())
+                        const localPortGroup = eagle.logicalGraph().findNodeByKey(element.getEmbedKey())
                         localPortGroup.setExpanded(true)
                         localPortGroup.setKeepExpanded(true)
                     }else{  

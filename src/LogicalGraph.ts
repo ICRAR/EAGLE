@@ -37,14 +37,14 @@ import {Utils} from './Utils';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
-    private nodes : Node[];
-    private edges : Edge[];
+    private nodes : ko.ObservableArray<Node>;
+    private edges : ko.ObservableArray<Edge>;
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Graph;
-        this.nodes = [];
-        this.edges = [];
+        this.nodes = ko.observableArray([]);
+        this.edges = ko.observableArray([]);
     }
 
     static toOJSJson = (graph : LogicalGraph, forTranslation : boolean) : object => {
@@ -107,7 +107,7 @@ export class LogicalGraph {
             const extraUsedKeys: number[] = [];
 
             const newNode = Node.fromOJSJson(nodeData, errorsWarnings, (): number => {
-                const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
+                const resultKeys: number[] = Utils.getUsedKeys(result.nodes());
                 const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
                 const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
 
@@ -133,7 +133,7 @@ export class LogicalGraph {
             const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.group);
 
             if (parentIndex !== -1){
-                result.nodes[i].setParentKey(result.nodes[parentIndex].getKey());
+                result.nodes()[i].setParentKey(result.nodes()[parentIndex].getKey());
             }
         }
 
@@ -432,11 +432,11 @@ export class LogicalGraph {
     }
 
     getNodes = () : Node[] => {
-        return this.nodes;
+        return this.nodes();
     }
 
     getNumNodes = () : number => {
-        return this.nodes.length;
+        return this.nodes().length;
     }
 
     addEdgeComplete = (edge : Edge) => {
@@ -444,18 +444,18 @@ export class LogicalGraph {
     }
 
     getEdges = () : Edge[] => {
-        return this.edges;
+        return this.edges();
     }
 
     getNumEdges = () : number => {
-        return this.edges.length;
+        return this.edges().length;
     }
 
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Graph;
-        this.nodes = [];
-        this.edges = [];
+        this.nodes([]);
+        this.edges([]);
     }
 
     clone = () : LogicalGraph => {
@@ -464,12 +464,12 @@ export class LogicalGraph {
         result.fileInfo(this.fileInfo().clone());
 
         // copy nodes
-        for (const node of this.nodes){
+        for (const node of this.nodes()){
             result.nodes.push(node.clone());
         }
 
         // copy edges
-        for (const edge of this.edges){
+        for (const edge of this.edges()){
             result.edges.push(edge.clone());
         }
 
@@ -529,24 +529,24 @@ export class LogicalGraph {
     }
 
     findNodeByKey = (key : number) : Node => {
-        for (let i = this.nodes.length - 1; i >= 0 ; i--){
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
 
             // check if the node itself has a matching key
-            if (this.nodes[i].getKey() === key){
-                return this.nodes[i];
+            if (this.nodes()[i].getKey() === key){
+                return this.nodes()[i];
             }
 
             // check if the node's inputApp has a matching key
-            if (this.nodes[i].hasInputApplication()){
-                if (this.nodes[i].getInputApplication().getKey() === key){
-                    return this.nodes[i].getInputApplication();
+            if (this.nodes()[i].hasInputApplication()){
+                if (this.nodes()[i].getInputApplication().getKey() === key){
+                    return this.nodes()[i].getInputApplication();
                 }
             }
 
             // check if the node's outputApp has a matching key
-            if (this.nodes[i].hasOutputApplication()){
-                if (this.nodes[i].getOutputApplication().getKey() === key){
-                    return this.nodes[i].getOutputApplication();
+            if (this.nodes()[i].hasOutputApplication()){
+                if (this.nodes()[i].getOutputApplication().getKey() === key){
+                    return this.nodes()[i].getOutputApplication();
                 }
             }
         }
@@ -570,38 +570,38 @@ export class LogicalGraph {
         }
 
         // delete the node
-        for (let i = this.nodes.length - 1; i >= 0 ; i--){
-            if (this.nodes[i].getKey() === key){
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getKey() === key){
                 this.nodes.splice(i, 1);
             }
         }
 
         // delete children
-        for (let i = this.nodes.length - 1; i >= 0 ; i--){
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
             // check that iterator still points to a valid element in the nodes array
             // a check like this wouldn't normally be necessary, but we are deleting elements from the array within the loop, so it might be shorter than we expect
-            if (i >= this.nodes.length){
+            if (i >= this.nodes().length){
                 continue;
             }
 
-            if (this.nodes[i].getParentKey() === key){
-                this.removeNode(this.nodes[i]);
+            if (this.nodes()[i].getParentKey() === key){
+                this.removeNode(this.nodes()[i]);
             }
         }
     }
 
     findEdgeById = (id: string) : Edge => {
-        for (let i = this.edges.length - 1; i >= 0 ; i--){
-            if (this.edges[i].getId() === id){
-                return this.edges[i];
+        for (let i = this.edges().length - 1; i >= 0 ; i--){
+            if (this.edges()[i].getId() === id){
+                return this.edges()[i];
             }
         }
         return null;
     }
 
     removeEdgeById = (id: string) : void => {
-        for (let i = this.edges.length - 1; i >= 0 ; i--){
-            if (this.edges[i].getId() === id){
+        for (let i = this.edges().length - 1; i >= 0 ; i--){
+            if (this.edges()[i].getId() === id){
                 this.edges.splice(i, 1);
             }
         }
@@ -609,8 +609,8 @@ export class LogicalGraph {
 
     // delete edges that start from or end at the node with the given key
     removeEdgesByKey = (key: number) : void => {
-        for (let i = this.edges.length - 1 ; i >= 0; i--){
-            const edge : Edge = this.edges[i];
+        for (let i = this.edges().length - 1 ; i >= 0; i--){
+            const edge : Edge = this.edges()[i];
             if (edge.getSrcNodeKey() === key || edge.getDestNodeKey() === key){
                 this.edges.splice(i, 1);
             }
@@ -618,7 +618,7 @@ export class LogicalGraph {
     }
 
     portIsLinked = (nodeKey : number, portId : string) : boolean => {
-        for (const edge of this.edges){
+        for (const edge of this.edges()){
             if (edge.getSrcNodeKey() === nodeKey && edge.getSrcPortId() === portId ||
                 edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
                 return true;
@@ -714,7 +714,7 @@ export class LogicalGraph {
         const overlaps : Node[] = [];
 
         // find all the overlapping nodes
-        for (const node of this.nodes){
+        for (const node of this.nodes()){
             // abort if checking for self!
             if (node.getKey() === ignoreKey){
                 continue;
@@ -766,10 +766,23 @@ export class LogicalGraph {
         return depth;
     }
 
+    // similar to getChildrenOfNodeByKey() (below) except treats key as null always, and is computed
+    getRootNodes : ko.PureComputed<Node[]> = ko.pureComputed(() : Node[] => {
+        const result: Node[] = [];
+
+        for (const node of this.nodes()){
+            if (node.getParentKey() === null){
+                result.push(node);
+            }
+        }
+
+        return result;
+    }, this);
+
     getChildrenOfNodeByKey = (key: number) : Node[] => {
         const result: Node[] = [];
 
-        for (const node of this.nodes){
+        for (const node of this.nodes()){
             if (node.getParentKey() === key){
                 result.push(node);
             }

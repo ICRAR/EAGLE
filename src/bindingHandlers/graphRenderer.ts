@@ -845,7 +845,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const portDragHandler = d3.drag()
                             .on("start", function (port : Field) {
-                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getText());
+                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getDisplayText());
                                 isDraggingPort = true;
                                 sourceNode = graph.findNodeByKey(port.getNodeKey());
                                 sourcePort = port;
