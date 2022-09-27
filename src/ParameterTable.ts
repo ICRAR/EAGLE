@@ -37,6 +37,11 @@ export class ParameterTable {
     }
 
     tableInspectorUpdateSelection = (value:string) : void => {
+        // abort update if nothing is selected
+        if (!ParameterTable.hasSelection()){
+            return;
+        }
+
         const selected = ParameterTable.selectionName()
         const selectedForm = ParameterTable.selectionParent()
         if(selected === 'displayText'){
