@@ -1288,12 +1288,17 @@ export class Utils {
         return null;
     }
 
-    static getComponentsWithPort(palettes: Palette[], input: boolean, type: string) : Node[] {
+    static getComponentsWithPort(palettes: Palette[], input: boolean, type: string, dataEligible: boolean) : Node[] {
         const result: Node[] = [];
 
         // add all data components (except ineligible)
         for (const palette of palettes){
             for (const node of palette.getNodes()){
+                // skip data nodes if not eligible
+                if (!dataEligible && node.getCategoryType() === Category.Type.Data){
+                    continue;
+                }
+
                 let hasInputOfType: boolean = false;
 
                 const ports: Field[] = input ? node.getInputPorts() : node.getOutputPorts();
