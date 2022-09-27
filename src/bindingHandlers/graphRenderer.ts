@@ -937,8 +937,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     const sourcePortType: string = sourcePort.getType();
                                     
                                     // no destination, ask user to choose a new node
-
-                                    const eligibleComponents = Utils.getComponentsWithPort(eagle.palettes(), !sourcePort.isInputPort(), sourcePortType);
+                                    const dataEligible = sourceNode.getCategoryType() !== Category.Type.Data;
+                                    const eligibleComponents = Utils.getComponentsWithPort(eagle.palettes(), !sourcePort.isInputPort(), sourcePortType, dataEligible);
+                                    console.log("Found", eligibleComponents.length, "eligible automatically suggested components that could connect to port type", sourcePortType);
 
                                     if (Setting.findValue(Utils.AUTO_SUGGEST_DESTINATION_NODES) && eligibleComponents.length > 0){
 
@@ -949,7 +950,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         }
 
                                         // ask the user to select which component they want
-                                        Utils.requestUserChoice("Choose a component", "Select a component to connect to the new edge", eligibleComponentNames, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
+                                        Utils.requestUserChoice("Connect to '" + sourcePortType + "' port", "Select a component to connect to the '" + sourcePortType + "' port", eligibleComponentNames, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
                                             if (!completed){
                                                 return;
                                             }
