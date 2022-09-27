@@ -864,7 +864,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 const nearbyNodes = findNodesInRange(mouseX, mouseY, MIN_AUTO_COMPLETE_EDGE_RANGE, sourceNode.getKey());
 
                                 // check for nearest matching port in the nearby nodes
-                                const matchingPort: Field = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourcePort, sourcePortIsInput);
+                                const matchingPort: Field = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourceNode, sourcePort, sourcePortIsInput);
 
                                 if (matchingPort !== null){
                                     suggestedNode = graph.findNodeByKey(matchingPort.getNodeKey());
@@ -3551,12 +3551,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return result;
     }
 
-    function findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourcePort: Field, sourcePortIsInput: boolean) : Field {
+    function findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : Field {
         let minDistance = Number.MAX_SAFE_INTEGER;
         let minPort = null;
 
         for (const node of nearbyNodes){
             let portList: Field[] = [];
+
+            // if source node is Data, then no nearby Data nodes can have matching ports
+            if (sourceNode.getCategoryType() === Category.Type.Data && node.getCategoryType() === Category.Type.Data){
+                continue;
+            }
 
             // if sourcePortIsInput, we should search for output ports, and vice versa
             if (sourcePortIsInput){
