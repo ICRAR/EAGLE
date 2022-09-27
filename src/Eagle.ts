@@ -389,6 +389,7 @@ export class Eagle {
     }
 
     getKeyAttributeDisplay = (isKeyAttribute : boolean) : string => {
+        console.log('keyAttribute: ',isKeyAttribute)
         if(!isKeyAttribute){
             return '<i class="material-icons">favorite_border</i>'
         }else{
