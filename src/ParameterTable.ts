@@ -52,10 +52,9 @@ export class ParameterTable {
         }
     }
 
-    getTableFields = () : Field[] => {
+    getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
         const tableModalType = eagle.tableModalType()
-        console.log(tableModalType)
         let displayedFields:any = []
         if(tableModalType === 'inspectorTableModal'){
             displayedFields = eagle.selectedNode().getFields()
@@ -68,8 +67,21 @@ export class ParameterTable {
                 })
             })
         }
-        console.log(displayedFields)
         return displayedFields
+    }, this);
+
+    getNodeLockedState = (field:Field) : boolean => {
+        console.log(field.getNodeKey())
+        if(field === null){
+            console.log('returning early')
+            return false
+        }
+        console.log('not returned')
+        const eagle: Eagle = Eagle.getInstance();
+        
+        return eagle.logicalGraph().findNodeByKey(field.getNodeKey()).isLocked()
+        
+
     }
 
     // fill the datatype select element with all the types known within the current graph and palettes

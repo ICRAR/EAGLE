@@ -687,7 +687,7 @@
                                         <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                     <!-- /ko -->
 
-                                    <!-- ko ifnot: $root.selectedNode().isLocked() -->
+                                    <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
                                         <td><input class="tableParameter" data-bind="checked: readonly, disabled: $root.selectedNode().isLocked(), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr: {type: 'checkbox'}"></td>
                                     <!-- /ko -->
                                     <!-- ko if: $root.selectedNode().isLocked() -->
