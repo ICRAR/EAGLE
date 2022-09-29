@@ -44,6 +44,8 @@ export class Translator {
 
     isTranslating: ko.Observable<boolean>
 
+    static defaultAlgorithm : string;
+
     constructor(){
         this.numberOfIslands = ko.observable(0);
         this.numberOfNodes = ko.observable(1);
@@ -57,6 +59,10 @@ export class Translator {
         this.numberOfParallelTaskStreams = ko.observable(1);
         this.rmode = ko.observable(0);
         this.isTranslating = ko.observable(false);
+    }
+
+    static deployDefaultAlgorithm = () : void => {
+        $('#'+ Translator.defaultAlgorithm + ' .generatePgt').click()
     }
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {

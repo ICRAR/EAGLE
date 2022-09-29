@@ -103,8 +103,6 @@ export class Eagle {
     static dragStartX : number;
     static lastClickTime : number = 0;
 
-    static defaultTranslatorAlgorithm : string;
-
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
     static nodeDragComponentIndex : number;
@@ -198,7 +196,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("insert_graph_from_local_disk", "Insert graph from local disk", ["i"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToInsert();}));
         Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraph();}));
         Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save Graph As", ["s"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraphAs()}));
-        Eagle.shortcuts.push(new KeyboardShortcut("deploy_translator", "Generate PGT Using Default Algorithm", ["d"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.deployDefaultTranslationAlgorithm(); }));
+        Eagle.shortcuts.push(new KeyboardShortcut("deploy_translator", "Generate PGT Using Default Algorithm", ["d"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { Translator.deployDefaultAlgorithm(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("delete_selection", "Delete Selection", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false, true);}));
         Eagle.shortcuts.push(new KeyboardShortcut("delete_selection_except_children", "Delete Without Children", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false, false);}));
         Eagle.shortcuts.push(new KeyboardShortcut("duplicate_selection", "Duplicate Selection", ["d"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection();}));
@@ -331,11 +329,6 @@ export class Eagle {
         this.selectedObjects([]);
 
         this.showDataNodes(!this.showDataNodes());
-    }
-
-    deployDefaultTranslationAlgorithm = () : void => {
-        var defaultTranslatingAlgorithm = Eagle.defaultTranslatorAlgorithm
-        $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').click()
     }
 
     // TODO: remove?
@@ -2021,6 +2014,7 @@ export class Eagle {
         });
     }
 
+    // TODO: move to Translator.ts
     setTranslatorUrl = () : void => {
         const translatorURLSetting : Setting = Setting.find(Utils.TRANSLATOR_URL);
 
@@ -2033,22 +2027,24 @@ export class Eagle {
         });
     };
 
+    // TODO: move to Translator.ts
     getTranslatorDefault = () : any => {
         setTimeout(function(){
-            var defaultTransnlatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
-            $('.simplifiedTranslator').append(defaultTransnlatorHtml)
-            return defaultTransnlatorHtml
+            const defaultTranslatorHtml = $(".rightWindowContainer #"+Translator.defaultAlgorithm).clone(true)
+            $('.simplifiedTranslator').append(defaultTranslatorHtml)
+            return defaultTranslatorHtml
         },10000)
         
     }
 
+    // TODO: move to Translator.ts
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        var showSimplifiedTranslatorOptions :any = Setting.find(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value()
+        const showSimplifiedTranslatorOptions :any = Setting.find(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value()
         if(!showSimplifiedTranslatorOptions){
             return true
         }
 
-        if(currentAlg === Eagle.defaultTranslatorAlgorithm){
+        if(currentAlg === Translator.defaultAlgorithm){
             return true
         }
             return false
@@ -3550,7 +3546,7 @@ export class Eagle {
     duplicateParameter = (index:number) : void => {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
 
-        var copiedField = this.selectedNode().getFields()[index].clone()
+        const copiedField = this.selectedNode().getFields()[index].clone()
         copiedField.setId(Utils.uuidv4())
         copiedField.setIdText(copiedField.getIdText()+'copy')
         if(ParameterTable.hasSelection()){
@@ -4178,21 +4174,24 @@ $( document ).ready(function() {
         });
     })
 
-    var defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
+    // TODO: move to Translator.ts
+    let defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
     if(!defaultTranslatingAlgorithm){
         localStorage.setItem('translationDefault','agl-1')
         defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
     }
 
+    // TODO: move to Translator.ts
     $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').click()
-    Eagle.defaultTranslatorAlgorithm = defaultTranslatingAlgorithm;
+    Translator.defaultAlgorithm = defaultTranslatingAlgorithm;
     if(defaultTranslatingAlgorithm !== "agl-0"){
         $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
     }
 
+    // TODO: move to Translator.ts, de-anonymise the function
     $(".translationDefault").on("click",function(){
 
-        var translationMethods = []
+        const translationMethods = []
         translationMethods.push($('.translationDefault'))
         $('.translationDefault').each(function(element){
             if($(this).is(':checked')){
@@ -4201,7 +4200,7 @@ $( document ).ready(function() {
             }
         })
 
-        var element = $(event.target)
+        const element = $(event.target)
         
         if(element.val() === "true"){
             element.val('false')
@@ -4209,9 +4208,9 @@ $( document ).ready(function() {
             element.val('true')
         }
 
-        var translationId = element.closest('.accordion-item').attr('id')
+        const translationId = element.closest('.accordion-item').attr('id')
         localStorage.setItem('translationDefault',translationId)
-        Eagle.defaultTranslatorAlgorithm = translationId
+        Translator.defaultAlgorithm = translationId
         
         $(this).prop('checked',true).change()
     })
@@ -4246,8 +4245,9 @@ $( document ).ready(function() {
         }
     })
 
+    // TODO: move to Hierarchy.ts
     $(document).on('click', '.hierarchyEdgeExtra', function(){
-        var selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
 
         if(!selectEdge){
             console.log("no edge found")
