@@ -225,7 +225,7 @@ export class LogicalGraph {
                 closesLoop = linkData.closesLoop;
             }
 
-            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, dataType, loopAware, closesLoop, false));
+            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, linkData.dataType, loopAware, closesLoop, false));
         }
 
         // check for missing name
