@@ -59,6 +59,7 @@ export class Eagle {
 
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
+    types : ko.ObservableArray<string>;
 
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
@@ -115,6 +116,7 @@ export class Eagle {
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
+        this.types = ko.observableArray([]);
 
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
@@ -3163,26 +3165,23 @@ export class Eagle {
             return;
         }
 
-        // build list of known types
-        const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
-
         // set selectedIndex to the index of the current data type within the allTypes list
         let selectedIndex = 0;
-        for (let i = 0 ; i < allTypes.length ; i++){
-            if (allTypes[i] === selectedEdge.getDataType()){
+        for (let i = 0 ; i < this.types().length ; i++){
+            if (this.types()[i] === selectedEdge.getDataType()){
                 selectedIndex = i;
                 break;
             }
         }
 
         // launch modal
-        Utils.requestUserChoice("Change Edge Data Type", "NOTE: changing a edge's data type will also change the data type of the source and destination ports", allTypes, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+        Utils.requestUserChoice("Change Edge Data Type", "NOTE: changing a edge's data type will also change the data type of the source and destination ports", this.types(), selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
             if (!completed){
                 return;
             }
 
             // get user selection
-            const newType = allTypes[userChoiceIndex];
+            const newType = this.types()[userChoiceIndex];
 
             // get references to the source and destination ports of this edge
             const sourceNode = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
@@ -4041,6 +4040,29 @@ export class Eagle {
 
             if (callback !== null) callback(newNode);
         }
+    }
+
+    updateAllKnownTypes = (): void => {
+        // clear known types
+        this.types([]);
+
+        // build a list from all palettes
+        for (const palette of this.palettes()){
+            for (const node of palette.getNodes()){
+                for (const field of node.getFields()) {
+                    Utils.addTypeIfUnique(this.types, field.getType());
+                }
+            }
+        }
+
+        // add all types in LG nodes
+        for (const node of this.logicalGraph().getNodes()){
+            for (const field of node.getFields()) {
+                Utils.addTypeIfUnique(this.types, field.getType());
+            }
+        }
+
+        console.log("Found", this.types().length, "types");
     }
 }
 
