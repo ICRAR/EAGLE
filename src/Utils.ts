@@ -311,7 +311,7 @@ export class Utils {
                 return dt;
             }
         }
-
+        
         console.warn("Unknown DataType", dataType);
         return Eagle.DataType_Unknown;
     }

@@ -252,7 +252,7 @@ export class Modals {
             const fieldType: string = $('#editFieldModalFieldTypeSelect').val().toString();
 
             // translate type
-            const realType: string = Utils.translateStringToDataType(type);
+            const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
             if (realType === Eagle.DataType_Boolean){
                 $('#editFieldModalValueInputCheckbox').prop('checked', defaultValueCheckbox);
@@ -345,14 +345,14 @@ export class Modals {
 
         $('#editFieldModal').on('shown.bs.modal', function(){
             const type: string = $('#editFieldModalTypeInput').val().toString();
-            const realType = Utils.translateStringToDataType(type);
+            const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
             Modals._updateFieldModalDataType(realType);
         });
         $('#editFieldModalTypeInput').on('change', function(){
             // show the correct entry field based on the field type
             const type: string = $('#editFieldModalTypeInput').val().toString();
-            const realType = Utils.translateStringToDataType(type);
+            const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
             Modals._updateFieldModalDataType(realType);
 
@@ -470,7 +470,7 @@ export class Modals {
     static _validateFieldModalValueInputText(){
         const type: string = $('#editFieldModalTypeInput').val().toString();
         const value: string = $('#editFieldModalValueInputText').val().toString();
-        const realType: string = Utils.translateStringToDataType(type);
+        const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields
         if (realType !== Eagle.DataType_Json){

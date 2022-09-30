@@ -1038,6 +1038,9 @@ export class Eagle {
         // show the left window
         this.leftWindow().shown(true);
 
+        // since we have a new palette loaded, update the list of types known to EAGLE
+        this.updateAllKnownTypes();
+
         Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
     }
 
@@ -1845,6 +1848,8 @@ export class Eagle {
                 break;
             }
         }
+
+        this.updateAllKnownTypes();
     }
 
     getParentNameAndKey = (parentKey:number) : string => {
@@ -3450,7 +3455,7 @@ export class Eagle {
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.FieldType.ComponentParameter);
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {                
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -3523,7 +3528,7 @@ export class Eagle {
                 if (!completed){
                     return;
                 }
-
+                
                 // update field data
                 field.setDisplayText(newField.getDisplayText());
                 field.setIdText(newField.getIdText());
