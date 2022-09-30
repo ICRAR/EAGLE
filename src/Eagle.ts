@@ -239,7 +239,7 @@ export class Eagle {
 
         this.inspectorState = ko.observable(new InspectorState());
 
-        this.rendererFrameDisplay = ko.observable("keyParametersTableModal");
+        this.rendererFrameDisplay = ko.observable("");
         this.rendererFrameMax = 0;
         this.rendererFrameCountRender = 0;
         this.rendererFrameCountTick = 0;
@@ -252,12 +252,13 @@ export class Eagle {
         this.loadingWarnings = ko.observableArray([]);
         this.loadingErrors = ko.observableArray([]);
 
-        this.tableModalType = ko.observable('unset')
+        this.tableModalType = ko.observable('')
 
         this.showDataNodes = ko.observable(true);
 
         this.selectedObjects.subscribe(function(){
             Hierarchy.updateDisplay()
+            this.tableModalType('keyParametersTableModal')
         }, this)
 
         this.rightWindow().mode.subscribe(function(newValue){
@@ -2204,45 +2205,46 @@ export class Eagle {
         }
     }
 
-    getCurrentParamReadonly = (index: number, fieldType: Eagle.FieldType) : boolean => {
+    getCurrentParamReadonly = (field:Field) : boolean => {
         // if we want to get readonly-ness the Nth application arg, then the real index
         // into the fields array is probably larger than N, since all four types
         // of fields are stored there
-        const node = this.selectedNode();
-        let realIndex = -1;
-        let fieldTypeCount = 0;
+        // const node = this.selectedNode();
+        // let realIndex = -1;
+        // let fieldTypeCount = 0;
 
-        for (let i = 0 ; i < node.getFields().length; i++){
-            const field: Field = node.getFields()[i];
+        // for (let i = 0 ; i < node.getFields().length; i++){
+        //     const field: Field = node.getFields()[i];
 
-            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
-                fieldTypeCount += 1;
-            }
+        //     if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
+        //         fieldTypeCount += 1;
+        //     }
 
-            // check if we have found the Nth field of desired type
-            if (fieldTypeCount > index){
-                realIndex = i;
-                break;
-            }
-        }
+        //     // check if we have found the Nth field of desired type
+        //     if (fieldTypeCount > index){
+        //         realIndex = i;
+        //         break;
+        //     }
+        // }
 
-        // check that we actually found the right field, otherwise abort
-        if (realIndex === -1){
-            console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
-            return false;
-        }
+        // // check that we actually found the right field, otherwise abort
+        // if (realIndex === -1){
+        //     console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
+        //     return false;
+        // }
+
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(Eagle.allowPaletteEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[realIndex].isReadonly();
+                return field.isReadonly()
             }
         }else{
             if(Eagle.allowComponentEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[realIndex].isReadonly();
+                return field.isReadonly()
             }
         }
     }

@@ -71,13 +71,8 @@ export class ParameterTable {
     }, this);
 
     getNodeLockedState = (field:Field) : boolean => {
-        console.log(field.getNodeKey())
-        if(field === null){
-            console.log('returning early')
-            return false
-        }
-        console.log('not returned')
         const eagle: Eagle = Eagle.getInstance();
+        
         
         return eagle.logicalGraph().findNodeByKey(field.getNodeKey()).isLocked()
         
