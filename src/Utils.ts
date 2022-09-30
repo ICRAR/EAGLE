@@ -743,6 +743,9 @@ export class Utils {
         // set accessibility state checkbox
         $('#editFieldModalAccessInputCheckbox').prop('checked', field.isReadonly());
 
+        // set accessibility state checkbox
+        $('#editFieldModalKeyParameterCheckbox').prop('checked', field.isKeyAttribute());
+
         // set positional argument checkbox
         $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 

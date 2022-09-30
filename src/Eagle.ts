@@ -3549,6 +3549,7 @@ export class Eagle {
                 field.setPrecious(newField.isPrecious());
                 field.setPositionalArgument(newField.isPositionalArgument());
                 field.setFieldType(newField.getFieldType());
+                field.setKeyAttribute(newField.isKeyAttribute());
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");

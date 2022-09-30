@@ -1877,6 +1877,7 @@ export class Node {
         result.git_url = node.gitUrl();
         result.sha = node.gitHash();
 
+
         if (node.parentKey() !== null){
             result.group = node.parentKey();
         }

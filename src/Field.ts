@@ -193,10 +193,11 @@ export class Field {
         this.precious(false);
         this.options([]);
         this.positional(false);
+        this.keyAttribute(false);
     }
 
     clone = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.fieldType(),false);
+        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.fieldType(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
         f.setFieldType(this.fieldType());
         return f;
@@ -306,7 +307,8 @@ export class Field {
             type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
-            positional:field.positional()
+            positional:field.positional(),
+            keyAttribute:field.keyAttribute()
         };
     }
 
@@ -321,7 +323,8 @@ export class Field {
             type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
-            positional: field.positional()
+            positional: field.positional(),
+            keyAttribute:field.keyAttribute()
         };
     }
 
