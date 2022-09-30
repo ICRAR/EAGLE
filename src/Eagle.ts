@@ -253,6 +253,7 @@ export class Eagle {
         this.showDataNodes = ko.observable(true);
 
         this.selectedObjects.subscribe(function(){
+            this.logicalGraph.valueHasMutated();
             Hierarchy.updateDisplay()
         }, this)
 
