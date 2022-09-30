@@ -71,12 +71,8 @@ export class ParameterTable {
     }, this);
 
     getNodeLockedState = (field:Field) : boolean => {
-        const eagle: Eagle = Eagle.getInstance();
-        
-        
+        const eagle: Eagle = Eagle.getInstance();ß
         return eagle.logicalGraph().findNodeByKey(field.getNodeKey()).isLocked()
-        
-
     }
 
     // fill the datatype select element with all the types known within the current graph and palettes

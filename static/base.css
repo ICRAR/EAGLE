@@ -37,6 +37,10 @@
     margin-right: 0.6rem;
 }
 
+#openKeyParameterTable{
+    margin-left:20px;
+}
+
 .rightWindow {
     background-color: rgba(214, 219, 239, 0.95);
     z-index: 1;

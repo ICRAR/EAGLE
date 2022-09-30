@@ -55,8 +55,8 @@
                     <i class="material-icons md-18">subtitles</i>
                 </button>
             </div>
-            <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal')}, eagleTooltip: `Open The Graph's Key Parameters Table`" data-intro="Open The Graph's Key Parameters Table">
-                <i class="material-icons md-18">filter_center_focus</i>
+            <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal')}, eagleTooltip: `Open The Graph's Key Parameters Table ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)" data-intro="Open The Graph's Key Parameters Table">
+                <i class="material-icons md-18">table_chart</i>
             </button>
             <ul class="nav navbar-nav ms-4" data-intro="Check the graph for common issues and missing information.">
                 <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'">
