@@ -12,12 +12,52 @@ export class ParameterTable {
     static selectionName : ko.Observable<string>; // name of selected parameter in field
     static selectionReadonly : ko.Observable<boolean> // check if selection is readonly
 
+    static parameterTableVisibility : Array<{parameterName:string, keyVisibility:boolean, inspectorVisibility:boolean}> = []
+
     constructor(){
         ParameterTable.selectionParent = ko.observable(null);
         ParameterTable.selectionParentIndex = ko.observable(-1);
         ParameterTable.selection = ko.observable(null);
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
+
+        ParameterTable.parameterTableVisibility.push({parameterName:"keyAttribute", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"displayText", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"idText", keyVisibility: false, inspectorVisibility: false});
+        ParameterTable.parameterTableVisibility.push({parameterName:"value", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"readOnly", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"defaultValue", keyVisibility: false, inspectorVisibility: false});
+        ParameterTable.parameterTableVisibility.push({parameterName:"description", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"type", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"useAs", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"Precious", keyVisibility: false, inspectorVisibility: false});
+        ParameterTable.parameterTableVisibility.push({parameterName:"positional", keyVisibility: false, inspectorVisibility: false});
+        ParameterTable.parameterTableVisibility.push({parameterName:"actions", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"actionEdit", keyVisibility: false, inspectorVisibility: false});
+        ParameterTable.parameterTableVisibility.push({parameterName:"actionValue", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"actionDefault", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"actionDuplicate", keyVisibility: false, inspectorVisibility: false});
+        ParameterTable.parameterTableVisibility.push({parameterName:"actionDelete", keyVisibility: false, inspectorVisibility: false});
+    }
+
+    getParameterTableVisibility = (columnName: string) : boolean => {
+        const eagle: Eagle = Eagle.getInstance();
+        const tableModalType = eagle.tableModalType()
+        var returnValue : boolean
+        if(tableModalType === "keyParametersTableModal"){
+            ParameterTable.parameterTableVisibility.forEach(function(element){
+                if(columnName === element.parameterName){
+                    returnValue = element.keyVisibility
+                }
+            })
+        }else if (tableModalType === "inspectorTableModal"){
+            ParameterTable.parameterTableVisibility.forEach(function(element){
+                if(columnName === element.parameterName){
+                    returnValue = element.inspectorVisibility
+                }
+            })
+        }
+        return returnValue
     }
 
     formatTableInspectorSelection = () : string => {
@@ -71,7 +111,7 @@ export class ParameterTable {
     }, this);
 
     getNodeLockedState = (field:Field) : boolean => {
-        const eagle: Eagle = Eagle.getInstance();ß
+        const eagle: Eagle = Eagle.getInstance();
         return eagle.logicalGraph().findNodeByKey(field.getNodeKey()).isLocked()
     }
 
