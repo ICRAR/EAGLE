@@ -665,6 +665,12 @@
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('keyAttribute') -->
                                 <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'This Attribute is a Key Graph Attribute'" data-bs-placement="top"></th>
                             <!-- /ko -->
+                            <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeName') -->
+                                <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">Node Name</th>
+                            <!-- /ko -->
+                            <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeKey') -->
+                                <th id="parameter_table_node_key" data-bind="eagleTooltip:`This Parameter's Parent Node Key`" data-bs-placement="top">Node Key</th>
+                            <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('displayText') -->
                                 <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">Display Text</th>
                             <!-- /ko -->
@@ -709,6 +715,12 @@
                                             <button class="edit" data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
                                         </td>
                                     <!-- /ko -->
+                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeName') -->
+                                     <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getName(), readonly: true"></td>
+                                     <!-- /ko -->
+                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeKey') -->
+                                     <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getKey(), readonly: true"></td>
+                                     <!-- /ko -->
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('displayText') -->
                                         <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter" type="string" data-bind="value: displayText, readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index(), event)}, event:{keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index(), event)}}"></td>
                                     <!-- /ko -->

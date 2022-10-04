@@ -262,6 +262,14 @@ td:first-child input {
     width: 160px;
 }
 
+#parameter_table_node_name{
+    width: 160px;
+}
+
+#parameter_table_node_key{
+    width: 76px;
+}
+
 #parameter_table_isKeyAttribute{
     width: 27px;
 }

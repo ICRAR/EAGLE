@@ -22,6 +22,8 @@ export class ParameterTable {
         ParameterTable.selectionReadonly = ko.observable(false);
 
         ParameterTable.parameterTableVisibility.push({parameterName:"keyAttribute", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"nodeName", keyVisibility: true, inspectorVisibility: false});
+        ParameterTable.parameterTableVisibility.push({parameterName:"nodeKey", keyVisibility: true, inspectorVisibility: false});
         ParameterTable.parameterTableVisibility.push({parameterName:"displayText", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"idText", keyVisibility: false, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"value", keyVisibility: true, inspectorVisibility: true});
