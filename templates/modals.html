@@ -631,18 +631,25 @@
         <div class="modal-content">
 
             <div class="modal-header" data-bind="click: function(){ParameterTable.resetSelection()}">
-                <h5 class="modal-title" id="parameterTableModalTitle">Attributes</h5>
-                <!-- ko if: selectedNode() != null -->
 
-                    <!-- ko if: selectedNode().isLocked() -->
-                        <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText">
-                            <i class="material-icons md-20">lock</i>
-                        </button>
-                    <!-- /ko -->
-                    <!-- ko ifnot: selectedNode().isLocked() -->
-                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'readwrite'">
-                            <i class="material-icons md-20">lock_open</i>
-                        </button>
+                <!-- ko if: tableModalType() === 'keyParametersTableModal' -->
+                    <h5 class="modal-title" id="parameterTableModalTitle">Key Graph Attributes</h5>
+                <!-- /ko -->
+
+                <!-- ko if: tableModalType() === 'inspectorTableModal' -->
+                    <h5 class="modal-title" id="parameterTableModalTitle">Attributes: <span data-bind="html: selectedNode().getName()"></span></h5>
+
+                    <!-- ko if: selectedNode() != null -->
+                        <!-- ko if: selectedNode().isLocked() -->
+                            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText">
+                                <i class="material-icons md-20">lock</i>
+                            </button>
+                        <!-- /ko -->
+                        <!-- ko ifnot: selectedNode().isLocked() -->
+                            <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'readwrite'">
+                                <i class="material-icons md-20">lock_open</i>
+                            </button>
+                        <!-- /ko -->
                     <!-- /ko -->
                 <!-- /ko -->
 
