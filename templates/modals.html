@@ -715,7 +715,7 @@
                     </thead>
                     <tbody data-bind="foreach: $root.parameterTable().getTableFields()">
                         <!-- ko if: $data.fitsTableSearchQuery() -->
-                            <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() || $data.keyAttribute() -->
+                            <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() || $data.isKeyAttribute() -->
                                 <tr>
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('keyAttribute') -->
                                         <td>
@@ -792,7 +792,7 @@
 
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('useAs') -->
                                         <td>
-                                            <select data-bind="html: $root.logicalGraph().findNodeByKey($data.nodeKey()).fillFieldTypeCell($data.fieldType()), value: fieldType, disabled: $root.parameterTable().getNodeLockedState($data)">
+                                            <select data-bind="html: $root.parameterTable().getFieldUseAsForTable($data.nodeKey(), $data.fieldType()), value: fieldType, disabled: $root.parameterTable().getNodeLockedState($data)">
                                                 <!-- options are added dynamically -->
                                             </select>
                                         </td>

@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
 import {Field} from './Field';
+import { Palette } from "./Palette";
 import {Utils} from './Utils';
 
 export class ParameterTable {
@@ -35,7 +36,7 @@ export class ParameterTable {
         ParameterTable.parameterTableVisibility.push({parameterName:"Precious", keyVisibility: false, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"positional", keyVisibility: false, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"actions", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"actionEdit", keyVisibility: false, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"actionEdit", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"actionValue", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"actionDefault", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"actionDuplicate", keyVisibility: false, inspectorVisibility: true});
@@ -114,7 +115,21 @@ export class ParameterTable {
 
     getNodeLockedState = (field:Field) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
-        return eagle.logicalGraph().findNodeByKey(field.getNodeKey()).isLocked()
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            return eagle.selectedNode().isLocked()
+        }else{
+            return eagle.logicalGraph().findNodeByKey(field.getNodeKey()).isLocked()
+        }
+    }
+
+    getFieldUseAsForTable = (nodeKey:number,fieldType:Eagle.FieldType) : any => {
+        const eagle: Eagle = Eagle.getInstance();
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            return eagle.selectedNode().fillFieldTypeCell(fieldType)
+        }else{
+            return eagle.logicalGraph().findNodeByKey(nodeKey).fillFieldTypeCell(fieldType)
+        }
+        
     }
 
     // fill the datatype select element with all the types known within the current graph and palettes
