@@ -258,7 +258,9 @@ export class Eagle {
 
         this.selectedObjects.subscribe(function(){
             Hierarchy.updateDisplay()
-            this.tableModalType('keyParametersTableModal')
+            if(this.selectedObjects().length === 0){
+                this.tableModalType('keyParametersTableModal')
+            }
         }, this)
 
         this.rightWindow().mode.subscribe(function(newValue){
