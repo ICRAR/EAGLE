@@ -155,7 +155,7 @@ export class Eagle {
                     new Setting("Show DALiuGE runtime parameters", "Show additional component arguments that modify the behaviour of the DALiuGE runtime. For example: Data Volume, Execution Time, Num CPUs, Group Start/End", Setting.Type.Boolean, Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, true),
                     new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, false),
                     new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Utils.HIDE_PALETTE_TAB, false),
-                    new Setting("Use Simplified Translator Options", "Hide the complex and rarely used translator options", Setting.Type.Boolean, Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS, true),
+                    new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Utils.USER_TRANSLATOR_MODE, Eagle.TranslatorMode.Default, Object.values(Eagle.TranslatorMode)),
                     new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000),
 
                 ]
@@ -321,6 +321,10 @@ export class Eagle {
         return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
     }
 
+    static translatorUiMode = (mode : Eagle.TranslatorMode) : boolean => {
+        return Setting.findValue(Utils.USER_TRANSLATOR_MODE) === mode;
+    }
+
     static isInUIMode = (mode : Eagle.UIMode) : boolean => {
         return Setting.findValue(Utils.USER_INTERFACE_MODE) === mode;
     }
@@ -331,10 +335,6 @@ export class Eagle {
 
     showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return Setting.findValue(Utils.ENABLE_PERFORMANCE_DISPLAY);
-    }, this);
-
-    showSimplifiedTranslatorOptions : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Setting.findValue(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS);
     }, this);
 
     toggleShowDataNodes = () : void => {
@@ -2056,8 +2056,8 @@ export class Eagle {
     }
 
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        var showSimplifiedTranslatorOptions :any = Setting.find(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value()
-        if(!showSimplifiedTranslatorOptions){
+        var defaultTranslatorMode :any = Eagle.translatorUiMode(Eagle.TranslatorMode.Default)
+        if(!defaultTranslatorMode){
             return true
         }
 
@@ -4162,6 +4162,12 @@ export namespace Eagle
         Palette = "palette",
         Expert = "expert",
         Custom = "custom"
+    }
+
+    export enum TranslatorMode {
+        Minimal = "minimal",
+        Default = "default",
+        Expert = "expert"
     }
 }
 

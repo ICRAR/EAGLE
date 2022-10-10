@@ -209,6 +209,13 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // disable the 'spawn translation tab' setting
             .click('#settingSpawnTranslationTabButton')
 
+            //switch to UI Options tab
+            .click("#settingCategoryUIOptions")
+
+            //change the translator ui mode to expert
+            // ("#settingUserTranslatorModeValue").value('expert')
+            create('expert')
+
             // use the complex translator options
             .click('#settingUseSimplifiedTranslatorOptionsButton')
 
@@ -225,6 +232,16 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             //.wait(3000);
 
         // !!!!!!!!!!!!! LOAD GRAPH
+
+        async function create(name) {
+            const dropdown = await Selector("#settingUserTranslatorModeValue");
+            const dropdownOption = dropdown.find("option");
+          
+            await t
+              .click(dropdown)
+              .click(dropdownOption.withText(name))
+          }
+
         await t
             .click(Selector('#navbarDropdownGraph'))
             .hover(Selector('#navbarDropdownGraphNew'))
