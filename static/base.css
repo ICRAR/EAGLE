@@ -37,6 +37,19 @@
     margin-right: 0.6rem;
 }
 
+.navbar #navDeployBtn{
+    padding: 8px;
+}
+
+.navbar #navDeployBtn a{
+    border: 1px white solid;
+    border-radius: 0.2rem;
+    box-shadow: none !important;
+    padding: 6px 9px;
+    text-decoration: none;
+    height: fit-content;
+}
+
 .rightWindow {
     background-color: rgba(214, 219, 239, 0.95);
     z-index: 1;
