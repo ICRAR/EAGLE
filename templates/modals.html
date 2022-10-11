@@ -667,75 +667,77 @@
                         </thead>
                             <tbody data-bind="foreach: $root.selectedNode().getFields()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
-                                <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
-                                <tr>
-                                    <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter" type="string" data-bind="value: displayText, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.selectedNode().isLocked(), $data, $index(), event)}, event:{keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.selectedNode().isLocked(), $data, $index(), event)}}"></td>
-                                    <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'idText' }"><input class="tableParameter" type="string" data-bind="value: idText, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.selectedNode().isLocked(), $data, $index(), event)}, event:{keyup: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.selectedNode().isLocked(), $data, $index(), event)}}"></td>
+                                <!-- ko ifnot: Eagle.hideReadonlyParamters() && $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown)-->
+                                    <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
+                                    <tr>
+                                        <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter" type="string" data-bind="value: displayText, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.selectedNode().isLocked(), $data, $index(), event)}, event:{keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.selectedNode().isLocked(), $data, $index(), event)}}"></td>
+                                        <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'idText' }"><input class="tableParameter" type="string" data-bind="value: idText, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.selectedNode().isLocked(), $data, $index(), event)}, event:{keyup: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.selectedNode().isLocked(), $data, $index(), event)}}"></td>
 
-                                    <!-- value fields -->
-                                    <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
-                                        <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'value' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), readonly: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), $data, $index(),event)}, click: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), $data, $index(),event)}}"></td>
-                                    <!-- /ko -->
-                                    <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
-                                    <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                                    <!-- /ko -->
-                                    <!-- ko if: $data.getHtmlInputType() === 'select' -->
+                                        <!-- value fields -->
+                                        <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
+                                            <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'value' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), readonly: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), $data, $index(),event)}, click: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), $data, $index(),event)}}"></td>
+                                        <!-- /ko -->
+                                        <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
                                         <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                                    <!-- /ko -->
-
-                                    <!-- ko ifnot: $root.selectedNode().isLocked() -->
-                                        <td><input class="tableParameter" data-bind="checked: readonly, disabled: $root.selectedNode().isLocked(), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr: {type: 'checkbox'}"></td>
-                                    <!-- /ko -->
-                                    <!-- ko if: $root.selectedNode().isLocked() -->
-                                        <!-- ko if: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown) -->
-                                            <td><i class="material-icons md-20" data-bind="eagleTooltip: Utils.getReadOnlyText">lock</i></td>
                                         <!-- /ko -->
-                                        <!-- ko ifnot: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown) -->
-                                            <td><i class="material-icons md-20" data-bind="eagleTooltip: 'value is readwrite'">lock_open</i></td>
+                                        <!-- ko if: $data.getHtmlInputType() === 'select' -->
+                                            <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                         <!-- /ko -->
-                                    <!-- /ko -->
 
-                                    <!-- default value fields -->
-                                    <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
-                                        <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'defaultValue' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $root.selectedNode().isLocked(), $data, $index(),event)}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
-                                    <!-- /ko -->
-                                    <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
-                                        <td><input class="tableParameter" onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                                    <!-- /ko -->
+                                        <!-- ko ifnot: $root.selectedNode().isLocked() -->
+                                            <td><input class="tableParameter" data-bind="checked: readonly, disabled: $root.selectedNode().isLocked(), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr: {type: 'checkbox'}"></td>
+                                        <!-- /ko -->
+                                        <!-- ko if: $root.selectedNode().isLocked() -->
+                                            <!-- ko if: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown) -->
+                                                <td><i class="material-icons md-20" data-bind="eagleTooltip: Utils.getReadOnlyText">lock</i></td>
+                                            <!-- /ko -->
+                                            <!-- ko ifnot: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown) -->
+                                                <td><i class="material-icons md-20" data-bind="eagleTooltip: 'value is readwrite'">lock_open</i></td>
+                                            <!-- /ko -->
+                                        <!-- /ko -->
 
-                                    <!-- selection input -->
-                                    <!-- ko if: $data.getHtmlInputType() === 'select' -->
-                                        <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
-                                    <!-- /ko -->
+                                        <!-- default value fields -->
+                                        <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
+                                            <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'defaultValue' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $root.selectedNode().isLocked(), $data, $index(),event)}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
+                                        <!-- /ko -->
+                                        <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
+                                            <td><input class="tableParameter" onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                        <!-- /ko -->
 
-                                    <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'description' }"><input class="tableParameter" type="string" data-bind="value: description, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $root.selectedNode().isLocked(), $data, $index(),event)}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
-                                    <td>
-                                        <select data-bind="html: $root.parameterTable().fill($data.type()), value: type, disabled: $root.selectedNode().isLocked()">
-                                        <!-- options are added dynamically -->
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select data-bind="html: $root.selectedNode().fillFieldTypeCell($data.fieldType()), value: fieldType, disabled: $root.selectedNode().isLocked()">
+                                        <!-- selection input -->
+                                        <!-- ko if: $data.getHtmlInputType() === 'select' -->
+                                            <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                        <!-- /ko -->
+
+                                        <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'description' }"><input class="tableParameter" type="string" data-bind="value: description, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $root.selectedNode().isLocked(), $data, $index(),event)}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
+                                        <td>
+                                            <select data-bind="html: $root.parameterTable().fill($data.type()), value: type, disabled: $root.selectedNode().isLocked()">
                                             <!-- options are added dynamically -->
-                                        </select>
-                                    </td>
-                                    <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
-                                    <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
-                                    <td>
-                                        <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', Eagle.FieldType.Unknown, $index());}, disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
-                                        <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
-                                        <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
-                                        <!-- ko if: $data.fieldType() === Eagle.FieldType.InputPort -->
-                                            <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(),$data.getId(), true);}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
-                                        <!-- /ko -->
-                                        <!-- ko if: $data.fieldType() === Eagle.FieldType.OutputPort -->
-                                            <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(),$data.getId(), false);}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
-                                        <!-- /ko -->
-                                        <!-- ko if: $data.fieldType() === Eagle.FieldType.ApplicationArgument || $data.fieldType() === Eagle.FieldType.ComponentParameter -->
-                                            <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.selectedNode(), Eagle.FieldType.Unknown, $index());}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
-                                        <!-- /ko -->
-                                    </td>
-                                </tr>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select data-bind="html: $root.selectedNode().fillFieldTypeCell($data.fieldType()), value: fieldType, disabled: $root.selectedNode().isLocked()">
+                                                <!-- options are added dynamically -->
+                                            </select>
+                                        </td>
+                                        <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                        <td><input class="tableParameter" data-bind="disabled: $root.selectedNode().isLocked(), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                        <td>
+                                            <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', Eagle.FieldType.Unknown, $index());}, disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
+                                            <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($index(),Eagle.FieldType.Unknown), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
+                                            <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
+                                            <!-- ko if: $data.fieldType() === Eagle.FieldType.InputPort -->
+                                                <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(),$data.getId(), true);}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                            <!-- /ko -->
+                                            <!-- ko if: $data.fieldType() === Eagle.FieldType.OutputPort -->
+                                                <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.selectedNode(),$data.getId(), false);}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                            <!-- /ko -->
+                                            <!-- ko if: $data.fieldType() === Eagle.FieldType.ApplicationArgument || $data.fieldType() === Eagle.FieldType.ComponentParameter -->
+                                                <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.selectedNode(), Eagle.FieldType.Unknown, $index());}, disabled: $root.selectedNode().isLocked(), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                            <!-- /ko -->
+                                        </td>
+                                    </tr>
+                                    <!-- /ko -->
                                 <!-- /ko -->
                             <!-- /ko -->
                         </tbody>

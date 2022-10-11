@@ -84,6 +84,7 @@ export class Utils {
     static readonly SPAWN_TRANSLATION_TAB: string = "SpawnTranslationTab";
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
     static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
+    static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
     static readonly USER_INTERFACE_MODE: string = "UserInterfaceMode";

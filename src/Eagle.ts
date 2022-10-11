@@ -155,6 +155,7 @@ export class Eagle {
                     new Setting("Show DALiuGE runtime parameters", "Show additional component arguments that modify the behaviour of the DALiuGE runtime. For example: Data Volume, Execution Time, Num CPUs, Group Start/End", Setting.Type.Boolean, Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, true),
                     new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, false),
                     new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Utils.HIDE_PALETTE_TAB, false),
+                    new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Utils.HIDE_READONLY_PARAMETERS, false),
                     new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Utils.USER_TRANSLATOR_MODE, Eagle.TranslatorMode.Default, Object.values(Eagle.TranslatorMode)),
                     new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000),
 
@@ -305,6 +306,10 @@ export class Eagle {
         return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.HIDE_PALETTE_TAB);
     }
 
+    static hideReadonlyParamters = () : boolean => {
+        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.HIDE_READONLY_PARAMETERS);
+    }
+
     static allowReadonlyPaletteEditing = () : boolean => {
         return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
     }
@@ -318,7 +323,7 @@ export class Eagle {
     }
 
     static showDaliugeRuntimeParameters = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
     }
 
     static translatorUiMode = (mode : Eagle.TranslatorMode) : boolean => {
