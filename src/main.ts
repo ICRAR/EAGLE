@@ -116,6 +116,7 @@ $(function(){
                 }
             }
             eagle.leftWindow().shown(true);
+            eagle.updateAllKnownTypes();
         });
     }
 
