@@ -53,6 +53,7 @@ import {Hierarchy} from './Hierarchy';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
 import {ParameterTable} from './ParameterTable';
+import { timeHours } from "d3";
 
 export class Eagle {
     static _instance : Eagle;
@@ -770,6 +771,9 @@ export class Eagle {
         }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
+
+        // update the known data types after adding new nodes 
+        this.updateAllKnownTypes();
     }
 
     createSubgraphFromSelection = () : void => {
@@ -2469,6 +2473,9 @@ export class Eagle {
                 destinationPalette.fileInfo().modified = true;
                 destinationPalette.sort();
             }
+
+            // update known types after adding new nodes
+            this.updateAllKnownTypes();
         });
     }
 
@@ -2694,6 +2701,9 @@ export class Eagle {
             this.checkGraph();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
+
+            // update known data types given newly added node
+            this.updateAllKnownTypes();
 
             if (callback !== null){
                 callback(newNode);
@@ -3204,6 +3214,9 @@ export class Eagle {
             this.undo().pushSnapshot(this, "Change Edge Data Type");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
+
+            // update known types
+            this.updateAllKnownTypes();
         });
     }
 
@@ -3245,6 +3258,9 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Remove param from node");
         this.flagActiveFileModified();
         this.selectedObjects.valueHasMutated();
+
+        // update known types
+        this.updateAllKnownTypes();
     }
 
     removePortFromNodeByIndex = (node : Node, fieldId:string, input : boolean) : void => {
@@ -3283,6 +3299,9 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Remove port from node");
         this.flagActiveFileModified();
         this.selectedObjects.valueHasMutated();
+
+        // update known types
+        this.updateAllKnownTypes();
     }
 
     nodeDropLogicalGraph = (eagle : Eagle, e : JQueryEventObject) : void => {
@@ -3485,6 +3504,9 @@ export class Eagle {
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Add field");
+
+                // update known types
+                this.updateAllKnownTypes();
             });
 
         } else {
@@ -4067,7 +4089,7 @@ export class Eagle {
             }
         }
 
-        console.log("Found", this.types().length, "types");
+        console.log("Updated EAGLE's known data types. Found", this.types().length, "types");
     }
 }
 
