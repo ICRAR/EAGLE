@@ -4218,7 +4218,7 @@ $( document ).ready(function() {
 
         //reset parameter table selecction
         ParameterTable.resetSelection()
-    });
+    }); 
 
     $('.modal').on('shown.bs.modal',function(){
         // modal draggables

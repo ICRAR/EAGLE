@@ -85,10 +85,6 @@
     background-color: #b6c3cf;
 }
 
-#editFieldModal .modal-body{
-    min-height: 585px;
-}
-
 #editFieldModalTypeSelect{
     position: absolute;
     background: white;
@@ -109,35 +105,42 @@
     pointer-events: none;
 }
 
-#parameterTableModal .modal-content{
+#paramsTableWrapper {
+    width: 100%;
+    top: 24px;
+    position: absolute;
+}
+
+/* #parameterTableModal .modal-content{
     max-height: 70vh;
     overflow-y: auto;
     overflow-x: clip;
-}
+} */
 
-#parameterTableModal .modal-footer{
+/* #parameterTableModal .modal-footer{
     padding:5px 10px;
     position: sticky;
     bottom: 0;
     z-index: 111;
-}
-
+} */
+/* 
 #parameterTableModal .modal-header{
-    position: sticky;
+    position: absolute;
     top: 0;
+    width: 100%;
     z-index: 111;
-}
+} */
 
 #parameterTableModal #tableInspector{
     position: sticky;
-    top: 62px;
+    top: 0px;
     z-index: 111;
 }
 
 #parameterTableModal thead{
     position: sticky;
     z-index: 111;
-    top: 86px;
+    top: 24px;
 }
 
 #tableInspector{
@@ -285,7 +288,6 @@ td:first-child input {
 
 #parameterTableModal .modal-body{
     padding: 0px;
-    display: inline-table;
 }
 
 #paramsTableWrapper{
@@ -667,6 +669,8 @@ td:first-child input {
     width: 100%;
     display: flex;
     color: white;
+    position: sticky;  
+    top: 0px;
 }
 
 .settingCategoryActive{
@@ -685,8 +689,6 @@ td:first-child input {
 
 #settingsModal form{
     padding:30px 20px 30px 20px;
-    min-height: 40vh;
-    max-height: 70vh;
     overflow-y: scroll;
 }
 
@@ -877,12 +879,45 @@ select.form-control{
     position: absolute;
 }
 
-.checkSettingLabel input{
-    cursor: default;
+.modal{
+    overflow:hidden;
 }
 
-.checkSettingLabel input:focus{
-    box-shadow: none;
+.modal-header{
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 111;
+}
+
+.modal-content{
+    resize: both;
+    overflow: hidden;
+    height: 40vh;
+    max-height: 80vh;
+    max-width: 80vw;
+    min-height: 14vh;
+    background-color: aliceblue;
+}
+
+.modal-body{
+    height: calc(100% - 133px) !important ;
+    top: 62px;
+    position: absolute;
+    overflow: auto;
+    padding-bottom: 30px;
+    width: 100%;
+}
+
+.modal-footer{
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    z-index:10;
+}
+
+.checkSettingLabel input{
+    cursor: default;
 }
 
 .headerIcons{
