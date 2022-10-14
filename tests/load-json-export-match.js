@@ -8,11 +8,10 @@ import https from 'https';
 */
 
 const LG_PATH = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/master/SDP Pipelines/cont_img_YAN-970.graph";
-//const LG_PATH = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/master/examples/ArrayLoop.graph";
 
 let graphJSON = "input";
 
-fixture `EAGLE Load JSON Export Match`
+fixture `EAGLE REMOTE Load JSON Export Match`
     .page `http://localhost:8888/`
 
 test('Load JSON export match', async t =>{
@@ -81,15 +80,16 @@ const fetchGraph = (url) => {
 
 // use $.isEmptyObject or this
 const isEmpty = function( o ) {
-    for ( var p in o ) {
+    for ( const p in o ) {
         if ( o.hasOwnProperty( p ) ) { return false; }
     }
     return true;
 }
 
 const compareObj = function(obj1, obj2) {
-  var ret = {},rett;
-  for(var i in obj2) {
+  const ret = {};
+  let rett;
+  for(const i in obj2) {
       rett = {};
       if (typeof obj2[i] === 'object' && typeof obj1 !== 'undefined'){
           rett = compareObj(obj1[i], obj2[i]);
