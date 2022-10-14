@@ -766,6 +766,11 @@ export class LogicalGraph {
         return depth;
     }
 
+    // similar to getChildrenOfNodeByKey() (below) except treats key as null always
+    getRootNodes = () : Node[] => {
+        return this.getChildrenOfNodeByKey(null);
+    }
+
     getChildrenOfNodeByKey = (key: number) : Node[] => {
         const result: Node[] = [];
 

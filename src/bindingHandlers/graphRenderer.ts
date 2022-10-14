@@ -845,7 +845,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const portDragHandler = d3.drag()
                             .on("start", function (port : Field) {
-                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getText());
+                                //console.log("drag start", "nodeKey", port.getNodeKey(), "portId", port.getId(), "portName", port.getDisplayText());
                                 isDraggingPort = true;
                                 sourceNode = graph.findNodeByKey(port.getNodeKey());
                                 sourcePort = port;
@@ -864,7 +864,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 const nearbyNodes = findNodesInRange(mouseX, mouseY, MIN_AUTO_COMPLETE_EDGE_RANGE, sourceNode.getKey());
 
                                 // check for nearest matching port in the nearby nodes
-                                const matchingPort: Field = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourcePort, sourcePortIsInput);
+                                const matchingPort: Field = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourceNode, sourcePort, sourcePortIsInput);
 
                                 if (matchingPort !== null){
                                     suggestedNode = graph.findNodeByKey(matchingPort.getNodeKey());
@@ -937,8 +937,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     const sourcePortType: string = sourcePort.getType();
                                     
                                     // no destination, ask user to choose a new node
-
-                                    const eligibleComponents = Utils.getComponentsWithPort(eagle.palettes(), !sourcePort.isInputPort(), sourcePortType);
+                                    const dataEligible = sourceNode.getCategoryType() !== Category.Type.Data;
+                                    const eligibleComponents = Utils.getComponentsWithPort(eagle.palettes(), !sourcePort.isInputPort(), sourcePortType, dataEligible);
+                                    console.log("Found", eligibleComponents.length, "eligible automatically suggested components that could connect to port type", sourcePortType);
 
                                     if (Setting.findValue(Utils.AUTO_SUGGEST_DESTINATION_NODES) && eligibleComponents.length > 0){
 
@@ -949,7 +950,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         }
 
                                         // ask the user to select which component they want
-                                        Utils.requestUserChoice("Choose a component", "Select a component to connect to the new edge", eligibleComponentNames, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
+                                        Utils.requestUserChoice("Connect to '" + sourcePortType + "' port", "Select a component to connect to the '" + sourcePortType + "' port", eligibleComponentNames, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
                                             if (!completed){
                                                 return;
                                             }
@@ -3550,12 +3551,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return result;
     }
 
-    function findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourcePort: Field, sourcePortIsInput: boolean) : Field {
+    function findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : Field {
         let minDistance = Number.MAX_SAFE_INTEGER;
         let minPort = null;
 
         for (const node of nearbyNodes){
             let portList: Field[] = [];
+
+            // if source node is Data, then no nearby Data nodes can have matching ports
+            if (sourceNode.getCategoryType() === Category.Type.Data && node.getCategoryType() === Category.Type.Data){
+                continue;
+            }
 
             // if sourcePortIsInput, we should search for output ports, and vice versa
             if (sourcePortIsInput){

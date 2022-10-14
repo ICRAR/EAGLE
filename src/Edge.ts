@@ -261,6 +261,12 @@ export class Edge {
             return Eagle.LinkValid.Unknown;
         }
 
+        // check that we are not connecting a Data component to a Data component, that is not supported
+        if (sourceNode.getCategoryType() === Category.Type.Data && destinationNode.getCategoryType() === Category.Type.Data){
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Data nodes may not be connected directly to other Data nodes", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            return Eagle.LinkValid.Invalid;
+        }
+
         // if destination is a service construct, then pretty much anything is valid
         if (destinationNode.getCategory() === Category.Service){
             return Eagle.LinkValid.Valid;
