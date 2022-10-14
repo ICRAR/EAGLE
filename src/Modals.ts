@@ -1,5 +1,4 @@
 import {Eagle} from './Eagle';
-import * as ko from "knockout";
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {LogicalGraph} from './LogicalGraph';
@@ -7,7 +6,6 @@ import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
-import {PaletteInfo} from './PaletteInfo';
 
 export class Modals {
 
@@ -244,12 +242,9 @@ export class Modals {
             $('#editFieldModal').data('completed', true);
         });
         $('#editFieldModalResetToDefaultButton').on('click', function(){
-            const valueText : string = $('#editFieldModalValueInputText').val().toString();
-            const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
             const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
             const type: string = $('#editFieldModalTypeInput').val().toString();
-            const fieldType: string = $('#editFieldModalFieldTypeSelect').val().toString();
 
             // translate type
             const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
@@ -266,7 +261,6 @@ export class Modals {
         });
         $('#fieldModalSelect').on('change', function(){
             // check selected option in select tag
-            const choices : string[] = $('#editFieldModal').data('choices');
             const choice : number = parseInt($('#fieldModalSelect').val().toString(), 10);
 
             // hide the custom text input unless the last option in the select is chosen

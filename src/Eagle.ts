@@ -28,7 +28,6 @@ import * as ko from "knockout";
 import * as ij from "intro.js";
 
 import {Utils} from './Utils';
-import {Config} from './Config';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
 import {Repositories} from './Repositories';
@@ -53,7 +52,6 @@ import {Hierarchy} from './Hierarchy';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
 import {ParameterTable} from './ParameterTable';
-import { timeHours } from "d3";
 
 export class Eagle {
     static _instance : Eagle;
@@ -138,7 +136,7 @@ export class Eagle {
         Eagle.settings = [
             new SettingsGroup(
                 "User Options",
-                (eagle) => {return true;},
+                () => {return true;},
                 [
                     new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true),
                     new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true),
@@ -157,7 +155,7 @@ export class Eagle {
             ),
             new SettingsGroup(
                 "Advanced Editing",
-                (eagle) => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
+                () => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
                 [
                     new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, true),
                     new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, true),
@@ -170,7 +168,7 @@ export class Eagle {
             ),
             new SettingsGroup(
                 "External Services",
-                (eagle) => {return true;},
+                () => {return true;},
                 [
                     new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"),
                     new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""),
@@ -180,7 +178,7 @@ export class Eagle {
             ),
             new SettingsGroup(
                 "Developer",
-                (eagle) => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
+                () => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
                 [
                     new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
                     new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
@@ -338,8 +336,7 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = () : void => {
-        var defaultTranslatingAlgorithm = Eagle.defaultTranslatorAlgorithm
-        $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').click()
+        $('#' + Eagle.defaultTranslatorAlgorithm + ' .generatePgt').click();
     }
 
     // TODO: remove?
@@ -2047,15 +2044,14 @@ export class Eagle {
 
     getTranslatorDefault = () : any => {
         setTimeout(function(){
-            var defaultTransnlatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
-            $('.simplifiedTranslator').append(defaultTransnlatorHtml)
-            return defaultTransnlatorHtml
+            const defaultTranslatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
+            $('.simplifiedTranslator').append(defaultTranslatorHtml)
+            return defaultTranslatorHtml
         },10000)
-        
     }
 
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        var showSimplifiedTranslatorOptions :any = Setting.find(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value()
+        const showSimplifiedTranslatorOptions :any = Setting.find(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value()
         if(!showSimplifiedTranslatorOptions){
             return true
         }
@@ -2063,7 +2059,8 @@ export class Eagle {
         if(currentAlg === Eagle.defaultTranslatorAlgorithm){
             return true
         }
-            return false
+    
+        return false
     }
 
     saveAsPNG = () : void => {
@@ -3577,7 +3574,7 @@ export class Eagle {
     duplicateParameter = (index:number) : void => {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
 
-        var copiedField = this.selectedNode().getFields()[index].clone()
+        const copiedField = this.selectedNode().getFields()[index].clone()
         copiedField.setId(Utils.uuidv4())
         copiedField.setIdText(copiedField.getIdText()+'copy')
         if(ParameterTable.hasSelection()){
@@ -3922,7 +3919,7 @@ export class Eagle {
         if (callback !== null) callback(firstEdge);
     }
 
-    editNodeCategory = (eagle: Eagle) : void => {
+    editNodeCategory = () : void => {
         let selectedIndex = 0;
         let eligibleCategories : Category[];
 
@@ -4228,7 +4225,7 @@ $( document ).ready(function() {
         });
     })
 
-    var defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
+    let defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
     if(!defaultTranslatingAlgorithm){
         localStorage.setItem('translationDefault','agl-1')
         defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
@@ -4241,17 +4238,16 @@ $( document ).ready(function() {
     }
 
     $(".translationDefault").on("click",function(){
-
-        var translationMethods = []
+        const translationMethods = []
         translationMethods.push($('.translationDefault'))
-        $('.translationDefault').each(function(element){
+        $('.translationDefault').each(function(){
             if($(this).is(':checked')){
                 $(this).prop('checked', false).change()
                 $(this).val('false')
             }
         })
 
-        var element = $(event.target)
+        const element = $(event.target)
         
         if(element.val() === "true"){
             element.val('false')
@@ -4259,7 +4255,7 @@ $( document ).ready(function() {
             element.val('true')
         }
 
-        var translationId = element.closest('.accordion-item').attr('id')
+        const translationId = element.closest('.accordion-item').attr('id')
         localStorage.setItem('translationDefault',translationId)
         Eagle.defaultTranslatorAlgorithm = translationId
         
@@ -4297,7 +4293,7 @@ $( document ).ready(function() {
     })
 
     $(document).on('click', '.hierarchyEdgeExtra', function(){
-        var selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
 
         if(!selectEdge){
             console.log("no edge found")

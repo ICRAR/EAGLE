@@ -1,8 +1,6 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
 import {Field} from './Field';
-import {Utils} from './Utils';
 
 export class ParameterTable {
 
@@ -57,7 +55,7 @@ export class ParameterTable {
         }
     }
 
-    static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
+    static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
         ParameterTable.selectionParentIndex(selectionIndex);
