@@ -2901,6 +2901,7 @@ export class Eagle {
     }
 
     // Adds an field to the selected node via HTML
+    // TODO: these 4 functions look very similar
     addFieldHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -2909,10 +2910,18 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ComponentParameter, null);
-        $("#editFieldModal").addClass("forceHide");
-        $("#editFieldModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
+        // get field names list from the logical graph
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), Eagle.FieldType.ComponentParameter);
+        const allFieldNames: string[] = [];
+ 
+        // once done, sort fields and then collect names into the allFieldNames list
+        allFields.sort(Field.sortFunc);
+        for (const field of allFields){
+            allFieldNames.push(field.getIdText() + " (" + field.getType() + ")");
+        }
+
+        Utils.populateAddFieldDropdown(Eagle.FieldType.ComponentParameter, allFieldNames);
+
         $("#nodeInspectorAddFieldDiv").show();
     }
 
@@ -2925,10 +2934,18 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ApplicationArgument, null);
-        $("#editFieldModal").addClass("forceHide");
-        $("#editFieldModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
+        // get field names list from the logical graph
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), Eagle.FieldType.ApplicationArgument);
+        const allFieldNames: string[] = [];
+ 
+        // once done, sort fields and then collect names into the allFieldNames list
+        allFields.sort(Field.sortFunc);
+        for (const field of allFields){
+            allFieldNames.push(field.getIdText() + " (" + field.getType() + ")");
+        }
+
+        Utils.populateAddFieldDropdown(Eagle.FieldType.ApplicationArgument, allFieldNames);
+
         $("#nodeInspectorAddApplicationParamDiv").show();
     }
 
@@ -2941,10 +2958,18 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.InputPort, null);
-        $("#editFieldModal").addClass("forceHide");
-        $("#editFieldModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
+        // get field names list from the logical graph
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), Eagle.FieldType.InputPort);
+        const allFieldNames: string[] = [];
+        
+        // once done, sort fields and then collect names into the allFieldNames list
+        allFields.sort(Field.sortFunc);
+        for (const field of allFields){
+            allFieldNames.push(field.getIdText() + " (" + field.getType() + ")");
+        }
+
+        Utils.populateAddFieldDropdown(Eagle.FieldType.InputPort, allFieldNames);
+
         $("#nodeInspectorAddInputPortDiv").show();
     }
 
@@ -2957,10 +2982,18 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.OutputPort, null);
-        $("#editFieldModal").addClass("forceHide");
-        $("#editFieldModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
+        // get field names list from the logical graph
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), Eagle.FieldType.OutputPort);
+        const allFieldNames: string[] = [];
+ 
+        // once done, sort fields and then collect names into the allFieldNames list
+        allFields.sort(Field.sortFunc);
+        for (const field of allFields){
+            allFieldNames.push(field.getIdText() + " (" + field.getType() + ")");
+        }
+
+        Utils.populateAddFieldDropdown(Eagle.FieldType.OutputPort, allFieldNames);
+
         $("#nodeInspectorAddOutputPortDiv").show();
     }
 
@@ -3014,6 +3047,9 @@ export class Eagle {
     // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
     // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
     nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
+        console.log("nodeInspectorDropdownClick", val, num, divID);
+
+        /*
         const selectSectionID : string = "fieldModalSelect";
         const modalID : string = "editFieldModal";
         const submitBtnID: string = "editFieldModalAffirmativeButton";
@@ -3043,6 +3079,10 @@ export class Eagle {
             $("#"+submitBtnID).click()
             this.hideDropDown(divID)
         }
+        */
+
+        
+        this.hideDropDown(divID);
     }
 
     editFieldDropdownClick = (newType: string, oldType: string) : void => {
@@ -3432,7 +3472,8 @@ export class Eagle {
     }
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
-    editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
+    // TODO: can we remove the whole 'Add' branch here, is there even a way to trigger it?
+    editField = (node:Node, hideParameterTable: boolean, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), fieldType);
         const allFieldNames: string[] = [];
@@ -3444,134 +3485,71 @@ export class Eagle {
         }
 
         // if we are summoning this editField modal from the params table, close the params table
-        if (modalType === Eagle.ModalType.Field){
+        if (hideParameterTable){
             $('#parameterTableModal').modal("hide");
         }
 
-        //if creating a new field
-        if (modalType === Eagle.ModalType.Add) {
+        //if editing an existing field
+        let field: Field = null;
 
-            // set the title of the modal based on the field type
-            switch(fieldType){
-                case Eagle.FieldType.ApplicationArgument:
-                $("#editFieldModalTitle").html("Add Application Argument");
-                break;
-                case Eagle.FieldType.ComponentParameter:
-                $("#editFieldModalTitle").html("Add Component Parameter");
-                break;
-                case Eagle.FieldType.InputPort:
-                $("#editFieldModalTitle").html("Add Input Port");
-                break;
-                case Eagle.FieldType.OutputPort:
-                $("#editFieldModalTitle").html("Add Output Port");
-                break;
-            }
+        switch (fieldType){
+        case Eagle.FieldType.ComponentParameter:
+            $("#editFieldModalTitle").html("Edit Component Parameter");
+            field = this.selectedNode().getComponentParameters()[fieldIndex];
+            break;
+        case Eagle.FieldType.ApplicationArgument:
+            $("#editFieldModalTitle").html("Edit Application Argument");
+            field = this.selectedNode().getApplicationArguments()[fieldIndex];
+            break;
+        case Eagle.FieldType.InputPort:
+            $("#editFieldModalTitle").html("Edit Input Port");
+            field = this.selectedNode().getInputPorts()[fieldIndex];
+            break;
+        case Eagle.FieldType.OutputPort:
+            $("#editFieldModalTitle").html("Edit Output Port");
+            field = this.selectedNode().getOutputPorts()[fieldIndex];
+            break;
+        case Eagle.FieldType.Unknown:
+            $("#editFieldModalTitle").html("Edit Parameter");
+            field = this.selectedNode().getFields()[fieldIndex];
+            break;
+        }
 
-            // show hide part of the UI appropriate for adding
-            $("#addParameterWrapper").show();
-            $("#customParameterOptionsWrapper").hide();
+        // check that we found a field
+        if (field === null || typeof field === 'undefined'){
+            console.error("Could not find the field to edit. fieldType", fieldType, "fieldIndex", fieldIndex);
+            return;
+        }
 
-            // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.FieldType.ComponentParameter);
+        $("#addParameterWrapper").hide();
+        $("#customParameterOptionsWrapper").show();
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {                
-                // abort if the user aborted
-                if (!completed){
-                    return;
-                }
-
-                // check selected option in select tag
-                const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
-
-                // abort if -1 selected
-                if (choice === -1){
-                    return;
-                }
-
-                // hide the custom text input unless the first option in the select is chosen
-                if (choice === 0){
-                    newField.setFieldType(fieldType);
-
-                    //create field from user input in modal
-                    node.addField(newField);
-
-                } else {
-                    const clone : Field = allFields[choice-1].clone();
-                    clone.setId(Utils.uuidv4());
-                    clone.setFieldType(fieldType);
-                    node.addField(clone);
-                }
-
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Add field");
-
-                // update known types
-                this.updateAllKnownTypes();
-            });
-
-        } else {
-            //if editing an existing field
-            let field: Field = null;
-
-            switch (fieldType){
-            case Eagle.FieldType.ComponentParameter:
-                $("#editFieldModalTitle").html("Edit Component Parameter");
-                field = this.selectedNode().getComponentParameters()[fieldIndex];
-                break;
-            case Eagle.FieldType.ApplicationArgument:
-                $("#editFieldModalTitle").html("Edit Application Argument");
-                field = this.selectedNode().getApplicationArguments()[fieldIndex];
-                break;
-            case Eagle.FieldType.InputPort:
-                $("#editFieldModalTitle").html("Edit Input Port");
-                field = this.selectedNode().getInputPorts()[fieldIndex];
-                break;
-            case Eagle.FieldType.OutputPort:
-                $("#editFieldModalTitle").html("Edit Output Port");
-                field = this.selectedNode().getOutputPorts()[fieldIndex];
-                break;
-            case Eagle.FieldType.Unknown:
-                $("#editFieldModalTitle").html("Edit Parameter");
-                field = this.selectedNode().getFields()[fieldIndex];
-                break;
-            }
-
-            // check that we found a field
-            if (field === null || typeof field === 'undefined'){
-                console.error("Could not find the field to edit. fieldType", fieldType, "fieldIndex", fieldIndex);
+        Utils.requestUserEditField(this, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
+            // abort if the user aborted
+            if (!completed){
                 return;
             }
+            
+            // update field data
+            field.setDisplayText(newField.getDisplayText());
+            field.setIdText(newField.getIdText());
+            field.setValue(newField.getValue());
+            field.setDefaultValue(newField.getDefaultValue());
+            field.setDescription(newField.getDescription());
+            field.setReadonly(newField.isReadonly());
+            field.setType(newField.getType());
+            field.setPrecious(newField.isPrecious());
+            field.setPositionalArgument(newField.isPositionalArgument());
+            field.setFieldType(newField.getFieldType());
 
-            $("#addParameterWrapper").hide();
-            $("#customParameterOptionsWrapper").show();
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Edit Field");
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Edit, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
-                // abort if the user aborted
-                if (!completed){
-                    return;
-                }
-                
-                // update field data
-                field.setDisplayText(newField.getDisplayText());
-                field.setIdText(newField.getIdText());
-                field.setValue(newField.getValue());
-                field.setDefaultValue(newField.getDefaultValue());
-                field.setDescription(newField.getDescription());
-                field.setReadonly(newField.isReadonly());
-                field.setType(newField.getType());
-                field.setPrecious(newField.isPrecious());
-                field.setPositionalArgument(newField.isPositionalArgument());
-                field.setFieldType(newField.getFieldType());
-
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Edit Field");
-
-                // if we summoned this editField modal from the params table, now that we are done, re-open the params table
-                if (modalType === Eagle.ModalType.Field){
-                    $('#parameterTableModal').modal("show");
-                }
-            });
-        }
+            // if we summoned this editField modal from the params table, now that we are done, re-open the params table
+            if (hideParameterTable){
+                $('#parameterTableModal').modal("show");
+            }
+        });
     };
 
     duplicateParameter = (index:number) : void => {
@@ -4157,12 +4135,6 @@ export namespace Eagle
         DataType_Json,
         DataType_Python,
     ];
-
-    export enum ModalType {
-        Add = "Add",
-        Edit = "Edit",
-        Field = "Field"
-    }
 
     export enum FieldType {
         ComponentParameter = "ComponentParameter",
