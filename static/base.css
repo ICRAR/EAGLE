@@ -1205,6 +1205,26 @@ select.form-control{
     color: grey;
 }
 
+.hierarchyCollapsed{
+    height:47px;
+    overflow: hidden;
+    outline: none;
+    outline: 0;
+}
+
+.hierarchyGroupCollapse{
+    position: absolute;
+    width: auto;
+    height: auto;
+    right: 10px;
+    top: 20px;
+    transform: translateY(-40%) rotate(90deg);
+    border:none;
+    background-color: transparent;
+    outline: none;
+    outline: 0;
+}
+
 .hierarchyApplicationIsSelected {
     border: 2px solid #002349;
 }
@@ -1276,6 +1296,10 @@ select.form-control{
 .modal select {
     margin-bottom: 1rem;
     height:38px;
+}
+
+#settingsModal.modal select {
+    margin-bottom: 0px;
 }
 
 .leftWindow .leftWindowHandle {
@@ -1654,7 +1678,20 @@ ul.nav.navbar-nav .dropdown-item:hover{
 }
 
 #translationMenu .accordion button{
-    padding: 9px 20px;
+    padding: 7px 30px;
+    cursor: default;
+}
+
+#translationMenu .accordion-header{
+    position: relative;
+}
+
+
+.translationDefault{
+    position:absolute;
+    top: 5px;
+    left:10px;
+    z-index: 99;
 }
 
 #translationMenu .accordion-body button{
@@ -1838,6 +1875,14 @@ nav.navbar .introjs-helperLayer {
 
 .closedIcon{
     transform:rotate(270deg)
+}
+
+.hierarchyCollapseRotate{
+    transform: rotate(90deg);
+}
+
+.hierarchyCollapseDisabled{
+    color: grey;
 }
 
 .translationTitle{

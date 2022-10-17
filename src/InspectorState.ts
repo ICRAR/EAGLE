@@ -2,8 +2,8 @@
 
 import * as ko from "knockout";
 
-var collapseRunning:boolean = false;
-var allCollapseRunning:boolean = false;
+let collapseRunning:boolean = false;
+let allCollapseRunning:boolean = false;
 
 export class InspectorState {
     // NOTE: for these variables, false indicates expanded, true indicates collapsed
@@ -107,7 +107,7 @@ export class InspectorState {
     toggleSection = (item: any, e: JQueryEventObject): void => {
         const target: JQuery<Element> = $(e.currentTarget);
         const sectionName: string = target.data('section-name');
-        var that = this
+        const that = this
         // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
         const collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
 

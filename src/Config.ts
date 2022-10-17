@@ -30,16 +30,6 @@ export class Config {
     static readonly paletteNodeHeight : number = 22;
     static readonly paletteNodeWidth : number = 130;
 
-    // translation algorithms
-    static readonly translationAlgorithms = [
-        "none",
-        "metis",
-        "mysarkar",
-        "min_num_parts",
-        "pso",
-        "simple"
-    ];
-
     static readonly DALIUGE_PARAMETER_NAMES = [
         "data_volume",
         "execution_time",
@@ -62,4 +52,9 @@ export class Config {
     static readonly DALIUGE_GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg/dropmake/lg.graph.schema";
 
     static readonly UNDO_MEMORY_SIZE : number = 10;
+
+    static readonly HIERARCHY_EDGE_SELECTED_COLOR : string = "rgb(47 22 213)";
+    static readonly HIERARCHY_EDGE_DEFAULT_COLOR : string = "black";
+
+    static readonly SELECTED_NODE_COLOR : string = "rgb(47 22 213)";
 }

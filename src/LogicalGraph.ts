@@ -24,16 +24,16 @@
 
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
-import {GraphUpdater} from './GraphUpdater';
-
 import {Eagle} from './Eagle';
-import {Node} from './Node';
-import {Field} from './Field';
 import {Edge} from './Edge';
-import {FileInfo} from './FileInfo';
-import {RepositoryFile} from './RepositoryFile';
 import {Errors} from './Errors';
+import {Field} from './Field';
+import {FileInfo} from './FileInfo';
+import {GraphUpdater} from './GraphUpdater';
+import {Node} from './Node';
+import {RepositoryFile} from './RepositoryFile';
+import {Setting} from './Setting';
+import {Utils} from './Utils';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -64,7 +64,7 @@ export class LogicalGraph {
         // add links
         result.linkDataArray = [];
         for (const edge of graph.getEdges()){
-            if (forTranslation && Eagle.findSettingValue(Utils.SKIP_CLOSE_LOOP_EDGES)){
+            if (forTranslation && Setting.findValue(Utils.SKIP_CLOSE_LOOP_EDGES)){
                 if (edge.isClosesLoop()){
                     continue;
                 }
@@ -225,7 +225,7 @@ export class LogicalGraph {
                 closesLoop = linkData.closesLoop;
             }
 
-            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, linkData.dataType, loopAware, closesLoop, false));
+            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, dataType, loopAware, closesLoop, false));
         }
 
         // check for missing name
@@ -747,9 +747,9 @@ export class LogicalGraph {
     }
 
     findDepthByKey = (key: number) : number => {
-        let depth = 0;
-        let node = this.findNodeByKey(key);
+        const node = this.findNodeByKey(key);
         let parentKey = node.getParentKey();
+        let depth = 0;
         let iterations = 0;
 
         while (parentKey !== null){
@@ -764,6 +764,11 @@ export class LogicalGraph {
         }
 
         return depth;
+    }
+
+    // similar to getChildrenOfNodeByKey() (below) except treats key as null always
+    getRootNodes = () : Node[] => {
+        return this.getChildrenOfNodeByKey(null);
     }
 
     getChildrenOfNodeByKey = (key: number) : Node[] => {

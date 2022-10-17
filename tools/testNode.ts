@@ -1,3 +1,4 @@
+import {Category} from '../src/Category';
 import {Eagle} from '../src/Eagle';
 import {Node} from '../src/Node';
 import {Field} from '../src/Field';
@@ -6,7 +7,7 @@ import {Utils} from '../src/Utils';
 const KEY : number = -9;
 const NAME : string = "Test Node";
 const DESCRIPTION : string = "Test description";
-const CATEGORY : Eagle.Category = Eagle.Category.Loop;
+const CATEGORY : Category = Category.Loop;
 const X : number = 234;
 const Y : number = 567;
 
@@ -19,8 +20,8 @@ const DRAW_ORDER_HINT : number = 10;
 const PARENT_KEY : number = -10;
 const COLLAPSED : boolean = true;
 const STREAMING : boolean = true;
-const INPUT_APPLICATION_CATEGORY : Eagle.Category = Eagle.Category.BashShellApp;
-const OUTPUT_APPLICATION_CATEGORY : Eagle.Category = Eagle.Category.Docker;
+const INPUT_APPLICATION_CATEGORY : Category = Category.BashShellApp;
+const OUTPUT_APPLICATION_CATEGORY : Category = Category.Docker;
 const INPUT_APPLICATION_NAME : string = "Input App";
 const OUTPUT_APPLICATION_NAME : string = "Output App";
 const INPUT_APPLICATION_KEY : number = -2;

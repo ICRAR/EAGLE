@@ -304,7 +304,7 @@ export class FileInfo {
     }, this);
 
     getSummaryHTML = (title : string) : string => {
-        var text
+        let text
         if (this._repositoryService() === Eagle.RepositoryService.Unknown){
             text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._commitHash();
         } else {

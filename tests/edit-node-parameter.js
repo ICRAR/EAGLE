@@ -1,4 +1,5 @@
 import { Selector } from 'testcafe';
+import page from './page-model';
 
 /*
     run with:
@@ -21,7 +22,10 @@ test('Edit node parameter', async t =>{
         .click('#settings')
 
         // enable 'expert mode'
-        .click('#settingEnableExpertModeButton')
+        .click('#settingUserInterfaceModeValue')
+
+        // click the 'expert' option
+        .click(Selector('#settingUserInterfaceModeValue').find('option').withText('expert'))
 
         // close settings modal
         .click('#settingsModalAffirmativeButton')

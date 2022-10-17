@@ -46,7 +46,12 @@ require.config({
         "Undo": "./static/built/Undo",
         "Errors": "./static/built/Errors",
         "CategoryType": "./static/built/CategoryType",
-        "ComponentUpdater": "./static/built/ComponentUpdater"
+        "ComponentUpdater": "./static/built/ComponentUpdater",
+        "Category": "./static/built/Category",
+        "CategoryData": "./static/built/CategoryData",
+        "Hierarchy": "./static/built/Hierarchy",
+        "Repositories": "./static/built/Repositories",
+        "ParameterTable": "./static/built/ParameterTable"
     },
     shim: {
         "bootstrap": {

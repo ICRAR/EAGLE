@@ -25,6 +25,8 @@
 import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
+import {LogicalGraph} from './LogicalGraph';
+import {Setting} from './Setting';
 import {Utils} from './Utils';
 
 export class Translator {
@@ -59,7 +61,7 @@ export class Translator {
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
         // consult EAGLE settings to determine whether to open the transator in a new tab
-        const spawnTranslationTab: boolean = Eagle.findSettingValue(Utils.SPAWN_TRANSLATION_TAB);
+        const spawnTranslationTab: boolean = Setting.findValue(Utils.SPAWN_TRANSLATION_TAB);
 
         // create form element
         const form = document.createElement("form");
@@ -100,5 +102,92 @@ export class Translator {
         element.name = name;
         element.value = value;
         form.appendChild(element);
+    }
+
+        //----------------- Physical Graph Generation --------------------------------
+    /**
+     * Generate Physical Graph Template.
+     * @param algorithmName
+     * @param testingMode
+     * @param format
+     */
+     genPGT = (algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        if (eagle.logicalGraph().getNumNodes() === 0) {
+            Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
+            return;
+        }
+
+        if (eagle.logicalGraph().fileInfo().name === ""){
+            Utils.showUserMessage("Error", "Unable to translate. Logical graph does not have a name! Please save the graph first.");
+            return;
+        }
+
+        const translatorURL : string = Setting.findValue(Utils.TRANSLATOR_URL);
+        console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
+
+        // set the schema version
+        format = Eagle.DALiuGESchemaVersion.OJS;
+
+        /*
+        if (format === Eagle.DALiuGESchemaVersion.Unknown){
+            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS];
+
+            // ask user to specify graph format to be sent to translator
+            Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
+                if (!completed){
+                    console.log("User aborted translation.");
+                    return;
+                }
+
+                this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, schemas[userChoiceIndex]);
+            });
+        } else {
+            this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, format);
+        }
+        */
+        this._genPGT(eagle, translatorURL, algorithmName, testingMode, format);
+    }
+
+    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+        // get json for logical graph
+        let json;
+        switch (format){
+            case Eagle.DALiuGESchemaVersion.OJS:
+                json = LogicalGraph.toOJSJson(eagle.logicalGraph(), true);
+                break;
+            default:
+                console.error("Unsupported graph format for translator!");
+                return;
+        }
+
+        // validate json
+        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, format, Eagle.FileType.Graph);
+            if (!validatorResult.valid){
+                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+                console.error(message, validatorResult.errors);
+                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+                //return;
+            }
+        }
+
+        const translatorData = {
+            algo: algorithmName,
+            lg_name: eagle.logicalGraph().fileInfo().name,
+            json_data: JSON.stringify(json),
+            test: testingMode.toString()
+        };
+
+        eagle.translator().submit(translatorURL, translatorData);
+
+        // mostly for debugging purposes
+        console.log("translator data");
+        console.log("---------");
+        console.log(translatorData);
+        console.log("---------");
+        console.log(json);
+        console.log("---------");
     }
 }

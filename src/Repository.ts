@@ -4,6 +4,8 @@ import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
+import {GitHub} from './GitHub';
+import {GitLab} from "./GitLab";
 
 export class Repository {
     _id : number
@@ -44,6 +46,40 @@ export class Repository {
 
     getNameAndBranch = () : string => {
         return this.name + " (" + this.branch + ")";
+    }
+
+    select = () : void => {
+        console.log("select(" + this.name + ")");
+
+        // if we have already fetched data for this repo, just expand or collapse the list as appropriate
+        // otherwise fetch the data
+        if (this.fetched()){
+            this.expanded(!this.expanded());
+        } else {
+            switch(this.service){
+                case Eagle.RepositoryService.GitHub:
+                    GitHub.loadRepoContent(this);
+                    break;
+                case Eagle.RepositoryService.GitLab:
+                    GitLab.loadRepoContent(this);
+                    break;
+                default:
+                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + this.service + ")");
+            }
+        }
+    }
+
+    refresh = () : void => {
+        switch(this.service){
+            case Eagle.RepositoryService.GitHub:
+                GitHub.loadRepoContent(this);
+                break;
+            case Eagle.RepositoryService.GitLab:
+                GitLab.loadRepoContent(this);
+                break;
+            default:
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+        }
     }
 
     // sorting order
