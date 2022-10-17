@@ -640,77 +640,67 @@ export class Utils {
 
     static populateAddFieldDropdown(fieldType: Eagle.FieldType, choices: string[] ){
         let dropDownKO;
-        let divID;
+        const eagle = Eagle.getInstance();
 
         // determine which dropdown menu should be filled with appropriate items
         switch(fieldType){
             case Eagle.FieldType.ApplicationArgument:
-            dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
-            divID = "nodeInspectorAddApplicationParamDiv";
-            break;
+                dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
+                break;
             case Eagle.FieldType.ComponentParameter:
-            dropDownKO = $("#nodeInspectorFieldDropDownKO");
-            divID = "nodeInspectorAddFieldDiv";
-            break;
+                dropDownKO = $("#nodeInspectorFieldDropDownKO");
+                break;
             case Eagle.FieldType.InputPort:
-            dropDownKO = $("#nodeInspectorInputPortDropDownKO");
-            divID = "nodeInspectorAddInputPortDiv";
-            break;
+                dropDownKO = $("#nodeInspectorInputPortDropDownKO");
+                break;
             case Eagle.FieldType.OutputPort:
-            dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
-            divID = "nodeInspectorAddOutputPortDiv";
-            break;
+                dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
+                break;
+            default:
+                console.warn("Unhandled fieldType", fieldType);
+                break;
         }
 
         // remove existing options from the select tag
-        $('#fieldModalSelect').empty();
         dropDownKO.empty();
 
         // add empty choice
-        $('#fieldModalSelect').append($('<option>', {
-            value: -1,
-            text: ""
-        }));
-        dropDownKO.append($('<a>', {
+        const emptyChoice = $('<a>', {
             href: "#",
             class: "nodeInspectorDropdownOption",
-            "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'" + divID + "')}",
             value: -1,
             text: ""
-        }));
+        });
+        emptyChoice.on('click', function(){
+            eagle.nodeInspectorDropdownClick(-1, fieldType);
+        });
+        dropDownKO.append(emptyChoice);
 
         // add custom choice first
-        $('#fieldModalSelect').append($('<option>', {
-            value: 0,
-            text: "<Custom>"
-        }));
-        dropDownKO.append($('<a>', {
+        const customChoice = $('<a>', {
             href: "#",
             class: "nodeInspectorDropdownOption",
-            "data-bind":"click:function(){nodeInspectorDropdownClick("+0+", "+choices.length+",'" + divID + "')}",
             value: 0,
             text: "<Custom>"
-        }));
+        });
+        customChoice.on('click', function(){
+            eagle.nodeInspectorDropdownClick(0, fieldType);
+        });
+        dropDownKO.append(customChoice);
 
         // add options to the modal select tag
         for (let i = 0 ; i < choices.length ; i++){
-            $('#fieldModalSelect').append($('<option>', {
-                value: i+1,
-                text: choices[i]
-            }));
-            dropDownKO.append($('<a>', {
+            const choice = $('<a>', {
                 href: "#",
                 class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+(i+1)+", "+choices.length+",'" + divID + "')}",
                 value: i+1,
                 text: choices[i]
-            }));
+            });
+            choice.on('click', function(){
+                eagle.nodeInspectorDropdownClick((i+1), fieldType);
+            });
+            dropDownKO.append(choice);
         }
-
-        //applying knockout bindings for the new buttons generated above
-        const eagle = Eagle.getInstance();
-        ko.cleanNode(dropDownKO[0]);
-        ko.applyBindings(eagle, dropDownKO[0]);
     }
 
     static requestUserEditField(eagle: Eagle, fieldType: Eagle.FieldType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {

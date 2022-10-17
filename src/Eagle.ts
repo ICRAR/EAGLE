@@ -2903,6 +2903,8 @@ export class Eagle {
     // Adds an field to the selected node via HTML
     // TODO: these 4 functions look very similar
     addFieldHTML = () : void => {
+        console.log("addFieldHTML()");
+
         const node: Node = this.selectedNode();
 
         if (node === null){
@@ -2927,6 +2929,8 @@ export class Eagle {
 
     // Adds an application param to the selected node via HTML
     addApplicationArgHTML = () : void => {
+        console.log("addApplicationArgHTML()");
+
         const node: Node = this.selectedNode();
 
         if (node === null){
@@ -2951,6 +2955,8 @@ export class Eagle {
 
     // Adds an output port to the selected node via HTML
     addInputPortHTML = () : void => {
+        console.log("addInputPortHTML()");
+
         const node: Node = this.selectedNode();
 
         if (node === null){
@@ -2975,6 +2981,8 @@ export class Eagle {
 
     // Adds an output port to the selected node via HTML
     addOutputPortHTML = () : void => {
+        console.log("addOutputPortHTML()");
+
         const node: Node = this.selectedNode();
 
         if (node === null){
@@ -3046,8 +3054,8 @@ export class Eagle {
 
     // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
     // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
-    nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
-        console.log("nodeInspectorDropdownClick", val, num, divID);
+    nodeInspectorDropdownClick = (val: number, fieldType: Eagle.FieldType) : void => {
+        console.log("nodeInspectorDropdownClick", val, fieldType);
 
         /*
         const selectSectionID : string = "fieldModalSelect";
@@ -3081,8 +3089,27 @@ export class Eagle {
         }
         */
 
-        
-        this.hideDropDown(divID);
+        // hide the appropriate dropdown
+        let divId;
+        switch(fieldType){
+            case Eagle.FieldType.ApplicationArgument:
+                divId = "nodeInspectorApplicationParamDropDownKO";
+                break;
+            case Eagle.FieldType.ComponentParameter:
+                divId = "nodeInspectorFieldDropDownKO";
+                break;
+            case Eagle.FieldType.InputPort:
+                divId = "nodeInspectorInputPortDropDownKO";
+                break;
+            case Eagle.FieldType.OutputPort:
+                divId = "nodeInspectorOutputPortDropDownKO";
+                break;
+            default:
+                console.warn("Unhandled fieldType", fieldType);
+                break;
+        }
+
+        this.hideDropDown(divId);
     }
 
     editFieldDropdownClick = (newType: string, oldType: string) : void => {
