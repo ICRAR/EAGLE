@@ -6,6 +6,7 @@ import {Palette} from './Palette';
 import {Node} from './Node';
 import {Utils} from './Utils';
 import {Errors} from './Errors';
+import { Field } from "./Field";
 
 export class ComponentUpdater {
 
@@ -66,20 +67,27 @@ export class ComponentUpdater {
 
     }
 
+    // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
     static _replaceNode(dest:Node, src:Node){
         console.log("dest fields", dest.getFields().length, "src fields", src.getFields().length);
 
-        for (let i = 0 ; i < dest.getFields().length ; i++){
-            //console.log(i, dest.getFields()[i].getIdText());
+        for (let i = 0 ; i < src.getFields().length ; i++){
+            const srcField = src.getFields()[i];
+            console.log(i, srcField.getIdText(), srcField.getFieldType());
 
-            // TODO: hack
-            if (dest.getFields()[i].getIdText() === "badParam"){
-                dest.removeFieldByIndex(i);
-                console.log("remove", i);
-                continue;
+            // try to find a field with the same name in the destination
+            let destField = dest.findPortById(srcField.getId());
+
+            if (destField === null){
+                destField = srcField.clone();
+                dest.addField(destField);
             }
-
-            dest.getFields()[i].setValue( src.getFields()[i].getValue());
+           
+            ComponentUpdater._replaceField(destField, srcField);
         }
+    }
+
+    static _replaceField(dest:Field, src:Field){
+        console.log("_replaceField()", dest.getIdText(), src.getIdText());
     }
 }
