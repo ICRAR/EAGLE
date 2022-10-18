@@ -1,17 +1,17 @@
 import { Selector } from 'testcafe';
-import https from 'https';
+import fs from 'fs';
 
 /*
     run with:
 
-    testcafe chrome tests/load-json-export-match.js
+    testcafe chrome tests/load-local-json-export-match.js
 */
 
-const LG_PATH = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/master/SDP Pipelines/cont_img_YAN-970.graph";
+const LG_PATH = "tests/data/cont_img_YAN-970.graph";
 
 let graphJSON = "input";
 
-fixture `EAGLE REMOTE Load JSON Export Match`
+fixture `EAGLE LOCAL Load JSON Export Match`
     .page `http://localhost:8888/`
 
 test('Load JSON export match', async t =>{
@@ -54,28 +54,8 @@ test('Load JSON export match', async t =>{
     await t.expect(JSON.stringify(result1)).eql("{}", {timeout:3000});
 });
 
-const fetchGraph = (url) => {
-    return new Promise((resolve, reject) => {
-        const req = https.request(url, res => {
-            let rawData = "";
-
-            res.on('data', (d) => {
-                rawData += d;
-            });
-
-            res.on('end', () => {
-                graphJSON = rawData;
-                resolve();
-            });
-        });
-
-        req.on('error', e => {
-            console.error(e);
-            reject(new Error(e));
-        });
-
-        req.end();
-    });
+const fetchGraph = (filename) => {
+    graphJSON = fs.readFileSync(filename, 'utf8');
 };
 
 // use $.isEmptyObject or this

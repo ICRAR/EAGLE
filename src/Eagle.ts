@@ -53,12 +53,14 @@ import {Hierarchy} from './Hierarchy';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
 import {ParameterTable} from './ParameterTable';
+import { timeHours } from "d3";
 
 export class Eagle {
     static _instance : Eagle;
 
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
+    types : ko.ObservableArray<string>;
 
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
@@ -115,6 +117,7 @@ export class Eagle {
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
+        this.types = ko.observableArray([]);
 
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
@@ -785,6 +788,9 @@ export class Eagle {
         }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
+
+        // update the known data types after adding new nodes 
+        this.updateAllKnownTypes();
     }
 
     createSubgraphFromSelection = () : void => {
@@ -1052,6 +1058,9 @@ export class Eagle {
 
         // show the left window
         this.leftWindow().shown(true);
+
+        // since we have a new palette loaded, update the list of types known to EAGLE
+        this.updateAllKnownTypes();
 
         Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
     }
@@ -1860,6 +1869,8 @@ export class Eagle {
                 break;
             }
         }
+
+        this.updateAllKnownTypes();
     }
 
     getParentNameAndKey = (parentKey:number) : string => {
@@ -2479,6 +2490,9 @@ export class Eagle {
                 destinationPalette.fileInfo().modified = true;
                 destinationPalette.sort();
             }
+
+            // update known types after adding new nodes
+            this.updateAllKnownTypes();
         });
     }
 
@@ -2704,6 +2718,9 @@ export class Eagle {
             this.checkGraph();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
+
+            // update known data types given newly added node
+            this.updateAllKnownTypes();
 
             if (callback !== null){
                 callback(newNode);
@@ -3180,26 +3197,23 @@ export class Eagle {
             return;
         }
 
-        // build list of known types
-        const allTypes: string[] = Utils.findAllKnownTypes(this.palettes(), this.logicalGraph());
-
         // set selectedIndex to the index of the current data type within the allTypes list
         let selectedIndex = 0;
-        for (let i = 0 ; i < allTypes.length ; i++){
-            if (allTypes[i] === selectedEdge.getDataType()){
+        for (let i = 0 ; i < this.types().length ; i++){
+            if (this.types()[i] === selectedEdge.getDataType()){
                 selectedIndex = i;
                 break;
             }
         }
 
         // launch modal
-        Utils.requestUserChoice("Change Edge Data Type", "NOTE: changing a edge's data type will also change the data type of the source and destination ports", allTypes, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+        Utils.requestUserChoice("Change Edge Data Type", "NOTE: changing a edge's data type will also change the data type of the source and destination ports", this.types(), selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
             if (!completed){
                 return;
             }
 
             // get user selection
-            const newType = allTypes[userChoiceIndex];
+            const newType = this.types()[userChoiceIndex];
 
             // get references to the source and destination ports of this edge
             const sourceNode = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
@@ -3217,6 +3231,9 @@ export class Eagle {
             this.undo().pushSnapshot(this, "Change Edge Data Type");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
+
+            // update known types
+            this.updateAllKnownTypes();
         });
     }
 
@@ -3258,6 +3275,9 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Remove param from node");
         this.flagActiveFileModified();
         this.selectedObjects.valueHasMutated();
+
+        // update known types
+        this.updateAllKnownTypes();
     }
 
     removePortFromNodeByIndex = (node : Node, fieldId:string, input : boolean) : void => {
@@ -3296,6 +3316,9 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Remove port from node");
         this.flagActiveFileModified();
         this.selectedObjects.valueHasMutated();
+
+        // update known types
+        this.updateAllKnownTypes();
     }
 
     nodeDropLogicalGraph = (eagle : Eagle, e : JQueryEventObject) : void => {
@@ -3468,7 +3491,7 @@ export class Eagle {
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.FieldType.ComponentParameter);
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {                
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -3498,6 +3521,9 @@ export class Eagle {
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Add field");
+
+                // update known types
+                this.updateAllKnownTypes();
             });
 
         } else {
@@ -3541,7 +3567,7 @@ export class Eagle {
                 if (!completed){
                     return;
                 }
-
+                
                 // update field data
                 field.setDisplayText(newField.getDisplayText());
                 field.setIdText(newField.getIdText());
@@ -4058,6 +4084,29 @@ export class Eagle {
 
             if (callback !== null) callback(newNode);
         }
+    }
+
+    updateAllKnownTypes = (): void => {
+        // clear known types
+        this.types([]);
+
+        // build a list from all palettes
+        for (const palette of this.palettes()){
+            for (const node of palette.getNodes()){
+                for (const field of node.getFields()) {
+                    Utils.addTypeIfUnique(this.types, field.getType());
+                }
+            }
+        }
+
+        // add all types in LG nodes
+        for (const node of this.logicalGraph().getNodes()){
+            for (const field of node.getFields()) {
+                Utils.addTypeIfUnique(this.types, field.getType());
+            }
+        }
+
+        console.log("Updated EAGLE's known data types. Found", this.types().length, "types");
     }
 }
 

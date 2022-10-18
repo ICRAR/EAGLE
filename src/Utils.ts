@@ -313,7 +313,7 @@ export class Utils {
                 return dt;
             }
         }
-
+        
         console.warn("Unknown DataType", dataType);
         return Eagle.DataType_Unknown;
     }
@@ -770,12 +770,10 @@ export class Utils {
 
         $('#editFieldModalTypeInput').val(field.getType());
 
-        // TODO: this looks like ParameterTable.ts::fill(), can we make them common?
-        const allTypes = Utils.findAllKnownTypes(eagle.palettes(), eagle.logicalGraph());
 
         // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();
-        for (const dataType of allTypes){
+        for (const dataType of eagle.types()){
             const li = $('<li></li>');
             const a = $('<a class="dropdown-item" href="#">' + dataType + '</a>');
 
@@ -1073,28 +1071,6 @@ export class Utils {
         $('#editEdgeModalDataTypeInput').val(edge.getDataType());
     }
 
-    static findAllKnownTypes = (palettes : Palette[], graph: LogicalGraph): string[] => {
-        const uniqueTypes : string[] = [];
-
-        // build a list from all palettes
-        for (const palette of palettes){
-            for (const node of palette.getNodes()){
-                for (const field of node.getFields()) {
-                    Utils._addTypeIfUnique(uniqueTypes, field.getType());
-                }
-            }
-        }
-
-        // add all types in LG nodes
-        for (const node of graph.getNodes()){
-            for (const field of node.getFields()) {
-                Utils._addTypeIfUnique(uniqueTypes, field.getType());
-            }
-        }
-
-        return uniqueTypes;
-    }
-
     /**
      * Returns a list of unique port names (except event ports)
      */
@@ -1333,8 +1309,8 @@ export class Utils {
         ports.push(port);
     }
 
-    private static _addTypeIfUnique = (types: string[], newType: string) : void => {
-        for (const t of types){
+    static addTypeIfUnique = (types: ko.ObservableArray<string>, newType: string) : void => {
+        for (const t of types()){
             if (t === newType){
                 return;
             }
