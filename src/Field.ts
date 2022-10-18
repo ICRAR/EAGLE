@@ -201,13 +201,23 @@ export class Field {
     }
 
     copyWithKeyAndId = (src: Field, nodeKey: number, id: string) : void => {
-        this.id(id);
-        this.idText(src.idText());
         this.displayText(src.displayText());
+        this.idText(src.idText());
+        
+        this.id(id);
         this.nodeKey(nodeKey);
-        this.isEvent(src.isEvent());
-        this.type(src.type());
+
+        this.value(src.value());
+        this.defaultValue(src.defaultValue());
         this.description(src.description());
+        this.readonly(src.readonly());
+        this.type(src.type());
+        this.precious(src.precious());
+        this.options(src.options());
+        this.positional(src.positional());
+
+        this.isEvent(src.isEvent());
+        this.fieldType(src.fieldType());
     }
 
     isInputPort = () : boolean => {

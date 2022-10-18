@@ -89,5 +89,7 @@ export class ComponentUpdater {
 
     static _replaceField(dest:Field, src:Field){
         console.log("_replaceField()", dest.getIdText(), src.getIdText());
+
+        
     }
 }
