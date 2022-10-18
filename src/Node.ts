@@ -904,6 +904,17 @@ export class Node {
         return null;
     }
 
+    findFieldByIdText = (idText: string, fieldType: Eagle.FieldType) : Field => {
+        for (const field of this.fields()){
+            if (field.getFieldType() === fieldType && field.getIdText() === idText){
+                return field;
+            }
+        }
+
+        return null;
+    }
+
+
     findPortByType = (type: string, input: boolean) : Field => {
         if (input){
             // check input ports

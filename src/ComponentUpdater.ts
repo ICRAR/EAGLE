@@ -1,6 +1,3 @@
-import * as ko from "knockout";
-
-import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
 import {Node} from './Node';
@@ -10,10 +7,11 @@ import { Field } from "./Field";
 
 export class ComponentUpdater {
 
-    static update(palettes: Palette[], graph: LogicalGraph, callback : (error : string, data : string) => void) : void {
+    static update(palettes: Palette[], graph: LogicalGraph, callback : (errorsWarnings : Errors.ErrorsWarnings, data : string) => void) : void {
         // check if any nodes to update
         if (graph.getNodes().length === 0){
             Utils.showNotification("Component Update", "Graph contains no components to update", "info");
+            callback(null, null);
             return;
         }
 
@@ -65,6 +63,7 @@ export class ComponentUpdater {
             Utils.showNotification("Success", "Components updated successfully", "success");
         }
 
+        callback(null, null);
     }
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
@@ -73,23 +72,23 @@ export class ComponentUpdater {
 
         for (let i = 0 ; i < src.getFields().length ; i++){
             const srcField = src.getFields()[i];
-            console.log(i, srcField.getIdText(), srcField.getFieldType());
 
             // try to find a field with the same name in the destination
             let destField = dest.findPortById(srcField.getId());
 
+            // if dest field not found, try to find something that matches by idText AND fieldType
+            if (destField === null){
+                destField = dest.findFieldByIdText(srcField.getIdText(), srcField.getFieldType());
+            }
+
+            // if dest field could not be found, then go ahead and add a NEW field to the dest node
             if (destField === null){
                 destField = srcField.clone();
                 dest.addField(destField);
             }
            
-            ComponentUpdater._replaceField(destField, srcField);
+            // NOTE: we could just use a copy() function here if we had one
+            destField.copyWithKeyAndId(srcField, srcField.getNodeKey(), srcField.getId());
         }
-    }
-
-    static _replaceField(dest:Field, src:Field){
-        console.log("_replaceField()", dest.getIdText(), src.getIdText());
-
-        
     }
 }
