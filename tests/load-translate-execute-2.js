@@ -212,11 +212,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             //switch to UI Options tab
             .click("#settingCategoryUIOptions")
 
-            //change the translator ui mode to expert
-            // ("#settingUserTranslatorModeValue").value('expert')
-            create('expert')
-
-            // use the complex translator options
+            // BROKEN this used to be a simple toggle but is now a select drop down, we need to select the 'expert' option in order to unlock the advanced translation options
             .click('#settingUseSimplifiedTranslatorOptionsButton')
 
             //switch to external services tab
@@ -232,15 +228,6 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             //.wait(3000);
 
         // !!!!!!!!!!!!! LOAD GRAPH
-
-        async function create(name) {
-            const dropdown = await Selector("#settingUserTranslatorModeValue");
-            const dropdownOption = dropdown.find("option");
-          
-            await t
-              .click(dropdown)
-              .click(dropdownOption.withText(name))
-          }
 
         await t
             .click(Selector('#navbarDropdownGraph'))
