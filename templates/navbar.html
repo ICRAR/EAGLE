@@ -67,6 +67,9 @@
         </ul>
 
         <ul class="nav navbar-nav ms-auto">
+            <div id="navDeployBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + Utils.getKeyboardShortcutTextByKey('deploy_translator', true)">
+                <a href='javascript:void(0)' data-bind="click: function(){$root.deployDefaultTranslationAlgorithm()}">Translate</a>
+            </div>
             <!-- ko ifnot: Eagle.isInUIMode(Eagle.UIMode.Minimal) -->
             <li class="nav-item dropdown" data-intro='Create new graphs'>
                 <a class="nav-link dropdown-toggle ms-auto" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -106,6 +106,7 @@ export class Eagle {
     static lastClickTime : number = 0;
 
     static defaultTranslatorAlgorithm : string;
+    static defaultTranslatorAlgorithmMethod : any;
 
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
@@ -145,14 +146,23 @@ export class Eagle {
                     new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true),
                     new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, true),
                     new Setting("Confirm Delete", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_OBJECTS, true),
-                    new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, false),
                     new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false),
                     new Setting("Spawn Translation Tab", "When translating a graph, display the output of the translator in a new tab", Setting.Type.Boolean, Utils.SPAWN_TRANSLATION_TAB, true),
-                    new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false),
-                    new Setting("Use Simplified Translator Options", "Hide the complex and rarely used translator options", Setting.Type.Boolean, Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS, true),
                     new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false),
                     new Setting("UI Mode", "User Interface Mode. Simple Mode removes palettes, uses a single graph repository, simplifies the parameters table. Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Select, Utils.USER_INTERFACE_MODE, Eagle.UIMode.Default, Object.values(Eagle.UIMode)),
+                ]
+            ),
+            new SettingsGroup(
+                "UI Options",
+                (eagle) => {return !Eagle.isInUIMode(Eagle.UIMode.Minimal);},
+                [
+                    new Setting("Show DALiuGE runtime parameters", "Show additional component arguments that modify the behaviour of the DALiuGE runtime. For example: Data Volume, Execution Time, Num CPUs, Group Start/End", Setting.Type.Boolean, Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, true),
+                    new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, false),
+                    new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Utils.HIDE_PALETTE_TAB, false),
+                    new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Utils.HIDE_READONLY_PARAMETERS, false),
+                    new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Utils.USER_TRANSLATOR_MODE, Eagle.TranslatorMode.Default, Object.values(Eagle.TranslatorMode)),
                     new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000),
+
                 ]
             ),
             new SettingsGroup(
@@ -164,7 +174,6 @@ export class Eagle {
                     new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Utils.ALLOW_PALETTE_EDITING, true),
                     new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PALETTE_EDITING, true),
                     new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, true),
-                    new Setting("Show DALiuGE runtime parameters", "Show additional component arguments that modify the behaviour of the DALiuGE runtime. For example: Data Volume, Execution Time, Num CPUs, Group Start/End", Setting.Type.Boolean, Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, true),
                     new Setting("Auto-suggest destination nodes", "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", Setting.Type.Boolean, Utils.AUTO_SUGGEST_DESTINATION_NODES, true)
                 ]
             ),
@@ -182,6 +191,7 @@ export class Eagle {
                 "Developer",
                 (eagle) => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
                 [
+                    new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false),
                     new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
                     new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
                     new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Utils.SKIP_CLOSE_LOOP_EDGES, true),
@@ -296,6 +306,14 @@ export class Eagle {
         return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_PALETTE_EDITING);
     }
 
+    static hidePaletteTab = () : boolean => {
+        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.HIDE_PALETTE_TAB);
+    }
+
+    static hideReadonlyParamters = () : boolean => {
+        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.HIDE_READONLY_PARAMETERS);
+    }
+
     static allowReadonlyPaletteEditing = () : boolean => {
         return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
     }
@@ -309,7 +327,11 @@ export class Eagle {
     }
 
     static showDaliugeRuntimeParameters = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+    }
+
+    static translatorUiMode = (mode : Eagle.TranslatorMode) : boolean => {
+        return Setting.findValue(Utils.USER_TRANSLATOR_MODE) === mode;
     }
 
     static isInUIMode = (mode : Eagle.UIMode) : boolean => {
@@ -324,10 +346,6 @@ export class Eagle {
         return Setting.findValue(Utils.ENABLE_PERFORMANCE_DISPLAY);
     }, this);
 
-    showSimplifiedTranslatorOptions : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Setting.findValue(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS);
-    }, this);
-
     toggleShowDataNodes = () : void => {
         // when we switch show/hide data nodes, some of the selected objects may become invisible,
         // and some of the selected objects may have not existed in the first place,
@@ -338,8 +356,8 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = () : void => {
-        var defaultTranslatingAlgorithm = Eagle.defaultTranslatorAlgorithm
-        $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').click()
+        var defaultTranslatingAlgorithmMethod = Eagle.defaultTranslatorAlgorithmMethod
+        this.translator().genPGT(defaultTranslatingAlgorithmMethod, false, Eagle.DALiuGESchemaVersion.Unknown)
     }
 
     // TODO: remove?
@@ -2047,16 +2065,16 @@ export class Eagle {
 
     getTranslatorDefault = () : any => {
         setTimeout(function(){
-            var defaultTransnlatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
-            $('.simplifiedTranslator').append(defaultTransnlatorHtml)
-            return defaultTransnlatorHtml
+            var defaultTranslatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
+            $('.simplifiedTranslator').append(defaultTranslatorHtml)
+            return defaultTranslatorHtml
         },10000)
         
     }
 
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        var showSimplifiedTranslatorOptions :any = Setting.find(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value()
-        if(!showSimplifiedTranslatorOptions){
+        var defaultTranslatorMode :any = Eagle.translatorUiMode(Eagle.TranslatorMode.Default)
+        if(!defaultTranslatorMode){
             return true
         }
 
@@ -4200,6 +4218,12 @@ export namespace Eagle
         Expert = "expert",
         Custom = "custom"
     }
+
+    export enum TranslatorMode {
+        Minimal = "minimal",
+        Default = "default",
+        Expert = "expert"
+    }
 }
 
 $( document ).ready(function() {
@@ -4240,6 +4264,8 @@ $( document ).ready(function() {
         $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
     }
 
+    Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
+
     $(".translationDefault").on("click",function(){
 
         var translationMethods = []
@@ -4262,6 +4288,8 @@ $( document ).ready(function() {
         var translationId = element.closest('.accordion-item').attr('id')
         localStorage.setItem('translationDefault',translationId)
         Eagle.defaultTranslatorAlgorithm = translationId
+        Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
+
         
         $(this).prop('checked',true).change()
     })

@@ -55,7 +55,7 @@
 
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: SideWindow.sideWindowAdjust}">
 
-            <!-- ko ifnot: Eagle.isInUIMode(Eagle.UIMode.Minimal) -->
+            <!-- ko ifnot: Eagle.hidePaletteTab() -->
             <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: leftWindow().shown() ? 0 : -leftWindow().width()}">
                 <div class="leftWindowHandle" data-bind="click: leftWindow().toggleShown, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_left_window', true)">
                     <span style="display: none" data-bind="visible: leftWindow().shown()">
@@ -99,9 +99,11 @@
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="visible: selectedObjects().length > 0, click: function(){rightWindow().mode(Eagle.RightWindowMode.Inspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Inspector}">
                             Inspector
                         </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}" data-intro='Submit a logical graph for translation into a physical graph.'>
-                            Translation
-                        </button>
+                        <!-- ko ifnot: Eagle.translatorUiMode(Eagle.TranslatorMode.Minimal)-->
+                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}" data-intro='Submit a logical graph for translation into a physical graph.'>
+                                Translation
+                            </button>
+                        <!-- /ko -->
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}" data-intro='Explore the hierarchy of nodes in the current logical graph.'>
                             Hierarchy
                         </button>
@@ -163,7 +165,9 @@
                         </div>
                     </div>
                     <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
-                        {% include 'translation_menu.html' %}
+                        <!-- ko ifnot: Eagle.translatorUiMode(Eagle.TranslatorMode.Minimal)-->
+                            {% include 'translation_menu.html' %}
+                        <!-- /ko -->
                     </div>
                     <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy">
                         {% include 'hierarchy.html' %}
