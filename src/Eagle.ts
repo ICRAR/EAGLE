@@ -106,6 +106,7 @@ export class Eagle {
     static lastClickTime : number = 0;
 
     static defaultTranslatorAlgorithm : string;
+    static defaultTranslatorAlgorithmMethod : any;
 
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
@@ -355,8 +356,8 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = () : void => {
-        var defaultTranslatingAlgorithm = Eagle.defaultTranslatorAlgorithm
-        $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').click()
+        var defaultTranslatingAlgorithmMethod = Eagle.defaultTranslatorAlgorithmMethod
+        this.translator().genPGT(defaultTranslatingAlgorithmMethod, false, Eagle.DALiuGESchemaVersion.Unknown)
     }
 
     // TODO: remove?
@@ -2064,9 +2065,9 @@ export class Eagle {
 
     getTranslatorDefault = () : any => {
         setTimeout(function(){
-            var defaultTransnlatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
-            $('.simplifiedTranslator').append(defaultTransnlatorHtml)
-            return defaultTransnlatorHtml
+            var defaultTranslatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
+            $('.simplifiedTranslator').append(defaultTranslatorHtml)
+            return defaultTranslatorHtml
         },10000)
         
     }
@@ -4263,6 +4264,8 @@ $( document ).ready(function() {
         $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
     }
 
+    Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
+
     $(".translationDefault").on("click",function(){
 
         var translationMethods = []
@@ -4285,6 +4288,8 @@ $( document ).ready(function() {
         var translationId = element.closest('.accordion-item').attr('id')
         localStorage.setItem('translationDefault',translationId)
         Eagle.defaultTranslatorAlgorithm = translationId
+        Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
+
         
         $(this).prop('checked',true).change()
     })
