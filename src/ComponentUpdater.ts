@@ -3,32 +3,20 @@ import {Palette} from './Palette';
 import {Node} from './Node';
 import {Utils} from './Utils';
 import {Errors} from './Errors';
-import { Field } from "./Field";
 
 export class ComponentUpdater {
 
-    static update(palettes: Palette[], graph: LogicalGraph, callback : (errorsWarnings : Errors.ErrorsWarnings, data : string) => void) : void {
+    static update(palettes: Palette[], graph: LogicalGraph, callback : (errorsWarnings : Errors.ErrorsWarnings, updatedNodes : Node[]) => void) : void {
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+        const updatedNodes: Node[] = [];
+
         // check if any nodes to update
         if (graph.getNodes().length === 0){
-            Utils.showNotification("Component Update", "Graph contains no components to update", "info");
-            callback(null, null);
+            // TODO: don't showNotification here! instead add a warning to the errorsWarnings and callback()
+            errorsWarnings.errors.push(Errors.Message("Graph contains no components to update"));
+            callback(errorsWarnings, updatedNodes);
             return;
         }
-
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
-
-        // debug
-        const tableData: any[] = [];
-        for (const node of graph.getNodes()){
-            tableData.push({
-                name:node.getName(),
-                repositoryUrl:node.getRepositoryUrl(),
-                commitHash:node.getCommitHash(),
-                paletteDownloadUrl:node.getPaletteDownloadUrl(),
-                dataHash:node.getDataHash()
-            });
-        }
-        console.table(tableData);
 
         // make sure we have a palette available for each component in the graph
         for (let i = 0 ; i < graph.getNodes().length ; i++){
@@ -45,31 +33,19 @@ export class ComponentUpdater {
 
             if (newVersion === null){
                 console.log("No match for node", node.getName());
-                errorsWarnings.errors.push(Errors.Message("Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
+                errorsWarnings.warnings.push(Errors.Message("Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
                 continue;
             }
 
-            console.log("Found match for node", node.getName(), node.getRepositoryUrl(), "match", newVersion.getName(), newVersion.getRepositoryUrl());
-
-
             ComponentUpdater._replaceNode(graph.getNodes()[i], newVersion);
-
+            updatedNodes.push(graph.getNodes()[i]);
         }
 
-        // report missing palettes to the user
-        if (errorsWarnings.errors.length > 0){
-            //Utils.showErrorsModal("Updating Components", errorsWarnings.errors, errorsWarnings.warnings);
-        } else {
-            Utils.showNotification("Success", "Components updated successfully", "success");
-        }
-
-        callback(null, null);
+        callback(errorsWarnings, updatedNodes);
     }
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
     static _replaceNode(dest:Node, src:Node){
-        console.log("dest fields", dest.getFields().length, "src fields", src.getFields().length);
-
         for (let i = 0 ; i < src.getFields().length ; i++){
             const srcField = src.getFields()[i];
 
