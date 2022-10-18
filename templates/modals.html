@@ -711,7 +711,7 @@
 
                                         <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'description' }"><input class="tableParameter" type="string" data-bind="value: description, readonly: $root.selectedNode().isLocked(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $root.selectedNode().isLocked(), $data, $index(),event)}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $root.selectedNode().isLocked(), $data, $index(),event)}}"></td>
                                         <td>
-                                            <select data-bind="html: $root.parameterTable().fill($data.type()), value: type, disabled: $root.selectedNode().isLocked()">
+                                            <select data-bind="options: $root.types, value: type, disabled: $root.selectedNode().isLocked()">
                                             <!-- options are added dynamically -->
                                             </select>
                                         </td>
