@@ -179,6 +179,11 @@ export class Field {
         this.precious(false);
         this.options([]);
         this.positional(false);
+
+        this.id("");
+        this.fieldType(Eagle.FieldType.Unknown);
+        this.isEvent(false);
+        this.nodeKey(0);
     }
 
     clone = () : Field => {
@@ -201,13 +206,23 @@ export class Field {
     }
 
     copyWithKeyAndId = (src: Field, nodeKey: number, id: string) : void => {
-        this.id(id);
-        this.idText(src.idText());
         this.displayText(src.displayText());
-        this.nodeKey(nodeKey);
-        this.isEvent(src.isEvent());
-        this.type(src.type());
+        this.idText(src.idText());
+        this.value(src.value());
+        this.defaultValue(src.defaultValue());
         this.description(src.description());
+        this.readonly(src.readonly());
+        this.type(src.type());
+        this.precious(src.precious());
+        this.options(src.options());
+        this.positional(src.positional());
+
+        this.fieldType(src.fieldType());
+        this.isEvent(src.isEvent());
+
+        // NOTE: these two are not copied from the src, but come from the function's parameters
+        this.id(id);
+        this.nodeKey(nodeKey);
     }
 
     isInputPort = () : boolean => {

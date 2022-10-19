@@ -328,7 +328,7 @@ export class Utils {
         console.warn("Unknown FieldType", fieldType);
         return Eagle.FieldType.Unknown;
     }
-
+    
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
         $.ajax({
             url: url,

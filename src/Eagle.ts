@@ -52,6 +52,7 @@ import {ExplorePalettes} from './ExplorePalettes';
 import {Hierarchy} from './Hierarchy';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
+import {ComponentUpdater} from './ComponentUpdater';
 import {ParameterTable} from './ParameterTable';
 import { timeHours } from "d3";
 
@@ -243,6 +244,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_translation", "Open Translation", [">"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.TranslationMenu)}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_hierarchy", "Open Hierarchy", ["h"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Hierarchy)}));
         Eagle.shortcuts.push(new KeyboardShortcut("toggle_show_data_nodes", "Toggle Show Data Nodes", ["j"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleShowDataNodes(); }));
+        Eagle.shortcuts.push(new KeyboardShortcut("check_for_component_updates", "Check for Component Updates", ["q"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.checkForComponentUpdates(); }));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -1118,8 +1120,10 @@ export class Eagle {
         const cloneLG: LogicalGraph = this.logicalGraph().clone();
 
         // zero-out some info that isn't useful for comparison
-        cloneLG.fileInfo().sha = "";
-        cloneLG.fileInfo().gitUrl = "";
+        cloneLG.fileInfo().repositoryUrl = "";
+        cloneLG.fileInfo().commitHash = "";
+        cloneLG.fileInfo().downloadUrl = "";
+        cloneLG.fileInfo().signature = "";
         cloneLG.fileInfo().lastModifiedName = "";
         cloneLG.fileInfo().lastModifiedEmail = "";
         cloneLG.fileInfo().lastModifiedDatetime = 0;
@@ -1182,7 +1186,7 @@ export class Eagle {
             case Eagle.RepositoryService.Url:
                 // TODO: new code
                 this.loadPalettes([
-                    {name:palette.fileInfo().name, filename:palette.fileInfo().gitUrl, readonly:palette.fileInfo().readonly}
+                    {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
                 ], (palettes: Palette[]):void => {
                     for (const palette of palettes){
                         if (palette !== null){
@@ -1582,8 +1586,9 @@ export class Eagle {
             results.push(null);
             complete.push(false);
             const index = i;
+            const data = {url: paletteList[i].filename};
 
-            Utils.httpGet(paletteList[i].filename, (error: string, data: string) => {
+            Utils.httpPostJSON("/openRemoteUrlFile", data, (error: string, data: string) => {
                 complete[index] = true;
 
                 if  (error !== null){
@@ -1595,8 +1600,7 @@ export class Eagle {
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
                     palette.fileInfo().builtIn = true;
-                    palette.fileInfo().gitUrl = paletteList[index].filename;
-                    palette.fileInfo().sha = "master";
+                    palette.fileInfo().downloadUrl = paletteList[index].filename;
                     palette.fileInfo().type = Eagle.FileType.Palette;
                     palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
 
@@ -1926,8 +1930,9 @@ export class Eagle {
             palette.fileInfo().modified = false;
             palette.fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
             palette.fileInfo().repositoryName = "";
-            palette.fileInfo().gitUrl = "";
-            palette.fileInfo().sha = "";
+            palette.fileInfo().repositoryUrl = "";
+            palette.fileInfo().commitHash = "";
+            palette.fileInfo().downloadUrl = "";
             palette.fileInfo.valueHasMutated();
         });
     }
@@ -1983,8 +1988,9 @@ export class Eagle {
             graph.fileInfo().modified = false;
             graph.fileInfo().repositoryService = Eagle.RepositoryService.File;
             graph.fileInfo().repositoryName = "";
-            graph.fileInfo().gitUrl = "";
-            graph.fileInfo().sha = "";
+            graph.fileInfo().repositoryUrl = "";
+            graph.fileInfo().commitHash = "";
+            graph.fileInfo().downloadUrl = "";
             graph.fileInfo.valueHasMutated();
         });
     }
@@ -4108,6 +4114,59 @@ export class Eagle {
         }
 
         console.log("Updated EAGLE's known data types. Found", this.types().length, "types");
+    }
+
+    checkForComponentUpdates = () : void => {
+        console.log("checkForComponentUpdates()");
+
+        ComponentUpdater.update(this.palettes(), this.logicalGraph(), function(errorsWarnings:Errors.ErrorsWarnings, updatedNodes:Node[]){
+            console.log("callback", errorsWarnings, updatedNodes);
+
+            // report missing palettes to the user
+            if (errorsWarnings.errors.length > 0){
+                const errorStrings = [];
+                for (const error of errorsWarnings.errors){
+                    errorStrings.push(error.message);
+                }
+
+                Utils.showNotification("Error", errorStrings.join("\n"), "danger");
+            } else {
+                const nodeNames = [];
+                for (const node of updatedNodes){
+                    nodeNames.push(node.getName());
+                }
+
+                Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
+            }
+        });
+    }
+
+    static getCategoryData = (category : Category) : Category.CategoryData => {
+        const c = CategoryData.getCategoryData(category);
+
+        if (typeof c === 'undefined'){
+            console.error("Could not fetch category data for category", category);
+            return {
+                categoryType: Category.Type.Unknown,
+                isResizable: false,
+                canContainComponents: false,
+                minInputs: 0,
+                maxInputs: 0,
+                minOutputs: 0,
+                maxOutputs: 0,
+                canHaveInputApplication: false,
+                canHaveOutputApplication: false,
+                canHaveComponentParameters: false,
+                canHaveApplicationArguments: false,
+                icon: "error",
+                color: "pink",
+                collapsedHeaderOffsetY: 0,
+                expandedHeaderOffsetY: 20,
+                sortOrder: Number.MAX_SAFE_INTEGER,
+            };
+        }
+
+        return c;
     }
 }
 
