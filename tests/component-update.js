@@ -19,7 +19,7 @@ test('Update components', async t =>{
 
     await t.wait(3000);
 
-    // !!!!!!!!!!!!! LOAD GRAPH
+    // !!!!!!!!!!!!! LOAD GRAPH (with out-of-date 'CopyApp' component)
     await t
         .click(Selector('#navbarDropdownGraph'))
         .hover(Selector('#navbarDropdownGraphNew'))
@@ -32,7 +32,7 @@ test('Update components', async t =>{
 
         .wait(3000);
 
-    // !!!!!!!!!!!!! Component Update
+    // !!!!!!!!!!!!! Click the "component update" button
     await t
         .click(Selector('#checkForComponentUpdates'));
     await t.wait(3000);
@@ -51,14 +51,18 @@ test('Update components', async t =>{
     const obj1 = JSON.parse(graphJSON);
     const obj2 = JSON.parse(outputJSON);
 
-    // !!!!!!!!!!!!! CHECK FOR CORRECT NUMBER OF PARAMETERS IN INPUT COMPONENTS
+    // !!!!!!!!!!!!! CHECK FOR EXPECTED INPUT COMPONENTS
     await t.expect(obj1.nodeDataArray[2].fields.length).eql(5, {timeout:3000});
+    await t.expect(obj1.nodeDataArray[2].fields[0].name).eql("appclass", {timeout:3000});
+    await t.expect(obj1.nodeDataArray[2].fields[0].value).eql("dlg.apps.simple.CopyAppBad", {timeout:3000});
 
-    console.log(obj1.nodeDataArray[2].fields);
-    console.log(obj2.nodeDataArray[2].fields);
-
-    // !!!!!!!!!!!!! CHECK FOR CORRECT NUMBER OF PARAMETERS IN OUTPUT COMPONENTS
-    await t.expect(obj2.nodeDataArray[2].fields.length).eql(9, {timeout:3000});
+    // !!!!!!!!!!!!! CHECK FOR CORRECTLY UPDATED OUTPUT COMPONENTS
+    await t.expect(obj2.nodeDataArray[2].fields.length).eql(8, {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[0].name).eql("appclass", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[0].value).eql("dlg.apps.simple.CopyApp", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[5].name).eql("bufsize", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[6].name).eql("input_error_threshold", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[7].name).eql("n_tries", {timeout:3000});
 });
 
 const fetchGraph = (filename) => {
