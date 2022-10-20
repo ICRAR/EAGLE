@@ -116,18 +116,31 @@ export class ParameterTable {
     getNodeLockedState = (field:Field) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            if(eagle.selectedNode() === null){
+                return false
+            }
             return eagle.selectedNode().isLocked()
         }else{
-            return eagle.logicalGraph().findNodeByKey(field.getNodeKey()).isLocked()
+            if(eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()) === null){
+                return false
+            }
+            return eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()).isLocked()
         }
     }
 
     getFieldUseAsForTable = (nodeKey:number,fieldType:Eagle.FieldType) : any => {
         const eagle: Eagle = Eagle.getInstance();
+
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            if(eagle.selectedNode() === null){
+                return false
+            }
             return eagle.selectedNode().fillFieldTypeCell(fieldType)
         }else{
-            return eagle.logicalGraph().findNodeByKey(nodeKey).fillFieldTypeCell(fieldType)
+            if(eagle.logicalGraph().findNodeByKeyQuiet(nodeKey) === null){
+                return false
+            }
+            return eagle.logicalGraph().findNodeByKeyQuiet(nodeKey).fillFieldTypeCell(fieldType)
         }
         
     }
