@@ -617,6 +617,14 @@ td:first-child input {
     transition: none;
 }
 
+#shortcutsModal .modal-dialog{
+    max-width: 1100px;
+}
+
+#shortcutsModal .modal-content{
+    height:60vh;
+}
+
 #settingsModal .modal-header{
     border: none;
     background-color:#002349;
@@ -753,8 +761,7 @@ select.form-control{
 
 .modal-body{
     background-color: aliceblue;
-    max-height: 70vh;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .modal-body li{
@@ -871,7 +878,6 @@ select.form-control{
     top: 62px;
     position: absolute;
     overflow: auto;
-    padding-bottom: 30px;
     width: 100%;
 }
 
