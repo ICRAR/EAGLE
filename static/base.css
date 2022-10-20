@@ -888,6 +888,11 @@ select.form-control{
     z-index:10;
 }
 
+#aboutModal .modal-content{
+    width: 60vw;
+    height: 60vh;
+}
+
 .checkSettingLabel input{
     cursor: default;
 }
