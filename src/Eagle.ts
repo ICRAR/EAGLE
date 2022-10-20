@@ -3439,7 +3439,7 @@ export class Eagle {
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort);
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -3507,24 +3507,14 @@ export class Eagle {
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
                 }
                 
                 // update field data
-                field.setDisplayText(newField.getDisplayText());
-                field.setIdText(newField.getIdText());
-                field.setValue(newField.getValue());
-                field.setDefaultValue(newField.getDefaultValue());
-                field.setDescription(newField.getDescription());
-                field.setReadonly(newField.isReadonly());
-                field.setType(newField.getType());
-                field.setPrecious(newField.isPrecious());
-                field.setPositionalArgument(newField.isPositionalArgument());
-                field.setParameterType(newField.getParameterType());
-                field.setUsage(newField.getUsage());
+                field.copyWithKeyAndId(newField, newField.getNodeKey(), newField.getId());
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");

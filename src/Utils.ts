@@ -651,7 +651,7 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, parameterUsage: Eagle.ParameterUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         let dropDownKO;
         let divID;
 
@@ -665,18 +665,20 @@ export class Utils {
             dropDownKO = $("#nodeInspectorFieldDropDownKO");
             divID = "nodeInspectorAddFieldDiv";
             break;
-            /*
-            case Eagle.FieldType.InputPort:
+            default:
+            console.error("Unknown parameter type");
+        }
+
+        // or if we are a port, then use different dropdowns
+        switch(parameterUsage){
+            case Eagle.ParameterUsage.InputPort:
             dropDownKO = $("#nodeInspectorInputPortDropDownKO");
             divID = "nodeInspectorAddInputPortDiv";
             break;
-            case Eagle.FieldType.OutputPort:
+            case Eagle.ParameterUsage.OutputPort:
             dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
             divID = "nodeInspectorAddOutputPortDiv";
             break;
-            */
-            default:
-            console.error("Unknown parameter type");
         }
 
         if (modalType === Eagle.ModalType.Add){
