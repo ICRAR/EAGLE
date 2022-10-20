@@ -37,6 +37,24 @@
     margin-right: 0.6rem;
 }
 
+.navbar #navDeployBtn{
+    padding: 8px;
+}
+
+.navbar #navDeployBtn a{
+    border: 1px white solid;
+    border-radius: 0.2rem;
+    box-shadow: none !important;
+    padding: 6px 9px;
+    text-decoration: none;
+    height: fit-content;
+}
+
+.navbar #navDeployBtn a:hover{
+    color: #002349 !important;
+    background-color: white;
+}
+
 .rightWindow {
     background-color: rgba(214, 219, 239, 0.95);
     z-index: 1;
@@ -85,10 +103,6 @@
     background-color: #b6c3cf;
 }
 
-#editFieldModal .modal-body{
-    min-height: 585px;
-}
-
 #editFieldModalTypeSelect{
     position: absolute;
     background: white;
@@ -109,35 +123,22 @@
     pointer-events: none;
 }
 
-#parameterTableModal .modal-content{
-    max-height: 70vh;
-    overflow-y: auto;
-    overflow-x: clip;
-}
-
-#parameterTableModal .modal-footer{
-    padding:5px 10px;
-    position: sticky;
-    bottom: 0;
-    z-index: 111;
-}
-
-#parameterTableModal .modal-header{
-    position: sticky;
-    top: 0;
-    z-index: 111;
+#paramsTableWrapper {
+    width: 100%;
+    top: 24px;
+    position: absolute;
 }
 
 #parameterTableModal #tableInspector{
     position: sticky;
-    top: 62px;
+    top: 0px;
     z-index: 111;
 }
 
 #parameterTableModal thead{
     position: sticky;
     z-index: 111;
-    top: 86px;
+    top: 24px;
 }
 
 #tableInspector{
@@ -285,7 +286,6 @@ td:first-child input {
 
 #parameterTableModal .modal-body{
     padding: 0px;
-    display: inline-table;
 }
 
 #paramsTableWrapper{
@@ -339,10 +339,6 @@ td:first-child input {
 }
 
 @media only screen and (max-width: 2010px) {
-
-    #parameterTableModal .modal-dialog {
-        max-width: 90vw;
-    }
 
     #parameter_table_isPort{
         width: 90px;
@@ -639,6 +635,14 @@ td:first-child input {
     transition: none;
 }
 
+#shortcutsModal .modal-dialog{
+    max-width: 1100px;
+}
+
+#shortcutsModal .modal-content{
+    height:60vh;
+}
+
 #settingsModal .modal-header{
     border: none;
     background-color:#002349;
@@ -667,6 +671,9 @@ td:first-child input {
     width: 100%;
     display: flex;
     color: white;
+    position: sticky;  
+    top: 0px;
+    z-index:10;
 }
 
 .settingCategoryActive{
@@ -685,8 +692,6 @@ td:first-child input {
 
 #settingsModal form{
     padding:30px 20px 30px 20px;
-    min-height: 40vh;
-    max-height: 70vh;
     overflow-y: scroll;
 }
 
@@ -695,16 +700,6 @@ td:first-child input {
     height: unset;
     max-height: unset;
     overflow-y: unset;
-}
-
-#shortcutsModal .modal-dialog{
-    transform:none!important;
-}
-
-#shortcutsModal .modal-content{
-    width: 1000px;
-    position: absolute;
-    transform: translateX(-50%);
 }
 
 .shortCutsModalItem{
@@ -784,8 +779,7 @@ select.form-control{
 
 .modal-body{
     background-color: aliceblue;
-    max-height: 70vh;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .modal-body li{
@@ -868,21 +862,61 @@ select.form-control{
     color: #ffc107;
 }
 
-#errorsModal .modal-content{
-    height: 70vh;
-}
-
 #resetSettingsDefaults{
     left: 10px;
     position: absolute;
 }
 
-.checkSettingLabel input{
-    cursor: default;
+.modal{
+    overflow:hidden;
 }
 
-.checkSettingLabel input:focus{
-    box-shadow: none;
+.modal-header{
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 111;
+}
+
+.modal-content{
+    resize: both;
+    overflow: hidden;
+    height: 40vh;
+    max-height: 95vh;
+    max-width: 95vw;
+    background-color: aliceblue;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    position:absolute;
+    
+}
+
+.modal-body{
+    height: calc(100% - 133px) !important ;
+    top: 62px;
+    position: absolute;
+    overflow: auto;
+    width: 100%;
+}
+
+.modal-footer{
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    z-index:10;
+}
+
+#aboutModal .modal-content{
+    width: 60vw;
+    height: 60vh;
+}
+
+#nodeInspector select{
+    padding:2px 15px;
+}
+
+.checkSettingLabel input{
+    cursor: default;
 }
 
 .headerIcons{
