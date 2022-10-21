@@ -805,12 +805,14 @@
                                         </td>
                                     <!-- /ko --> 
 
-                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('useAs') -->
+                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('parameterType') -->
                                         <td>
                                             <select data-bind="options: Object.values(Eagle.ParameterType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data)">
                                                 <!-- options are added dynamically -->
                                             </select>
                                         </td>
+                                    <!-- /ko -->
+                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('usage') -->
                                         <td>
                                             <select data-bind="options: Object.values(Eagle.ParameterUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data)">
                                                 <!-- options are added dynamically -->

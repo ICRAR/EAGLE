@@ -2250,13 +2250,11 @@ export class Eagle {
         }
     }
 
-    getCurrentParamReadonly = (id: string) : boolean => {
-        const node: Node = this.selectedNode();
-        const field: Field = node.findFieldById(id);
+    getCurrentParamReadonly = (field: Field) : boolean => {
 
         // check that we actually found the right field, otherwise abort
         if (field === null){
-            console.warn("Could not find field id", id, "in node", node.getName(), ". Not found.");
+            console.warn("Supplied field is null");
             return false;
         }
 
