@@ -1898,7 +1898,14 @@ export class Eagle {
             return ""
         }
 
-        const parentText = this.logicalGraph().findNodeByKey(parentKey).getName() + ' | Key: ' + parentKey;
+        // TODO: temporary fix while we get lots of warnings about missing nodes
+        const parentNode = this.logicalGraph().findNodeByKeyQuiet(parentKey);
+
+        if (parentNode === null){
+            return ""
+        }
+
+        const parentText = parentNode.getName() + ' | Key: ' + parentKey;
 
         return parentText
     }
