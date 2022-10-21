@@ -130,6 +130,10 @@ export class Field {
         return Utils.asBool(val);
     }
 
+    toggle = () => {
+        this.value((!Utils.asBool(this.value())).toString());
+    }
+
     setType = (type: string) : void => {
         this.type(type);
     }
