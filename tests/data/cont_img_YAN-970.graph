@@ -774,6 +774,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "num_of_iter",
                     "options": [],
                     "positional": false,
@@ -828,6 +829,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "num_of_iter",
                     "options": [],
                     "positional": false,
@@ -881,6 +883,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": false,
@@ -893,6 +896,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": false,
@@ -926,6 +930,7 @@
                     "IdText": "Config",
                     "description": "The output configuration file",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "ConfigFile",
                     "type": "Complex"
                 },
@@ -934,6 +939,7 @@
                     "IdText": "gt",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 },
@@ -942,6 +948,7 @@
                     "IdText": "im_param",
                     "description": "Image parameters",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im_param",
                     "type": "Complex"
                 }
@@ -971,6 +978,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": false,
@@ -983,6 +991,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": false,
@@ -995,6 +1004,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": false,
@@ -1007,6 +1017,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this branch construct",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": false,
@@ -1032,6 +1043,7 @@
                     "IdText": "gt",
                     "description": "Gain Table",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 }
@@ -1050,6 +1062,7 @@
                     "IdText": "Y",
                     "description": "Final Gain Table",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 },
@@ -1058,6 +1071,7 @@
                     "IdText": "N",
                     "description": "Intermediate Gain Table",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 }
@@ -1077,6 +1091,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -1089,6 +1104,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -1101,6 +1117,7 @@
                 {
                     "defaultValue": "",
                     "description": "BlockVisibility containing the observed data_models",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -1113,6 +1130,7 @@
                 {
                     "defaultValue": "",
                     "description": "BlockVisibility containing the visibility predicted by a model",
+                    "keyAttribute": false,
                     "name": "modelvis",
                     "options": [],
                     "positional": "false",
@@ -1125,6 +1143,7 @@
                 {
                     "defaultValue": "",
                     "description": "Existing gaintable",
+                    "keyAttribute": false,
                     "name": "gt",
                     "options": [],
                     "positional": "false",
@@ -1137,6 +1156,7 @@
                 {
                     "defaultValue": "",
                     "description": "Solve only for the phases (default=True)",
+                    "keyAttribute": false,
                     "name": "phase_only",
                     "options": [],
                     "positional": "false",
@@ -1149,6 +1169,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of iterations (default 30)",
+                    "keyAttribute": false,
                     "name": "niter",
                     "options": [],
                     "positional": "false",
@@ -1161,6 +1182,7 @@
                 {
                     "defaultValue": "",
                     "description": "Iteration stops when the fractional change in the gain solution is below this tolerance",
+                    "keyAttribute": false,
                     "name": "tol",
                     "options": [],
                     "positional": "false",
@@ -1173,6 +1195,7 @@
                 {
                     "defaultValue": "",
                     "description": "Do solutions including cross polarisations i.e. XY, YX or RL, LR",
+                    "keyAttribute": false,
                     "name": "crosspol",
                     "options": [],
                     "positional": "false",
@@ -1185,6 +1208,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "normalise_gains",
                     "options": [],
                     "positional": "false",
@@ -1197,6 +1221,7 @@
                 {
                     "defaultValue": "",
                     "description": "Type of calibration matrix T or G or B",
+                    "keyAttribute": false,
                     "name": "jones_type",
                     "options": [],
                     "positional": "false",
@@ -1209,6 +1234,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "kwargs",
                     "options": [],
                     "positional": "false",
@@ -1232,6 +1258,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -1244,6 +1271,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -1256,6 +1284,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -1268,6 +1297,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -1293,6 +1323,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 },
@@ -1301,6 +1332,7 @@
                     "IdText": "modelvis",
                     "description": "Model as BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modevis",
                     "type": "Complex"
                 },
@@ -1309,6 +1341,7 @@
                     "IdText": "gt",
                     "description": "Gain Table",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 },
@@ -1317,6 +1350,7 @@
                     "IdText": "fg",
                     "description": "Need to reapply flags if restarting from obs vis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "fg",
                     "type": "Complex"
                 }
@@ -1335,6 +1369,7 @@
                     "IdText": "gt",
                     "description": "Gain Table",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 }
@@ -1354,6 +1389,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -1366,6 +1402,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -1378,6 +1415,7 @@
                 {
                     "defaultValue": "",
                     "description": "blockvisibility to have gains applied",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -1390,6 +1428,7 @@
                 {
                     "defaultValue": "",
                     "description": "Gaintable to be applied",
+                    "keyAttribute": false,
                     "name": "gt",
                     "options": [],
                     "positional": "false",
@@ -1402,6 +1441,7 @@
                 {
                     "defaultValue": "",
                     "description": "Apply the inverse (default=False)",
+                    "keyAttribute": false,
                     "name": "inverse",
                     "options": [],
                     "positional": "false",
@@ -1414,6 +1454,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "kwargs",
                     "options": [],
                     "positional": "false",
@@ -1437,6 +1478,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -1449,6 +1491,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -1461,6 +1504,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -1473,6 +1517,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -1498,6 +1543,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 },
@@ -1506,6 +1552,7 @@
                     "IdText": "gt",
                     "description": "Gain Table",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 }
@@ -1524,6 +1571,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -1543,6 +1591,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -1555,6 +1604,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -1567,6 +1617,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -1579,6 +1630,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "modelvis",
                     "options": [],
                     "positional": true,
@@ -1591,6 +1643,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "inplace",
                     "options": [],
                     "positional": "false",
@@ -1614,6 +1667,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -1626,6 +1680,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -1638,6 +1693,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -1650,6 +1706,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -1675,6 +1732,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 },
@@ -1683,6 +1741,7 @@
                     "IdText": "modelvis",
                     "description": "Model as BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modevis",
                     "type": "Complex"
                 }
@@ -1701,6 +1760,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -1720,6 +1780,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -1732,6 +1793,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -1744,6 +1806,7 @@
                 {
                     "defaultValue": "",
                     "description": "BlockVisibility",
+                    "keyAttribute": false,
                     "name": "bvis",
                     "options": [],
                     "positional": "false",
@@ -1756,6 +1819,7 @@
                 {
                     "defaultValue": "",
                     "description": "The list of baseline numbers to flag",
+                    "keyAttribute": false,
                     "name": "baselines",
                     "options": [],
                     "positional": "false",
@@ -1768,6 +1832,7 @@
                 {
                     "defaultValue": "",
                     "description": "The list of antenna number to flag",
+                    "keyAttribute": false,
                     "name": "antennas",
                     "options": [],
                     "positional": "false",
@@ -1780,6 +1845,7 @@
                 {
                     "defaultValue": "",
                     "description": "The list of Channel number to flag",
+                    "keyAttribute": false,
                     "name": "channels",
                     "options": [],
                     "positional": "false",
@@ -1792,6 +1858,7 @@
                 {
                     "defaultValue": "",
                     "description": "The list of polarisations to flag",
+                    "keyAttribute": false,
                     "name": "polarisations",
                     "options": [],
                     "positional": "false",
@@ -1815,6 +1882,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -1827,6 +1895,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -1839,6 +1908,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -1851,6 +1921,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -1876,6 +1947,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -1894,6 +1966,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 },
@@ -1902,6 +1975,7 @@
                     "IdText": "fg",
                     "description": "Need to reapply flags if restarting from obs vis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "fg",
                     "type": "Complex"
                 }
@@ -1921,6 +1995,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -1933,6 +2008,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -1945,6 +2021,7 @@
                 {
                     "defaultValue": "",
                     "description": "skycomponents to test",
+                    "keyAttribute": false,
                     "name": "comps_test",
                     "options": [],
                     "positional": "false",
@@ -1957,6 +2034,7 @@
                 {
                     "defaultValue": "",
                     "description": "reference skycomponents",
+                    "keyAttribute": false,
                     "name": "comps_ref",
                     "options": [],
                     "positional": "false",
@@ -1969,6 +2047,7 @@
                 {
                     "defaultValue": "",
                     "description": "Tolerance in rad",
+                    "keyAttribute": false,
                     "name": "tol",
                     "options": [],
                     "positional": "false",
@@ -1992,6 +2071,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -2004,6 +2084,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -2016,6 +2097,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -2028,6 +2110,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -2053,6 +2136,7 @@
                     "IdText": "comp_major",
                     "description": "Input Model as Components",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "comp_major",
                     "type": "Complex"
                 },
@@ -2061,6 +2145,7 @@
                     "IdText": "sc_ref",
                     "description": "Merge Model Components into Reference",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc_ref",
                     "type": "Complex"
                 }
@@ -2079,6 +2164,7 @@
                     "IdText": "sc",
                     "description": "Merge Model Components into Reference",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -2098,6 +2184,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -2110,6 +2197,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -2122,6 +2210,7 @@
                 {
                     "defaultValue": "",
                     "description": "blockvisibility to be gridded",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -2134,6 +2223,7 @@
                 {
                     "defaultValue": "",
                     "description": "GridData",
+                    "keyAttribute": false,
                     "name": "griddata",
                     "options": [],
                     "positional": "false",
@@ -2146,6 +2236,7 @@
                 {
                     "defaultValue": "",
                     "description": "Convolution function",
+                    "keyAttribute": false,
                     "name": "cf",
                     "options": [],
                     "positional": "false",
@@ -2169,6 +2260,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -2181,6 +2273,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -2193,6 +2286,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -2205,6 +2299,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -2230,6 +2325,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 },
@@ -2238,6 +2334,7 @@
                     "IdText": "cg",
                     "description": "Convolution Function",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "cf",
                     "type": "Complex"
                 }
@@ -2256,6 +2353,7 @@
                     "IdText": "griddata",
                     "description": "Visibilities, Gridded",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -2275,6 +2373,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -2287,6 +2386,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -2299,6 +2399,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "griddata",
                     "options": [],
                     "positional": "false",
@@ -2311,6 +2412,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "template",
                     "options": [],
                     "positional": "false",
@@ -2323,6 +2425,7 @@
                 {
                     "defaultValue": "",
                     "description": "Grid correction image",
+                    "keyAttribute": false,
                     "name": "gcf",
                     "options": [],
                     "positional": "false",
@@ -2346,6 +2449,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -2358,6 +2462,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -2370,6 +2475,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -2382,6 +2488,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -2407,6 +2514,7 @@
                     "IdText": "griddata",
                     "description": "Visibilities, Gridded",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -2425,6 +2533,7 @@
                     "IdText": "im",
                     "description": "Image",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Complex"
                 }
@@ -2444,6 +2553,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -2456,6 +2566,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -2468,6 +2579,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -2480,6 +2592,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "modelvis",
                     "options": [],
                     "positional": true,
@@ -2492,6 +2605,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "inplace",
                     "options": [],
                     "positional": "false",
@@ -2515,6 +2629,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -2527,6 +2642,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -2539,6 +2655,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -2551,6 +2668,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -2576,6 +2694,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 },
@@ -2584,6 +2703,7 @@
                     "IdText": "modelvis",
                     "description": "Model as BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modevis",
                     "type": "Complex"
                 }
@@ -2602,6 +2722,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -2621,6 +2742,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -2633,6 +2755,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -2645,6 +2768,7 @@
                 {
                     "defaultValue": "",
                     "description": "Only write components brighter than this (Jy)",
+                    "keyAttribute": false,
                     "name": "flux_limit",
                     "options": [],
                     "positional": "false",
@@ -2657,6 +2781,7 @@
                 {
                     "defaultValue": "",
                     "description": "Polarisation frame (default PolarisationFrame(\"stokesI\"))",
+                    "keyAttribute": false,
                     "name": "polarisation_frame",
                     "options": [],
                     "positional": "false",
@@ -2669,6 +2794,7 @@
                 {
                     "defaultValue": "",
                     "description": "Frequencies at which the flux will be estimated",
+                    "keyAttribute": false,
                     "name": "frequency",
                     "options": [],
                     "positional": "false",
@@ -2681,6 +2807,7 @@
                 {
                     "defaultValue": "",
                     "description": "Kind of interpolation (see scipy.interpolate.interp1d) Default: linear",
+                    "keyAttribute": false,
                     "name": "kind",
                     "options": [],
                     "positional": "false",
@@ -2693,6 +2820,7 @@
                 {
                     "defaultValue": "",
                     "description": "Desired phase centre (SkyCoord) default None implies all sources",
+                    "keyAttribute": false,
                     "name": "phasecentre",
                     "options": [],
                     "positional": "false",
@@ -2705,6 +2833,7 @@
                 {
                     "defaultValue": "",
                     "description": "Radius of sources selected around phasecentre (default 1.0 rad)",
+                    "keyAttribute": false,
                     "name": "radius",
                     "options": [],
                     "positional": "false",
@@ -2728,6 +2857,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -2740,6 +2870,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -2752,6 +2883,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -2764,6 +2896,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -2776,6 +2909,7 @@
                 {
                     "defaultValue": "false",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": false,
@@ -2800,6 +2934,7 @@
                     "IdText": "Config",
                     "description": "The output configuration file",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "ConfigFile",
                     "type": "Complex"
                 }
@@ -2818,6 +2953,7 @@
                     "IdText": "sc_ref",
                     "description": "Model as Components",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc_ref",
                     "type": "Complex"
                 }
@@ -2847,6 +2983,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": false,
@@ -2859,6 +2996,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": false,
@@ -2883,6 +3021,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -2901,6 +3040,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -2930,6 +3070,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -2942,6 +3083,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -2967,6 +3109,7 @@
                     "IdText": "sc_ref",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc_ref",
                     "type": "Complex"
                 }
@@ -2985,6 +3128,7 @@
                     "IdText": "sc_ref",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc_ref",
                     "type": "Complex"
                 }
@@ -3014,6 +3158,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -3026,6 +3171,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -3051,6 +3197,7 @@
                     "IdText": "gt",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 }
@@ -3069,6 +3216,7 @@
                     "IdText": "gt",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 }
@@ -3098,6 +3246,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -3110,6 +3259,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -3135,6 +3285,7 @@
                     "IdText": "N",
                     "description": "Intermediate Gain Table",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 }
@@ -3153,6 +3304,7 @@
                     "IdText": "gt",
                     "description": "Intermediate Gain Table",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 }
@@ -3182,6 +3334,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -3194,6 +3347,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -3219,6 +3373,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3237,6 +3392,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3266,6 +3422,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -3278,6 +3435,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -3303,6 +3461,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3321,6 +3480,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3350,6 +3510,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -3362,6 +3523,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -3387,6 +3549,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -3405,6 +3568,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -3434,6 +3598,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -3446,6 +3611,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -3471,6 +3637,7 @@
                     "IdText": "im",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Complex"
                 }
@@ -3489,6 +3656,7 @@
                     "IdText": "im",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Complex"
                 }
@@ -3508,6 +3676,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -3520,6 +3689,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -3532,6 +3702,7 @@
                 {
                     "defaultValue": "",
                     "description": "BlockVisibility",
+                    "keyAttribute": false,
                     "name": "bvis",
                     "options": [],
                     "positional": "false",
@@ -3544,6 +3715,7 @@
                 {
                     "defaultValue": "",
                     "description": "The list of baseline numbers to flag",
+                    "keyAttribute": false,
                     "name": "baselines",
                     "options": [],
                     "positional": "false",
@@ -3556,6 +3728,7 @@
                 {
                     "defaultValue": "",
                     "description": "The list of antenna number to flag",
+                    "keyAttribute": false,
                     "name": "antennas",
                     "options": [],
                     "positional": "false",
@@ -3568,6 +3741,7 @@
                 {
                     "defaultValue": "",
                     "description": "The list of Channel number to flag",
+                    "keyAttribute": false,
                     "name": "channels",
                     "options": [],
                     "positional": "false",
@@ -3580,6 +3754,7 @@
                 {
                     "defaultValue": "",
                     "description": "The list of polarisations to flag",
+                    "keyAttribute": false,
                     "name": "polarisations",
                     "options": [],
                     "positional": "false",
@@ -3603,6 +3778,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -3615,6 +3791,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -3627,6 +3804,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -3639,6 +3817,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -3664,6 +3843,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3682,6 +3862,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3711,6 +3892,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -3723,6 +3905,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -3748,6 +3931,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3766,6 +3950,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3795,6 +3980,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -3807,6 +3993,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -3832,6 +4019,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3850,6 +4038,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Unknown"
                 }
@@ -3879,6 +4068,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -3891,6 +4081,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -3916,6 +4107,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3934,6 +4126,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -3963,6 +4156,7 @@
                 {
                     "defaultValue": "",
                     "description": "The number of iterations performed by this loop construct",
+                    "keyAttribute": false,
                     "name": "num_of_iter",
                     "options": [],
                     "positional": false,
@@ -4007,6 +4201,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -4019,6 +4214,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -4031,6 +4227,7 @@
                 {
                     "defaultValue": "",
                     "description": "Image to be searched",
+                    "keyAttribute": false,
                     "name": "im",
                     "options": [],
                     "positional": "false",
@@ -4043,6 +4240,7 @@
                 {
                     "defaultValue": "",
                     "description": "Full width half maximum of gaussian in pixels",
+                    "keyAttribute": false,
                     "name": "fwhm",
                     "options": [],
                     "positional": "false",
@@ -4055,6 +4253,7 @@
                 {
                     "defaultValue": "",
                     "description": "Threshold for component detection. Default: 1 Jy.",
+                    "keyAttribute": false,
                     "name": "threshold",
                     "options": [],
                     "positional": "false",
@@ -4067,6 +4266,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of connected pixels required",
+                    "keyAttribute": false,
                     "name": "npixels",
                     "options": [],
                     "positional": "false",
@@ -4090,6 +4290,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -4102,6 +4303,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -4114,6 +4316,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -4126,6 +4329,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -4151,6 +4355,7 @@
                     "IdText": "im",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Complex"
                 }
@@ -4169,6 +4374,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -4198,6 +4404,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -4210,6 +4417,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -4222,6 +4430,7 @@
                 {
                     "defaultValue": "false",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": false,
@@ -4247,6 +4456,7 @@
                     "IdText": "sc_ref",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc_ref",
                     "type": "Complex"
                 }
@@ -4265,6 +4475,7 @@
                     "IdText": "sc_ref",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc_ref",
                     "type": "Complex"
                 }
@@ -4294,6 +4505,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -4306,6 +4518,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -4331,6 +4544,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -4349,6 +4563,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -4378,6 +4593,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -4390,6 +4606,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -4415,6 +4632,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -4433,6 +4651,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -4462,6 +4681,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -4474,6 +4694,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -4499,6 +4720,7 @@
                     "IdText": "comp_minor",
                     "description": "Sum of minor components",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "comp_minor",
                     "type": "Complex"
                 }
@@ -4517,6 +4739,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Unknown"
                 }
@@ -4546,6 +4769,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": false,
@@ -4558,6 +4782,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": false,
@@ -4570,6 +4795,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": false,
@@ -4582,6 +4808,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this branch construct",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": false,
@@ -4607,6 +4834,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -4625,6 +4853,7 @@
                     "IdText": "sc",
                     "description": "delta components in image",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 },
@@ -4633,6 +4862,7 @@
                     "IdText": "comp_minor",
                     "description": "Sum of minor components",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "comp_minor",
                     "type": "Complex"
                 }
@@ -4662,6 +4892,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": false,
@@ -4674,6 +4905,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": false,
@@ -4686,6 +4918,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": false,
@@ -4698,6 +4931,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this branch construct",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": false,
@@ -4723,6 +4957,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Unknown"
                 }
@@ -4741,6 +4976,7 @@
                     "IdText": "sc",
                     "description": "delta components in image",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 },
@@ -4749,6 +4985,7 @@
                     "IdText": "comp_major",
                     "description": "Sum of major components",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "comp_major",
                     "type": "Complex"
                 }
@@ -4778,6 +5015,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -4790,6 +5028,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -4815,6 +5054,7 @@
                     "IdText": "comp_major",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "comp_major",
                     "type": "Complex"
                 }
@@ -4833,6 +5073,7 @@
                     "IdText": "comp_major",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "comp_major",
                     "type": "Complex"
                 }
@@ -4862,6 +5103,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -4874,6 +5116,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -4899,6 +5142,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -4917,6 +5161,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -4936,6 +5181,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -4948,6 +5194,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -4960,6 +5207,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "griddata",
                     "options": [],
                     "positional": "false",
@@ -4972,6 +5220,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "template",
                     "options": [],
                     "positional": "false",
@@ -4984,6 +5233,7 @@
                 {
                     "defaultValue": "",
                     "description": "Grid correction image",
+                    "keyAttribute": false,
                     "name": "gcf",
                     "options": [],
                     "positional": "false",
@@ -5007,6 +5257,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -5019,6 +5270,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -5031,6 +5283,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -5043,6 +5296,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -5068,6 +5322,7 @@
                     "IdText": "griddata",
                     "description": "Visibilities, Gridded",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -5086,6 +5341,7 @@
                     "IdText": "psf",
                     "description": "PSF of Image",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "psf",
                     "type": "Complex"
                 }
@@ -5115,6 +5371,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -5127,6 +5384,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -5152,6 +5410,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -5170,6 +5429,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -5189,6 +5449,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -5201,6 +5462,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -5213,6 +5475,7 @@
                 {
                     "defaultValue": "",
                     "description": "BlockVisibility to be gridded",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -5225,6 +5488,7 @@
                 {
                     "defaultValue": "",
                     "description": "GridData",
+                    "keyAttribute": false,
                     "name": "griddata",
                     "options": [],
                     "positional": "false",
@@ -5248,6 +5512,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -5260,6 +5525,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -5272,6 +5538,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -5284,6 +5551,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -5309,6 +5577,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -5327,6 +5596,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -5356,6 +5626,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -5368,6 +5639,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -5393,6 +5665,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -5411,6 +5684,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -5430,6 +5704,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -5442,6 +5717,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -5454,6 +5730,7 @@
                 {
                     "defaultValue": "",
                     "description": "Template Image",
+                    "keyAttribute": false,
                     "name": "im",
                     "options": [],
                     "positional": "false",
@@ -5466,6 +5743,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of z axes, usually z is W",
+                    "keyAttribute": false,
                     "name": "nw",
                     "options": [],
                     "positional": "false",
@@ -5478,6 +5756,7 @@
                 {
                     "defaultValue": "",
                     "description": "Step in z, usually z is W",
+                    "keyAttribute": false,
                     "name": "wstep",
                     "options": [],
                     "positional": "false",
@@ -5490,6 +5769,7 @@
                 {
                     "defaultValue": "",
                     "description": "Type of z, usually 'WW'",
+                    "keyAttribute": false,
                     "name": "wtype",
                     "options": [],
                     "positional": "false",
@@ -5502,6 +5782,7 @@
                 {
                     "defaultValue": "",
                     "description": "Oversampling (size of dy, dx axes)",
+                    "keyAttribute": false,
                     "name": "oversampling",
                     "options": [],
                     "positional": "false",
@@ -5514,6 +5795,7 @@
                 {
                     "defaultValue": "",
                     "description": "Support of final convolution function (size of y, x axes)",
+                    "keyAttribute": false,
                     "name": "support",
                     "options": [],
                     "positional": "false",
@@ -5526,6 +5808,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "polarisation_frame",
                     "options": [],
                     "positional": "false",
@@ -5549,6 +5832,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -5561,6 +5845,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -5573,6 +5858,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -5585,6 +5871,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -5609,6 +5896,7 @@
                     "IdText": "im_param",
                     "description": "Image parameters",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im_param",
                     "type": "Complex"
                 }
@@ -5627,6 +5915,7 @@
                     "IdText": "cg",
                     "description": "Convolution Function",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "cf",
                     "type": "Complex"
                 }
@@ -5656,6 +5945,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -5668,6 +5958,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -5693,6 +5984,7 @@
                     "IdText": "cg",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "cg",
                     "type": "Complex"
                 }
@@ -5711,6 +6003,7 @@
                     "IdText": "cg",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "cg",
                     "type": "Complex"
                 }
@@ -5730,6 +6023,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -5742,6 +6036,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -5754,6 +6049,7 @@
                 {
                     "defaultValue": "",
                     "description": "Image",
+                    "keyAttribute": false,
                     "name": "im1",
                     "options": [],
                     "positional": "false",
@@ -5766,6 +6062,7 @@
                 {
                     "defaultValue": "",
                     "description": "Image",
+                    "keyAttribute": false,
                     "name": "im2",
                     "options": [],
                     "positional": "false",
@@ -5789,6 +6086,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -5801,6 +6099,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -5813,6 +6112,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -5825,6 +6125,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -5850,6 +6151,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Unknown"
                 },
@@ -5858,6 +6160,7 @@
                     "IdText": "psf",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "psf",
                     "type": "Complex"
                 },
@@ -5866,6 +6169,7 @@
                     "IdText": "im",
                     "description": "Image",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Complex"
                 }
@@ -5884,6 +6188,7 @@
                     "IdText": "im",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Unknown"
                 }
@@ -5913,6 +6218,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -5925,6 +6231,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -5950,6 +6257,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -5968,6 +6276,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Unknown"
                 }
@@ -5997,6 +6306,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -6009,6 +6319,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -6034,6 +6345,7 @@
                     "IdText": "psf",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "psf",
                     "type": "Complex"
                 }
@@ -6052,6 +6364,7 @@
                     "IdText": "psf",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "psf",
                     "type": "Complex"
                 }
@@ -6081,6 +6394,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -6093,6 +6407,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -6118,6 +6433,7 @@
                     "IdText": "im",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Unknown"
                 }
@@ -6136,6 +6452,7 @@
                     "IdText": "im",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Complex"
                 }
@@ -6165,6 +6482,7 @@
                 {
                     "defaultValue": "",
                     "description": "Application class",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -6177,6 +6495,7 @@
                 {
                     "defaultValue": "",
                     "description": "Application class",
+                    "keyAttribute": false,
                     "name": "bufsize",
                     "options": [],
                     "positional": "false",
@@ -6189,6 +6508,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated execution time",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -6201,6 +6521,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of cores used",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -6213,6 +6534,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -6225,6 +6547,7 @@
                 {
                     "defaultValue": "",
                     "description": "the allowed failure rate of the inputs (in percent), before this component goes to ERROR state and is not executed",
+                    "keyAttribute": false,
                     "name": "input_error_threshold",
                     "options": [],
                     "positional": "false",
@@ -6237,6 +6560,7 @@
                 {
                     "defaultValue": "",
                     "description": "Specifies the number of times the 'run' method will be executed before finally giving up",
+                    "keyAttribute": false,
                     "name": "n_tries",
                     "options": [],
                     "positional": "false",
@@ -6262,6 +6586,7 @@
                     "IdText": "im",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Complex"
                 },
@@ -6270,6 +6595,7 @@
                     "IdText": "psf",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "psf",
                     "type": "Complex"
                 },
@@ -6278,6 +6604,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -6296,6 +6623,7 @@
                     "IdText": "im",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Unknown"
                 },
@@ -6304,6 +6632,7 @@
                     "IdText": "psf",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "psf",
                     "type": "Complex"
                 },
@@ -6312,6 +6641,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Unknown"
                 },
@@ -6320,6 +6650,7 @@
                     "IdText": "im_residual",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im_residual",
                     "type": "Unknown"
                 }
@@ -6349,6 +6680,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -6361,6 +6693,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -6373,6 +6706,7 @@
                 {
                     "defaultValue": "",
                     "description": "Perform a check to make sure the file path exists before proceeding with the application",
+                    "keyAttribute": false,
                     "name": "check_filepath_exists",
                     "options": [],
                     "positional": "false",
@@ -6385,6 +6719,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "filepath",
                     "options": [],
                     "positional": "false",
@@ -6397,6 +6732,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "dirname",
                     "options": [],
                     "positional": "false",
@@ -6421,6 +6757,7 @@
                     "IdText": "Y",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Complex"
                 }
@@ -6439,6 +6776,7 @@
                     "IdText": "gt",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "gt",
                     "type": "Unknown"
                 }
@@ -6468,6 +6806,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -6480,6 +6819,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -6492,6 +6832,7 @@
                 {
                     "defaultValue": "",
                     "description": "Perform a check to make sure the file path exists before proceeding with the application",
+                    "keyAttribute": false,
                     "name": "check_filepath_exists",
                     "options": [],
                     "positional": "false",
@@ -6504,6 +6845,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "filepath",
                     "options": [],
                     "positional": "false",
@@ -6516,6 +6858,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "dirname",
                     "options": [],
                     "positional": "false",
@@ -6540,6 +6883,7 @@
                     "IdText": "im",
                     "description": "Final Restored Image",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Unknown"
                 }
@@ -6578,6 +6922,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -6590,6 +6935,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -6602,6 +6948,7 @@
                 {
                     "defaultValue": "",
                     "description": "Perform a check to make sure the file path exists before proceeding with the application",
+                    "keyAttribute": false,
                     "name": "check_filepath_exists",
                     "options": [],
                     "positional": "false",
@@ -6614,6 +6961,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "filepath",
                     "options": [],
                     "positional": "false",
@@ -6626,6 +6974,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "dirname",
                     "options": [],
                     "positional": "false",
@@ -6650,6 +6999,7 @@
                     "IdText": "psf",
                     "description": "PSF of Image",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "psf",
                     "type": "Complex"
                 }
@@ -6688,6 +7038,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -6700,6 +7051,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -6712,6 +7064,7 @@
                 {
                     "defaultValue": "",
                     "description": "Perform a check to make sure the file path exists before proceeding with the application",
+                    "keyAttribute": false,
                     "name": "check_filepath_exists",
                     "options": [],
                     "positional": "false",
@@ -6724,6 +7077,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "filepath",
                     "options": [],
                     "positional": "false",
@@ -6736,6 +7090,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "dirname",
                     "options": [],
                     "positional": "false",
@@ -6760,6 +7115,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Unknown"
                 }
@@ -6798,6 +7154,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -6810,6 +7167,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -6822,6 +7180,7 @@
                 {
                     "defaultValue": "",
                     "description": "Perform a check to make sure the file path exists before proceeding with the application",
+                    "keyAttribute": false,
                     "name": "check_filepath_exists",
                     "options": [],
                     "positional": "false",
@@ -6834,6 +7193,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "filepath",
                     "options": [],
                     "positional": "false",
@@ -6846,6 +7206,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "dirname",
                     "options": [],
                     "positional": "false",
@@ -6870,6 +7231,7 @@
                     "IdText": "im_residual",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im_residual",
                     "type": "Unknown"
                 }
@@ -6898,6 +7260,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -6910,6 +7273,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -6922,6 +7286,7 @@
                 {
                     "defaultValue": "",
                     "description": "BlockVisibility",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -6934,6 +7299,7 @@
                 {
                     "defaultValue": "",
                     "description": "Skycomponent or list of SkyComponents",
+                    "keyAttribute": false,
                     "name": "sc",
                     "options": [],
                     "positional": "false",
@@ -6946,6 +7312,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "kwargs",
                     "options": [],
                     "positional": "false",
@@ -6969,6 +7336,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -6981,6 +7349,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -6993,6 +7362,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -7005,6 +7375,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -7030,6 +7401,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 },
@@ -7038,6 +7410,7 @@
                     "IdText": "sc_ref",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc_ref",
                     "type": "Complex"
                 }
@@ -7056,6 +7429,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -7075,6 +7449,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -7087,6 +7462,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -7099,6 +7475,7 @@
                 {
                     "defaultValue": "",
                     "description": "BlockVisibility",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -7111,6 +7488,7 @@
                 {
                     "defaultValue": "",
                     "description": "Skycomponent or list of SkyComponents",
+                    "keyAttribute": false,
                     "name": "sc",
                     "options": [],
                     "positional": "false",
@@ -7123,6 +7501,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "kwargs",
                     "options": [],
                     "positional": "false",
@@ -7146,6 +7525,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -7158,6 +7538,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -7170,6 +7551,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -7182,6 +7564,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -7207,6 +7590,7 @@
                     "IdText": "vis",
                     "description": "BlockVis ",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 },
@@ -7215,6 +7599,7 @@
                     "IdText": "sc",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "sc",
                     "type": "Complex"
                 }
@@ -7233,6 +7618,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Unknown"
                 }
@@ -7375,6 +7761,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -7387,6 +7774,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -7399,6 +7787,7 @@
                 {
                     "defaultValue": "",
                     "description": "blockvisibility to be degridded",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -7411,6 +7800,7 @@
                 {
                     "defaultValue": "",
                     "description": "GridData containing image",
+                    "keyAttribute": false,
                     "name": "griddata",
                     "options": [],
                     "positional": "false",
@@ -7423,6 +7813,7 @@
                 {
                     "defaultValue": "",
                     "description": "Convolution function (as GridData)",
+                    "keyAttribute": false,
                     "name": "cf",
                     "options": [],
                     "positional": "false",
@@ -7435,6 +7826,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "kwargs",
                     "options": [],
                     "positional": "false",
@@ -7458,6 +7850,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -7470,6 +7863,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -7482,6 +7876,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -7494,6 +7889,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -7519,6 +7915,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Unknown"
                 },
@@ -7527,6 +7924,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -7545,6 +7943,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -7564,6 +7963,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -7576,6 +7976,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -7588,6 +7989,7 @@
                 {
                     "defaultValue": "",
                     "description": "blockvisibility to be degridded",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -7600,6 +8002,7 @@
                 {
                     "defaultValue": "",
                     "description": "GridData containing image",
+                    "keyAttribute": false,
                     "name": "griddata",
                     "options": [],
                     "positional": "false",
@@ -7612,6 +8015,7 @@
                 {
                     "defaultValue": "",
                     "description": "Convolution function (as GridData)",
+                    "keyAttribute": false,
                     "name": "cf",
                     "options": [],
                     "positional": "false",
@@ -7624,6 +8028,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "kwargs",
                     "options": [],
                     "positional": "false",
@@ -7647,6 +8052,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -7659,6 +8065,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -7671,6 +8078,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -7683,6 +8091,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -7708,6 +8117,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 },
@@ -7716,6 +8126,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -7734,6 +8145,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -7763,6 +8175,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -7775,6 +8188,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -7800,6 +8214,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -7818,6 +8233,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Unknown"
                 }
@@ -7837,6 +8253,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -7849,6 +8266,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -7861,6 +8279,7 @@
                 {
                     "defaultValue": "",
                     "description": "File name of MS",
+                    "keyAttribute": false,
                     "name": "msname",
                     "options": [],
                     "positional": "false",
@@ -7873,6 +8292,7 @@
                 {
                     "defaultValue": "",
                     "description": "range of channels e.g. range(17,32), default is None meaning all",
+                    "keyAttribute": false,
                     "name": "channum",
                     "options": [],
                     "positional": "false",
@@ -7885,6 +8305,7 @@
                 {
                     "defaultValue": "",
                     "description": "Starting channel to read",
+                    "keyAttribute": false,
                     "name": "start_chan",
                     "options": [],
                     "positional": "false",
@@ -7897,6 +8318,7 @@
                 {
                     "defaultValue": "",
                     "description": "End channel to read",
+                    "keyAttribute": false,
                     "name": "end_chan",
                     "options": [],
                     "positional": "false",
@@ -7909,6 +8331,7 @@
                 {
                     "defaultValue": "",
                     "description": "Ask casacore to acknowledge each table operation",
+                    "keyAttribute": false,
                     "name": "ack",
                     "options": [],
                     "positional": "false",
@@ -7921,6 +8344,7 @@
                 {
                     "defaultValue": "",
                     "description": "MS data column to read DATA, CORRECTED_DATA, or MODEL_DATA",
+                    "keyAttribute": false,
                     "name": "datacolumn",
                     "options": [],
                     "positional": "false",
@@ -7933,6 +8357,7 @@
                 {
                     "defaultValue": "",
                     "description": "Sources to select",
+                    "keyAttribute": false,
                     "name": "selected_sources",
                     "options": [],
                     "positional": "false",
@@ -7945,6 +8370,7 @@
                 {
                     "defaultValue": "",
                     "description": "Data descriptors to select",
+                    "keyAttribute": false,
                     "name": "selected_dds",
                     "options": [],
                     "positional": "false",
@@ -7957,6 +8383,7 @@
                 {
                     "defaultValue": "",
                     "description": "Average all channels read",
+                    "keyAttribute": false,
                     "name": "average_channels",
                     "options": [],
                     "positional": "false",
@@ -7980,6 +8407,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -7992,6 +8420,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -8004,6 +8433,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -8016,6 +8446,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -8040,6 +8471,7 @@
                     "IdText": "Config",
                     "description": "The output configuration file",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "ConfigFile",
                     "type": "Complex"
                 }
@@ -8058,6 +8490,7 @@
                     "IdText": "vis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "vis",
                     "type": "Complex"
                 }
@@ -8077,6 +8510,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -8089,6 +8523,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -8101,6 +8536,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "im",
                     "options": [],
                     "positional": "false",
@@ -8124,6 +8560,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -8136,6 +8573,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -8148,6 +8586,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -8160,6 +8599,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -8185,6 +8625,7 @@
                     "IdText": "im",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "im",
                     "type": "Complex"
                 }
@@ -8203,6 +8644,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -8232,6 +8674,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -8244,6 +8687,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -8269,6 +8713,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Complex"
                 }
@@ -8287,6 +8732,7 @@
                     "IdText": "griddata",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "griddata",
                     "type": "Unknown"
                 }
@@ -8306,6 +8752,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -8318,6 +8765,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -8330,6 +8778,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -8342,6 +8791,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "modelvis",
                     "options": [],
                     "positional": true,
@@ -8354,6 +8804,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "inplace",
                     "options": [],
                     "positional": "false",
@@ -8377,6 +8828,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -8389,6 +8841,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -8401,6 +8854,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -8413,6 +8867,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -8438,6 +8893,7 @@
                     "IdText": "modelvis",
                     "description": "Vis 1",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 },
@@ -8446,6 +8902,7 @@
                     "IdText": "modelvis",
                     "description": "Vis 2",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modevis",
                     "type": "Complex"
                 }
@@ -8464,6 +8921,7 @@
                     "IdText": "modelvis",
                     "description": "Combined Vis",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8493,6 +8951,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -8505,6 +8964,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -8530,6 +8990,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8548,6 +9009,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8577,6 +9039,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -8589,6 +9052,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -8614,6 +9078,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8632,6 +9097,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8661,6 +9127,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -8673,6 +9140,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -8698,6 +9166,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8716,6 +9185,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8745,6 +9215,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -8757,6 +9228,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -8782,6 +9254,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8800,6 +9273,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8829,6 +9303,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -8841,6 +9316,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -8866,6 +9342,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Unknown"
                 }
@@ -8884,6 +9361,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8913,6 +9391,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": "false",
@@ -8925,6 +9404,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": "false",
@@ -8950,6 +9430,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8968,6 +9449,7 @@
                     "IdText": "modelvis",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -8987,6 +9469,7 @@
                 {
                     "defaultValue": "",
                     "description": "Python function name",
+                    "keyAttribute": false,
                     "name": "func_name",
                     "options": [],
                     "positional": "true",
@@ -8999,6 +9482,7 @@
                 {
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
+                    "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
                     "positional": "true",
@@ -9011,6 +9495,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "vis",
                     "options": [],
                     "positional": "false",
@@ -9023,6 +9508,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "modelvis",
                     "options": [],
                     "positional": true,
@@ -9035,6 +9521,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "inplace",
                     "options": [],
                     "positional": "false",
@@ -9058,6 +9545,7 @@
                 {
                     "defaultValue": "",
                     "description": "The python class that implements this application",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": "false",
@@ -9070,6 +9558,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimate of execution time (in seconds) for this application.",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": "false",
@@ -9082,6 +9571,7 @@
                 {
                     "defaultValue": "",
                     "description": "Number of CPUs used for this application.",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": "false",
@@ -9094,6 +9584,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the start of a group?",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": "false",
@@ -9119,6 +9610,7 @@
                     "IdText": "modelvis",
                     "description": "Vis 1",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 },
@@ -9127,6 +9619,7 @@
                     "IdText": "modelvis",
                     "description": "Vis 2",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modevis",
                     "type": "Complex"
                 }
@@ -9145,6 +9638,7 @@
                     "IdText": "modelvis",
                     "description": "Combined Vis",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "modelvis",
                     "type": "Complex"
                 }
@@ -9379,6 +9873,7 @@
                 {
                     "defaultValue": "",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": false,
@@ -9391,6 +9886,7 @@
                 {
                     "defaultValue": "",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": false,
@@ -9416,6 +9912,7 @@
                     "IdText": "fg",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "fg",
                     "type": "Complex"
                 }
@@ -9434,6 +9931,7 @@
                     "IdText": "fg",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "fg",
                     "type": "Complex"
                 }

@@ -92,6 +92,7 @@ export class Eagle {
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
+    tableModalType : ko.Observable<string>;
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -235,7 +236,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.onlineDocs();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Disabled, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('inspectorTableModal');}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_key_parameter_table_modal", "Open Key Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('keyParametersTableModal');}));
         Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["z"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().prevSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("redo", "Redo", ["z"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().nextSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("check_graph", "Check Graph", ["!"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.showGraphErrors();}));
@@ -265,11 +267,16 @@ export class Eagle {
         this.loadingWarnings = ko.observableArray([]);
         this.loadingErrors = ko.observableArray([]);
 
+        this.tableModalType = ko.observable('')
+
         this.showDataNodes = ko.observable(true);
 
         this.selectedObjects.subscribe(function(){
             this.logicalGraph.valueHasMutated();
             Hierarchy.updateDisplay()
+            if(this.selectedObjects().length === 0){
+                this.tableModalType('keyParametersTableModal')
+            }
         }, this)
 
         this.rightWindow().mode.subscribe(function(newValue){
@@ -410,6 +417,14 @@ export class Eagle {
         }
 
         return list;
+    }
+
+    getKeyAttributeDisplay = (isKeyAttribute : boolean) : string => {
+        if(!isKeyAttribute){
+            return '<i class="material-icons">favorite_border</i>'
+        }else{
+            return '<i class="material-icons">favorite</i>'
+        }
     }
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -1883,7 +1898,14 @@ export class Eagle {
             return ""
         }
 
-        const parentText = this.logicalGraph().findNodeByKey(parentKey).getName() + ' | Key: ' + parentKey;
+        // TODO: temporary fix while we get lots of warnings about missing nodes
+        const parentNode = this.logicalGraph().findNodeByKeyQuiet(parentKey);
+
+        if (parentNode === null){
+            return ""
+        }
+
+        const parentText = parentNode.getName() + ' | Key: ' + parentKey;
 
         return parentText
     }
@@ -2220,53 +2242,54 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    openParamsTableModal = () : void => {
-        if (!this.selectedNode()){
+    openParamsTableModal = (mode:string) : void => {
+        if (mode==='inspectorTableModal' && !this.selectedNode()){
             Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
-            Utils.showOpenParamsTableModal();
+            Utils.showOpenParamsTableModal(mode);
         }
     }
 
-    getCurrentParamReadonly = (index: number, fieldType: Eagle.FieldType) : boolean => {
+    getCurrentParamReadonly = (field:Field) : boolean => {
         // if we want to get readonly-ness the Nth application arg, then the real index
         // into the fields array is probably larger than N, since all four types
         // of fields are stored there
-        const node = this.selectedNode();
-        let realIndex = -1;
-        let fieldTypeCount = 0;
+        // const node = this.selectedNode();
+        // let realIndex = -1;
+        // let fieldTypeCount = 0;
 
-        for (let i = 0 ; i < node.getFields().length; i++){
-            const field: Field = node.getFields()[i];
+        // for (let i = 0 ; i < node.getFields().length; i++){
+        //     const field: Field = node.getFields()[i];
 
-            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
-                fieldTypeCount += 1;
-            }
+        //     if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
+        //         fieldTypeCount += 1;
+        //     }
 
-            // check if we have found the Nth field of desired type
-            if (fieldTypeCount > index){
-                realIndex = i;
-                break;
-            }
-        }
+        //     // check if we have found the Nth field of desired type
+        //     if (fieldTypeCount > index){
+        //         realIndex = i;
+        //         break;
+        //     }
+        // }
 
-        // check that we actually found the right field, otherwise abort
-        if (realIndex === -1){
-            console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
-            return false;
-        }
+        // // check that we actually found the right field, otherwise abort
+        // if (realIndex === -1){
+        //     console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
+        //     return false;
+        // }
+
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(Eagle.allowPaletteEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[realIndex].isReadonly();
+                return field.isReadonly()
             }
         }else{
             if(Eagle.allowComponentEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[realIndex].isReadonly();
+                return field.isReadonly()
             }
         }
     }
@@ -3496,7 +3519,7 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.FieldType.ComponentParameter);
+            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.FieldType.ComponentParameter,false);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {                
                 // abort if the user aborted
@@ -3586,6 +3609,7 @@ export class Eagle {
                 field.setPrecious(newField.isPrecious());
                 field.setPositionalArgument(newField.isPositionalArgument());
                 field.setFieldType(newField.getFieldType());
+                field.setKeyAttribute(newField.isKeyAttribute());
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
@@ -3913,11 +3937,11 @@ export class Eagle {
         let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
 
         if (!newInputPort){
-            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort);
+            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort,false);
             newNode.addField(newInputPort);
         }
         if (!newOutputPort){
-            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort);
+            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort,false);
             newNode.addField(newOutputPort);
         }
 
