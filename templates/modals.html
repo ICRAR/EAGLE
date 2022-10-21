@@ -784,7 +784,7 @@
                                     
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('type') -->
                                         <td>
-                                            <select data-bind="html: $root.parameterTable().fill($data.type()), value: type, disabled: $root.parameterTable().getNodeLockedState($data)">
+                                            <select data-bind="options: $root.types(), value: type, disabled: $root.parameterTable().getNodeLockedState($data)">
                                             <!-- options are added dynamically -->
                                             </select>
                                         </td>
@@ -943,7 +943,7 @@
                 <h5 class="modal-title" id="explorePalettesModalTitle">Explore Palettes</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="min-height: 640px; max-height: 640px; overflow: scroll;">
+            <div class="modal-body">
                 <!-- ko ifnot: explorePalettes().showFiles -->
                     <!-- ko if: explorePalettes().projects().length === 0 -->
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">

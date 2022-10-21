@@ -24,7 +24,6 @@
 
 import * as ko from "knockout";
 
-import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
 import {Setting} from './Setting';
@@ -108,9 +107,11 @@ export class Translator {
         //----------------- Physical Graph Generation --------------------------------
     /**
      * Generate Physical Graph Template.
-     * @param algorithmIndex Algorithm number.
+     * @param algorithmName
+     * @param testingMode
+     * @param format
      */
-     genPGT = (algorithmIndex : number, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+     genPGT = (algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
         const eagle: Eagle = Eagle.getInstance();
 
         if (eagle.logicalGraph().getNumNodes() === 0) {
@@ -124,7 +125,7 @@ export class Translator {
         }
 
         const translatorURL : string = Setting.findValue(Utils.TRANSLATOR_URL);
-        console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
+        console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
 
         // set the schema version
         format = Eagle.DALiuGESchemaVersion.OJS;
@@ -146,10 +147,10 @@ export class Translator {
             this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, format);
         }
         */
-        this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, format);
+        this._genPGT(eagle, translatorURL, algorithmName, testingMode, format);
     }
 
-    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmIndex : number, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
         // get json for logical graph
         let json;
         switch (format){
@@ -173,7 +174,7 @@ export class Translator {
         }
 
         const translatorData = {
-            algo: Config.translationAlgorithms[algorithmIndex],
+            algo: algorithmName,
             lg_name: eagle.logicalGraph().fileInfo().name,
             json_data: JSON.stringify(json),
             test: testingMode.toString()

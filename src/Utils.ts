@@ -83,10 +83,12 @@ export class Utils {
     static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
     static readonly SPAWN_TRANSLATION_TAB: string = "SpawnTranslationTab";
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
-    static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
+    static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
+    static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
     static readonly USER_INTERFACE_MODE: string = "UserInterfaceMode";
+    static readonly USER_TRANSLATOR_MODE: string = "UserTranslatorMode";
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
     static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
@@ -311,7 +313,7 @@ export class Utils {
                 return dt;
             }
         }
-
+        
         console.warn("Unknown DataType", dataType);
         return Eagle.DataType_Unknown;
     }
@@ -326,7 +328,7 @@ export class Utils {
         console.warn("Unknown FieldType", fieldType);
         return Eagle.FieldType.Unknown;
     }
-
+    
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
         $.ajax({
             url: url,
@@ -771,12 +773,10 @@ export class Utils {
 
         $('#editFieldModalTypeInput').val(field.getType());
 
-        // TODO: this looks like ParameterTable.ts::fill(), can we make them common?
-        const allTypes = Utils.findAllKnownTypes(eagle.palettes(), eagle.logicalGraph());
 
         // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();
-        for (const dataType of allTypes){
+        for (const dataType of eagle.types()){
             const li = $('<li></li>');
             const a = $('<a class="dropdown-item" href="#">' + dataType + '</a>');
 
@@ -1077,28 +1077,6 @@ export class Utils {
         $('#editEdgeModalDataTypeInput').val(edge.getDataType());
     }
 
-    static findAllKnownTypes = (palettes : Palette[], graph: LogicalGraph): string[] => {
-        const uniqueTypes : string[] = [];
-
-        // build a list from all palettes
-        for (const palette of palettes){
-            for (const node of palette.getNodes()){
-                for (const field of node.getFields()) {
-                    Utils._addTypeIfUnique(uniqueTypes, field.getType());
-                }
-            }
-        }
-
-        // add all types in LG nodes
-        for (const node of graph.getNodes()){
-            for (const field of node.getFields()) {
-                Utils._addTypeIfUnique(uniqueTypes, field.getType());
-            }
-        }
-
-        return uniqueTypes;
-    }
-
     /**
      * Returns a list of unique port names (except event ports)
      */
@@ -1294,12 +1272,17 @@ export class Utils {
         return null;
     }
 
-    static getComponentsWithPort(palettes: Palette[], input: boolean, type: string) : Node[] {
+    static getComponentsWithPort(palettes: Palette[], input: boolean, type: string, dataEligible: boolean) : Node[] {
         const result: Node[] = [];
 
         // add all data components (except ineligible)
         for (const palette of palettes){
             for (const node of palette.getNodes()){
+                // skip data nodes if not eligible
+                if (!dataEligible && node.getCategoryType() === Category.Type.Data){
+                    continue;
+                }
+
                 let hasInputOfType: boolean = false;
 
                 const ports: Field[] = input ? node.getInputPorts() : node.getOutputPorts();
@@ -1332,8 +1315,8 @@ export class Utils {
         ports.push(port);
     }
 
-    private static _addTypeIfUnique = (types: string[], newType: string) : void => {
-        for (const t of types){
+    static addTypeIfUnique = (types: ko.ObservableArray<string>, newType: string) : void => {
+        for (const t of types()){
             if (t === newType){
                 return;
             }

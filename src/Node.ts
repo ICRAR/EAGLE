@@ -69,8 +69,10 @@ export class Node {
 
     private subject : ko.Observable<number>;       // the key of another node that is the subject of this node. used by comment nodes only.
 
-    private gitUrl : ko.Observable<string>;
-    private gitHash : ko.Observable<string>;
+    private repositoryUrl : ko.Observable<string>;
+    private commitHash : ko.Observable<string>;
+    private paletteDownloadUrl : ko.Observable<string>;
+    private dataHash : ko.Observable<string>;
 
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 72;
@@ -127,8 +129,10 @@ export class Node {
         this.expanded = ko.observable(true);
         this.keepExpanded = ko.observable(false);
 
-        this.gitUrl = ko.observable("");
-        this.gitHash = ko.observable("");
+        this.repositoryUrl = ko.observable("");
+        this.commitHash = ko.observable("");
+        this.paletteDownloadUrl = ko.observable("");
+        this.dataHash = ko.observable("");
     }
 
     getId = () : string => {
@@ -489,6 +493,26 @@ export class Node {
         return this.categoryType();
     }
 
+    setRepositoryUrl = (url: string) : void => {
+        this.repositoryUrl(url);
+    }
+
+    getRepositoryUrl = () : string => {
+        return this.repositoryUrl();
+    }
+
+    getCommitHash = () : string => {
+        return this.commitHash();
+    }
+
+    getPaletteDownloadUrl = () : string => {
+        return this.paletteDownloadUrl();
+    }
+
+    getDataHash = () : string => {
+        return this.dataHash();
+    }
+
     isData = () : boolean => {
         return this.categoryType() === Category.Type.Data;
     }
@@ -680,8 +704,10 @@ export class Node {
         this.expanded(false);
         this.keepExpanded(false)
 
-        this.gitUrl("");
-        this.gitHash("");
+        this.repositoryUrl("");
+        this.commitHash("");
+        this.paletteDownloadUrl("");
+        this.dataHash("");
     }
 
     getDisplayWidth = () : number => {
@@ -743,11 +769,11 @@ export class Node {
         let url = "Unknown";
         let hash = "Unknown";
 
-        if (this.gitUrl() !== ""){
-            url = this.gitUrl();
+        if (this.repositoryUrl() !== ""){
+            url = this.repositoryUrl();
         }
-        if (this.gitHash() !== ""){
-            hash = this.gitHash();
+        if (this.commitHash() !== ""){
+            hash = this.commitHash();
         }
 
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
@@ -877,6 +903,17 @@ export class Node {
 
         return null;
     }
+
+    findFieldByIdText = (idText: string, fieldType: Eagle.FieldType) : Field => {
+        for (const field of this.fields()){
+            if (field.getFieldType() === fieldType && field.getIdText() === idText){
+                return field;
+            }
+        }
+
+        return null;
+    }
+
 
     findPortByType = (type: string, input: boolean) : Field => {
         if (input){
@@ -1087,8 +1124,10 @@ export class Node {
             result.fields.push(field.clone());
         }
 
-        result.gitUrl(this.gitUrl());
-        result.gitHash(this.gitHash());
+        result.repositoryUrl(this.repositoryUrl());
+        result.commitHash(this.commitHash());
+        result.paletteDownloadUrl(this.paletteDownloadUrl());
+        result.dataHash(this.dataHash());
 
         return result;
     }
@@ -1667,11 +1706,17 @@ export class Node {
         }
 
         // add git url and hash
-        if (typeof nodeData.git_url !== 'undefined'){
-            node.gitUrl(nodeData.git_url);
+        if (typeof nodeData.repositoryUrl !== 'undefined'){
+            node.repositoryUrl(nodeData.repositoryUrl);
         }
-        if (typeof nodeData.sha !== 'undefined'){
-            node.gitHash(nodeData.sha);
+        if (typeof nodeData.commitHash !== 'undefined'){
+            node.commitHash(nodeData.commitHash);
+        }
+        if (typeof nodeData.paletteDownloadUrl != 'undefined'){
+            node.paletteDownloadUrl(nodeData.paletteDownloadUrl);
+        }
+        if (typeof nodeData.dataHash !== 'undefined'){
+            node.dataHash(nodeData.dataHash);
         }
 
         return node;
@@ -1744,8 +1789,10 @@ export class Node {
         result.streaming = node.streaming();
         result.precious = node.precious();
 
-        result.git_url = node.gitUrl();
-        result.sha = node.gitHash();
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
+        result.dataHash = node.dataHash();
 
         if (node.parentKey() !== null){
             result.group = node.parentKey();
@@ -1874,8 +1921,10 @@ export class Node {
         result.precious = node.precious();
         result.subject = node.subject();
         result.expanded = node.expanded();
-        result.git_url = node.gitUrl();
-        result.sha = node.gitHash();
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
+        result.dataHash = node.dataHash();
 
 
         if (node.parentKey() !== null){
@@ -1997,8 +2046,11 @@ export class Node {
         result.flipPorts = node.flipPorts();
 
         result.expanded = node.expanded();
-        result.gitUrl = node.gitUrl();
-        result.gitHash = node.gitHash();
+
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
+        result.dataHash = node.dataHash();
 
         return result;
     }
@@ -2018,8 +2070,11 @@ export class Node {
         result.flipPorts(nodeData.flipPorts);
 
         result.expanded(nodeData.expanded);
-        result.gitUrl(nodeData.gitUrl);
-        result.gitHash(nodeData.gitHash);
+
+        result.repositoryUrl(nodeData.repositoryUrl);
+        result.commitHash(nodeData.commitHash);
+        result.paletteDownloadUrl(nodeData.paletteDownloadUrl);
+        result.dataHash(nodeData.dataHash);
 
         return result;
     }

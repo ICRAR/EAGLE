@@ -80,6 +80,11 @@ export class ParameterTable {
     }
 
     tableInspectorUpdateSelection = (value:string) : void => {
+        // abort update if nothing is selected
+        if (!ParameterTable.hasSelection()){
+            return;
+        }
+
         const selected = ParameterTable.selectionName()
         const selectedForm = ParameterTable.selectionParent()
         if(selected === 'displayText'){
@@ -143,25 +148,6 @@ export class ParameterTable {
             return eagle.logicalGraph().findNodeByKeyQuiet(nodeKey).fillFieldTypeCell(fieldType)
         }
         
-    }
-
-    // fill the datatype select element with all the types known within the current graph and palettes
-    fill = (type:string):string => {
-        const eagle: Eagle = Eagle.getInstance();
-        let options:string = "";
-
-        // determine the list of all types in this graph and palettes
-        const allTypes: string[] = Utils.findAllKnownTypes(eagle.palettes(), eagle.logicalGraph());
-
-        for (const dataType of allTypes){
-            let selected=""
-            if(type === dataType){
-                selected = "selected=true"
-            }
-            options = options + "<option value="+dataType+"  "+selected+">"+dataType+"</option>";
-        }
-
-        return options
     }
 
     static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {

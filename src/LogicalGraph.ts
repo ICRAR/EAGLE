@@ -225,7 +225,7 @@ export class LogicalGraph {
                 closesLoop = linkData.closesLoop;
             }
 
-            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, linkData.dataType, loopAware, closesLoop, false));
+            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, dataType, loopAware, closesLoop, false));
         }
 
         // check for missing name
@@ -789,6 +789,11 @@ export class LogicalGraph {
         }
 
         return depth;
+    }
+
+    // similar to getChildrenOfNodeByKey() (below) except treats key as null always
+    getRootNodes = () : Node[] => {
+        return this.getChildrenOfNodeByKey(null);
     }
 
     getChildrenOfNodeByKey = (key: number) : Node[] => {
