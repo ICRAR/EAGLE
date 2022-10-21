@@ -326,6 +326,7 @@ export class Modals {
 
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
             const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
+            const keyParameter: boolean = $('#editFieldModalKeyParameterCheckbox').prop('checked');
             const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
 
             // translate type
@@ -336,13 +337,13 @@ export class Modals {
 
             switch(realType){
                 case Eagle.DataType_Boolean:
-                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage);
+                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
                 case Eagle.DataType_Select:
-                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage);
+                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
                 default:
-                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage);
+                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
             }
 
