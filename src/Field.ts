@@ -328,6 +328,7 @@ export class Field {
 
     static toOJSJson = (field : Field) : object => {
         return {
+            id:field.id(),
             text:field.displayText(),
             name:field.idText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -346,6 +347,7 @@ export class Field {
 
     static toV3Json = (field : Field) : object => {
         return {
+            id:field.id(),
             text:field.displayText(),
             name:field.idText(),
             value:Field.stringAsType(field.value(), field.type()),
