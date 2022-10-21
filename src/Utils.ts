@@ -1223,8 +1223,6 @@ export class Utils {
     }
 
     static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
-        console.log("getDataComponentsWithInputsAndOutputs");
-
         const result: Category[] = [];
 
         // loop through all categories
@@ -1232,7 +1230,7 @@ export class Utils {
             // get category data
             const categoryData = CategoryData.getCategoryData(<Category>category);
 
-            if (categoryData.categoryType === categoryType){
+            if (categoryData.categoryType !== categoryType){
                 continue;
             }
 
