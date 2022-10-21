@@ -745,6 +745,9 @@ export class Utils {
         // set accessibility state checkbox
         $('#editFieldModalAccessInputCheckbox').prop('checked', field.isReadonly());
 
+        // set accessibility state checkbox
+        $('#editFieldModalKeyParameterCheckbox').prop('checked', field.isKeyAttribute());
+
         // set positional argument checkbox
         $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 
@@ -879,7 +882,10 @@ export class Utils {
         $('#settingsModal').modal("toggle");
     }
 
-    static showOpenParamsTableModal() : void {
+    static showOpenParamsTableModal(mode:string) : void {
+        const eagle: Eagle = Eagle.getInstance();
+
+        eagle.tableModalType(mode)
         $('#parameterTableModal').modal("toggle");
     }
 

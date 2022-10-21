@@ -1,3 +1,4 @@
+
 <!-- ko ifnot: Eagle.hideReadonlyParamters() && $root.getCurrentParamReadonly($index(),$data.fieldType()) -->
     <div class="input-group mb-1">
 
@@ -34,20 +35,20 @@
         <!-- /ko -->
 
         <!-- ko ifnot: $root.selectedNode().isLocked() -->
-        <div class="input-group-append">
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField(null, 'Edit', $data.fieldType(), $index());}, attr: {id: 'nodeInspectorEditField' + $index()}, eagleTooltip: 'Edit'" data-bs-placement="left">
-                <i class="material-icons md-18">edit</i>
-            </button>
-        </div>
-        <!-- /ko -->
+            <!-- ko if: isType(Eagle.DataType_String) -->
+            <div class="input-group-append">
+                <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField(null, 'Edit', $data.fieldType(), $index());}, attr: {id: 'nodeInspectorEditField' + $index()}, eagleTooltip: 'Edit'" data-bs-placement="left">
+                    <i class="material-icons md-18">edit</i>
+                </button>
+            </div>
+            <!-- /ko -->
 
-        <!-- ko ifnot: $root.selectedNode().isLocked() -->
-        <div class="input-group-append">
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.selectedNode(), $data.fieldType(), $index());}, attr: {id: 'nodeInspectorRemoveField' + $index()}, eagleTooltip:'Remove parameter'" data-bs-placement="left">
-                <i class="material-icons md-18">delete</i>
-            </button>
-        </div>
+            <!-- ko ifnot: $root.selectedNode().isLocked() -->
+            <div class="input-group-append">
+                <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.selectedNode(), $data.fieldType(), $index());}, attr: {id: 'nodeInspectorRemoveField' + $index()}, eagleTooltip:'Remove parameter'" data-bs-placement="left">
+                    <i class="material-icons md-18">delete</i>
+                </button>
+            </div>
         <!-- /ko -->
-
     </div>                                  
 <!-- /ko -->
