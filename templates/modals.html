@@ -744,13 +744,11 @@
                                             <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$data.toggle(); $root.selectedObjects.valueHasMutated();}}"></td>
                                         <!-- /ko -->
                                         <!-- ko if: $data.getHtmlInputType() === 'select' -->
-                                        <!-- <input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"> -->
                                             <td>
                                                 <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind=" event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.value">
                                                     <!-- options are added dynamically -->
                                                 </select> 
                                             </td>
-                                        <!-- <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td> -->
                                         <!-- /ko -->
 
                                         <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
@@ -780,7 +778,12 @@
 
                                         <!-- selection input -->
                                         <!-- ko if: $data.getHtmlInputType() === 'select' -->
-                                            <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                            <td>
+                                                <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind=" event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.defaultValue">
+                                                    <!-- options are added dynamically -->
+                                                </select> 
+                                            </td>
+                                            <!-- <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td> -->
                                         <!-- /ko -->
                                     <!-- /ko -->
                                     
