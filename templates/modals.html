@@ -603,13 +603,25 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" id="editFieldModalFieldTypeSelectRow">
+                    <div class="row" id="editFieldModalParameterTypeSelectRow">
                         <div class="col-3">
-                            <p>Field Type:</p>
+                            <p>Parameter Type:</p>
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <select class="form-control" id="editFieldModalFieldTypeSelect">
+                                <select class="form-control" id="editFieldModalParameterTypeSelect">
+                                    <!-- options are added dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="editFieldModalParameterUsageSelectRow">
+                        <div class="col-3">
+                            <p>Parameter Usage:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="editFieldModalParameterUsageSelect">
                                     <!-- options are added dynamically -->
                                 </select>
                             </div>
@@ -699,8 +711,11 @@
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('type') -->
                                 <th id="parameter_table_type" data-bind="eagleTooltip:'The type of the data stored in this parameter (e.g. Integer, Float, String etc)'" data-bs-placement="top">Type</th>
                             <!-- /ko -->
-                            <!-- ko if: $root.parameterTable().getParameterTableVisibility('useAs') -->
-                                <th id="parameter_table_isPort" data-bind="eagleTooltip:'The way this parameter will be used by the component. ComponentParameters are passed to the DALiuGE execution framework. ApplicationArguments are passed to the Application executed by this component. InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">Use As</th>
+                            <!-- ko if: $root.parameterTable().getParameterTableVisibility('parameterType') -->
+                                <th id="parameter_table_parameter_type" data-bind="eagleTooltip:'The way this parameter will be used by the component. ComponentParameters are passed to the DALiuGE execution framework. ApplicationArguments are passed to the Application executed by this component.'" data-bs-placement="top">Parameter Type</th>
+                            <!-- /ko -->
+                            <!-- ko if: $root.parameterTable().getParameterTableVisibility('usage') -->
+                                <th id="parameter_table_usage" data-bind="eagleTooltip:'InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">Use As</th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
                                 <th id="parameter_table_precious" data-bind="eagleTooltip:'Argument never suppressed'" data-bs-placement="top">Precious</th>
@@ -790,9 +805,16 @@
                                         </td>
                                     <!-- /ko --> 
 
-                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('useAs') -->
+                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('parameterType') -->
                                         <td>
-                                            <select data-bind="html: $root.parameterTable().getFieldUseAsForTable($data.nodeKey(), $data.fieldType()), value: fieldType, disabled: $root.parameterTable().getNodeLockedState($data)">
+                                            <select data-bind="options: Object.values(Eagle.ParameterType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data)">
+                                                <!-- options are added dynamically -->
+                                            </select>
+                                        </td>
+                                    <!-- /ko -->
+                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('usage') -->
+                                        <td>
+                                            <select data-bind="options: Object.values(Eagle.ParameterUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data)">
                                                 <!-- options are added dynamically -->
                                             </select>
                                         </td>
@@ -807,7 +829,7 @@
                                         <td>
                                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionEdit') -->
                                                 <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
-                                                    <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', Eagle.FieldType.Unknown, $index());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
+                                                <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDefault') -->
@@ -818,15 +840,7 @@
                                                     <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
                                                 <!-- /ko -->
                                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDelete') -->
-                                                    <!-- ko if: $data.fieldType() === Eagle.FieldType.InputPort -->
-                                                        <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.logicalGraph().findNodeByKey($data.nodeKey()),$data.getId(), true);}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
-                                                    <!-- /ko -->
-                                                    <!-- ko if: $data.fieldType() === Eagle.FieldType.OutputPort -->
-                                                        <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.logicalGraph().findNodeByKey($data.nodeKey()),$data.getId(), false);}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
-                                                    <!-- /ko -->
-                                                    <!-- ko if: $data.fieldType() === Eagle.FieldType.ApplicationArgument || $data.fieldType() === Eagle.FieldType.ComponentParameter -->
-                                                        <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.logicalGraph().findNodeByKey($data.nodeKey()), Eagle.FieldType.Unknown, $index());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
-                                                    <!-- /ko -->
+                                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                         </td>

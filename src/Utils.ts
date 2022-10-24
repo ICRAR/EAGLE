@@ -318,15 +318,26 @@ export class Utils {
         return Eagle.DataType_Unknown;
     }
 
-    static translateStringToFieldType(fieldType: string): Eagle.FieldType {
-        for (const ft of Object.values(Eagle.FieldType)){
-            if (ft.toLowerCase() === fieldType.toLowerCase()){
-                return ft;
+    static translateStringToParameterType(parameterType: string): Eagle.ParameterType {
+        for (const pt of Object.values(Eagle.ParameterType)){
+            if (pt.toLowerCase() === parameterType.toLowerCase()){
+                return pt;
             }
         }
 
-        console.warn("Unknown FieldType", fieldType);
-        return Eagle.FieldType.Unknown;
+        console.warn("Unknown ParameterType", parameterType);
+        return Eagle.ParameterType.Unknown;
+    }
+
+    static translateStringToParameterUsage(parameterUsage: string): Eagle.ParameterUsage {
+        for (const pu of Object.values(Eagle.ParameterUsage)){
+            if (pu.toLowerCase() === parameterUsage.toLowerCase()){
+                return pu;
+            }
+        }
+
+        console.warn("Unknown ParameterUsage", parameterUsage);
+        return Eagle.ParameterUsage.NoPort;
     }
     
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
@@ -640,25 +651,31 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, parameterUsage: Eagle.ParameterUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         let dropDownKO;
         let divID;
 
         // determine which dropdown menu should be filled with appropriate items
-        switch(fieldType){
-            case Eagle.FieldType.ApplicationArgument:
+        switch(parameterType){
+            case Eagle.ParameterType.ApplicationArgument:
             dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
             divID = "nodeInspectorAddApplicationParamDiv";
             break;
-            case Eagle.FieldType.ComponentParameter:
+            case Eagle.ParameterType.ComponentParameter:
             dropDownKO = $("#nodeInspectorFieldDropDownKO");
             divID = "nodeInspectorAddFieldDiv";
             break;
-            case Eagle.FieldType.InputPort:
+            default:
+            console.error("Unknown parameter type");
+        }
+
+        // or if we are a port, then use different dropdowns
+        switch(parameterUsage){
+            case Eagle.ParameterUsage.InputPort:
             dropDownKO = $("#nodeInspectorInputPortDropDownKO");
             divID = "nodeInspectorAddInputPortDiv";
             break;
-            case Eagle.FieldType.OutputPort:
+            case Eagle.ParameterUsage.OutputPort:
             dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
             divID = "nodeInspectorAddOutputPortDiv";
             break;
@@ -791,22 +808,29 @@ export class Utils {
             $('#editFieldModalTypeSelect').append(li);
         }
 
-        // delete all options, then iterate through the values in the Eagle.FieldType enum, adding each as an option to the select
-        $('#editFieldModalFieldTypeSelect').empty();
-        for (const ft of [Eagle.FieldType.ComponentParameter, Eagle.FieldType.ApplicationArgument, Eagle.FieldType.InputPort, Eagle.FieldType.OutputPort]){
-            $('#editFieldModalFieldTypeSelect').append(
+        // delete all options, then iterate through the values in the Eagle.ParameterType enum, adding each as an option to the select
+        $('#editFieldModalParameterTypeSelect').empty();
+        for (const ft of [Eagle.ParameterType.ComponentParameter, Eagle.ParameterType.ApplicationArgument]){
+            $('#editFieldModalParameterTypeSelect').append(
                 $('<option>', {
                     value: ft,
                     text: ft,
-                    selected: field.getFieldType() === ft
+                    selected: field.getParameterType() === ft
                 })
             );
         }
-        // hide the fieldType select if the fieldType is ComponentParameter, since that can't be changed
-        if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
-            $('#editFieldModalFieldTypeSelectRow').hide();
-        } else {
-            $('#editFieldModalFieldTypeSelectRow').show();
+
+
+        // delete all options, then iterate through the values in the Eagle.ParameterUsage enum, adding each as an option to the select
+        $('#editFieldModalParameterUsageSelect').empty();
+        for (const pu of Object.values(Eagle.ParameterUsage)){
+            $('#editFieldModalParameterUsageSelect').append(
+                $('<option>', {
+                    value: pu,
+                    text: pu,
+                    selected: field.getUsage() === pu
+                })
+            );
         }
 
 
@@ -1325,13 +1349,29 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, fieldType: Eagle.FieldType) : Field[] => {
+    static getUniqueFields = (diagram : Palette | LogicalGraph) : Field[] => {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
             for (const field of node.getFields()) {
-                if (field.getFieldType() !== fieldType){
+                Utils._addFieldIfUnique(uniqueFields, field.clone());
+            }
+        }
+
+        return uniqueFields;
+    }
+
+    /**
+     * Returns a list of all fields in the given palette or logical graph, of a particular type
+     */
+    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, parameterType: Eagle.ParameterType) : Field[] => {
+        const uniqueFields : Field[] = [];
+
+        // build a list from all nodes, add fields into the list
+        for (const node of diagram.getNodes()) {
+            for (const field of node.getFields()) {
+                if (field.getParameterType() !== parameterType){
                     continue;
                 }
                 Utils._addFieldIfUnique(uniqueFields, field.clone());
@@ -1967,7 +2007,16 @@ export class Utils {
         // add logical graph nodes to table
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
-                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "category":node.getCategory(), "categoryType":node.getCategoryType()});
+                tableData.push({
+                    "palette":palette.fileInfo().name,
+                    "name":node.getName(),
+                    "key":node.getKey(),
+                    "id":node.getId(),
+                    "embedKey":node.getEmbedKey(),
+                    "category":node.getCategory(),
+                    "categoryType":node.getCategoryType(),
+                    "numFields":node.getNumFields()
+                });
             }
         }
 
@@ -1991,7 +2040,8 @@ export class Utils {
                 "idText":field.getIdText(),
                 "displayText":field.getDisplayText(),
                 "type":field.getType(),
-                "fieldType":field.getFieldType(),
+                "parameterType":field.getParameterType(),
+                "usage":field.getUsage(),
                 "isEvent":field.getIsEvent(),
                 "value":field.getValue(),
                 "defaultValue": field.getDefaultValue(),

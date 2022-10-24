@@ -32,7 +32,8 @@ export class ParameterTable {
         ParameterTable.parameterTableVisibility.push({parameterName:"defaultValue", keyVisibility: false, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"description", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"type", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"useAs", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"parameterType", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"usage", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"precious", keyVisibility: false, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"positional", keyVisibility: false, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"actions", keyVisibility: true, inspectorVisibility: true});
@@ -131,23 +132,6 @@ export class ParameterTable {
             }
             return eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()).isLocked()
         }
-    }
-
-    getFieldUseAsForTable = (nodeKey:number,fieldType:Eagle.FieldType) : any => {
-        const eagle: Eagle = Eagle.getInstance();
-
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(eagle.selectedNode() === null){
-                return false
-            }
-            return eagle.selectedNode().fillFieldTypeCell(fieldType)
-        }else{
-            if(eagle.logicalGraph().findNodeByKeyQuiet(nodeKey) === null){
-                return false
-            }
-            return eagle.logicalGraph().findNodeByKeyQuiet(nodeKey).fillFieldTypeCell(fieldType)
-        }
-        
     }
 
     static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {

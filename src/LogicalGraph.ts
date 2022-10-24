@@ -152,7 +152,7 @@ export class LogicalGraph {
             }
 
             // find source port on source node
-            let srcPort : Field = srcNode.findPortById(linkData.fromPort);
+            let srcPort : Field = srcNode.findFieldById(linkData.fromPort);
 
             // if source port was not found on source node, check the source node's embedded application nodes
             // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
@@ -184,7 +184,7 @@ export class LogicalGraph {
             }
 
             // find dest port on dest node
-            let destPort : Field = destNode.findPortById(linkData.toPort);
+            let destPort : Field = destNode.findFieldById(linkData.toPort);
 
             // if destination port was not found on destination node, check the destination node's embedded application nodes
             // and if found on one of those, update the port's nodeKey to reflect the actual node it is on

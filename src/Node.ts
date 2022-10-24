@@ -454,7 +454,19 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
+            if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
+                result.push(field);
+            }
+        }
+
+        return result;
+    }
+
+    getComponentParametersWithNoPorts = () : Field[] => {
+        const result: Field[] = [];
+
+        for (const field of this.fields()){
+            if (field.getParameterType() === Eagle.ParameterType.ComponentParameter && field.getUsage() === Eagle.ParameterUsage.NoPort){
                 result.push(field);
             }
         }
@@ -466,7 +478,19 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getFieldType() === Eagle.FieldType.ApplicationArgument){
+            if (field.getParameterType() === Eagle.ParameterType.ApplicationArgument){
+                result.push(field);
+            }
+        }
+
+        return result;
+    }
+
+    getApplicationArgumentsWithNoPorts = () : Field[] => {
+        const result: Field[] = [];
+
+        for (const field of this.fields()){
+            if (field.getParameterType() === Eagle.ParameterType.ApplicationArgument && field.getUsage() === Eagle.ParameterUsage.NoPort){
                 result.push(field);
             }
         }
@@ -589,18 +613,12 @@ export class Node {
         return CategoryData.getCategoryData(this.category()).canHaveApplicationArguments;
     }
 
-    canHaveFieldType = (fieldType: Eagle.FieldType) : boolean => {
-        if (fieldType === Eagle.FieldType.ComponentParameter){
+    canHaveType = (parameterType: Eagle.ParameterType) : boolean => {
+        if (parameterType === Eagle.ParameterType.ComponentParameter){
             return this.canHaveComponentParameters()
         }
-        if (fieldType === Eagle.FieldType.ApplicationArgument){
+        if (parameterType === Eagle.ParameterType.ApplicationArgument){
             return this.canHaveApplicationArguments();
-        }
-        if (fieldType === Eagle.FieldType.InputPort){
-            return this.canHaveInputs();
-        }
-        if (fieldType === Eagle.FieldType.OutputPort){
-            return this.canHaveOutputs();
         }
 
         return false;
@@ -779,9 +797,9 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
-    findPortById = (portId: string) : Field => {
+    findFieldById = (id: string) : Field => {
         for (const field of this.fields()){
-            if (field.getId() === portId){
+            if (field.getId() === id){
                 return field;
             }
         }
@@ -891,11 +909,12 @@ export class Node {
     findPortByIdText = (idText : string, input : boolean, local : boolean) : Field => {
         console.assert(!local);
 
-        const findFieldType = input ? Eagle.FieldType.InputPort : Eagle.FieldType.OutputPort;
-
         for (const field of this.fields()){
-            if (field.getFieldType() === findFieldType){
-                if (field.getIdText() === idText){
+            if (field.getIdText() === idText){
+                if (input && field.isInputPort()){
+                    return field;
+                }
+                if (!input && field.isOutputPort()){
                     return field;
                 }
             }
@@ -904,9 +923,9 @@ export class Node {
         return null;
     }
 
-    findFieldByIdText = (idText: string, fieldType: Eagle.FieldType) : Field => {
+    findFieldByIdText = (idText: string, fieldType: Eagle.ParameterType) : Field => {
         for (const field of this.fields()){
-            if (field.getFieldType() === fieldType && field.getIdText() === idText){
+            if (field.getParameterType() === fieldType && field.getIdText() === idText){
                 return field;
             }
         }
@@ -986,22 +1005,6 @@ export class Node {
         return this.findPortByIdText(idText, input, local) !== null;
     }
 
-    // WARN: dangerous! removes a field/arg/port without considering if it is a port is in use by an edge
-    removeFieldTypeByIndex = (index : number, fieldType: Eagle.FieldType) : void => {
-        let matchIndex = -1;
-        for (let i = 0 ; i < this.fields().length ; i++){
-            const field = this.fields()[i];
-
-            if (field.getFieldType() === fieldType){
-                matchIndex += 1;
-
-                if (matchIndex === index){
-                    this.fields.splice(i, 1);
-                }
-            }
-        }
-    }
-
     addField = (field : Field) : void => {
         this.fields.push(field);
         field.setNodeKey(this.key());
@@ -1014,7 +1017,7 @@ export class Node {
 
     setGroupStart = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_start")){
-            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter,false));
+            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
         } else {
             this.getFieldByIdText("group_start").setValue(value.toString());
         }
@@ -1022,7 +1025,7 @@ export class Node {
 
     setGroupEnd = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_end")){
-            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter,false));
+            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
         } else {
             this.getFieldByIdText("group_end").setValue(value.toString());
         }
@@ -1051,7 +1054,7 @@ export class Node {
 
     removeAllComponentParameters = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getFieldType() === Eagle.FieldType.ComponentParameter){
+            if (this.fields()[i].getParameterType() === Eagle.ParameterType.ComponentParameter){
                 this.fields.splice(i, 1);
             }
         }
@@ -1059,7 +1062,7 @@ export class Node {
 
     removeAllApplicationArguments = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getFieldType() === Eagle.FieldType.ApplicationArgument){
+            if (this.fields()[i].getParameterType() === Eagle.ParameterType.ApplicationArgument){
                 this.fields.splice(i, 1);
             }
         }
@@ -1067,7 +1070,7 @@ export class Node {
 
     removeAllInputPorts = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getFieldType() === Eagle.FieldType.InputPort){
+            if (this.fields()[i].getUsage() === Eagle.ParameterUsage.InputPort){
                 this.fields.splice(i, 1);
             }
         }
@@ -1075,7 +1078,7 @@ export class Node {
 
     removeAllOutputPorts = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getFieldType() === Eagle.FieldType.OutputPort){
+            if (this.fields()[i].getUsage() === Eagle.ParameterUsage.OutputPort){
                 this.fields.splice(i, 1);
             }
         }
@@ -1260,14 +1263,14 @@ export class Node {
 
         // if no fields exist, create at least one, to store the custom data
         if (this.fields().length === 0){
-            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Unknown, false, [], false, Eagle.FieldType.ComponentParameter,false));
+            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Unknown, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
         }
 
         this.fields()[0].setValue(e.value);
     }
 
     addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType_String, false, [], false, Eagle.FieldType.ComponentParameter,false)
+        const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType_String, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
         if(index === -1){
             this.addField(newField);
         }else{
@@ -1299,35 +1302,6 @@ export class Node {
 
     setKeepExpanded = (value : boolean) : void => {
         this.keepExpanded(value);
-    }
-
-    fillFieldTypeCell = (fieldType: Eagle.FieldType):string => {
-        let options:string = "";
-
-        const allowedTypes: Eagle.FieldType[] = [];
-
-        if (this.canHaveComponentParameters()){
-            allowedTypes.push(Eagle.FieldType.ComponentParameter);
-        }
-        if (this.canHaveApplicationArguments()){
-            allowedTypes.push(Eagle.FieldType.ApplicationArgument);
-        }
-        if (this.canHaveInputs()){
-            allowedTypes.push(Eagle.FieldType.InputPort);
-        }
-        if (this.canHaveOutputs()){
-            allowedTypes.push(Eagle.FieldType.OutputPort);
-        }
-
-        for (const dataType of allowedTypes){
-            let selected=""
-            if(fieldType === dataType){
-                selected = "selected=true"
-            }
-            options = options + "<option value="+dataType+"  "+selected+">"+dataType+"</option>";
-        }
-
-        return options
     }
 
     static canHaveInputApp = (node : Node) : boolean => {
@@ -1589,18 +1563,9 @@ export class Node {
             for (const fieldData of nodeData.fields){
                 const field = Field.fromOJSJson(fieldData);
 
-                // if the field type is not specified, assume it is a ComponentParameter
-                if (field.getFieldType() === Eagle.FieldType.Unknown){
-                    field.setFieldType(Eagle.FieldType.ComponentParameter);
-                }
-
-                // we should support comment and description nodes, these need to use one component parameter, even though they don't officially support them
-                const isCommentOrDescriptionContentField : boolean = (category === Category.Description || category === Category.Comment) && field.getIdText() === "";
-
-                // check
-                if (!node.canHaveFieldType(field.getFieldType()) && !isCommentOrDescriptionContentField){
-                    errorsWarnings.warnings.push(Errors.Message("Node '" + node.getName() + "' (category: " + category + ") should not have any " + field.getFieldType() + ". Removed " + field.getDisplayText()));
-                    continue;
+                // if the parameter type is not specified, assume it is a ComponentParameter
+                if (field.getParameterType() === Eagle.ParameterType.Unknown){
+                    field.setParameterType(Eagle.ParameterType.ComponentParameter);
                 }
 
                 node.addField(field);
@@ -1611,14 +1576,7 @@ export class Node {
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
                 const field = Field.fromOJSJson(paramData);
-                field.setFieldType(Eagle.FieldType.ApplicationArgument);
-
-                // check
-                if (!node.canHaveFieldType(field.getFieldType())){
-                    errorsWarnings.warnings.push(Errors.Message("Node '" + node.getName() + "' (category: " + category + ") should not have any " + field.getFieldType() + ". Removed " + field.getDisplayText()));
-                    continue;
-                }
-
+                field.setParameterType(Eagle.ParameterType.ApplicationArgument);
                 node.addField(field);
             }
         }
@@ -1628,7 +1586,7 @@ export class Node {
             for (const fieldData of nodeData.inputAppFields){
                 if (node.hasInputApplication()){
                     const field = Field.fromOJSJson(fieldData);
-                    field.setFieldType(Eagle.FieldType.ComponentParameter);
+                    field.setParameterType(Eagle.ParameterType.ComponentParameter);
                     node.inputApplication().addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
@@ -1641,7 +1599,7 @@ export class Node {
             for (const fieldData of nodeData.outputAppFields){
                 if (node.hasOutputApplication()){
                     const field = Field.fromOJSJson(fieldData);
-                    field.setFieldType(Eagle.FieldType.ComponentParameter);
+                    field.setParameterType(Eagle.ParameterType.ComponentParameter);
                     node.outputApplication().addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
@@ -1653,7 +1611,8 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
                 const port = Field.fromOJSJsonPort(inputPort);
-                port.setFieldType(Eagle.FieldType.InputPort);
+                port.setParameterType(Eagle.ParameterType.ApplicationArgument);
+                port.setUsage(Eagle.ParameterUsage.InputPort);
 
                 if (node.canHaveInputs()){
                     node.addField(port);
@@ -1667,7 +1626,8 @@ export class Node {
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
                 const port = Field.fromOJSJsonPort(outputPort);
-                port.setFieldType(Eagle.FieldType.OutputPort);
+                port.setParameterType(Eagle.ParameterType.ApplicationArgument);
+                port.setUsage(Eagle.ParameterUsage.OutputPort);
 
                 if (node.canHaveOutputs()){
                     node.addField(port);
@@ -1682,7 +1642,8 @@ export class Node {
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
                     const port = Field.fromOJSJsonPort(inputLocalPort);
-                    port.setFieldType(Eagle.FieldType.OutputPort);
+                    port.setParameterType(Eagle.ParameterType.ApplicationArgument);
+                    port.setUsage(Eagle.ParameterUsage.OutputPort);
 
                     node.inputApplication().addField(port);
                 } else {
@@ -1695,7 +1656,8 @@ export class Node {
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
                 const port = Field.fromOJSJsonPort(outputLocalPort);
-                port.setFieldType(Eagle.FieldType.InputPort);
+                port.setParameterType(Eagle.ParameterType.ApplicationArgument);
+                port.setUsage(Eagle.ParameterUsage.InputPort);
 
                 if (node.hasOutputApplication()){
                     node.outputApplication().addField(port);
@@ -1724,7 +1686,7 @@ export class Node {
 
     private static copyPorts(src: Field[], dest: {}[]):void{
         for (const port of src){
-            dest.push(Field.toOJSJsonPort(port));
+            dest.push(Field.toOJSJson(port));
         }
     }
 
@@ -1802,6 +1764,7 @@ export class Node {
             result.embedKey = node.embedKey();
         }
 
+        /*
         // add input ports
         result.inputPorts = [];
         if (node.hasInputApplication()){
@@ -1824,7 +1787,7 @@ export class Node {
         result.inputLocalPorts = [];
         if (node.hasInputApplication()){
             for (const outputPort of node.inputApplication().getOutputPorts()){
-                result.inputLocalPorts.push(Field.toOJSJsonPort(outputPort));
+                result.inputLocalPorts.push(Field.toOJSJson(outputPort));
             }
         }
 
@@ -1834,25 +1797,26 @@ export class Node {
         result.outputLocalPorts = [];
         if (node.hasOutputApplication()){
             for (const inputPort of node.outputApplication().getInputPorts()){
-                result.outputLocalPorts.push(Field.toOJSJsonPort(inputPort));
+                result.outputLocalPorts.push(Field.toOJSJson(inputPort));
             }
         }
+        */
 
         // add fields
         result.fields = [];
         for (const field of node.fields()){
-            if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
-                result.fields.push(Field.toOJSJson(field));
-            }
+            result.fields.push(Field.toOJSJson(field));
         }
 
+        /*
         // add applicationArgs
         result.applicationArgs = [];
         for (const field of node.fields()){
-            if (field.getFieldType() === Eagle.FieldType.ApplicationArgument){
+            if (field.getParameterType() === Eagle.ParameterType.ApplicationArgument){
                 result.applicationArgs.push(Field.toOJSJson(field));
             }
         }
+        */
 
         // add fields from inputApplication
         result.inputAppFields = [];
@@ -1935,6 +1899,7 @@ export class Node {
             result.embedKey = node.embedKey();
         }
 
+        /*
         // add input ports
         result.inputPorts = [];
         if (node.hasInputApplication()){
@@ -1956,7 +1921,7 @@ export class Node {
         result.inputLocalPorts = [];
         if (node.hasInputApplication()){
             for (const outputPort of node.inputApplication().getOutputPorts()){
-                result.inputLocalPorts.push(Field.toOJSJsonPort(outputPort));
+                result.inputLocalPorts.push(Field.toOJSJson(outputPort));
             }
         }
 
@@ -1965,25 +1930,26 @@ export class Node {
         result.outputLocalPorts = [];
         if (node.hasOutputApplication()){
             for (const inputPort of node.outputApplication().getInputPorts()){
-                result.outputLocalPorts.push(Field.toOJSJsonPort(inputPort));
+                result.outputLocalPorts.push(Field.toOJSJson(inputPort));
             }
         }
+        */
 
         // add fields
         result.fields = [];
         for (const field of node.fields()){
-            if (field.getFieldType() === Eagle.FieldType.ComponentParameter){
-                result.fields.push(Field.toOJSJson(field));
-            }
+            result.fields.push(Field.toOJSJson(field));
         }
 
+        /*
         // add applicationArgs
         result.applicationArgs = [];
         for (const field of node.fields()){
-            if (field.getFieldType() === Eagle.FieldType.ApplicationArgument){
+            if (field.getParameterType() === Eagle.ParameterType.ApplicationArgument){
                 result.applicationArgs.push(Field.toOJSJson(field));
             }
         }
+        */
 
         // add fields from inputApplication
         result.inputAppFields = [];
@@ -2226,7 +2192,7 @@ export class Node {
         // NOTE: this code checks many pairs of fields twice
         for (const field0 of node.getFields()){
             for (const field1 of node.getFields()){
-                if (field0.getId() !== field1.getId() && field0.getIdText() === field1.getIdText() && field0.getFieldType() === field1.getFieldType()){
+                if (field0.getId() !== field1.getId() && field0.getIdText() === field1.getIdText() && field0.getParameterType() === field1.getParameterType()){
                     const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, null, "");
                     errorsWarnings.warnings.push(issue);
                 }

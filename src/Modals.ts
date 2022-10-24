@@ -249,7 +249,8 @@ export class Modals {
             const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
             const type: string = $('#editFieldModalTypeInput').val().toString();
-            const fieldType: string = $('#editFieldModalFieldTypeSelect').val().toString();
+            const parameterType: string = $('#editFieldModalParameterTypeSelect').val().toString();
+            const parameterUsage: string = $('#editFieldModalParameterUsageSelect').val().toString();
 
             // translate type
             const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
@@ -311,9 +312,13 @@ export class Modals {
 
             const description: string = $('#editFieldModalDescriptionInput').val().toString();
             const type: string = $('#editFieldModalTypeInput').val().toString();
-            let fieldType: string = "";
-            if ($('#editFieldModalFieldTypeSelect').val()){
-                fieldType = $('#editFieldModalFieldTypeSelect').val().toString();
+            let parameterType: string = "";
+            if ($('#editFieldModalParameterTypeSelect').val()){
+                parameterType = $('#editFieldModalParameterTypeSelect').val().toString();
+            }
+            let parameterUsage: string = "";
+            if ($('#editFieldModalParameterUsageSelect').val()){
+                parameterUsage = $('#editFieldModalParameterUsageSelect').val().toString();
             }
 
             // NOTE: currently no way to edit options in the "select"-type fields
@@ -326,18 +331,19 @@ export class Modals {
 
             // translate type
             const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
-            const realFieldType: Eagle.FieldType = Utils.translateStringToFieldType(fieldType);
+            const realParameterType: Eagle.ParameterType = Utils.translateStringToParameterType(parameterType);
+            const realParameterUsage: Eagle.ParameterUsage = Utils.translateStringToParameterUsage(parameterUsage);
             let newField;
 
             switch(realType){
                 case Eagle.DataType_Boolean:
-                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realFieldType, keyParameter);
+                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
                 case Eagle.DataType_Select:
-                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realFieldType, keyParameter);
+                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
                 default:
-                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realFieldType, keyParameter);
+                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
             }
 
