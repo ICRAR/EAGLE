@@ -54,8 +54,6 @@ export class Node {
     private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
     private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
 
-    private streaming : ko.Observable<boolean>;
-    private precious : ko.Observable<boolean>;
     private peek : boolean;                        // true if we are temporarily showing the ports based on the users mouse position
     private flipPorts : ko.Observable<boolean>;
 
@@ -111,8 +109,6 @@ export class Node {
         this.parentKey = ko.observable(null);
         this.embedKey = ko.observable(null);
         this.collapsed = ko.observable(true);
-        this.streaming = ko.observable(false);
-        this.precious = ko.observable(false);
         this.peek = false;
         this.flipPorts = ko.observable(false);
 
@@ -293,27 +289,23 @@ export class Node {
     }
 
     isStreaming = () : boolean => {
-        return this.streaming();
+        const streamingField = this.findFieldByIdText("streaming", Eagle.FieldType.ComponentParameter);
+
+        if (streamingField !== null){
+            return streamingField.valIsTrue(streamingField.getValue());
+        }
+
+        return false;
     }
 
-    setStreaming = (value : boolean) : void => {
-        this.streaming(value);
-    }
+    isPersist = () : boolean => {
+        const persistField = this.findFieldByIdText("persist", Eagle.FieldType.ComponentParameter);
 
-    toggleStreaming = () : void => {
-        this.streaming(!this.streaming());
-    }
+        if (persistField !== null){
+            return persistField.valIsTrue(persistField.getValue());
+        }
 
-    isPrecious = () : boolean => {
-        return this.precious();
-    }
-
-    setPrecious = (value : boolean) : void => {
-        this.precious(value);
-    }
-
-    togglePrecious = () : void => {
-        this.precious(!this.precious());
+        return false;
     }
 
     isPeek = () : boolean => {
@@ -688,8 +680,6 @@ export class Node {
         this.parentKey(null);
         this.embedKey(null);
         this.collapsed(true);
-        this.streaming(false);
-        this.precious(false);
 
         this.inputApplication(null);
         this.outputApplication(null);
@@ -1099,8 +1089,6 @@ export class Node {
         result.collapsed(this.collapsed());
         result.expanded(this.expanded());
         result.keepExpanded(this.expanded());
-        result.streaming(this.streaming());
-        result.precious(this.precious());
 
         result.peek = this.peek;
         result.flipPorts(this.flipPorts());
@@ -1563,20 +1551,6 @@ export class Node {
             }
         }
 
-        // streaming
-        if (typeof nodeData.streaming !== 'undefined'){
-            node.streaming(nodeData.streaming);
-        } else {
-            node.streaming(false);
-        }
-
-        // precious
-        if (typeof nodeData.precious !== 'undefined'){
-            node.precious(nodeData.precious);
-        } else {
-            node.precious(false);
-        }
-
         // subject (for comment nodes)
         if (typeof nodeData.subject !== 'undefined'){
             node.subject(nodeData.subject);
@@ -1786,8 +1760,6 @@ export class Node {
         result.key = node.key();
         result.text = node.name();
         result.description = node.description();
-        result.streaming = node.streaming();
-        result.precious = node.precious();
 
         result.repositoryUrl = node.repositoryUrl();
         result.commitHash = node.commitHash();
@@ -1917,8 +1889,6 @@ export class Node {
         result.height = node.height;
         result.collapsed = node.collapsed();
         result.flipPorts = node.flipPorts();
-        result.streaming = node.streaming();
-        result.precious = node.precious();
         result.subject = node.subject();
         result.expanded = node.expanded();
         result.repositoryUrl = node.repositoryUrl();
