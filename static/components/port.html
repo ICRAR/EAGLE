@@ -21,23 +21,28 @@
         <!-- /ko -->
     </div>
 
-    <div class="input-group-append">
-        <!-- ko if: isEventPort -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is event port<br/>Click to toggle'" data-bs-placement="left">
-                <i class="material-icons md-18">alarm_on</i>
+    <!-- ko ifnot: $root.selectedNode().isLocked() -->
+        <div class="input-group-append">
+            <!-- ko if: isEventPort -->
+                <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is event port<br/>Click to toggle'" data-bs-placement="left">
+                    <i class="material-icons md-18">alarm_on</i>
+                </button>
+            <!-- /ko -->
+            <!-- ko ifnot: isEventPort -->
+                <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is not event port<br/>Click to toggle'" data-bs-placement="left">
+                    <i class="material-icons md-18">alarm_off</i>
+                </button>
+            <!-- /ko -->
+        </div>
+    <!-- /ko -->
+
+    <!-- ko ifnot: $root.selectedNode().isLocked() -->
+        <div class="input-group-append">
+            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField(null, 'Edit', $data.fieldType, $index());}, attr: {id: 'nodeInspectorEditPort' + $index()}, eagleTooltip: 'Edit'" data-bs-placement="left">
+                <i class="material-icons md-18">edit</i>
             </button>
-        <!-- /ko -->
-        <!-- ko ifnot: isEventPort -->
-            <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is not event port<br/>Click to toggle'" data-bs-placement="left">
-                <i class="material-icons md-18">alarm_off</i>
-            </button>
-        <!-- /ko -->
-    </div>
-    <div class="input-group-append">
-        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.editField(null, 'Edit', $data.fieldType, $index());}, attr: {id: 'nodeInspectorEditPort' + $index()}, eagleTooltip: 'Edit'" data-bs-placement="left">
-            <i class="material-icons md-18">edit</i>
-        </button>
-    </div>
+        </div>
+    <!-- /ko -->
 
     <!-- ko ifnot: $root.selectedNode().isLocked() -->
     <div class="input-group-append">
