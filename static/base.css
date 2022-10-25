@@ -248,7 +248,7 @@ td:first-child input {
 }
 
 #parameter_table_isPort{
-    width: 90px;
+    width: 173px;
 }
 
 #parameter_table_read_only{
@@ -336,6 +336,7 @@ td:first-child input {
     padding: 0px;
     height: fit-content;
     margin: 0px;
+    width: 100%;
 }
 
 #paramsTableWrapper input{
