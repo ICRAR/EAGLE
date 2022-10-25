@@ -779,7 +779,7 @@
                                         <!-- selection input -->
                                         <!-- ko if: $data.getHtmlInputType() === 'select' -->
                                             <td>
-                                                <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind=" event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.defaultValue">
+                                                <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.defaultValue">
                                                     <!-- options are added dynamically -->
                                                 </select> 
                                             </td>
