@@ -848,12 +848,25 @@
                                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDuplicate') -->
                                                     <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
                                                 <!-- /ko -->
+                                                <!-- ko ifnot: $data.usage() === 'NoPort'-->
+                                                    <!-- ko if: $data.isEvent() -->
+                                                        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is event port<br/>Click to toggle'" data-bs-placement="left">
+                                                            <i class="material-icons">alarm_on</i>
+                                                        </button>
+                                                    <!-- /ko -->
+                                                    <!-- ko ifnot: $data.isEvent() -->
+                                                        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is not event port<br/>Click to toggle'" data-bs-placement="left">
+                                                            <i class="material-icons">alarm_off</i>
+                                                        </button>
+                                                    <!-- /ko -->
+                                                <!-- /ko -->
                                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDelete') -->
                                                     <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                         </td>
                                     <!-- /ko -->
+                                    
                                 </tr>
                             <!-- /ko -->
                         <!-- /ko -->
