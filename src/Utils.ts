@@ -40,6 +40,7 @@ import {Palette} from './Palette';
 import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
+import {ParameterTable} from './ParameterTable';
 
 export class Utils {
     // Allowed file extenstions.

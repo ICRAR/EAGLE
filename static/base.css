@@ -312,6 +312,7 @@ td:first-child input {
     background-color: #002349;
     color: white;
     padding: 5px;
+    position:relative;
 }
 
 #paramsTableWrapper tr {
@@ -376,6 +377,21 @@ td:first-child input {
     #parameter_table_description{
         width:91px;
     }
+}
+
+.resizer{
+    position: absolute;
+    right:0px;
+    top: 0px;
+    border-right: 5px solid red;
+    z-index:10;
+    height: 100%;
+}
+  
+.resizer:hover,
+.resizing {
+    border-right: 3px solid whitesmoke;
+    cursor: move;
 }
 
 /*Animation must have unfill path strokes to work*/

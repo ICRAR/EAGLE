@@ -4311,6 +4311,7 @@ export namespace Eagle
 
 $( document ).ready(function() {
     // jquery event listeners start here
+    var that = this
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
@@ -4423,5 +4424,6 @@ $( document ).ready(function() {
     })
     $(".hierarchy").on("click", function(){
         (<any>window).eagle.selectedObjects([]);
-    })
+    })         
+
 });
