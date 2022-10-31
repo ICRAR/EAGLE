@@ -273,6 +273,8 @@ td:first-child input {
 
 #parameter_table_isKeyAttribute{
     width: 27px;
+    min-width: 27px;
+    max-width: 27px;
 }
 
 #parameter_table_name{
@@ -306,6 +308,7 @@ td:first-child input {
 
 #paramsTableWrapper{
     width: 100%;
+    table-layout: fixed;
 }
 
 #paramsTableWrapper th{
@@ -313,6 +316,15 @@ td:first-child input {
     color: white;
     padding: 5px;
     position:relative;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+
 }
 
 #paramsTableWrapper tr {
