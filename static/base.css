@@ -395,7 +395,7 @@ td:first-child input {
     position: absolute;
     right:0px;
     top: 0px;
-    border-right: 5px solid red;
+    border-right: 5px solid #204267;
     z-index:10;
     height: 100%;
 }
@@ -403,7 +403,7 @@ td:first-child input {
 .resizer:hover,
 .resizing {
     border-right: 3px solid whitesmoke;
-    cursor: move;
+    cursor: col-resize;
 }
 
 /*Animation must have unfill path strokes to work*/
