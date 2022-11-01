@@ -83,10 +83,12 @@ export class Utils {
     static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
     static readonly SPAWN_TRANSLATION_TAB: string = "SpawnTranslationTab";
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
-    static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
+    static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
+    static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
     static readonly USER_INTERFACE_MODE: string = "UserInterfaceMode";
+    static readonly USER_TRANSLATOR_MODE: string = "UserTranslatorMode";
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
     static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
@@ -326,7 +328,7 @@ export class Utils {
         console.warn("Unknown FieldType", fieldType);
         return Eagle.FieldType.Unknown;
     }
-
+    
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
         $.ajax({
             url: url,
@@ -743,6 +745,9 @@ export class Utils {
         // set accessibility state checkbox
         $('#editFieldModalAccessInputCheckbox').prop('checked', field.isReadonly());
 
+        // set accessibility state checkbox
+        $('#editFieldModalKeyParameterCheckbox').prop('checked', field.isKeyAttribute());
+
         // set positional argument checkbox
         $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 
@@ -877,7 +882,10 @@ export class Utils {
         $('#settingsModal').modal("toggle");
     }
 
-    static showOpenParamsTableModal() : void {
+    static showOpenParamsTableModal(mode:string) : void {
+        const eagle: Eagle = Eagle.getInstance();
+
+        eagle.tableModalType(mode)
         $('#parameterTableModal').modal("toggle");
     }
 
@@ -1221,8 +1229,6 @@ export class Utils {
     }
 
     static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
-        console.log("getDataComponentsWithInputsAndOutputs");
-
         const result: Category[] = [];
 
         // loop through all categories
@@ -1230,7 +1236,7 @@ export class Utils {
             // get category data
             const categoryData = CategoryData.getCategoryData(<Category>category);
 
-            if (categoryData.categoryType === categoryType){
+            if (categoryData.categoryType !== categoryType){
                 continue;
             }
 

@@ -290,8 +290,10 @@ export class GraphUpdater {
                         "folder":"",
                         "file":file.name,
                         "eagleVersion":"",
-                        "sha":"",
-                        "gitUrl":"",
+                        "repositoryUrl":"",
+                        "commitHash":"",
+                        "downloadUrl":"",
+                        "signature":"",
                         "lastModified":"",
                         "lastModifiedBy":"",
                         "numLoadWarnings":"",
@@ -321,8 +323,10 @@ export class GraphUpdater {
                     "folder":path,
                     "file":file.name,
                     "eagleVersion":"",
-                    "sha":"",
-                    "gitUrl":"",
+                    "repositoryUrl":"",
+                    "commitHash":"",
+                    "downloadUrl":"",
+                    "signature":"",
                     "lastModified":"",
                     "lastModifiedBy":"",
                     "numLoadWarnings":"",
@@ -362,8 +366,10 @@ export class GraphUpdater {
                         // use git-related info within file
                         row.eagleVersion = lg.fileInfo().eagleVersion;
                         row.lastModifiedBy = lg.fileInfo().lastModifiedName;
-                        row.sha = lg.fileInfo().sha;
-                        row.gitUrl = lg.fileInfo().gitUrl;
+                        row.repositoryUrl = lg.fileInfo().repositoryUrl;
+                        row.commitHash = lg.fileInfo().commitHash;
+                        row.downloadUrl = lg.fileInfo().downloadUrl;
+                        row.signature = lg.fileInfo().signature;
 
                         // convert date from timestamp to date string
                         const date = new Date(lg.fileInfo().lastModifiedDatetime * 1000);

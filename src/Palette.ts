@@ -38,7 +38,7 @@ export class Palette {
     private nodes : ko.ObservableArray<Node>;
     private searchExclude : ko.Observable<boolean>;
 
-    public static readonly DYNAMIC_PALETTE_NAME: string = "Raw Components";
+    public static readonly DYNAMIC_PALETTE_NAME: string = "Component Templates";
     public static readonly BUILTIN_PALETTE_NAME: string = "Built-in Palette";
 
     constructor(){

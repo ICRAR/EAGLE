@@ -54,7 +54,13 @@
                 <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true), css: { 'navbar-btn-active': showDataNodes() === false }" data-intro="Toggle the display of data nodes in the current graph. Hiding the data nodes can greatly simplify the appearance of the graph.">
                     <i class="material-icons md-18">subtitles</i>
                 </button>
+                <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: 'Check for component updates ' + Utils.getKeyboardShortcutTextByKey('check_for_component_updates', true)" data-intro="Check for updates to the definitions of components used in the current graph.">
+                    <i class="material-icons md-18">star</i>
+                </button>
             </div>
+            <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)" data-intro="Open The Graph's Key Parameters Table">
+                <i class="material-icons md-18">table_chart</i>
+            </button>
             <ul class="nav navbar-nav ms-4" data-intro="Check the graph for common issues and missing information.">
                 <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'">
                     <i class="material-icons md-18">done_all</i>
@@ -67,6 +73,9 @@
         </ul>
 
         <ul class="nav navbar-nav ms-auto">
+            <div id="navDeployBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + Utils.getKeyboardShortcutTextByKey('deploy_translator', true)">
+                <a href='javascript:void(0)' data-bind="click: function(){$root.deployDefaultTranslationAlgorithm()}">Translate</a>
+            </div>
             <!-- ko ifnot: Eagle.isInUIMode(Eagle.UIMode.Minimal) -->
             <li class="nav-item dropdown" data-intro='Create new graphs'>
                 <a class="nav-link dropdown-toggle ms-auto" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

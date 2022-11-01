@@ -106,9 +106,9 @@ $(function(){
     // load the default palette
     if (Setting.findValue(Utils.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
-            {name:"DALiuGE Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
-            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true},
-            {name:"Graph Components", filename:"./static/" + Config.templatePaletteFileName, readonly:true}
+            {name:"Builtin Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
+            {name:"Graph Components", filename:window.location.origin + "/static/" + Config.templatePaletteFileName, readonly:true},
+            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true}
         ], (palettes: Palette[]):void => {
             for (const palette of palettes){
                 if (palette !== null){

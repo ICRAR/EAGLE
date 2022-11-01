@@ -538,8 +538,9 @@ def save_git_hub_file():
     graph["modelData"]["repoService"] = "GitHub"
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
-    graph["modelData"]["sha"] = ""
-    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["repositoryUrl"] = ""
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = ""
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
     graph["modelData"]["lastModifiedDatetime"] = 0
@@ -608,8 +609,9 @@ def save_git_lab_file():
     graph["modelData"]["repoService"] = "GitLab"
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
-    graph["modelData"]["sha"] = ""
-    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["repositoryUrl"] = ""
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = ""
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
     graph["modelData"]["lastModifiedDatetime"] = 0
@@ -721,11 +723,17 @@ def open_git_hub_file():
     graph["modelData"]["repoService"] = "GitHub"
     graph["modelData"]["filePath"] = filename
 
-    graph["modelData"]["sha"] = most_recent_commit.sha
-    graph["modelData"]["gitUrl"] = download_url
+    graph["modelData"]["repositoryUrl"] = "TODO"
+    graph["modelData"]["commitHash"] = most_recent_commit.sha
+    graph["modelData"]["downloadUrl"] = download_url
     graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
     graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
     graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+
+    # for palettes, put downloadUrl in every component
+    if extension == ".palette":
+        for component in graph["nodeDataArray"]:
+            component["paletteDownloadUrl"] = download_url
 
     json_data = json.dumps(graph, indent=4)
 
@@ -740,7 +748,7 @@ def open_git_lab_file():
     """
     FLASK POST routing method for '/openRemoteGitlabFile'
 
-    Reads a file from a GitLub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
+    Reads a file from a GitLab repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
     """
     content = request.get_json(silent=True)
     repo_name = content["repositoryName"]
@@ -787,11 +795,65 @@ def open_git_lab_file():
     graph["modelData"]["filePath"] = filename
 
     # TODO: Add the GitLab file information
-    graph["modelData"]["sha"] = f.commit_id
-    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["repositoryUrl"] = "TODO"
+    graph["modelData"]["commitHash"] = f.commit_id
+    graph["modelData"]["downloadUrl"] = "TODO"
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
     graph["modelData"]["lastModifiedDatetime"] = 0
+
+    # for palettes, put downloadUrl in every component
+    if extension == ".palette":
+        for component in graph["nodeDataArray"]:
+            component["paletteDownloadUrl"] = "TODO"
+
+    json_data = json.dumps(graph, indent=4)
+
+    response = app.response_class(
+        response=json.dumps(json_data), status=200, mimetype="application/json"
+    )
+    return response
+
+
+@app.route("/openRemoteUrlFile", methods=["POST"])
+def open_url_file():
+    """
+    FLASK POST routing method for '/openRemoteUrlFile'
+
+    Reads a file from a URL. The POST request content is a JSON string containing the URL.
+    """
+    content = request.get_json(silent=True)
+    url = content["url"]
+    extension = os.path.splitext(url)[1]
+
+    # download via http get
+    import certifi
+    import ssl
+    raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where())).read()
+
+    # parse JSON
+    graph = json.loads(raw_data)
+
+    if not "modelData" in graph:
+        graph["modelData"] = {}
+
+    # add the repository information
+    graph["modelData"]["repo"] = ""
+    graph["modelData"]["repoBranch"] = ""
+    graph["modelData"]["repoService"] = "Url"
+    graph["modelData"]["filePath"] = ""
+
+    # add the GitLab file information
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = url
+    graph["modelData"]["lastModifiedName"] = ""
+    graph["modelData"]["lastModifiedEmail"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = 0
+
+    # for palettes, put downloadUrl in every component
+    if extension == ".palette":
+        for component in graph["nodeDataArray"]:
+            component["paletteDownloadUrl"] = url
 
     json_data = json.dumps(graph, indent=4)
 
