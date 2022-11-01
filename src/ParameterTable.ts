@@ -170,48 +170,68 @@ export class ParameterTable {
         return ParameterTable.selectionParentIndex() !== -1;
     }
 
-    setUpColumnResizer = (headerId:string) : boolean => {
+    setUpColumnResizer = (headerId:string,downId:string) : boolean => {
         // little helper function that sets up resizable columns. this is called by ko on the headers when they are created
-        ParameterTable.initiateResizableColumns(headerId)
+        ParameterTable.initiateResizableColumns(headerId,downId)
         return true
     }
 
-    static initiateResizableColumns = (headerId:string) : void => {
-            var col = $('#'+headerId)[0]
-            var resizer = $(col).find('div')
+    static initiateResizableColumns = (upId:string, downId:string) : void => {
+        //need this oen initially to set the mousedown handler
+            var upcol = $('#'+upId)[0]
+            var upresizer = $(upcol).find('div')
+
+            var downcol:any
+            var downresizer:any
+
             // Track the current position of mouse
             let x = 0;
-            let w = 0;
+            let upW = 0;
+
+            let downW = 0;
+
             const mouseDownHandler = function (e:any) {
+                //need to reset these as they are sometimes lost
+                upcol = $('#'+upId)[0]
+                upresizer = $(upcol).find('div')
+                downcol = $('#'+downId)[0]
+                downresizer = $(downcol).find('div')
+
                 // Get the current mouse position
                 x = e.clientX;
-        
+                
                 // Calculate the current width of column
-                const styles = window.getComputedStyle(col);
-                w = parseInt(styles.width, 10);
+                const styles = window.getComputedStyle(upcol);
+                upW = parseInt(styles.width, 10);
+
+                const downstyles = window.getComputedStyle(downcol)
+                downW = parseInt(downstyles.width, 10);
         
                 // Attach listeners for document's events
                 document.addEventListener('mousemove', mouseMoveHandler);
                 document.addEventListener('mouseup', mouseUpHandler);
-                resizer.addClass('resizing');
+                upresizer.addClass('resizing');
+                downresizer.addClass('resizing');
             };
         
             const mouseMoveHandler = function (e:any) {
                 // Determine how far the mouse has been moved
                 const dx = e.clientX - x;
-        
+
                 // Update the width of column
-                col.style.width = `${w + dx}px`;
+                upcol.style.width = `${upW + dx}px`;
+                downcol.style.width = `${downW - dx}px`;
             };
         
             // When user releases the mouse, remove the existing event listeners
             const mouseUpHandler = function () {
                 document.removeEventListener('mousemove', mouseMoveHandler);
                 document.removeEventListener('mouseup', mouseUpHandler);
-                resizer.removeClass('resizing');
+                upresizer.removeClass('resizing');
+                downresizer.removeClass('resizing');
             };
         
             //doing it this way because it makes it simpler to have the header in quetion in hand. the ko events proved difficult to pass events and objects with
-            resizer.on('mousedown', mouseDownHandler);
+            upresizer.on('mousedown', mouseDownHandler);
     }
 }
