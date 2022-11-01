@@ -1695,6 +1695,9 @@ export class Eagle {
                             break;
                     }
 
+                    // update types list
+                    this.updateAllKnownTypes();
+
                     // show errors/warnings
                     this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
@@ -3618,6 +3621,9 @@ export class Eagle {
                 if (modalType === Eagle.ModalType.Field){
                     $('#parameterTableModal').modal("show");
                 }
+
+                // update known types
+                this.updateAllKnownTypes();
             });
         }
     };
