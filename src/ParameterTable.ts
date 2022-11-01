@@ -184,6 +184,8 @@ export class ParameterTable {
             var downcol:any
             var downresizer:any
 
+            var tableWidth:any
+
             // Track the current position of mouse
             let x = 0;
             let upW = 0;
@@ -197,9 +199,12 @@ export class ParameterTable {
                 downcol = $('#'+upId).next()[0]
                 downresizer = $(downcol).find('div')
 
+                //getting the table width for use later to convert the new widths into percentages
+                tableWidth = parseInt(window.getComputedStyle($('#paramsTableWrapper')[0]).width,10)
+
                 // Get the current mouse position
                 x = e.clientX;
-                
+
                 // Calculate the current width of column
                 const styles = window.getComputedStyle(upcol);
                 upW = parseInt(styles.width, 10);
@@ -218,9 +223,13 @@ export class ParameterTable {
                 // Determine how far the mouse has been moved
                 const dx = e.clientX - x;
 
+                //converting these new px values into percentages
+                let newUpWidth = ((upW + dx)/tableWidth)*100
+                let newDownWidth = ((downW - dx)/tableWidth)*100
+
                 // Update the width of column
-                upcol.style.width = `${upW + dx}px`;
-                downcol.style.width = `${downW - dx}px`;
+                upcol.style.width = `${newUpWidth}%`;
+                downcol.style.width = `${newDownWidth}%`;
             };
         
             // When user releases the mouse, remove the existing event listeners
