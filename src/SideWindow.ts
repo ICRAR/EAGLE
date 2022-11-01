@@ -22,7 +22,9 @@ export class SideWindow {
     }
 
     // dragdrop
-    static nodeDragStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
+    static nodeDragStart = (node: Node, e : JQueryEventObject) : boolean => {
+        const eagle: Eagle = Eagle.getInstance();
+
         // retrieve data about the node being dragged
         // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
         //       Using the native javascript works better, it always fetches the current value of the attribute
