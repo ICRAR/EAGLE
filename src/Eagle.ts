@@ -3083,7 +3083,7 @@ export class Eagle {
             // triggers the modal 'lightbox' to show
             $(".modal-backdrop").removeClass("forceHide");
         }else{
-            $("#"+selectSectionID).val(val-1).trigger('change');
+            $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
             $("#"+modalID).removeClass("forceHide");
             $(".modal-backdrop").removeClass("forceHide");
