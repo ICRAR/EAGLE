@@ -11,6 +11,9 @@ export class ParameterTable {
     static selectionName : ko.Observable<string>; // name of selected parameter in field
     static selectionReadonly : ko.Observable<boolean> // check if selection is readonly
 
+    static tableHeaderX : any;
+    static tableHeaderW : any;
+
     static parameterTableVisibility : Array<{parameterName:string, keyVisibility:boolean, inspectorVisibility:boolean}> = []
 
     constructor(){
@@ -163,5 +166,79 @@ export class ParameterTable {
 
     static hasSelection = () : boolean => {
         return ParameterTable.selectionParentIndex() !== -1;
+    }
+
+    setUpColumnResizer = (headerId:string) : boolean => {
+        // little helper function that sets up resizable columns. this is called by ko on the headers when they are created
+        ParameterTable.initiateResizableColumns(headerId)
+        return true
+    }
+
+    static initiateResizableColumns = (upId:string) : void => {
+        //need this oen initially to set the mousedown handler
+            var upcol = $('#'+upId)[0]
+            var upresizer = $(upcol).find('div')
+
+            var downcol:any
+            var downresizer:any
+
+            var tableWidth:any
+
+            // Track the current position of mouse
+            let x = 0;
+            let upW = 0;
+
+            let downW = 0;
+
+            const mouseDownHandler = function (e:any) {
+                //need to reset these as they are sometimes lost
+                upcol = $('#'+upId)[0]
+                upresizer = $(upcol).find('div')
+                downcol = $('#'+upId).next()[0]
+                downresizer = $(downcol).find('div')
+
+                //getting the table width for use later to convert the new widths into percentages
+                tableWidth = parseInt(window.getComputedStyle($('#paramsTableWrapper')[0]).width,10)
+
+                // Get the current mouse position
+                x = e.clientX;
+
+                // Calculate the current width of column
+                const styles = window.getComputedStyle(upcol);
+                upW = parseInt(styles.width, 10);
+
+                const downstyles = window.getComputedStyle(downcol)
+                downW = parseInt(downstyles.width, 10);
+        
+                // Attach listeners for document's events
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+                upresizer.addClass('resizing');
+                downresizer.addClass('resizing');
+            };
+        
+            const mouseMoveHandler = function (e:any) {
+                // Determine how far the mouse has been moved
+                const dx = e.clientX - x;
+
+                //converting these new px values into percentages
+                let newUpWidth = ((upW + dx)/tableWidth)*100
+                let newDownWidth = ((downW - dx)/tableWidth)*100
+
+                // Update the width of column
+                upcol.style.width = `${newUpWidth}%`;
+                downcol.style.width = `${newDownWidth}%`;
+            };
+        
+            // When user releases the mouse, remove the existing event listeners
+            const mouseUpHandler = function () {
+                document.removeEventListener('mousemove', mouseMoveHandler);
+                document.removeEventListener('mouseup', mouseUpHandler);
+                upresizer.removeClass('resizing');
+                downresizer.removeClass('resizing');
+            };
+        
+            //doing it this way because it makes it simpler to have the header in quetion in hand. the ko events proved difficult to pass events and objects with
+            upresizer.on('mousedown', mouseDownHandler);
     }
 }
