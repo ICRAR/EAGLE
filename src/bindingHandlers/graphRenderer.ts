@@ -2214,7 +2214,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isBranch()){
-            const numPorts = node.getInputApplicationInputPorts().length;
+            const numPorts = node.getInputPorts().length;
             return 100 - 76 * portIndexRatio(index, numPorts);
         }
 
@@ -2234,7 +2234,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (node.isBranch()){
-            const numPorts = node.getInputApplicationInputPorts().length;
+            const numPorts = node.getInputPorts().length;
             return 24 + 30 * portIndexRatio(index, numPorts);
         }
 
