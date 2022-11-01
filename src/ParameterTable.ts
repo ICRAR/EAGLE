@@ -1,9 +1,7 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
 import {Field} from './Field';
-import { Palette } from "./Palette";
-import {Utils} from './Utils';
+import {Eagle} from './Eagle';
 
 export class ParameterTable {
 
@@ -46,7 +44,7 @@ export class ParameterTable {
     getParameterTableVisibility = (columnName: string) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
         const tableModalType = eagle.tableModalType()
-        var returnValue : boolean
+        let returnValue : boolean
         if(tableModalType === "keyParametersTableModal"){
             ParameterTable.parameterTableVisibility.forEach(function(element){
                 if(columnName === element.parameterName){
@@ -150,7 +148,7 @@ export class ParameterTable {
         
     }
 
-    static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
+    static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
         ParameterTable.selectionParentIndex(selectionIndex);

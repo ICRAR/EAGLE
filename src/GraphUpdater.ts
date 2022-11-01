@@ -261,8 +261,6 @@ export class GraphUpdater {
     }
 
     static generateLogicalGraphsTable = () : any[] => {
-        const eagle: Eagle = Eagle.getInstance();
-
         // check that all repos have been fetched
         let foundUnfetched = false;
         for (const repo of Repositories.repositories()){

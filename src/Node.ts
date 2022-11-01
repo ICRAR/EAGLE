@@ -32,7 +32,6 @@ import {Errors} from './Errors';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Setting} from './Setting';
-import { LogicalGraph } from "./LogicalGraph";
 
 export class Node {
     private _id : string
@@ -1364,11 +1363,6 @@ export class Node {
             key = nodeData.key;
         } else {
             key = generateKeyFunc();
-        }
-
-        let readonly = true;
-        if (typeof nodeData.readonly !== 'undefined'){
-            readonly = nodeData.readonly;
         }
 
         // translate categories if required
