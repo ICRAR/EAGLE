@@ -170,13 +170,13 @@ export class ParameterTable {
         return ParameterTable.selectionParentIndex() !== -1;
     }
 
-    setUpColumnResizer = (headerId:string,downId:string) : boolean => {
+    setUpColumnResizer = (headerId:string) : boolean => {
         // little helper function that sets up resizable columns. this is called by ko on the headers when they are created
-        ParameterTable.initiateResizableColumns(headerId,downId)
+        ParameterTable.initiateResizableColumns(headerId)
         return true
     }
 
-    static initiateResizableColumns = (upId:string, downId:string) : void => {
+    static initiateResizableColumns = (upId:string) : void => {
         //need this oen initially to set the mousedown handler
             var upcol = $('#'+upId)[0]
             var upresizer = $(upcol).find('div')
@@ -194,7 +194,7 @@ export class ParameterTable {
                 //need to reset these as they are sometimes lost
                 upcol = $('#'+upId)[0]
                 upresizer = $(upcol).find('div')
-                downcol = $('#'+downId)[0]
+                downcol = $('#'+upId).next()[0]
                 downresizer = $(downcol).find('div')
 
                 // Get the current mouse position

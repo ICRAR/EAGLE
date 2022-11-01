@@ -683,18 +683,19 @@
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('displayText') -->
                                 <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">
                                     Display Text
-                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_text','parameter_table_name') === true}"></div>
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_text') === true}"></div>
                                 </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('idText') -->
                                 <th id="parameter_table_name" data-bind="eagleTooltip:'Internal name used by DALiuGE'" data-bs-placement="top">
                                     idText
-                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_name','parameter_table_value') === true}"></div>
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_name') === true}"></div>
                                 </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('value') -->
                                 <th id="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
                                     Value
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_value') === true}"></div>
                                 </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('readOnly') -->
@@ -703,12 +704,13 @@
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('defaultValue') -->
                                 <th id="parameter_table_default_value" data-bind="eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">
                                     Default Value
-                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_default_value','parameter_table_description') === true}"></div>
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_default_value') === true}"></div>
                                 </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('description') -->
                                 <th id="parameter_table_description" data-bind="eagleTooltip:'A description of the purpose of this parameter'" data-bs-placement="top">
                                     Description
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_description') === true}"></div>
                                 </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('type') -->
