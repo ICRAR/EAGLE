@@ -1502,7 +1502,7 @@ export class Utils {
     }
 
     static portsMatch(port0: Field, port1: Field){
-        return port0.getType() === port1.getType();
+        return Utils.dataTypePrefix(port0.getType()) === Utils.dataTypePrefix(port1.getType());
     }
 
     static checkPalette(palette: Palette): Errors.Issue[] {
