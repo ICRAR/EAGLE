@@ -740,7 +740,7 @@
                                 <tr>
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('keyAttribute') -->
                                         <td>
-                                            <button class="edit" data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
+                                            <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
                                         </td>
                                     <!-- /ko -->
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeName') -->
@@ -750,7 +750,7 @@
                                     <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getKey(), readonly: true"></td>
                                     <!-- /ko -->
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('displayText') -->
-                                        <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter" type="string" data-bind="value: displayText, readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
+                                        <td  data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter selectionTargets" placeholder="New Parameter" type="string" data-bind="value: displayText, readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
                                     <!-- /ko -->
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('idText') -->
                                         <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'idText' }"><input class="tableParameter" type="string" data-bind="value: idText, readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
@@ -852,7 +852,7 @@
                                                     <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.logicalGraph().findNodeByKey($data.nodeKey()),$data.getId(), false);}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                 <!-- /ko -->
                                                 <!-- ko if: $data.fieldType() === Eagle.FieldType.ApplicationArgument || $data.fieldType() === Eagle.FieldType.ComponentParameter -->
-                                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.logicalGraph().findNodeByKey($data.nodeKey()), Eagle.FieldType.Unknown, $index());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.logicalGraph().findNodeByKey($data.nodeKey()), Eagle.FieldType.Unknown, $index());}, disabled: $root.parameterTable().getNodeLockedState($data) , eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                         </td>
@@ -864,8 +864,11 @@
                 </table>
             </div>
             <div class="modal-footer"  data-bind="click: ParameterTable.resetSelection">
-                <!-- <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: $root.parameterTable().getNodeLockedState($data)" ><span id="parameterTableModalAddParameter">Add Parameter</span></button> -->
-                <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>
+                <!-- ko if: selectedNode() != null && tableModalType() === 'inspectorTableModal' -->
+                    
+                    <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
+                <!-- /ko -->
+                    <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>
             </div>
 
         </div>
