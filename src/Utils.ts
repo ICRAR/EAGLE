@@ -1725,10 +1725,17 @@ export class Utils {
     }
 
     static getShortcutDisplay = () : {description:string, shortcut : string}[] => {
+        const eagle: Eagle = Eagle.getInstance();
         const displayShorcuts : {description:string, shortcut : string} []=[];
 
         for (const object of Eagle.shortcuts()){
+            // skip if shortcut should not be displayed
             if (object.display === KeyboardShortcut.Display.Disabled){
+                continue;
+            }
+
+            // skip if shortcut can not be run in the current state
+            if (!object.canRun(eagle)){
                 continue;
             }
 
