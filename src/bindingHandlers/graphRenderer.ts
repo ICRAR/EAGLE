@@ -1104,7 +1104,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         } else {
             if (node.isBranch()){
-                return Eagle.Direction.Down;
+                if (portIndex === 0){
+                    return Eagle.Direction.Down;
+                }
+                if (portIndex === 1){
+                    return Eagle.Direction.Right;
+                }
             }
 
             if (portType === "input" || portType === "outputLocal"){
@@ -2775,7 +2780,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isCollapsed() && !node.isData()){
             if (node.isBranch()){
-                return node.getPosition().x + node.getWidth()/2;
+                const portIndex = findNodePortIndex(node, edge.getSrcPortId());
+
+                if (portIndex === 0){
+                    return node.getPosition().x + node.getWidth()/2;
+                } else {
+                    return node.getPosition().x + node.getWidth()*3/4;
+                }
             }
         }
 
@@ -2837,7 +2848,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isCollapsed() && !node.isData()){
             if (node.isBranch()){
-                return node.getPosition().y + 100;
+                const portIndex = findNodePortIndex(node, edge.getSrcPortId());
+
+                if (portIndex === 0){
+                    return node.getPosition().y + node.getHeight();
+                } else {
+                    return node.getPosition().y + node.getHeight()*3/4 - 4;
+                }
             }
         }
 
@@ -2899,7 +2916,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isCollapsed() && !node.isData()){
             if (node.isBranch()){
-                return node.getPosition().x + node.getWidth()/2;
+                const portIndex = findNodePortIndex(node, edge.getDestPortId());
+
+                if (portIndex === 0){
+                    return node.getPosition().x + node.getWidth()/2;
+                } else {
+                    return node.getPosition().x + node.getWidth()*1/4;
+                }
             }
         }
 
@@ -2946,7 +2969,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isCollapsed() && !node.isData()){
             if (node.isBranch()){
-                return node.getPosition().y;
+                const portIndex = findNodePortIndex(node, edge.getDestPortId());
+
+                if (portIndex === 0){
+                    return node.getPosition().y;
+                } else {
+                    return node.getPosition().y + node.getHeight()*3/4 -4;
+                }
             }
         }
 
