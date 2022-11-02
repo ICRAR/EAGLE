@@ -45,6 +45,10 @@ export class KeyboardShortcut {
     }
 
     static graphNotEmpty = (eagle: Eagle) : boolean => {
+        if (eagle.logicalGraph() === null){
+            return false;
+        }
+
         return eagle.logicalGraph().getNumNodes() > 0;
     }
 
