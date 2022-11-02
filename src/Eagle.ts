@@ -59,7 +59,6 @@ export class Eagle {
 
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
-    types : ko.ObservableArray<string>;
 
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
@@ -118,7 +117,6 @@ export class Eagle {
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
-        this.types = ko.observableArray([]);
 
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
@@ -351,6 +349,30 @@ export class Eagle {
 
     showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return Setting.findValue(Utils.ENABLE_PERFORMANCE_DISPLAY);
+    }, this);
+
+    types : ko.PureComputed<string[]> = ko.pureComputed(() => {
+        const result: string[] = [];
+
+        switch (Eagle.selectedLocation()){
+            case Eagle.FileType.Palette:
+                // build a list from the selected component in the palettes
+                for (const field of this.selectedNode().getFields()) {
+                    Utils.addTypeIfUnique(result, field.getType());
+                }
+                break;
+            case Eagle.FileType.Graph:
+            default:
+                // build a list from all nodes in the current logical graph
+                for (const node of this.logicalGraph().getNodes()){
+                    for (const field of node.getFields()) {
+                        Utils.addTypeIfUnique(result, field.getType());
+                    }
+                }
+                break;
+        }
+
+        return result;
     }, this);
 
     toggleShowDataNodes = () : void => {
@@ -803,9 +825,6 @@ export class Eagle {
         }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
-
-        // update the known data types after adding new nodes 
-        this.updateAllKnownTypes();
     }
 
     createSubgraphFromSelection = () : void => {
@@ -1073,9 +1092,6 @@ export class Eagle {
 
         // show the left window
         this.leftWindow().shown(true);
-
-        // since we have a new palette loaded, update the list of types known to EAGLE
-        this.updateAllKnownTypes();
 
         Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
     }
@@ -1692,9 +1708,6 @@ export class Eagle {
                             break;
                     }
 
-                    // update types list
-                    this.updateAllKnownTypes();
-
                     // show errors/warnings
                     this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
@@ -1889,8 +1902,6 @@ export class Eagle {
                 break;
             }
         }
-
-        this.updateAllKnownTypes();
     }
 
     getParentNameAndKey = (parentKey:number) : string => {
@@ -2520,9 +2531,6 @@ export class Eagle {
                 destinationPalette.fileInfo().modified = true;
                 destinationPalette.sort();
             }
-
-            // update known types after adding new nodes
-            this.updateAllKnownTypes();
         });
     }
 
@@ -2748,9 +2756,6 @@ export class Eagle {
             this.checkGraph();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
-
-            // update known data types given newly added node
-            this.updateAllKnownTypes();
 
             if (callback !== null){
                 callback(newNode);
@@ -3262,9 +3267,6 @@ export class Eagle {
             this.undo().pushSnapshot(this, "Change Edge Data Type");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
-
-            // update known types
-            this.updateAllKnownTypes();
         });
     }
 
@@ -3306,9 +3308,6 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Remove param from node");
         this.flagActiveFileModified();
         this.selectedObjects.valueHasMutated();
-
-        // update known types
-        this.updateAllKnownTypes();
     }
 
     removePortFromNodeByIndex = (node : Node, fieldId:string, input : boolean) : void => {
@@ -3347,9 +3346,6 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Remove port from node");
         this.flagActiveFileModified();
         this.selectedObjects.valueHasMutated();
-
-        // update known types
-        this.updateAllKnownTypes();
     }
 
     nodeDropLogicalGraph = (eagle : Eagle, e : JQueryEventObject) : void => {
@@ -3552,9 +3548,6 @@ export class Eagle {
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Add field");
-
-                // update known types
-                this.updateAllKnownTypes();
             });
 
         } else {
@@ -3619,9 +3612,6 @@ export class Eagle {
                 if (modalType === Eagle.ModalType.Field){
                     $('#parameterTableModal').modal("show");
                 }
-
-                // update known types
-                this.updateAllKnownTypes();
             });
         }
     };
@@ -4121,29 +4111,6 @@ export class Eagle {
 
             if (callback !== null) callback(newNode);
         }
-    }
-
-    updateAllKnownTypes = (): void => {
-        // clear known types
-        this.types([]);
-
-        // build a list from all palettes
-        for (const palette of this.palettes()){
-            for (const node of palette.getNodes()){
-                for (const field of node.getFields()) {
-                    Utils.addTypeIfUnique(this.types, field.getType());
-                }
-            }
-        }
-
-        // add all types in LG nodes
-        for (const node of this.logicalGraph().getNodes()){
-            for (const field of node.getFields()) {
-                Utils.addTypeIfUnique(this.types, field.getType());
-            }
-        }
-
-        console.log("Updated EAGLE's known data types. Found", this.types().length, "types");
     }
 
     checkForComponentUpdates = () : void => {

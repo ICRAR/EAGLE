@@ -1314,8 +1314,8 @@ export class Utils {
         ports.push(port);
     }
 
-    static addTypeIfUnique = (types: ko.ObservableArray<string>, newType: string) : void => {
-        for (const t of types()){
+    static addTypeIfUnique = (types: string[], newType: string) : void => {
+        for (const t of types){
             if (t === newType){
                 return;
             }
