@@ -2782,14 +2782,29 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
 
-            if (portIndex === 0){
-                return node.getPosition().x + node.getWidth()/2;
-            }
-            if (portIndex === 1){
-                if (!node.isCollapsed() || node.isPeek()){
-                    return node.getPosition().x + node.getWidth();
-                } else {
-                    return node.getPosition().x + node.getWidth()*3/4;
+            if (typeof sourcePortIsInput === 'undefined' || sourcePortIsInput === false){
+                // calculate position of edge starting from a branch OUTPUT port
+                if (portIndex === 0){
+                    return node.getPosition().x + node.getWidth()/2;
+                }
+                if (portIndex === 1){
+                    if (!node.isCollapsed() || node.isPeek()){
+                        return node.getPosition().x + node.getWidth();
+                    } else {
+                        return node.getPosition().x + node.getWidth()*3/4;
+                    }
+                }
+            } else {
+                // calculate position of edge starting from a branch INPUT port
+                if (portIndex === 0){
+                    return node.getPosition().x + node.getWidth()/2;
+                }
+                if (portIndex === 1){
+                    if (!node.isCollapsed() || node.isPeek()){
+                        return node.getPosition().x;
+                    } else {
+                        return node.getPosition().x;
+                    }
                 }
             }
         }
@@ -2829,17 +2844,34 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
 
-            if (portIndex === 0){
-                if (!node.isCollapsed() || node.isPeek()){
-                    // TODO: magic number
-                    return node.getPosition().y + 100;
-                } else {
-                    return node.getPosition().y + node.getHeight();
+            if (typeof sourcePortIsInput === 'undefined' || sourcePortIsInput === false){
+                // calculate position of edge starting from a branch OUTPUT port
+                if (portIndex === 0){
+                    if (!node.isCollapsed() || node.isPeek()){
+                        // TODO: magic number
+                        return node.getPosition().y + 100;
+                    } else {
+                        return node.getPosition().y + node.getHeight();
+                    }
                 }
-            }
-            if (portIndex === 1){
-                // TODO: magic number
-                return node.getPosition().y + 50;
+                if (portIndex === 1){
+                    // TODO: magic number
+                    return node.getPosition().y + 50;
+                }
+            } else {
+                // calculate position of edge starting from a branch INPUT port
+                if (portIndex === 0){
+                    if (!node.isCollapsed() || node.isPeek()){
+                        // TODO: magic number
+                        return node.getPosition().y;
+                    } else {
+                        return node.getPosition().y;
+                    }
+                }
+                if (portIndex === 1){
+                    // TODO: magic number
+                    return node.getPosition().y + 50;
+                }
             }
         }
 
