@@ -42,7 +42,7 @@
         "downloadUrl": "",
         "eagleCommitHash": "Unknown",
         "eagleVersion": "Unknown",
-        "filePath": "ngasTest.graph",
+        "filePath": "component-update-test.graph",
         "fileType": "Graph",
         "lastModifiedDatetime": 0,
         "lastModifiedEmail": "",
@@ -70,8 +70,35 @@
             "expanded": false,
             "fields": [
                 {
+                    "defaultValue": "false",
+                    "description": "Specifies whether this data component contains data that should not be deleted after execution",
+                    "keyAttribute": false,
+                    "name": "persist",
+                    "options": [],
+                    "positional": false,
+                    "precious": false,
+                    "readonly": false,
+                    "text": "Persist",
+                    "type": "Boolean",
+                    "value": false
+                },
+                {
+                    "defaultValue": "false",
+                    "description": "Specifies whether this data component streams input and output data",
+                    "keyAttribute": false,
+                    "name": "streaming",
+                    "options": [],
+                    "positional": false,
+                    "precious": false,
+                    "readonly": false,
+                    "text": "Streaming",
+                    "type": "Boolean",
+                    "value": false
+                },
+                {
                     "defaultValue": "0",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": false,
@@ -84,6 +111,7 @@
                 {
                     "defaultValue": "false",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": false,
@@ -96,6 +124,7 @@
                 {
                     "defaultValue": "",
                     "description": "The URL of the NGAS Server",
+                    "keyAttribute": false,
                     "name": "ngasSrv",
                     "options": [],
                     "positional": false,
@@ -108,6 +137,7 @@
                 {
                     "defaultValue": "0",
                     "description": "The port of the NGAS Server",
+                    "keyAttribute": false,
                     "name": "ngasPort",
                     "options": [],
                     "positional": false,
@@ -120,6 +150,7 @@
                 {
                     "defaultValue": "",
                     "description": "File ID on NGAS (for retrieval only)",
+                    "keyAttribute": false,
                     "name": "ngasFileId",
                     "options": [],
                     "positional": false,
@@ -132,6 +163,7 @@
                 {
                     "defaultValue": "0",
                     "description": "Timeout for connecting to the NGAS server",
+                    "keyAttribute": false,
                     "name": "ngasConnectTimeout",
                     "options": [],
                     "positional": false,
@@ -144,6 +176,7 @@
                 {
                     "defaultValue": "",
                     "description": "Mime-type to be used for archiving",
+                    "keyAttribute": false,
                     "name": "ngasMime",
                     "options": [],
                     "positional": false,
@@ -156,6 +189,7 @@
                 {
                     "defaultValue": "0",
                     "description": "Timeout for receiving responses for NGAS",
+                    "keyAttribute": false,
                     "name": "ngasTimeout",
                     "options": [],
                     "positional": false,
@@ -189,14 +223,13 @@
                     "IdText": "hello",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "hello",
                     "type": "String"
                 }
             ],
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "NGASgeneric",
             "width": 200,
@@ -216,8 +249,35 @@
             "expanded": true,
             "fields": [
                 {
+                    "defaultValue": "false",
+                    "description": "Specifies whether this data component contains data that should not be deleted after execution",
+                    "keyAttribute": false,
+                    "name": "persist",
+                    "options": [],
+                    "positional": false,
+                    "precious": false,
+                    "readonly": false,
+                    "text": "Persist",
+                    "type": "Boolean",
+                    "value": false
+                },
+                {
+                    "defaultValue": "false",
+                    "description": "Specifies whether this data component streams input and output data",
+                    "keyAttribute": false,
+                    "name": "streaming",
+                    "options": [],
+                    "positional": false,
+                    "precious": false,
+                    "readonly": false,
+                    "text": "Streaming",
+                    "type": "Boolean",
+                    "value": false
+                },
+                {
                     "defaultValue": "0",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": false,
@@ -230,6 +290,7 @@
                 {
                     "defaultValue": "false",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": false,
@@ -242,6 +303,7 @@
                 {
                     "defaultValue": "false",
                     "description": "Perform a check to make sure the file path exists before proceeding with the application",
+                    "keyAttribute": false,
                     "name": "check_filepath_exists",
                     "options": [],
                     "positional": false,
@@ -254,6 +316,7 @@
                 {
                     "defaultValue": "",
                     "description": "Path to the file for this node",
+                    "keyAttribute": false,
                     "name": "filepath",
                     "options": [],
                     "positional": false,
@@ -266,6 +329,7 @@
                 {
                     "defaultValue": "",
                     "description": "Name of the directory containing the file for this node",
+                    "keyAttribute": false,
                     "name": "dirname",
                     "options": [],
                     "positional": false,
@@ -290,6 +354,7 @@
                     "IdText": "hello",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "hello",
                     "type": "String"
                 }
@@ -308,14 +373,13 @@
                     "IdText": "hello",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "hello",
                     "type": "String"
                 }
             ],
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "hello",
             "width": 200,
@@ -337,6 +401,7 @@
                 {
                     "defaultValue": "",
                     "description": "Application class",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": false,
@@ -349,6 +414,7 @@
                 {
                     "defaultValue": "0",
                     "description": "Estimated execution time",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": false,
@@ -361,6 +427,7 @@
                 {
                     "defaultValue": "0",
                     "description": "Number of cores used",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": false,
@@ -373,6 +440,7 @@
                 {
                     "defaultValue": "false",
                     "description": "Component is start of a group",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": false,
@@ -385,6 +453,7 @@
                 {
                     "defaultValue": "",
                     "description": "",
+                    "keyAttribute": false,
                     "name": "badParam",
                     "options": [],
                     "positional": false,
@@ -409,6 +478,7 @@
                     "IdText": "hello",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "hello",
                     "type": "String"
                 }
@@ -427,14 +497,13 @@
                     "IdText": "hello",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "hello",
                     "type": "String"
                 }
             ],
             "paletteDownloadUrl": "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette",
-            "precious": false,
             "repositoryUrl": "https://github.com/ICRAR/daliuge",
-            "streaming": false,
             "subject": null,
             "text": "CopyApp",
             "width": 200,
@@ -454,8 +523,35 @@
             "expanded": true,
             "fields": [
                 {
+                    "defaultValue": "false",
+                    "description": "Specifies whether this data component contains data that should not be deleted after execution",
+                    "keyAttribute": false,
+                    "name": "persist",
+                    "options": [],
+                    "positional": false,
+                    "precious": false,
+                    "readonly": false,
+                    "text": "Persist",
+                    "type": "Boolean",
+                    "value": false
+                },
+                {
+                    "defaultValue": "false",
+                    "description": "Specifies whether this data component streams input and output data",
+                    "keyAttribute": false,
+                    "name": "streaming",
+                    "options": [],
+                    "positional": false,
+                    "precious": false,
+                    "readonly": false,
+                    "text": "Streaming",
+                    "type": "Boolean",
+                    "value": false
+                },
+                {
                     "defaultValue": "0",
                     "description": "Estimated size of the data contained in this node",
+                    "keyAttribute": false,
                     "name": "data_volume",
                     "options": [],
                     "positional": false,
@@ -468,6 +564,7 @@
                 {
                     "defaultValue": "false",
                     "description": "Is this node the end of a group?",
+                    "keyAttribute": false,
                     "name": "group_end",
                     "options": [],
                     "positional": false,
@@ -480,6 +577,7 @@
                 {
                     "defaultValue": "",
                     "description": "The URL of the NGAS Server",
+                    "keyAttribute": false,
                     "name": "ngasSrv",
                     "options": [],
                     "positional": false,
@@ -492,6 +590,7 @@
                 {
                     "defaultValue": "0",
                     "description": "The port of the NGAS Server",
+                    "keyAttribute": false,
                     "name": "ngasPort",
                     "options": [],
                     "positional": false,
@@ -504,6 +603,7 @@
                 {
                     "defaultValue": "",
                     "description": "File ID on NGAS (for retrieval only)",
+                    "keyAttribute": false,
                     "name": "ngasFileId",
                     "options": [],
                     "positional": false,
@@ -516,6 +616,7 @@
                 {
                     "defaultValue": "0",
                     "description": "Timeout for connecting to the NGAS server",
+                    "keyAttribute": false,
                     "name": "ngasConnectTimeout",
                     "options": [],
                     "positional": false,
@@ -528,6 +629,7 @@
                 {
                     "defaultValue": "",
                     "description": "Mime-type to be used for archiving",
+                    "keyAttribute": false,
                     "name": "ngasMime",
                     "options": [],
                     "positional": false,
@@ -540,6 +642,7 @@
                 {
                     "defaultValue": "0",
                     "description": "Timeout for receiving responses for NGAS",
+                    "keyAttribute": false,
                     "name": "ngasTimeout",
                     "options": [],
                     "positional": false,
@@ -564,6 +667,7 @@
                     "IdText": "hello",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "hello",
                     "type": "String"
                 }
@@ -578,9 +682,7 @@
             "outputLocalPorts": [],
             "outputPorts": [],
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "NGASgeneric",
             "width": 200,
@@ -602,6 +704,7 @@
                 {
                     "defaultValue": "",
                     "description": "Application class",
+                    "keyAttribute": false,
                     "name": "appclass",
                     "options": [],
                     "positional": false,
@@ -614,6 +717,7 @@
                 {
                     "defaultValue": "0",
                     "description": "Estimated execution time",
+                    "keyAttribute": false,
                     "name": "execution_time",
                     "options": [],
                     "positional": false,
@@ -626,6 +730,7 @@
                 {
                     "defaultValue": "0",
                     "description": "Number of cores used",
+                    "keyAttribute": false,
                     "name": "num_cpus",
                     "options": [],
                     "positional": false,
@@ -638,6 +743,7 @@
                 {
                     "defaultValue": "false",
                     "description": "Component is start of a group",
+                    "keyAttribute": false,
                     "name": "group_start",
                     "options": [],
                     "positional": false,
@@ -662,6 +768,7 @@
                     "IdText": "hello",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "hello",
                     "type": "String"
                 }
@@ -680,14 +787,13 @@
                     "IdText": "hello",
                     "description": "",
                     "event": false,
+                    "keyAttribute": false,
                     "text": "hello",
                     "type": "String"
                 }
             ],
             "paletteDownloadUrl": "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette",
-            "precious": false,
             "repositoryUrl": "https://github.com/ICRAR/daliuge",
-            "streaming": false,
             "subject": null,
             "text": "CopyApp",
             "width": 200,
@@ -725,9 +831,7 @@
             "outputLocalPorts": [],
             "outputPorts": [],
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Description",
             "width": 204.91094273566023,
