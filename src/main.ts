@@ -97,10 +97,10 @@ $(function(){
 
     // Get the list of git repos
     if (Eagle.isInUIMode(Eagle.UIMode.Minimal)){
-        GitHub.loadStudentRepoList(eagle);
+        GitHub.loadStudentRepoList();
     } else {
-        GitHub.loadRepoList(eagle);
-        GitLab.loadRepoList(eagle);
+        GitHub.loadRepoList();
+        GitLab.loadRepoList();
     }
 
     // load the default palette
@@ -116,7 +116,6 @@ $(function(){
                 }
             }
             eagle.leftWindow().shown(true);
-            eagle.updateAllKnownTypes();
         });
     }
 
@@ -124,7 +123,7 @@ $(function(){
     Utils.loadSchemas();
 
     // enable bootstrap accordion collapse
-    const bsCollapse = new bootstrap.Collapse('.collapse', {});
+    new bootstrap.Collapse('.collapse', {});
 
     // initialise all the modal dialogs. event handlers etc
     Modals.init(eagle);
@@ -138,7 +137,7 @@ $(function(){
 
     // HACK: without this global wheel event handler, d3 does not receive zoom events
     //       not sure why, this wasn't always the case
-    document.onwheel = (ev: WheelEvent) => {};
+    document.onwheel = () => {return;};
 
     const auto_load_service    = (<any>window).auto_load_service;
     const auto_load_repository = (<any>window).auto_load_repository;

@@ -248,7 +248,7 @@ td:first-child input {
 }
 
 #parameter_table_isPort{
-    width: 90px;
+    width: 173px;
 }
 
 #parameter_table_read_only{
@@ -273,6 +273,8 @@ td:first-child input {
 
 #parameter_table_isKeyAttribute{
     width: 27px;
+    min-width: 27px;
+    max-width: 27px;
 }
 
 #parameter_table_name{
@@ -306,12 +308,23 @@ td:first-child input {
 
 #paramsTableWrapper{
     width: 100%;
+    table-layout: fixed;
 }
 
 #paramsTableWrapper th{
     background-color: #002349;
     color: white;
     padding: 5px;
+    position:relative;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+
 }
 
 #paramsTableWrapper tr {
@@ -336,6 +349,7 @@ td:first-child input {
     padding: 0px;
     height: fit-content;
     margin: 0px;
+    width: 100%;
 }
 
 #paramsTableWrapper input{
@@ -375,6 +389,21 @@ td:first-child input {
     #parameter_table_description{
         width:91px;
     }
+}
+
+.resizer{
+    position: absolute;
+    right:0px;
+    top: 0px;
+    border-right: 5px solid #204267;
+    z-index:10;
+    height: 100%;
+}
+  
+.resizer:hover,
+.resizing {
+    border-right: 3px solid whitesmoke;
+    cursor: col-resize;
 }
 
 /*Animation must have unfill path strokes to work*/

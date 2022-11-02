@@ -32,7 +32,6 @@ import {Errors} from './Errors';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Setting} from './Setting';
-import { LogicalGraph } from "./LogicalGraph";
 
 export class Node {
     private _id : string
@@ -1255,7 +1254,7 @@ export class Node {
     }
 
     addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType_String, false, [], false, Eagle.FieldType.ComponentParameter,false)
+        const newField = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_String, false, [], false, Eagle.FieldType.ComponentParameter,false)
         if(index === -1){
             this.addField(newField);
         }else{
@@ -1352,11 +1351,6 @@ export class Node {
             key = nodeData.key;
         } else {
             key = generateKeyFunc();
-        }
-
-        let readonly = true;
-        if (typeof nodeData.readonly !== 'undefined'){
-            readonly = nodeData.readonly;
         }
 
         // translate categories if required

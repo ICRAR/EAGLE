@@ -286,7 +286,6 @@ export class Field {
 
     getHtmlInputType = () : string => {
         const typePrefix = Utils.dataTypePrefix(this.type());
-
         switch (typePrefix){
             case Eagle.DataType_Float:
             case Eagle.DataType_Integer:
@@ -295,6 +294,8 @@ export class Field {
                 return "checkbox";
             case Eagle.DataType_Password:
                 return "password";
+            case Eagle.DataType_Select:
+                return "select";
             default:
                 return "text";
         }

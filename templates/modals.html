@@ -563,7 +563,7 @@
                         </div>
                         <div class="col">
                             <div class="input-group mb-3">
-                                <input id="editFieldModalTypeInput" type="text" class="form-control" aria-label="Text input with dropdown button">
+                                <input id="editFieldModalTypeInput" type="text" class="form-control" aria-label="Text input with dropdown button" autocomplete="false">
                                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Types</button>
                                 <ul id="editFieldModalTypeSelect" class="dropdown-menu dropdown-menu-end">
                                 </ul>
@@ -673,28 +673,49 @@
                                 <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'This Attribute is a Key Graph Attribute'" data-bs-placement="top"></th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeName') -->
-                                <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">Node Name</th>
+                                <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">
+                                    Node Name
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_name') === true}"></div>
+                                </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeKey') -->
-                                <th id="parameter_table_node_key" data-bind="eagleTooltip:`This Parameter's Parent Node Key`" data-bs-placement="top">Node Key</th>
+                                <th id="parameter_table_node_key" data-bind="eagleTooltip:`This Parameter's Parent Node Key`" data-bs-placement="top">
+                                    Node Key
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_key') === true}"></div>
+                                </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('displayText') -->
-                                <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">Display Text</th>
+                                <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">
+                                    Display Text
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_text') === true}"></div>
+                                </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('idText') -->
-                                <th id="parameter_table_name" data-bind="eagleTooltip:'Internal name used by DALiuGE'" data-bs-placement="top">idText</th>
+                                <th id="parameter_table_name" data-bind="eagleTooltip:'Internal name used by DALiuGE'" data-bs-placement="top">
+                                    idText
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_name') === true}"></div>
+                                </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('value') -->
-                                <th id="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">Value</th>
+                                <th id="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
+                                    Value
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_value') === true}"></div>
+                                </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('readOnly') -->
                                 <th id="parameter_table_read_only" data-bind="eagleTooltip:'No write access when checked'" data-bs-placement="top">Read Only</th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('defaultValue') -->
-                                <th id="parameter_table_default_value" data-bind="eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">Default Value</th>
+                                <th id="parameter_table_default_value" data-bind="eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">
+                                    Default Value
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_default_value') === true}"></div>
+                                </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('description') -->
-                                <th id="parameter_table_description" data-bind="eagleTooltip:'A description of the purpose of this parameter'" data-bs-placement="top">Description</th>
+                                <th id="parameter_table_description" data-bind="eagleTooltip:'A description of the purpose of this parameter'" data-bs-placement="top">
+                                    Description
+                                    <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_description') === true}"></div>
+                                </th>
                             <!-- /ko -->
                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('type') -->
                                 <th id="parameter_table_type" data-bind="eagleTooltip:'The type of the data stored in this parameter (e.g. Integer, Float, String etc)'" data-bs-placement="top">Type</th>
@@ -719,7 +740,7 @@
                                 <tr>
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('keyAttribute') -->
                                         <td>
-                                            <button class="edit" data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
+                                            <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
                                         </td>
                                     <!-- /ko -->
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeName') -->
@@ -729,22 +750,26 @@
                                     <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getKey(), readonly: true"></td>
                                     <!-- /ko -->
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('displayText') -->
-                                        <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter" type="string" data-bind="value: displayText, readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index(), event)}, event:{keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index(), event)}}"></td>
+                                        <td  data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter selectionTargets" placeholder="New Parameter" type="string" data-bind="value: displayText, readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
                                     <!-- /ko -->
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('idText') -->
-                                        <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'idText' }"><input class="tableParameter" type="string" data-bind="value: idText, readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.parameterTable().getNodeLockedState($data), $data, $index(), event)}, event:{keyup: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.parameterTable().getNodeLockedState($data), $data, $index(), event)}}"></td>
+                                        <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'idText' }"><input class="tableParameter" type="string" data-bind="value: idText, readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
                                     <!-- /ko -->
 
                                     <!-- value fields -->
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('value') -->
                                         <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
-                                            <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'value' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), readonly: $root.getCurrentParamReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamReadonly($data), $data, $index(),event)}, click: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamReadonly($data), $data, $index(),event)}}"></td>
+                                            <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'value' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), readonly: $root.getCurrentParamReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamReadonly($data), $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamReadonly($data), $data, $index())}}"></td>
                                         <!-- /ko -->
                                         <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
                                             <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$data.toggle(); $root.selectedObjects.valueHasMutated();}}"></td>
                                         <!-- /ko -->
                                         <!-- ko if: $data.getHtmlInputType() === 'select' -->
-                                            <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                            <td>
+                                                <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind=" event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.value">
+                                                    <!-- options are added dynamically -->
+                                                </select> 
+                                            </td>
                                         <!-- /ko -->
 
                                         <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
@@ -766,7 +791,7 @@
                                     <!-- default value fields -->
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('defaultValue') -->
                                         <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
-                                            <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'defaultValue' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $root.parameterTable().getNodeLockedState($data), $data, $index(),event)}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $root.parameterTable().getNodeLockedState($data), $data, $index(),event)}}"></td>
+                                            <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'defaultValue' }"><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()}, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $root.parameterTable().getNodeLockedState($data), $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
                                         <!-- /ko -->
                                         <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
                                             <td><input class="tableParameter" onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
@@ -774,12 +799,17 @@
 
                                         <!-- selection input -->
                                         <!-- ko if: $data.getHtmlInputType() === 'select' -->
-                                            <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                            <td>
+                                                <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.defaultValue">
+                                                    <!-- options are added dynamically -->
+                                                </select> 
+                                            </td>
+                                            <!-- <td><input class="tableParameter" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td> -->
                                         <!-- /ko -->
                                     <!-- /ko -->
                                     
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('description') -->
-                                    <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'description' }"><input class="tableParameter" type="string" data-bind="value: description, readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $root.parameterTable().getNodeLockedState($data), $data, $index(),event)}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $root.parameterTable().getNodeLockedState($data), $data, $index(),event)}}"></td>
+                                    <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'description' }"><input class="tableParameter" type="string" data-bind="value: description, readonly: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
                                     <!-- /ko -->
                                     
                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('type') -->
@@ -822,7 +852,7 @@
                                                     <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removePortFromNodeByIndex($root.logicalGraph().findNodeByKey($data.nodeKey()),$data.getId(), false);}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                 <!-- /ko -->
                                                 <!-- ko if: $data.fieldType() === Eagle.FieldType.ApplicationArgument || $data.fieldType() === Eagle.FieldType.ComponentParameter -->
-                                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.logicalGraph().findNodeByKey($data.nodeKey()), Eagle.FieldType.Unknown, $index());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeParamFromNodeByIndex($root.logicalGraph().findNodeByKey($data.nodeKey()), Eagle.FieldType.Unknown, $index());}, disabled: $root.parameterTable().getNodeLockedState($data) , eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                         </td>
@@ -834,8 +864,11 @@
                 </table>
             </div>
             <div class="modal-footer"  data-bind="click: ParameterTable.resetSelection">
-                <!-- <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: $root.parameterTable().getNodeLockedState($data)" ><span id="parameterTableModalAddParameter">Add Parameter</span></button> -->
-                <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>
+                <!-- ko if: selectedNode() != null && tableModalType() === 'inspectorTableModal' -->
+                    
+                    <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
+                <!-- /ko -->
+                    <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>
             </div>
 
         </div>

@@ -40,6 +40,7 @@ import {Palette} from './Palette';
 import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
+import {ParameterTable} from './ParameterTable';
 
 export class Utils {
     // Allowed file extenstions.
@@ -1313,8 +1314,8 @@ export class Utils {
         ports.push(port);
     }
 
-    static addTypeIfUnique = (types: ko.ObservableArray<string>, newType: string) : void => {
-        for (const t of types()){
+    static addTypeIfUnique = (types: string[], newType: string) : void => {
+        for (const t of types){
             if (t === newType){
                 return;
             }
@@ -1724,10 +1725,17 @@ export class Utils {
     }
 
     static getShortcutDisplay = () : {description:string, shortcut : string}[] => {
+        const eagle: Eagle = Eagle.getInstance();
         const displayShorcuts : {description:string, shortcut : string} []=[];
 
         for (const object of Eagle.shortcuts()){
+            // skip if shortcut should not be displayed
             if (object.display === KeyboardShortcut.Display.Disabled){
+                continue;
+            }
+
+            // skip if shortcut can not be run in the current state
+            if (!object.canRun(eagle)){
                 continue;
             }
 

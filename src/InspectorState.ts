@@ -89,7 +89,7 @@ export class InspectorState {
         return this.description() && this.displayOptions() && this.graphComment() && this.graphDescription() && this.inputApplication() && this.inputPorts() && this.outputApplication() && this.outputPorts() && this.componentParameters() && this.applicationParameters();
     }, this);
 
-    toggleAll = (item: any, e:JQueryEventObject): void => {
+    toggleAll = (): void => {
         const allCollapsed = this.all();
         allCollapseRunning
         if(!allCollapseRunning){
@@ -108,8 +108,6 @@ export class InspectorState {
         const target: JQuery<Element> = $(e.currentTarget);
         const sectionName: string = target.data('section-name');
         const that = this
-        // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
-        const collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
 
         //timer equals the time it takes for bootstrap to finish collapsing. it is required to keep them in sync.
         if(!collapseRunning){

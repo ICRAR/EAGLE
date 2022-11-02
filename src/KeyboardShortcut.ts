@@ -1,5 +1,6 @@
 import {Eagle} from './Eagle';
 import {Category} from './Category';
+import {Utils} from './Utils';
 
 export class KeyboardShortcut {
     key: string;
@@ -10,7 +11,6 @@ export class KeyboardShortcut {
     display: boolean;
     canRun: (eagle: Eagle) => boolean;
     run: (eagle: Eagle) => void;
-
 
     constructor(key: string, name: string, keys : string[], eventType: string, modifier: KeyboardShortcut.Modifier, display: boolean, canRun: (eagle: Eagle) => boolean, run: (eagle: Eagle) => void){
         this.key = key;
@@ -45,6 +45,10 @@ export class KeyboardShortcut {
     }
 
     static graphNotEmpty = (eagle: Eagle) : boolean => {
+        if (eagle.logicalGraph() === null){
+            return false;
+        }
+
         return eagle.logicalGraph().getNumNodes() > 0;
     }
 
@@ -111,6 +115,8 @@ export class KeyboardShortcut {
                     if (shortcut.canRun(eagle)){
                         shortcut.run(eagle);
                         e.preventDefault();
+                    } else {
+                        Utils.showNotification("Warning", "Shortcut (" + shortcut.name + ") not available in current state.", "warning");
                     }
                 }
             }
