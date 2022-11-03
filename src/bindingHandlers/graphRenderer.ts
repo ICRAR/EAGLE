@@ -2792,8 +2792,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
+            const sourceIsInput = node.findPortIsInputById(edge.getSrcPortId());
 
-            if (typeof sourcePortIsInput === 'undefined' || sourcePortIsInput === false){
+            if (sourceIsInput === false){
                 // calculate position of edge starting from a branch OUTPUT port
                 if (portIndex === 0){
                     return node.getPosition().x + node.getWidth()/2;
@@ -2860,8 +2861,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
+            const sourceIsInput = node.findPortIsInputById(edge.getSrcPortId());
 
-            if (typeof sourcePortIsInput === 'undefined' || sourcePortIsInput === false){
+            if (sourceIsInput === false){
                 // calculate position of edge starting from a branch OUTPUT port
                 if (portIndex === 0){
                     if (!node.isCollapsed() || node.isPeek()){
