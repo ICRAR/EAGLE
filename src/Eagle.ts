@@ -732,6 +732,10 @@ export class Eagle {
                 if (fileFullPath !== ""){
                     this.updateLogicalGraphFileInfo(Eagle.RepositoryService.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
                 }
+
+                // check graph
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Loaded " + fileFullPath);
             });
         });
     }
