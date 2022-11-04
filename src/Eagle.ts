@@ -869,6 +869,11 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
+    checkErrorModalShowError = (data:any) :void =>{
+        data.show()
+        this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
+    }
+
     createConstructFromSelection = () : void => {
         console.log("createConstructFromSelection()");
 
