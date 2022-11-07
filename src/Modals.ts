@@ -315,13 +315,7 @@ export class Modals {
 
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
             const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
-            let keyParameter: boolean 
-            const keyParameterProccess: any = $('#editFieldModalKeyParameterCheckbox').val();
-            if(keyParameterProccess === "true"){
-                keyParameter = true
-            }else if (keyParameterProccess === "false"){
-                keyParameter = false
-            }
+            const keyParameter: boolean = $('#editFieldModalKeyParameterCheckbox').prop('checked');
             const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
 
             // translate type
