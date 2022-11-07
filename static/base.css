@@ -926,14 +926,13 @@ select.form-control{
 .modal-content{
     resize: both;
     overflow: hidden;
-    height: 40vh;
+    height: 50vh;
     max-height: 95vh;
     max-width: 95vw;
     background-color: aliceblue;
     margin-left: 50%;
     transform: translateX(-50%);
     position:absolute;
-    
 }
 
 .modal-body{

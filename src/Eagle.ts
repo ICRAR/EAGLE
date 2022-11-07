@@ -439,6 +439,7 @@ export class Eagle {
     }
 
     getKeyAttributeDisplay = (isKeyAttribute : boolean) : string => {
+        console.log(isKeyAttribute)
         if(!isKeyAttribute){
             return '<i class="material-icons">favorite_border</i>'
         }else{
@@ -3562,29 +3563,32 @@ export class Eagle {
         } else {
             //if editing an existing field
             let field: Field = null;
+            let typeText:string
 
             switch (fieldType){
             case Eagle.FieldType.ComponentParameter:
-                $("#editFieldModalTitle").html("Edit Component Parameter");
                 field = this.selectedNode().getComponentParameters()[fieldIndex];
+                typeText = " (Component Parameter)"
                 break;
             case Eagle.FieldType.ApplicationArgument:
-                $("#editFieldModalTitle").html("Edit Application Argument");
                 field = this.selectedNode().getApplicationArguments()[fieldIndex];
+                typeText = " (Application Argument)"
                 break;
             case Eagle.FieldType.InputPort:
-                $("#editFieldModalTitle").html("Edit Input Port");
                 field = this.selectedNode().getInputPorts()[fieldIndex];
+                typeText = " (Input Port)"
                 break;
             case Eagle.FieldType.OutputPort:
-                $("#editFieldModalTitle").html("Edit Output Port");
                 field = this.selectedNode().getOutputPorts()[fieldIndex];
+                typeText = " (Output Port)"
                 break;
             case Eagle.FieldType.Unknown:
-                $("#editFieldModalTitle").html("Edit Parameter");
                 field = this.selectedNode().getFields()[fieldIndex];
+                typeText = " (Parameter)"
                 break;
             }
+            $("#editFieldModalTitle").html(' Edit: '+this.selectedNode().getName()+" - "+field.getDisplayText()+typeText);
+
 
             // check that we found a field
             if (field === null || typeof field === 'undefined'){
