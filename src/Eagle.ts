@@ -3503,22 +3503,26 @@ export class Eagle {
 
         //if creating a new field
         if (modalType === Eagle.ModalType.Add) {
+            let titleText:string
 
             // set the title of the modal based on the field type
             switch(fieldType){
                 case Eagle.FieldType.ApplicationArgument:
-                $("#editFieldModalTitle").html("Add Application Argument");
+                    titleText = "Add Application Argument"
                 break;
                 case Eagle.FieldType.ComponentParameter:
-                $("#editFieldModalTitle").html("Add Component Parameter");
+                    titleText = "Add Component Parameter"
                 break;
                 case Eagle.FieldType.InputPort:
-                $("#editFieldModalTitle").html("Add Input Port");
+                    titleText = "Add Input Port"
                 break;
                 case Eagle.FieldType.OutputPort:
-                $("#editFieldModalTitle").html("Add Output Port");
+                    titleText = "Add Output Port"
                 break;
             }
+
+            $("#editFieldModalTitle").html(this.selectedNode().getName()+" - "+ titleText);
+
 
             // show hide part of the UI appropriate for adding
             $("#addParameterWrapper").show();
@@ -3562,29 +3566,32 @@ export class Eagle {
         } else {
             //if editing an existing field
             let field: Field = null;
+            let typeText:string
 
             switch (fieldType){
             case Eagle.FieldType.ComponentParameter:
-                $("#editFieldModalTitle").html("Edit Component Parameter");
                 field = this.selectedNode().getComponentParameters()[fieldIndex];
+                typeText = " (Component Parameter)"
                 break;
             case Eagle.FieldType.ApplicationArgument:
-                $("#editFieldModalTitle").html("Edit Application Argument");
                 field = this.selectedNode().getApplicationArguments()[fieldIndex];
+                typeText = " (Application Argument)"
                 break;
             case Eagle.FieldType.InputPort:
-                $("#editFieldModalTitle").html("Edit Input Port");
                 field = this.selectedNode().getInputPorts()[fieldIndex];
+                typeText = " (Input Port)"
                 break;
             case Eagle.FieldType.OutputPort:
-                $("#editFieldModalTitle").html("Edit Output Port");
                 field = this.selectedNode().getOutputPorts()[fieldIndex];
+                typeText = " (Output Port)"
                 break;
             case Eagle.FieldType.Unknown:
-                $("#editFieldModalTitle").html("Edit Parameter");
                 field = this.selectedNode().getFields()[fieldIndex];
+                typeText = " (Parameter)"
                 break;
             }
+            $("#editFieldModalTitle").html(this.selectedNode().getName()+" - "+field.getDisplayText()+typeText);
+
 
             // check that we found a field
             if (field === null || typeof field === 'undefined'){

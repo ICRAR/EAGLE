@@ -926,14 +926,13 @@ select.form-control{
 .modal-content{
     resize: both;
     overflow: hidden;
-    height: 40vh;
+    height: 50vh;
     max-height: 95vh;
     max-width: 95vw;
     background-color: aliceblue;
     margin-left: 50%;
     transform: translateX(-50%);
     position:absolute;
-    
 }
 
 .modal-body{
@@ -1821,6 +1820,36 @@ ul.nav.navbar-nav .dropdown-item:hover{
     border-radius: 0px;
     border:none;
 }
+
+#editFieldModalKeyParameterCheckbox{
+    position:relative;
+    background-color: transparent;
+    border: none;
+    background-image: none;
+}
+
+#editFieldModalKeyParameterCheckbox:focus{
+    outline: none !important;
+    box-shadow: none;
+}
+
+#editFieldModalKeyParameterCheckbox:before {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    content: "favorite_border"; 
+    color: white;
+    outline: none;
+  }
+  
+#editFieldModalKeyParameterCheckbox:checked:before {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    content: "favorite"; 
+    color:white;
+    outline: none;
+  }
 
 #nodeInspector label{
     width: 100%;
