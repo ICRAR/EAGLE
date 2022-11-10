@@ -955,6 +955,23 @@ select.form-control{
     height: 60vh;
 }
 
+#settingsModal .modal-content{
+    height: 40vh;
+}
+
+#messageModal .modal-content{
+    height: 20vh;
+    width:50vw
+}
+
+#choiceModal .modal-content{
+    height:30vh;
+}
+
+#inputTextModal .modal-content{
+    height:40vh;
+}
+
 #nodeInspector select{
     padding:2px 15px;
 }
