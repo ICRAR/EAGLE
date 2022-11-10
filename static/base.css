@@ -1409,6 +1409,7 @@ select.form-control{
     position: absolute;
     background-color: rgba(0,0,0,0);
     opacity: 0;
+    cursor: col-resize;
 }
 
 .leftWindowSizeAdjusterLine{
@@ -1417,7 +1418,6 @@ select.form-control{
     right: 2px;
     bottom: 0px;
     left: 4px;
-    cursor: col-resize;
 }
 
 .loadDefaultDisabled{
@@ -1564,6 +1564,10 @@ select.form-control{
     position: relative;
     z-index: 100;
     display: none;
+}
+
+.windowDragging{
+    cursor:grabbing !important;
 }
 
 .nodeInspectorDropdownDiv::before{

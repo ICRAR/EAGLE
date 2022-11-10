@@ -66,6 +66,7 @@ export class SideWindow {
     }
 
     static rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
+        $(e.target).addClass('windowDragging')
         Eagle.dragStartX = e.clientX;
         eagle.leftWindow().adjusting(false);
         eagle.rightWindow().adjusting(true);
@@ -75,6 +76,7 @@ export class SideWindow {
 
     // workaround to avoid left or right window adjusting on any and all drag events
     static sideWindowAdjustEnd = (eagle: Eagle) : boolean => {
+        $(event.target).removeClass('windowDragging')
         eagle.leftWindow().adjusting(false);
         eagle.rightWindow().adjusting(false);
 
@@ -125,6 +127,7 @@ export class SideWindow {
     }
 
     static leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
+        $(e.target).addClass('windowDragging')
         Eagle.dragStartX = e.clientX;
         eagle.leftWindow().adjusting(true);
         eagle.rightWindow().adjusting(false);
