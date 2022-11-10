@@ -936,8 +936,8 @@ select.form-control{
 }
 
 .modal-body{
-    height: calc(100% - 133px) !important ;
-    top: 62px;
+    height: calc(100% - 103px) !important ;
+    top: 50px;
     position: absolute;
     overflow: auto;
     width: 100%;
@@ -1799,6 +1799,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
 .checkboxParent label{
     background-color: #011b38;
 }
+
 .checkboxParent label:hover{
     background-color: #013872;
 }
@@ -2065,7 +2066,15 @@ nav.navbar .introjs-helperLayer {
     padding: 10px;
     margin-left: 50%;
     transform: translateX(-50%) !important;
-  }
+}
+
+.modal-footer{
+    padding: 3px 15px;
+}
+
+.modal-header{
+    padding: 10px 15px;
+}
 
 #nodeInspectorMenus{
     padding: 0px 5px 5px 5px;
