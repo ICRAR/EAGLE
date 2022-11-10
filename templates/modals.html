@@ -768,7 +768,7 @@
                                             <!-- /ko -->
 
                                             <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
-                                                <td><input class="tableParameter" data-bind="checked: disabled, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr: {type: 'checkbox'}"></td>
+                                                <td><input class="tableParameter" data-bind="checked: readonly, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr: {type: 'checkbox'}"></td>
                                             <!-- /ko -->
                                         <!-- /ko -->
 
