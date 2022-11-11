@@ -2274,30 +2274,6 @@ export class Eagle {
         // if we want to get readonly-ness the Nth application arg, then the real index
         // into the fields array is probably larger than N, since all four types
         // of fields are stored there
-        // const node = this.selectedNode();
-        // let realIndex = -1;
-        // let fieldTypeCount = 0;
-
-        // for (let i = 0 ; i < node.getFields().length; i++){
-        //     const field: Field = node.getFields()[i];
-
-        //     if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
-        //         fieldTypeCount += 1;
-        //     }
-
-        //     // check if we have found the Nth field of desired type
-        //     if (fieldTypeCount > index){
-        //         realIndex = i;
-        //         break;
-        //     }
-        // }
-
-        // // check that we actually found the right field, otherwise abort
-        // if (realIndex === -1){
-        //     console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
-        //     return false;
-        // }
-
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(Eagle.allowPaletteEditing()){
