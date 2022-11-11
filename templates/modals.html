@@ -686,7 +686,7 @@
                                     </th>
                                 <!-- /ko -->
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('idText') -->
-                                    <th id="parameter_table_name" data-bind="eagleTooltip:'Internal name used by DALiuGE'" data-bs-placement="top">
+                                    <th id="parameter_table_name" data-bind="eagleTooltip:'Identifier name (must be a valid variable name)'" data-bs-placement="top">
                                         idText
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_name') === true}"></div>
                                     </th>
@@ -698,7 +698,12 @@
                                     </th>
                                 <!-- /ko -->
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('readOnly') -->
-                                    <th id="parameter_table_read_only" data-bind="eagleTooltip:'No write access when checked'" data-bs-placement="top">Read Only</th>
+                                    <!-- ko if: Eagle.allowComponentEditing() -->
+                                        <th id="parameter_table_read_only" data-bind="eagleTooltip:'Tick to disallow value editing'" data-bs-placement="top">Read Only</th>
+                                    <!-- /ko -->
+                                    <!-- ko ifnot: Eagle.allowComponentEditing() -->
+                                        <th id="parameter_table_read_only" data-bind="eagleTooltip:Utils.getReadOnlyText" data-bs-placement="top">Read Only</th>
+                                    <!-- /ko -->
                                 <!-- /ko -->
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('defaultValue') -->
                                     <th id="parameter_table_default_value" data-bind="eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">
@@ -716,7 +721,7 @@
                                     <th id="parameter_table_type" data-bind="eagleTooltip:'The type of the data stored in this parameter (e.g. Integer, Float, String etc)'" data-bs-placement="top">Type</th>
                                 <!-- /ko -->
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('useAs') -->
-                                    <th id="parameter_table_isPort" data-bind="eagleTooltip:'The way this parameter will be used by the component. ComponentParameters are passed to the DALiuGE execution framework. ApplicationArguments are passed to the Application executed by this component. InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">Use As</th>
+                                    <th id="parameter_table_isPort" data-bind="eagleTooltip:'Attribute used at component or application level, or as an input/output port.'" data-bs-placement="top">Use As</th>
                                 <!-- /ko -->
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
                                     <th id="parameter_table_precious" data-bind="eagleTooltip:'Argument never suppressed'" data-bs-placement="top">Precious</th>
