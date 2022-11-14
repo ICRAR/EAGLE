@@ -2195,3 +2195,13 @@ palette-component input.form-control.selected {
               user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Edge, Opera and Firefox */
 }
+
+.inputNoArrows::-webkit-outer-spin-button,
+.inputNoArrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.inputNoArrows[type=number] {
+    -moz-appearance: textfield;
+  }
