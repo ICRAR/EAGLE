@@ -500,15 +500,6 @@ export class Modals {
     }
 
     static _updateFieldModalDataType(dataType: string){
-        //is there a reason to hide the defaut values?
-        // if (dataType === Eagle.DataType_Boolean){
-        //     $("#editFieldModalDefaultValue").hide();
-        // } else if(dataType === Eagle.DataType_Integer || Eagle.DataType_Float){
-        //     $("#editFieldModalDefaultValue").hide();
-
-        // } else {
-        //     $("#editFieldModalDefaultValue").show();
-        // }
 
         //reset value fields dataType specific attributes
         $('#editFieldModalValueInputNumber').removeClass('inputNoArrows')
