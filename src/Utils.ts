@@ -755,24 +755,6 @@ export class Utils {
         $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
-        if(field.getType() === Eagle.DataType_Boolean){
-            $("#editFieldModalDefaultValue").hide()
-        }else{
-            $("#editFieldModalDefaultValue").show()
-        }
-
-        // show the correct entry field based on the field type
-        /*
-        console.log("!debug", field.getType(), field.isType(Eagle.DataType_Boolean), field.isType(Eagle.DataType_Select), "combined", !field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
-        $('#editFieldModalValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
-        $('#editFieldModalValueInputCheckbox').parent().toggle(field.isType(Eagle.DataType_Boolean));
-        $('#editFieldModalValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
-
-        $('#editFieldModalDefaultValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
-        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.isType(Eagle.DataType_Boolean));
-        $('#editFieldModalDefaultValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
-        */
-
 
         $('#editFieldModalTypeInput').val(field.getType());
 
