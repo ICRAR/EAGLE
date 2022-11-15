@@ -156,72 +156,84 @@ $(function(){
     $(".dropdown-menu").mouseleave(function(){
         $(".dropdown-toggle").removeClass("show")
         $(".dropdown-menu").removeClass("show")
-      })
+     })
   
-      $('.modal').on('hidden.bs.modal', function () {
-          $('.modal-dialog').css({"left":"0px", "top":"0px"})
-          $("#editFieldModal textarea").attr('style','')
-          $("#errorsModalAccordion").parent().parent().attr('style','')
-  
-          //reset parameter table selecction
-          ParameterTable.resetSelection()
-      });
-  
-      $('.modal').on('shown.bs.modal',function(){
-          // modal draggables
-          //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
-          (<any>$('.modal-dialog')).draggable({
-              handle: ".modal-header"
-          });
-      })
-  
-      //increased click bubble for edit modal flag booleans
-      $(".componentCheckbox").on("click",function(){
-          $(event.target).find("input").click()
-      })
-  
-      $('#editFieldModalValueInputCheckbox').on("change",function(){
-          $(event.target).parent().find("span").text($(event.target).prop('checked'))
-      })
-  
-      //removes focus from input and textareas when using the canvas
-      $("#logicalGraphParent").on("mousedown", function(){
-          $("input").blur();
-          $("textarea").blur();
-      });
-  
-      $(".tableParameter").on("click", function(){
-          console.log(this)
-      })
-  
-      //expand palettes when using searchbar and return to prior collapsed state on completion.
-      $("#paletteList .componentSearchBar").on("keyup",function(){
-          if ($("#paletteList .componentSearchBar").val() !== ""){
-              $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
-              $("#paletteList .accordion-button.collapsed").click()
-          }else{
-              $("#paletteList .accordion-button.wasCollapsed").click()
-              $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
-          }
-      })
-  
-      $(document).on('click', '.hierarchyEdgeExtra', function(){
-          const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
-  
-          if(!selectEdge){
-              console.log("no edge found")
-              return
-          }
-          if(!(<PointerEvent>event).shiftKey){
-              (<any>window).eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
-          }else{
-              (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
-          }
-  
-      })
-      $(".hierarchy").on("click", function(){
-          (<any>window).eagle.selectedObjects([]);
-      })
+    $('.modal').on('hidden.bs.modal', function () {
+        $('.modal-dialog').css({"left":"0px", "top":"0px"})
+        $("#editFieldModal textarea").attr('style','')
+        $("#errorsModalAccordion").parent().parent().attr('style','')
+
+        //reset parameter table selecction
+        ParameterTable.resetSelection()
+    });
+
+    $('.modal').on('shown.bs.modal',function(){
+        // modal draggables
+        //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
+        (<any>$('.modal-dialog')).draggable({
+            handle: ".modal-header"
+        });
+    })
+
+    //increased click bubble for edit modal flag booleans
+    $(".componentCheckbox").on("click",function(){
+        $(event.target).find("input").click()
+    })
+
+    $('#editFieldModalValueInputCheckbox').on("change",function(){
+        $(event.target).parent().find("span").text($(event.target).prop('checked'))
+    })
+
+    $('#editFieldModalDefaultValueInputCheckbox').on("change",function(){
+        $(event.target).parent().find("span").text($(event.target).prop('checked'))
+    })
+
+    $('#componentDefaultValueCheckbox').on('click',function(){
+        $((event.target)).find('input').click()
+    })
+
+    $('#componentValueCheckbox').on('click',function(){
+        $((event.target)).find('input').click()
+    })
+
+    //removes focus from input and textareas when using the canvas
+    $("#logicalGraphParent").on("mousedown", function(){
+        $("input").blur();
+        $("textarea").blur();
+    });
+
+    $(".tableParameter").on("click", function(){
+        console.log(this)
+    })
+
+    //expand palettes when using searchbar and return to prior collapsed state on completion.
+    $("#paletteList .componentSearchBar").on("keyup",function(){
+        if ($("#paletteList .componentSearchBar").val() !== ""){
+            $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
+            $("#paletteList .accordion-button.collapsed").click()
+        }else{
+            $("#paletteList .accordion-button.wasCollapsed").click()
+            $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
+        }
+    })
+
+    $(document).on('click', '.hierarchyEdgeExtra', function(){
+        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+
+        if(!selectEdge){
+            console.log("no edge found")
+            return
+        }
+        if(!(<PointerEvent>event).shiftKey){
+            (<any>window).eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+        }else{
+            (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+        }
+
+    })
+    $(".hierarchy").on("click", function(){
+        (<any>window).eagle.selectedObjects([]);
+    })
 });
 
 function autoLoad(eagle: Eagle, service: Eagle.RepositoryService, repository: string, branch: string, path: string, filename: string) {
