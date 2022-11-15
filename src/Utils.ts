@@ -736,6 +736,7 @@ export class Utils {
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
         $('#editFieldModalDefaultValueInputNumber').val(field.getDefaultValue());
         $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalDefaultValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalDefaultValueInputSelect').empty();
         for (const option of field.getOptions()){
             $('#editFieldModalDefaultValueInputSelect').append($('<option>', {

@@ -249,13 +249,6 @@ export class Modals {
             // translate type
             const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
-            if (realType === Eagle.DataType_Boolean){
-                $('#editFieldModalValueInputCheckbox').prop('checked', defaultValueCheckbox);
-            } else if(realType === Eagle.DataType_Float || Eagle.DataType_Integer) {
-                $('#editFieldModalValueInputNumber').val(defaultValueText);
-            }else{
-                $('#editFieldModalValueInputText').val(defaultValueText);
-            }
         });
 
         $('#editFieldModal').on('shown.bs.modal', function(){
