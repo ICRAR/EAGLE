@@ -500,14 +500,15 @@ export class Modals {
     }
 
     static _updateFieldModalDataType(dataType: string){
-        if (dataType === Eagle.DataType_Boolean){
-            $("#editFieldModalDefaultValue").hide();
-        } else if(dataType === Eagle.DataType_Integer || Eagle.DataType_Float){
-            $("#editFieldModalDefaultValue").hide();
+        //is there a reason to hide the defaut values?
+        // if (dataType === Eagle.DataType_Boolean){
+        //     $("#editFieldModalDefaultValue").hide();
+        // } else if(dataType === Eagle.DataType_Integer || Eagle.DataType_Float){
+        //     $("#editFieldModalDefaultValue").hide();
 
-        } else {
-            $("#editFieldModalDefaultValue").show();
-        }
+        // } else {
+        //     $("#editFieldModalDefaultValue").show();
+        // }
 
         //reset value fields dataType specific attributes
         $('#editFieldModalValueInputNumber').removeClass('inputNoArrows')
@@ -516,40 +517,25 @@ export class Modals {
         $('#editFieldModalDefaultValueInputNumber').removeAttr('min').removeAttr('step').removeAttr('onfocus').removeAttr( 'onkeydown').removeAttr( 'oninput')
         
 
+        //toggle on the correct value input fields depending on type
         $('#editFieldModalValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select && dataType !== Eagle.DataType_Float && dataType !== Eagle.DataType_Integer);
         $('#editFieldModalValueInputNumber').toggle(dataType === Eagle.DataType_Float || dataType === Eagle.DataType_Integer);
         $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === Eagle.DataType_Boolean);
         $('#editFieldModalValueInputSelect').toggle(dataType === Eagle.DataType_Select);
 
-        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select);
+        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select && dataType !== Eagle.DataType_Float && dataType !== Eagle.DataType_Integer);
         $('#editFieldModalDefaultValueInputNumber').toggle(dataType === Eagle.DataType_Float || dataType === Eagle.DataType_Integer);
         $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Eagle.DataType_Boolean);
         $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Eagle.DataType_Select);
 
-        console.log(dataType)
-
+        //setting up number value input specific things that are different for integers of floats 
         if(dataType === Eagle.DataType_Integer){
-            console.log('if integer')
             $('#editFieldModalValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
             $('#editFieldModalDefaultValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
 
         }else if (dataType === Eagle.DataType_Float){
-            console.log('if float')
-
             $('#editFieldModalValueInputNumber').addClass('inputNoArrows')
             $('#editFieldModalDefaultValueInputNumber').addClass('inputNoArrows')
         }
-
-        // handle float and integer
-        // NOTE: changes here are disabled, since it is a textarea instead of an input
-        /*
-        if (dataType === Eagle.DataType_Float || dataType === Eagle.DataType_Integer){
-            $('#editFieldModalDefaultValueInputText').attr("type", "number");
-            $('#editFieldModalValueInputText').attr("type", "number");
-        } else {
-            $('#editFieldModalDefaultValueInputText').attr("type", "text");
-            $('#editFieldModalValueInputText').attr("type", "text");
-        }
-        */
     }
 }
