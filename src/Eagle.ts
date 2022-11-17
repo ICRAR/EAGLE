@@ -4133,11 +4133,7 @@ export class Eagle {
             }
         });
     }
-
-    preventFocus = () : void => {
-        event.preventDefault(); 
-    }
-
+    
     static getCategoryData = (category : Category) : Category.CategoryData => {
         const c = CategoryData.getCategoryData(category);
 
