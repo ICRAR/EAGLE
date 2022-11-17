@@ -476,7 +476,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <input type="checkbox" class="form-control form-check-input material-icons" id="editFieldModalKeyParameterCheckbox">
+                <input type="checkbox" tabindex='-1' class="form-control form-check-input material-icons" id="editFieldModalKeyParameterCheckbox">
                 <h5 class="modal-title" id="editFieldModalTitle">Edit Parameter</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -525,7 +525,7 @@
                                 <input type="number" id="editFieldModalValueInputNumber" class="form-control ">
                                 <div class="input-group componentCheckbox" id="componentValueCheckbox">
                                     <span class="noselect"></span>
-                                    <input type="checkbox" class="form-control form-check-input" id="editFieldModalValueInputCheckbox">
+                                    <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalValueInputCheckbox">
                                 </div>
                                 <select class="form-control" id="editFieldModalValueInputSelect">
                                     <!-- options are added dynamically -->
@@ -543,7 +543,7 @@
                                 <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control ">
                                 <div class="input-group componentCheckbox" id="componentDefaultValueCheckbox">
                                     <span class="noselect"></span>
-                                    <input type="checkbox" class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox">
+                                    <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox">
                                 </div>
                                 <select class="form-control" id="editFieldModalDefaultValueInputSelect">
                                     <!-- options are added dynamically -->
@@ -583,19 +583,19 @@
                                 <div class="col-6">
                                     <div class="input-group mb-3 componentCheckbox" data-bind="eagleTooltip:'Argument never suppressed'">
                                         <span>Precious</span>
-                                        <input type="checkbox" class="form-control form-check-input" id="editFieldModalPreciousInputCheckbox">
+                                        <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalPreciousInputCheckbox">
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="input-group mb-3 componentCheckbox" data-bind="eagleTooltip:'If checked only the value of this argument will be put on the command line'">
                                         <span>Positional</span>
-                                        <input type="checkbox" class="form-control form-check-input" id="editFieldModalPositionalInputCheckbox">
+                                        <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalPositionalInputCheckbox">
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="input-group mb-3 componentCheckbox" data-bind="eagleTooltip:'No write access when checked'">
                                         <span>Read Only</span>
-                                        <input type="checkbox" class="form-control form-check-input" id="editFieldModalAccessInputCheckbox">
+                                        <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalAccessInputCheckbox">
                                     </div>
                                 </div>
                             </div>
@@ -770,7 +770,7 @@
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                             <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
-                                                <td><input class="tableParameter" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$data.toggle(); $root.selectedObjects.valueHasMutated();}}"></td>
+                                                <td><input class="tableParameter" tabindex='-1' data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$data.toggle(); $root.selectedObjects.valueHasMutated();}}"></td>
                                             <!-- /ko -->
                                             <!-- ko if: $data.getHtmlInputType() === 'select' -->
                                                 <td>
@@ -781,7 +781,7 @@
                                             <!-- /ko -->
 
                                             <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
-                                                <td><input class="tableParameter" data-bind="checked: readonly, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr: {type: 'checkbox'}"></td>
+                                                <td><input class="tableParameter" tabindex='-1' data-bind="checked: readonly, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr: {type: 'checkbox'}"></td>
                                             <!-- /ko -->
                                         <!-- /ko -->
 
@@ -807,7 +807,7 @@
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                             <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
-                                                <td><input class="tableParameter" onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
+                                                <td><input class="tableParameter" tabindex='-1' onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}"></td>
                                             <!-- /ko -->
 
                                             <!-- selection input -->
@@ -841,10 +841,10 @@
                                             </td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
-                                            <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                            <td><input class="tableParameter" tabindex='-1' data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional') -->
-                                            <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                            <td><input class="tableParameter" tabindex='-1' data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('actions') -->
                                             <td>
@@ -958,7 +958,7 @@
                         </div>
                         <div class="col">
                             <div class="input-group mb-3">
-                                <input type="checkbox" class="form-control form-check-input" id="editEdgeModalLoopAwareCheckbox">
+                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editEdgeModalLoopAwareCheckbox">
                             </div>
                         </div>
                     </div>
@@ -968,7 +968,7 @@
                         </div>
                         <div class="col">
                             <div class="input-group mb-3">
-                                <input type="checkbox" class="form-control form-check-input" id="editEdgeModalClosesLoopCheckbox">
+                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editEdgeModalClosesLoopCheckbox">
                             </div>
                         </div>
                     </div>
@@ -1028,7 +1028,7 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center" data-bind="click: function(data, event){$root.explorePalettes().clickHelper($root, $data, event)}">
                             <span data-bind="text: $data.name"></span>
                             <div class="form-check">
-                                <input class="form-check-input position-static" type="checkbox" aria-label="select">
+                                <input class="form-check-input position-static" type="checkbox" tabindex='-1' aria-label="select">
                             </div>
                         </li>
                     </ul>
