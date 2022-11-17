@@ -4133,7 +4133,7 @@ export class Eagle {
             }
         });
     }
-
+    
     static getCategoryData = (category : Category) : Category.CategoryData => {
         const c = CategoryData.getCategoryData(category);
 
