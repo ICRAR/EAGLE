@@ -1003,7 +1003,7 @@ select.form-control{
     overflow-y: scroll;
 }
 
-#paletteList .dropdown-menu a{
+.leftWindowDisplay  .dropdown-menu a{
     width:100%;
 }
 
@@ -1047,7 +1047,7 @@ select.form-control{
     background-color: rgba(214, 219, 239, 0.95);
 }
 
-#paletteList .dropdown-menu{
+.leftWindow .dropdown-menu{
     position: absolute;
     right: 0px;
     top: 0px;
@@ -1059,13 +1059,14 @@ select.form-control{
     width:min-content;
 }
 
-#paletteList .dropdown-menu a{
+.leftWindow .dropdown-menu a{
     color: white;
     text-decoration: none;
-    display: inline-block;
+    white-space: nowrap;
+    display: block;
 }
 
-#paletteList .dropdown-menu span{
+.leftWindow .dropdown-menu span{
     display: block;
     width: 100%;
     padding:0px 10px;
@@ -1088,7 +1089,12 @@ select.form-control{
     color: white;
 }
 
-#paletteList .dropdown-menu span:hover{
+.leftWindow .dropdown-menu span:hover{
+    background-color: #001d3b;
+    color: white;
+}
+
+.leftWindow .dropdown-menu a:hover{
     background-color: #001d3b;
     color: white;
 }
