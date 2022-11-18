@@ -1110,6 +1110,7 @@ export class Eagle {
      */
      getGraphFileToLoad = () : void => {
          document.getElementById("uploadedGraphFileToLoad").click();
+         this.resetEditor()
      }
 
      getGraphFileToInsert = () : void => {
@@ -1135,6 +1136,7 @@ export class Eagle {
             this.undo().pushSnapshot(this, "New Logical Graph");
             this.logicalGraph.valueHasMutated();
         });
+        this.resetEditor()
     }
 
     /**
@@ -1151,6 +1153,7 @@ export class Eagle {
                 this.logicalGraph(lg);
             });
         });
+        this.resetEditor()
     }
 
     displayLogicalGraphAsJson = () : void => {
