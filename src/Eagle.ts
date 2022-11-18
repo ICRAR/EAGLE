@@ -1739,8 +1739,8 @@ export class Eagle {
                     // Show error message
                     Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
             }
+        this.resetEditor()
         });
-        this.selectedObjects([])
     };
 
     insertRemoteFile = (file : RepositoryFile) : void => {
@@ -1912,7 +1912,7 @@ export class Eagle {
                 break;
             }
         }
-        this.selectedObjects([])
+        this.resetEditor()
     }
 
     getParentNameAndKey = (parentKey:number) : string => {
