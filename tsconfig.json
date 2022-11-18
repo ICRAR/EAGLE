@@ -47,6 +47,7 @@
         "./src/ExplorePalettes.ts",
         "./src/Undo.ts",
         "./src/Errors.ts",
+        "./src/ComponentUpdater.ts",
         "./src/Hierarchy.ts",
         "./src/Repositories.ts",
         "./src/ParameterTable.ts"

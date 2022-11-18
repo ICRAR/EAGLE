@@ -36,7 +36,7 @@ export class GitHub {
      */
 
     // TODO: should callback with the list of repositories
-    static loadRepoList(eagle : Eagle) : void {
+    static loadRepoList() : void {
         Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);
@@ -86,7 +86,7 @@ export class GitHub {
     /**
      * Loads the limited set of GitHub repositories intended for students.
      */
-    static loadStudentRepoList(eagle : Eagle) : void {
+    static loadStudentRepoList() : void {
         Utils.httpGetJSON("/getStudentRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);

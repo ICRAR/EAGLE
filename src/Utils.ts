@@ -40,6 +40,7 @@ import {Palette} from './Palette';
 import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
+import {ParameterTable} from './ParameterTable';
 
 export class Utils {
     // Allowed file extenstions.
@@ -83,10 +84,12 @@ export class Utils {
     static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
     static readonly SPAWN_TRANSLATION_TAB: string = "SpawnTranslationTab";
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
-    static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
+    static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
+    static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
     static readonly USER_INTERFACE_MODE: string = "UserInterfaceMode";
+    static readonly USER_TRANSLATOR_MODE: string = "UserTranslatorMode";
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
     static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
@@ -326,7 +329,7 @@ export class Utils {
         console.warn("Unknown FieldType", fieldType);
         return Eagle.FieldType.Unknown;
     }
-
+    
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
         $.ajax({
             url: url,
@@ -709,6 +712,7 @@ export class Utils {
         $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
         $('#editFieldModalIdTextInput').val(field.getIdText());
         $('#editFieldModalValueInputText').val(field.getValue());
+        $('#editFieldModalValueInputNumber').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalValueInputSelect').empty();
@@ -721,7 +725,9 @@ export class Utils {
         }
 
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
+        $('#editFieldModalDefaultValueInputNumber').val(field.getDefaultValue());
         $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalDefaultValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalDefaultValueInputSelect').empty();
         for (const option of field.getOptions()){
             $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
@@ -734,28 +740,13 @@ export class Utils {
         // set accessibility state checkbox
         $('#editFieldModalAccessInputCheckbox').prop('checked', field.isReadonly());
 
+        // set accessibility state checkbox
+        $('#editFieldModalKeyParameterCheckbox').prop('checked', field.isKeyAttribute());
+
         // set positional argument checkbox
         $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
-        if(field.getType() === Eagle.DataType_Boolean){
-            $("#editFieldModalDefaultValue").hide()
-        }else{
-            $("#editFieldModalDefaultValue").show()
-        }
-
-        // show the correct entry field based on the field type
-        /*
-        console.log("!debug", field.getType(), field.isType(Eagle.DataType_Boolean), field.isType(Eagle.DataType_Select), "combined", !field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
-        $('#editFieldModalValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
-        $('#editFieldModalValueInputCheckbox').parent().toggle(field.isType(Eagle.DataType_Boolean));
-        $('#editFieldModalValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
-
-        $('#editFieldModalDefaultValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
-        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.isType(Eagle.DataType_Boolean));
-        $('#editFieldModalDefaultValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
-        */
-
 
         $('#editFieldModalTypeInput').val(field.getType());
 
@@ -868,7 +859,10 @@ export class Utils {
         $('#settingsModal').modal("toggle");
     }
 
-    static showOpenParamsTableModal() : void {
+    static showOpenParamsTableModal(mode:string) : void {
+        const eagle: Eagle = Eagle.getInstance();
+
+        eagle.tableModalType(mode)
         $('#parameterTableModal').modal("toggle");
     }
 
@@ -1212,8 +1206,6 @@ export class Utils {
     }
 
     static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
-        console.log("getDataComponentsWithInputsAndOutputs");
-
         const result: Category[] = [];
 
         // loop through all categories
@@ -1221,7 +1213,7 @@ export class Utils {
             // get category data
             const categoryData = CategoryData.getCategoryData(<Category>category);
 
-            if (categoryData.categoryType === categoryType){
+            if (categoryData.categoryType !== categoryType){
                 continue;
             }
 
@@ -1298,8 +1290,8 @@ export class Utils {
         ports.push(port);
     }
 
-    static addTypeIfUnique = (types: ko.ObservableArray<string>, newType: string) : void => {
-        for (const t of types()){
+    static addTypeIfUnique = (types: string[], newType: string) : void => {
+        for (const t of types){
             if (t === newType){
                 return;
             }
@@ -1709,10 +1701,17 @@ export class Utils {
     }
 
     static getShortcutDisplay = () : {description:string, shortcut : string}[] => {
+        const eagle: Eagle = Eagle.getInstance();
         const displayShorcuts : {description:string, shortcut : string} []=[];
 
         for (const object of Eagle.shortcuts()){
+            // skip if shortcut should not be displayed
             if (object.display === KeyboardShortcut.Display.Disabled){
+                continue;
+            }
+
+            // skip if shortcut can not be run in the current state
+            if (!object.canRun(eagle)){
                 continue;
             }
 

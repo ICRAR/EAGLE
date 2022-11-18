@@ -32,7 +32,6 @@ import {Errors} from './Errors';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Setting} from './Setting';
-import { LogicalGraph } from "./LogicalGraph";
 
 export class Node {
     private _id : string
@@ -54,8 +53,6 @@ export class Node {
     private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
     private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
 
-    private streaming : ko.Observable<boolean>;
-    private precious : ko.Observable<boolean>;
     private peek : boolean;                        // true if we are temporarily showing the ports based on the users mouse position
     private flipPorts : ko.Observable<boolean>;
 
@@ -69,8 +66,10 @@ export class Node {
 
     private subject : ko.Observable<number>;       // the key of another node that is the subject of this node. used by comment nodes only.
 
-    private gitUrl : ko.Observable<string>;
-    private gitHash : ko.Observable<string>;
+    private repositoryUrl : ko.Observable<string>;
+    private commitHash : ko.Observable<string>;
+    private paletteDownloadUrl : ko.Observable<string>;
+    private dataHash : ko.Observable<string>;
 
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 72;
@@ -109,8 +108,6 @@ export class Node {
         this.parentKey = ko.observable(null);
         this.embedKey = ko.observable(null);
         this.collapsed = ko.observable(true);
-        this.streaming = ko.observable(false);
-        this.precious = ko.observable(false);
         this.peek = false;
         this.flipPorts = ko.observable(false);
 
@@ -127,8 +124,10 @@ export class Node {
         this.expanded = ko.observable(true);
         this.keepExpanded = ko.observable(false);
 
-        this.gitUrl = ko.observable("");
-        this.gitHash = ko.observable("");
+        this.repositoryUrl = ko.observable("");
+        this.commitHash = ko.observable("");
+        this.paletteDownloadUrl = ko.observable("");
+        this.dataHash = ko.observable("");
     }
 
     getId = () : string => {
@@ -289,27 +288,23 @@ export class Node {
     }
 
     isStreaming = () : boolean => {
-        return this.streaming();
+        const streamingField = this.findFieldByIdText("streaming", Eagle.FieldType.ComponentParameter);
+
+        if (streamingField !== null){
+            return streamingField.valIsTrue(streamingField.getValue());
+        }
+
+        return false;
     }
 
-    setStreaming = (value : boolean) : void => {
-        this.streaming(value);
-    }
+    isPersist = () : boolean => {
+        const persistField = this.findFieldByIdText("persist", Eagle.FieldType.ComponentParameter);
 
-    toggleStreaming = () : void => {
-        this.streaming(!this.streaming());
-    }
+        if (persistField !== null){
+            return persistField.valIsTrue(persistField.getValue());
+        }
 
-    isPrecious = () : boolean => {
-        return this.precious();
-    }
-
-    setPrecious = (value : boolean) : void => {
-        this.precious(value);
-    }
-
-    togglePrecious = () : void => {
-        this.precious(!this.precious());
+        return false;
     }
 
     isPeek = () : boolean => {
@@ -489,6 +484,26 @@ export class Node {
         return this.categoryType();
     }
 
+    setRepositoryUrl = (url: string) : void => {
+        this.repositoryUrl(url);
+    }
+
+    getRepositoryUrl = () : string => {
+        return this.repositoryUrl();
+    }
+
+    getCommitHash = () : string => {
+        return this.commitHash();
+    }
+
+    getPaletteDownloadUrl = () : string => {
+        return this.paletteDownloadUrl();
+    }
+
+    getDataHash = () : string => {
+        return this.dataHash();
+    }
+
     isData = () : boolean => {
         return this.categoryType() === Category.Type.Data;
     }
@@ -664,8 +679,6 @@ export class Node {
         this.parentKey(null);
         this.embedKey(null);
         this.collapsed(true);
-        this.streaming(false);
-        this.precious(false);
 
         this.inputApplication(null);
         this.outputApplication(null);
@@ -680,8 +693,10 @@ export class Node {
         this.expanded(false);
         this.keepExpanded(false)
 
-        this.gitUrl("");
-        this.gitHash("");
+        this.repositoryUrl("");
+        this.commitHash("");
+        this.paletteDownloadUrl("");
+        this.dataHash("");
     }
 
     getDisplayWidth = () : number => {
@@ -743,11 +758,11 @@ export class Node {
         let url = "Unknown";
         let hash = "Unknown";
 
-        if (this.gitUrl() !== ""){
-            url = this.gitUrl();
+        if (this.repositoryUrl() !== ""){
+            url = this.repositoryUrl();
         }
-        if (this.gitHash() !== ""){
-            hash = this.gitHash();
+        if (this.commitHash() !== ""){
+            hash = this.commitHash();
         }
 
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
@@ -878,6 +893,17 @@ export class Node {
         return null;
     }
 
+    findFieldByIdText = (idText: string, fieldType: Eagle.FieldType) : Field => {
+        for (const field of this.fields()){
+            if (field.getFieldType() === fieldType && field.getIdText() === idText){
+                return field;
+            }
+        }
+
+        return null;
+    }
+
+
     findPortByType = (type: string, input: boolean) : Field => {
         if (input){
             // check input ports
@@ -977,7 +1003,7 @@ export class Node {
 
     setGroupStart = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_start")){
-            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter));
+            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter,false));
         } else {
             this.getFieldByIdText("group_start").setValue(value.toString());
         }
@@ -985,7 +1011,7 @@ export class Node {
 
     setGroupEnd = (value: boolean) => {
         if (!this.hasFieldWithIdText("group_end")){
-            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter));
+            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter,false));
         } else {
             this.getFieldByIdText("group_end").setValue(value.toString());
         }
@@ -1062,8 +1088,6 @@ export class Node {
         result.collapsed(this.collapsed());
         result.expanded(this.expanded());
         result.keepExpanded(this.expanded());
-        result.streaming(this.streaming());
-        result.precious(this.precious());
 
         result.peek = this.peek;
         result.flipPorts(this.flipPorts());
@@ -1087,8 +1111,10 @@ export class Node {
             result.fields.push(field.clone());
         }
 
-        result.gitUrl(this.gitUrl());
-        result.gitHash(this.gitHash());
+        result.repositoryUrl(this.repositoryUrl());
+        result.commitHash(this.commitHash());
+        result.paletteDownloadUrl(this.paletteDownloadUrl());
+        result.dataHash(this.dataHash());
 
         return result;
     }
@@ -1221,14 +1247,14 @@ export class Node {
 
         // if no fields exist, create at least one, to store the custom data
         if (this.fields().length === 0){
-            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Unknown, false, [], false, Eagle.FieldType.ComponentParameter));
+            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Unknown, false, [], false, Eagle.FieldType.ComponentParameter,false));
         }
 
         this.fields()[0].setValue(e.value);
     }
 
     addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType_String, false, [], false, Eagle.FieldType.ComponentParameter)
+        const newField = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_String, false, [], false, Eagle.FieldType.ComponentParameter,false)
         if(index === -1){
             this.addField(newField);
         }else{
@@ -1325,11 +1351,6 @@ export class Node {
             key = nodeData.key;
         } else {
             key = generateKeyFunc();
-        }
-
-        let readonly = true;
-        if (typeof nodeData.readonly !== 'undefined'){
-            readonly = nodeData.readonly;
         }
 
         // translate categories if required
@@ -1524,18 +1545,16 @@ export class Node {
             }
         }
 
-        // streaming
-        if (typeof nodeData.streaming !== 'undefined'){
-            node.streaming(nodeData.streaming);
-        } else {
-            node.streaming(false);
+        // handle obsolete 'precious' attribute, add it as a 'persist' field
+        if (typeof nodeData.precious !== 'undefined'){
+            const preciousField = new Field(Utils.uuidv4(), "Persist", "persist", nodeData.precious.toString(), "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter, false);
+            node.addField(preciousField);
         }
 
-        // precious
-        if (typeof nodeData.precious !== 'undefined'){
-            node.precious(nodeData.precious);
-        } else {
-            node.precious(false);
+        // handle obsolete 'streaming' attribute, add it as a 'streaming' field
+        if (typeof nodeData.streaming !== 'undefined'){
+            const streamingField = new Field(Utils.uuidv4(), "Streaming", "streaming", nodeData.streaming.toString(), "false", "Specifies whether this data component streams input and output data", false, Eagle.DataType_Boolean, false, [], false, Eagle.FieldType.ComponentParameter, false);
+            node.addField(streamingField);
         }
 
         // subject (for comment nodes)
@@ -1667,11 +1686,17 @@ export class Node {
         }
 
         // add git url and hash
-        if (typeof nodeData.git_url !== 'undefined'){
-            node.gitUrl(nodeData.git_url);
+        if (typeof nodeData.repositoryUrl !== 'undefined'){
+            node.repositoryUrl(nodeData.repositoryUrl);
         }
-        if (typeof nodeData.sha !== 'undefined'){
-            node.gitHash(nodeData.sha);
+        if (typeof nodeData.commitHash !== 'undefined'){
+            node.commitHash(nodeData.commitHash);
+        }
+        if (typeof nodeData.paletteDownloadUrl != 'undefined'){
+            node.paletteDownloadUrl(nodeData.paletteDownloadUrl);
+        }
+        if (typeof nodeData.dataHash !== 'undefined'){
+            node.dataHash(nodeData.dataHash);
         }
 
         return node;
@@ -1741,11 +1766,11 @@ export class Node {
         result.key = node.key();
         result.text = node.name();
         result.description = node.description();
-        result.streaming = node.streaming();
-        result.precious = node.precious();
 
-        result.git_url = node.gitUrl();
-        result.sha = node.gitHash();
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
+        result.dataHash = node.dataHash();
 
         if (node.parentKey() !== null){
             result.group = node.parentKey();
@@ -1870,12 +1895,13 @@ export class Node {
         result.height = node.height;
         result.collapsed = node.collapsed();
         result.flipPorts = node.flipPorts();
-        result.streaming = node.streaming();
-        result.precious = node.precious();
         result.subject = node.subject();
         result.expanded = node.expanded();
-        result.git_url = node.gitUrl();
-        result.sha = node.gitHash();
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
+        result.dataHash = node.dataHash();
+
 
         if (node.parentKey() !== null){
             result.group = node.parentKey();
@@ -1996,8 +2022,11 @@ export class Node {
         result.flipPorts = node.flipPorts();
 
         result.expanded = node.expanded();
-        result.gitUrl = node.gitUrl();
-        result.gitHash = node.gitHash();
+
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
+        result.dataHash = node.dataHash();
 
         return result;
     }
@@ -2017,8 +2046,11 @@ export class Node {
         result.flipPorts(nodeData.flipPorts);
 
         result.expanded(nodeData.expanded);
-        result.gitUrl(nodeData.gitUrl);
-        result.gitHash(nodeData.gitHash);
+
+        result.repositoryUrl(nodeData.repositoryUrl);
+        result.commitHash(nodeData.commitHash);
+        result.paletteDownloadUrl(nodeData.paletteDownloadUrl);
+        result.dataHash(nodeData.dataHash);
 
         return result;
     }

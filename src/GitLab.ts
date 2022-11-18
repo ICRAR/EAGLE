@@ -35,7 +35,7 @@ export class GitLab {
      * Loads the GitLab repository list.
      */
     // TODO: should callback with the list of repositories
-    static loadRepoList(eagle : Eagle) : void {
+    static loadRepoList() : void {
         Utils.httpGetJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);

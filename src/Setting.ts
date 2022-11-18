@@ -8,7 +8,7 @@ export class SettingsGroup {
     private displayFunc : (eagle: Eagle) => boolean;
     private settings : Setting[];
 
-    constructor(name: string, displayFunc: (eagle:Eagle) => boolean, settings: Setting[]){
+    constructor(name: string, displayFunc: () => boolean, settings: Setting[]){
         this.name = name;
         this.displayFunc = displayFunc;
         this.settings = settings;
@@ -173,7 +173,7 @@ export class Setting {
 
     static setValue = (key : string, value : any) : void => {
         const setting = Setting.find(key);
-
+        console.log('settings changed')
         if (setting === null){
             console.warn("No setting", key);
             return;

@@ -209,7 +209,10 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // disable the 'spawn translation tab' setting
             .click('#settingSpawnTranslationTabButton')
 
-            // use the complex translator options
+            //switch to UI Options tab
+            .click("#settingCategoryUIOptions")
+
+            // BROKEN this used to be a simple toggle but is now a select drop down, we need to select the 'expert' option in order to unlock the advanced translation options
             .click('#settingUseSimplifiedTranslatorOptionsButton')
 
             //switch to external services tab
@@ -225,6 +228,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             //.wait(3000);
 
         // !!!!!!!!!!!!! LOAD GRAPH
+
         await t
             .click(Selector('#navbarDropdownGraph'))
             .hover(Selector('#navbarDropdownGraphNew'))

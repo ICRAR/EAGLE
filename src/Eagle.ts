@@ -28,7 +28,6 @@ import * as ko from "knockout";
 import * as ij from "intro.js";
 
 import {Utils} from './Utils';
-import {Config} from './Config';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
 import {Repositories} from './Repositories';
@@ -52,15 +51,14 @@ import {ExplorePalettes} from './ExplorePalettes';
 import {Hierarchy} from './Hierarchy';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
+import {ComponentUpdater} from './ComponentUpdater';
 import {ParameterTable} from './ParameterTable';
-import { timeHours } from "d3";
 
 export class Eagle {
     static _instance : Eagle;
 
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
-    types : ko.ObservableArray<string>;
 
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
@@ -91,6 +89,7 @@ export class Eagle {
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
+    tableModalType : ko.Observable<string>;
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -106,6 +105,7 @@ export class Eagle {
     static lastClickTime : number = 0;
 
     static defaultTranslatorAlgorithm : string;
+    static defaultTranslatorAlgorithmMethod : any;
 
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
@@ -117,7 +117,6 @@ export class Eagle {
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
-        this.types = ko.observableArray([]);
 
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
@@ -138,39 +137,47 @@ export class Eagle {
         Eagle.settings = [
             new SettingsGroup(
                 "User Options",
-                (eagle) => {return true;},
+                () => {return true;},
                 [
                     new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true),
                     new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true),
                     new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true),
                     new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, true),
                     new Setting("Confirm Delete", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_OBJECTS, true),
-                    new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, false),
                     new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false),
                     new Setting("Spawn Translation Tab", "When translating a graph, display the output of the translator in a new tab", Setting.Type.Boolean, Utils.SPAWN_TRANSLATION_TAB, true),
-                    new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false),
-                    new Setting("Use Simplified Translator Options", "Hide the complex and rarely used translator options", Setting.Type.Boolean, Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS, true),
                     new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false),
                     new Setting("UI Mode", "User Interface Mode. Simple Mode removes palettes, uses a single graph repository, simplifies the parameters table. Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Select, Utils.USER_INTERFACE_MODE, Eagle.UIMode.Default, Object.values(Eagle.UIMode)),
+                ]
+            ),
+            new SettingsGroup(
+                "UI Options",
+                () => {return !Eagle.isInUIMode(Eagle.UIMode.Minimal);},
+                [
+                    new Setting("Show DALiuGE runtime parameters", "Show additional component arguments that modify the behaviour of the DALiuGE runtime. For example: Data Volume, Execution Time, Num CPUs, Group Start/End", Setting.Type.Boolean, Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, true),
+                    new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, false),
+                    new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Utils.HIDE_PALETTE_TAB, false),
+                    new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Utils.HIDE_READONLY_PARAMETERS, false),
+                    new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Utils.USER_TRANSLATOR_MODE, Eagle.TranslatorMode.Default, Object.values(Eagle.TranslatorMode)),
                     new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000),
+
                 ]
             ),
             new SettingsGroup(
                 "Advanced Editing",
-                (eagle) => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
+                () => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
                 [
                     new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, true),
                     new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, true),
                     new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Utils.ALLOW_PALETTE_EDITING, true),
                     new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PALETTE_EDITING, true),
                     new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, true),
-                    new Setting("Show DALiuGE runtime parameters", "Show additional component arguments that modify the behaviour of the DALiuGE runtime. For example: Data Volume, Execution Time, Num CPUs, Group Start/End", Setting.Type.Boolean, Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, true),
                     new Setting("Auto-suggest destination nodes", "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", Setting.Type.Boolean, Utils.AUTO_SUGGEST_DESTINATION_NODES, true)
                 ]
             ),
             new SettingsGroup(
                 "External Services",
-                (eagle) => {return true;},
+                () => {return true;},
                 [
                     new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"),
                     new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""),
@@ -180,8 +187,9 @@ export class Eagle {
             ),
             new SettingsGroup(
                 "Developer",
-                (eagle) => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
+                () => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
                 [
+                    new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false),
                     new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
                     new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
                     new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Utils.SKIP_CLOSE_LOOP_EDGES, true),
@@ -191,7 +199,7 @@ export class Eagle {
         ];
 
         Eagle.shortcuts = ko.observableArray();
-        Eagle.shortcuts.push(new KeyboardShortcut("new_graph", "New Graph", ["n"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, Eagle.allowPaletteEditing, (eagle): void => {eagle.newLogicalGraph();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("new_graph", "New Graph", ["n"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.newLogicalGraph();}));
         Eagle.shortcuts.push(new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, Eagle.allowPaletteEditing, (eagle): void => {eagle.newPalette();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_graph_from_repo", "Open graph from repo", ["g"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().mode(Eagle.RightWindowMode.Repository);eagle.rightWindow().shown(true);}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_graph_from_local_disk", "Open graph from local disk", ["g"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
@@ -224,7 +232,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.onlineDocs();}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
         Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Disabled, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Component Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('inspectorTableModal');}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_key_parameter_table_modal", "Open Key Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('keyParametersTableModal');}));
         Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["z"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().prevSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("redo", "Redo", ["z"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().nextSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("check_graph", "Check Graph", ["!"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.showGraphErrors();}));
@@ -233,6 +242,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_translation", "Open Translation", [">"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.TranslationMenu)}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_hierarchy", "Open Hierarchy", ["h"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Hierarchy)}));
         Eagle.shortcuts.push(new KeyboardShortcut("toggle_show_data_nodes", "Toggle Show Data Nodes", ["j"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleShowDataNodes(); }));
+        Eagle.shortcuts.push(new KeyboardShortcut("check_for_component_updates", "Check for Component Updates", ["q"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.checkForComponentUpdates(); }));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -253,11 +263,16 @@ export class Eagle {
         this.loadingWarnings = ko.observableArray([]);
         this.loadingErrors = ko.observableArray([]);
 
+        this.tableModalType = ko.observable('')
+
         this.showDataNodes = ko.observable(true);
 
         this.selectedObjects.subscribe(function(){
             this.logicalGraph.valueHasMutated();
             Hierarchy.updateDisplay()
+            if(this.selectedObjects().length === 0){
+                this.tableModalType('keyParametersTableModal')
+            }
         }, this)
 
         this.rightWindow().mode.subscribe(function(newValue){
@@ -296,6 +311,14 @@ export class Eagle {
         return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_PALETTE_EDITING);
     }
 
+    static hidePaletteTab = () : boolean => {
+        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.HIDE_PALETTE_TAB);
+    }
+
+    static hideReadonlyParamters = () : boolean => {
+        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.HIDE_READONLY_PARAMETERS);
+    }
+
     static allowReadonlyPaletteEditing = () : boolean => {
         return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
     }
@@ -309,7 +332,11 @@ export class Eagle {
     }
 
     static showDaliugeRuntimeParameters = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+    }
+
+    static translatorUiMode = (mode : Eagle.TranslatorMode) : boolean => {
+        return Setting.findValue(Utils.USER_TRANSLATOR_MODE) === mode;
     }
 
     static isInUIMode = (mode : Eagle.UIMode) : boolean => {
@@ -324,8 +351,28 @@ export class Eagle {
         return Setting.findValue(Utils.ENABLE_PERFORMANCE_DISPLAY);
     }, this);
 
-    showSimplifiedTranslatorOptions : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Setting.findValue(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS);
+    types : ko.PureComputed<string[]> = ko.pureComputed(() => {
+        const result: string[] = [];
+
+        switch (Eagle.selectedLocation()){
+            case Eagle.FileType.Palette:
+                // build a list from the selected component in the palettes
+                for (const field of this.selectedNode().getFields()) {
+                    Utils.addTypeIfUnique(result, field.getType());
+                }
+                break;
+            case Eagle.FileType.Graph:
+            default:
+                // build a list from all nodes in the current logical graph
+                for (const node of this.logicalGraph().getNodes()){
+                    for (const field of node.getFields()) {
+                        Utils.addTypeIfUnique(result, field.getType());
+                    }
+                }
+                break;
+        }
+
+        return result;
     }, this);
 
     toggleShowDataNodes = () : void => {
@@ -338,8 +385,7 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = () : void => {
-        var defaultTranslatingAlgorithm = Eagle.defaultTranslatorAlgorithm
-        $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').click()
+        this.translator().genPGT(Eagle.defaultTranslatorAlgorithmMethod, false, Eagle.DALiuGESchemaVersion.Unknown)
     }
 
     // TODO: remove?
@@ -390,6 +436,14 @@ export class Eagle {
         }
 
         return list;
+    }
+
+    getKeyAttributeDisplay = (isKeyAttribute : boolean) : string => {
+        if(!isKeyAttribute){
+            return '<i class="material-icons">favorite_border</i>'
+        }else{
+            return '<i class="material-icons">favorite</i>'
+        }
     }
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -678,6 +732,10 @@ export class Eagle {
                 if (fileFullPath !== ""){
                     this.updateLogicalGraphFileInfo(Eagle.RepositoryService.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
                 }
+
+                // check graph
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Loaded " + fileFullPath);
             });
         });
     }
@@ -771,9 +829,6 @@ export class Eagle {
         }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
-
-        // update the known data types after adding new nodes 
-        this.updateAllKnownTypes();
     }
 
     createSubgraphFromSelection = () : void => {
@@ -812,6 +867,11 @@ export class Eagle {
         this.checkGraph();
         this.undo().pushSnapshot(this, "Create Subgraph from Selection");
         this.logicalGraph.valueHasMutated();
+    }
+
+    checkErrorModalShowError = (data:any) :void =>{
+        data.show()
+        this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
     }
 
     createConstructFromSelection = () : void => {
@@ -1042,9 +1102,6 @@ export class Eagle {
         // show the left window
         this.leftWindow().shown(true);
 
-        // since we have a new palette loaded, update the list of types known to EAGLE
-        this.updateAllKnownTypes();
-
         Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
     }
 
@@ -1100,8 +1157,10 @@ export class Eagle {
         const cloneLG: LogicalGraph = this.logicalGraph().clone();
 
         // zero-out some info that isn't useful for comparison
-        cloneLG.fileInfo().sha = "";
-        cloneLG.fileInfo().gitUrl = "";
+        cloneLG.fileInfo().repositoryUrl = "";
+        cloneLG.fileInfo().commitHash = "";
+        cloneLG.fileInfo().downloadUrl = "";
+        cloneLG.fileInfo().signature = "";
         cloneLG.fileInfo().lastModifiedName = "";
         cloneLG.fileInfo().lastModifiedEmail = "";
         cloneLG.fileInfo().lastModifiedDatetime = 0;
@@ -1164,7 +1223,7 @@ export class Eagle {
             case Eagle.RepositoryService.Url:
                 // TODO: new code
                 this.loadPalettes([
-                    {name:palette.fileInfo().name, filename:palette.fileInfo().gitUrl, readonly:palette.fileInfo().readonly}
+                    {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
                 ], (palettes: Palette[]):void => {
                     for (const palette of palettes){
                         if (palette !== null){
@@ -1564,8 +1623,9 @@ export class Eagle {
             results.push(null);
             complete.push(false);
             const index = i;
+            const data = {url: paletteList[i].filename};
 
-            Utils.httpGet(paletteList[i].filename, (error: string, data: string) => {
+            Utils.httpPostJSON("/openRemoteUrlFile", data, (error: string, data: string) => {
                 complete[index] = true;
 
                 if  (error !== null){
@@ -1577,8 +1637,7 @@ export class Eagle {
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
                     palette.fileInfo().builtIn = true;
-                    palette.fileInfo().gitUrl = paletteList[index].filename;
-                    palette.fileInfo().sha = "master";
+                    palette.fileInfo().downloadUrl = paletteList[index].filename;
                     palette.fileInfo().type = Eagle.FileType.Palette;
                     palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
 
@@ -1852,8 +1911,6 @@ export class Eagle {
                 break;
             }
         }
-
-        this.updateAllKnownTypes();
     }
 
     getParentNameAndKey = (parentKey:number) : string => {
@@ -1861,7 +1918,14 @@ export class Eagle {
             return ""
         }
 
-        const parentText = this.logicalGraph().findNodeByKey(parentKey).getName() + ' | Key: ' + parentKey;
+        // TODO: temporary fix while we get lots of warnings about missing nodes
+        const parentNode = this.logicalGraph().findNodeByKeyQuiet(parentKey);
+
+        if (parentNode === null){
+            return ""
+        }
+
+        const parentText = parentNode.getName() + ' | Key: ' + parentKey;
 
         return parentText
     }
@@ -1908,8 +1972,9 @@ export class Eagle {
             palette.fileInfo().modified = false;
             palette.fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
             palette.fileInfo().repositoryName = "";
-            palette.fileInfo().gitUrl = "";
-            palette.fileInfo().sha = "";
+            palette.fileInfo().repositoryUrl = "";
+            palette.fileInfo().commitHash = "";
+            palette.fileInfo().downloadUrl = "";
             palette.fileInfo.valueHasMutated();
         });
     }
@@ -1965,8 +2030,9 @@ export class Eagle {
             graph.fileInfo().modified = false;
             graph.fileInfo().repositoryService = Eagle.RepositoryService.File;
             graph.fileInfo().repositoryName = "";
-            graph.fileInfo().gitUrl = "";
-            graph.fileInfo().sha = "";
+            graph.fileInfo().repositoryUrl = "";
+            graph.fileInfo().commitHash = "";
+            graph.fileInfo().downloadUrl = "";
             graph.fileInfo.valueHasMutated();
         });
     }
@@ -2047,23 +2113,23 @@ export class Eagle {
 
     getTranslatorDefault = () : any => {
         setTimeout(function(){
-            var defaultTransnlatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
-            $('.simplifiedTranslator').append(defaultTransnlatorHtml)
-            return defaultTransnlatorHtml
+            const defaultTranslatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
+            $('.simplifiedTranslator').append(defaultTranslatorHtml)
+            return defaultTranslatorHtml
         },10000)
-        
     }
 
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        var showSimplifiedTranslatorOptions :any = Setting.find(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value()
-        if(!showSimplifiedTranslatorOptions){
+        const defaultTranslatorMode :any = Eagle.translatorUiMode(Eagle.TranslatorMode.Default)
+        if(!defaultTranslatorMode){
             return true
         }
 
         if(currentAlg === Eagle.defaultTranslatorAlgorithm){
             return true
         }
-            return false
+    
+        return false
     }
 
     saveAsPNG = () : void => {
@@ -2196,53 +2262,30 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    openParamsTableModal = () : void => {
-        if (!this.selectedNode()){
+    openParamsTableModal = (mode:string) : void => {
+        if (mode==='inspectorTableModal' && !this.selectedNode()){
             Utils.showNotification("Error", "No Node Is Selected", "warning");
         }else{
-            Utils.showOpenParamsTableModal();
+            Utils.showOpenParamsTableModal(mode);
         }
     }
 
-    getCurrentParamReadonly = (index: number, fieldType: Eagle.FieldType) : boolean => {
+    getCurrentParamReadonly = (field:Field) : boolean => {
         // if we want to get readonly-ness the Nth application arg, then the real index
         // into the fields array is probably larger than N, since all four types
         // of fields are stored there
-        const node = this.selectedNode();
-        let realIndex = -1;
-        let fieldTypeCount = 0;
-
-        for (let i = 0 ; i < node.getFields().length; i++){
-            const field: Field = node.getFields()[i];
-
-            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
-                fieldTypeCount += 1;
-            }
-
-            // check if we have found the Nth field of desired type
-            if (fieldTypeCount > index){
-                realIndex = i;
-                break;
-            }
-        }
-
-        // check that we actually found the right field, otherwise abort
-        if (realIndex === -1){
-            console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
-            return false;
-        }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(Eagle.allowPaletteEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[realIndex].isReadonly();
+                return field.isReadonly()
             }
         }else{
             if(Eagle.allowComponentEditing()){
                 return false;
             }else{
-                return this.selectedNode().getFields()[realIndex].isReadonly();
+                return field.isReadonly()
             }
         }
     }
@@ -2473,9 +2516,6 @@ export class Eagle {
                 destinationPalette.fileInfo().modified = true;
                 destinationPalette.sort();
             }
-
-            // update known types after adding new nodes
-            this.updateAllKnownTypes();
         });
     }
 
@@ -2701,9 +2741,6 @@ export class Eagle {
             this.checkGraph();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
-
-            // update known data types given newly added node
-            this.updateAllKnownTypes();
 
             if (callback !== null){
                 callback(newNode);
@@ -3041,12 +3078,13 @@ export class Eagle {
         //a timeout was necessary to wait for the element to be added before counting how many there are
         setTimeout(function() {
             //handling selecting and highlighting the newly created row
-            const clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
 
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
+            clickTarget.focus() // used to focus the field allowing the user to immediately start typing
 
             //scroll to new row
-            $("#parameterTableModal .modal-content").animate({
+            $("#parameterTableModal .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
@@ -3080,7 +3118,7 @@ export class Eagle {
             // triggers the modal 'lightbox' to show
             $(".modal-backdrop").removeClass("forceHide");
         }else{
-            $("#"+selectSectionID).val(val-1).trigger('change');
+            $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
             $("#"+modalID).removeClass("forceHide");
             $(".modal-backdrop").removeClass("forceHide");
@@ -3281,9 +3319,6 @@ export class Eagle {
             this.undo().pushSnapshot(this, "Change Edge Data Type");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
-
-            // update known types
-            this.updateAllKnownTypes();
         });
     }
 
@@ -3325,9 +3360,6 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Remove param from node");
         this.flagActiveFileModified();
         this.selectedObjects.valueHasMutated();
-
-        // update known types
-        this.updateAllKnownTypes();
     }
 
     removePortFromNodeByIndex = (node : Node, fieldId:string, input : boolean) : void => {
@@ -3366,9 +3398,6 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Remove port from node");
         this.flagActiveFileModified();
         this.selectedObjects.valueHasMutated();
-
-        // update known types
-        this.updateAllKnownTypes();
     }
 
     nodeDropLogicalGraph = (eagle : Eagle, e : JQueryEventObject) : void => {
@@ -3409,6 +3438,10 @@ export class Eagle {
     nodeDropPalette = (eagle: Eagle, e: JQueryEventObject) : void => {
         const sourceComponents : Node[] = [];
         
+        if(Eagle.nodeDragPaletteIndex === undefined){
+            return;
+        }
+
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
@@ -3568,6 +3601,7 @@ export class Eagle {
             field.setPrecious(newField.isPrecious());
             field.setPositionalArgument(newField.isPositionalArgument());
             field.setFieldType(newField.getFieldType());
+            field.setKeyAttribute(newField.isKeyAttribute());
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Edit Field");
@@ -3582,7 +3616,7 @@ export class Eagle {
     duplicateParameter = (index:number) : void => {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
 
-        var copiedField = this.selectedNode().getFields()[index].clone()
+        const copiedField = this.selectedNode().getFields()[index].clone()
         copiedField.setId(Utils.uuidv4())
         copiedField.setIdText(copiedField.getIdText()+'copy')
         if(ParameterTable.hasSelection()){
@@ -3597,9 +3631,11 @@ export class Eagle {
 
         setTimeout(function() {
             //handling selecting and highlighting the newly created node
-            const clickTarget = $("#paramsTableWrapper tbody").children()[fieldIndex].firstElementChild.firstElementChild as HTMLElement
+            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
-            $("#parameterTableModal .modal-content").animate({
+            clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
+
+            $("#parameterTableModal .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
@@ -3894,11 +3930,11 @@ export class Eagle {
         let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
 
         if (!newInputPort){
-            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort);
+            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort,false);
             newNode.addField(newInputPort);
         }
         if (!newOutputPort){
-            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort);
+            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort,false);
             newNode.addField(newOutputPort);
         }
 
@@ -3927,7 +3963,7 @@ export class Eagle {
         if (callback !== null) callback(firstEdge);
     }
 
-    editNodeCategory = (eagle: Eagle) : void => {
+    editNodeCategory = () : void => {
         let selectedIndex = 0;
         let eligibleCategories : Category[];
 
@@ -4074,27 +4110,57 @@ export class Eagle {
         }
     }
 
-    updateAllKnownTypes = (): void => {
-        // clear known types
-        this.types([]);
+    checkForComponentUpdates = () : void => {
+        console.log("checkForComponentUpdates()");
 
-        // build a list from all palettes
-        for (const palette of this.palettes()){
-            for (const node of palette.getNodes()){
-                for (const field of node.getFields()) {
-                    Utils.addTypeIfUnique(this.types, field.getType());
+        ComponentUpdater.update(this.palettes(), this.logicalGraph(), function(errorsWarnings:Errors.ErrorsWarnings, updatedNodes:Node[]){
+            console.log("callback", errorsWarnings, updatedNodes);
+
+            // report missing palettes to the user
+            if (errorsWarnings.errors.length > 0){
+                const errorStrings = [];
+                for (const error of errorsWarnings.errors){
+                    errorStrings.push(error.message);
                 }
+
+                Utils.showNotification("Error", errorStrings.join("\n"), "danger");
+            } else {
+                const nodeNames = [];
+                for (const node of updatedNodes){
+                    nodeNames.push(node.getName());
+                }
+
+                Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
             }
+        });
+    }
+    
+    static getCategoryData = (category : Category) : Category.CategoryData => {
+        const c = CategoryData.getCategoryData(category);
+
+        if (typeof c === 'undefined'){
+            console.error("Could not fetch category data for category", category);
+            return {
+                categoryType: Category.Type.Unknown,
+                isResizable: false,
+                canContainComponents: false,
+                minInputs: 0,
+                maxInputs: 0,
+                minOutputs: 0,
+                maxOutputs: 0,
+                canHaveInputApplication: false,
+                canHaveOutputApplication: false,
+                canHaveComponentParameters: false,
+                canHaveApplicationArguments: false,
+                icon: "error",
+                color: "pink",
+                collapsedHeaderOffsetY: 0,
+                expandedHeaderOffsetY: 20,
+                sortOrder: Number.MAX_SAFE_INTEGER,
+            };
         }
 
-        // add all types in LG nodes
-        for (const node of this.logicalGraph().getNodes()){
-            for (const field of node.getFields()) {
-                Utils.addTypeIfUnique(this.types, field.getType());
-            }
-        }
-
-        console.log("Updated EAGLE's known data types. Found", this.types().length, "types");
+        return c;
     }
 }
 
@@ -4199,11 +4265,15 @@ export namespace Eagle
         Expert = "expert",
         Custom = "custom"
     }
+
+    export enum TranslatorMode {
+        Minimal = "minimal",
+        Default = "default",
+        Expert = "expert"
+    }
 }
 
 $( document ).ready(function() {
-    // jquery event listeners start here
-
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
       $(".dropdown-toggle").removeClass("show")
@@ -4217,7 +4287,7 @@ $( document ).ready(function() {
 
         //reset parameter table selecction
         ParameterTable.resetSelection()
-    });
+    }); 
 
     $('.modal').on('shown.bs.modal',function(){
         // modal draggables
@@ -4227,7 +4297,7 @@ $( document ).ready(function() {
         });
     })
 
-    var defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
+    let defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
     if(!defaultTranslatingAlgorithm){
         localStorage.setItem('translationDefault','agl-1')
         defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
@@ -4239,18 +4309,19 @@ $( document ).ready(function() {
         $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
     }
 
-    $(".translationDefault").on("click",function(){
+    Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
 
-        var translationMethods = []
+    $(".translationDefault").on("click",function(){
+        const translationMethods = []
         translationMethods.push($('.translationDefault'))
-        $('.translationDefault').each(function(element){
+        $('.translationDefault').each(function(){
             if($(this).is(':checked')){
                 $(this).prop('checked', false).change()
                 $(this).val('false')
             }
         })
 
-        var element = $(event.target)
+        const element = $(event.target)
         
         if(element.val() === "true"){
             element.val('false')
@@ -4258,9 +4329,11 @@ $( document ).ready(function() {
             element.val('true')
         }
 
-        var translationId = element.closest('.accordion-item').attr('id')
+        const translationId = element.closest('.accordion-item').attr('id')
         localStorage.setItem('translationDefault',translationId)
         Eagle.defaultTranslatorAlgorithm = translationId
+        Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
+
         
         $(this).prop('checked',true).change()
     })
@@ -4268,10 +4341,6 @@ $( document ).ready(function() {
     //increased click bubble for edit modal flag booleans
     $(".componentCheckbox").on("click",function(){
         $(event.target).find("input").click()
-    })
-
-    $('#editFieldModalValueInputCheckbox').on("change",function(){
-        $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
 
     //removes focus from input and textareas when using the canvas
@@ -4296,7 +4365,7 @@ $( document ).ready(function() {
     })
 
     $(document).on('click', '.hierarchyEdgeExtra', function(){
-        var selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
 
         if(!selectEdge){
             console.log("no edge found")
@@ -4311,5 +4380,6 @@ $( document ).ready(function() {
     })
     $(".hierarchy").on("click", function(){
         (<any>window).eagle.selectedObjects([]);
-    })
+    })         
+
 });

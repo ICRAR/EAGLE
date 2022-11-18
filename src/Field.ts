@@ -15,6 +15,7 @@ export class Field {
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
+    private keyAttribute : ko.Observable<boolean>;
 
     // port-specific attributes
     private id : ko.Observable<string>;
@@ -22,7 +23,7 @@ export class Field {
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
-    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, fieldType: Eagle.FieldType){
+    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, fieldType: Eagle.FieldType, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
         this.idText = ko.observable(idText);
         this.value = ko.observable(value);
@@ -33,6 +34,7 @@ export class Field {
         this.precious = ko.observable(precious);
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
+        this.keyAttribute = ko.observable(keyAttribute);
 
         this.id = ko.observable(id);
         this.fieldType = ko.observable(fieldType);
@@ -112,8 +114,24 @@ export class Field {
         return Utils.dataTypePrefix(this.type()) === type;
     }
 
+    isKeyAttribute = () : boolean => {
+        return this.keyAttribute();
+    }
+
+    setKeyAttribute = (keyAttribute: boolean) => {
+        this.keyAttribute(keyAttribute);
+    }
+
+    toggleKeyAttribute = () => {
+        this.keyAttribute(!this.keyAttribute())
+    }
+
     valIsTrue = (val:string) : boolean => {
         return Utils.asBool(val);
+    }
+
+    toggle = () => {
+        this.value((!Utils.asBool(this.value())).toString());
     }
 
     setType = (type: string) : void => {
@@ -179,10 +197,16 @@ export class Field {
         this.precious(false);
         this.options([]);
         this.positional(false);
+        this.keyAttribute(false);
+
+        this.id("");
+        this.fieldType(Eagle.FieldType.Unknown);
+        this.isEvent(false);
+        this.nodeKey(0);
     }
 
     clone = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.fieldType());
+        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.fieldType(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
         f.setFieldType(this.fieldType());
         return f;
@@ -201,13 +225,23 @@ export class Field {
     }
 
     copyWithKeyAndId = (src: Field, nodeKey: number, id: string) : void => {
-        this.id(id);
-        this.idText(src.idText());
         this.displayText(src.displayText());
-        this.nodeKey(nodeKey);
-        this.isEvent(src.isEvent());
-        this.type(src.type());
+        this.idText(src.idText());
+        this.value(src.value());
+        this.defaultValue(src.defaultValue());
         this.description(src.description());
+        this.readonly(src.readonly());
+        this.type(src.type());
+        this.precious(src.precious());
+        this.options(src.options());
+        this.positional(src.positional());
+
+        this.fieldType(src.fieldType());
+        this.isEvent(src.isEvent());
+
+        // NOTE: these two are not copied from the src, but come from the function's parameters
+        this.id(id);
+        this.nodeKey(nodeKey);
     }
 
     isInputPort = () : boolean => {
@@ -252,7 +286,6 @@ export class Field {
 
     getHtmlInputType = () : string => {
         const typePrefix = Utils.dataTypePrefix(this.type());
-
         switch (typePrefix){
             case Eagle.DataType_Float:
             case Eagle.DataType_Integer:
@@ -261,6 +294,8 @@ export class Field {
                 return "checkbox";
             case Eagle.DataType_Password:
                 return "password";
+            case Eagle.DataType_Select:
+                return "select";
             default:
                 return "text";
         }
@@ -292,7 +327,8 @@ export class Field {
             type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
-            positional:field.positional()
+            positional:field.positional(),
+            keyAttribute:field.keyAttribute()
         };
     }
 
@@ -307,7 +343,8 @@ export class Field {
             type:field.isEvent() ? "Event" : field.type(),
             precious:field.precious(),
             options:field.options(),
-            positional: field.positional()
+            positional: field.positional(),
+            keyAttribute:field.keyAttribute()
         };
     }
 
@@ -325,6 +362,7 @@ export class Field {
         let positional: boolean = false;
         let fieldType: Eagle.FieldType = Eagle.FieldType.Unknown;
         let isEvent: boolean = false;
+        let keyAttribute: boolean = false;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -359,8 +397,9 @@ export class Field {
             fieldType = data.fieldType;
         if (typeof data.event !== 'undefined')
             event = data.event;
-
-        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType);
+        if (typeof data.keyAttribute !== 'undefined')
+            keyAttribute = data.keyAttribute;
+        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType, keyAttribute);
         result.setIsEvent(isEvent);
         return result;
     }
@@ -388,7 +427,8 @@ export class Field {
             text:field.displayText(),
             event:field.isEvent(),
             type:field.type(),
-            description:field.description()
+            description:field.description(),
+            keyAttribute:field.keyAttribute()
         };
     }
 
@@ -397,6 +437,7 @@ export class Field {
         let event: boolean = false;
         let type: string;
         let description: string = "";
+        let keyAttribute: boolean = false;
 
         if (typeof data.text !== 'undefined')
             text = data.text;
@@ -406,13 +447,15 @@ export class Field {
             type = data.type;
         if (typeof data.description !== 'undefined')
             description = data.description;
+        if (typeof data.keyAttribute !== 'undefined')
+            keyAttribute = data.keyAttribute;
 
         // avoid empty text fields if we can
         if (text === ""){
             text = data.IdText;
         }
 
-        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false, Eagle.FieldType.Unknown);
+        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false, Eagle.FieldType.Unknown, keyAttribute);
         f.setIsEvent(event);
         return f;
     }

@@ -18,8 +18,11 @@ export class FileInfo {
     private _readonly : ko.Observable<boolean>;
     private _builtIn : ko.Observable<boolean>;
 
-    private _sha : ko.Observable<string>;
-    private _gitUrl : ko.Observable<string>;
+    private _repositoryUrl : ko.Observable<string>;
+    private _commitHash : ko.Observable<string>;
+    private _downloadUrl : ko.Observable<string>;
+    private _signature : ko.Observable<string>;
+
     private _lastModifiedName : ko.Observable<string>;
     private _lastModifiedEmail : ko.Observable<string>;
     private _lastModifiedDatetime : ko.Observable<number>;
@@ -40,8 +43,11 @@ export class FileInfo {
         this._readonly = ko.observable(true);
         this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
 
-        this._sha = ko.observable("");
-        this._gitUrl = ko.observable("");
+        this._repositoryUrl = ko.observable("");
+        this._commitHash = ko.observable("");
+        this._downloadUrl = ko.observable("");
+        this._signature = ko.observable("");
+
         this._lastModifiedName = ko.observable("");
         this._lastModifiedEmail = ko.observable("");
         this._lastModifiedDatetime = ko.observable(0);
@@ -145,20 +151,36 @@ export class FileInfo {
         this._builtIn(builtIn);
     }
 
-    get sha() : string{
-        return this._sha();
+    get repositoryUrl() : string {
+        return this._repositoryUrl();
     }
 
-    set sha(sha : string){
-        this._sha(sha);
+    set repositoryUrl(repositoryUrl : string){
+        this._repositoryUrl(repositoryUrl);
     }
 
-    get gitUrl() : string {
-        return this._gitUrl();
+    get commitHash() : string{
+        return this._commitHash();
     }
 
-    set gitUrl(gitUrl : string){
-        this._gitUrl(gitUrl);
+    set commitHash(commitHash : string){
+        this._commitHash(commitHash);
+    }
+
+    get downloadUrl() : string {
+        return this._downloadUrl();
+    }
+
+    set downloadUrl(downloadUrl : string){
+        this._downloadUrl(downloadUrl);
+    }
+
+    get signature() : string{
+        return this._signature();
+    }
+
+    set signature(signature : string){
+        this._signature(signature);
     }
 
     get lastModifiedName() : string{
@@ -207,8 +229,11 @@ export class FileInfo {
         this._readonly(true);
         this._builtIn(true);
 
-        this._sha("");
-        this._gitUrl("");
+        this._repositoryUrl("");
+        this._commitHash("");
+        this._downloadUrl("");
+        this._signature("");
+
         this._lastModifiedName("");
         this._lastModifiedEmail("");
         this._lastModifiedDatetime(0);
@@ -232,8 +257,11 @@ export class FileInfo {
         result.readonly = this._readonly();
         result.builtIn = this._builtIn();
 
-        result.sha = this._sha();
-        result.gitUrl = this._gitUrl();
+        result.repositoryUrl = this._repositoryUrl();
+        result.commitHash = this._commitHash();
+        result.downloadUrl = this._downloadUrl();
+        result.signature = this._signature();
+
         result.lastModifiedName = this._lastModifiedName();
         result.lastModifiedEmail = this._lastModifiedEmail();
         result.lastModifiedDatetime = this._lastModifiedDatetime();
@@ -256,8 +284,11 @@ export class FileInfo {
         this._repositoryBranch("");
         this._repositoryName("");
         this._path("");
-        this._sha("");
-        this._gitUrl("");
+
+        this._repositoryUrl("");
+        this._commitHash("");
+        this._downloadUrl("");
+
         this._lastModifiedName("");
         this._lastModifiedEmail("");
         this._lastModifiedDatetime(0);
@@ -275,8 +306,8 @@ export class FileInfo {
     getSummaryHTML = (title : string) : string => {
         let text
         if (this._repositoryService() === Eagle.RepositoryService.Unknown){
-            text = "- Location -</br>Url:&nbsp;" + this._gitUrl() + "</br>Hash:&nbsp;" + this._sha();
-        }else{
+            text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._commitHash();
+        } else {
             text = "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
         }
 
@@ -311,8 +342,11 @@ export class FileInfo {
         s += " readonly:" + this._readonly();
         s += " builtIn:" + this._builtIn();
 
-        s += " SHA:" + this._sha();
-        s += " Git URL:" + this._gitUrl();
+        s += " Repository URL:" + this._repositoryUrl();
+        s += " Commit Hash:" + this._commitHash();
+        s += " Download URL:" + this._downloadUrl();
+        s += " signature:" + this._signature();
+
         s += " Last Modified Name:" + this._lastModifiedName();
         s += " Last Modified Email:" + this._lastModifiedEmail();
         s += " Last Modified Date:" + this._lastModifiedDatetime();
@@ -334,8 +368,11 @@ export class FileInfo {
             schemaVersion: fileInfo.schemaVersion,
             readonly: fileInfo.readonly,
 
-            sha: fileInfo.sha,
-            gitUrl: fileInfo.gitUrl,
+            repositoryUrl: fileInfo.repositoryUrl,
+            commitHash: fileInfo.commitHash,
+            downloadUrl: fileInfo.downloadUrl,
+            signature: fileInfo.signature,
+
             lastModifiedName: fileInfo.lastModifiedName,
             lastModifiedEmail: fileInfo.lastModifiedEmail,
             lastModifiedDatetime: fileInfo.lastModifiedDatetime,
@@ -363,8 +400,11 @@ export class FileInfo {
 
         result.readonly = modelData.readonly == undefined ? true : modelData.readonly;
 
-        result.sha = modelData.sha == undefined ? "" : modelData.sha;
-        result.gitUrl = modelData.gitUrl == undefined ? "" : modelData.gitUrl;
+        result.repositoryUrl = modelData.repositoryUrl == undefined ? "" : modelData.repositoryUrl;
+        result.commitHash = modelData.commitHash == undefined ? "" : modelData.commitHash;
+        result.downloadUrl = modelData.downloadUrl == undefined ? "" : modelData.downloadUrl;
+        result.signature = modelData.signature == undefined ? "" : modelData.signature;
+
         result.lastModifiedName = modelData.lastModifiedName == undefined ? "" : modelData.lastModifiedName;
         result.lastModifiedEmail = modelData.lastModifiedEmail == undefined ? "" : modelData.lastModifiedEmail;
         result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? 0 : modelData.lastModifiedDatetime;

@@ -550,8 +550,33 @@ export class LogicalGraph {
                 }
             }
         }
-
         console.warn("findNodeByKey(): could not find node with key (", key, ")");
+        return null;
+    }
+
+    findNodeByKeyQuiet = (key : number) : Node => {
+        //used temporarily for the table modals to prevent console spam relating to too many calls when changing selected objects
+        for (let i = this.nodes.length - 1; i >= 0 ; i--){
+
+            // check if the node itself has a matching key
+            if (this.nodes[i].getKey() === key){
+                return this.nodes[i];
+            }
+
+            // check if the node's inputApp has a matching key
+            if (this.nodes[i].hasInputApplication()){
+                if (this.nodes[i].getInputApplication().getKey() === key){
+                    return this.nodes[i].getInputApplication();
+                }
+            }
+
+            // check if the node's outputApp has a matching key
+            if (this.nodes[i].hasOutputApplication()){
+                if (this.nodes[i].getOutputApplication().getKey() === key){
+                    return this.nodes[i].getOutputApplication();
+                }
+            }
+        }
         return null;
     }
 

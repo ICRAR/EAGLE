@@ -21,10 +21,9 @@ export class Repositories {
 
     refreshRepositoryList = () : void => {
         console.log("refreshRepositoryList()");
-        const eagle: Eagle = Eagle.getInstance();
 
-        GitHub.loadRepoList(eagle);
-        GitLab.loadRepoList(eagle);
+        GitHub.loadRepoList();
+        GitLab.loadRepoList();
     };
 
     static selectFolder = (folder : RepositoryFolder) : void => {
@@ -72,7 +71,6 @@ export class Repositories {
     addCustomRepository = () : void => {
         Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : void => {
             console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
-            const eagle: Eagle = Eagle.getInstance();
 
             if (!completed){
                 console.log("No repo entered");
@@ -104,9 +102,9 @@ export class Repositories {
 
             // Reload the repository lists
             if (repositoryService === Eagle.RepositoryService.GitHub)
-                GitHub.loadRepoList(eagle);
+                GitHub.loadRepoList();
             if (repositoryService === Eagle.RepositoryService.GitLab)
-                GitLab.loadRepoList(eagle);
+                GitLab.loadRepoList();
         });
     };
 
@@ -129,7 +127,6 @@ export class Repositories {
     };
 
     private _removeCustomRepository = (repository : Repository) : void => {
-        const eagle: Eagle = Eagle.getInstance();
 
         // abort if the repository is one of those that is builtin to the app
         if (repository.isBuiltIn){
@@ -143,12 +140,12 @@ export class Repositories {
                 localStorage.removeItem(repository.name + ".repository");
                 localStorage.removeItem(repository.name + ".github_repository");
                 localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
-                GitHub.loadRepoList(eagle);
+                GitHub.loadRepoList();
                 break;
             case Eagle.RepositoryService.GitLab:
                 localStorage.removeItem(repository.name + ".gitlab_repository");
                 localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
-                GitLab.loadRepoList(eagle);
+                GitLab.loadRepoList();
                 break;
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
