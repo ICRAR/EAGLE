@@ -575,7 +575,9 @@ export class Eagle {
         Eagle.selectedLocation(Eagle.FileType.Unknown);
 
         // Show the last open repository.
-        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+        if(this.rightWindow().mode() === Eagle.RightWindowMode.Inspector){
+            this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+        }
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
