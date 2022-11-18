@@ -575,7 +575,9 @@ export class Eagle {
         Eagle.selectedLocation(Eagle.FileType.Unknown);
 
         // Show the last open repository.
-        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+        if(this.rightWindow().mode() === Eagle.RightWindowMode.Inspector){
+            this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+        }
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
@@ -1110,6 +1112,7 @@ export class Eagle {
      */
      getGraphFileToLoad = () : void => {
          document.getElementById("uploadedGraphFileToLoad").click();
+         this.resetEditor()
      }
 
      getGraphFileToInsert = () : void => {
@@ -1135,6 +1138,7 @@ export class Eagle {
             this.undo().pushSnapshot(this, "New Logical Graph");
             this.logicalGraph.valueHasMutated();
         });
+        this.resetEditor()
     }
 
     /**
@@ -1151,6 +1155,7 @@ export class Eagle {
                 this.logicalGraph(lg);
             });
         });
+        this.resetEditor()
     }
 
     displayLogicalGraphAsJson = () : void => {
@@ -1739,6 +1744,7 @@ export class Eagle {
                     // Show error message
                     Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
             }
+        this.resetEditor()
         });
     };
 
@@ -1911,6 +1917,7 @@ export class Eagle {
                 break;
             }
         }
+        this.resetEditor()
     }
 
     getParentNameAndKey = (parentKey:number) : string => {
@@ -4133,7 +4140,7 @@ export class Eagle {
             }
         });
     }
-    
+
     static getCategoryData = (category : Category) : Category.CategoryData => {
         const c = CategoryData.getCategoryData(category);
 
