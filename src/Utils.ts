@@ -82,7 +82,8 @@ export class Utils {
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
 
     static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
-    static readonly SPAWN_TRANSLATION_TAB: string = "SpawnTranslationTab";
+    static readonly OPEN_TRANSLATOR_IN_CURRENT_TAB: string = "OpenTranslatorInCurrentTab";
+    static readonly OVERWRITE_TRANSLATION_TAB: string = "OverwriteTranslationTab";
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
     static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
     static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";

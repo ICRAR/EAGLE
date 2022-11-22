@@ -206,9 +206,6 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // disable the 'confirm discard changes' setting
             .click('#settingConfirmDiscardChangesButton')
 
-            // disable the 'spawn translation tab' setting
-            .click('#settingSpawnTranslationTabButton')
-
             //switch to UI Options tab
             .click("#settingCategoryUIOptions")
 
@@ -220,6 +217,12 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
 
             // enter the translator url
             .typeText(Selector('#settingTranslatorURLValue'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
+
+            //switch to Developer tab
+            .click("#settingCategoryDeveloper")
+
+            // turn on the 'overwrite current tab button'
+            .click('#settingOpenTranslatorInCurrentTabButton')
 
             // close settings modal
             .click('#settingsModalAffirmativeButton')
