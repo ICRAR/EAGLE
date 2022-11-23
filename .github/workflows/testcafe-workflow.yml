@@ -57,8 +57,37 @@ jobs:
         with:
             args: "chrome tests/drag-and-drop.js"
 
+
   remaining:
     name: Run Remaining Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v1
+      - name: Setup Node
+        uses: actions/setup-node@v3
+      - name: NPM install
+        run: npm install
+      - name: Setup Python
+        uses: actions/setup-python@v2
+      - name: PIP install
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+      - name: Compile Typescript
+        run: tsc
+      - name: Start server
+        run: python eagleServer/eagleServer.py -t /tmp &
+      - name: Run tests
+        uses: DevExpress/testcafe-action@latest
+        env:
+            EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
+        with:
+            args: "chrome tests/edit-node-parameter.js tests/load-local-json-export-match.js tests/component-update.js tests/add-remove-repository.js"
+
+
+  loadTranslateExecute:
+    name: Run Load Translate Execute Test
     runs-on: ubuntu-latest
     services:
       translator:
@@ -96,4 +125,4 @@ jobs:
         env:
             EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
         with:
-            args: "chrome tests/edit-node-parameter.js tests/load-local-json-export-match.js tests/component-update.js tests/add-remove-repository.js"
+            args: "chrome tests/load-translate-execute-2.js"
