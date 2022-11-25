@@ -161,7 +161,7 @@ fixture `Test Data Island Manager`
             */
 
         await printPageLocation("Test DIM");
-        await t.expect(Selector(".container .breadcrumb li a").innerText).contains("DataIslandManager", {timeout:15000});
+        await t.expect(Selector("nav.navbar .navbar-brand span").innerText).contains("DataIslandManager", {timeout:15000});
     });
 
 fixture `Test Node Manager`
@@ -178,7 +178,7 @@ fixture `Test Node Manager`
             */
 
         await printPageLocation("Test NM");
-        await t.expect(Selector(".container h1").innerText).contains("NodeManager", {timeout:15000});
+        await t.expect(Selector("nav.navbar .navbar-brand span").innerText).contains("NodeManager", {timeout:15000});
     });
 
 fixture `DALiuGE Regression Test`
