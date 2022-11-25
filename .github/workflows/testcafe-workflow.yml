@@ -2,7 +2,7 @@ name: TestCafe
 on: [push]
 
 jobs:
-  test:
+  simpleTest:
     name: Run Simple Test
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +59,7 @@ jobs:
 
 
   editNodeParameter:
-    name: Run Drag-and-drop Test
+    name: Run Edit Node Parameter Test
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
@@ -87,7 +87,7 @@ jobs:
 
 
   loadLocalJSONExportMatch:
-    name: Run Drag-and-drop Test
+    name: Run Load Local JSON Export Match Test
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
@@ -114,8 +114,8 @@ jobs:
             args: "chrome tests/load-local-json-export-match.js"
 
 
-  remaining:
-    name: Run Remaining Test
+  componentUpdate:
+    name: Run Component Update Test
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
@@ -139,7 +139,35 @@ jobs:
         env:
             EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
         with:
-            args: "chrome tests/component-update.js tests/add-remove-repository.js"
+            args: "chrome tests/component-update.js"
+
+
+  addRemoveRepository:
+    name: Run Add Remove Repository Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v1
+      - name: Setup Node
+        uses: actions/setup-node@v3
+      - name: NPM install
+        run: npm install
+      - name: Setup Python
+        uses: actions/setup-python@v2
+      - name: PIP install
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+      - name: Compile Typescript
+        run: tsc
+      - name: Start server
+        run: python eagleServer/eagleServer.py -t /tmp &
+      - name: Run tests
+        uses: DevExpress/testcafe-action@latest
+        env:
+            EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
+        with:
+            args: "chrome tests/add-remove-repository.js"
 
 
   loadTranslateExecute:
