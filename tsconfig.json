@@ -49,6 +49,7 @@
         "./src/Errors.ts",
         "./src/ComponentUpdater.ts",
         "./src/Hierarchy.ts",
+        "./src/RightClick.ts",
         "./src/Repositories.ts",
         "./src/ParameterTable.ts"
     ]

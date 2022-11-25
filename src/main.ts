@@ -35,6 +35,7 @@ import {Errors} from './Errors';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
 import {Hierarchy} from './Hierarchy';
+import {RightClick} from './RightClick';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
 import {Modals} from './Modals';
@@ -61,6 +62,7 @@ $(function(){
     (<any>window).Category = Category;
     (<any>window).Errors = Errors;
     (<any>window).Hierarchy = Hierarchy;
+    (<any>window).RightClick = RightClick;
     (<any>window).Setting = Setting;
     (<any>window).Repositories = Repositories;
     (<any>window).ParameterTable = ParameterTable;

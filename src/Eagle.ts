@@ -49,6 +49,7 @@ import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {Hierarchy} from './Hierarchy';
+import {RightClick} from './RightClick';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
 import {ComponentUpdater} from './ComponentUpdater';
@@ -4380,6 +4381,19 @@ $( document ).ready(function() {
         }
     })
 
+    $(".nodeIcon").on('mousedown',function(e){
+        console.log('bipp')
+        switch (e.which) {
+            case 3:
+                e.preventDefault()
+                console.log('bopp')
+                break;
+            default:
+                return;
+        }
+        
+    })
+
     $(document).on('click', '.hierarchyEdgeExtra', function(){
         const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
 
@@ -4394,6 +4408,15 @@ $( document ).ready(function() {
         }
 
     })
+
+    $(document).on('contextmenu', '.nodeIcon', function(e){
+        e.preventDefault()
+
+
+    })
+
+    // document.addEventListener('contextmenu', event => event.preventDefault());
+
     $(".hierarchy").on("click", function(){
         (<any>window).eagle.selectedObjects([]);
     })         
