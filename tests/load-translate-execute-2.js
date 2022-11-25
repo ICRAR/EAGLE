@@ -12,8 +12,8 @@ import https from 'https';
 
 const GRAPHS = [
     "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/SummitIngest_Demo.graph",
-    "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/testLoop.graph",
-    "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/chiles_simple.graph",
+    //"https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/testLoop.graph",
+    //"https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/chiles_simple.graph",
     //"https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/lofar_std.graph",
     //"https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/test/dropmake/logical_graphs/test_grpby_gather.graph"
 ];
@@ -135,14 +135,16 @@ fixture `Test Translator`
 
     test('is running', async t => {
 
+        /*
         await t
             .setNativeDialogHandler((type, text, url) => {
                 console.log("Handled native dialog:" + type + ":" + text + ":" + url);
                 return true;
             });
+            */
 
         await printPageLocation("Test Translator");
-        await t.expect(Selector("#sample .tabs li.active a").innerText).contains("Graph", {timeout:15000});
+        await t.expect(Selector("nav.navbar .navbar-brand span").innerText).contains("Translator", {timeout:15000});
     });
 
 fixture `Test Data Island Manager`
@@ -150,11 +152,13 @@ fixture `Test Data Island Manager`
 
     test('is running', async t => {
 
+        /*
         await t
             .setNativeDialogHandler((type, text, url) => {
                 console.log("Handled native dialog:" + type + ":" + text + ":" + url);
                 return true;
             });
+            */
 
         await printPageLocation("Test DIM");
         await t.expect(Selector(".container .breadcrumb li a").innerText).contains("DataIslandManager", {timeout:15000});
@@ -165,11 +169,13 @@ fixture `Test Node Manager`
 
     test('is running', async t => {
 
+        /*
         await t
             .setNativeDialogHandler((type, text, url) => {
                 console.log("Handled native dialog:" + type + ":" + text + ":" + url);
                 return true;
             });
+            */
 
         await printPageLocation("Test NM");
         await t.expect(Selector(".container h1").innerText).contains("NodeManager", {timeout:15000});
@@ -190,6 +196,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .wait(PAGE_TRANSITION_WAIT_DURATION)
 
             // set a handler for the beforeunload event that occurs when the user navigates away from the page
+            /*
             .setNativeDialogHandler((type, text, url) => {
                 switch (type) {
                     case 'beforeunload':
@@ -198,6 +205,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
                         throw 'A dialog was invoked!';
                 }
             })
+            */
 
             // click the settings button
             .click('#navbarDropdownHelp')
@@ -209,11 +217,13 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // disable the 'spawn translation tab' setting
             .click('#settingSpawnTranslationTabButton')
 
+            // BROKEN this used to be a simple toggle but is now a select drop down, we need to select the 'expert' option in order to unlock the advanced translation options
+            //.click('#settingUseSimplifiedTranslatorOptionsButton')
+            .click('#settingUserInterfaceModeValue')
+            .click(Selector('#settingUserInterfaceModeValue').find('option').withText('expert'))
+
             //switch to UI Options tab
             .click("#settingCategoryUIOptions")
-
-            // BROKEN this used to be a simple toggle but is now a select drop down, we need to select the 'expert' option in order to unlock the advanced translation options
-            .click('#settingUseSimplifiedTranslatorOptionsButton')
 
             //switch to external services tab
             .click("#settingCategoryExternalServices")
@@ -251,13 +261,13 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             .click('#rightWindowModeTranslation')
 
             // open algorithm 1
-            .click('#headingTwo')
+            //.click('#headingTwo')
 
             // click the 'Generate PGT' button
             .click('#alg1PGT');
 
         // choose the 'OJS' output format
-        await page.selectOption('OJS');
+        //await page.selectOption('OJS');
 
         // wait for the graph to translate
         await t.wait(PAGE_TRANSITION_WAIT_DURATION);
@@ -266,17 +276,17 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
         await printPageLocation("Translator");
 
         // !!!!!!!!!!!!! DEPLOY AND EXECUTE
-        await t
+        //await t
             // write manager host and port
-            .typeText(Selector('input[name="dlg_mgr_host"]'), ip, { replace : true })
-            .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_DIM_PORT, { replace : true });
+        //    .typeText(Selector('input[name="dlg_mgr_host"]'), ip, { replace : true })
+        //    .typeText(Selector('input[name="dlg_mgr_port"]'), DALIUGE_DIM_PORT, { replace : true });
 
             // modify the pg_form to make it open in the same tab when the button is clicked
-        await setFormTargetSelf();
+        //await setFormTargetSelf();
 
-            // click 'generate and deploy physical graph' button
+            // click 'deploy' button
         await t
-            .click('#gen_pg_button');
+            .click('#activeDeployMethodButton');
 
 
         // !!!!!!!!!!!!! AWAIT RESULTS
