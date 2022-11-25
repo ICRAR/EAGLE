@@ -175,11 +175,11 @@ jobs:
     runs-on: ubuntu-latest
     services:
       translator:
-        image: icrar/daliuge-translator:2.2.0
+        image: icrar/daliuge-translator:2.3.2
         ports:
           - 6379:8084
       engine:
-        image: icrar/daliuge-engine:2.2.0
+        image: icrar/daliuge-engine:2.3.2
         ports:
           - 5555:5555
           - 6666:6666
