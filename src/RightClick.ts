@@ -20,6 +20,10 @@ export class RightClick {
         })
     }
 
+    static closeCustomContextMenu = () : void => {
+        $("#customContextMenu").remove()
+    }
+
     static requestCustomContextMenu = () : void => {
         var thisEvent = event as MouseEvent
         var mouseX = thisEvent.clientX
@@ -31,7 +35,9 @@ export class RightClick {
 
         $('#customContextMenu').remove()
         console.log('eventTarget:',event.target)
-        $(document).find('body').append('<div id="customContextMenu" onmouseout="eagle.closeCustomContextMenu()"></div>')
+        $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu()"></div>')
+        $('#customContextMenu').append('<a data-bind="click: openShortcuts">openShortcutsModal</a>')
+        $('#customContextMenu').append('<a data-bind="click: openShortcuts">openShortcutsModal</a>')
         $('#customContextMenu').append('<a data-bind="click: openShortcuts">openShortcutsModal</a>')
 
         $('#customContextMenu').css('top',mouseY+'px')

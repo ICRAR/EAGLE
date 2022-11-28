@@ -2203,6 +2203,7 @@ palette-component input.form-control.selected {
 
 #customContextMenu a{
     padding:4px 8px;
+    display: block;
 }
 
 #customContextMenu a:hover{

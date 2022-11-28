@@ -4050,10 +4050,6 @@ export class Eagle {
         });
     }
 
-    closeCustomContextMenu = () : void => {
-        $("#customContextMenu").remove()
-    }
-
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         // copy node
