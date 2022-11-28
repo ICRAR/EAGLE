@@ -4050,6 +4050,10 @@ export class Eagle {
         });
     }
 
+    closeCustomContextMenu = () : void => {
+        $("#customContextMenu").remove()
+    }
+
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         // copy node
@@ -4381,17 +4385,20 @@ $( document ).ready(function() {
         }
     })
 
-    $(".nodeIcon").on('mousedown',function(e){
+    $("#graphNameWrapper").on('mousedown',function(e){
         console.log('bipp')
         switch (e.which) {
             case 3:
-                e.preventDefault()
-                console.log('bopp')
+                RightClick.requestCustomContextMenu()
                 break;
             default:
                 return;
         }
         
+    })
+
+    $(document).on('contextmenu', '#graphNameWrapper', function(e){
+        e.preventDefault()
     })
 
     $(document).on('click', '.hierarchyEdgeExtra', function(){
@@ -4408,14 +4415,6 @@ $( document ).ready(function() {
         }
 
     })
-
-    $(document).on('contextmenu', '.nodeIcon', function(e){
-        e.preventDefault()
-
-
-    })
-
-    // document.addEventListener('contextmenu', event => event.preventDefault());
 
     $(".hierarchy").on("click", function(){
         (<any>window).eagle.selectedObjects([]);

@@ -1,5 +1,6 @@
 import * as ko from "knockout";
 import * as bootstrap from 'bootstrap';
+import { RightClick } from "../RightClick";
 
 ko.bindingHandlers.eagleRightClick = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -10,7 +11,7 @@ ko.bindingHandlers.eagleRightClick = {
 
             switch (e.which) {
                 case 3:
-                    e.preventDefault();
+                    RightClick.requestCustomContextMenu()
                     break;
                 default:
                     return;

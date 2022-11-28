@@ -20,6 +20,24 @@ export class RightClick {
         })
     }
 
+    static requestCustomContextMenu = () : void => {
+        var thisEvent = event as MouseEvent
+        var mouseX = thisEvent.clientX
+        var mouseY = thisEvent.clientY
+
+        console.log(event)
+
+        console.log("xy",mouseX,mouseY)
+
+        $('#customContextMenu').remove()
+        console.log('eventTarget:',event.target)
+        $(document).find('body').append('<div id="customContextMenu" onmouseout="eagle.closeCustomContextMenu()"></div>')
+        $('#customContextMenu').append('<a data-bind="click: openShortcuts">openShortcutsModal</a>')
+
+        $('#customContextMenu').css('top',mouseY+'px')
+        $('#customContextMenu').css('left',mouseX+'px')
+    }
+
 }
 
 $(document).ready(function(){

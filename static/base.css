@@ -2192,6 +2192,23 @@ palette-component input.form-control.selected {
     overflow: hidden;
 }
 
+#customContextMenu{
+    background-color: #0059a5;
+    padding:10px 0px;
+    position: absolute;
+    border-radius: 5px;
+    color: white;
+    z-index: 1000;
+}
+
+#customContextMenu a{
+    padding:4px 8px;
+}
+
+#customContextMenu a:hover{
+    background-color: #001d3b;
+}
+
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
       -webkit-user-select: none; /* Safari */
