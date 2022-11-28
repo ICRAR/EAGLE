@@ -282,7 +282,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("transform", nodeGetTranslation)
         .attr("class", "node")
         .attr("id", function(node : Node, index : number){return "node" + index;})
-        .style("display", getNodeDisplay);
+        .style("display", getNodeDisplay)
+        .on("contextmenu", function (d, i) {
+            console.log("graphRenderer:contextmenu");
+            d3.event.preventDefault();
+        });
 
     // rects
     nodes
