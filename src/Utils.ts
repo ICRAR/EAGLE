@@ -229,6 +229,7 @@ export class Utils {
         return Utils.translateStringToFileType(Utils.getFileExtension(fileName));
     }
 
+    // NOTE: used for sorting files by filetype
     static getFileTypeNum(fileType: Eagle.FileType) : number {
         switch (fileType){
             case Eagle.FileType.Graph:
@@ -237,8 +238,10 @@ export class Utils {
                 return 1;
             case Eagle.FileType.JSON:
                 return 2;
-            case Eagle.FileType.Unknown:
+            case Eagle.FileType.Markdown:
                 return 3;
+            case Eagle.FileType.Unknown:
+                return 4;
         }
     }
 
