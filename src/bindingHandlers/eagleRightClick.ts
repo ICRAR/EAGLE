@@ -7,11 +7,10 @@ ko.bindingHandlers.eagleRightClick = {
         const jQueryElement = $(element);
 
         jQueryElement.on('mousedown', function(e){
-            console.log("eagleRightClick:mousedown");
-
             switch (e.which) {
                 case 3:
-                    RightClick.requestCustomContextMenu()
+                    const data = ko.unwrap(valueAccessor());
+                    RightClick.requestCustomContextMenu(data,jQueryElement)
                     break;
                 default:
                     return;
@@ -19,14 +18,12 @@ ko.bindingHandlers.eagleRightClick = {
         });
 
         jQueryElement.on('contextmenu', function(e){
-            console.log("eagleRightClick:contextmenu");
-
             e.preventDefault();
         })
 
     },
     update: function (element, valueAccessor) {
         const data = ko.unwrap(valueAccessor());
-        console.log("eagleRightClick:data", data);
+        // console.log("eagleRightClick:data", data);
     }
 };

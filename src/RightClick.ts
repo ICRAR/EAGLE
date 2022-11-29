@@ -13,39 +13,44 @@ export class RightClick {
         RightClick.rightClickTargetsArray.push({identifier:"hierarchyNode", rightClickActive: false});
     }
 
-    static initiateRightClick = () : void => {
-        console.log('starting..')
-        RightClick.rightClickTargetsArray.forEach(function(target){
-            console.log(target.identifier)
-        })
-    }
-
     static closeCustomContextMenu = () : void => {
         $("#customContextMenu").remove()
     }
 
-    static requestCustomContextMenu = () : void => {
+    static requestCustomContextMenu = (data:any, targetElement:JQuery) : void => {
+        //getting the mouse event for positioning the right click menu at the cursor location
         var thisEvent = event as MouseEvent
         var mouseX = thisEvent.clientX
         var mouseY = thisEvent.clientY
 
-        console.log(event)
+        var targetClass = $(targetElement).attr('class')
+        var targetId = $(targetElement).attr('id')
+        console.log('wat: ',targetElement,targetId)
 
-        console.log("xy",mouseX,mouseY)
-
+        //setting up the menu div
         $('#customContextMenu').remove()
-        console.log('eventTarget:',event.target)
         $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu()"></div>')
-        $('#customContextMenu').append('<a data-bind="click: openShortcuts">openShortcutsModal</a>')
-        $('#customContextMenu').append('<a data-bind="click: openShortcuts">openShortcutsModal</a>')
-        $('#customContextMenu').append('<a data-bind="click: openShortcuts">openShortcutsModal</a>')
-
         $('#customContextMenu').css('top',mouseY+'px')
         $('#customContextMenu').css('left',mouseX+'px')
+
+        console.log('rightmenurequested: ',data,targetClass)
+        //append function options depending on the right click object
+        $('#customContextMenu').append('<a onclick="eagle.openShortcuts()">Test function</a>')
+        if(targetClass.includes('rightClick_logicalGraph')){
+            
+            console.log('logical graph')
+        }else if(targetClass.includes('rightClick_paletteComponent')){
+            $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Inspect</a>')
+
+            console.log('palette component')
+        }else if(targetClass.includes('rightClick_hierarchyNode')){
+            $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Inspect</a>')
+
+            console.log('hierarchy component')
+        }
+
+        // adding a listener to function options that closes the menu if an option is clicked
+        $('#customContextMenu a').on('click',function(){RightClick.closeCustomContextMenu()})
     }
 
 }
-
-$(document).ready(function(){
-    RightClick.initiateRightClick()
-})

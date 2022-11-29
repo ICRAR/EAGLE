@@ -3473,6 +3473,14 @@ export class Eagle {
         this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
+    inspectNode = (target:any) : void => {
+        target = $('#'+target)
+        console.log(target)
+        target.click()
+        this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
+
+    }
+
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
     editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
         // get field names list from the logical graph
@@ -4379,22 +4387,6 @@ $( document ).ready(function() {
             $("#paletteList .accordion-button.wasCollapsed").click()
             $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
         }
-    })
-
-    $("#graphNameWrapper").on('mousedown',function(e){
-        console.log('bipp')
-        switch (e.which) {
-            case 3:
-                RightClick.requestCustomContextMenu()
-                break;
-            default:
-                return;
-        }
-        
-    })
-
-    $(document).on('contextmenu', '#graphNameWrapper', function(e){
-        e.preventDefault()
     })
 
     $(document).on('click', '.hierarchyEdgeExtra', function(){
