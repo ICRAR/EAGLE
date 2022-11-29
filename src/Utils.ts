@@ -48,7 +48,8 @@ export class Utils {
         "json",
         "diagram",
         "graph",
-        "palette"
+        "palette",
+        "md" // for markdown e.g. README.md
     ];
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";

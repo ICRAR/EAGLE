@@ -1707,6 +1707,7 @@ export class Eagle {
             }
 
             const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+            console.log("fileTypeLoaded", fileTypeLoaded);
 
             switch (fileTypeLoaded){
                 case Eagle.FileType.Graph:
@@ -1741,6 +1742,10 @@ export class Eagle {
                     this._remotePaletteLoaded(file, data);
                     break;
 
+                case Eagle.FileType.Markdown:
+                    this.displayMarkdown(file, data);
+                    break;
+
                 default:
                     // Show error message
                     Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
@@ -1748,6 +1753,12 @@ export class Eagle {
         this.resetEditor()
         });
     };
+
+    displayMarkdown = (file : RepositoryFile, data: string) : void => {
+        console.log("displayMarkdown", file, data);
+
+        
+    }
 
     insertRemoteFile = (file : RepositoryFile) : void => {
         // flag file as being fetched
@@ -4190,6 +4201,7 @@ export namespace Eagle
         Graph = "Graph",
         Palette = "Palette",
         JSON = "JSON",
+        Markdown = "Markdown",
         Unknown = "Unknown"
     }
 
