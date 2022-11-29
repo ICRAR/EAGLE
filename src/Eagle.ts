@@ -1696,17 +1696,26 @@ export class Eagle {
                 return;
             }
 
-            // attempt to parse the JSON
-            let dataObject;
-            try {
-                dataObject = JSON.parse(data);
-            }
-            catch(err){
-                Utils.showUserMessage("Error parsing file JSON", err.message);
-                return;
-            }
+            // determine file extension
+            const fileExtension = Utils.getFileExtension(file.name);
+            let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
+            let dataObject = null;
 
-            const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+            if (fileExtension !== "md"){
+                // attempt to parse the JSON
+                try {
+                    dataObject = JSON.parse(data);
+                }
+                catch(err){
+                    Utils.showUserMessage("Error parsing file JSON", err.message);
+                    return;
+                }
+
+                fileTypeLoaded = Utils.determineFileType(dataObject);
+                console.log("fileTypeLoaded", fileTypeLoaded);
+            } else {
+                fileTypeLoaded = Eagle.FileType.Markdown;
+            }        
 
             switch (fileTypeLoaded){
                 case Eagle.FileType.Graph:
@@ -1739,6 +1748,10 @@ export class Eagle {
 
                 case Eagle.FileType.Palette:
                     this._remotePaletteLoaded(file, data);
+                    break;
+
+                case Eagle.FileType.Markdown:
+                    Utils.showUserMessage(file.name, Utils.markdown2html(data));
                     break;
 
                 default:
@@ -4190,6 +4203,7 @@ export namespace Eagle
         Graph = "Graph",
         Palette = "Palette",
         JSON = "JSON",
+        Markdown = "Markdown",
         Unknown = "Unknown"
     }
 
