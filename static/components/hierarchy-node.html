@@ -14,7 +14,7 @@
         <span data-bind="text: category"></span>
         <div>
             <!-- ko with: inputApplication -->
-                <div class="hierarchyNode hierarchyApplication" data-bind="class: Hierarchy.isApplicationSelected($root.objectIsSelectedById($data._id)),attr:{id:key}, style:{'background-color':$parent.color}, click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false">
+                <div class="hierarchyNode hierarchyApplication rightClick_hierarchyNode" data-bind="class: Hierarchy.isApplicationSelected($root.objectIsSelectedById($data._id)),attr:{id:key}, style:{'background-color':$parent.color}, click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false, eagleRightClick: $data">
                     <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
                     <h5 data-bind="text: name"></h5>
                     <span data-bind="text: category"></span>
