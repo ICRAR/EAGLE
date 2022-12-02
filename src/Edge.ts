@@ -267,6 +267,12 @@ export class Edge {
             return Eagle.LinkValid.Invalid;
         }
 
+        //check that we are not connecting an Application component to an Application component, that is not supported, there should be an intermediate data node
+        if ((sourceNode.getCategoryType() === Category.Type.Application || sourceNode.getCategoryType() === Category.Type.Control) && (destinationNode.getCategoryType() === Category.Type.Application || destinationNode.getCategoryType() === Category.Type.Control)){
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Fix("Application or Control nodes may not be connected directly to other Application or Control nodes", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixSplitEdgeWithData(eagle, edgeId);}, "Create new data component along existing edge"), showNotification, showConsole, errorsWarnings);
+            return Eagle.LinkValid.Invalid;
+        }
+
         // if destination is a service construct, then pretty much anything is valid
         if (destinationNode.getCategory() === Category.Service){
             return Eagle.LinkValid.Valid;

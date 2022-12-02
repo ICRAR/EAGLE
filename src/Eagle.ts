@@ -2409,6 +2409,7 @@ export class Eagle {
 
             // validate edge
             const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2418,6 +2419,7 @@ export class Eagle {
             const srcPort: Field = srcNode.findPortById(edge.getSrcPortId());
             const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
             const destPort: Field = destNode.findPortById(edge.getDestPortId());
+            //console.log("srcNode", srcNode.getKey(), "srcPort", srcPort.getId(), "destNode", destNode.getKey(), "destPort", destPort.getId());
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());

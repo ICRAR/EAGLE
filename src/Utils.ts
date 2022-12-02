@@ -1789,6 +1789,23 @@ export class Utils {
         eagle.logicalGraph().removeEdgeById(edgeId);
     }
 
+    static fixSplitEdgeWithData(eagle: Eagle, edgeId: string): void {
+        console.log("fixSplitEdgeWithData()");
+
+        // get edge using id
+        const edge : Edge = eagle.logicalGraph().findEdgeById(edgeId);
+
+        // get start and end node and port
+        const srcNode: Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        const srcPort: Field = srcNode.findPortById(edge.getSrcPortId());
+        const destNode: Node = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+        const destPort: Field = destNode.findPortById(edge.getDestPortId());
+
+        // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
+        eagle.logicalGraph().removeEdgeById(edgeId);
+        eagle.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), null);
+    }
+
     static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
         destinationPort.setType(sourcePort.getType());
     }
@@ -1852,7 +1869,6 @@ export class Utils {
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
-        console.log("callFixFunc");
         fixFunc();
         Utils.postFixFunc(eagle);
     }
@@ -1881,6 +1897,11 @@ export class Utils {
 
     // only update result if it is worse that current result
     static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
+        if (errorsWarnings === null){
+            console.warn("Tried to return worst error from null errorsWarnings object");
+            return Eagle.LinkValid.Valid;
+        }
+
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
             return Eagle.LinkValid.Valid;
         }
