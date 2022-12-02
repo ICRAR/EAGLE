@@ -3263,6 +3263,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             y1 = node.getPosition().y;
         }
 
+        if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
+            if (node.isFlipPorts()){
+                x1 = node.getPosition().x + getIconLocationX(node);
+                y1 = node.getPosition().y + getIconLocationY(node);
+            } else {
+                x1 = node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
+                y1 = node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
+            }
+        }
+
         if (subjectNode.isFlipPorts()){
             x2 = subjectNode.getPosition().x + subjectNode.getWidth();
             y2 = subjectNode.getPosition().y;
@@ -3272,7 +3282,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         if (!subjectNode.isGroup() && subjectNode.isCollapsed() && !subjectNode.isPeek()){
-            if (node.isFlipPorts()){
+            if (subjectNode.isFlipPorts()){
                 x2 = subjectNode.getPosition().x + getIconLocationX(subjectNode) + Node.DATA_COMPONENT_WIDTH;
                 y2 = subjectNode.getPosition().y + getIconLocationY(subjectNode) + Node.DATA_COMPONENT_HEIGHT/2;
             } else {
