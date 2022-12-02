@@ -516,6 +516,10 @@ export class Node {
         return this.categoryType() === Category.Type.Application;
     }
 
+    isControl = () : boolean => {
+        return this.categoryType() === Category.Type.Control;
+    }
+
     isScatter = () : boolean => {
         return this.category() === Category.Scatter;
     }

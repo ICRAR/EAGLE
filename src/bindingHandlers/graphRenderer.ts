@@ -3148,17 +3148,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        // check if link has a warning or is invalid
-        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        // NOTE: only check for validity if showing data nodes, otherwise, the displayed graph is fundamentally different
+        if (eagle.showDataNodes()){
+            // check if link has a warning or is invalid
+            const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
 
-        if (linkValid === Eagle.LinkValid.Invalid){
-            normalColor = LINK_COLORS.INVALID;
-            selectedColor = LINK_COLORS.INVALID_SELECTED;
-        }
+            if (linkValid === Eagle.LinkValid.Invalid){
+                normalColor = LINK_COLORS.INVALID;
+                selectedColor = LINK_COLORS.INVALID_SELECTED;
+            }
 
-        if (linkValid === Eagle.LinkValid.Warning){
-            normalColor = LINK_COLORS.WARNING;
-            selectedColor = LINK_COLORS.WARNING_SELECTED;
+            if (linkValid === Eagle.LinkValid.Warning){
+                normalColor = LINK_COLORS.WARNING;
+                selectedColor = LINK_COLORS.WARNING_SELECTED;
+            }
         }
 
         // check if the edge is a "closes loop" edge

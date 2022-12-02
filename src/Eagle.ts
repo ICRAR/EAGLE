@@ -3888,14 +3888,14 @@ export class Eagle {
     }
 
     addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
-        const edgeConnectsTwoApplications : boolean =
-            (srcNode.isApplication() || srcNode.isGroup()) &&
-            (destNode.isApplication() || destNode.isGroup());
+        const edgeRequiresIntermediateDataDrop : boolean =
+            (srcNode.isApplication() || srcNode.isControl() || srcNode.isGroup()) &&
+            (destNode.isApplication() || destNode.isControl() || destNode.isGroup());
 
         const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
-        // if edge DOES NOT connect two applications, process normally
-        if (!edgeConnectsTwoApplications || twoEventPorts){
+        // if edge DOES NOT require intermediate data drop, process normally
+        if (!edgeRequiresIntermediateDataDrop || twoEventPorts){
             const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             if (callback !== null) callback(edge);
