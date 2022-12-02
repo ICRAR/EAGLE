@@ -41,6 +41,7 @@ export class RightClick {
             console.log('logical graph')
         }else if(targetClass.includes('rightClick_paletteComponent')){
             $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Inspect</a>')
+            $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Delete</a>')
 
             console.log('palette component')
         }else if(targetClass.includes('rightClick_hierarchyNode')){

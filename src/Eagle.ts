@@ -212,8 +212,8 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraph();}));
         Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save Graph As", ["s"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraphAs()}));
         Eagle.shortcuts.push(new KeyboardShortcut("deploy_translator", "Generate PGT Using Default Algorithm", ["d"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.deployDefaultTranslationAlgorithm(); }));
-        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection", "Delete Selection", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false, true);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection_except_children", "Delete Without Children", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false, false);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection", "Delete Selection", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection('',false, true);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection_except_children", "Delete Without Children", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection('',false, false);}));
         Eagle.shortcuts.push(new KeyboardShortcut("duplicate_selection", "Duplicate Selection", ["d"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_subgraph_from_selection", "Create subgraph from selection", ["["], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
@@ -2545,9 +2545,12 @@ export class Eagle {
         this.addNodesToPalette(nodes);
     }
 
-    deleteSelection = (suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+    deleteSelection = (data:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
         // if no objects selected, warn user
-        if (this.selectedObjects().length === 0){
+        if (data === ''){
+            data = this.selectedObjects()
+        }
+        if (data.length === 0){
             console.warn("Unable to delete selection: Nothing selected");
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
             return;
@@ -2562,14 +2565,14 @@ export class Eagle {
 
         // skip confirmation if setting dictates
         if (!Setting.find(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
-            this._deleteSelection(deleteChildren);
+            this._deleteSelection(deleteChildren,data);
             return;
         }
 
         // determine number of nodes and edges in current selection
         let numNodes: number = 0;
         let numEdges: number = 0;
-        for (const object of this.selectedObjects()){
+        for (const object of data){
             if (object instanceof Node){
                 numNodes += 1;
             }
@@ -2584,7 +2587,7 @@ export class Eagle {
         const childEdges: Edge[] = [];
 
         // find child nodes
-        for (const object of this.selectedObjects()){
+        for (const object of data){
             if (object instanceof Node){
                 childNodes.push(...this._findChildren(object));
             }
@@ -2633,7 +2636,7 @@ export class Eagle {
                 return;
             }
 
-            this._deleteSelection(deleteChildren);
+            this._deleteSelection(deleteChildren,data);
         });
     }
 
@@ -2650,7 +2653,7 @@ export class Eagle {
         return children;
     }
 
-    private _deleteSelection = (deleteChildren: boolean) : void => {
+    private _deleteSelection = (deleteChildren: boolean,data:any) : void => {
         if (Eagle.selectedLocation() === Eagle.FileType.Graph){
 
             // if not deleting children, move them to different parents first
@@ -2659,7 +2662,7 @@ export class Eagle {
             }
 
             // delete the selection
-            for (const object of this.selectedObjects()){
+            for (const object of data){
                 if (object instanceof Node){
                     this.logicalGraph().removeNode(object);
                 }
@@ -2678,7 +2681,7 @@ export class Eagle {
 
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
 
-            for (const object of this.selectedObjects()){
+            for (const object of data){
                 if (object instanceof Node){
                     for (const palette of this.palettes()){
                         palette.removeNodeById(object.getId());
