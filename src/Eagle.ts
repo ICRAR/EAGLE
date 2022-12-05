@@ -67,6 +67,8 @@ export class Eagle {
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
 
+    static selectedRightClickObject : ko.Observable<Node|Edge>;
+
     repositories: ko.Observable<Repositories>;
     translator : ko.Observable<Translator>;
     undo : ko.Observable<Undo>;
@@ -124,6 +126,8 @@ export class Eagle {
 
         this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
+
+        Eagle.selectedRightClickObject = ko.observable();
 
         this.repositories = ko.observable(new Repositories());
         this.translator = ko.observable(new Translator());

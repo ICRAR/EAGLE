@@ -23,6 +23,8 @@ export class RightClick {
         var mouseX = thisEvent.clientX
         var mouseY = thisEvent.clientY
 
+        console.log(Eagle.selectedRightClickObject())
+
         var targetClass = $(targetElement).attr('class')
         var targetId = $(targetElement).attr('id')
         console.log('wat: ',targetElement,targetId)
