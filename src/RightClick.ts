@@ -23,6 +23,11 @@ export class RightClick {
         var mouseX = thisEvent.clientX
         var mouseY = thisEvent.clientY
 
+        if(data instanceof Node||data instanceof Edge){
+            console.log("BOOOOOP")
+            Eagle.selectedRightClickObject(data)
+        }
+
         console.log(Eagle.selectedRightClickObject())
 
         var targetClass = $(targetElement).attr('class')
@@ -35,18 +40,22 @@ export class RightClick {
         $('#customContextMenu').css('top',mouseY+'px')
         $('#customContextMenu').css('left',mouseX+'px')
 
-        console.log('rightmenurequested: ',data,targetClass)
+        // console.log('rightmenurequested: ',data,targetClass)
         //append function options depending on the right click object
         $('#customContextMenu').append('<a onclick="eagle.openShortcuts()">Test function</a>')
         if(targetClass.includes('rightClick_logicalGraph')){
-            
+            Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
             console.log('logical graph')
         }else if(targetClass.includes('rightClick_paletteComponent')){
+            Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
+
             $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Inspect</a>')
-            $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Delete</a>')
+            $('#customContextMenu').append('<a onclick="eagle.deleteSelection("palette",false,false)">Delete</a>')
 
             console.log('palette component')
         }else if(targetClass.includes('rightClick_hierarchyNode')){
+            Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
+
             $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Inspect</a>')
 
             console.log('hierarchy component')

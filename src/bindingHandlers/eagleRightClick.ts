@@ -12,9 +12,7 @@ ko.bindingHandlers.eagleRightClick = {
             switch (e.which) {
                 case 3:
                     const data = ko.unwrap(valueAccessor());
-                    if(data.typeof(Node)||data.typeof(Edge)){
-                        Eagle.selectedRightClickObject(data)
-                    }
+                    
                     RightClick.requestCustomContextMenu(data,jQueryElement)
                     e.stopPropagation();
                     break;

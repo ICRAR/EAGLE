@@ -67,7 +67,8 @@ export class Eagle {
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
 
-    static selectedRightClickObject : ko.Observable<Node|Edge>;
+    static selectedRightClickObject : ko.Observable<any>;
+    static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
 
     repositories: ko.Observable<Repositories>;
     translator : ko.Observable<Translator>;
@@ -128,6 +129,7 @@ export class Eagle {
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
         Eagle.selectedRightClickObject = ko.observable();
+        Eagle.selectedRightClickLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.repositories = ko.observable(new Repositories());
         this.translator = ko.observable(new Translator());
@@ -2550,9 +2552,15 @@ export class Eagle {
     }
 
     deleteSelection = (data:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+
+        var mode:string
         // if no objects selected, warn user
         if (data === ''){
             data = this.selectedObjects()
+            mode = 'normal'
+        }else{
+            data = Eagle.selectedRightClickObject()
+            mode = 'rightClick'
         }
         if (data.length === 0){
             console.warn("Unable to delete selection: Nothing selected");
@@ -2569,7 +2577,7 @@ export class Eagle {
 
         // skip confirmation if setting dictates
         if (!Setting.find(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
-            this._deleteSelection(deleteChildren,data);
+            this._deleteSelection(deleteChildren,data,mode);
             return;
         }
 
@@ -2640,7 +2648,7 @@ export class Eagle {
                 return;
             }
 
-            this._deleteSelection(deleteChildren,data);
+            this._deleteSelection(deleteChildren,data,mode);
         });
     }
 
@@ -2657,8 +2665,16 @@ export class Eagle {
         return children;
     }
 
-    private _deleteSelection = (deleteChildren: boolean,data:any) : void => {
-        if (Eagle.selectedLocation() === Eagle.FileType.Graph){
+    private _deleteSelection = (deleteChildren: boolean,data:any,mode:string) : void => {
+
+        var location 
+        if (mode === 'normal'){
+            location = Eagle.selectedLocation()
+        }else{
+            location = Eagle.selectedRightClickLocation()
+        }
+
+        if (location === Eagle.FileType.Graph){
 
             // if not deleting children, move them to different parents first
             if (!deleteChildren){
@@ -2683,7 +2699,7 @@ export class Eagle {
             this.undo().pushSnapshot(this, "Delete Selection");
         }
 
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+        if (location === Eagle.FileType.Palette){
 
             for (const object of data){
                 if (object instanceof Node){
@@ -2699,8 +2715,10 @@ export class Eagle {
             }
         }
 
-        // empty the selected objects, should have all been deleted
-        this.selectedObjects([]);
+        if(mode = 'normal'){
+            // empty the selected objects, should have all been deleted
+            this.selectedObjects([]);
+        }
     }
 
     // used before deleting a selection, if we wish to preserve the children of the selection
