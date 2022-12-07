@@ -561,12 +561,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add the svg icon
     nodes
        .append('foreignObject')
-       .attr("class","nodeIcon")
+       .attr("class","nodeIcon rightClick_graphNode")
        .attr("width", Node.DATA_COMPONENT_WIDTH+4)
        .attr("height", Node.DATA_COMPONENT_HEIGHT+4)
        .attr("x", function(node:Node){return getIconLocationX(node);})
        .attr("y", function(node:Node){return getIconLocationY(node);})
        .style("display", getIconDisplay)
+       .attr('data-bind','eagleRightClick: $data')
        .append('xhtml:div')
        .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Config.SELECTED_NODE_COLOR+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
        .append('xhtml:span')

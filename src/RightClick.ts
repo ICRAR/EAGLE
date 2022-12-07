@@ -5,12 +5,12 @@ import {Node} from './Node';
 
 export class RightClick {
     
-    static rightClickTargetsArray : Array<{identifier:string, rightClickActive:boolean}> = []
+    // static rightClickTargetsArray : Array<{identifier:string, rightClickActive:boolean}> = []
 
     constructor(){
 
-        RightClick.rightClickTargetsArray.push({identifier:"nodeIcon", rightClickActive: true});
-        RightClick.rightClickTargetsArray.push({identifier:"hierarchyNode", rightClickActive: false});
+        // RightClick.rightClickTargetsArray.push({identifier:"nodeIcon", rightClickActive: true});
+        // RightClick.rightClickTargetsArray.push({identifier:"hierarchyNode", rightClickActive: false});
     }
 
     static closeCustomContextMenu = () : void => {
@@ -32,7 +32,7 @@ export class RightClick {
 
         var targetClass = $(targetElement).attr('class')
         var targetId = $(targetElement).attr('id')
-        console.log('wat: ',targetElement,targetId)
+        // console.log('wat: ',targetElement,targetId)
 
         //setting up the menu div
         $('#customContextMenu').remove()
@@ -45,7 +45,7 @@ export class RightClick {
         $('#customContextMenu').append('<a onclick="eagle.openShortcuts()">Test function</a>')
         if(targetClass.includes('rightClick_logicalGraph')){
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
-            console.log('logical graph')
+            console.log('logical graph background')
         }else if(targetClass.includes('rightClick_paletteComponent')){
             Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
 
@@ -59,6 +59,10 @@ export class RightClick {
             $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Inspect</a>')
 
             console.log('hierarchy component')
+        }else if(targetClass.includes('rightClick_graphNode')){
+
+
+            console.log('graph node')
         }
 
         // adding a listener to function options that closes the menu if an option is clicked
