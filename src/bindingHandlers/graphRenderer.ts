@@ -15,6 +15,7 @@ import {LogicalGraph} from '../LogicalGraph';
 import {Node} from '../Node';
 import {Setting} from '../Setting';
 import {Utils} from '../Utils';
+import { RightClick } from "../RightClick";
 
 
 ko.bindingHandlers.graphRenderer = {
@@ -286,6 +287,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .on("contextmenu", function (d, i) {
             console.log("graphRenderer:contextmenu");
             d3.event.preventDefault();
+            RightClick.initiateConecxtMenu(d3.event.target)
         });
 
     // rects
@@ -572,7 +574,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
        .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Config.SELECTED_NODE_COLOR+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
        .append('xhtml:span')
        .attr("style", function(node:Node){ return node.getGraphIconAttr()})
-       .attr("class", function(node:Node){return node.getIcon();});
+       .attr("class", function(node:Node){return node.getIcon()+" rightClick_graphNode";})
+       .attr("id", function(node:Node){return node.getKey();});
 
     // add the resize controls
     nodes
@@ -1422,7 +1425,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Config.SELECTED_NODE_COLOR+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
             .append('xhtml:span')
             .attr("style", function(node:Node){ return node.getGraphIconAttr()})
-            .attr("class", function(node:Node){return node.getIcon();});
+            .attr("class", function(node:Node){return node.getIcon()+" rightClick_graphNode";})
+            .attr("id", function(node:Node){return node.getKey();});
             // TODO: possibly missing changes to the <xhtml:span> child of the foreignObject
 
         rootContainer

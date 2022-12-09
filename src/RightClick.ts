@@ -17,6 +17,16 @@ export class RightClick {
         $("#customContextMenu").remove()
     }
 
+    static initiateConecxtMenu = (eventTarget:any) : void => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        var data = eagle.logicalGraph().findNodeByKey(parseInt($(event.target).attr('id')))
+            console.log(eventTarget,data)
+                    
+        RightClick.requestCustomContextMenu(data,eventTarget)
+        event.stopPropagation();
+    }
+
     static requestCustomContextMenu = (data:any, targetElement:JQuery) : void => {
         //getting the mouse event for positioning the right click menu at the cursor location
         var thisEvent = event as MouseEvent
