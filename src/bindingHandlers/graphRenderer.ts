@@ -293,7 +293,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // rects
     nodes
         .append("rect")
-        .attr('id', function(node:Node){return node.getKey();})
         .attr("width", function(node:Node){return getWidth(node);})
         .attr("height", function(node:Node){return getHeight(node);})
         .style("display", getNodeRectDisplay)
@@ -470,6 +469,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     // add a header background to each node
     nodes
         .append("rect")
+        .attr("class", "header-background")
         .attr("width", function(node:Node){return getHeaderBackgroundWidth(node);})
         .attr("height", function(node:Node){return getHeaderBackgroundHeight(node);})
         .attr("x", HEADER_INSET)
@@ -1006,7 +1006,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .selectAll("path.linkExtra")
         .data(linkData)
         .enter()
-        .append("path");
+        .append("path")
+        .on("contextmenu", function (linkData, i) {
+            d3.event.preventDefault();
+            RightClick.initiateContextMenu(linkData,d3.event.target)
+            console.log(linkData)
+        });
         
 
     linkExtras
@@ -1024,12 +1029,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .selectAll("path.link")
         .data(linkData)
         .enter()
-        .append("path")
-        .on("contextmenu", function (linkData, i) {
-            d3.event.preventDefault();
-            RightClick.initiateContextMenu(linkData,d3.event.target)
-            console.log(linkData)
-        });
+        .append("path");
+    
 
     links
         .attr("class", "link")

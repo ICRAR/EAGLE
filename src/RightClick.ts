@@ -84,7 +84,7 @@ export class RightClick {
 
             console.log('graph node')
         }else if(passedObjectClass === 'rightClick_graphEdge'){
-            $('#customContextMenu').append('<a onclick="eagle.inspectEdge(`'+targetId+'`)">Inspect</a>')
+            $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Inspect</a>')
             $('#customContextMenu').append('<a onclick="eagle.deleteSelection("palette",false,false)">Delete</a>')
 
 

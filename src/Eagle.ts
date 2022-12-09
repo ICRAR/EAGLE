@@ -3499,10 +3499,14 @@ export class Eagle {
     }
 
     inspectNode = (target:any) : void => {
-        target = $('#'+target)
-        console.log(target)
-        target.click()
-        this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
+   
+        this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
+        // target = $('#'+target)
+        // console.log(target)
+        // target.click()
+        // this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
+        // Eagle. selectEdge(edge, d3.event.sourceEvent.shiftKey);
+        // tick();
 
     }
 
