@@ -13,7 +13,7 @@ ko.bindingHandlers.eagleRightClick = {
                 case 3:
                     const data = ko.unwrap(valueAccessor());
                     
-                    RightClick.requestCustomContextMenu(data,jQueryElement)
+                    RightClick.requestCustomContextMenu(data,jQueryElement,'')
                     e.stopPropagation();
                     break;
                 default:

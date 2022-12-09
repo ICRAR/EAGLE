@@ -4,45 +4,49 @@ import {Edge} from './Edge';
 import {Node} from './Node';
 
 export class RightClick {
-    
-    // static rightClickTargetsArray : Array<{identifier:string, rightClickActive:boolean}> = []
 
     constructor(){
-
-        // RightClick.rightClickTargetsArray.push({identifier:"nodeIcon", rightClickActive: true});
-        // RightClick.rightClickTargetsArray.push({identifier:"hierarchyNode", rightClickActive: false});
     }
 
     static closeCustomContextMenu = () : void => {
         $("#customContextMenu").remove()
     }
 
-    static initiateConecxtMenu = (eventTarget:any) : void => {
+    static initiateContextMenu = (data:any, eventTarget:any) : void => {
+        //graph node specific context menu intitating function, we cannot use ko bindings within the d3 svg 
         const eagle: Eagle = Eagle.getInstance();
 
-        var data = eagle.logicalGraph().findNodeByKey(parseInt($(event.target).attr('id')))
-            console.log(eventTarget,data)
+        // var data = eagle.logicalGraph().findNodeByKey(parseInt($(event.target).attr('id')))
+        console.log(eventTarget,data)
+
+        var passedObjectClass
+        if(data instanceof Node){
+            passedObjectClass = 'rightClick_graphNode'
+        }else if(data instanceof Edge){
+            passedObjectClass = 'rightClick_graphEdge'
+        }
                     
-        RightClick.requestCustomContextMenu(data,eventTarget)
+        RightClick.requestCustomContextMenu(data,eventTarget, passedObjectClass)
+
+        // prevent bubbling events
         event.stopPropagation();
     }
 
-    static requestCustomContextMenu = (data:any, targetElement:JQuery) : void => {
+    static requestCustomContextMenu = (data:any, targetElement:JQuery, passedObjectClass:string) : void => {
         //getting the mouse event for positioning the right click menu at the cursor location
         var thisEvent = event as MouseEvent
         var mouseX = thisEvent.clientX
         var mouseY = thisEvent.clientY
 
         if(data instanceof Node||data instanceof Edge){
-            console.log("BOOOOOP")
+            console.log("Is a node or edge")
             Eagle.selectedRightClickObject(data)
         }
 
-        console.log(Eagle.selectedRightClickObject())
+        console.log("righ click object: " , Eagle.selectedRightClickObject())
 
         var targetClass = $(targetElement).attr('class')
         var targetId = $(targetElement).attr('id')
-        // console.log('wat: ',targetElement,targetId)
 
         //setting up the menu div
         $('#customContextMenu').remove()
@@ -67,12 +71,24 @@ export class RightClick {
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
 
             $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Inspect</a>')
+            $('#customContextMenu').append('<a onclick="eagle.deleteSelection("palette",false,false)">Delete</a>')
 
             console.log('hierarchy component')
-        }else if(targetClass.includes('rightClick_graphNode')){
+        }else if(passedObjectClass === 'rightClick_graphNode'){
+            $('#customContextMenu').append('<a onclick="eagle.inspectNode(`'+targetId+'`)">Inspect</a>')
+            $('#customContextMenu').append('<a onclick="eagle.deleteSelection("palette",false,false)">Delete</a>')
 
+            if (data.isConstruct()){
+                $('#customContextMenu').append('<a onclick="eagle.deleteSelection("palette",false,true)">Delete All</a>')
+            }
 
             console.log('graph node')
+        }else if(passedObjectClass === 'rightClick_graphEdge'){
+            $('#customContextMenu').append('<a onclick="eagle.inspectEdge(`'+targetId+'`)">Inspect</a>')
+            $('#customContextMenu').append('<a onclick="eagle.deleteSelection("palette",false,false)">Delete</a>')
+
+
+            console.log('graph edge')
         }
 
         // adding a listener to function options that closes the menu if an option is clicked
