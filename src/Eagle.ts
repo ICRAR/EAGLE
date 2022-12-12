@@ -220,7 +220,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("deploy_translator", "Generate PGT Using Default Algorithm", ["d"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.deployDefaultTranslationAlgorithm(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("delete_selection", "Delete Selection", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection('',false, true);}));
         Eagle.shortcuts.push(new KeyboardShortcut("delete_selection_except_children", "Delete Without Children", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection('',false, false);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("duplicate_selection", "Duplicate Selection", ["d"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("duplicate_selection", "Duplicate Selection", ["d"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection('normal');}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_subgraph_from_selection", "Create subgraph from selection", ["["], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("change_selected_node_parent", "Change Selected Node Parent", ["f"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
@@ -2431,17 +2431,28 @@ export class Eagle {
         });
     }
 
-    duplicateSelection = () : void => {
+    duplicateSelection = (mode:string) : void => {
         console.log("duplicateSelection()", this.selectedObjects().length, "objects");
 
-        switch(Eagle.selectedLocation()){
+        var location:string
+        var incomingNodes = []
+
+        if(mode === 'normal'){
+            location = Eagle.selectedLocation()
+            incomingNodes = this.selectedObjects()
+        }else{
+            location = Eagle.selectedRightClickLocation()
+            incomingNodes.push(Eagle.selectedRightClickObject())
+        }
+
+        switch(location){
             case Eagle.FileType.Graph:
                 {
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
 
                     // split objects into nodes and edges
-                    for (const object of this.selectedObjects()){
+                    for (const object of incomingNodes){
                         if (object instanceof Node){
                             nodes.push(object);
                         }
@@ -2461,7 +2472,7 @@ export class Eagle {
                 {
                     const nodes: Node[] = [];
 
-                    for (const object of this.selectedObjects()){
+                    for (const object of incomingNodes){
                         if (object instanceof Node){
                             nodes.push(object);
                         }
@@ -2541,12 +2552,18 @@ export class Eagle {
         });
     }
 
-    addSelectedNodesToPalette = () : void => {
+    addSelectedNodesToPalette = (mode:string) : void => {
         const nodes = []
 
-        for(const object of this.selectedObjects()){
-            if ((object instanceof Node)){
-                nodes.push(object)
+        if(mode === 'normal'){
+            for(const object of this.selectedObjects()){
+                if ((object instanceof Node)){
+                    nodes.push(object)
+                }
+            }
+        }else{
+            if ((Eagle.selectedRightClickObject() instanceof Node)){
+                nodes.push(Eagle.selectedRightClickObject())
             }
         }
 

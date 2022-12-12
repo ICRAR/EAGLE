@@ -71,29 +71,33 @@ export class RightClick {
             Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
 
             $('#customContextMenu').append('<a onclick="eagle.inspectNode()">Inspect</a>')
-            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("palette",false,false)>Delete</a>')
+            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+            $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to another palette</a>')
 
             console.log('palette component')
         }else if(targetClass.includes('rightClick_hierarchyNode')){
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
 
             $('#customContextMenu').append('<a onclick="eagle.inspectNode()">Inspect</a>')
-            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("palette",false,false)>Delete</a>')
+            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+            $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
+            $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
 
             console.log('hierarchy component')
         }else if(passedObjectClass === 'rightClick_graphNode'){
             $('#customContextMenu').append('<a onclick="eagle.inspectNode()">Inspect</a>')
-            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("palette",false,false)>Delete</a>')
+            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+            $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
+            $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
 
             if (data.isConstruct()){
-                $('#customContextMenu').append('<a onclick="eagle.deleteSelection("palette",false,true)">Delete All</a>')
+                $('#customContextMenu').append('<a onclick="eagle.deleteSelection("contextMenuRequest",false,true)">Delete All</a>')
             }
 
             console.log('graph node')
         }else if(passedObjectClass === 'rightClick_graphEdge'){
             $('#customContextMenu').append('<a onclick="eagle.inspectNode()">Inspect</a>')
-            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("palette",false,false)>Delete</a>')
-
+            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
 
             console.log('graph edge')
         }

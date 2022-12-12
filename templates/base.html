@@ -130,12 +130,12 @@
                                     </div>
                                     <div class="col-4 text-right headerBtns">
                                         <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
-                                        <button type="button" id="duplicateSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                                        <button type="button" id="duplicateSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){duplicateSelection(normal)}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
                                             <i  class="material-icons md-24">content_copy</i>
                                         </button>
                                         <!-- /ko -->
                                         <!-- ko if: Eagle.allowPaletteEditing() -->
-                                        <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodesToPalette, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
+                                        <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
                                             <i  class="material-icons md-24">library_add</i>
                                         </button>
                                         <!-- /ko -->
