@@ -2201,6 +2201,7 @@ palette-component input.form-control.selected {
     padding:5px 0px;
     position: absolute;
     border-radius: 5px;
+    border: #002349 1px solid;
     color: white;
     z-index: 1000;
     font-size: 14px;
