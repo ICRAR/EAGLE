@@ -594,10 +594,21 @@ export class LogicalGraph {
             this.removeEdgesByKey(node.getOutputApplication().getKey());
         }
 
-        // delete the node
+        // search through nodes in graph, looking for one with the correct key
         for (let i = this.nodes.length - 1; i >= 0 ; i--){
+            // delete the node
             if (this.nodes[i].getKey() === key){
                 this.nodes.splice(i, 1);
+            }
+
+            // delete the input application
+            if (this.nodes[i].hasInputApplication() && this.nodes[i].getInputApplication().getKey() === key){
+                this.nodes[i].setInputApplication(null);
+            }
+
+            // delete the output application
+            if (this.nodes[i].hasOutputApplication() && this.nodes[i].getOutputApplication().getKey() === key){
+                this.nodes[i].setOutputApplication(null);
             }
         }
 
