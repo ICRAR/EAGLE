@@ -535,7 +535,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("fill", getHeaderFill)
         .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
         .style("display", getAppsBackgroundDisplay)
-        .text(getInputAppText);
+        .text(getInputAppText)
+        .on("contextmenu", function (d:Node, i:number) {
+            d3.event.preventDefault();
+            // d3.event.stopPropagation();
+            RightClick.initiateContextMenu(d.getInputApplication(),d3.event.target)
+        });
 
     // add the output name text
     nodes
@@ -546,7 +551,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("fill", getHeaderFill)
         .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
         .style("display", getAppsBackgroundDisplay)
-        .text(getOutputAppText);
+        .text(getOutputAppText)
+        .on("contextmenu", function (d:Node, i:number) {
+            d3.event.preventDefault();
+            // d3.event.stopPropagation();
+            RightClick.initiateContextMenu(d.getOutputApplication(),d3.event.target)
+        });
 
     // add the content text
     nodes
@@ -1397,7 +1407,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("fill", getHeaderFill)
             .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
             .style("display", getAppsBackgroundDisplay)
-            .text(getInputAppText);
+            .text(getInputAppText)
+            .on("contextmenu", function (d:Node, i:number) {
+                d3.event.preventDefault();
+                // d3.event.stopPropagation();
+                RightClick.initiateContextMenu(d.getInputApplication(),d3.event.target)
+            });
 
         rootContainer
             .selectAll("g.node text.outputAppName")
@@ -1407,7 +1422,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("fill", getHeaderFill)
             .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
             .style("display", getAppsBackgroundDisplay)
-            .text(getOutputAppText);
+            .text(getOutputAppText)
+            .on("contextmenu", function (d:Node, i:number) {
+                d3.event.preventDefault();
+                // d3.event.stopPropagation();
+                RightClick.initiateContextMenu(d.getOutputApplication(),d3.event.target)
+            });
 
         rootContainer
             .selectAll("g.node text.content")
