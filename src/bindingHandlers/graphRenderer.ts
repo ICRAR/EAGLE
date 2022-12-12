@@ -286,6 +286,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("display", getNodeDisplay)
         .on("contextmenu", function (d, i) {
             d3.event.preventDefault();
+            d3.event.stopPropagation();
             RightClick.initiateContextMenu(d,d3.event.target)
             console.log( d)
         });
@@ -1009,6 +1010,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .append("path")
         .on("contextmenu", function (linkData, i) {
             d3.event.preventDefault();
+            d3.event.stopPropagation();
             RightClick.initiateContextMenu(linkData,d3.event.target)
             console.log(linkData)
         });

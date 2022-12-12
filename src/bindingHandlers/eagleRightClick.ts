@@ -8,21 +8,13 @@ ko.bindingHandlers.eagleRightClick = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
         const jQueryElement = $(element);
 
-        jQueryElement.on('mousedown', function(e){
-            switch (e.which) {
-                case 3:
-                    const data = ko.unwrap(valueAccessor());
-                    
-                    RightClick.requestCustomContextMenu(data,jQueryElement,'')
-                    e.stopPropagation();
-                    break;
-                default:
-                    return;
-            }
-        });
-
         jQueryElement.on('contextmenu', function(e){
+
             e.preventDefault();
+            e.stopPropagation();
+            const data = ko.unwrap(valueAccessor());
+            
+            RightClick.requestCustomContextMenu(data,jQueryElement,'')
         })
 
     },
