@@ -362,11 +362,17 @@ export class Eagle {
     types : ko.PureComputed<string[]> = ko.pureComputed(() => {
         const result: string[] = [];
 
+
         switch (Eagle.selectedLocation()){
             case Eagle.FileType.Palette:
                 // build a list from the selected component in the palettes
-                for (const field of this.selectedNode().getFields()) {
-                    Utils.addTypeIfUnique(result, field.getType());
+                if(this.selectedNode() !== null){
+
+                    for (const field of this.selectedNode().getFields()) {
+                        Utils.addTypeIfUnique(result, field.getType());
+                    }
+                }else{
+                    console.warn('selected node is null when selecting palette component')
                 }
                 break;
             case Eagle.FileType.Graph:
@@ -379,6 +385,7 @@ export class Eagle {
                 }
                 break;
         }
+        
 
         return result;
     }, this);
@@ -3499,15 +3506,9 @@ export class Eagle {
     }
 
     inspectNode = (target:any) : void => {
-   
+        //the right click select object function
         this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
-        // target = $('#'+target)
-        // console.log(target)
-        // target.click()
-        // this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
-        // Eagle. selectEdge(edge, d3.event.sourceEvent.shiftKey);
-        // tick();
-
+        this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
     }
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
