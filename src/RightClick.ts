@@ -16,8 +16,7 @@ export class RightClick {
         //graph node specific context menu intitating function, we cannot use ko bindings within the d3 svg 
         const eagle: Eagle = Eagle.getInstance();
 
-        // var data = eagle.logicalGraph().findNodeByKey(parseInt($(event.target).attr('id')))
-        console.log(eventTarget,data)
+        // console.log(eventTarget,data)
 
         var passedObjectClass
         if(data instanceof Node){
