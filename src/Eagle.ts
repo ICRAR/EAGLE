@@ -2558,17 +2558,20 @@ export class Eagle {
         this.addNodesToPalette(nodes);
     }
 
-    deleteSelection = (data:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+    deleteSelection = (requstMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
 
         var mode:string
+        var data:any = []
+
         // if no objects selected, warn user
-        if (data === ''){
+        if (requstMode === ''){
             data = this.selectedObjects()
             mode = 'normal'
         }else{
-            data = Eagle.selectedRightClickObject()
+            data.push(Eagle.selectedRightClickObject())
             mode = 'rightClick'
         }
+
         if (data.length === 0){
             console.warn("Unable to delete selection: Nothing selected");
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");

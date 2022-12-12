@@ -950,6 +950,10 @@ select.form-control{
     z-index:10;
 }
 
+#confirmModal .modal-content{
+    height: 20vh;
+}
+
 #aboutModal .modal-content{
     width: 60vw;
     height: 60vh;

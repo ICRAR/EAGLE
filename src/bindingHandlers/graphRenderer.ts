@@ -1410,7 +1410,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .text(getInputAppText)
             .on("contextmenu", function (d:Node, i:number) {
                 d3.event.preventDefault();
-                // d3.event.stopPropagation();
+                d3.event.stopPropagation();
                 RightClick.initiateContextMenu(d.getInputApplication(),d3.event.target)
             });
 
@@ -1425,7 +1425,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .text(getOutputAppText)
             .on("contextmenu", function (d:Node, i:number) {
                 d3.event.preventDefault();
-                // d3.event.stopPropagation();
+                d3.event.stopPropagation();
                 RightClick.initiateContextMenu(d.getOutputApplication(),d3.event.target)
             });
 
