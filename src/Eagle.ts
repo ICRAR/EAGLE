@@ -4418,10 +4418,13 @@ $( document ).ready(function() {
         $(event.target).find("input").click()
     })
 
-    //removes focus from input and textareas when using the canvas
+    //removes focus from input and textareas when clicking the canvas
     $("#logicalGraphParent").on("mousedown", function(){
         $("input").blur();
         $("textarea").blur();
+
+        //back up method of hiding the right click context menu in case it get stuck open
+        $('#customContextMenu').remove();
     });
 
     $(".tableParameter").on("click", function(){
