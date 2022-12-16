@@ -9,6 +9,45 @@ export class RightClick {
     constructor(){
     }
 
+    static rightClickReloadPalette = () : void => {
+        const eagle: Eagle = Eagle.getInstance();
+        var index = 0
+        var palettes = eagle.palettes()
+
+        palettes.forEach(function(palette){
+            if (palette === Eagle.selectedRightClickObject()){
+                eagle.reloadPalette(palette,index)
+            }
+            index++
+        })
+
+    }
+
+    static rightClickDeletePalette = () : void => {
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.closePalette(Eagle.selectedRightClickObject())
+    }
+
+    static rightClickSavePaletteToDisk = () : void => {
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.savePaletteToDisk(Eagle.selectedRightClickObject())
+    }
+
+    static rightClickSavePaletteToGit = () : void => {
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.savePaletteToGit(Eagle.selectedRightClickObject())
+    }
+
+    static rightClicktoggleSearchExclude = (bool:boolean) : void => {
+        const eagle: Eagle = Eagle.getInstance();
+        Eagle.selectedRightClickObject().setSearchExclude(bool)
+    }
+
+    static rightClickCopyPaletteUrl = (bool:boolean) : void => {
+        const eagle: Eagle = Eagle.getInstance();
+        Eagle.selectedRightClickObject().copyUrl()
+    }
+
     static closeCustomContextMenu = () : void => {
         $("#customContextMenu").remove()
     }
@@ -104,27 +143,25 @@ export class RightClick {
         }else if(targetClass.includes('rightClick_paletteHeader')){
             
             if(!data.fileInfo().builtIn){
-                $('#customContextMenu').append('<a data-bind="click: $root.selectedRightClickObject().closePalette, clickBubble: false" data-html="true"><span>Remove Palette</span></a>')
+                $('#customContextMenu').append('<a onclick="RightClick.rightClickDeletePalette()"><span>Remove Palette</span></a>')
             }
             if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown){
-                $('#customContextMenu').append('<a data-bind="click: function(){$root.reloadPalette($data, $index())}, clickBubble: false" data-html="true"><span>Reload Palette</span></a>')
+                $('#customContextMenu').append('<a onclick="RightClick.rightClickReloadPalette()"><span>Reload Palette</span></a>')
             }
             if(Eagle.allowPaletteEditing()){
-                $('#customContextMenu').append('<a data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>')
-                $('#customContextMenu').append('<a data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>')
+                $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToDisk()"><span>Save Locally</span></a>')
+                $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToGit()"><span>Save To Git</span></a>')
             }
             if(data.searchExclude()){
-                $('#customContextMenu').append('<a data-bind="click: function(){$data.setSearchExclude(false)}"><span>Include In Search</span></a>')
+                $('#customContextMenu').append('<a onclick="RightClick.rightClicktoggleSearchExclude(false)"><span>Include In Search</span></a>')
             }
             if(!data.searchExclude()){
-                $('#customContextMenu').append('<a data-bind="click: function(){$data.setSearchExclude(true)}"><span>Exclude From Search</span></a>')
+                $('#customContextMenu').append('<a onclick="RightClick.rightClicktoggleSearchExclude(true)"><span>Exclude From Search</span></a>')
             }
             if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown && data.fileInfo().repositoryService !== Eagle.RepositoryService.File){
-                $('#customContextMenu').append('<a data-bind="click: $data.copyUrl"><span>Copy Palette URL</span></a>')
+                $('#customContextMenu').append('<a onclick="RightClick.rightClickCopyPaletteUrl()"><span>Copy Palette URL</span></a>')
             }
 
-            console.log('graph edge')
-            console.log(data)
         }
 
         // adding a listener to function options that closes the menu if an option is clicked

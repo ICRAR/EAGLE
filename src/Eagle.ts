@@ -1227,7 +1227,6 @@ export class Eagle {
      */
      reloadPalette = (palette: Palette, index: number) : void => {
          const fileInfo : FileInfo = palette.fileInfo();
-
          // remove palette
          this.closePalette(palette);
 
