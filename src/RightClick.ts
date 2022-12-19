@@ -52,6 +52,29 @@ export class RightClick {
         $("#customContextMenu").remove()
     }
 
+    static createHtmlPaletteList = () : string => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        var paletteList:string = ''
+        var palettes = eagle.palettes()
+
+        palettes.forEach(function(palette){
+            console.log(palette.fileInfo().name)
+            var htmlPalette = "<span class='contextmenuPalette'>"+palette.fileInfo().name
+            htmlPalette = htmlPalette + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
+            htmlPalette = htmlPalette + '<div class="contextMenuDropdown">'
+            palette.getNodes().forEach(function(node){
+                htmlPalette = htmlPalette+"<a class='contextMenuDropdownOption'>"+node.getName()+'</a>'
+            })
+            htmlPalette = htmlPalette+"</div>"
+            htmlPalette = htmlPalette+"</span>"
+            paletteList = paletteList+htmlPalette
+        })
+
+        console.log(paletteList)
+        return paletteList
+    }
+
     static initiateContextMenu = (data:any, eventTarget:any) : void => {
         //graph node specific context menu intitating function, we cannot use ko bindings within the d3 svg 
         const eagle: Eagle = Eagle.getInstance();
@@ -102,7 +125,19 @@ export class RightClick {
             
         //append function options depending on the right click object
         if(targetClass.includes('rightClick_logicalGraph')){
-            $('#customContextMenu').append('<a onclick="eagle.openShortcuts()">Palette list with search bar</a>')
+            var searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
+                                <i class="material-icons md-18 searchBarIcon">search</i>
+                                <a onclick="">
+                                    <i class="material-icons md-18 searchBarIconClose">close</i>
+                                </a>
+                                <input class="rightClickSearchBar" type="text" placeholder="Search" >
+                            </div>` 
+
+            $('#customContextMenu').append(searchbar)
+
+            var paletteList = RightClick.createHtmlPaletteList()
+
+            $('#customContextMenu').append(paletteList)
 
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
 

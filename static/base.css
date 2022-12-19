@@ -2216,6 +2216,10 @@ palette-component input.form-control.selected {
     background-color: #001d3b;
 }
 
+#customContextMenu .contextmenuPalette{
+    display: block;
+}
+
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
       -webkit-user-select: none; /* Safari */
