@@ -2506,7 +2506,7 @@ export class Eagle {
         navigator.clipboard.writeText(JSON.stringify(clipboard));
     }
 
-    pasteFromClipboard = async () : void => {
+    pasteFromClipboard = async () => {
         console.log("pasteFromClipboard()");
 
         const clipboard = JSON.parse(await navigator.clipboard.readText())
@@ -2518,17 +2518,28 @@ export class Eagle {
         const edges : Edge[] = [];
 
         for (const n of clipboard.nodes){
-            Node.fromOJSJson(n, null, (): number => {
+            const node = Node.fromOJSJson(n, null, (): number => {
                 const resultKeys: number[] = Utils.getUsedKeys(this.logicalGraph().getNodes());
                 const combinedKeys: number[] = resultKeys.concat(extraUsedKeys);
-                
+
                 const newKey = Utils.findNewKey(combinedKeys);
                 extraUsedKeys.push(newKey);
                 return newKey;
             });
+
+            nodes.push(node);
+        }
+
+        for (const e of clipboard.edges){
+            // TODO: read the edge
         }
 
         this.insertGraph(nodes, edges, null);
+
+        // ensure changes are reflected in display
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Paste from Clipboard");
+        this.logicalGraph.valueHasMutated();
     }
 
     addNodesToPalette = (nodes: Node[]) : void => {
