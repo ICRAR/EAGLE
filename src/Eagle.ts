@@ -2531,7 +2531,9 @@ export class Eagle {
         }
 
         for (const e of clipboard.edges){
-            // TODO: read the edge
+            const edge = Edge.fromOJSJson(e, this.logicalGraph(), null);
+
+            edges.push(edge);
         }
 
         this.insertGraph(nodes, edges, null);
