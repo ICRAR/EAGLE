@@ -245,6 +245,9 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("toggle_show_data_nodes", "Toggle Show Data Nodes", ["j"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleShowDataNodes(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("check_for_component_updates", "Check for Component Updates", ["q"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.checkForComponentUpdates(); }));
 
+        Eagle.shortcuts.push(new KeyboardShortcut("copy_from_graph", "Copy from graph", ["c"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.copySelectionToClipboard(); }));
+        Eagle.shortcuts.push(new KeyboardShortcut("paste_to_graph", "Paste to graph", ["v"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.pasteFromClipboard(); }));
+
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
@@ -2473,6 +2476,59 @@ export class Eagle {
                 console.error("Unknown selectedLocation", Eagle.selectedLocation());
                 break;
         }
+    }
+
+    copySelectionToClipboard = () : void => {
+        console.log("copySelectionToClipboard()");
+
+        const nodes: object[] = [];
+        const edges: object[] = [];
+
+        for (const object of this.selectedObjects()){
+            if (object instanceof Node){
+                // serialise node
+                const node = Node.toOJSGraphJson(object);
+                nodes.push(node);
+            }
+
+            if (object instanceof Edge){
+                const edge = Edge.toOJSJson(object);
+                edges.push(edge);
+            }
+        }
+
+        const clipboard = {
+            nodes: nodes,
+            edges: edges
+        };
+
+        // write to clipboard
+        navigator.clipboard.writeText(JSON.stringify(clipboard));
+    }
+
+    pasteFromClipboard = async () : void => {
+        console.log("pasteFromClipboard()");
+
+        const clipboard = JSON.parse(await navigator.clipboard.readText())
+        const extraUsedKeys: number[] = [];
+
+        console.log("clipboard", clipboard);
+
+        const nodes : Node[] = [];
+        const edges : Edge[] = [];
+
+        for (const n of clipboard.nodes){
+            Node.fromOJSJson(n, null, (): number => {
+                const resultKeys: number[] = Utils.getUsedKeys(this.logicalGraph().getNodes());
+                const combinedKeys: number[] = resultKeys.concat(extraUsedKeys);
+                
+                const newKey = Utils.findNewKey(combinedKeys);
+                extraUsedKeys.push(newKey);
+                return newKey;
+            });
+        }
+
+        this.insertGraph(nodes, edges, null);
     }
 
     addNodesToPalette = (nodes: Node[]) : void => {
