@@ -2243,13 +2243,19 @@ palette-component input.form-control.selected {
 
 .searchBarContainer a,#customContextMenu .searchBarContainer a{
     display: none;
+    padding: 0px;
 }
 
-.rightClickSearchBar{
+#rightClickSearchBar{
     width: 100% ;
     text-align: center;
     border-radius: 4px 4px 0px 0px;
     border: none;
+    outline: none;
+}
+
+.searchBarContainer a{
+    cursor:pointer;
 }
 
 .noselect {

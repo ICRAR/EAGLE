@@ -31,6 +31,19 @@ export class RightClick {
         $(event.target).find('.contextMenuDropdown').hide()
     }
 
+    static checkSearchField = () : void => {
+        if($(event.target).val() !== ''){
+            $(event.target).parent().find('a').show()
+        } else{
+            $(event.target).parent().find('a').hide()
+        }
+    }
+
+    static clearSearchField = () : void => {
+        console.log($('#rightClickSearchBar').val())
+        $('#rightClickSearchBar').val('')
+    }
+
     static rightClickDeletePalette = () : void => {
         const eagle: Eagle = Eagle.getInstance();
         eagle.closePalette(Eagle.selectedRightClickObject())
@@ -135,10 +148,10 @@ export class RightClick {
         if(targetClass.includes('rightClick_logicalGraph')){
             var searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
                                 <i class="material-icons md-18 searchBarIcon">search</i>
-                                <a onclick="">
+                                <a onclick="RightClick.clearSearchField()">
                                     <i class="material-icons md-18 searchBarIconClose">close</i>
                                 </a>
-                                <input class="rightClickSearchBar" type="text" placeholder="Search" >
+                                <input id="rightClickSearchBar" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
                             </div>` 
 
             $('#customContextMenu').append(searchbar)
@@ -208,7 +221,7 @@ export class RightClick {
         }
 
         // adding a listener to function options that closes the menu if an option is clicked
-        $('#customContextMenu a').on('click',function(){RightClick.closeCustomContextMenu()})
+        $('#customContextMenu a').on('click',function(){if($(event.target).parents('.searchBarContainer').length){return};RightClick.closeCustomContextMenu()})
     }
 
 }
