@@ -164,9 +164,9 @@ export class Edge {
 
     static toOJSJson = (edge : Edge) : object => {
         return {
-            from: -1,
+            from: edge.srcNodeKey,
             fromPort: edge.srcPortId,
-            to: -1,
+            to: edge.destNodeKey,
             toPort: edge.destPortId,
             dataType: edge.dataType,
             loop_aware: edge.loopAware ? "1" : "0",
@@ -174,66 +174,32 @@ export class Edge {
         };
     }
 
-    static fromOJSJson = (linkData: any, logicalGraph: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
+    static fromOJSJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
+        // try to read source and destination nodes and ports
+        let srcNodeKey : number = 0;
+        let srcPortId : string = "";
+        let destNodeKey : number = 0;
+        let destPortId : string = "";
 
-        // find source node
-        const srcNode : Node = logicalGraph.findNodeByKey(linkData.from);
-
-        // abort if source node not found
-        if (srcNode === null){
-            const error : string = "Unable to find node with key " + linkData.from + " used as source node in link. Discarding link!";
-            errorsWarnings.errors.push(Errors.Message(error));
+        if (typeof linkData.from === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'from' attribute"));
+        } else {
+            srcNodeKey = linkData.from;
         }
-
-        // find source port on source node
-        let srcPort : Field = srcNode.findPortById(linkData.fromPort);
-
-        // if source port was not found on source node, check the source node's embedded application nodes
-        // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
-        if (srcPort === null){
-            const found: {key: number, port: Field} = srcNode.findPortInApplicationsById(linkData.fromPort);
-            if (found.port !== null){
-                const message: string = "Updated edge source node from construct " + linkData.from + " to embedded application node " + found.key+ " and port " + found.port.getId();
-                srcPort = found.port;
-                linkData.from = found.key;
-                errorsWarnings.warnings.push(Errors.Message(message));
-            }
+        if (typeof linkData.fromPort === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'fromPort' attribute"));
+        } else {
+            srcPortId = linkData.fromPort;
         }
-
-        // abort if source port not found
-        if (srcPort === null){
-            const error : string = "Unable to find port " + linkData.fromPort + " on node " + linkData.from + " used in link";
-            errorsWarnings.errors.push(Errors.Message(error));
+        if (typeof linkData.to === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'to' attribute"));
+        } else {
+            destNodeKey = linkData.to;
         }
-
-        // find destination node
-        const destNode : Node = logicalGraph.findNodeByKey(linkData.to);
-
-        // abort if dest node not found
-        if (destNode === null){
-            const error : string = "Unable to find node with key " + linkData.to + " used as destination node in link. Discarding link!";
-            errorsWarnings.errors.push(Errors.Message(error));
-        }
-
-        // find dest port on dest node
-        let destPort : Field = destNode.findPortById(linkData.toPort);
-
-        // if destination port was not found on destination node, check the destination node's embedded application nodes
-        // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
-        if (destPort === null){
-            const found: {key: number, port: Field} = destNode.findPortInApplicationsById(linkData.toPort);
-            if (found.port !== null){
-                const message: string = "Updated edge destination node from construct " + linkData.to + " to embedded application node " + found.key + " and port " + found.port.getId();
-                destPort = found.port;
-                linkData.to = found.key;
-                errorsWarnings.warnings.push(Errors.Message(message));
-            }
-        }
-
-        // abort if dest port not found
-        if (destPort === null){
-            const error : string = "Unable to find port " + linkData.toPort + " on node " + linkData.to + " used in link";
-            errorsWarnings.errors.push(Errors.Message(error));
+        if (typeof linkData.toPort === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'toPort' attribute"));
+        } else {
+            destPortId = linkData.toPort;
         }
 
         // try to read the dataType attribute
@@ -251,12 +217,13 @@ export class Edge {
             loopAware = linkData.loopAware;
         }
 
+        // try to read the closesLoop attribute
         let closesLoop: boolean = false;
         if (typeof linkData.closesLoop !== 'undefined'){
             closesLoop = linkData.closesLoop;
         }
 
-        return new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, dataType, loopAware, closesLoop, false);
+        return new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop, false);
     }
 
     static toV3Json = (edge : Edge) : object => {

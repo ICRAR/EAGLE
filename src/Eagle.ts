@@ -2510,7 +2510,6 @@ export class Eagle {
         console.log("pasteFromClipboard()");
 
         const clipboard = JSON.parse(await navigator.clipboard.readText())
-        const extraUsedKeys: number[] = [];
 
         console.log("clipboard", clipboard);
 
@@ -2519,19 +2518,15 @@ export class Eagle {
 
         for (const n of clipboard.nodes){
             const node = Node.fromOJSJson(n, null, (): number => {
-                const resultKeys: number[] = Utils.getUsedKeys(this.logicalGraph().getNodes());
-                const combinedKeys: number[] = resultKeys.concat(extraUsedKeys);
-
-                const newKey = Utils.findNewKey(combinedKeys);
-                extraUsedKeys.push(newKey);
-                return newKey;
+                console.error("Should not have to generate new key for node", n);
+                return 0;
             });
 
             nodes.push(node);
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, this.logicalGraph(), null);
+            const edge = Edge.fromOJSJson(e, null);
 
             edges.push(edge);
         }
