@@ -85,7 +85,7 @@ export class RightClick {
             htmlPalette = htmlPalette + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
             htmlPalette = htmlPalette + '<div class="contextMenuDropdown">'
             palette.getNodes().forEach(function(node){
-                htmlPalette = htmlPalette+"<a class='contextMenuDropdownOption'>"+node.getName()+'</a>'
+                htmlPalette = htmlPalette+`<a onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption'>`+node.getName()+'</a>'
             })
             htmlPalette = htmlPalette+"</div>"
             htmlPalette = htmlPalette+"</span>"
@@ -117,6 +117,8 @@ export class RightClick {
 
     static requestCustomContextMenu = (data:any, targetElement:JQuery, passedObjectClass:string) : void => {
         //getting the mouse event for positioning the right click menu at the cursor location
+        const eagle: Eagle = Eagle.getInstance();
+
         var thisEvent = event as MouseEvent
         var mouseX = thisEvent.clientX
         var mouseY = thisEvent.clientY
@@ -143,6 +145,9 @@ export class RightClick {
         $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu()"></div>')
         $('#customContextMenu').css('top',mouseY+'px')
         $('#customContextMenu').css('left',mouseX+'px')
+
+        //in change of passing the right click location as the location where to place the node WIP
+        Eagle.selectedRightClickPosition = {x:(mouseX - eagle.globalOffsetY), y:(mouseY - eagle.globalOffsetX)};
             
         //append function options depending on the right click object
         if(targetClass.includes('rightClick_logicalGraph')){

@@ -69,6 +69,7 @@ export class Eagle {
 
     static selectedRightClickObject : ko.Observable<any>;
     static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
+    static selectedRightClickPosition : {x: number, y: number} = {x:0, y:0}
 
     repositories: ko.Observable<Repositories>;
     translator : ko.Observable<Translator>;
@@ -2760,20 +2761,32 @@ export class Eagle {
         }
     }
 
-    addNodeToLogicalGraph = (node : Node, callback: (node: Node) => void) : void => {
+    addNodeToLogicalGraph = (node : any, callback: (node: Node) => void, mode:string) : void => {
         let pos : {x:number, y:number};
+        
+        if(mode === 'contextMenu'){
+            pos = Eagle.selectedRightClickPosition;
+            this.palettes().forEach(function(palette){
+                if(palette.findNodeById(node)!==null){
+                    node = palette.findNodeById(node)
+                }
+            })
+        }
 
         // if node is a construct, set width and height a little larger
         if (CategoryData.getCategoryData(node.getCategory()).canContainComponents){
             node.setWidth(Node.GROUP_DEFAULT_WIDTH);
             node.setHeight(Node.GROUP_DEFAULT_HEIGHT);
         }
-
-        // get new position for node
-        if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-            pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
-        } else {
-            pos = Eagle.nodeDropLocation;
+        console.log(pos)
+        if(pos.x === 0 && pos.y === 0){
+            console.log('nooo')
+            // get new position for node
+            if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
+                pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
+            } else {
+                pos = Eagle.nodeDropLocation;
+            }
         }
 
         this.addNode(node, pos.x, pos.y, (newNode: Node) => {
@@ -3417,7 +3430,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent, null);
+            this.addNodeToLogicalGraph(sourceComponent, null,'');
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += 20;

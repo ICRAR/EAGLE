@@ -988,7 +988,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                                 } else {
                                                     addEdge(srcNode, srcPort, node, destPort, false, false);
                                                 }
-                                            });
+                                            },'');
                                         });
                                     }
                                 }

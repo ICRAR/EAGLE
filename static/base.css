@@ -2171,6 +2171,7 @@ palette-component input.form-control.selected {
 #customContextMenu a,#customContextMenu span{
     padding:2px 8px;
     display: block;
+    cursor: pointer;
 }
 
 #customContextMenu a:hover,#customContextMenu span:hover{
@@ -2193,15 +2194,13 @@ palette-component input.form-control.selected {
     background-color: #0059a5;
     display: none;
     max-height: 400px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 #customContextMenu a{
     color: white;  
     text-decoration: none;
 }
-
-
 
 .componentSearchBar{
     width:100%;
@@ -2276,4 +2275,4 @@ palette-component input.form-control.selected {
 
 .inputNoArrows[type=number] {
     -moz-appearance: textfield;
-  }
+}
