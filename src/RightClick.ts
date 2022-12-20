@@ -23,6 +23,14 @@ export class RightClick {
 
     }
 
+    static openSubMenu = () : void => {
+        $(event.target).find('.contextMenuDropdown').show()
+    }
+
+    static closeSubMenu = () : void => {
+        $(event.target).find('.contextMenuDropdown').hide()
+    }
+
     static rightClickDeletePalette = () : void => {
         const eagle: Eagle = Eagle.getInstance();
         eagle.closePalette(Eagle.selectedRightClickObject())
@@ -60,7 +68,7 @@ export class RightClick {
 
         palettes.forEach(function(palette){
             console.log(palette.fileInfo().name)
-            var htmlPalette = "<span class='contextmenuPalette'>"+palette.fileInfo().name
+            var htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'>"+palette.fileInfo().name
             htmlPalette = htmlPalette + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
             htmlPalette = htmlPalette + '<div class="contextMenuDropdown">'
             palette.getNodes().forEach(function(node){

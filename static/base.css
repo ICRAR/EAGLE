@@ -1,6 +1,8 @@
-/* body {
-    zoom: 75%;
-} */
+body {
+    /* prevent window from ever scrolling the whole page */
+    overflow: hidden; 
+    /* zoom: 75%; */
+}
 
 #graphArea {
     /*background-color: rgb(222,222,222);*/
@@ -567,48 +569,6 @@ td:first-child input {
     bottom: 0px;
     left: 4px;
     cursor: col-resize;
-}
-
-.componentSearchBar{
-    width:100%;
-    text-align: center;
-    padding: 5px;
-    border:solid 1px #ced4da;
-    border-radius: 5px;
-}
-
-.searchBarIcon{
-    position: absolute;
-    font-size: 24px !important;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 5px;
-    color: #aeaeae;
-}
-
-.searchBarIconClose{
-    position: absolute;
-    font-size: 24px !important;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 5px;
-    color: #aeaeae;
-}
-
-.searchBarContainer{
-    position: relative;
-}
-
-.rightWindow .searchBarContainer{
-    margin-bottom: 15px;
-}
-
-.leftWindow .searchBarContainer{
-    margin-top: 10px;
-}
-
-.searchBarContainer a{
-    display: none;
 }
 
 .leftWindow {
@@ -2198,26 +2158,98 @@ palette-component input.form-control.selected {
 
 #customContextMenu{
     background-color: #0059a5;
-    padding:5px 0px;
+    padding:0px;
     position: absolute;
     border-radius: 5px;
-    border: #002349 1px solid;
+    border: 1px solid #002349;
+    box-shadow: 0 3px 10px rgb(0 0 0 / 20%);
     color: white;
     z-index: 1000;
     font-size: 14px;
 }
 
-#customContextMenu a{
+#customContextMenu a,#customContextMenu span{
     padding:2px 8px;
     display: block;
 }
 
-#customContextMenu a:hover{
+#customContextMenu a:hover,#customContextMenu span:hover{
     background-color: #001d3b;
 }
 
 #customContextMenu .contextmenuPalette{
     display: block;
+    position: relative;
+}
+
+#customContextMenu .contextMenuDropdown{
+    position: absolute;
+    top: 0px;
+    left: 100%;
+    padding:5px 0px;
+    color: white;
+    border-radius: 5px;
+    border: #002349 1px solid;
+    background-color: #0059a5;
+    display: none;
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+#customContextMenu a{
+    color: white;  
+    text-decoration: none;
+}
+
+
+
+.componentSearchBar{
+    width:100%;
+    text-align: center;
+    padding: 5px;
+    border:solid 1px #ced4da;
+    border-radius: 5px;
+}
+
+.searchBarIcon{
+    position: absolute;
+    font-size: 24px !important;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 5px;
+    color: #aeaeae;
+}
+
+.searchBarIconClose{
+    position: absolute;
+    font-size: 24px !important;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 5px;
+    color: #aeaeae;
+}
+
+.searchBarContainer{
+    position: relative;
+}
+
+.rightWindow .searchBarContainer{
+    margin-bottom: 15px;
+}
+
+.leftWindow .searchBarContainer{
+    margin-top: 10px;
+}
+
+.searchBarContainer a,#customContextMenu .searchBarContainer a{
+    display: none;
+}
+
+.rightClickSearchBar{
+    width: 100% ;
+    text-align: center;
+    border-radius: 4px 4px 0px 0px;
+    border: none;
 }
 
 .noselect {
