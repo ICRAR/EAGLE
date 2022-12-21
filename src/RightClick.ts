@@ -92,7 +92,11 @@ export class RightClick {
     }
 
     static closeCustomContextMenu = () : void => {
-        $("#customContextMenu").remove()
+        setTimeout(function() {
+            if($("#customContextMenu:hover").length === 0){
+                $("#customContextMenu").remove()
+            }
+        }, 300);
     }
 
     static createHtmlPaletteList = () : string => {
