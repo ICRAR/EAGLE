@@ -2763,6 +2763,7 @@ export class Eagle {
 
     addNodeToLogicalGraph = (node : any, callback: (node: Node) => void, mode:string) : void => {
         let pos : {x:number, y:number};
+        pos = {x:0,y:0}
         
         if(mode === 'contextMenu'){
             pos = Eagle.selectedRightClickPosition;
@@ -2778,9 +2779,9 @@ export class Eagle {
             node.setWidth(Node.GROUP_DEFAULT_WIDTH);
             node.setHeight(Node.GROUP_DEFAULT_HEIGHT);
         }
-        console.log(pos)
+
+        //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
         if(pos.x === 0 && pos.y === 0){
-            console.log('nooo')
             // get new position for node
             if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
                 pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
