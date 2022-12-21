@@ -34,6 +34,7 @@ export class RightClick {
     static checkSearchField = () : void => {
         const eagle: Eagle = Eagle.getInstance();
         var searchValue:string = $(event.target).val().toString()
+        $(".rightClickFocus").removeClass('rightClickFocus')
         if(searchValue !== ''){
             //if the search bar is not empty
             $('#rightClickPaletteList').hide()
@@ -62,7 +63,6 @@ export class RightClick {
     }
 
     static clearSearchField = () : void => {
-        console.log($('#rightClickSearchBar').val())
         $('#rightClickSearchBar').val('')
     }
 
@@ -116,11 +116,99 @@ export class RightClick {
         return paletteList
     }
 
+    static initiateQuickSelect = () : void => {
+        $("#customContextMenu").on('keydown',function(e){
+            switch(e.which) {
+                case 37: // left
+                if($('#rightClickSearchBar').val()===''){
+                    e.preventDefault()
+                    var current = $(".rightClickFocus")
+                    if(current.hasClass('rightClickPaletteNode')){
+                        $('.rightClickFocusParent').removeClass('rightClickFocusParent')
+                        $(".rightClickFocus").removeClass('rightClickFocus')
+                        current.parent().hide()
+                        current.parent().parent().addClass('rightClickFocus')
+                    }
+                }
+                break;
+        
+                case 38: // up
+                e.preventDefault()
+                if($('#rightClickSearchBar').val()!==''){   
+                    if($(".rightClickFocus").length === 0){
+                        $('#paletteNodesSearchResult .rightClickPaletteNode:last').addClass('rightClickFocus')
+                    }else{
+                        var current = $(".rightClickFocus")
+                        $(".rightClickFocus").removeClass('rightClickFocus')
+                        current.prev().addClass('rightClickFocus')
+                    }
+                }else{
+                    if($(".rightClickFocus").length === 0){
+                        $('#rightClickPaletteList .contextmenuPalette:last').addClass('rightClickFocus')
+                    }else{
+                        var current = $(".rightClickFocus")
+                        $(".rightClickFocus").removeClass('rightClickFocus')
+                        current.prev().addClass('rightClickFocus')
+                    }
+                }
+                break;
+        
+                case 39: // right
+                if($('#rightClickSearchBar').val()===''){   
+                    e.preventDefault()
+                    var current = $(".rightClickFocus")
+                    current.addClass('rightClickFocusParent')
+                    $(".rightClickFocus").removeClass('rightClickFocus')
+                    current.find('.contextMenuDropdown').show()
+                    current.find('.rightClickPaletteNode:first').addClass('rightClickFocus')
+                }
+                break;
+        
+                case 40: // down
+                e.preventDefault()
+                if($('#rightClickSearchBar').val()!==''){   
+                    if($(".rightClickFocus").length === 0){
+                        $('#paletteNodesSearchResult .rightClickPaletteNode:first').addClass('rightClickFocus')
+                    }else{
+                        var current = $(".rightClickFocus")
+                        $(".rightClickFocus").removeClass('rightClickFocus')
+                        current.next().addClass('rightClickFocus')
+                    }
+                }else{
+                    if($(".rightClickFocus").length === 0){
+                        $('#rightClickPaletteList .contextmenuPalette:first').addClass('rightClickFocus')
+                    }else{
+                        var current = $(".rightClickFocus")
+                        $(".rightClickFocus").removeClass('rightClickFocus')
+                        current.next().addClass('rightClickFocus')
+                    }
+                }
+                break;
+
+                case 13: //enter
+                var current = $(".rightClickFocus")
+
+                if(current.hasClass('rightClickPaletteNode')){
+                    e.preventDefault()
+                    current.click()
+                }else if (current.hasClass('contextmenuPalette')){
+                    e.preventDefault()
+
+                    current.addClass('rightClickFocusParent')
+                    $(".rightClickFocus").removeClass('rightClickFocus')
+                    current.find('.contextMenuDropdown').show()
+                    current.find('.rightClickPaletteNode:first').addClass('rightClickFocus')
+                }
+                break;
+        
+                default: return; // exit this handler for other keys
+            }
+        })
+    }
+
     static initiateContextMenu = (data:any, eventTarget:any) : void => {
         //graph node specific context menu intitating function, we cannot use ko bindings within the d3 svg 
         const eagle: Eagle = Eagle.getInstance();
-
-        // console.log(eventTarget,data)
 
         var passedObjectClass
         if(data instanceof Node){
@@ -144,12 +232,10 @@ export class RightClick {
         var mouseY = thisEvent.clientY
 
         if(data instanceof Node||data instanceof Edge || data instanceof Palette){
-            // console.log("Is a node or edge")
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
             Eagle.selectedRightClickObject(data)
         }
 
-        // console.log("right click object: " , Eagle.selectedRightClickObject())
 
         var targetClass = ''
         var targetId = ''
@@ -158,7 +244,6 @@ export class RightClick {
             targetClass = $(targetElement).attr('class')
             targetId = $(targetElement).attr('id')
         }
-        console.log(targetClass)
 
         //setting up the menu div
         $('#customContextMenu').remove()
@@ -176,7 +261,7 @@ export class RightClick {
                                 <a onclick="RightClick.clearSearchField()">
                                     <i class="material-icons md-18 searchBarIconClose">close</i>
                                 </a>
-                                <input id="rightClickSearchBar" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
+                                <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
                             </div>` 
 
             $('#customContextMenu').append(searchbar)
@@ -188,6 +273,7 @@ export class RightClick {
 
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
             $('#rightClickSearchBar').focus()
+            RightClick.initiateQuickSelect()
         }else if(targetClass.includes('rightClick_paletteComponent')){
             Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
 

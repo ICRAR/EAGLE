@@ -2174,7 +2174,7 @@ palette-component input.form-control.selected {
     cursor: pointer;
 }
 
-#customContextMenu a:hover,#customContextMenu span:hover{
+#customContextMenu a:hover,#customContextMenu span:hover,#customContextMenu a:focus,#customContextMenu span:focus{
     background-color: #001d3b;
 }
 
@@ -2200,6 +2200,10 @@ palette-component input.form-control.selected {
 #customContextMenu a{
     color: white;  
     text-decoration: none;
+}
+
+.rightClickFocus,.rightClickFocusParent{
+    background-color: #001d3b;
 }
 
 .componentSearchBar{

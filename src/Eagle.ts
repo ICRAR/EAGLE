@@ -2772,6 +2772,7 @@ export class Eagle {
                     node = palette.findNodeById(node)
                 }
             })
+            $('#customContextMenu').remove()
         }
 
         // if node is a construct, set width and height a little larger
