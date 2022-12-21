@@ -255,8 +255,16 @@ export class RightClick {
         $('#customContextMenu').css('top',mouseY+'px')
         $('#customContextMenu').css('left',mouseX+'px')
 
-        //in change of passing the right click location as the location where to place the node WIP
-        Eagle.selectedRightClickPosition = {x:(mouseX - eagle.globalOffsetY), y:(mouseY - eagle.globalOffsetX)};
+        //in change of calculating the right click location as the location where to place the node
+        const offset = $(targetElement).offset();
+        var x = mouseX - offset.left;
+        var y = mouseY - offset.top;
+
+        // transform display coords into real coords
+        x = (x - eagle.globalOffsetX)/eagle.globalScale;
+        y = (y - eagle.globalOffsetY)/eagle.globalScale;
+
+        Eagle.selectedRightClickPosition = {x:x, y:y};
             
         //append function options depending on the right click object
         if(targetClass.includes('rightClick_logicalGraph')){
