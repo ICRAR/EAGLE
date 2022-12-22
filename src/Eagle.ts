@@ -49,6 +49,7 @@ import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {Hierarchy} from './Hierarchy';
+import {RightClick} from './RightClick';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
 import {ComponentUpdater} from './ComponentUpdater';
@@ -65,6 +66,10 @@ export class Eagle {
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
+
+    static selectedRightClickObject : ko.Observable<any>;
+    static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
+    static selectedRightClickPosition : {x: number, y: number} = {x:0, y:0}
 
     repositories: ko.Observable<Repositories>;
     translator : ko.Observable<Translator>;
@@ -123,6 +128,9 @@ export class Eagle {
 
         this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
+
+        Eagle.selectedRightClickObject = ko.observable();
+        Eagle.selectedRightClickLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.repositories = ko.observable(new Repositories());
         this.translator = ko.observable(new Translator());
@@ -211,9 +219,9 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraph();}));
         Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save Graph As", ["s"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraphAs()}));
         Eagle.shortcuts.push(new KeyboardShortcut("deploy_translator", "Generate PGT Using Default Algorithm", ["d"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.deployDefaultTranslationAlgorithm(); }));
-        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection", "Delete Selection", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false, true);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection_except_children", "Delete Without Children", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false, false);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("duplicate_selection", "Duplicate Selection", ["d"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection();}));
+        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection", "Delete Selection", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection('',false, true);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection_except_children", "Delete Without Children", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection('',false, false);}));
+        Eagle.shortcuts.push(new KeyboardShortcut("duplicate_selection", "Duplicate Selection", ["d"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection('normal');}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_subgraph_from_selection", "Create subgraph from selection", ["["], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
         Eagle.shortcuts.push(new KeyboardShortcut("change_selected_node_parent", "Change Selected Node Parent", ["f"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
@@ -355,11 +363,17 @@ export class Eagle {
     types : ko.PureComputed<string[]> = ko.pureComputed(() => {
         const result: string[] = [];
 
+
         switch (Eagle.selectedLocation()){
             case Eagle.FileType.Palette:
                 // build a list from the selected component in the palettes
-                for (const field of this.selectedNode().getFields()) {
-                    Utils.addTypeIfUnique(result, field.getType());
+                if(this.selectedNode() !== null){
+
+                    for (const field of this.selectedNode().getFields()) {
+                        Utils.addTypeIfUnique(result, field.getType());
+                    }
+                }else{
+                    console.warn('selected node is null when selecting palette component')
                 }
                 break;
             case Eagle.FileType.Graph:
@@ -372,6 +386,7 @@ export class Eagle {
                 }
                 break;
         }
+        
 
         return result;
     }, this);
@@ -1213,7 +1228,6 @@ export class Eagle {
      */
      reloadPalette = (palette: Palette, index: number) : void => {
          const fileInfo : FileInfo = palette.fileInfo();
-
          // remove palette
          this.closePalette(palette);
 
@@ -2430,17 +2444,28 @@ export class Eagle {
         });
     }
 
-    duplicateSelection = () : void => {
+    duplicateSelection = (mode:string) : void => {
         console.log("duplicateSelection()", this.selectedObjects().length, "objects");
 
-        switch(Eagle.selectedLocation()){
+        var location:string
+        var incomingNodes = []
+
+        if(mode === 'normal'){
+            location = Eagle.selectedLocation()
+            incomingNodes = this.selectedObjects()
+        }else{
+            location = Eagle.selectedRightClickLocation()
+            incomingNodes.push(Eagle.selectedRightClickObject())
+        }
+
+        switch(location){
             case Eagle.FileType.Graph:
                 {
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
 
                     // split objects into nodes and edges
-                    for (const object of this.selectedObjects()){
+                    for (const object of incomingNodes){
                         if (object instanceof Node){
                             nodes.push(object);
                         }
@@ -2460,7 +2485,7 @@ export class Eagle {
                 {
                     const nodes: Node[] = [];
 
-                    for (const object of this.selectedObjects()){
+                    for (const object of incomingNodes){
                         if (object instanceof Node){
                             nodes.push(object);
                         }
@@ -2540,12 +2565,18 @@ export class Eagle {
         });
     }
 
-    addSelectedNodesToPalette = () : void => {
+    addSelectedNodesToPalette = (mode:string) : void => {
         const nodes = []
 
-        for(const object of this.selectedObjects()){
-            if ((object instanceof Node)){
-                nodes.push(object)
+        if(mode === 'normal'){
+            for(const object of this.selectedObjects()){
+                if ((object instanceof Node)){
+                    nodes.push(object)
+                }
+            }
+        }else{
+            if ((Eagle.selectedRightClickObject() instanceof Node)){
+                nodes.push(Eagle.selectedRightClickObject())
             }
         }
 
@@ -2557,9 +2588,21 @@ export class Eagle {
         this.addNodesToPalette(nodes);
     }
 
-    deleteSelection = (suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+    deleteSelection = (requstMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+
+        var mode:string
+        var data:any = []
+
         // if no objects selected, warn user
-        if (this.selectedObjects().length === 0){
+        if (requstMode === ''){
+            data = this.selectedObjects()
+            mode = 'normal'
+        }else{
+            data.push(Eagle.selectedRightClickObject())
+            mode = 'rightClick'
+        }
+
+        if (data.length === 0){
             console.warn("Unable to delete selection: Nothing selected");
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
             return;
@@ -2574,14 +2617,14 @@ export class Eagle {
 
         // skip confirmation if setting dictates
         if (!Setting.find(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
-            this._deleteSelection(deleteChildren);
+            this._deleteSelection(deleteChildren,data,mode);
             return;
         }
 
         // determine number of nodes and edges in current selection
         let numNodes: number = 0;
         let numEdges: number = 0;
-        for (const object of this.selectedObjects()){
+        for (const object of data){
             if (object instanceof Node){
                 numNodes += 1;
             }
@@ -2596,7 +2639,7 @@ export class Eagle {
         const childEdges: Edge[] = [];
 
         // find child nodes
-        for (const object of this.selectedObjects()){
+        for (const object of data){
             if (object instanceof Node){
                 childNodes.push(...this._findChildren(object));
             }
@@ -2645,7 +2688,7 @@ export class Eagle {
                 return;
             }
 
-            this._deleteSelection(deleteChildren);
+            this._deleteSelection(deleteChildren,data,mode);
         });
     }
 
@@ -2662,8 +2705,16 @@ export class Eagle {
         return children;
     }
 
-    private _deleteSelection = (deleteChildren: boolean) : void => {
-        if (Eagle.selectedLocation() === Eagle.FileType.Graph){
+    private _deleteSelection = (deleteChildren: boolean,data:any,mode:string) : void => {
+
+        var location 
+        if (mode === 'normal'){
+            location = Eagle.selectedLocation()
+        }else{
+            location = Eagle.selectedRightClickLocation()
+        }
+
+        if (location === Eagle.FileType.Graph){
 
             // if not deleting children, move them to different parents first
             if (!deleteChildren){
@@ -2671,7 +2722,7 @@ export class Eagle {
             }
 
             // delete the selection
-            for (const object of this.selectedObjects()){
+            for (const object of data){
                 if (object instanceof Node){
                     this.logicalGraph().removeNode(object);
                 }
@@ -2688,9 +2739,9 @@ export class Eagle {
             this.undo().pushSnapshot(this, "Delete Selection");
         }
 
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+        if (location === Eagle.FileType.Palette){
 
-            for (const object of this.selectedObjects()){
+            for (const object of data){
                 if (object instanceof Node){
                     for (const palette of this.palettes()){
                         palette.removeNodeById(object.getId());
@@ -2704,8 +2755,10 @@ export class Eagle {
             }
         }
 
-        // empty the selected objects, should have all been deleted
-        this.selectedObjects([]);
+        if(mode = 'normal'){
+            // empty the selected objects, should have all been deleted
+            this.selectedObjects([]);
+        }
     }
 
     // used before deleting a selection, if we wish to preserve the children of the selection
@@ -2721,8 +2774,19 @@ export class Eagle {
         }
     }
 
-    addNodeToLogicalGraph = (node : Node, callback: (node: Node) => void) : void => {
+    addNodeToLogicalGraph = (node : any, callback: (node: Node) => void, mode:string) : void => {
         let pos : {x:number, y:number};
+        pos = {x:0,y:0}
+        
+        if(mode === 'contextMenu'){
+            pos = Eagle.selectedRightClickPosition;
+            this.palettes().forEach(function(palette){
+                if(palette.findNodeById(node)!==null){
+                    node = palette.findNodeById(node)
+                }
+            })
+            $('#customContextMenu').remove()
+        }
 
         // if node is a construct, set width and height a little larger
         if (CategoryData.getCategoryData(node.getCategory()).canContainComponents){
@@ -2730,11 +2794,14 @@ export class Eagle {
             node.setHeight(Node.GROUP_DEFAULT_HEIGHT);
         }
 
-        // get new position for node
-        if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-            pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
-        } else {
-            pos = Eagle.nodeDropLocation;
+        //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
+        if(pos.x === 0 && pos.y === 0){
+            // get new position for node
+            if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
+                pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
+            } else {
+                pos = Eagle.nodeDropLocation;
+            }
         }
 
         this.addNode(node, pos.x, pos.y, (newNode: Node) => {
@@ -3378,7 +3445,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent, null);
+            this.addNodeToLogicalGraph(sourceComponent, null,'');
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += 20;
@@ -3483,6 +3550,12 @@ export class Eagle {
 
     selectOutputApplicationNode = () : void => {
         this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
+    }
+
+    inspectNode = (target:any) : void => {
+        //the right click select object function
+        this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
+        this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
     }
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
@@ -4373,10 +4446,13 @@ $( document ).ready(function() {
         $(event.target).find("input").click()
     })
 
-    //removes focus from input and textareas when using the canvas
+    //removes focus from input and textareas when clicking the canvas
     $("#logicalGraphParent").on("mousedown", function(){
         $("input").blur();
         $("textarea").blur();
+
+        //back up method of hiding the right click context menu in case it get stuck open
+        $('#customContextMenu').remove();
     });
 
     $(".tableParameter").on("click", function(){
@@ -4408,6 +4484,7 @@ $( document ).ready(function() {
         }
 
     })
+
     $(".hierarchy").on("click", function(){
         (<any>window).eagle.selectedObjects([]);
     })         

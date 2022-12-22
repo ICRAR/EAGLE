@@ -19,6 +19,7 @@
         "./src/bindingHandlers/graphRenderer.ts",
         "./src/bindingHandlers/nodeDataProperty.ts",
         "./src/bindingHandlers/eagleTooltip.ts",
+        "./src/bindingHandlers/eagleRightClick.ts",
         "./src/components.ts",
         "./src/main.ts",
         "./src/Config.ts",
@@ -49,6 +50,7 @@
         "./src/Errors.ts",
         "./src/ComponentUpdater.ts",
         "./src/Hierarchy.ts",
+        "./src/RightClick.ts",
         "./src/Repositories.ts",
         "./src/ParameterTable.ts"
     ]

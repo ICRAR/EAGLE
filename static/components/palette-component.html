@@ -1,8 +1,8 @@
 <div class="row">
     <div class="col"  draggable="true" data-bind="event: {dragstart: SideWindow.nodeDragStart, dragend: SideWindow.nodeDragEnd}, attr: {'data-palette-index': $parentContext.$parentContext.$index, 'data-component-index': $index}">
-        <div class="input-group mb-1"  data-bind="attr: {id: 'palette_'  + $parentContext.$parentContext.$index() + '_' + $data.getPaletteComponentId()}, click: $root.paletteComponentClick, eagleTooltip: $data.getHelpHTML()">
+        <div class="input-group mb-1 rightClick_paletteComponent"  data-bind="attr: {id: 'palette_'  + $parentContext.$parentContext.$index() + '_' + $data.getPaletteComponentId()}, click: $root.paletteComponentClick, eagleTooltip: $data.getHelpHTML(), eagleRightClick: $data">
             <div class="input-group-prepend">
-                <button class="nodeBtn" type="button" data-bind="click: function(){$root.addNodeToLogicalGraph($data, null)}, clickBubble: false, attr: {id: 'addPaletteNode' + $data.getNoWhiteSpaceName()}">
+                <button class="nodeBtn" type="button" data-bind="click: function(){$root.addNodeToLogicalGraph($data, null,'')}, clickBubble: false, attr: {id: 'addPaletteNode' + $data.getNoWhiteSpaceName()}">
                     <span class="input-group-text" data-bind="style: {'background-color': $data.color}">
                         <i data-bind="class: $data.getIcon()"></i>
                     </span>

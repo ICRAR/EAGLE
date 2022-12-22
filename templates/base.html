@@ -29,6 +29,7 @@
             require(["bindingHandlers/graphRenderer"]);
             require(["bindingHandlers/nodeDataProperty"]);
             require(["bindingHandlers/eagleTooltip"]);
+            require(["bindingHandlers/eagleRightClick"]);
             require(["components"]);
             require(["main"]);
 
@@ -76,7 +77,7 @@
             </div>
             <!-- /ko -->
 
-            <div id="logicalGraphParent" data-bind="event: { dragover:SideWindow.nodeDragOver, drop: nodeDropLogicalGraph }">
+            <div id="logicalGraphParent" class="rightClick_logicalGraph" data-bind="event: { dragover:SideWindow.nodeDragOver, drop: nodeDropLogicalGraph },eagleRightClick: $data">
                 <div id="logicalGraphD3Div" data-bind="graphRenderer: $root.logicalGraph">
                 </div>
 
@@ -129,17 +130,17 @@
                                     </div>
                                     <div class="col-4 text-right headerBtns">
                                         <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
-                                        <button type="button" id="duplicateSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                                        <button type="button" id="duplicateSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){duplicateSelection(normal)}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
                                             <i  class="material-icons md-24">content_copy</i>
                                         </button>
                                         <!-- /ko -->
                                         <!-- ko if: Eagle.allowPaletteEditing() -->
-                                        <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodesToPalette, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
+                                        <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
                                             <i  class="material-icons md-24">library_add</i>
                                         </button>
                                         <!-- /ko -->
                                         <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
-                                        <button type="button" id="deleteSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
+                                        <button type="button" id="deleteSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection('',false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
                                             <i class="material-icons md-24">delete</i>
                                         </button>
                                         <!-- /ko -->

@@ -15,6 +15,7 @@ import {LogicalGraph} from '../LogicalGraph';
 import {Node} from '../Node';
 import {Setting} from '../Setting';
 import {Utils} from '../Utils';
+import { RightClick } from "../RightClick";
 
 
 ko.bindingHandlers.graphRenderer = {
@@ -282,7 +283,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("transform", nodeGetTranslation)
         .attr("class", "node")
         .attr("id", function(node : Node, index : number){return "node" + index;})
-        .style("display", getNodeDisplay);
+        .style("display", getNodeDisplay)
+        .on("contextmenu", function (d, i) {
+            d3.event.preventDefault();
+            d3.event.stopPropagation();
+            RightClick.initiateContextMenu(d,d3.event.target)
+        });
 
     // rects
     nodes
@@ -528,7 +534,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("fill", getHeaderFill)
         .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
         .style("display", getAppsBackgroundDisplay)
-        .text(getInputAppText);
+        .text(getInputAppText)
+        .on("contextmenu", function (d:Node, i:number) {
+            d3.event.preventDefault();
+            // d3.event.stopPropagation();
+            RightClick.initiateContextMenu(d.getInputApplication(),d3.event.target)
+        });
 
     // add the output name text
     nodes
@@ -539,7 +550,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("fill", getHeaderFill)
         .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
         .style("display", getAppsBackgroundDisplay)
-        .text(getOutputAppText);
+        .text(getOutputAppText)
+        .on("contextmenu", function (d:Node, i:number) {
+            d3.event.preventDefault();
+            // d3.event.stopPropagation();
+            RightClick.initiateContextMenu(d.getOutputApplication(),d3.event.target)
+        });
 
     // add the content text
     nodes
@@ -563,6 +579,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
        .attr("x", function(node:Node){return getIconLocationX(node);})
        .attr("y", function(node:Node){return getIconLocationY(node);})
        .style("display", getIconDisplay)
+       .attr('data-bind','eagleRightClick: $data')
        .append('xhtml:div')
        .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Config.SELECTED_NODE_COLOR+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
        .append('xhtml:span')
@@ -970,7 +987,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                                 } else {
                                                     addEdge(srcNode, srcPort, node, destPort, false, false);
                                                 }
-                                            });
+                                            },'');
                                         });
                                     }
                                 }
@@ -999,7 +1016,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .selectAll("path.linkExtra")
         .data(linkData)
         .enter()
-        .append("path");
+        .append("path")
+        .on("contextmenu", function (linkData, i) {
+            d3.event.preventDefault();
+            d3.event.stopPropagation();
+            RightClick.initiateContextMenu(linkData,d3.event.target)
+        });
+        
 
     linkExtras
         .attr("class", "linkExtra")
@@ -1017,6 +1040,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .data(linkData)
         .enter()
         .append("path");
+    
 
     links
         .attr("class", "link")
@@ -1033,7 +1057,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     .on("start", function(edge : Edge){
         selectEdge(edge, d3.event.sourceEvent.shiftKey);
         tick();
-    })
+    });
 
     edgeDragHandler(rootContainer.selectAll("path.link, path.linkExtra"));
 
@@ -1381,7 +1405,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("fill", getHeaderFill)
             .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
             .style("display", getAppsBackgroundDisplay)
-            .text(getInputAppText);
+            .text(getInputAppText)
+            .on("contextmenu", function (d:Node, i:number) {
+                d3.event.preventDefault();
+                d3.event.stopPropagation();
+                RightClick.initiateContextMenu(d.getInputApplication(),d3.event.target)
+            });
 
         rootContainer
             .selectAll("g.node text.outputAppName")
@@ -1391,7 +1420,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .style("fill", getHeaderFill)
             .style("font-size", HEADER_TEXT_FONT_SIZE + "px")
             .style("display", getAppsBackgroundDisplay)
-            .text(getOutputAppText);
+            .text(getOutputAppText)
+            .on("contextmenu", function (d:Node, i:number) {
+                d3.event.preventDefault();
+                d3.event.stopPropagation();
+                RightClick.initiateContextMenu(d.getOutputApplication(),d3.event.target)
+            });
 
         rootContainer
             .selectAll("g.node text.content")
@@ -1417,7 +1451,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Config.SELECTED_NODE_COLOR+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
             .append('xhtml:span')
             .attr("style", function(node:Node){ return node.getGraphIconAttr()})
-            .attr("class", function(node:Node){return node.getIcon();});
+            .attr("class", function(node:Node){return node.getIcon();})
             // TODO: possibly missing changes to the <xhtml:span> child of the foreignObject
 
         rootContainer
