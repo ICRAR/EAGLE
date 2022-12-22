@@ -64,6 +64,7 @@ export class RightClick {
 
     static clearSearchField = () : void => {
         $('#rightClickSearchBar').val('')
+        RightClick.checkSearchField()
     }
 
     static rightClickDeletePalette = () : void => {
