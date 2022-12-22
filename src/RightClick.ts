@@ -265,24 +265,30 @@ export class RightClick {
             
         //append function options depending on the right click object
         if(targetClass.includes('rightClick_logicalGraph')){
-            var searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
-                                <i class="material-icons md-18 searchBarIcon">search</i>
-                                <a onclick="RightClick.clearSearchField()">
-                                    <i class="material-icons md-18 searchBarIconClose">close</i>
-                                </a>
-                                <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
-                            </div>` 
+            if(!Eagle.hidePaletteTab()){
+                var searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
+                    <i class="material-icons md-18 searchBarIcon">search</i>
+                    <a onclick="RightClick.clearSearchField()">
+                        <i class="material-icons md-18 searchBarIconClose">close</i>
+                    </a>
+                    <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
+                </div>` 
 
-            $('#customContextMenu').append(searchbar)
+                $('#customContextMenu').append(searchbar)
 
-            $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
-            var paletteList = RightClick.createHtmlPaletteList()
+                $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
+                var paletteList = RightClick.createHtmlPaletteList()
 
-            $('#rightClickPaletteList').append(paletteList)
+                $('#rightClickPaletteList').append(paletteList)
 
-            Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
-            $('#rightClickSearchBar').focus()
-            RightClick.initiateQuickSelect()
+                Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
+                $('#rightClickSearchBar').focus()
+                RightClick.initiateQuickSelect()
+            }else{
+                var message = '<span>Lacking graph editing permissions</span>'
+                $('#customContextMenu').append(message)
+            }
+            
         }else if(targetClass.includes('rightClick_paletteComponent')){
             Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
 
@@ -307,8 +313,10 @@ export class RightClick {
             if (data.isConstruct()){
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,true)>Delete All</a>')
             }
-            $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
-            $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
+            if(Eagle.allowPaletteEditing()){
+                $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
+            }
+                $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
 
 
         }else if(passedObjectClass === 'rightClick_graphEdge'){

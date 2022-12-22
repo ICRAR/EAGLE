@@ -288,7 +288,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             d3.event.preventDefault();
             d3.event.stopPropagation();
             RightClick.initiateContextMenu(d,d3.event.target)
-            console.log( d)
         });
 
     // rects
