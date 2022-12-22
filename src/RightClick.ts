@@ -122,11 +122,12 @@ export class RightClick {
 
     static initiateQuickSelect = () : void => {
         $("#customContextMenu").on('keydown',function(e){
+            var current = $(".rightClickFocus")
+
             switch(e.which) {
                 case 37: // left
                 if($('#rightClickSearchBar').val()===''){
                     e.preventDefault()
-                    var current = $(".rightClickFocus")
                     if(current.hasClass('rightClickPaletteNode')){
                         $('.rightClickFocusParent').removeClass('rightClickFocusParent')
                         $(".rightClickFocus").removeClass('rightClickFocus')
@@ -142,7 +143,6 @@ export class RightClick {
                     if($(".rightClickFocus").length === 0){
                         $('#paletteNodesSearchResult .rightClickPaletteNode:last').addClass('rightClickFocus')
                     }else{
-                        var current = $(".rightClickFocus")
                         $(".rightClickFocus").removeClass('rightClickFocus')
                         current.prev().addClass('rightClickFocus')
                     }
@@ -150,7 +150,6 @@ export class RightClick {
                     if($(".rightClickFocus").length === 0){
                         $('#rightClickPaletteList .contextmenuPalette:last').addClass('rightClickFocus')
                     }else{
-                        var current = $(".rightClickFocus")
                         $(".rightClickFocus").removeClass('rightClickFocus')
                         current.prev().addClass('rightClickFocus')
                     }
@@ -160,7 +159,6 @@ export class RightClick {
                 case 39: // right
                 if($('#rightClickSearchBar').val()===''){   
                     e.preventDefault()
-                    var current = $(".rightClickFocus")
                     current.addClass('rightClickFocusParent')
                     $(".rightClickFocus").removeClass('rightClickFocus')
                     current.find('.contextMenuDropdown').show()
@@ -174,7 +172,6 @@ export class RightClick {
                     if($(".rightClickFocus").length === 0){
                         $('#paletteNodesSearchResult .rightClickPaletteNode:first').addClass('rightClickFocus')
                     }else{
-                        var current = $(".rightClickFocus")
                         $(".rightClickFocus").removeClass('rightClickFocus')
                         current.next().addClass('rightClickFocus')
                     }
@@ -182,7 +179,6 @@ export class RightClick {
                     if($(".rightClickFocus").length === 0){
                         $('#rightClickPaletteList .contextmenuPalette:first').addClass('rightClickFocus')
                     }else{
-                        var current = $(".rightClickFocus")
                         $(".rightClickFocus").removeClass('rightClickFocus')
                         current.next().addClass('rightClickFocus')
                     }
@@ -190,7 +186,6 @@ export class RightClick {
                 break;
 
                 case 13: //enter
-                var current = $(".rightClickFocus")
 
                 if(current.hasClass('rightClickPaletteNode')){
                     e.preventDefault()
@@ -202,6 +197,8 @@ export class RightClick {
                     $(".rightClickFocus").removeClass('rightClickFocus')
                     current.find('.contextMenuDropdown').show()
                     current.find('.rightClickPaletteNode:first').addClass('rightClickFocus')
+                }else if ($('#rightClickSearchBar').val()!=='' && current.length === 0){
+                    $('#paletteNodesSearchResult .rightClickPaletteNode:first').click()
                 }
                 break;
         
