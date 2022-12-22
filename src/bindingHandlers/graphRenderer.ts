@@ -1021,7 +1021,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             d3.event.preventDefault();
             d3.event.stopPropagation();
             RightClick.initiateContextMenu(linkData,d3.event.target)
-            console.log(linkData)
         });
         
 
