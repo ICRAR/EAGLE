@@ -520,6 +520,7 @@ export class LogicalGraph {
             // delete the node
             if (this.nodes[i].getKey() === key){
                 this.nodes.splice(i, 1);
+                continue;
             }
 
             // delete the input application
