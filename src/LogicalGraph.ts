@@ -372,6 +372,18 @@ export class LogicalGraph {
         return this.edges.length;
     }
 
+    countEdgesIncidentOnNode = (node : Node) : number => {
+        let result: number = 0;
+
+        for (const edge of this.edges){
+            if ((edge.getSrcNodeKey() === node.getKey() ) || ( edge.getDestNodeKey() === node.getKey() )){
+                result += 1;
+            }
+        }
+
+        return result;
+    }
+
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Graph;
