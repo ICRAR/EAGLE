@@ -151,6 +151,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("class", "background");
 
     $("#logicalGraphD3Div svg").mousedown(function(e:any){
+        if(e.button === 2){
+            return
+        }
         e.preventDefault()
         hasDraggedBackground = false;
         draggingInGraph = true;
@@ -191,7 +194,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     })
 
     $("#logicalGraphD3Div svg").mouseup(function(e:any){
-        finishDragging();
+        if(e.button != 2){
+            finishDragging();
+        }
     })
 
     $("#logicalGraphD3Div svg").mouseleave(function(e:any){
