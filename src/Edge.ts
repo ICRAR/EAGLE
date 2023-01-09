@@ -164,14 +164,66 @@ export class Edge {
 
     static toOJSJson = (edge : Edge) : object => {
         return {
-            from: -1,
+            from: edge.srcNodeKey,
             fromPort: edge.srcPortId,
-            to: -1,
+            to: edge.destNodeKey,
             toPort: edge.destPortId,
             dataType: edge.dataType,
             loop_aware: edge.loopAware ? "1" : "0",
             closesLoop: edge.closesLoop
         };
+    }
+
+    static fromOJSJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
+        // try to read source and destination nodes and ports
+        let srcNodeKey : number = 0;
+        let srcPortId : string = "";
+        let destNodeKey : number = 0;
+        let destPortId : string = "";
+
+        if (typeof linkData.from === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'from' attribute"));
+        } else {
+            srcNodeKey = linkData.from;
+        }
+        if (typeof linkData.fromPort === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'fromPort' attribute"));
+        } else {
+            srcPortId = linkData.fromPort;
+        }
+        if (typeof linkData.to === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'to' attribute"));
+        } else {
+            destNodeKey = linkData.to;
+        }
+        if (typeof linkData.toPort === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'toPort' attribute"));
+        } else {
+            destPortId = linkData.toPort;
+        }
+
+        // try to read the dataType attribute
+        let dataType: string = Eagle.DataType_Unknown;
+        if (typeof linkData.dataType !== 'undefined'){
+            dataType = linkData.dataType;
+        }
+
+        // try to read loop_aware attribute
+        let loopAware: boolean = false;
+        if (typeof linkData.loop_aware !== 'undefined'){
+            loopAware = linkData.loop_aware !== "0";
+        }
+        if (typeof linkData.loopAware !== 'undefined'){
+            loopAware = linkData.loopAware;
+        }
+
+        // try to read the closesLoop attribute
+        let closesLoop: boolean = false;
+        if (typeof linkData.closesLoop !== 'undefined'){
+            closesLoop = linkData.closesLoop;
+        }
+
+        return new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop, false);
     }
 
     static toV3Json = (edge : Edge) : object => {
