@@ -1452,12 +1452,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("x", function(node:Node){return getIconLocationX(node);})
             .attr("y", function(node:Node){return getIconLocationY(node);})
             .style("display", getIconDisplay)
-            .append('xhtml:div')
+            .enter()
+            .select("xhtml:div")
             .attr("style", function(node:Node){if (eagle.objectIsSelected(node) && node.isCollapsed() && !node.isPeek()){return "background-color:lightgrey; border-radius:4px; border:2px solid "+Config.SELECTED_NODE_COLOR+"; padding:2px; transform:scale(.9);line-height: normal;"}else{return "line-height: normal;padding:4px;transform:scale(.9);"}})
-            .append('xhtml:span')
+            .enter()
+            .select("xhtml:span")
             .attr("style", function(node:Node){ return node.getGraphIconAttr()})
             .attr("class", function(node:Node){return node.getIcon();})
-            // TODO: possibly missing changes to the <xhtml:span> child of the foreignObject
 
         rootContainer
             .selectAll("g.node rect.resize-control")
