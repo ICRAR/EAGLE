@@ -2529,11 +2529,18 @@ export class Eagle {
             edges: edges
         };
 
-        // display notification to user
-        Utils.showNotification("Copied to clipboard", "Copied " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
-
+        
         // write to clipboard
-        navigator.clipboard.writeText(JSON.stringify(clipboard));
+        navigator.clipboard.writeText(JSON.stringify(clipboard)).then(
+            () => {
+                // success
+                Utils.showNotification("Copied to clipboard", "Copied " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+            },
+            () => {
+                // error
+                Utils.showNotification("Error", "Unable to copy to clipboard", "danger");
+            }
+        );
     }
 
     pasteFromClipboard = async () => {
