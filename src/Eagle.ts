@@ -4055,10 +4055,14 @@ export class Eagle {
             destNodePosition = this.logicalGraph().findNodeByKey(destNode.getEmbedKey()).getPosition();
         }
 
+        // count number of edges between source and destination
+        const PORT_HEIGHT : number = 24;
+        const numIncidentEdges = this.logicalGraph().countEdgesIncidentOnNode(srcNode);
+
         // calculate a position for a new data component, halfway between the srcPort and destPort
         const dataComponentPosition = {
             x: (srcNodePosition.x + destNodePosition.x) / 2.0,
-            y: (srcNodePosition.y + destNodePosition.y) / 2.0
+            y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
         };
 
         // if destination node is a BashShellApp, then the inserted data component may not be a Memory
