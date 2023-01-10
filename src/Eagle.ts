@@ -1179,6 +1179,45 @@ export class Eagle {
         this.resetEditor()
     }
 
+    addToGraphFromJson = () : void => {
+        Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+
+            const clipboard = JSON.parse(userText);
+
+            const nodes : Node[] = [];
+            const edges : Edge[] = [];
+
+            for (const n of clipboard.nodes){
+                const node = Node.fromOJSJson(n, null, (): number => {
+                    console.error("Should not have to generate new key for node", n);
+                    return 0;
+                });
+
+                nodes.push(node);
+            }
+
+            for (const e of clipboard.edges){
+                const edge = Edge.fromOJSJson(e, null);
+
+                edges.push(edge);
+            }
+
+            this.insertGraph(nodes, edges, null);
+
+            // display notification to user
+            Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+
+            // ensure changes are reflected in display
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Added from JSON");
+            this.logicalGraph.valueHasMutated();
+        });
+    }
+
     displayLogicalGraphAsJson = () : void => {
         const cloneLG: LogicalGraph = this.logicalGraph().clone();
 
