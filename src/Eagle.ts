@@ -256,6 +256,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("copy_from_graph", "Copy from graph", ["c"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.copySelectionToClipboard(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("paste_to_graph", "Paste to graph", ["v"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.pasteFromClipboard(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("select_all_in_graph", "Select all in graph", ["a"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.selectAllInGraph(); }));
+        Eagle.shortcuts.push(new KeyboardShortcut("select_none_in_graph", "Select none in graph", ["Escape"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => { eagle.selectNoneInGraph(); }));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -2590,6 +2591,11 @@ export class Eagle {
         this.selectedObjects(newSelection);
     }
 
+    selectNoneInGraph = () : void => {
+        console.log("selectNoneInGraph()");
+
+        this.selectedObjects([]);
+    }
 
     addNodesToPalette = (nodes: Node[]) : void => {
         console.log("addNodesToPalette()");
