@@ -322,9 +322,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .on("start", function (node : Node) {
             isDraggingNode = false;
             dragEventCount = 0;
+            hasDraggedBackground = false;
 
 
             if (d3.event.sourceEvent.shiftKey || d3.event.sourceEvent.altKey){
+                hasDraggedBackground = true;
                 isDraggingSelectionRegion = true;
                 selectionRegionStart.x = DISPLAY_TO_REAL_POSITION_X(d3.event.sourceEvent.x);
                 selectionRegionStart.y = DISPLAY_TO_REAL_POSITION_Y(d3.event.sourceEvent.y-headerHeight);
@@ -412,7 +414,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // trigger updates
             eagle.flagActiveFileModified();
             eagle.logicalGraph.valueHasMutated();
-            //tick();
+            tick();
         })
         .on("end", function(node : Node){
 
