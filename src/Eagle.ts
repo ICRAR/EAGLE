@@ -255,6 +255,7 @@ export class Eagle {
 
         Eagle.shortcuts.push(new KeyboardShortcut("copy_from_graph", "Copy from graph", ["c"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.copySelectionToClipboard(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("paste_to_graph", "Paste to graph", ["v"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.pasteFromClipboard(); }));
+        Eagle.shortcuts.push(new KeyboardShortcut("select_all_in_graph", "Select all in graph", ["a"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.selectAllInGraph(); }));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -2569,6 +2570,26 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Paste from Clipboard");
         this.logicalGraph.valueHasMutated();
     }
+
+    selectAllInGraph = () : void => {
+        console.log("selectAllInGraph()");
+
+        const newSelection : (Node | Edge)[] = [];
+
+        // add nodes
+        for (const node of this.logicalGraph().getNodes()){
+            newSelection.push(node);
+        }
+
+        // add edges
+        for (const edge of this.logicalGraph().getEdges()){
+            newSelection.push(edge);
+        }
+
+        // set selection
+        this.selectedObjects(newSelection);
+    }
+
 
     addNodesToPalette = (nodes: Node[]) : void => {
         console.log("addNodesToPalette()");
