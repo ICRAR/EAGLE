@@ -2528,7 +2528,6 @@ export class Eagle {
             nodes: nodes,
             edges: edges
         };
-
         
         // write to clipboard
         navigator.clipboard.writeText(JSON.stringify(clipboard)).then(
@@ -2538,7 +2537,7 @@ export class Eagle {
             },
             () => {
                 // error
-                Utils.showNotification("Error", "Unable to copy to clipboard", "danger");
+                Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
             }
         );
     }
