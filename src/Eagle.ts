@@ -388,6 +388,20 @@ export class Eagle {
                     for (const field of node.getFields()) {
                         Utils.addTypeIfUnique(result, field.getType());
                     }
+
+                    // also check for fields that belong to the inputApplication
+                    if (node.hasInputApplication()){
+                        for (const field of node.getInputApplication().getFields()){
+                            Utils.addTypeIfUnique(result, field.getType());
+                        }
+                    }
+
+                    // also check for fields that belong to the outputApplication
+                    if (node.hasOutputApplication()){
+                        for (const field of node.getOutputApplication().getFields()){
+                            Utils.addTypeIfUnique(result, field.getType());
+                        }
+                    }
                 }
                 break;
         }

@@ -1608,7 +1608,6 @@ export class Node {
             for (const fieldData of nodeData.inputAppFields){
                 if (node.hasInputApplication()){
                     const field = Field.fromOJSJson(fieldData);
-                    field.setFieldType(Eagle.FieldType.ComponentParameter);
                     node.inputApplication().addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
@@ -1621,7 +1620,6 @@ export class Node {
             for (const fieldData of nodeData.outputAppFields){
                 if (node.hasOutputApplication()){
                     const field = Field.fromOJSJson(fieldData);
-                    field.setFieldType(Eagle.FieldType.ComponentParameter);
                     node.outputApplication().addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
