@@ -255,6 +255,8 @@ export class Eagle {
 
         Eagle.shortcuts.push(new KeyboardShortcut("copy_from_graph", "Copy from graph", ["c"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.copySelectionToClipboard(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("paste_to_graph", "Paste to graph", ["v"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.pasteFromClipboard(); }));
+        Eagle.shortcuts.push(new KeyboardShortcut("select_all_in_graph", "Select all in graph", ["a"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.selectAllInGraph(); }));
+        Eagle.shortcuts.push(new KeyboardShortcut("select_none_in_graph", "Select none in graph", ["Escape"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => { eagle.selectNoneInGraph(); }));
 
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
@@ -1175,6 +1177,51 @@ export class Eagle {
             });
         });
         this.resetEditor()
+    }
+
+    addToGraphFromJson = () : void => {
+        Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+
+            let clipboard = null;
+            try {
+                clipboard = JSON.parse(userText);
+            } catch(e) {
+                Utils.showNotification(e.name, e.message, "danger");
+                return;
+            }
+
+            const nodes : Node[] = [];
+            const edges : Edge[] = [];
+
+            for (const n of clipboard.nodes){
+                const node = Node.fromOJSJson(n, null, (): number => {
+                    console.error("Should not have to generate new key for node", n);
+                    return 0;
+                });
+
+                nodes.push(node);
+            }
+
+            for (const e of clipboard.edges){
+                const edge = Edge.fromOJSJson(e, null);
+
+                edges.push(edge);
+            }
+
+            this.insertGraph(nodes, edges, null);
+
+            // display notification to user
+            Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+
+            // ensure changes are reflected in display
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Added from JSON");
+            this.logicalGraph.valueHasMutated();
+        });
     }
 
     displayLogicalGraphAsJson = () : void => {
@@ -2526,20 +2573,37 @@ export class Eagle {
             nodes: nodes,
             edges: edges
         };
-
-        // display notification to user
-        Utils.showNotification("Copied to clipboard", "Copied " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
-
+        
         // write to clipboard
-        navigator.clipboard.writeText(JSON.stringify(clipboard));
+        navigator.clipboard.writeText(JSON.stringify(clipboard)).then(
+            () => {
+                // success
+                Utils.showNotification("Copied to clipboard", "Copied " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+            },
+            () => {
+                // error
+                Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
+            }
+        );
     }
 
     pasteFromClipboard = async () => {
         console.log("pasteFromClipboard()");
 
-        const clipboard = JSON.parse(await navigator.clipboard.readText())
+        // check if browser supports reading text from clipboard, if not, explain to user
+        if (typeof navigator.clipboard.readText === "undefined"){
+            Utils.showNotification("Unable to paste data", "Your browser does not allow access to the clipboard for security reasons. Workaround this issue using the 'Graph > New > Add to Graph from JSON' menu item and pasting your clipboard manually", "danger");
+            return;
+        }
 
-        console.log("clipboard", clipboard);
+        let clipboard = null;
+
+        try {
+            clipboard = JSON.parse(await navigator.clipboard.readText());
+        } catch(e) {
+            Utils.showNotification("Unable to paste data", e.name + ": " + e.message, "danger");
+            return;
+        }
 
         const nodes : Node[] = [];
         const edges : Edge[] = [];
@@ -2568,6 +2632,31 @@ export class Eagle {
         this.checkGraph();
         this.undo().pushSnapshot(this, "Paste from Clipboard");
         this.logicalGraph.valueHasMutated();
+    }
+
+    selectAllInGraph = () : void => {
+        console.log("selectAllInGraph()");
+
+        const newSelection : (Node | Edge)[] = [];
+
+        // add nodes
+        for (const node of this.logicalGraph().getNodes()){
+            newSelection.push(node);
+        }
+
+        // add edges
+        for (const edge of this.logicalGraph().getEdges()){
+            newSelection.push(edge);
+        }
+
+        // set selection
+        this.selectedObjects(newSelection);
+    }
+
+    selectNoneInGraph = () : void => {
+        console.log("selectNoneInGraph()");
+
+        this.selectedObjects([]);
     }
 
     addNodesToPalette = (nodes: Node[]) : void => {
