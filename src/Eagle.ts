@@ -1186,7 +1186,13 @@ export class Eagle {
                 return;
             }
 
-            const clipboard = JSON.parse(userText);
+            let clipboard = null;
+            try {
+                clipboard = JSON.parse(userText);
+            } catch(e) {
+                Utils.showNotification(e.name, e.message, "danger");
+                return;
+            }
 
             const nodes : Node[] = [];
             const edges : Edge[] = [];
@@ -2584,9 +2590,14 @@ export class Eagle {
     pasteFromClipboard = async () => {
         console.log("pasteFromClipboard()");
 
-        const clipboard = JSON.parse(await navigator.clipboard.readText())
-
-        console.log("clipboard", clipboard);
+        let clipboard = null;
+        
+        try {
+            clipboard = JSON.parse(await navigator.clipboard.readText());
+        } catch(e) {
+            Utils.showNotification("Unable to paste data", e.name + ": " + e.message, "danger");
+            return;
+        }
 
         const nodes : Node[] = [];
         const edges : Edge[] = [];
