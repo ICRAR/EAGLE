@@ -422,6 +422,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         if (isDraggingSelectionRegion){
             const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
 
+            //checking if there was no drag distance, if so we are clicking a single objectw and we will toggle its seletion
+            if(Math.abs(selectionRegionStart.x-selectionRegionEnd.x)+Math.abs(selectionRegionStart.y - selectionRegionEnd.y)<3){
+                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node,Eagle.FileType.Graph);
+                    return
+            }
+
             const edges: Edge[] = findEdgesContainedByNodes(getEdges(eagle.logicalGraph(), eagle.showDataNodes()), nodes);
             console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
             const objects: (Node | Edge)[] = [];
