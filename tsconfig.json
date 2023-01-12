@@ -17,7 +17,6 @@
         "./src/bindingHandlers/readonly.ts",
         "./src/bindingHandlers/disabled.ts",
         "./src/bindingHandlers/graphRenderer.ts",
-        "./src/bindingHandlers/nodeDataProperty.ts",
         "./src/bindingHandlers/eagleTooltip.ts",
         "./src/bindingHandlers/eagleRightClick.ts",
         "./src/components.ts",
