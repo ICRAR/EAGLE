@@ -364,6 +364,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             if (isDraggingSelectionRegion){
                 selectionRegionEnd.x =  DISPLAY_TO_REAL_POSITION_X(d3.event.sourceEvent.x);
                 selectionRegionEnd.y = DISPLAY_TO_REAL_POSITION_Y(d3.event.sourceEvent.y-headerHeight);
+                tick();
                 return
             }
 
@@ -414,7 +415,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // trigger updates
             eagle.flagActiveFileModified();
             eagle.logicalGraph.valueHasMutated();
-            tick();
         })
         .on("end", function(node : Node){
 
