@@ -456,7 +456,7 @@
                 <div class="row">
                     <!-- ko foreach: Utils.getShortcutDisplay() -->
                         <div class="col-lg-6">
-                            <div class="shortCutsModalItem">
+                            <div class="shortCutsModalItem" data-bind="click: function(){$root.triggerShortcut($data.function)}">
                                 <span data-bind="text: $data.description"></span>
                                 <span class="shortCutsModalItemRight" data-bind="text: $data.shortcut"></span>
                             </div>
