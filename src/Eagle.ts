@@ -1073,6 +1073,12 @@ export class Eagle {
         }
     }
 
+    triggerShortcut = (shortcut:any) :void => {
+        const eagle = (<any>window).eagle;
+        $('#shortcutsModal').modal("hide");
+        shortcut(eagle)
+    }
+
     /**
      * Loads a custom palette from a file.
      */
