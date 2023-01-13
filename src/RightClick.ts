@@ -293,7 +293,6 @@ export class RightClick {
         }else if(targetClass.includes('rightClick_paletteComponent')){
             Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
 
-            $('#customContextMenu').append('<a onclick="eagle.inspectNode()">Inspect</a>')
             if(Eagle.allowPaletteEditing()){
             $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
             $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
@@ -302,8 +301,8 @@ export class RightClick {
         }else if(targetClass.includes('rightClick_hierarchyNode')){
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
 
-            $('#customContextMenu').append('<a onclick="eagle.inspectNode()">Inspect</a>')
-            $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
+            $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Inspector Table</a>')
+            $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Key Parameters Table</a>')
             $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
             if(Eagle.allowPaletteEditing()){
                 $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
@@ -311,8 +310,8 @@ export class RightClick {
             $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
 
         }else if(passedObjectClass === 'rightClick_graphNode'){
-            $('#customContextMenu').append('<a onclick="eagle.inspectNode()">Inspect</a>')
             $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
+            $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Key Parameters Table</a>')
             $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
             if (data.isConstruct()){
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,true)>Delete All</a>')
@@ -324,7 +323,6 @@ export class RightClick {
 
 
         }else if(passedObjectClass === 'rightClick_graphEdge'){
-            $('#customContextMenu').append('<a onclick="eagle.inspectNode()">Inspect</a>')
             $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
 
         }else if(targetClass.includes('rightClick_paletteHeader')){

@@ -3739,13 +3739,6 @@ export class Eagle {
         this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
-    inspectNode = () : void => {
-        //the right click select object function
-        this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
-        $('#customContextMenu').remove();
-        this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
-    }
-
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
     editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
         // get field names list from the logical graph
