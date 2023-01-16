@@ -38,8 +38,13 @@ export class Node {
     private key : ko.Observable<number>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
-    private x : number;
+
+    private x : number; // display position
     private y : number;
+    private realX : number; // underlying position (pre snap-to-grid)
+    private realY : number;
+    
+    
     private width : number;
     private height : number;
     private color : ko.Observable<string>;
@@ -98,8 +103,13 @@ export class Node {
         this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
+        
+        // display position
         this.x = 0;
         this.y = 0;
+        this.realX = 0;
+        this.realY = 0;
+
         this.width = Node.DEFAULT_WIDTH;
         this.height = Node.DEFAULT_HEIGHT;
         this.color = ko.observable(Utils.getColorForNode(category));
@@ -200,11 +210,18 @@ export class Node {
     setPosition = (x: number, y: number) : void => {
         this.x = x;
         this.y = y;
+        this.realX = x;
+        this.realY = y;
     }
 
     changePosition = (dx : number, dy : number) : void => {
-        this.x += dx;
-        this.y += dy;
+        this.realX += dx;
+        this.realY += dy;
+
+        const GRID_SIZE = 100;
+
+        this.x = GRID_SIZE * Math.round(this.realX/GRID_SIZE);
+        this.y = GRID_SIZE * Math.round(this.realY/GRID_SIZE);
     }
 
     getWidth = () : number => {
