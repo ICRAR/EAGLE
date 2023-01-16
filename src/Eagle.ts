@@ -357,6 +357,32 @@ export class Eagle {
         return Setting.findValue(Utils.USER_INTERFACE_MODE) === mode;
     }
 
+    static selectedNodeGraph = () : LogicalGraph => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        for (const node of eagle.logicalGraph().getNodes()){
+            if (Node.match(node, eagle.selectedNode())){
+                return eagle.logicalGraph();
+            }
+        }
+        
+        return null;
+    }
+
+    static selectedNodePalette = () : Palette => {
+        const eagle : Eagle = Eagle.getInstance();
+
+        for (const palette of eagle.palettes()){
+            for (const node of palette.getNodes()){
+                if (Node.match(node, eagle.selectedNode())){
+                    return palette;
+                }
+            }
+        }
+
+        return null;
+    }
+
     displayNodeKeys = () :boolean => {
         return Setting.findValue(Utils.DISPLAY_NODE_KEYS);
     }

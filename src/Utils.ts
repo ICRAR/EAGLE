@@ -1969,7 +1969,19 @@ export class Utils {
         // add logical graph nodes to table
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
-                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "category":node.getCategory(), "categoryType":node.getCategoryType()});
+                tableData.push({
+                    "palette":palette.fileInfo().name,
+                    "name":node.getName(),
+                    "key":node.getKey(),
+                    "id":node.getId(),
+                    "embedKey":node.getEmbedKey(),
+                    "category":node.getCategory(),
+                    "categoryType":node.getCategoryType(),
+                    "repositoryUrl":node.getRepositoryUrl(),
+                    "commitHash":node.getCommitHash(),
+                    "paletteDownloadUrl":node.getPaletteDownloadUrl(),
+                    "dataHash":node.getDataHash()
+                });
             }
         }
 

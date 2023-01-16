@@ -25,7 +25,7 @@ export class ComponentUpdater {
 
             for (const palette of palettes){
                 for (const paletteNode of palette.getNodes()){
-                    if (node.getRepositoryUrl() === paletteNode.getRepositoryUrl() && node.getName() === paletteNode.getName() && node.getRepositoryUrl() !== ""){
+                    if (Node.requiresUpdate(node, paletteNode)){
                         newVersion = paletteNode;
                     }
                 }
@@ -37,8 +37,9 @@ export class ComponentUpdater {
                 continue;
             }
 
-            ComponentUpdater._replaceNode(graph.getNodes()[i], newVersion);
-            updatedNodes.push(graph.getNodes()[i]);
+            // update the node with a new definition
+            ComponentUpdater._replaceNode(node, newVersion);
+            updatedNodes.push(node);
         }
 
         callback(errorsWarnings, updatedNodes);
