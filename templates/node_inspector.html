@@ -30,13 +30,13 @@
                             <i class="material-icons md-20">lock_open</i>
                         </button>
                         <!-- /ko -->
-                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph -->
-                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node In Graph'">
+                        <!-- ko if: Eagle.selectedNodeGraph() -->
+                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node in Graph'">
                             <i class="material-icons md-20">account_tree</i>
                         </button>
                         <!-- /ko -->
-                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Palette -->
-                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node In Palette'">
+                        <!-- ko if: Eagle.selectedNodePalette() -->
+                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node in ' + Eagle.selectedNodePalette().fileInfo().name">
                             <i class="material-icons md-20">palette</i>
                         </button>
                         <!-- /ko -->
