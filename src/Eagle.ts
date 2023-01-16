@@ -246,13 +246,12 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["z"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().prevSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("redo", "Redo", ["z"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().nextSnapshot(eagle)}));
         Eagle.shortcuts.push(new KeyboardShortcut("check_graph", "Check Graph", ["!"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.showGraphErrors();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_inspector", "Open Inspector", ["3"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_repository", "Open Repository", ["1"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_translation", "Open Translation", ["4"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.TranslationMenu)}));
+        Eagle.shortcuts.push(new KeyboardShortcut("open_inspector", "Open Inspector", ["3"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_hierarchy", "Open Hierarchy", ["2"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Hierarchy)}));
         Eagle.shortcuts.push(new KeyboardShortcut("toggle_show_data_nodes", "Toggle Show Data Nodes", ["j"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleShowDataNodes(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("check_for_component_updates", "Check for Component Updates", ["q"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.checkForComponentUpdates(); }));
-
         Eagle.shortcuts.push(new KeyboardShortcut("copy_from_graph", "Copy from graph", ["c"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.copySelectionToClipboard(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("paste_to_graph", "Paste to graph", ["v"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.pasteFromClipboard(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("select_all_in_graph", "Select all in graph", ["a"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.selectAllInGraph(); }));
@@ -286,6 +285,13 @@ export class Eagle {
             Hierarchy.updateDisplay()
             if(this.selectedObjects().length === 0){
                 this.tableModalType('keyParametersTableModal')
+
+                //changing shortcuts depending on if right window tabs are visible or not 
+                KeyboardShortcut.changeShortcutKey(this,'open_translation','3',KeyboardShortcut.Modifier.None)
+                KeyboardShortcut.changeShortcutKey(this,'open_inspector','4',KeyboardShortcut.Modifier.None)
+            }else{
+                KeyboardShortcut.changeShortcutKey(this,'open_translation','4',KeyboardShortcut.Modifier.None)
+                KeyboardShortcut.changeShortcutKey(this,'open_inspector','3',KeyboardShortcut.Modifier.None)
             }
         }, this)
 
@@ -296,6 +302,7 @@ export class Eagle {
                 }, 500)
             }
         }, this)
+       
     }
 
     static getInstance = () : Eagle => {
