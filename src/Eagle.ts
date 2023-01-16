@@ -97,6 +97,7 @@ export class Eagle {
     tableModalType : ko.Observable<string>;
 
     showDataNodes : ko.Observable<boolean>;
+    snapToGrid : ko.Observable<boolean>;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -279,6 +280,7 @@ export class Eagle {
         this.tableModalType = ko.observable('')
 
         this.showDataNodes = ko.observable(true);
+        this.snapToGrid = ko.observable(false);
 
         this.selectedObjects.subscribe(function(){
             this.logicalGraph.valueHasMutated();
