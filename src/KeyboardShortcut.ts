@@ -27,6 +27,15 @@ export class KeyboardShortcut {
         return eagle.selectedNode() !== null;
     }
 
+    static changeShortcutKey = (eagle : Eagle, key:string, newShortcutKey:string, newModifier:KeyboardShortcut.Modifier) : void => {
+        for (const shortcut of Eagle.shortcuts()){
+            if (shortcut.key === key){
+                shortcut.keys = [newShortcutKey]
+                shortcut.modifier = newModifier
+            }
+        }
+    } 
+
     static commentNodeIsSelected = (eagle: Eagle) : boolean => {
         const selectedNode = eagle.selectedNode();
         return selectedNode !== null && selectedNode.getCategory() === Category.Comment;
