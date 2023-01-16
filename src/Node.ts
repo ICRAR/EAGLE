@@ -1334,6 +1334,7 @@ export class Node {
         return node0.getRepositoryUrl() !== "" &&
                node1.getRepositoryUrl() !== "" &&
                node0.getRepositoryUrl() === node1.getRepositoryUrl() &&
+               node0.getName() === node1.getName() &&
                node0.getCommitHash() !== node1.getCommitHash();
     }
 
