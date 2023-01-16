@@ -25,7 +25,7 @@ export class ComponentUpdater {
 
             for (const palette of palettes){
                 for (const paletteNode of palette.getNodes()){
-                    if (node.getRepositoryUrl() === paletteNode.getRepositoryUrl() && node.getName() === paletteNode.getName() && node.getRepositoryUrl() !== ""){
+                    if (Node.match(node, paletteNode)){
                         newVersion = paletteNode;
                     }
                 }

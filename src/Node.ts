@@ -1317,6 +1317,10 @@ export class Node {
         return options
     }
 
+    static match = (node0: Node, node1: Node) : boolean => {
+        return node0.getRepositoryUrl() === node1.getRepositoryUrl() && node0.getName() === node1.getName() && node0.getRepositoryUrl() !== "" && node1.getRepositoryUrl() !== "";
+    }
+
     static canHaveInputApp = (node : Node) : boolean => {
         return CategoryData.getCategoryData(node.getCategory()).canHaveInputApplication;
     }

@@ -361,7 +361,7 @@ export class Eagle {
         const eagle: Eagle = Eagle.getInstance();
 
         for (const node of eagle.logicalGraph().getNodes()){
-            if (node.getId() === eagle.selectedNode().getId()){
+            if (Node.match(node, eagle.selectedNode())){
                 return eagle.logicalGraph();
             }
         }
@@ -374,7 +374,7 @@ export class Eagle {
 
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
-                if (node.getId() === eagle.selectedNode().getId()){
+                if (Node.match(node, eagle.selectedNode())){
                     return palette;
                 }
             }
