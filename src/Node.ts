@@ -1318,7 +1318,16 @@ export class Node {
     }
 
     static match = (node0: Node, node1: Node) : boolean => {
-        return node0.getRepositoryUrl() === node1.getRepositoryUrl() && node0.getName() === node1.getName() && node0.getRepositoryUrl() !== "" && node1.getRepositoryUrl() !== "";
+        // first just check if they have matching ids
+        if (node0.getId() === node1.getId()){
+            return true;
+        }
+
+        // then check if the reproducibility data matches
+        return node0.getRepositoryUrl() !== "" &&
+               node1.getRepositoryUrl() !== "" &&
+               node0.getRepositoryUrl() === node1.getRepositoryUrl() &&
+               node0.getCommitHash() === node1.getCommitHash();
     }
 
     static canHaveInputApp = (node : Node) : boolean => {
