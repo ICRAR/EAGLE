@@ -917,11 +917,16 @@ select.form-control{
 }
 
 .modal-body{
-    height: calc(100% - 126px) !important ;
-    top: 75px;
+    height: calc(100% - 103px) !important ;
+    top: 50px;
     position: absolute;
     overflow: auto;
     width: 100%;
+}
+
+#explorePalettesModal .modal-body{
+    height: calc(100% - 126px) !important ;
+    top: 75px;
 }
 
 .modal-footer{
