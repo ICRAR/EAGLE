@@ -96,6 +96,9 @@
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}" data-intro='Load palettes and graphs from remote git repositories.'>
                             Repositories
                         </button>
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}" data-intro='Explore the hierarchy of nodes in the current logical graph.'>
+                            Hierarchy
+                        </button>
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="visible: selectedObjects().length > 0, click: function(){rightWindow().mode(Eagle.RightWindowMode.Inspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Inspector}">
                             Inspector
                         </button>
@@ -104,9 +107,6 @@
                                 Translation
                             </button>
                         <!-- /ko -->
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}" data-intro='Explore the hierarchy of nodes in the current logical graph.'>
-                            Hierarchy
-                        </button>
                     </div>
                 <div class="rightWindowHandle" data-bind="click: rightWindow().toggleShown, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_right_window', true)">
                     <span data-bind="visible: rightWindow().shown()">
