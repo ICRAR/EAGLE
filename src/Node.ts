@@ -219,9 +219,9 @@ export class Node {
         this.realY += dy;
 
         if (Eagle.getInstance().snapToGrid()){
-            const GRID_SIZE = 100;
-            this.x = GRID_SIZE * Math.round(this.realX/GRID_SIZE);
-            this.y = GRID_SIZE * Math.round(this.realY/GRID_SIZE);
+            const gridSize = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
+            this.x = gridSize * Math.round(this.realX/gridSize);
+            this.y = gridSize * Math.round(this.realY/gridSize);
         } else {
             this.x = this.realX;
             this.y = this.realY;
