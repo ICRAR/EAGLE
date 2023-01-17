@@ -218,10 +218,14 @@ export class Node {
         this.realX += dx;
         this.realY += dy;
 
-        const GRID_SIZE = 100;
-
-        this.x = GRID_SIZE * Math.round(this.realX/GRID_SIZE);
-        this.y = GRID_SIZE * Math.round(this.realY/GRID_SIZE);
+        if (Eagle.getInstance().snapToGrid()){
+            const GRID_SIZE = 100;
+            this.x = GRID_SIZE * Math.round(this.realX/GRID_SIZE);
+            this.y = GRID_SIZE * Math.round(this.realY/GRID_SIZE);
+        } else {
+            this.x = this.realX;
+            this.y = this.realY;
+        }
     }
 
     getWidth = () : number => {
