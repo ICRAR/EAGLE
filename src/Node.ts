@@ -208,10 +208,17 @@ export class Node {
     }
 
     setPosition = (x: number, y: number) : void => {
-        this.x = x;
-        this.y = y;
         this.realX = x;
         this.realY = y;
+
+        if (Eagle.getInstance().snapToGrid()){
+            const gridSize = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
+            this.x = gridSize * Math.round(this.realX/gridSize);
+            this.y = gridSize * Math.round(this.realY/gridSize);
+        } else {
+            this.x = this.realX;
+            this.y = this.realY;
+        }
     }
 
     changePosition = (dx : number, dy : number) : void => {
