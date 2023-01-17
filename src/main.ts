@@ -121,6 +121,11 @@ $(function(){
         });
     }
 
+    // set other state based on settings values
+    if (Setting.findValue(Utils.SKIP_CLOSE_LOOP_EDGES)){
+        eagle.snapToGrid(Setting.findValue(Utils.SNAP_TO_GRID));
+    }
+
     // load schemas
     Utils.loadSchemas();
 

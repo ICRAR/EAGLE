@@ -95,6 +95,8 @@ export class Utils {
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
     static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
+    static readonly SNAP_TO_GRID: string = "SnapToGrid";
+    static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
 
     static ojsGraphSchema : object = {};
     static v3GraphSchema : object = {};
