@@ -1090,10 +1090,14 @@ export class Eagle {
             const mappedParent: Node = keyMap.get(node.getParentKey());
 
             // make sure parent is set correctly
-            // if no mapping is available for the parent, then use the original parent as the parent for the new node
+            // if no mapping is available for the parent, then set parent to the new parentNode, or if no parentNode exists, just set parent to null
             // if a mapping is available, then use the mapped node as the parent for the new node
             if (typeof mappedParent === 'undefined'){
-                insertedNode.setParentKey(node.getParentKey());
+                if (parentNode === null){
+                    insertedNode.setParentKey(null);
+                } else {
+                    insertedNode.setParentKey(parentNode.getKey());
+                }
             } else {
                 insertedNode.setParentKey(mappedParent.getKey());
             }
