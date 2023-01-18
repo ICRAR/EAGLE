@@ -111,6 +111,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const MIN_AUTO_COMPLETE_EDGE_RANGE : number = 150;
 
+    const snapToGridSize : number = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
+
     const svgContainer = d3
         .select("#" + elementId)
         .append("svg");
@@ -120,12 +122,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const svgDefsPattern = svgDefs
         .append("pattern")
         .attr("id", "grid")
-        .attr("width", 100)
-        .attr("height", 100)
+        .attr("width", snapToGridSize)
+        .attr("height", snapToGridSize)
         .attr("patternUnits", "userSpaceOnUse");
     svgDefsPattern
         .append("path")
-        .attr("d", "M 100 0 L 0 0 0 100")
+        .attr("d", "M " + snapToGridSize + " 0 L 0 0 0 " + snapToGridSize)
         .attr("fill", "none")
         .attr("stroke", "grey")
         .attr("stroke-width", 0.5);
@@ -165,7 +167,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     rootContainer
         .append("rect")
         .attr("class", "background")
-        .attr("fill", "url(#grid)")
+        .attr("fill", eagle.snapToGrid() ? "url(#grid)" : "transparent")
         .attr("width", "200%")
         .attr("height", "200%");
 
