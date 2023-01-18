@@ -1105,8 +1105,17 @@ export class Eagle {
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
+            const srcNode = keyMap.get(edge.getSrcNodeKey());
+            const destNode = keyMap.get(edge.getDestNodeKey());
+            console.log("srcNode", srcNode, "destNode", destNode);
+
+            if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
+                console.warn("Unable to insert edge", edge.getId(), "source node or destination node could not be found.");
+                continue;
+            }
+
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
+            this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
         }
     }
 
