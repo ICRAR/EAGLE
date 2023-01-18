@@ -115,6 +115,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .select("#" + elementId)
         .append("svg");
 
+    // add a grid pattern to the svg
+    const svgDefs = svgContainer.append("defs");
+    const svgDefsPattern = svgDefs
+        .append("pattern")
+        .attr("id", "grid")
+        .attr("width", 100)
+        .attr("height", 100)
+        .attr("patternUnits", "userSpaceOnUse");
+    svgDefsPattern
+        .append("path")
+        .attr("d", "M 100 0 L 0 0 0 100")
+        .attr("fill", "none")
+        .attr("stroke", "grey")
+        .attr("stroke-width", 0.5);
+
     // add a root node to the SVG, we'll scale this root node
     const rootContainer = svgContainer
         .append("g")
@@ -145,10 +160,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("fill", value[1]);
     })
 
-    // background
+    // background (and grid if enabled)
+    // TODO: width and height should be dynamic, based on translation and scale
     rootContainer
         .append("rect")
-        .attr("class", "background");
+        .attr("class", "background")
+        .attr("fill", "url(#grid)")
+        .attr("width", "200%")
+        .attr("height", "200%");
 
     $("#logicalGraphD3Div svg").mousedown(function(e:any){
         if(e.button === 2){
