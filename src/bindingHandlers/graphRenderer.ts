@@ -163,13 +163,19 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     })
 
     // background (and grid if enabled)
-    // TODO: width and height should be dynamic, based on translation and scale
+    const rectWidth = $('#logicalGraphD3Div').width();
+    const rectHeight = $('#logicalGraphD3Div').height();
+    const offsetX = -eagle.globalOffsetX / eagle.globalScale;
+    const offsetY = -eagle.globalOffsetY / eagle.globalScale;
+
     rootContainer
         .append("rect")
         .attr("class", "background")
         .attr("fill", eagle.snapToGrid() ? "url(#grid)" : "transparent")
-        .attr("width", "200%")
-        .attr("height", "200%");
+        .attr("x", offsetX)
+        .attr("y", offsetY)
+        .attr("width", rectWidth*2)
+        .attr("height", rectHeight*2);
 
     $("#logicalGraphD3Div svg").mousedown(function(e:any){
         if(e.button === 2){
@@ -301,6 +307,27 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         
         tick();
     });
+
+
+    // draw x-axis
+    rootContainer
+        .append("line")
+        .attr("x1", -10000)
+        .attr("y1", 0)
+        .attr("x2", 10000)
+        .attr("y2", 0)
+        .style("stroke", eagle.snapToGrid() ? "black" : "none")
+        .style("stroke-width", 2);
+
+    // draw y-axis
+    rootContainer
+        .append("line")
+        .attr("x1", 0)
+        .attr("y1", -10000)
+        .attr("x2", 0)
+        .attr("y2", 10000)
+        .style("stroke", eagle.snapToGrid() ? "black" : "none")
+        .style("stroke-width", 2);
 
     let nodes : any = rootContainer
         .selectAll("g.node")
@@ -1342,6 +1369,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function tick(){
         const startTime = performance.now();
         eagle.rendererFrameCountTick = eagle.rendererFrameCountTick + 1;
+
+
+        // background (and grid if enabled)
+        const rectWidth = $('#logicalGraphD3Div').width();
+        const rectHeight = $('#logicalGraphD3Div').height();
+        const offsetX = -eagle.globalOffsetX / eagle.globalScale;
+        const offsetY = -eagle.globalOffsetY / eagle.globalScale;
+
+        rootContainer
+            .selectAll("rect.background")
+            .attr("fill", eagle.snapToGrid() ? "url(#grid)" : "transparent")
+            .attr("x", offsetX)
+            .attr("y", offsetY)
+            .attr("width", rectWidth*2)
+            .attr("height", rectHeight*2);
 
         // scale the root node
         rootContainer
