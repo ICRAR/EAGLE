@@ -739,7 +739,7 @@
                         </thead>
                         <tbody data-bind="foreach: $root.parameterTable().getTableFields()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
-                                <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() || $data.isKeyAttribute() -->
+                                <!-- ko if: Eagle.showNonKeyParameters() || $data.isKeyAttribute() -->
                                     <tr>
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('keyAttribute') -->
                                             <td>
