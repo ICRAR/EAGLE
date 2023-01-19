@@ -816,6 +816,7 @@ export class Eagle {
     insertGraphFile = () : void => {
         const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
         const fileFullPath : string = uploadedGraphFileToInsertInputElement.value;
+        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -836,7 +837,9 @@ export class Eagle {
             this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                 const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
-                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+
+                // TODO: handle errors and warnings
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Insert Logical Graph");
@@ -987,7 +990,7 @@ export class Eagle {
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
-    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node) : void => {
+    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) : void => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
@@ -1107,10 +1110,9 @@ export class Eagle {
         for (const edge of edges){
             const srcNode = keyMap.get(edge.getSrcNodeKey());
             const destNode = keyMap.get(edge.getDestNodeKey());
-            console.log("srcNode", srcNode, "destNode", destNode);
 
             if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
-                console.warn("Unable to insert edge", edge.getId(), "source node or destination node could not be found.");
+                errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
                 continue;
             }
 
@@ -1750,7 +1752,7 @@ export class Eagle {
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, jsonData);
     }
 
-    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
+    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
@@ -1790,7 +1792,7 @@ export class Eagle {
                     }
                 }
                 if (allComplete){
-                    callback(results);
+                    callback(errorsWarnings, results);
                 }
             });
         }
@@ -2679,11 +2681,12 @@ export class Eagle {
             return;
         }
 
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const nodes : Node[] = [];
         const edges : Edge[] = [];
 
         for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, null, (): number => {
+            const node = Node.fromOJSJson(n, errorsWarnings, (): number => {
                 console.error("Should not have to generate new key for node", n);
                 return 0;
             });
@@ -2692,15 +2695,19 @@ export class Eagle {
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, null);
+            const edge = Edge.fromOJSJson(e, errorsWarnings);
 
             edges.push(edge);
         }
 
-        this.insertGraph(nodes, edges, null);
+        this.insertGraph(nodes, edges, null, errorsWarnings);
 
         // display notification to user
-        Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
+
+        } else {
+            Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+        }
 
         // ensure changes are reflected in display
         this.checkGraph();
