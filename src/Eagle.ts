@@ -1264,9 +1264,11 @@ export class Eagle {
 
             const nodes : Node[] = [];
             const edges : Edge[] = [];
+            const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
 
             for (const n of clipboard.nodes){
                 const node = Node.fromOJSJson(n, null, (): number => {
+                    // TODO: add error to errorsWarnings
                     console.error("Should not have to generate new key for node", n);
                     return 0;
                 });
@@ -1280,10 +1282,11 @@ export class Eagle {
                 edges.push(edge);
             }
 
-            this.insertGraph(nodes, edges, null);
+            this.insertGraph(nodes, edges, null, errorsWarnings);
 
             // display notification to user
             Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+            // TODO: show errors
 
             // ensure changes are reflected in display
             this.checkGraph();
@@ -1362,7 +1365,7 @@ export class Eagle {
                 // TODO: new code
                 this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
-                ], (palettes: Palette[]):void => {
+                ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
                     for (const palette of palettes){
                         if (palette !== null){
                             this.palettes.splice(index, 0, palette);
@@ -1961,7 +1964,7 @@ export class Eagle {
             const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
             // perform insert
-            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
 
             // trigger re-render
             this.logicalGraph.valueHasMutated();
@@ -2589,6 +2592,7 @@ export class Eagle {
                 {
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
+                    const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // split objects into nodes and edges
                     for (const object of incomingNodes){
@@ -2601,7 +2605,7 @@ export class Eagle {
                         }
                     }
 
-                    this.insertGraph(nodes, edges, null);
+                    this.insertGraph(nodes, edges, null, errorsWarnings);
                     this.checkGraph();
                     this.undo().pushSnapshot(this, "Duplicate selection");
                     this.logicalGraph.valueHasMutated();
