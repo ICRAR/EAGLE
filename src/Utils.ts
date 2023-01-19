@@ -68,7 +68,7 @@ export class Utils {
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
-    static readonly SHOW_DALIUGE_RUNTIME_PARAMETERS : string = "ShowDaliugeRuntimeParameters";
+    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters";
     static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
