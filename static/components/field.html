@@ -6,10 +6,10 @@
         </div>
 
         <!-- ko if: !isType(Eagle.DataType_Boolean) && !isType(Eagle.DataType_Select) -->
-            <!-- ko if: $data.getType() === 'Integer' -->    
-            <input class="form-control" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: function(){return $root.getCurrentParamReadonly($data)}, attr: {type: $data.getHtmlInputType(), id: $data.parameterType() + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue()">
+            <!-- ko if: isType(Eagle.DataType_Integer) -->
+            <input class="form-control" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: function(){return $root.getCurrentParamReadonly($data)}, attr: {type: $data.getHtmlInputType(), id: 'field' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue()">
             <!-- /ko -->
-            <!-- ko ifnot: $data.getType() === 'Integer' -->    
+            <!-- ko ifnot: isType(Eagle.DataType_Integer) -->    
             <input class="form-control inputNoArrows" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: function(){return $root.getCurrentParamReadonly($data)}, attr: {type: $data.getHtmlInputType(), id: 'field' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue()">
             <!-- /ko -->
         <!-- /ko -->
