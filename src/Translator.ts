@@ -61,17 +61,20 @@ export class Translator {
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
         // consult EAGLE settings to determine whether to open the transator in a new tab
-        const spawnTranslationTab: boolean = Setting.findValue(Utils.SPAWN_TRANSLATION_TAB);
+        const translateInCurrentTab: boolean = Setting.findValue(Utils.OPEN_TRANSLATOR_IN_CURRENT_TAB);
+        const overwriteTranslationTab: boolean = Setting.findValue(Utils.OVERWRITE_TRANSLATION_TAB);
 
         // create form element
         const form = document.createElement("form");
         form.method = "POST";
         form.action = translatorURL;
 
-        if (spawnTranslationTab){
-            form.target = "_blank";
-        } else {
+        if (translateInCurrentTab){
             form.target = "_self";
+        } else if(overwriteTranslationTab) {
+            form.target = "translator";
+        } else {
+            form.target = "_blank";
         }
 
         // add formElements to form

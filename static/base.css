@@ -1,6 +1,8 @@
-/* body {
-    zoom: 75%;
-} */
+body {
+    /* prevent window from ever scrolling the whole page */
+    overflow: hidden; 
+    /* zoom: 75%; */
+}
 
 #graphArea {
     /*background-color: rgb(222,222,222);*/
@@ -82,6 +84,26 @@
 
 .rightWindowDisplay.hierarchy #nodeList{
     position: relative;
+}
+
+#explorePalettesModal #explorePalettesPathContainer{
+    display: block;
+    width: 100%;
+    height: 25px;
+    padding: 0px 15px;
+    margin-top: 50px;
+    background-color: #002349;
+    z-index: 10;
+    color: white;
+}
+
+#explorePalettesModal .clickableFilePath{
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#explorePalettesModal .list-group{
+    border: 2px solid #e4ebf2;
 }
 
 #explorePalettesModal .list-group-item:hover{
@@ -281,6 +303,8 @@ td:first-child input {
 
 #parameter_table_isKeyAttribute{
     width: 27px;
+    min-width: 27px;
+    max-width: 27px;
 }
 
 #parameter_table_name{
@@ -314,12 +338,23 @@ td:first-child input {
 
 #paramsTableWrapper{
     width: 100%;
+    table-layout: fixed;
 }
 
 #paramsTableWrapper th{
     background-color: #002349;
     color: white;
     padding: 5px;
+    position:relative;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+
 }
 
 #paramsTableWrapper tr {
@@ -384,6 +419,21 @@ td:first-child input {
     #parameter_table_description{
         width:91px;
     }
+}
+
+.resizer{
+    position: absolute;
+    right:0px;
+    top: 0px;
+    border-right: 5px solid #204267;
+    z-index:10;
+    height: 100%;
+}
+  
+.resizer:hover,
+.resizing {
+    border-right: 3px solid whitesmoke;
+    cursor: col-resize;
 }
 
 /*Animation must have unfill path strokes to work*/
@@ -547,48 +597,6 @@ td:first-child input {
     bottom: 0px;
     left: 4px;
     cursor: col-resize;
-}
-
-.componentSearchBar{
-    width:100%;
-    text-align: center;
-    padding: 5px;
-    border:solid 1px #ced4da;
-    border-radius: 5px;
-}
-
-.searchBarIcon{
-    position: absolute;
-    font-size: 24px !important;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 5px;
-    color: #aeaeae;
-}
-
-.searchBarIconClose{
-    position: absolute;
-    font-size: 24px !important;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 5px;
-    color: #aeaeae;
-}
-
-.searchBarContainer{
-    position: relative;
-}
-
-.rightWindow .searchBarContainer{
-    margin-bottom: 15px;
-}
-
-.leftWindow .searchBarContainer{
-    margin-top: 10px;
-}
-
-.searchBarContainer a{
-    display: none;
 }
 
 .leftWindow {
@@ -901,27 +909,32 @@ select.form-control{
     top: 0;
     width: 100%;
     z-index: 111;
+    border: none;
 }
 
 .modal-content{
     resize: both;
     overflow: hidden;
-    height: 40vh;
+    height: 50vh;
     max-height: 95vh;
     max-width: 95vw;
     background-color: aliceblue;
     margin-left: 50%;
     transform: translateX(-50%);
     position:absolute;
-    
 }
 
 .modal-body{
-    height: calc(100% - 133px) !important ;
-    top: 62px;
+    height: calc(100% - 103px) !important ;
+    top: 50px;
     position: absolute;
     overflow: auto;
     width: 100%;
+}
+
+#explorePalettesModal .modal-body{
+    height: calc(100% - 126px) !important ;
+    top: 75px;
 }
 
 .modal-footer{
@@ -931,9 +944,30 @@ select.form-control{
     z-index:10;
 }
 
+#confirmModal .modal-content{
+    height: 20vh;
+}
+
 #aboutModal .modal-content{
     width: 60vw;
     height: 60vh;
+}
+
+#settingsModal .modal-content{
+    height: 40vh;
+}
+
+#messageModal .modal-content{
+    height: 20vh;
+    width:50vw
+}
+
+#choiceModal .modal-content{
+    height:30vh;
+}
+
+#inputTextModal .modal-content{
+    height:40vh;
 }
 
 #nodeInspector select{
@@ -967,7 +1001,7 @@ select.form-control{
     overflow-y: scroll;
 }
 
-#paletteList .dropdown-menu a{
+.leftWindowDisplay  .dropdown-menu a{
     width:100%;
 }
 
@@ -1011,7 +1045,7 @@ select.form-control{
     background-color: rgba(214, 219, 239, 0.95);
 }
 
-#paletteList .dropdown-menu{
+.leftWindow .dropdown-menu{
     position: absolute;
     right: 0px;
     top: 0px;
@@ -1023,13 +1057,14 @@ select.form-control{
     width:min-content;
 }
 
-#paletteList .dropdown-menu a{
+.leftWindow .dropdown-menu a{
     color: white;
     text-decoration: none;
-    display: inline-block;
+    white-space: nowrap;
+    display: block;
 }
 
-#paletteList .dropdown-menu span{
+.leftWindow .dropdown-menu span{
     display: block;
     width: 100%;
     padding:0px 10px;
@@ -1052,7 +1087,12 @@ select.form-control{
     color: white;
 }
 
-#paletteList .dropdown-menu span:hover{
+.leftWindow .dropdown-menu span:hover{
+    background-color: #001d3b;
+    color: white;
+}
+
+.leftWindow .dropdown-menu a:hover{
     background-color: #001d3b;
     color: white;
 }
@@ -1390,6 +1430,7 @@ select.form-control{
     position: absolute;
     background-color: rgba(0,0,0,0);
     opacity: 0;
+    cursor: col-resize;
 }
 
 .leftWindowSizeAdjusterLine{
@@ -1398,7 +1439,6 @@ select.form-control{
     right: 2px;
     bottom: 0px;
     left: 4px;
-    cursor: col-resize;
 }
 
 .loadDefaultDisabled{
@@ -1545,6 +1585,10 @@ select.form-control{
     position: relative;
     z-index: 100;
     display: none;
+}
+
+.windowDragging{
+    cursor:grabbing !important;
 }
 
 .nodeInspectorDropdownDiv::before{
@@ -1780,6 +1824,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
 .checkboxParent label{
     background-color: #011b38;
 }
+
 .checkboxParent label:hover{
     background-color: #013872;
 }
@@ -1801,6 +1846,36 @@ ul.nav.navbar-nav .dropdown-item:hover{
     border-radius: 0px;
     border:none;
 }
+
+#editFieldModalKeyParameterCheckbox{
+    position:relative;
+    background-color: transparent;
+    border: none;
+    background-image: none;
+}
+
+#editFieldModalKeyParameterCheckbox:focus{
+    outline: none !important;
+    box-shadow: none;
+}
+
+#editFieldModalKeyParameterCheckbox:before {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    content: "favorite_border"; 
+    color: white;
+    outline: none;
+  }
+  
+#editFieldModalKeyParameterCheckbox:checked:before {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    content: "favorite"; 
+    color:white;
+    outline: none;
+  }
 
 #nodeInspector label{
     width: 100%;
@@ -2016,7 +2091,15 @@ nav.navbar .introjs-helperLayer {
     padding: 10px;
     margin-left: 50%;
     transform: translateX(-50%) !important;
-  }
+}
+
+.modal-footer{
+    padding: 3px 15px;
+}
+
+.modal-header{
+    padding: 10px 15px;
+}
 
 #nodeInspectorMenus{
     padding: 0px 5px 5px 5px;
@@ -2107,6 +2190,111 @@ palette-component input.form-control.selected {
     overflow: hidden;
 }
 
+#customContextMenu{
+    background-color: #0059a5;
+    padding:0px;
+    position: absolute;
+    border-radius: 5px;
+    border: 1px solid #002349;
+    box-shadow: 0 3px 10px rgb(0 0 0 / 20%);
+    color: white;
+    z-index: 1000;
+    font-size: 14px;
+}
+
+#customContextMenu a,#customContextMenu span{
+    padding:2px 8px;
+    display: block;
+    cursor: pointer;
+}
+
+#customContextMenu a:hover,#customContextMenu span:hover,#customContextMenu a:focus,#customContextMenu span:focus{
+    background-color: #001d3b;
+}
+
+#customContextMenu .contextmenuPalette{
+    display: block;
+    position: relative;
+}
+
+#customContextMenu .contextMenuDropdown{
+    position: absolute;
+    top: 0px;
+    left: 100%;
+    padding:5px 0px;
+    color: white;
+    border-radius: 5px;
+    border: #002349 1px solid;
+    background-color: #0059a5;
+    display: none;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#customContextMenu a{
+    color: white;  
+    text-decoration: none;
+}
+
+.rightClickFocus,.rightClickFocusParent{
+    background-color: #001d3b;
+}
+
+.componentSearchBar{
+    width:100%;
+    text-align: center;
+    padding: 5px;
+    border:solid 1px #ced4da;
+    border-radius: 5px;
+}
+
+.searchBarIcon{
+    position: absolute;
+    font-size: 24px !important;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 5px;
+    color: #aeaeae;
+}
+
+.searchBarIconClose{
+    position: absolute;
+    font-size: 24px !important;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 5px;
+    color: #aeaeae;
+}
+
+.searchBarContainer{
+    position: relative;
+}
+
+.rightWindow .searchBarContainer{
+    margin-bottom: 15px;
+}
+
+.leftWindow .searchBarContainer{
+    margin-top: 10px;
+}
+
+.searchBarContainer a,#customContextMenu .searchBarContainer a{
+    display: none;
+    padding: 0px;
+}
+
+#rightClickSearchBar{
+    width: 100% ;
+    text-align: center;
+    border-radius: 4px 4px 0px 0px;
+    border: none;
+    outline: none;
+}
+
+.searchBarContainer a{
+    cursor:pointer;
+}
+
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
       -webkit-user-select: none; /* Safari */
@@ -2115,4 +2303,14 @@ palette-component input.form-control.selected {
           -ms-user-select: none; /* Internet Explorer/Edge */
               user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Edge, Opera and Firefox */
+}
+
+.inputNoArrows::-webkit-outer-spin-button,
+.inputNoArrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.inputNoArrows[type=number] {
+    -moz-appearance: textfield;
 }

@@ -30,30 +30,30 @@
                             <i class="material-icons md-20">lock_open</i>
                         </button>
                         <!-- /ko -->
-                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph -->
-                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node In Graph'">
+                        <!-- ko if: Eagle.selectedNodeGraph() -->
+                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node in Graph'">
                             <i class="material-icons md-20">account_tree</i>
                         </button>
                         <!-- /ko -->
-                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Palette -->
-                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node In Palette'">
+                        <!-- ko if: Eagle.selectedNodePalette() -->
+                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node in ' + Eagle.selectedNodePalette().fileInfo().name + ' Palette'">
                             <i class="material-icons md-20">palette</i>
                         </button>
                         <!-- /ko -->
                     </div>
                     <div class="col-6 text-right">
                         <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
-                        <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: duplicateSelection, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                        <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
                             <i  class="material-icons md-20">content_copy</i>
                         </button>
                         <!-- /ko -->
                         <!-- ko if: Eagle.allowPaletteEditing() -->
-                        <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: addSelectedNodesToPalette, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
+                        <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
                             <i  class="material-icons md-20">library_add</i>
                         </button>
                         <!-- /ko -->
                         <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
-                        <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
+                        <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection('',false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
                             <i class="material-icons md-20">delete</i>
                         </button>
                         <!-- /ko -->

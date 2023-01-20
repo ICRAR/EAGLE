@@ -708,38 +708,44 @@ def open_git_hub_file():
         import ssl
         raw_data = urllib.request.urlopen(download_url, context=ssl.create_default_context(cafile=certifi.where())).read()
 
-    # parse JSON
-    graph = json.loads(raw_data)
+    if extension != ".md":
+        # parse JSON
+        graph = json.loads(raw_data)
 
-    if isinstance(graph, list):
-        return app.response_class(response=json.dumps({"error":"File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), status=404, mimetype="application/json")
+        if isinstance(graph, list):
+            return app.response_class(response=json.dumps({"error":"File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), status=404, mimetype="application/json")
 
-    if not "modelData" in graph:
-        graph["modelData"] = {}
+        if not "modelData" in graph:
+            graph["modelData"] = {}
 
-    # replace some data in the header (modelData) of the file with info from git
-    graph["modelData"]["repo"] = repo_name
-    graph["modelData"]["repoBranch"] = repo_branch
-    graph["modelData"]["repoService"] = "GitHub"
-    graph["modelData"]["filePath"] = filename
+        # replace some data in the header (modelData) of the file with info from git
+        graph["modelData"]["repo"] = repo_name
+        graph["modelData"]["repoBranch"] = repo_branch
+        graph["modelData"]["repoService"] = "GitHub"
+        graph["modelData"]["filePath"] = filename
 
-    graph["modelData"]["repositoryUrl"] = "TODO"
-    graph["modelData"]["commitHash"] = most_recent_commit.sha
-    graph["modelData"]["downloadUrl"] = download_url
-    graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
-    graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
-    graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+        graph["modelData"]["repositoryUrl"] = "TODO"
+        graph["modelData"]["commitHash"] = most_recent_commit.sha
+        graph["modelData"]["downloadUrl"] = download_url
+        graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
+        graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
+        graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
 
-    # for palettes, put downloadUrl in every component
-    if extension == ".palette":
-        for component in graph["nodeDataArray"]:
-            component["paletteDownloadUrl"] = download_url
+        # for palettes, put downloadUrl in every component
+        if extension == ".palette":
+            for component in graph["nodeDataArray"]:
+                component["paletteDownloadUrl"] = download_url
 
-    json_data = json.dumps(graph, indent=4)
+        json_data = json.dumps(graph, indent=4)
 
-    response = app.response_class(
-        response=json.dumps(json_data), status=200, mimetype="application/json"
-    )
+        response = app.response_class(
+            response=json.dumps(json_data), status=200, mimetype="application/json"
+        )
+    else:
+        response = app.response_class(
+            response=raw_data, status=200, mimetype="text/plain"
+        )
+    
     return response
 
 
@@ -782,36 +788,42 @@ def open_git_lab_file():
     # get the decoded content
     raw_data = f.decode().decode("utf-8")
 
-    # parse JSON
-    graph = json.loads(raw_data)
+    if extension != ".md":
+        # parse JSON
+        graph = json.loads(raw_data)
 
-    if not "modelData" in graph:
-        graph["modelData"] = {}
+        if not "modelData" in graph:
+            graph["modelData"] = {}
 
-    # add the repository information
-    graph["modelData"]["repo"] = repo_name
-    graph["modelData"]["repoBranch"] = repo_branch
-    graph["modelData"]["repoService"] = "GitLab"
-    graph["modelData"]["filePath"] = filename
+        # add the repository information
+        graph["modelData"]["repo"] = repo_name
+        graph["modelData"]["repoBranch"] = repo_branch
+        graph["modelData"]["repoService"] = "GitLab"
+        graph["modelData"]["filePath"] = filename
 
-    # TODO: Add the GitLab file information
-    graph["modelData"]["repositoryUrl"] = "TODO"
-    graph["modelData"]["commitHash"] = f.commit_id
-    graph["modelData"]["downloadUrl"] = "TODO"
-    graph["modelData"]["lastModifiedName"] = ""
-    graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = 0
+        # TODO: Add the GitLab file information
+        graph["modelData"]["repositoryUrl"] = "TODO"
+        graph["modelData"]["commitHash"] = f.commit_id
+        graph["modelData"]["downloadUrl"] = "TODO"
+        graph["modelData"]["lastModifiedName"] = ""
+        graph["modelData"]["lastModifiedEmail"] = ""
+        graph["modelData"]["lastModifiedDatetime"] = 0
 
-    # for palettes, put downloadUrl in every component
-    if extension == ".palette":
-        for component in graph["nodeDataArray"]:
-            component["paletteDownloadUrl"] = "TODO"
+        # for palettes, put downloadUrl in every component
+        if extension == ".palette":
+            for component in graph["nodeDataArray"]:
+                component["paletteDownloadUrl"] = "TODO"
 
-    json_data = json.dumps(graph, indent=4)
+        json_data = json.dumps(graph, indent=4)
 
-    response = app.response_class(
-        response=json.dumps(json_data), status=200, mimetype="application/json"
-    )
+        response = app.response_class(
+            response=json.dumps(json_data), status=200, mimetype="application/json"
+        )
+    else:
+        response = app.response_class(
+            response=raw_data, status=200, mimetype="text/plain"
+        )
+        
     return response
 
 

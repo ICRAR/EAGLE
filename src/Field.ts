@@ -312,6 +312,29 @@ export class Field {
         }
     }
 
+    static getHtmlTitleText = (parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage) : string => {
+        if (usage === Eagle.ParameterUsage.NoPort){
+            switch(parameterType){
+                case Eagle.ParameterType.ApplicationArgument:
+                return "Application Argument";
+                case Eagle.ParameterType.ComponentParameter:
+                return "Component Parameter";
+            }
+        } else {
+            switch(usage){
+                case Eagle.ParameterUsage.InputPort:
+                return "Input Port";
+                case Eagle.ParameterUsage.OutputPort:
+                return "Output Port";
+                case Eagle.ParameterUsage.InputOutput:
+                return "Input/Output Port";
+            }
+        }
+
+        console.warn("Unable to determine title for unexpected field type", parameterType, usage);
+        return "";
+    }
+
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
     static stringAsType = (value: string, type: string) : any => {

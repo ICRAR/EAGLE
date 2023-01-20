@@ -40,6 +40,7 @@ import {Palette} from './Palette';
 import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
+import {ParameterTable} from './ParameterTable';
 
 export class Utils {
     // Allowed file extenstions.
@@ -47,7 +48,8 @@ export class Utils {
         "json",
         "diagram",
         "graph",
-        "palette"
+        "palette",
+        "md" // for markdown e.g. README.md
     ];
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
@@ -66,7 +68,7 @@ export class Utils {
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
-    static readonly SHOW_DALIUGE_RUNTIME_PARAMETERS : string = "ShowDaliugeRuntimeParameters";
+    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters";
     static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
@@ -81,7 +83,8 @@ export class Utils {
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
 
     static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
-    static readonly SPAWN_TRANSLATION_TAB: string = "SpawnTranslationTab";
+    static readonly OPEN_TRANSLATOR_IN_CURRENT_TAB: string = "OpenTranslatorInCurrentTab";
+    static readonly OVERWRITE_TRANSLATION_TAB: string = "OverwriteTranslationTab";
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
     static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
     static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";
@@ -105,6 +108,10 @@ export class Utils {
      */
 
     static uuidv4() : string {
+        if (typeof crypto.randomUUID !== "undefined"){
+            return crypto.randomUUID();
+        }
+
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
@@ -226,6 +233,7 @@ export class Utils {
         return Utils.translateStringToFileType(Utils.getFileExtension(fileName));
     }
 
+    // NOTE: used for sorting files by filetype
     static getFileTypeNum(fileType: Eagle.FileType) : number {
         switch (fileType){
             case Eagle.FileType.Graph:
@@ -234,8 +242,10 @@ export class Utils {
                 return 1;
             case Eagle.FileType.JSON:
                 return 2;
-            case Eagle.FileType.Unknown:
+            case Eagle.FileType.Markdown:
                 return 3;
+            case Eagle.FileType.Unknown:
+                return 4;
         }
     }
 
@@ -737,6 +747,7 @@ export class Utils {
         $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
         $('#editFieldModalIdTextInput').val(field.getIdText());
         $('#editFieldModalValueInputText').val(field.getValue());
+        $('#editFieldModalValueInputNumber').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalValueInputSelect').empty();
@@ -749,7 +760,9 @@ export class Utils {
         }
 
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
+        $('#editFieldModalDefaultValueInputNumber').val(field.getDefaultValue());
         $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalDefaultValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
         $('#editFieldModalDefaultValueInputSelect').empty();
         for (const option of field.getOptions()){
             $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
@@ -769,24 +782,6 @@ export class Utils {
         $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
-        if(field.getType() === Eagle.DataType_Boolean){
-            $("#editFieldModalDefaultValue").hide()
-        }else{
-            $("#editFieldModalDefaultValue").show()
-        }
-
-        // show the correct entry field based on the field type
-        /*
-        console.log("!debug", field.getType(), field.isType(Eagle.DataType_Boolean), field.isType(Eagle.DataType_Select), "combined", !field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
-        $('#editFieldModalValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
-        $('#editFieldModalValueInputCheckbox').parent().toggle(field.isType(Eagle.DataType_Boolean));
-        $('#editFieldModalValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
-
-        $('#editFieldModalDefaultValueInputText').toggle(!field.isType(Eagle.DataType_Boolean) && !field.isType(Eagle.DataType_Select));
-        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.isType(Eagle.DataType_Boolean));
-        $('#editFieldModalDefaultValueInputSelect').toggle(field.isType(Eagle.DataType_Select));
-        */
-
 
         $('#editFieldModalTypeInput').val(field.getType());
 
@@ -1337,8 +1332,8 @@ export class Utils {
         ports.push(port);
     }
 
-    static addTypeIfUnique = (types: ko.ObservableArray<string>, newType: string) : void => {
-        for (const t of types()){
+    static addTypeIfUnique = (types: string[], newType: string) : void => {
+        for (const t of types){
             if (t === newType){
                 return;
             }
@@ -1763,16 +1758,23 @@ export class Utils {
         });
     }
 
-    static getShortcutDisplay = () : {description:string, shortcut : string}[] => {
-        const displayShorcuts : {description:string, shortcut : string} []=[];
+    static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
+        const eagle: Eagle = Eagle.getInstance();
+        const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
 
         for (const object of Eagle.shortcuts()){
+            // skip if shortcut should not be displayed
             if (object.display === KeyboardShortcut.Display.Disabled){
                 continue;
             }
 
+            // skip if shortcut can not be run in the current state
+            if (!object.canRun(eagle)){
+                continue;
+            }
+
             const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
-            displayShorcuts.push({description: object.name, shortcut: shortcut});
+            displayShorcuts.push({description: object.name, shortcut: shortcut,function:object.run});
         }
 
         return displayShorcuts;
@@ -2015,7 +2017,11 @@ export class Utils {
                     "embedKey":node.getEmbedKey(),
                     "category":node.getCategory(),
                     "categoryType":node.getCategoryType(),
-                    "numFields":node.getNumFields()
+                    "numFields":node.getNumFields(),
+                    "repositoryUrl":node.getRepositoryUrl(),
+                    "commitHash":node.getCommitHash(),
+                    "paletteDownloadUrl":node.getPaletteDownloadUrl(),
+                    "dataHash":node.getDataHash()
                 });
             }
         }
