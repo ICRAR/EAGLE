@@ -853,21 +853,21 @@
                                                 <!-- options are added dynamically -->
                                             </select>
                                         </td>
-                                    <!-- /ko -->
-                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('usage') -->
+                                        <!-- /ko -->
+                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('usage') -->
                                         <td>
                                             <select data-bind="options: Object.values(Eagle.ParameterUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data)">
                                                 <!-- options are added dynamically -->
                                             </select>
                                         </td>
-                                    <!-- /ko -->
-                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
+                                        <!-- /ko -->
+                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
                                         <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
-                                    <!-- /ko -->
-                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional') -->
+                                        <!-- /ko -->
+                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional') -->
                                         <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
-                                    <!-- /ko -->
-                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('actions') -->
+                                        <!-- /ko -->
+                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('actions') -->
                                         <td>
                                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionEdit') -->
                                                 <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
@@ -898,9 +898,9 @@
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                         </td>
-                                    <!-- /ko -->
-                                    
-                                </tr>
+                                        <!-- /ko -->
+                                    </tr>
+                                <!-- /ko -->
                             <!-- /ko -->
                         </tbody>
                     </table>
