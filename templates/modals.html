@@ -853,35 +853,51 @@
                                                 <!-- options are added dynamically -->
                                             </select>
                                         </td>
-                                        <!-- /ko --> 
+                                        <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('usage') -->
-                                            <td>
-                                                <select data-bind="options: Object.values(Eagle.ParameterUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data)">
-                                                    <!-- options are added dynamically -->
-                                                </select>
-                                            </td>
+                                        <td>
+                                            <select data-bind="options: Object.values(Eagle.ParameterUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data)">
+                                                <!-- options are added dynamically -->
+                                            </select>
+                                        </td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
-                                            <td><input class="tableParameter" tabindex='-1' data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                        <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional') -->
-                                            <td><input class="tableParameter" tabindex='-1' data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                        <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('actions') -->
-                                            <td>
-                                                <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionEdit') -->
-                                                    <button class="edit" tabindex='-1' onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', Eagle.FieldType.Unknown, $index());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
+                                        <td>
+                                            <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionEdit') -->
+                                                <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
+                                                <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', $data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
                                                 <!-- /ko -->
-                                                <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDefault') -->
-                                                    <button class="resetDefaults" tabindex='-1' onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
-                                                <!-- /ko -->
+                                            <!-- /ko -->
+                                            <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDefault') -->
+                                                <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
+                                            <!-- /ko -->
+                                            <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
                                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDuplicate') -->
-                                                    <button class="duplicate" tabindex='-1' onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
+                                                    <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
+                                                <!-- /ko -->
+                                                <!-- ko ifnot: $data.usage() === Eagle.ParameterUsage.NoPort-->
+                                                    <!-- ko if: $data.isEvent() -->
+                                                        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is event port<br/>Click to toggle'" data-bs-placement="left">
+                                                            <i class="material-icons">alarm_on</i>
+                                                        </button>
+                                                    <!-- /ko -->
+                                                    <!-- ko ifnot: $data.isEvent() -->
+                                                        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is not event port<br/>Click to toggle'" data-bs-placement="left">
+                                                            <i class="material-icons">alarm_off</i>
+                                                        </button>
+                                                    <!-- /ko -->
                                                 <!-- /ko -->
                                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDelete') -->
-                                                    <button class="delete" tabindex='-1' onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                 <!-- /ko -->
-                                            </td>
+                                            <!-- /ko -->
+                                        </td>
                                         <!-- /ko -->
                                     </tr>
                                 <!-- /ko -->
