@@ -3572,11 +3572,8 @@ export class Eagle {
             return;
         }
 
-        // doing this so this function will work both in context of being in a port only loop as well as a fields loop
-        const fieldIndex = node.findPortIndexById(id)
-
         // remove port
-        node.removeFieldByIndex(fieldIndex);
+        node.removeFieldById(id);
 
         // remove any edges connected to that port
         const edges : Edge[] = this.logicalGraph().getEdges();

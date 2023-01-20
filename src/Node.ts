@@ -1024,6 +1024,16 @@ export class Node {
         this.fields.splice(index, 1);
     }
 
+    removeFieldById = (id: string) : void => {
+        for (let i = 0; i < this.fields().length ; i++){
+            if (this.fields()[i].getId() === id){
+                this.fields.splice(i, 1);
+            }
+        }
+
+        console.warn("Could not remove field from node, id not found:", id);
+    }
+
     removeAllFields = () : void => {
         this.fields([]);
     }
