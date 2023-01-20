@@ -1028,6 +1028,7 @@ export class Node {
         for (let i = 0; i < this.fields().length ; i++){
             if (this.fields()[i].getId() === id){
                 this.fields.splice(i, 1);
+                return;
             }
         }
 
