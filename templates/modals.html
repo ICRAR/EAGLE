@@ -871,7 +871,7 @@
                                         <td>
                                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionEdit') -->
                                                 <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
-                                                <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
+                                                <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', $data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDefault') -->
