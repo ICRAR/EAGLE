@@ -297,7 +297,6 @@ export class Field {
 
     getHtmlInputType = () : string => {
         const typePrefix = Utils.dataTypePrefix(this.type());
-
         switch (typePrefix){
             case Eagle.DataType_Float:
             case Eagle.DataType_Integer:
@@ -306,9 +305,34 @@ export class Field {
                 return "checkbox";
             case Eagle.DataType_Password:
                 return "password";
+            case Eagle.DataType_Select:
+                return "select";
             default:
                 return "text";
         }
+    }
+
+    static getHtmlTitleText = (parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage) : string => {
+        if (usage === Eagle.ParameterUsage.NoPort){
+            switch(parameterType){
+                case Eagle.ParameterType.ApplicationArgument:
+                return "Application Argument";
+                case Eagle.ParameterType.ComponentParameter:
+                return "Component Parameter";
+            }
+        } else {
+            switch(usage){
+                case Eagle.ParameterUsage.InputPort:
+                return "Input Port";
+                case Eagle.ParameterUsage.OutputPort:
+                return "Output Port";
+                case Eagle.ParameterUsage.InputOutput:
+                return "Input/Output Port";
+            }
+        }
+
+        console.warn("Unable to determine title for unexpected field type", parameterType, usage);
+        return "";
     }
 
     // used to transform the value attribute of a field into a variable with the correct type

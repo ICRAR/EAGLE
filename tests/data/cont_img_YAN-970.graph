@@ -803,9 +803,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Major Cycle",
             "width": 1148,
@@ -855,9 +853,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "update skycomponents",
             "width": 1605.897275108981,
@@ -971,9 +967,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Config",
             "width": 200,
@@ -1120,9 +1114,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Self-CalConverge?",
             "width": 200,
@@ -1578,6 +1570,48 @@
                     "value": false
                 },
                 {
+<<<<<<< HEAD
+=======
+                    "Id": "34343523-420d-4748-8477-7e2b2197ea44",
+                    "IdText": "fg",
+                    "description": "Need to reapply flags if restarting from obs vis ",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "fg",
+                    "type": "Complex"
+                }
+            ],
+            "isGroup": false,
+            "key": -18,
+            "outputAppFields": [],
+            "outputApplicationDescription": "",
+            "outputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputLocalPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "3a59e261-390a-474d-ac87-42e2531643f3",
+                    "IdText": "gt",
+                    "description": "Gain Table",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "gt",
+                    "type": "Complex"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "solve_gaintable",
+            "width": 200,
+            "x": 1418.7181158093372,
+            "y": 339.3691009941565
+        },
+        {
+            "applicationArgs": [
+                {
+>>>>>>> master
                     "defaultValue": "",
                     "description": "Python function name",
                     "id": "8fd4b2d9-6eef-4f54-87ca-d94baf99b521",
@@ -1823,6 +1857,48 @@
                     "value": false
                 },
                 {
+<<<<<<< HEAD
+=======
+                    "Id": "c032baca-c012-4348-a66f-94a9e951c76e",
+                    "IdText": "gt",
+                    "description": "Gain Table",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "gt",
+                    "type": "Complex"
+                }
+            ],
+            "isGroup": false,
+            "key": -19,
+            "outputAppFields": [],
+            "outputApplicationDescription": "",
+            "outputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputLocalPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "028ad0aa-c10e-4223-b852-7f7820025551",
+                    "IdText": "vis",
+                    "description": "BlockVis ",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "vis",
+                    "type": "Complex"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "apply_gaintable",
+            "width": 200,
+            "x": 1796.9366535932584,
+            "y": 421.9653462791549
+        },
+        {
+            "applicationArgs": [
+                {
+>>>>>>> master
                     "defaultValue": "",
                     "description": "Python function name",
                     "id": "47da73b6-fb4d-4906-9bdf-5670d112e4fe",
@@ -2068,9 +2144,66 @@
                     "value": "rascil.processing_components.flagging.operations.flagging_blockvisibility"
                 },
                 {
+<<<<<<< HEAD
                     "defaultValue": "",
                     "description": "Whether the python arguments are pickled.",
                     "id": "2505881b-4b73-47ac-8478-857d7940c485",
+=======
+                    "Id": "be607521-ff0a-4ef9-8fc4-9f475f2103c4",
+                    "IdText": "modelvis",
+                    "description": "Model as BlockVis ",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "modevis",
+                    "type": "Complex"
+                }
+            ],
+            "isGroup": false,
+            "key": -27,
+            "outputAppFields": [],
+            "outputApplicationDescription": "",
+            "outputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputLocalPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "c131cbbb-1037-4b57-8159-ca49c9a441b2",
+                    "IdText": "vis",
+                    "description": "BlockVis ",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "vis",
+                    "type": "Complex"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "subtract_visibility",
+            "width": 200,
+            "x": 2047.3331051646974,
+            "y": 363.36619654623297
+        },
+        {
+            "applicationArgs": [
+                {
+                    "defaultValue": "",
+                    "description": "Python function name",
+                    "keyAttribute": false,
+                    "name": "func_name",
+                    "options": [],
+                    "positional": "true",
+                    "precious": false,
+                    "readonly": true,
+                    "text": "Function Name",
+                    "type": "String",
+                    "value": "rascil.processing_components.flagging.operations.flagging_blockvisibility"
+                },
+                {
+                    "defaultValue": "",
+                    "description": "Whether the python arguments are pickled.",
+>>>>>>> master
                     "keyAttribute": false,
                     "name": "pickle",
                     "options": [],
@@ -2313,6 +2446,29 @@
                     "value": false
                 },
                 {
+<<<<<<< HEAD
+=======
+                    "Id": "307fcc11-c5d9-4674-a4f5-58628d8e2a25",
+                    "IdText": "fg",
+                    "description": "Need to reapply flags if restarting from obs vis ",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "fg",
+                    "type": "Complex"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "flagging_blockvisibility",
+            "width": 200,
+            "x": 2010.697811366693,
+            "y": 518.6702258276079
+        },
+        {
+            "applicationArgs": [
+                {
+>>>>>>> master
                     "defaultValue": "",
                     "description": "Python function name",
                     "id": "79eb485e-0e46-4ce5-8d23-783c0331e520",
@@ -2542,6 +2698,48 @@
                     "value": true
                 },
                 {
+<<<<<<< HEAD
+=======
+                    "Id": "981339aa-8f96-4026-a6fc-b4a45028c336",
+                    "IdText": "sc_ref",
+                    "description": "Merge Model Components into Reference",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "sc_ref",
+                    "type": "Complex"
+                }
+            ],
+            "isGroup": false,
+            "key": -30,
+            "outputAppFields": [],
+            "outputApplicationDescription": "",
+            "outputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputLocalPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "983e5c02-1ada-450d-b0ed-b188b835e459",
+                    "IdText": "sc",
+                    "description": "Merge Model Components into Reference",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "sc",
+                    "type": "Complex"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "find_skycomponent_matches",
+            "width": 200,
+            "x": 859.9216757029075,
+            "y": 1071.5671002656059
+        },
+        {
+            "applicationArgs": [
+                {
+>>>>>>> master
                     "defaultValue": "",
                     "description": "Python function name",
                     "id": "1336e79f-acc8-4690-a71a-ad168327d54e",
@@ -2771,6 +2969,48 @@
                     "value": false
                 },
                 {
+<<<<<<< HEAD
+=======
+                    "Id": "f74206c1-3525-4d04-ba67-2ebf377d0bc2",
+                    "IdText": "cg",
+                    "description": "Convolution Function",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "cf",
+                    "type": "Complex"
+                }
+            ],
+            "isGroup": false,
+            "key": -56,
+            "outputAppFields": [],
+            "outputApplicationDescription": "",
+            "outputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputLocalPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "299ab776-3fda-4850-a695-6aeb179a349c",
+                    "IdText": "griddata",
+                    "description": "Visibilities, Gridded",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "griddata",
+                    "type": "Complex"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "grid_blockvisibility_to_griddata",
+            "width": 200,
+            "x": 2054.138444987199,
+            "y": 869.2308531545385
+        },
+        {
+            "applicationArgs": [
+                {
+>>>>>>> master
                     "defaultValue": "",
                     "description": "Python function name",
                     "id": "589e6dac-4372-4fd1-ba20-050fd92c35ce",
@@ -2982,7 +3222,61 @@
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
+<<<<<<< HEAD
                 },
+=======
+                }
+            ],
+            "flipPorts": true,
+            "group": -46,
+            "height": 72,
+            "inputAppFields": [],
+            "inputApplicationDescription": "",
+            "inputApplicationKey": null,
+            "inputApplicationName": "",
+            "inputApplicationType": "None",
+            "inputLocalPorts": [],
+            "inputPorts": [
+                {
+                    "Id": "5d2bf408-347c-4f3b-a0fc-66419b595dbb",
+                    "IdText": "griddata",
+                    "description": "Visibilities, Gridded",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "griddata",
+                    "type": "Complex"
+                }
+            ],
+            "isGroup": false,
+            "key": -58,
+            "outputAppFields": [],
+            "outputApplicationDescription": "",
+            "outputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputLocalPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "03655aca-a58c-497b-a08e-0d51575a59d4",
+                    "IdText": "im",
+                    "description": "Image",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "im",
+                    "type": "Complex"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "fft_griddata_to_image",
+            "width": 200,
+            "x": 2026.9904228590274,
+            "y": 1023.6293843445791
+        },
+        {
+            "applicationArgs": [
+>>>>>>> master
                 {
                     "defaultValue": "",
                     "description": "Python function name",
@@ -3128,9 +3422,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "subtract_visibility",
             "width": 200,
@@ -3404,9 +3696,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "create_low_test_skycomponents_from_gleam",
             "width": 200,
@@ -3504,9 +3794,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Obs. Vis. Data ",
             "width": 200,
@@ -3605,9 +3893,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "sc",
             "width": 200,
@@ -3706,9 +3992,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "gt",
             "width": 200,
@@ -3807,9 +4091,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "gt",
             "width": 200,
@@ -3908,9 +4190,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "vis",
             "width": 200,
@@ -4009,9 +4289,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "vis",
             "width": 200,
@@ -4110,9 +4388,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "griddata",
             "width": 200,
@@ -4211,9 +4487,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "im",
             "width": 200,
@@ -4456,9 +4730,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "flagging_blockvisibility",
             "width": 200,
@@ -4557,9 +4829,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "vis",
             "width": 200,
@@ -4658,9 +4928,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "vis",
             "width": 200,
@@ -4759,9 +5027,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "vis",
             "width": 200,
@@ -4812,9 +5078,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Minor Cycle",
             "width": 542.302134001231,
@@ -5041,9 +5305,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "find_skycomponents",
             "width": 200,
@@ -5158,9 +5420,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "sc_ref",
             "width": 200,
@@ -5259,9 +5519,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "sc",
             "width": 200,
@@ -5360,9 +5618,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "modelvis",
             "width": 200,
@@ -5461,9 +5717,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "sc",
             "width": 200,
@@ -5610,9 +5864,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "New Components?",
             "width": 200,
@@ -5759,9 +6011,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "New Components?",
             "width": 200,
@@ -5860,9 +6110,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "comp_major",
             "width": 200,
@@ -5961,9 +6209,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "sc",
             "width": 200,
@@ -6174,9 +6420,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "fft_griddata_to_image",
             "width": 200,
@@ -6275,9 +6519,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "griddata",
             "width": 200,
@@ -6472,9 +6714,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "grid_blockvisibility_weight_to_griddata",
             "width": 200,
@@ -6573,9 +6813,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "sc",
             "width": 200,
@@ -6849,9 +7087,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "create_convolutionfunction_from_image",
             "width": 200,
@@ -6950,9 +7186,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "cg",
             "width": 200,
@@ -7179,9 +7413,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "subtract PSF, using add_image",
             "width": 200,
@@ -7280,9 +7512,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "sc",
             "width": 200,
@@ -7381,9 +7611,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "psf",
             "width": 200,
@@ -7482,9 +7710,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "im",
             "width": 200,
@@ -7743,9 +7969,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Restore_and_CopyApp",
             "width": 200,
@@ -7891,9 +8115,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "gt",
             "width": 200,
@@ -8023,9 +8245,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Image",
             "width": 200,
@@ -8155,9 +8375,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "PSF",
             "width": 200,
@@ -8287,9 +8505,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "SkyComponent",
             "width": 200,
@@ -8419,9 +8635,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Residual Image",
             "width": 200,
@@ -8733,6 +8947,48 @@
                     "value": true
                 },
                 {
+<<<<<<< HEAD
+=======
+                    "Id": "46b6390e-4cd7-4e39-827a-31b7ed1003de",
+                    "IdText": "sc_ref",
+                    "description": "",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "sc_ref",
+                    "type": "Complex"
+                }
+            ],
+            "isGroup": false,
+            "key": -31,
+            "outputAppFields": [],
+            "outputApplicationDescription": "",
+            "outputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputLocalPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "9fd9a7ec-1cc7-4e60-bb79-9804b7082208",
+                    "IdText": "modelvis",
+                    "description": "",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "modelvis",
+                    "type": "Complex"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "dft_skycomponent_visibility",
+            "width": 200,
+            "x": 1016.8890958848453,
+            "y": 408.73035378057557
+        },
+        {
+            "applicationArgs": [
+                {
+>>>>>>> master
                     "defaultValue": "",
                     "description": "Python function name",
                     "id": "bed09f58-5e82-45c2-a023-81846b837909",
@@ -8877,9 +9133,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "dft_skycomponent_visibility",
             "width": 200,
@@ -8913,9 +9167,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Comment",
             "width": 200,
@@ -8949,9 +9201,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Comment",
             "width": 200,
@@ -8985,9 +9235,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Comment",
             "width": 200,
@@ -9315,6 +9563,48 @@
                     "value": true
                 },
                 {
+<<<<<<< HEAD
+=======
+                    "Id": "51acf560-f63c-40f3-87c2-fd2825641c4c",
+                    "IdText": "vis",
+                    "description": "",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "vis",
+                    "type": "Complex"
+                }
+            ],
+            "isGroup": false,
+            "key": -53,
+            "outputAppFields": [],
+            "outputApplicationDescription": "",
+            "outputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputLocalPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "93c0e210-e327-4cc7-bc5f-65a6b02471b6",
+                    "IdText": "modelvis",
+                    "description": "",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "modelvis",
+                    "type": "Complex"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "degrid_blockvisibility_from_griddata",
+            "width": 200,
+            "x": 1092.1528195068345,
+            "y": 596.8842944741247
+        },
+        {
+            "applicationArgs": [
+                {
+>>>>>>> master
                     "defaultValue": "",
                     "description": "Python function name",
                     "id": "c38c3932-cc73-4a8d-bfbd-a05f550d0479",
@@ -9475,9 +9765,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "degrid_blockvisibility_from_griddata",
             "width": 200,
@@ -9576,9 +9864,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "griddata",
             "width": 200,
@@ -9967,7 +10253,60 @@
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
+<<<<<<< HEAD
                 },
+=======
+                }
+            ],
+            "flipPorts": false,
+            "height": 72,
+            "inputAppFields": [],
+            "inputApplicationDescription": "",
+            "inputApplicationKey": null,
+            "inputApplicationName": "",
+            "inputApplicationType": "None",
+            "inputLocalPorts": [],
+            "inputPorts": [
+                {
+                    "Id": "5f2976ff-c960-43a8-8607-2f052136a388",
+                    "IdText": "Config",
+                    "description": "The output configuration file",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "ConfigFile",
+                    "type": "Complex"
+                }
+            ],
+            "isGroup": false,
+            "key": -63,
+            "outputAppFields": [],
+            "outputApplicationDescription": "",
+            "outputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputLocalPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "a1a56047-81b2-4aab-8441-978d73679680",
+                    "IdText": "vis",
+                    "description": "",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "vis",
+                    "type": "Complex"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "create_blockvisibility_from_ms",
+            "width": 200,
+            "x": 1094.8477608032115,
+            "y": 45.61867995169179
+        },
+        {
+            "applicationArgs": [
+>>>>>>> master
                 {
                     "defaultValue": "",
                     "description": "Python function name",
@@ -10166,9 +10505,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "griddata",
             "width": 200,
@@ -10247,9 +10584,64 @@
                     "readonly": false,
                     "text": "Group start",
                     "type": "Boolean",
+<<<<<<< HEAD
                     "usage": "NoPort",
                     "value": false
                 },
+=======
+                    "value": true
+                }
+            ],
+            "flipPorts": false,
+            "group": -46,
+            "height": 72,
+            "inputAppFields": [],
+            "inputApplicationDescription": "",
+            "inputApplicationKey": null,
+            "inputApplicationName": "",
+            "inputApplicationType": "None",
+            "inputLocalPorts": [],
+            "inputPorts": [
+                {
+                    "Id": "9cae159b-8b44-4153-8c93-f698be422ece",
+                    "IdText": "griddata",
+                    "description": "",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "griddata",
+                    "type": "Complex"
+                }
+            ],
+            "isGroup": false,
+            "key": -65,
+            "outputAppFields": [],
+            "outputApplicationDescription": "",
+            "outputApplicationKey": null,
+            "outputApplicationName": "",
+            "outputApplicationType": "None",
+            "outputLocalPorts": [],
+            "outputPorts": [
+                {
+                    "Id": "4352175b-e555-466e-9765-09191743fbb8",
+                    "IdText": "griddata",
+                    "description": "",
+                    "event": false,
+                    "keyAttribute": false,
+                    "text": "griddata",
+                    "type": "Unknown"
+                }
+            ],
+            "paletteDownloadUrl": "",
+            "repositoryUrl": "",
+            "subject": null,
+            "text": "griddata",
+            "width": 200,
+            "x": 1252.1489764712378,
+            "y": 987.8126436620706
+        },
+        {
+            "applicationArgs": [
+>>>>>>> master
                 {
                     "defaultValue": "",
                     "description": "Python function name",
@@ -10395,9 +10787,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "add_visibility",
             "width": 200,
@@ -10496,9 +10886,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "modelvis",
             "width": 200,
@@ -10597,9 +10985,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "modelvis",
             "width": 200,
@@ -10698,9 +11084,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "modelvis",
             "width": 200,
@@ -10799,9 +11183,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "modelvis",
             "width": 200,
@@ -10900,9 +11282,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "modelvis",
             "width": 200,
@@ -11001,9 +11381,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "modelvis",
             "width": 200,
@@ -11230,9 +11608,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "add_visibility",
             "width": 200,
@@ -11266,9 +11642,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Comment",
             "width": 200,
@@ -11302,9 +11676,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Comment",
             "width": 200,
@@ -11338,9 +11710,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Comment",
             "width": 200,
@@ -11374,9 +11744,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Comment",
             "width": 200,
@@ -11410,9 +11778,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "Comment",
             "width": 200,
@@ -11511,9 +11877,7 @@
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "paletteDownloadUrl": "",
-            "precious": false,
             "repositoryUrl": "",
-            "streaming": false,
             "subject": null,
             "text": "fg",
             "width": 200,

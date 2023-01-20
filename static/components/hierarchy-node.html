@@ -1,6 +1,6 @@
 
 <li>
-    <div class="hierarchyNode" data-bind="class: Hierarchy.isNodeSelected($root.objectIsSelectedById($data._id)), css:{'hierarchyCollapsed':$data.expanded()===false}, attr: {id:key} , click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false">
+    <div class="hierarchyNode rightClick_hierarchyNode" data-bind="class: Hierarchy.isNodeSelected($root.objectIsSelectedById($data._id)), css:{'hierarchyCollapsed':$data.expanded()===false}, attr: {id:key} , click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false, eagleRightClick: $data">
         <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
         <div class="hierarchyNodeVisibilityIcon" data-bind="style: {'visibility': Hierarchy.nodeIsHidden($data.key())}">
             <i class="material-icons md-18">visibility_off</i>
@@ -14,7 +14,7 @@
         <span data-bind="text: category"></span>
         <div>
             <!-- ko with: inputApplication -->
-                <div class="hierarchyNode hierarchyApplication" data-bind="class: Hierarchy.isApplicationSelected($root.objectIsSelectedById($data._id)),attr:{id:key}, style:{'background-color':$parent.color}, click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false">
+                <div class="hierarchyNode hierarchyApplication rightClick_hierarchyNode" data-bind="class: Hierarchy.isApplicationSelected($root.objectIsSelectedById($data._id)),attr:{id:key}, style:{'background-color':$parent.color}, click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false, eagleRightClick: $data">
                     <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
                     <h5 data-bind="text: name"></h5>
                     <span data-bind="text: category"></span>

@@ -32,7 +32,7 @@ ko.components.register('repository', {
 
         this.refresh = params.data.refresh;
         this.select = params.data.select;
-        this.remove = params.parent.removeCustomRepository;
+        this.remove = params.parent.repositories().removeCustomRepository;
     },
     template: { require: "text!static/components/repository.html" }
 });

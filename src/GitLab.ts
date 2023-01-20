@@ -35,7 +35,7 @@ export class GitLab {
      * Loads the GitLab repository list.
      */
     // TODO: should callback with the list of repositories
-    static loadRepoList(eagle : Eagle) : void {
+    static loadRepoList() : void {
         Utils.httpGetJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);
@@ -132,7 +132,10 @@ export class GitLab {
 
             // add files to repo
             for (const fileName of fileNames){
-                repository.files.push(new RepositoryFile(repository, "", fileName));
+                // if file is not a .graph, .palette, or .json, just ignore it!
+                if (Utils.verifyFileExtension(fileName)){
+                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                }
             }
 
             // add folders to repo
@@ -157,7 +160,10 @@ export class GitLab {
 
         // add files to repo
         for (const fileName of fileNames){
-            folder.files.push(new RepositoryFile(repository, path, fileName));
+            // if file is not a .graph, .palette, or .json, just ignore it!
+            if (Utils.verifyFileExtension(fileName)){
+                folder.files.push(new RepositoryFile(repository, path, fileName));
+            }
         }
 
         // add folders to repo

@@ -58,7 +58,7 @@
                     <i class="material-icons md-18">star</i>
                 </button>
             </div>
-            <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)" data-intro="Open The Graph's Key Parameters Table">
+            <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)" data-intro="Open The Graph's Key Parameters Table">
                 <i class="material-icons md-18">table_chart</i>
             </button>
             <ul class="nav navbar-nav ms-4" data-intro="Check the graph for common issues and missing information.">
@@ -88,6 +88,7 @@
                                 <span data-bind="text: Utils.getKeyboardShortcutTextByKey('new_graph', true)"></span>
                             </a>
                             <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
+                            <a class="dropdown-item" id="addToGraphFromJson" href="#" data-bind="click: addToGraphFromJson">Add to Graph from JSON</a>
                             <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: displayLogicalGraphAsJson">Export Graph to JSON</a>
                             <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph
                                 <span data-bind="text: Utils.getKeyboardShortcutTextByKey('add_edge', true)"></span>

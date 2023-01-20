@@ -1,9 +1,7 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
 import {Field} from './Field';
-import { Palette } from "./Palette";
-import {Utils} from './Utils';
+import {Eagle} from './Eagle';
 
 export class ParameterTable {
 
@@ -12,6 +10,9 @@ export class ParameterTable {
     static selection : ko.Observable<string | null>; // cell in the parameter table that is currently selected
     static selectionName : ko.Observable<string>; // name of selected parameter in field
     static selectionReadonly : ko.Observable<boolean> // check if selection is readonly
+
+    static tableHeaderX : any;
+    static tableHeaderW : any;
 
     static parameterTableVisibility : Array<{parameterName:string, keyVisibility:boolean, inspectorVisibility:boolean}> = []
 
@@ -47,7 +48,7 @@ export class ParameterTable {
     getParameterTableVisibility = (columnName: string) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
         const tableModalType = eagle.tableModalType()
-        var returnValue : boolean
+        let returnValue : boolean
         if(tableModalType === "keyParametersTableModal"){
             ParameterTable.parameterTableVisibility.forEach(function(element){
                 if(columnName === element.parameterName){
@@ -134,12 +135,38 @@ export class ParameterTable {
         }
     }
 
-    static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number, event:any) : void => {
+    /*
+    getFieldUseAsForTable = (nodeKey:number,fieldType:Eagle.FieldType) : any => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            if(eagle.selectedNode() === null){
+                return false
+            }
+            return eagle.selectedNode().fillFieldTypeCell(fieldType)
+        }else{
+            if(eagle.logicalGraph().findNodeByKeyQuiet(nodeKey) === null){
+                return false
+            }
+            return eagle.logicalGraph().findNodeByKeyQuiet(nodeKey).fillFieldTypeCell(fieldType)
+        }   
+    }
+    */
+
+    static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
         ParameterTable.selectionParentIndex(selectionIndex);
         ParameterTable.selection(selection);
         ParameterTable.selectionReadonly(readOnlyState);
+
+        //this is for the funcionality that empty idtexts will copy the display text removing spaces and caps while you type. This functionality gets removed when the display text looses focus signifying the changes are complete
+        if(selectionParent.getIdText()===''){
+            $(event.target).addClass('newEmpty')
+        }
+        if($(event.target).hasClass('newEmpty')){
+            selectionParent.setIdText(selection.toLowerCase().split(' ').join('_'))
+        }
     }
 
     static resetSelection = ():void => {
@@ -149,5 +176,79 @@ export class ParameterTable {
 
     static hasSelection = () : boolean => {
         return ParameterTable.selectionParentIndex() !== -1;
+    }
+
+    setUpColumnResizer = (headerId:string) : boolean => {
+        // little helper function that sets up resizable columns. this is called by ko on the headers when they are created
+        ParameterTable.initiateResizableColumns(headerId)
+        return true
+    }
+
+    static initiateResizableColumns = (upId:string) : void => {
+        //need this oen initially to set the mousedown handler
+            var upcol = $('#'+upId)[0]
+            var upresizer = $(upcol).find('div')
+
+            var downcol:any
+            var downresizer:any
+
+            var tableWidth:any
+
+            // Track the current position of mouse
+            let x = 0;
+            let upW = 0;
+
+            let downW = 0;
+
+            const mouseDownHandler = function (e:any) {
+                //need to reset these as they are sometimes lost
+                upcol = $('#'+upId)[0]
+                upresizer = $(upcol).find('div')
+                downcol = $('#'+upId).next()[0]
+                downresizer = $(downcol).find('div')
+
+                //getting the table width for use later to convert the new widths into percentages
+                tableWidth = parseInt(window.getComputedStyle($('#paramsTableWrapper')[0]).width,10)
+
+                // Get the current mouse position
+                x = e.clientX;
+
+                // Calculate the current width of column
+                const styles = window.getComputedStyle(upcol);
+                upW = parseInt(styles.width, 10);
+
+                const downstyles = window.getComputedStyle(downcol)
+                downW = parseInt(downstyles.width, 10);
+        
+                // Attach listeners for document's events
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+                upresizer.addClass('resizing');
+                downresizer.addClass('resizing');
+            };
+        
+            const mouseMoveHandler = function (e:any) {
+                // Determine how far the mouse has been moved
+                const dx = e.clientX - x;
+
+                //converting these new px values into percentages
+                let newUpWidth = ((upW + dx)/tableWidth)*100
+                let newDownWidth = ((downW - dx)/tableWidth)*100
+
+                // Update the width of column
+                upcol.style.width = `${newUpWidth}%`;
+                downcol.style.width = `${newDownWidth}%`;
+            };
+        
+            // When user releases the mouse, remove the existing event listeners
+            const mouseUpHandler = function () {
+                document.removeEventListener('mousemove', mouseMoveHandler);
+                document.removeEventListener('mouseup', mouseUpHandler);
+                upresizer.removeClass('resizing');
+                downresizer.removeClass('resizing');
+            };
+        
+            //doing it this way because it makes it simpler to have the header in quetion in hand. the ko events proved difficult to pass events and objects with
+            upresizer.on('mousedown', mouseDownHandler);
     }
 }

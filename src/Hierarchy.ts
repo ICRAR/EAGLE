@@ -69,7 +69,7 @@ export class Hierarchy {
             })
         })
 
-        //using a caled async function here to wait for changes to the hierarchy to finish before drawing the edges
+        //using a called async function here to wait for changes to the hierarchy to finish before drawing the edges
         hierarchyDraw()
 
 

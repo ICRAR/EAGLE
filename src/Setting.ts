@@ -8,7 +8,7 @@ export class SettingsGroup {
     private displayFunc : (eagle: Eagle) => boolean;
     private settings : Setting[];
 
-    constructor(name: string, displayFunc: (eagle:Eagle) => boolean, settings: Setting[]){
+    constructor(name: string, displayFunc: () => boolean, settings: Setting[]){
         this.name = name;
         this.displayFunc = displayFunc;
         this.settings = settings;
