@@ -316,7 +316,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("y1", 0)
         .attr("x2", 10000)
         .attr("y2", 0)
-        .style("stroke", eagle.snapToGrid() ? "black" : "none")
+        .style("stroke", eagle.snapToGrid() ? "silver" : "none")
         .style("stroke-width", 2);
 
     // draw y-axis
@@ -326,7 +326,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("y1", -10000)
         .attr("x2", 0)
         .attr("y2", 10000)
-        .style("stroke", eagle.snapToGrid() ? "black" : "none")
+        .style("stroke", eagle.snapToGrid() ? "silver" : "none")
         .style("stroke-width", 2);
 
     let nodes : any = rootContainer

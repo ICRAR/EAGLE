@@ -170,7 +170,7 @@ export class Eagle {
                     new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Utils.USER_TRANSLATOR_MODE, Eagle.TranslatorMode.Default, Object.values(Eagle.TranslatorMode)),
                     new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000),
                     new Setting("Snap To Grid", "Align positions of nodes in graph to a grid", Setting.Type.Boolean, Utils.SNAP_TO_GRID, false),
-                    new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Utils.SNAP_TO_GRID_SIZE, 100),
+                    new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Utils.SNAP_TO_GRID_SIZE, 50),
                 ]
             ),
             new SettingsGroup(
