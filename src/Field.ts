@@ -277,7 +277,12 @@ export class Field {
             return true;
         }
 
-        return this.displayText().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0;
+        var nameMatch = this.displayText().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+        var nodeParentNameMatch = Eagle.getInstance().logicalGraph().findNodeByKey(this.nodeKey()).getName().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+        var useAsMatch = this.fieldType().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+        var fieldTypeMatch = this.type().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+
+        return nameMatch || nodeParentNameMatch || useAsMatch || fieldTypeMatch;
     }, this);
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
