@@ -3561,7 +3561,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function moveNode(node : Node, deltax : number, deltay : number) : void {
-        node.setPosition(getX(node) + deltax, getY(node) + deltay);
+        node.setPosition(getX(node) + deltax, getY(node) + deltay, false);
     }
 
     function findAncestorCollapsedNode(node : Node) : Node {
