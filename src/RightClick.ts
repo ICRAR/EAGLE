@@ -279,7 +279,6 @@ export class RightClick {
                 }
             })
         }
-        console.log(passedObjectClass)
 
         if(rightClickObjectInSelection){
             // if we right clicked an object that is part of a multi selection
