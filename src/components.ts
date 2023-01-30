@@ -48,7 +48,7 @@ ko.components.register('field', {
 });
 
 ko.components.register('port', {
-    viewModel: function(params : {id : string, name : string, description: string, multiplicity : number, isEventPort : boolean, toggleEvent : boolean, input : boolean, fieldType: Eagle.FieldType}){
+    viewModel: function(params : {id : string, name : string, description: string, multiplicity : number, isEventPort : boolean, toggleEvent : boolean, input : boolean, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage}){
         return {
             id: params.id,
             name: params.name,
@@ -57,7 +57,8 @@ ko.components.register('port', {
             isEventPort: params.isEventPort,
             toggleEvent: params.toggleEvent,
             input: params.input,
-            fieldType: params.fieldType
+            parameterType: params.parameterType,
+            usage: params.usage
         };
     },
     template: { require: "text!static/components/port.html" }

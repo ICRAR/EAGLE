@@ -19,11 +19,12 @@ export class Field {
 
     // port-specific attributes
     private id : ko.Observable<string>;
-    private fieldType : ko.Observable<Eagle.FieldType>;
+    private parameterType : ko.Observable<Eagle.ParameterType>;
+    private usage : ko.Observable<Eagle.ParameterUsage>;
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
-    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, fieldType: Eagle.FieldType, keyAttribute: boolean){
+    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
         this.idText = ko.observable(idText);
         this.value = ko.observable(value);
@@ -37,7 +38,8 @@ export class Field {
         this.keyAttribute = ko.observable(keyAttribute);
 
         this.id = ko.observable(id);
-        this.fieldType = ko.observable(fieldType);
+        this.parameterType = ko.observable(parameterType);
+        this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
     }
@@ -158,12 +160,20 @@ export class Field {
         this.positional(positional);
     }
 
-    getFieldType = (): Eagle.FieldType => {
-        return this.fieldType();
+    getParameterType = (): Eagle.ParameterType => {
+        return this.parameterType();
     }
 
-    setFieldType = (fieldType: Eagle.FieldType) : void => {
-        this.fieldType(fieldType);
+    setParameterType = (parameterType: Eagle.ParameterType) : void => {
+        this.parameterType(parameterType);
+    }
+
+    getUsage = (): Eagle.ParameterUsage => {
+        return this.usage();
+    }
+
+    setUsage = (usage: Eagle.ParameterUsage) : void => {
+        this.usage(usage);
     }
 
     getIsEvent = (): boolean => {
@@ -197,18 +207,18 @@ export class Field {
         this.precious(false);
         this.options([]);
         this.positional(false);
+        this.parameterType(Eagle.ParameterType.Unknown);
+        this.usage(Eagle.ParameterUsage.NoPort);
         this.keyAttribute(false);
 
         this.id("");
-        this.fieldType(Eagle.FieldType.Unknown);
         this.isEvent(false);
         this.nodeKey(0);
     }
 
     clone = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.fieldType(), this.keyAttribute());
+        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
-        f.setFieldType(this.fieldType());
         return f;
     }
 
@@ -235,8 +245,9 @@ export class Field {
         this.precious(src.precious());
         this.options(src.options());
         this.positional(src.positional());
-
-        this.fieldType(src.fieldType());
+        this.parameterType(src.parameterType());
+        this.usage(src.usage());
+        this.setKeyAttribute(src.keyAttribute());
         this.isEvent(src.isEvent());
 
         // NOTE: these two are not copied from the src, but come from the function's parameters
@@ -245,11 +256,11 @@ export class Field {
     }
 
     isInputPort = () : boolean => {
-        return this.fieldType() === Eagle.FieldType.InputPort;
+        return this.usage() === Eagle.ParameterUsage.InputPort || this.usage() === Eagle.ParameterUsage.InputOutput;
     }
 
     isOutputPort = () : boolean => {
-        return this.fieldType() === Eagle.FieldType.OutputPort;
+        return this.usage() === Eagle.ParameterUsage.OutputPort || this.usage() === Eagle.ParameterUsage.InputOutput;
     }
 
     fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -306,6 +317,29 @@ export class Field {
         }
     }
 
+    static getHtmlTitleText = (parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage) : string => {
+        if (usage === Eagle.ParameterUsage.NoPort){
+            switch(parameterType){
+                case Eagle.ParameterType.ApplicationArgument:
+                return "Application Argument";
+                case Eagle.ParameterType.ComponentParameter:
+                return "Component Parameter";
+            }
+        } else {
+            switch(usage){
+                case Eagle.ParameterUsage.InputPort:
+                return "Input Port";
+                case Eagle.ParameterUsage.OutputPort:
+                return "Output Port";
+                case Eagle.ParameterUsage.InputOutput:
+                return "Input/Output Port";
+            }
+        }
+
+        console.warn("Unable to determine title for unexpected field type", parameterType, usage);
+        return "";
+    }
+
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
     static stringAsType = (value: string, type: string) : any => {
@@ -323,6 +357,7 @@ export class Field {
 
     static toOJSJson = (field : Field) : object => {
         return {
+            id:field.id(),
             text:field.displayText(),
             name:field.idText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -333,12 +368,15 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional:field.positional(),
+            parameterType:field.parameterType(),
+            usage:field.usage(),
             keyAttribute:field.keyAttribute()
         };
     }
 
     static toV3Json = (field : Field) : object => {
         return {
+            id:field.id(),
             text:field.displayText(),
             name:field.idText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -349,6 +387,8 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional: field.positional(),
+            parameterType:field.parameterType(),
+            usage:field.usage(),
             keyAttribute:field.keyAttribute()
         };
     }
@@ -365,7 +405,8 @@ export class Field {
         let precious: boolean = false;
         let options: string[] = [];
         let positional: boolean = false;
-        let fieldType: Eagle.FieldType = Eagle.FieldType.Unknown;
+        let parameterType: Eagle.ParameterType = Eagle.ParameterType.Unknown;
+        let usage: Eagle.ParameterUsage = Eagle.ParameterUsage.NoPort;
         let isEvent: boolean = false;
         let keyAttribute: boolean = false;
 
@@ -398,43 +439,42 @@ export class Field {
             options = data.options;
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
-        if (typeof data.fieldType !== 'undefined')
-            fieldType = data.fieldType;
+
+        // handle legacy fieldType
+        if (typeof data.fieldType !== 'undefined'){
+            switch (data.fieldType){
+                case "ComponentParameter":
+                    parameterType = Eagle.ParameterType.ComponentParameter;
+                    usage = Eagle.ParameterUsage.NoPort;
+                    break;
+                case "ApplicationArgument":
+                    parameterType = Eagle.ParameterType.ApplicationArgument;
+                    usage = Eagle.ParameterUsage.NoPort;
+                    break;
+                case "InputPort":
+                    parameterType = Eagle.ParameterType.ApplicationArgument;
+                    usage = Eagle.ParameterUsage.InputPort;
+                    break;
+                case "OutputPort":
+                    parameterType = Eagle.ParameterType.ApplicationArgument;
+                    usage = Eagle.ParameterUsage.OutputPort;
+                    break;
+                default:
+                    console.log("Unhandled fieldType", data.fieldType);
+            }
+        }
+
+        if (typeof data.parameterType !== 'undefined')
+            parameterType = data.parameterType;
+        if (typeof data.usage !== 'undefined')
+            usage = data.usage;
         if (typeof data.event !== 'undefined')
             event = data.event;
         if (typeof data.keyAttribute !== 'undefined')
             keyAttribute = data.keyAttribute;
-        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, fieldType, keyAttribute);
+        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
         result.setIsEvent(isEvent);
         return result;
-    }
-
-    public static sortFunc = (a: Field, b: Field) : number => {
-        if (a.idText() < b.idText())
-            return -1;
-
-        if (a.idText() > b.idText())
-            return 1;
-
-        if (a.type() < b.type())
-            return -1;
-
-        if (a.type() > b.type())
-            return 1;
-
-        return 0;
-    }
-
-    static toOJSJsonPort = (field : Field) : object => {
-        return {
-            Id:field.id(),
-            IdText:field.idText(),
-            text:field.displayText(),
-            event:field.isEvent(),
-            type:field.type(),
-            description:field.description(),
-            keyAttribute:field.keyAttribute()
-        };
     }
 
     static fromOJSJsonPort = (data : any) : Field => {
@@ -459,9 +499,25 @@ export class Field {
         if (text === ""){
             text = data.IdText;
         }
-
-        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false, Eagle.FieldType.Unknown, keyAttribute);
+     
+        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false, Eagle.ParameterType.Unknown, Eagle.ParameterUsage.NoPort, keyAttribute);
         f.setIsEvent(event);
         return f;
+    }
+
+    public static sortFunc = (a: Field, b: Field) : number => {
+        if (a.idText() < b.idText())
+            return -1;
+
+        if (a.idText() > b.idText())
+            return 1;
+
+        if (a.type() < b.type())
+            return -1;
+
+        if (a.type() > b.type())
+            return 1;
+
+        return 0;
     }
 }

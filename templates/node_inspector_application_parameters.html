@@ -13,7 +13,7 @@
                 </a>
                 <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.applicationArgsSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}} "></input>
             </div>
-            <!-- ko foreach: selectedNode().getApplicationArguments() -->
+            <!-- ko foreach: selectedNode().getApplicationArgumentsWithNoPorts() -->
                 <!-- ko if: $data.fitsApplicationSearchQuery() -->
                     <field params="data: $data, ro: $data.isReadonly()"></field>
                 <!-- /ko -->

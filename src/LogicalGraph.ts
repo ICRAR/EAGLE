@@ -138,8 +138,7 @@ export class LogicalGraph {
         }
 
         // add edges
-        for (const linkData of dataObject.linkDataArray){
-            
+        for (const linkData of dataObject.linkDataArray){       
             const newEdge = Edge.fromOJSJson(linkData, errorsWarnings);
 
             if (newEdge === null){

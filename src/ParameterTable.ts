@@ -33,7 +33,8 @@ export class ParameterTable {
         ParameterTable.parameterTableVisibility.push({parameterName:"defaultValue", keyVisibility: false, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"description", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"type", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"useAs", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"parameterType", keyVisibility: true, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"usage", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"precious", keyVisibility: false, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"positional", keyVisibility: false, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"actions", keyVisibility: true, inspectorVisibility: true});
@@ -134,6 +135,7 @@ export class ParameterTable {
         }
     }
 
+    /*
     getFieldUseAsForTable = (nodeKey:number,fieldType:Eagle.FieldType) : any => {
         const eagle: Eagle = Eagle.getInstance();
 
@@ -147,9 +149,9 @@ export class ParameterTable {
                 return false
             }
             return eagle.logicalGraph().findNodeByKeyQuiet(nodeKey).fillFieldTypeCell(fieldType)
-        }
-        
+        }   
     }
+    */
 
     static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
         ParameterTable.selectionName(selectionName);
