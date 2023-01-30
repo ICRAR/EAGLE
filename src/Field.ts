@@ -3,6 +3,7 @@ import * as ko from "knockout";
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {Config} from './Config';
+import {Setting} from './Setting';
 
 export class Field {
     private displayText : ko.Observable<string>; // external user-facing name
@@ -288,10 +289,10 @@ export class Field {
             return true;
         }
 
-        var nameMatch = this.displayText().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        var nodeParentNameMatch = Eagle.getInstance().logicalGraph().findNodeByKey(this.nodeKey()).getName().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        var useAsMatch = this.fieldType().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        var fieldTypeMatch = this.type().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+        const nameMatch = this.displayText().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+        const nodeParentNameMatch = Eagle.getInstance().logicalGraph().findNodeByKey(this.nodeKey()).getName().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+        const useAsMatch = this.usage().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+        const fieldTypeMatch = this.type().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
 
         return nameMatch || nodeParentNameMatch || useAsMatch || fieldTypeMatch;
     }, this);
@@ -356,8 +357,7 @@ export class Field {
     }
 
     static toOJSJson = (field : Field) : object => {
-        return {
-            id:field.id(),
+        const result : any = {
             text:field.displayText(),
             name:field.idText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -368,15 +368,21 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional:field.positional(),
-            parameterType:field.parameterType(),
-            usage:field.usage(),
             keyAttribute:field.keyAttribute()
         };
+
+        const useOldOutputFormat : boolean = Setting.findValue(Utils.USE_OLD_OUTPUT_FORMAT);
+        if (!useOldOutputFormat){
+            result.id = field.id();
+            result.parameterType = field.parameterType();
+            result.usage = field.usage();
+        }
+
+        return result;
     }
 
     static toV3Json = (field : Field) : object => {
-        return {
-            id:field.id(),
+        const result : any =  {
             text:field.displayText(),
             name:field.idText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -387,8 +393,27 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional: field.positional(),
-            parameterType:field.parameterType(),
-            usage:field.usage(),
+            keyAttribute:field.keyAttribute()
+        };
+
+        const useOldOutputFormat : boolean = Setting.findValue(Utils.USE_OLD_OUTPUT_FORMAT);
+        if (!useOldOutputFormat){
+            result.id = field.id();
+            result.parameterType = field.parameterType();
+            result.usage = field.usage();
+        }
+
+        return result;
+    }
+
+    static toOJSJsonPort = (field : Field) : object => {
+        return {
+            Id:field.id(),
+            IdText:field.idText(),
+            text:field.displayText(),
+            event:field.isEvent(),
+            type:field.type(),
+            description:field.description(),
             keyAttribute:field.keyAttribute()
         };
     }
