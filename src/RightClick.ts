@@ -92,12 +92,16 @@ export class RightClick {
         Eagle.selectedRightClickObject().copyUrl()
     }
 
-    static closeCustomContextMenu = () : void => {
-        setTimeout(function() {
-            if($("#customContextMenu:hover").length === 0){
-                $("#customContextMenu").remove()
-            }
-        }, 300);
+    static closeCustomContextMenu = (force:boolean) : void => {
+        if(force){
+            $("#customContextMenu").remove()
+        }else{
+            setTimeout(function() {
+                if($("#customContextMenu:hover").length === 0){
+                    $("#customContextMenu").remove()
+                }
+            }, 300);
+        }
     }
 
     static createHtmlPaletteList = () : string => {
@@ -249,7 +253,7 @@ export class RightClick {
 
         //setting up the menu div
         $('#customContextMenu').remove()
-        $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu()"></div>')
+        $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu(false)"></div>')
         $('#customContextMenu').css('top',mouseY+'px')
         $('#customContextMenu').css('left',mouseX+'px')
 
@@ -263,94 +267,114 @@ export class RightClick {
         y = (y - eagle.globalOffsetY)/eagle.globalScale;
 
         Eagle.selectedRightClickPosition = {x:x, y:y};
-            
-        //append function options depending on the right click object
-        if(targetClass.includes('rightClick_logicalGraph')){
-            if(!Eagle.hidePaletteTab()){
-                var searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
-                    <i class="material-icons md-18 searchBarIcon">search</i>
-                    <a onclick="RightClick.clearSearchField()">
-                        <i class="material-icons md-18 searchBarIconClose">close</i>
-                    </a>
-                    <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
-                </div>` 
-
-                $('#customContextMenu').append(searchbar)
-
-                $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
-                var paletteList = RightClick.createHtmlPaletteList()
-
-                $('#rightClickPaletteList').append(paletteList)
-
-                Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
-                $('#rightClickSearchBar').focus()
-                RightClick.initiateQuickSelect()
-            }else{
-                var message = '<span>Lacking graph editing permissions</span>'
-                $('#customContextMenu').append(message)
-            }
-            
-        }else if(targetClass.includes('rightClick_paletteComponent')){
-            Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
-
-            if(Eagle.allowPaletteEditing()){
-            $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
-            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
-                $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to another palette</a>')
-            }
-        }else if(targetClass.includes('rightClick_hierarchyNode')){
-            Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
-
-            $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Inspector Table</a>')
-            $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Key Parameters Table</a>')
-            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
-            if(Eagle.allowPaletteEditing()){
-                $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
-            }
-            $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
-
-        }else if(passedObjectClass === 'rightClick_graphNode'){
-            $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
-            $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Key Parameters Table</a>')
-            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
-            if (data.isConstruct()){
-                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,true)>Delete All</a>')
-            }
-            if(Eagle.allowPaletteEditing()){
-                $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
-            }
-                $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
-
-
-        }else if(passedObjectClass === 'rightClick_graphEdge'){
-            $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
-
-        }else if(targetClass.includes('rightClick_paletteHeader')){
-            
-            if(!data.fileInfo().builtIn){
-                $('#customContextMenu').append('<a onclick="RightClick.rightClickDeletePalette()"><span>Remove Palette</span></a>')
-            }
-            if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown){
-                $('#customContextMenu').append('<a onclick="RightClick.rightClickReloadPalette()"><span>Reload Palette</span></a>')
-            }
-            if(Eagle.allowPaletteEditing()){
-                $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToDisk()"><span>Save Locally</span></a>')
-                $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToGit()"><span>Save To Git</span></a>')
-            }
-            if(data.searchExclude()){
-                $('#customContextMenu').append('<a onclick="RightClick.rightClicktoggleSearchExclude(false)"><span>Include In Search</span></a>')
-            }
-            if(!data.searchExclude()){
-                $('#customContextMenu').append('<a onclick="RightClick.rightClicktoggleSearchExclude(true)"><span>Exclude From Search</span></a>')
-            }
-            if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown && data.fileInfo().repositoryService !== Eagle.RepositoryService.File){
-                $('#customContextMenu').append('<a onclick="RightClick.rightClickCopyPaletteUrl()"><span>Copy Palette URL</span></a>')
-            }
-
+        
+        var selectedObjectAmount = eagle.selectedObjects().length
+        var rightClickObjectInSelection = false
+        if (selectedObjectAmount > 1){
+            //if more than one node is selected
+            eagle.selectedObjects().forEach(function(selectedObject){
+                if (selectedObject === data){
+                    rightClickObjectInSelection = true
+                   
+                }
+            })
         }
-
+        if(rightClickObjectInSelection){
+            // if we right clicked an object that is part of a multi selection
+            if(passedObjectClass === 'rightClick_graphNode' || passedObjectClass === 'rightClick_graphEdge'){
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("",false,false)>Delete</a>')
+                $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("normal")>Duplicate</a>')
+                $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
+            }
+        }else{
+            //if we right clicked an individual object
+            //append function options depending on the right click object
+            if(targetClass.includes('rightClick_logicalGraph')){
+                if(!Eagle.hidePaletteTab()){
+                    var searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
+                        <i class="material-icons md-18 searchBarIcon">search</i>
+                        <a onclick="RightClick.clearSearchField()">
+                            <i class="material-icons md-18 searchBarIconClose">close</i>
+                        </a>
+                        <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
+                    </div>` 
+    
+                    $('#customContextMenu').append(searchbar)
+    
+                    $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
+                    var paletteList = RightClick.createHtmlPaletteList()
+    
+                    $('#rightClickPaletteList').append(paletteList)
+    
+                    Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
+                    $('#rightClickSearchBar').focus()
+                    RightClick.initiateQuickSelect()
+                }else{
+                    var message = '<span>Lacking graph editing permissions</span>'
+                    $('#customContextMenu').append(message)
+                }
+                
+            }else if(targetClass.includes('rightClick_paletteComponent')){
+                Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
+    
+                if(Eagle.allowPaletteEditing()){
+                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+                    $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to another palette</a>')
+                }
+            }else if(targetClass.includes('rightClick_hierarchyNode')){
+                Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
+    
+                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Inspector Table</a>')
+                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Key Parameters Table</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+                if(Eagle.allowPaletteEditing()){
+                    $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
+                }
+                $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
+    
+            }else if(passedObjectClass === 'rightClick_graphNode'){
+                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
+                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Key Parameters Table</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+                if (data.isConstruct()){
+                    $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,true)>Delete All</a>')
+                }
+                if(Eagle.allowPaletteEditing()){
+                    $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
+                }
+                    $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
+    
+    
+            }else if(passedObjectClass === 'rightClick_graphEdge'){
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+    
+            }else if(targetClass.includes('rightClick_paletteHeader')){
+                
+                if(!data.fileInfo().builtIn){
+                    $('#customContextMenu').append('<a onclick="RightClick.rightClickDeletePalette()"><span>Remove Palette</span></a>')
+                }
+                if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown){
+                    $('#customContextMenu').append('<a onclick="RightClick.rightClickReloadPalette()"><span>Reload Palette</span></a>')
+                }
+                if(Eagle.allowPaletteEditing()){
+                    $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToDisk()"><span>Save Locally</span></a>')
+                    $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToGit()"><span>Save To Git</span></a>')
+                }
+                if(data.searchExclude()){
+                    $('#customContextMenu').append('<a onclick="RightClick.rightClicktoggleSearchExclude(false)"><span>Include In Search</span></a>')
+                }
+                if(!data.searchExclude()){
+                    $('#customContextMenu').append('<a onclick="RightClick.rightClicktoggleSearchExclude(true)"><span>Exclude From Search</span></a>')
+                }
+                if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown && data.fileInfo().repositoryService !== Eagle.RepositoryService.File){
+                    $('#customContextMenu').append('<a onclick="RightClick.rightClickCopyPaletteUrl()"><span>Copy Palette URL</span></a>')
+                }
+    
+            }
+        }
         // adding a listener to function options that closes the menu if an option is clicked
-        $('#customContextMenu a').on('click',function(){if($(event.target).parents('.searchBarContainer').length){return};RightClick.closeCustomContextMenu()})
+        $('#customContextMenu a').on('click',function(){if($(event.target).parents('.searchBarContainer').length){return};RightClick.closeCustomContextMenu(true)})
     }
 
 }
