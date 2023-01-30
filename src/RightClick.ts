@@ -281,7 +281,7 @@ export class RightClick {
         }
         if(rightClickObjectInSelection){
             // if we right clicked an object that is part of a multi selection
-            if(passedObjectClass === 'rightClick_graphNode' || passedObjectClass === 'rightClick_graphEdge'){
+            if(passedObjectClass === 'rightClick_graphNode' || passedObjectClass === 'rightClick_graphEdge' || 'rightClick_hierarchyNode'){
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("",false,false)>Delete</a>')
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("normal")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
