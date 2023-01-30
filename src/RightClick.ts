@@ -279,9 +279,11 @@ export class RightClick {
                 }
             })
         }
+        console.log(passedObjectClass)
+
         if(rightClickObjectInSelection){
             // if we right clicked an object that is part of a multi selection
-            if(passedObjectClass === 'rightClick_graphNode' || passedObjectClass === 'rightClick_graphEdge' || 'rightClick_hierarchyNode'){
+            if(passedObjectClass === 'rightClick_graphNode' || passedObjectClass === 'rightClick_graphEdge' || passedObjectClass === 'rightClick_hierarchyNode' || targetClass.includes('rightClick_paletteComponent')){
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("",false,false)>Delete</a>')
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("normal")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
