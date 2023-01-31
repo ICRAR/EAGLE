@@ -94,7 +94,7 @@ export class Eagle {
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
     tableModalType : ko.Observable<string>;
-    tableModalHidden : ko.Observable<boolean>;
+    showTableModal : ko.Observable<boolean>;
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -277,7 +277,7 @@ export class Eagle {
         this.loadingErrors = ko.observableArray([]);
 
         this.tableModalType = ko.observable('')
-        this.tableModalHidden = ko.observable(true)
+        this.showTableModal = ko.observable(false)
 
         this.showDataNodes = ko.observable(true);
 
@@ -2402,7 +2402,7 @@ export class Eagle {
     }
 
     openParamsTableModal = (mode:string,selectType:string) : void => {
-        this.tableModalHidden = ko.observable(false)
+        this.showTableModal(true)
         if(selectType === 'rightClick'){
             this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
             $('#customContextMenu').remove();
@@ -4525,7 +4525,7 @@ $( document ).ready(function() {
 
     $('#parameterTableModal').on('hidden.bs.modal', function (event) {
         const eagle: Eagle = Eagle.getInstance();
-        eagle.tableModalHidden = ko.observable(true)
+        eagle.showTableModal(false)
     })
 
 

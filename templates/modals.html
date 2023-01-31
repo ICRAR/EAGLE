@@ -639,7 +639,7 @@
     <div class="modal fade" id="parameterTableModal" tabindex="-1" role="dialog" aria-labelledby="parameterTableModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
-                <!-- ko ifnot: tableModalHidden() -->
+                <!-- ko if: showTableModal() -->
                     <div class="modal-header" data-bind="click: function(){ParameterTable.resetSelection()}">
 
                         <!-- ko if: tableModalType() === 'keyParametersTableModal' -->
