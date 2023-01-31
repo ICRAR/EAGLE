@@ -94,6 +94,7 @@ export class Eagle {
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
     tableModalType : ko.Observable<string>;
+    tableModalHidden : ko.Observable<boolean>;
 
     showDataNodes : ko.Observable<boolean>;
 
@@ -276,6 +277,7 @@ export class Eagle {
         this.loadingErrors = ko.observableArray([]);
 
         this.tableModalType = ko.observable('')
+        this.tableModalHidden = ko.observable(true)
 
         this.showDataNodes = ko.observable(true);
 
@@ -2400,6 +2402,7 @@ export class Eagle {
     }
 
     openParamsTableModal = (mode:string,selectType:string) : void => {
+        this.tableModalHidden = ko.observable(false)
         if(selectType === 'rightClick'){
             this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
             $('#customContextMenu').remove();
@@ -4519,6 +4522,12 @@ $( document ).ready(function() {
             handle: ".modal-header"
         });
     })
+
+    $('#parameterTableModal').on('hidden.bs.modal', function (event) {
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.tableModalHidden = ko.observable(true)
+    })
+
 
     let defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
     if(!defaultTranslatingAlgorithm){
