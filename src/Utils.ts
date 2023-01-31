@@ -903,7 +903,6 @@ export class Utils {
 
     static showOpenParamsTableModal(mode:string) : void {
         const eagle: Eagle = Eagle.getInstance();
-
         eagle.tableModalType(mode)
         $('#parameterTableModal').modal("toggle");
     }
