@@ -221,17 +221,23 @@ export class Node {
         }
     }
 
-    changePosition = (dx : number, dy : number, allowSnap: boolean = true) : void => {
+    changePosition = (dx : number, dy : number, allowSnap: boolean = true) : {dx:number, dy:number} => {
         this.realX += dx;
         this.realY += dy;
+
+        const beforePos = {x:this.x, y:this.y};
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
             const gridSize = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
             this.x = gridSize * Math.round(this.realX/gridSize);
             this.y = gridSize * Math.round(this.realY/gridSize);
+
+            return {dx:this.x - beforePos.x, dy:this.y - beforePos.y};
         } else {
             this.x = this.realX;
             this.y = this.realY;
+            
+            return {dx:dx, dy:dy};
         }
     }
 

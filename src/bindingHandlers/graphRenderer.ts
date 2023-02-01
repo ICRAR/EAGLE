@@ -453,10 +453,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // move all selected nodes, skip edges (they just follow nodes anyway)
             for (const object of eagle.selectedObjects()){
                 if (object instanceof Node){
-                    object.changePosition(dx, dy);
+                    
+                    const actualChange = object.changePosition(dx, dy);
+                    
 
                     if (!isDraggingWithAlt){
-                        moveChildNodes(object, dx, dy);
+                        moveChildNodes(object, dx, dy, actualChange.dx, actualChange.dy);
                     }
                 }
             }
@@ -3542,7 +3544,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         eagle.logicalGraph.valueHasMutated();
     }
 
-    function moveChildNodes(node: Node, deltax: number, deltay: number) : void {
+    // realDeltaX - amount the mouse moved in X
+    // realDeltaY - amount the mouse moved in Y
+    // actualDeltaX - amount the moving object moved in X, may be different from realDeltaX if snap-to-grid is enabled
+    // actualDeltaY - amount the moving object moved in Y, may be different from realDeltaY if snap-to-grid is enabled
+    function moveChildNodes(node: Node, realDeltaX: number, realDeltaY: number, actualDeltaX: number, actualDeltaY: number) : void {
         // get id of parent node
         const parentKey : number = node.getKey();
 
@@ -3554,8 +3560,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             if (n.getParentKey() === parentKey){
-                moveNode(n, deltax, deltay);
-                moveChildNodes(n, deltax, deltay);
+                moveNode(n, actualDeltaX, actualDeltaY);
+                moveChildNodes(n, realDeltaX, realDeltaY, actualDeltaX, actualDeltaY);
             }
         }
     }
