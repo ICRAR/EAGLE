@@ -174,8 +174,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("fill", eagle.snapToGrid() ? "url(#grid)" : "transparent")
         .attr("x", offsetX)
         .attr("y", offsetY)
-        .attr("width", rectWidth*2)
-        .attr("height", rectHeight*2);
+        .attr("width", rectWidth*10)
+        .attr("height", rectHeight*10);
 
     $("#logicalGraphD3Div svg").mousedown(function(e:any){
         if(e.button === 2){
@@ -1380,8 +1380,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("fill", eagle.snapToGrid() ? "url(#grid)" : "transparent")
             .attr("x", offsetX)
             .attr("y", offsetY)
-            .attr("width", rectWidth*2)
-            .attr("height", rectHeight*2);
+            .attr("width", rectWidth*10)
+            .attr("height", rectHeight*10);
 
         // scale the root node
         rootContainer
