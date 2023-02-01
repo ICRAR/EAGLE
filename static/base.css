@@ -258,7 +258,15 @@ td:first-child input {
 }
 
 #parameter_table_actions{
-    width: 101px;
+    width: 123px;
+}
+
+#parameter_table_usage{
+    width: 107px;
+}
+
+#parameter_table_parameter_type{
+    width: 171px;
 }
 
 #parameter_table_precious{

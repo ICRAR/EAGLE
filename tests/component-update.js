@@ -17,7 +17,27 @@ fixture `EAGLE Update Components`
 test('Update components', async t =>{
     await fetchGraph(LG_PATH);
 
-    await t.wait(3000);
+    await t.
+        
+        wait(3000)
+
+        // open settings modal
+        .click('#settings')
+
+        // enable 'expert mode'
+        .click('#settingUserInterfaceModeValue')
+
+        // click the 'expert' option
+        .click(Selector('#settingUserInterfaceModeValue').find('option').withText('expert'))
+
+        // switch to 'developer' tab
+        .click('#settingCategoryDeveloper')
+
+        // click the 'Use Old Output Format' button
+        .click('#settingUseOldOutputFormatButton')
+
+        // close settings modal
+        .click('#settingsModalAffirmativeButton')
 
     // !!!!!!!!!!!!! LOAD GRAPH (with out-of-date 'CopyApp' component)
     await t
@@ -57,11 +77,15 @@ test('Update components', async t =>{
     await t.expect(obj1.nodeDataArray[2].fields[0].value).eql("dlg.apps.simple.CopyAppBad", {timeout:3000});
 
     // !!!!!!!!!!!!! CHECK FOR CORRECTLY UPDATED OUTPUT COMPONENTS
-    await t.expect(obj2.nodeDataArray[2].fields.length).eql(7, {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields.length).eql(11, {timeout:3000});
     await t.expect(obj2.nodeDataArray[2].fields[0].name).eql("appclass", {timeout:3000});
     await t.expect(obj2.nodeDataArray[2].fields[0].value).eql("dlg.apps.simple.CopyApp", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[5].name).eql("input_error_threshold", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[6].name).eql("n_tries", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[5].name).eql("hello", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[6].name).eql("hello", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[7].name).eql("bufsize", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[8].name).eql("input_error_threshold", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[9].name).eql("n_tries", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[10].name).eql("dummy", {timeout:3000});
 });
 
 const fetchGraph = (filename) => {

@@ -3312,7 +3312,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
 
         if (srcNode !== null){
-            const srcPort : Field = srcNode.findPortById(edge.getSrcPortId());
+            const srcPort : Field = srcNode.findFieldById(edge.getSrcPortId());
 
             if (srcPort !== null && srcPort.getIsEvent()){
                 normalColor = LINK_COLORS.EVENT;

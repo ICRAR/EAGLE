@@ -49,7 +49,6 @@ import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {Hierarchy} from './Hierarchy';
-import {RightClick} from './RightClick';
 import {Undo} from './Undo';
 import {Errors} from './Errors';
 import {ComponentUpdater} from './ComponentUpdater';
@@ -95,6 +94,7 @@ export class Eagle {
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
     tableModalType : ko.Observable<string>;
+    showTableModal : ko.Observable<boolean>;
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
@@ -163,7 +163,7 @@ export class Eagle {
                 "UI Options",
                 () => {return !Eagle.isInUIMode(Eagle.UIMode.Minimal);},
                 [
-                    new Setting("Show DALiuGE runtime parameters", "Show additional component arguments that modify the behaviour of the DALiuGE runtime. For example: Data Volume, Execution Time, Num CPUs, Group Start/End", Setting.Type.Boolean, Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS, true),
+                    new Setting("Show non key parameters", "Show additional parameters that are not marked as key parameters for the current graph", Setting.Type.Boolean, Utils.SHOW_NON_KEY_PARAMETERS, true),
                     new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, false),
                     new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Utils.HIDE_PALETTE_TAB, false),
                     new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Utils.HIDE_READONLY_PARAMETERS, false),
@@ -204,7 +204,8 @@ export class Eagle {
                     new Setting("Open Translator In Current Tab", "When translating a graph, display the output of the translator in the current tab", Setting.Type.Boolean, Utils.OPEN_TRANSLATOR_IN_CURRENT_TAB, false),
                     new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
                     new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Utils.SKIP_CLOSE_LOOP_EDGES, true),
-                    new Setting("Print Undo state to JS Console", "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", Setting.Type.Boolean, Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE, false)
+                    new Setting("Print Undo state to JS Console", "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", Setting.Type.Boolean, Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE, false),
+                    new Setting("Use Old Output Format", "Prolong use of 'old' output format, with 'inputPorts' and 'outputPorts' arrays, while corresponding changes to DALiuGE are in progress", Setting.Type.Boolean, Utils.USE_OLD_OUTPUT_FORMAT, true),
                 ]
             )
         ];
@@ -280,6 +281,7 @@ export class Eagle {
         this.loadingErrors = ko.observableArray([]);
 
         this.tableModalType = ko.observable('')
+        this.showTableModal = ko.observable(false)
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
@@ -356,8 +358,8 @@ export class Eagle {
         return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_EDGE_EDITING);
     }
 
-    static showDaliugeRuntimeParameters = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.SHOW_DALIUGE_RUNTIME_PARAMETERS);
+    static showNonKeyParameters = () : boolean => {
+        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.SHOW_NON_KEY_PARAMETERS) || Eagle.isInUIMode(Eagle.UIMode.Expert);
     }
 
     static translatorUiMode = (mode : Eagle.TranslatorMode) : boolean => {
@@ -2412,6 +2414,7 @@ export class Eagle {
     }
 
     openParamsTableModal = (mode:string,selectType:string) : void => {
+        this.showTableModal(true)
         if(selectType === 'rightClick'){
             this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
             $('#customContextMenu').remove();
@@ -2427,22 +2430,24 @@ export class Eagle {
         }
     }
 
-    getCurrentParamReadonly = (field:Field) : boolean => {
-        // if we want to get readonly-ness the Nth application arg, then the real index
-        // into the fields array is probably larger than N, since all four types
-        // of fields are stored there
+    getCurrentParamReadonly = (field: Field) : boolean => {
+        // check that we actually found the right field, otherwise abort
+        if (field === null){
+            console.warn("Supplied field is null");
+            return false;
+        }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(Eagle.allowPaletteEditing()){
                 return false;
             }else{
-                return field.isReadonly()
+                return field.isReadonly();
             }
         }else{
             if(Eagle.allowComponentEditing()){
                 return false;
             }else{
-                return field.isReadonly()
+                return field.isReadonly();
             }
         }
     }
@@ -2512,9 +2517,9 @@ export class Eagle {
             }
 
             const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const srcPort: Field = srcNode.findPortById(edge.getSrcPortId());
+            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
             const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destPort: Field = destNode.findPortById(edge.getDestPortId());
+            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
@@ -2551,9 +2556,9 @@ export class Eagle {
             }
 
             const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const srcPort: Field = srcNode.findPortById(edge.getSrcPortId());
+            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
             const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destPort: Field = destNode.findPortById(edge.getDestPortId());
+            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
@@ -2569,8 +2574,8 @@ export class Eagle {
     duplicateSelection = (mode:string) : void => {
         console.log("duplicateSelection()", this.selectedObjects().length, "objects");
 
-        var location:string
-        var incomingNodes = []
+        let location: string;
+        let incomingNodes = []; // TODO: declare type
 
         if(mode === 'normal'){
             location = Eagle.selectedLocation()
@@ -2819,10 +2824,10 @@ export class Eagle {
         this.addNodesToPalette(nodes);
     }
 
+    // TODO: requestMode param here is spelt incorrectly, should be an enum? 
     deleteSelection = (requstMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
-
-        var mode:string
-        var data:any = []
+        let mode: string; // TODO: should be an enum?
+        let data: any = []; // TODO: declare type
 
         // if no objects selected, warn user
         if (requstMode === ''){
@@ -2936,9 +2941,9 @@ export class Eagle {
         return children;
     }
 
-    private _deleteSelection = (deleteChildren: boolean,data:any,mode:string) : void => {
+    private _deleteSelection = (deleteChildren: boolean, data:any, mode:string) : void => {
+        let location: Eagle.FileType = Eagle.FileType.Unknown;
 
-        var location 
         if (mode === 'normal'){
             location = Eagle.selectedLocation()
         }else{
@@ -3265,7 +3270,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ComponentParameter, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3281,7 +3286,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ApplicationArgument, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.NoPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3297,7 +3302,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.InputPort, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3313,7 +3318,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.OutputPort, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.OutputPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3557,9 +3562,9 @@ export class Eagle {
 
             // get references to the source and destination ports of this edge
             const sourceNode = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const sourcePort = sourceNode.findPortById(edge.getSrcPortId());
+            const sourcePort = sourceNode.findFieldById(edge.getSrcPortId());
             const destinationNode = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destinationPort = destinationNode.findPortById(edge.getDestPortId());
+            const destinationPort = destinationNode.findFieldById(edge.getDestPortId());
 
             // update the edge and ports
             edge.setDataType(newType);
@@ -3574,73 +3579,22 @@ export class Eagle {
         });
     }
 
-    removeParamFromNodeByIndex = (node: Node, fieldType: Eagle.FieldType, index: number) : void => {
-        if (node === null){
-            console.warn("Could not remove param from null node");
-            return;
-        }
-
-        // if we want to delete the Nth application arg, then the real index
-        // into the fields array is probably larger than N, since all four types
-        // of fields are stored there
-        let realIndex = -1;
-        let fieldTypeCount = 0;
-
-        for (let i = 0 ; i < node.getFields().length; i++){
-            const field: Field = node.getFields()[i];
-
-            if (field.getFieldType() === fieldType || Eagle.FieldType.Unknown === fieldType){
-                fieldTypeCount += 1;
-            }
-
-            // check if we have found the Nth field of desired type
-            if (fieldTypeCount > index){
-                realIndex = i;
-                break;
-            }
-        }
-
-        // check that we actually found the right field, otherwise abort
-        if (realIndex === -1){
-            console.warn("Could not remove param index", index, "of type", fieldType, ". Not found.");
-            return;
-        }
-
-        node.removeFieldByIndex(realIndex);
-
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Remove param from node");
-        this.flagActiveFileModified();
-        this.selectedObjects.valueHasMutated();
-    }
-
-    removePortFromNodeByIndex = (node : Node, fieldId:string, input : boolean) : void => {
-        console.log("removePortFromNodeByIndex(): node", node.getName(), "index",fieldId, "input", input);
+    removeFieldFromNodeById = (node : Node, id: string) : void => {
+        console.log("removeFieldFromNodeById(): node", node.getName(), "id", id);
 
         if (node === null){
             console.warn("Could not remove port from null node");
             return;
         }
 
-        // remember port id
-        const portId = fieldId
-        //doing this so this function will work both in context of being in a port only loop as well as a fields loop
-        const portIndex = node.findPortIndexById(portId)
-
-        console.log("Found portId to remove:", portId);
-
         // remove port
-        if (input){
-            node.removeFieldTypeByIndex(portIndex, Eagle.FieldType.InputPort);
-        } else {
-            node.removeFieldTypeByIndex(portIndex, Eagle.FieldType.OutputPort);
-        }
+        node.removeFieldById(id);
 
         // remove any edges connected to that port
         const edges : Edge[] = this.logicalGraph().getEdges();
 
         for (let i = edges.length - 1; i >= 0; i--){
-            if (edges[i].getSrcPortId() === portId || edges[i].getDestPortId() === portId){
+            if (edges[i].getSrcPortId() === id || edges[i].getDestPortId() === id){
                 console.log("Remove incident edge", edges[i].getSrcPortId(), "->", edges[i].getDestPortId());
                 edges.splice(i, 1);
             }
@@ -3784,9 +3738,11 @@ export class Eagle {
     }
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
-    editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
+    editField = (node:Node, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage, id: string) : void => {
+        console.log("editField", modalType, parameterType, usage, id);
+
         // get field names list from the logical graph
-        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), fieldType);
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), parameterType);
         const allFieldNames: string[] = [];
 
         // once done, sort fields and then collect names into the allFieldNames list
@@ -3802,35 +3758,16 @@ export class Eagle {
 
         //if creating a new field
         if (modalType === Eagle.ModalType.Add) {
-            let titleText:string
-
-            // set the title of the modal based on the field type
-            switch(fieldType){
-                case Eagle.FieldType.ApplicationArgument:
-                    titleText = "Add Application Argument"
-                break;
-                case Eagle.FieldType.ComponentParameter:
-                    titleText = "Add Component Parameter"
-                break;
-                case Eagle.FieldType.InputPort:
-                    titleText = "Add Input Port"
-                break;
-                case Eagle.FieldType.OutputPort:
-                    titleText = "Add Output Port"
-                break;
-            }
-
-            $("#editFieldModalTitle").html(this.selectedNode().getName()+" - "+ titleText);
-
+            $("#editFieldModalTitle").html(this.selectedNode().getName() + " - " + Field.getHtmlTitleText(parameterType, usage));
 
             // show hide part of the UI appropriate for adding
             $("#addParameterWrapper").show();
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.FieldType.ComponentParameter,false);
+            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {                
+            Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
@@ -3846,7 +3783,7 @@ export class Eagle {
 
                 // hide the custom text input unless the first option in the select is chosen
                 if (choice === 0){
-                    newField.setFieldType(fieldType);
+                    newField.setParameterType(parameterType);
 
                     //create field from user input in modal
                     node.addField(newField);
@@ -3854,7 +3791,7 @@ export class Eagle {
                 } else {
                     const clone : Field = allFields[choice-1].clone();
                     clone.setId(Utils.uuidv4());
-                    clone.setFieldType(fieldType);
+                    clone.setParameterType(parameterType);
                     node.addField(clone);
                 }
 
@@ -3864,61 +3801,26 @@ export class Eagle {
 
         } else {
             //if editing an existing field
-            let field: Field = null;
-            let typeText:string
-
-            switch (fieldType){
-            case Eagle.FieldType.ComponentParameter:
-                field = this.selectedNode().getComponentParameters()[fieldIndex];
-                typeText = " (Component Parameter)"
-                break;
-            case Eagle.FieldType.ApplicationArgument:
-                field = this.selectedNode().getApplicationArguments()[fieldIndex];
-                typeText = " (Application Argument)"
-                break;
-            case Eagle.FieldType.InputPort:
-                field = this.selectedNode().getInputPorts()[fieldIndex];
-                typeText = " (Input Port)"
-                break;
-            case Eagle.FieldType.OutputPort:
-                field = this.selectedNode().getOutputPorts()[fieldIndex];
-                typeText = " (Output Port)"
-                break;
-            case Eagle.FieldType.Unknown:
-                field = this.selectedNode().getFields()[fieldIndex];
-                typeText = " (Parameter)"
-                break;
-            }
-            $("#editFieldModalTitle").html(this.selectedNode().getName()+" - "+field.getDisplayText()+typeText);
-
+            const field: Field = this.selectedNode().findFieldById(id);
+            $("#editFieldModalTitle").html(this.selectedNode().getName() + " - " + field.getDisplayText() + " : " + Field.getHtmlTitleText(parameterType, usage));
 
             // check that we found a field
             if (field === null || typeof field === 'undefined'){
-                console.error("Could not find the field to edit. fieldType", fieldType, "fieldIndex", fieldIndex);
+                console.error("Could not find the field to edit. parameterType", parameterType, "id", id);
                 return;
             }
 
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Edit, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
                 }
                 
                 // update field data
-                field.setDisplayText(newField.getDisplayText());
-                field.setIdText(newField.getIdText());
-                field.setValue(newField.getValue());
-                field.setDefaultValue(newField.getDefaultValue());
-                field.setDescription(newField.getDescription());
-                field.setReadonly(newField.isReadonly());
-                field.setType(newField.getType());
-                field.setPrecious(newField.isPrecious());
-                field.setPositionalArgument(newField.isPositionalArgument());
-                field.setFieldType(newField.getFieldType());
-                field.setKeyAttribute(newField.isKeyAttribute());
+                field.copyWithKeyAndId(newField, newField.getNodeKey(), newField.getId());
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
@@ -4252,11 +4154,11 @@ export class Eagle {
         let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
 
         if (!newInputPort){
-            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.FieldType.InputPort,false);
+            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputPort, false);
             newNode.addField(newInputPort);
         }
         if (!newOutputPort){
-            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.FieldType.OutputPort,false);
+            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.OutputPort, false);
             newNode.addField(newOutputPort);
         }
 
@@ -4336,14 +4238,14 @@ export class Eagle {
             // delete extra input ports
             if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
                 for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId(), true);
+                    this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
                 }
             }
 
             // delete extra output ports
             if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
                 for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removePortFromNodeByIndex(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId(), false);
+                    this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
                 }
             }
 
@@ -4558,12 +4460,17 @@ export namespace Eagle
         Field = "Field"
     }
 
-    export enum FieldType {
+    export enum ParameterType {
+        Unknown = "Unknown",
         ComponentParameter = "ComponentParameter",
         ApplicationArgument = "ApplicationArgument",
+    }
+
+    export enum ParameterUsage {
+        NoPort = "NoPort",
         InputPort = "InputPort",
         OutputPort = "OutputPort",
-        Unknown = "Unknown"
+        InputOutput = "InputOutput"
     }
 
     export enum RepositoryService {
@@ -4604,7 +4511,6 @@ export namespace Eagle
 
 $( document ).ready(function() {
     // jquery event listeners start here
-    var that = this
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
@@ -4628,6 +4534,12 @@ $( document ).ready(function() {
             handle: ".modal-header"
         });
     })
+
+    $('#parameterTableModal').on('hidden.bs.modal', function (event) {
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.showTableModal(false)
+    })
+
 
     let defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
     if(!defaultTranslatingAlgorithm){

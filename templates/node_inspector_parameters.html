@@ -16,9 +16,9 @@
                 </a>
                 <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.componentParamsSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}}"></input>
             </div>
-            <!-- ko foreach: selectedNode().getComponentParameters() -->
+            <!-- ko foreach: selectedNode().getComponentParametersWithNoPorts() -->
                 <!-- ko if: $data.fitsComponentSearchQuery() -->
-                    <!-- ko if: !$data.isDaliugeField() || Eagle.showDaliugeRuntimeParameters() -->
+                    <!-- ko if: !$data.isDaliugeField() || Eagle.showNonKeyParameters() -->
                         <field params="data: $data, ro: $data.isReadonly()"></field>
                     <!-- /ko -->
                 <!-- /ko -->
