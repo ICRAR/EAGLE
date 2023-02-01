@@ -77,6 +77,7 @@ export class Utils {
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
+    static readonly USE_OLD_OUTPUT_FORMAT: string = "UseOldOutputFormat"; // temp fix to prolong use of old graph format while corresponding DALiuGE changes are in progress
 
     static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
     static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";

@@ -17,7 +17,27 @@ fixture `EAGLE Update Components`
 test('Update components', async t =>{
     await fetchGraph(LG_PATH);
 
-    await t.wait(3000);
+    await t.
+        
+        wait(3000)
+
+        // open settings modal
+        .click('#settings')
+
+        // enable 'expert mode'
+        .click('#settingUserInterfaceModeValue')
+
+        // click the 'expert' option
+        .click(Selector('#settingUserInterfaceModeValue').find('option').withText('expert'))
+
+        // switch to 'developer' tab
+        .click('#settingCategoryDeveloper')
+
+        // click the 'Use Old Output Format' button
+        .click('#settingUseOldOutputFormatButton')
+
+        // close settings modal
+        .click('#settingsModalAffirmativeButton')
 
     // !!!!!!!!!!!!! LOAD GRAPH (with out-of-date 'CopyApp' component)
     await t

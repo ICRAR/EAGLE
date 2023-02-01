@@ -3,6 +3,7 @@ import * as ko from "knockout";
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {Config} from './Config';
+import {Setting} from './Setting';
 
 export class Field {
     private displayText : ko.Observable<string>; // external user-facing name
@@ -356,8 +357,7 @@ export class Field {
     }
 
     static toOJSJson = (field : Field) : object => {
-        return {
-            id:field.id(),
+        const result : any = {
             text:field.displayText(),
             name:field.idText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -368,15 +368,21 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional:field.positional(),
-            parameterType:field.parameterType(),
-            usage:field.usage(),
             keyAttribute:field.keyAttribute()
         };
+
+        const useOldOutputFormat : boolean = Setting.findValue(Utils.USE_OLD_OUTPUT_FORMAT);
+        if (!useOldOutputFormat){
+            result.id = field.id();
+            result.parameterType = field.parameterType();
+            result.usage = field.usage();
+        }
+
+        return result;
     }
 
     static toV3Json = (field : Field) : object => {
-        return {
-            id:field.id(),
+        const result : any =  {
             text:field.displayText(),
             name:field.idText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -387,8 +393,27 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional: field.positional(),
-            parameterType:field.parameterType(),
-            usage:field.usage(),
+            keyAttribute:field.keyAttribute()
+        };
+
+        const useOldOutputFormat : boolean = Setting.findValue(Utils.USE_OLD_OUTPUT_FORMAT);
+        if (!useOldOutputFormat){
+            result.id = field.id();
+            result.parameterType = field.parameterType();
+            result.usage = field.usage();
+        }
+
+        return result;
+    }
+
+    static toOJSJsonPort = (field : Field) : object => {
+        return {
+            Id:field.id(),
+            IdText:field.idText(),
+            text:field.displayText(),
+            event:field.isEvent(),
+            type:field.type(),
+            description:field.description(),
             keyAttribute:field.keyAttribute()
         };
     }
