@@ -2053,4 +2053,9 @@ export class Utils {
             Utils.appRefGraphSchema = JSON.parse(data);
         });
     }
+
+    static snapToGrid = (coord: number, offset: number) : number => {
+        const gridSize = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
+        return (gridSize * Math.round((coord + offset)/gridSize)) - offset;
+    }
 }

@@ -212,9 +212,8 @@ export class Node {
         this.realY = y;
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
-            const gridSize = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
-            this.x = gridSize * Math.round(this.realX/gridSize);
-            this.y = gridSize * Math.round(this.realY/gridSize);
+            this.x = Utils.snapToGrid(this.realX, this.getDisplayWidth());
+            this.y = Utils.snapToGrid(this.realY, this.getDisplayHeight());
         } else {
             this.x = this.realX;
             this.y = this.realY;
@@ -228,9 +227,8 @@ export class Node {
         const beforePos = {x:this.x, y:this.y};
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
-            const gridSize = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
-            this.x = gridSize * Math.round(this.realX/gridSize);
-            this.y = gridSize * Math.round(this.realY/gridSize);
+            this.x = Utils.snapToGrid(this.realX, this.getDisplayWidth());
+            this.y = Utils.snapToGrid(this.realY, this.getDisplayHeight());
 
             return {dx:this.x - beforePos.x, dy:this.y - beforePos.y};
         } else {

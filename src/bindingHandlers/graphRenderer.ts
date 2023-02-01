@@ -427,13 +427,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             // get distance the mouse was moved
-            let movementSource = 0;
             let movementX = d3.event.sourceEvent.movementX;
             let movementY = d3.event.sourceEvent.movementY;
 
             // in testcafe, d3.event.sourceEvent.movementX and Y are always zero, use the d3.event.dx and dy instead
             if (movementX === 0 && movementY === 0){
-                movementSource = 1;
                 movementX = d3.event.dx;
                 movementY = d3.event.dy;
 
@@ -453,10 +451,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // move all selected nodes, skip edges (they just follow nodes anyway)
             for (const object of eagle.selectedObjects()){
                 if (object instanceof Node){
-                    
                     const actualChange = object.changePosition(dx, dy);
                     
-
                     if (!isDraggingWithAlt){
                         moveChildNodes(object, dx, dy, actualChange.dx, actualChange.dy);
                     }
