@@ -16,7 +16,7 @@ Saving a graph to GitHub
 
 To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don't already have access to one.
 
-A GitHub Personal Access Token is required to save a graph to a repository. These steps are demonstrated in the following video, as well as adding a custom repository.
+A GitHub Personal Access Token is required to save a graph to a repository. The steps required to generate one are demonstrated in the following video, as well as adding a custom repository. You can also follow the `instructions on GitHub <https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>`_.
 
 .. raw:: html
     :file: _static/helloWorld_save_graph.html
