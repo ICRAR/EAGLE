@@ -109,6 +109,10 @@ export class Field {
         this.readonly(readonly);
     }
 
+    toggleReadOnly = () => {
+        this.readonly(!this.readonly())
+    }
+
     getType = () : string => {
         return this.type();
     }
