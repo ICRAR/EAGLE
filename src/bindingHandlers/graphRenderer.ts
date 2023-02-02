@@ -308,27 +308,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         tick();
     });
 
-
-    // draw x-axis
-    rootContainer
-        .append("line")
-        .attr("x1", -10000)
-        .attr("y1", 0)
-        .attr("x2", 10000)
-        .attr("y2", 0)
-        .style("stroke", eagle.snapToGrid() ? "silver" : "none")
-        .style("stroke-width", 2);
-
-    // draw y-axis
-    rootContainer
-        .append("line")
-        .attr("x1", 0)
-        .attr("y1", -10000)
-        .attr("x2", 0)
-        .attr("y2", 10000)
-        .style("stroke", eagle.snapToGrid() ? "silver" : "none")
-        .style("stroke-width", 2);
-
     let nodes : any = rootContainer
         .selectAll("g.node")
         .data(nodeData)
