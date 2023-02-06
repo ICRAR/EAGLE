@@ -1969,6 +1969,8 @@ export class Utils {
                 "expanded":node.getExpanded(),
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
+                "realX":node.getRealPosition().x,
+                "realY":node.getRealPosition().y,
                 "width":node.getWidth(),
                 "height":node.getHeight(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),

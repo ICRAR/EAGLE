@@ -381,7 +381,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 selectNode(node, d3.event.sourceEvent.shiftKey);
             }
 
-
+            // reset real
+            for (const node of eagle.logicalGraph().getNodes()){
+                node.resetReal();
+            }
 
             //tick();
         })
@@ -427,16 +430,25 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const dx = DISPLAY_TO_REAL_SCALE(movementX);
             const dy = DISPLAY_TO_REAL_SCALE(movementY);
 
+            // count number of nodes in the current selection
+            let numSelectedNodes = 0;
+            for (const object of eagle.selectedObjects()){
+                if (object instanceof Node){
+                    numSelectedNodes += 1;
+                }
+            }
+
             // move all selected nodes, skip edges (they just follow nodes anyway)
             for (const object of eagle.selectedObjects()){
                 if (object instanceof Node){
-                    const actualChange = object.changePosition(dx, dy);
+                    const actualChange = object.changePosition(dx, dy, numSelectedNodes === 1);
                     
                     if (!isDraggingWithAlt){
                         moveChildNodes(object, dx, dy, actualChange.dx, actualChange.dy);
                     }
                 }
             }
+
             // trigger updates
             eagle.flagActiveFileModified();
             eagle.logicalGraph.valueHasMutated();

@@ -207,6 +207,10 @@ export class Node {
         return {x: this.x, y: this.y};
     }
 
+    getRealPosition = () : {x:number, y:number} => {
+        return {x: this.realX, y: this.realY};
+    }
+
     setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {
         this.realX = x;
         this.realY = y;
@@ -237,6 +241,11 @@ export class Node {
             
             return {dx:dx, dy:dy};
         }
+    }
+
+    resetReal = () : void => {
+        this.realX = this.x;
+        this.realY = this.y;
     }
 
     getWidth = () : number => {
