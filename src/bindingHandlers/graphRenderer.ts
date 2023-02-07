@@ -81,6 +81,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const mousePosition = {x:0, y:0};
     const selectionRegionStart = {x:0, y:0};
     const selectionRegionEnd = {x:0, y:0};
+    const dragStart = {x:0, y:0};
     const headerHeight = 57.78 + 30
 
     const DOUBLE_CLICK_DURATION : number = 200;
@@ -385,6 +386,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             for (const node of eagle.logicalGraph().getNodes()){
                 node.resetReal();
             }
+
+            // record drag start position
+            dragStart.x = d3.event.sourceEvent.movementX;
+            dragStart.y = d3.event.sourceEvent.movementY;
 
             //tick();
         })
