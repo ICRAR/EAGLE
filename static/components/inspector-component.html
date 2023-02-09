@@ -21,7 +21,11 @@
                         <i class="material-icons md-18">edit</i>
                     </button>
                 </div>
-
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.logicalGraph().removeNode($data.node())}, eagleTooltip: 'Delete application'" data-bs-placement="left">
+                        <i class="material-icons md-18">delete</i>
+                    </button>
+                </div>
                 <div class="input-group-append">
                     <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.inspectCallback, attr: {id:$data.inspectId}, eagleTooltip: 'Inspect application'" data-bs-placement="left">
                         <i class="material-icons md-18">search</i>
