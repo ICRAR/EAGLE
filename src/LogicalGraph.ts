@@ -514,7 +514,18 @@ export class LogicalGraph {
 
     removeNode = (node: Node) : void => {
         const key = node.getKey();
-
+        var that = this
+        if(node.isEmbedded()){
+            node.getFields().forEach(function(field:Field){
+                if(field.isInputPort() || field.isOutputPort()){
+                    that.getEdges().forEach(function(edge:Edge){
+                        if(edge.getDestPortId() === field.getId() || edge.getSrcPortId() === field.getId()){
+                            that.removeEdgeById(edge.getId())
+                        }
+                    })
+                }
+            })
+        }
         // delete edges incident on this node
         this.removeEdgesByKey(key);
 
