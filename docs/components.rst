@@ -23,8 +23,53 @@ Each component has a set of inputs and outputs, as well as exposed parameters. E
 
 In combination, components allow the parallel reduction of many individual data sets.
 
-Creating Components for Docker Images
--------------------------------------
+
+EnvironmentVariables
+---------------------
+
+DALiuGE and, by extension, EAGLE support globally accessible environment variables in the form of ``EnvironmentVars`` components.
+These components act as a globally available key-value store.
+Other drops' parameters can reference parameters specified in this component. The translator and runtime engine handles filling these values in during workflow execution.
+Importantly, each ``EnvironmentVars`` component in a graph needs a unique name to avoid variable aliasing.
+Reference a store's variable in another component using the following syntax:
+``$store_name.var_name``
+For example, consider a store with the name 'environment_vars' and parameter 'scratch_dir: '/users/me/scratch''.
+A second drop could reference this value in the parameter 'working_dir' by setting the parameter field to ``$environment_vars.scratch_dir``
+
+Dynamic getting and setting of such variables are currently unsupported; they remain static variables, an editor accessible replacement for commonly used configuration files.
+
+
+File
+----
+
+
+Memory
+------
+
+
+NGAS
+----
+
+
+ParameterSet
+------------
+
+
+S3
+--
+
+
+Shared Memory
+-------------
+
+
+
+
+Docker
+------
+
+Creation
+^^^^^^^^
 
 The process for generating component descriptions for applications contained in Docker images is as follows:
 
@@ -60,8 +105,8 @@ Click the node to modify its attributes:
   Modify the Docker node parameters with data from the Docker image
 
 
-Important Notes on Docker Images
---------------------------------
+Notes
+^^^^^
 
 DALiuGE can only execute applications from Docker containers that satisfy the following requirements:
 
@@ -71,8 +116,11 @@ DALiuGE can only execute applications from Docker containers that satisfy the fo
 * It is also recommended to pack /usr/bin/ls.
 
 
+
+
+
 Linking Components with Edges
------------------------------
+=============================
 
 Within EAGLE, an output port from one component may be connected to the input port of another component via an *edge*. This is illustrated graphically by an arrow linking the two. An edge represents an event triggered by one component that in turn triggers other components to be processed.
 
@@ -101,15 +149,3 @@ It is only possible to link components that meet certain criteria, and some edge
 
   A warning message (above) and an error message (below) caused by the creation of an edge that may affect performance or is invalid.
 
-Environment Variables
----------------------
-DALiuGE and, by extension, EAGLE support globally accessible environment variables in the form of ``EnvironmentVars`` components.
-These components act as a globally available key-value store.
-Other drops' parameters can reference parameters specified in this component. The translator and runtime engine handles filling these values in during workflow execution.
-Importantly, each ``EnvironmentVars`` component in a graph needs a unique name to avoid variable aliasing.
-Reference a store's variable in another component using the following syntax:
-``$store_name.var_name``
-For example, consider a store with the name 'environment_vars' and parameter 'scratch_dir: '/users/me/scratch''.
-A second drop could reference this value in the parameter 'working_dir' by setting the parameter field to ``$environment_vars.scratch_dir``
-
-Dynamic getting and setting of such variables are currently unsupported; they remain static variables, an editor accessible replacement for commonly used configuration files.
