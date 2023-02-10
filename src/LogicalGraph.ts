@@ -514,7 +514,13 @@ export class LogicalGraph {
 
     removeNode = (node: Node) : void => {
         const key = node.getKey();
-        var that = this
+
+        // NOTE: this section handles an unusual case where:
+        //  - the removed node is an embedded node within a construct
+        //  - there are edge(s) connected to a port on the embedded node
+        //  - but the edge(s) have source or destination node id of the construct
+        // This situation should not occur in a well-formed graph, but does occur in many existing graphs
+        const that = this
         if(node.isEmbedded()){
             node.getFields().forEach(function(field:Field){
                 if(field.isInputPort() || field.isOutputPort()){
@@ -526,6 +532,7 @@ export class LogicalGraph {
                 }
             })
         }
+
         // delete edges incident on this node
         this.removeEdgesByKey(key);
 
