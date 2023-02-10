@@ -240,8 +240,7 @@ $(function(){
 
     // check that all categories have category data
     for (const category of Utils.enumKeys(Category)){
-        console.log("category", category);
-        const categoryData = CategoryData.getCategoryData(<Category>category);
+        CategoryData.getCategoryData(<Category>category);
 
         // exit after the last category
         if (category === Category.Component){
