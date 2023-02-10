@@ -13,7 +13,7 @@ export enum Category {
     BashShellApp = "BashShellApp",
     DynlibApp = "DynlibApp",
     DynlibProcApp = "DynlibProcApp",
-    MPI = "Mpi",
+    Mpi = "Mpi",
     Docker = "Docker",
 
     NGAS = "NGAS",
