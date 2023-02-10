@@ -1900,17 +1900,26 @@ export class Utils {
         const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
         const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
 
+        // if the SOURCE node is a construct, find the port within the embedded apps, and modify the edge with a new source node
         if (srcNode.getCategoryType() === Category.Type.Construct){
-            
+            const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPortId());
+
+            if (embeddedApplicationKeyAndPort.key !== null){
+                edge.setSrcNodeKey(embeddedApplicationKeyAndPort.key);
+            }
         }
 
+        // if the DESTINATION node is a construct, find the port within the embedded apps, and modify the edge with a new destination node
         if (destNode.getCategoryType() === Category.Type.Construct){
-            
+            const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPortId());
+
+            if (embeddedApplicationKeyAndPort.key !== null){
+                edge.setDestNodeKey(embeddedApplicationKeyAndPort.key);
+            }
         }
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
-        console.log("callFixFunc");
         fixFunc();
         Utils.postFixFunc(eagle);
     }
