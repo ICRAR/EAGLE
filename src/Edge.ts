@@ -319,9 +319,14 @@ export class Edge {
             return Eagle.LinkValid.Invalid;
         }
 
-        // if destination is a service construct, then pretty much anything is valid
-        if (destinationNode.getCategory() === Category.Service){
-            return Eagle.LinkValid.Valid;
+        // if source node or destination node is a construct, then something is wrong, constructs should not have ports
+        if (sourceNode.getCategoryType() === Category.Type.Construct){
+            const issue: Errors.Issue = Errors.Fix("Edge (" + edgeId + ") cannot have a source node (" + sourceNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+        }
+        if (destinationNode.getCategoryType() === Category.Type.Construct){
+            const issue: Errors.Issue = Errors.Fix("Edge (" + edgeId + ") cannot have a destination node (" + destinationNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
         }
 
         // check that we are not connecting two ports within the same node

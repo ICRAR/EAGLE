@@ -1895,6 +1895,20 @@ export class Utils {
         field.setType(Eagle.DataType_Object + "." + field.getType());
     }
 
+    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
+        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+
+        if (srcNode.getCategoryType() === Category.Type.Construct){
+            
+        }
+
+        if (destNode.getCategoryType() === Category.Type.Construct){
+            
+        }
+    }
+
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
         console.log("callFixFunc");
         fixFunc();
