@@ -71,20 +71,25 @@ UI options
 Advanced Editing
 ------------------------
 
-** ** - 
+**Allow Invalid Edges** - Allow the user to create edges in the graph, even if they would normally be determined invalid.
 
-** ** - 
+**Allow Component Editing** - Allow the user to add/remove ports and parameters from components.
 
-** ** - 
+**Allow Palette Editing** - Allow the user to edit and create palettes.
 
-** ** - 
+**Allow Readonly Palette Editing** - Allow the user to modify palettes that would otherwise be readonly. These are usually only the default loaded palettes.
+
+**Allow Edge Editing** - Allow the user to edit edge attributes.
+
+**Auto-suggest destination nodes** - If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.
 
 External Services
 ------------------------
 
-To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don't already have access to one.
+**Translator URL** - The URL of the translator server
 
-Developer
-------------------------
+**GitHub Access Token** - A users access token for GitHub repositories.
 
-To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don't already have access to one.
+**GitLab Access Token** - A users access token for GitLab repositories.
+
+**Docker Hub Username** - The username to use when retrieving data on images stored on Docker Hub
