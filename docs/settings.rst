@@ -34,17 +34,50 @@ Ui modes are collections of settings creating seperate workspaces, each designed
 User Options
 --------------
 
-This video provides detailed instructions for constructing the "Hello World" :doc:`Logical Graph Template <graphs>`. In most documentation, and the EAGLE interface, this is referred to as a graph. It is a visual depiction of the relationships between different :doc:`components <components>` integrated into a workflow. You can also directly play around with the editor and the HelloWorld example graph on our `public installation <https://eagle.icrar.org/?service=GitHub&repository=ICRAR/EAGLE-graph-repo&branch=master&path=examples&filename=HelloWorld-simple.graph>`_. The rest of this document provides a detailed description of the functionality and usage of EAGLE.
+**Confirm Discard Changes** - Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.
+
+**Confirm Remove Repositories** - Prompt user to confirm removing a repository from the list of known repositories.
+
+**Confirm Reload Palettes** - Prompt user to confirm when loading a palette that is already loaded.
+
+**Open Default Palette on Startup** - Open a default palette on startup. The palette contains an example of all known node categories.
+
+**Confirm Delete** - Prompt user to confirm when deleting node(s) or edge(s) from a graph.
+
+**Disable JSON Validation** - Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.
+
+**Overwrite Existing Translator Tab** - When translating a graph, overwrite an existing translator tab.
+
+**Show File Loading Warnings** - Display list of issues with files encountered during loading.
+
+**UI Mode** - User Interface Mode. Simple Mode removes palettes, uses a single graph repository, simplifies the parameters table. Expert Mode enables the display of additional settings usually reserved for advanced users.
+
 
 UI options
 ------------------------
 
-To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don't already have access to one.
+**Show non key parameters** - Show additional parameters that are not marked as key parameters for the current graph.
+
+**Display Node Keys** - Node keys are usually only necessary for troubleshooting purposes.
+
+**Hide Palette Tab** - The Palette tab is not required for loading and executing graphs. Hiding it will reduce visual complexity.
+
+**Hide Read Only Parameters** - Hide Read Only Parameters
+
+**Translator Mode** - There are a few modes affecting the amount of permissions available:  **minimal** - using default algorithm and settings, hiding the translation tab. **Default** - using default algorithm allowing for some extra control via the translation tab. **Expert** - Offers additional translating algorithms.
+
+**Graph Zoom Divisor** - The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.
 
 Advanced Editing
 ------------------------
 
-To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don't already have access to one.
+** ** - 
+
+** ** - 
+
+** ** - 
+
+** ** - 
 
 External Services
 ------------------------

@@ -10,6 +10,7 @@ Introduction to Eagle
    Components <components>
    Palettes <palettes>
    Templates and Graphs <graphs>
+   Settings <settings>
    Modules <modules>
 
 .. Indices and tables
