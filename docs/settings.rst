@@ -92,4 +92,21 @@ External Services
 
 **GitLab Access Token** - A users access token for GitLab repositories.
 
-**Docker Hub Username** - The username to use when retrieving data on images stored on Docker Hub
+**Docker Hub Username** - The username to use when retrieving data on images stored on Docker Hub.
+
+Developer
+------------------------
+
+**Enable Performance Display** - Display the frame time of the graph renderer.
+
+**Translate With New Categories** - Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.
+
+**Open Tanslator In Current Tab** - When translating a graph, display the output of the translator in the current tab.
+
+**Creat Applications For Construct Ports** - When loading old graph files with ports on construct nodes, move the port to an embedded application.
+
+**Skip 'Closes Loop' Edges In JSON Output** - We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.
+
+**Print Undo State To JS Console** - Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console.
+
+**Use Old Output Format** - Prolong use of 'old' output format, with 'inputPorts' and 'outputPorts' arrays, while corresponding changes to DALiuGE are in progress.
