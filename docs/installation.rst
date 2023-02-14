@@ -112,6 +112,7 @@ Install, create and activate virtualenv
 Virtualenvs are standard in python3 and the recommended method
 is to use pyenv. EAGLE does not impose any particular way of
 using virtual environments, but strongly recommends to use a separate one for EAGLE. Please refer to the documentation of your virtual environment system on how to do this. EAGLE has only been tested with the plain virtualenv and the pyenv. With pyenv this would look like:
+
  .. code-block:: shell
 
     pyenv virtualenv -p python3.8 eagle
