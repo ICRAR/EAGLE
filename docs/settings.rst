@@ -3,6 +3,14 @@ Settings
 
 The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. These settings may also affect permissions of what may be modified. The settings menu can be found in the nav-bar as a cog icon, or by pressing the keyboard shortcut 'O'.
 
+.. figure:: _static/images/eagle_settings_screenshot.png
+  :width: 90%
+  :align: center
+  :alt: An example of a palette in EAGLE
+  :figclass: align-center
+
+  An example of a palette with a focused set of components for a single workflow
+
 UI Modes
 --------
 
