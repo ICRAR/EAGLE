@@ -1,19 +1,6 @@
 Settings
 ===================
 
-Tabs Breakdown
---------------
-
-**User Options**  -  General user experience options
-
-**UI Options**  -  Settings that can simplify, hide or show sections of the UI that might not be necessary for a use case
-
-**Advanced Editing**  -  Permission settings that unlock the ability to edit more components
-
-**External Services**  -  This is where external services such as github and docker can be set up
-
-**Developer**  -  Settings used by developers to debug Eagle
-
 UI Modes
 --------------
 
@@ -31,8 +18,21 @@ Ui modes are collections of settings creating seperate workspaces, each designed
 
 **Custom** - Your mode, your way
 
-User Options
+Tabs Breakdown
 --------------
+
+**User Options**  -  General user experience options
+
+**UI Options**  -  Settings that can simplify, hide or show sections of the UI that might not be necessary for a use case
+
+**Advanced Editing**  -  Permission settings that unlock the ability to edit more components
+
+**External Services**  -  This is where external services such as github and docker can be set up
+
+**Developer**  -  Settings used by developers to debug Eagle
+
+User Options
+""""""""""""""""
 
 **Confirm Discard Changes** - Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.
 
@@ -54,7 +54,7 @@ User Options
 
 
 UI options
-------------------------
+""""""""""""""""
 
 **Show non key parameters** - Show additional parameters that are not marked as key parameters for the current graph.
 
@@ -69,7 +69,7 @@ UI options
 **Graph Zoom Divisor** - The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.
 
 Advanced Editing
-------------------------
+""""""""""""""""
 
 **Allow Invalid Edges** - Allow the user to create edges in the graph, even if they would normally be determined invalid.
 
@@ -84,7 +84,7 @@ Advanced Editing
 **Auto-suggest destination nodes** - If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.
 
 External Services
-------------------------
+""""""""""""""""
 
 **Translator URL** - The URL of the translator server
 
@@ -95,7 +95,7 @@ External Services
 **Docker Hub Username** - The username to use when retrieving data on images stored on Docker Hub.
 
 Developer
-------------------------
+""""""""""""""""
 
 **Enable Performance Display** - Display the frame time of the graph renderer.
 

@@ -55,7 +55,7 @@ MOCK_MODULES = (
     'config',
     'config.config',
     'argparse',
-    'json',
+    # 'json',
     'tempfile'
     'urllib.request',
     'ssl',
