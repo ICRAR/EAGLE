@@ -1,6 +1,8 @@
 Settings
 ===================
 
+The settings in eagle include user experience and interface related options as well as simplifying eagle by hiding a lot of functionality via the UI modes
+
 UI Modes
 --------------
 
