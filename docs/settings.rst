@@ -1,10 +1,10 @@
 Settings
 ===================
 
-The settings in eagle include user experience and interface related options as well as simplifying eagle by hiding a lot of functionality via the UI modes
+The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. These settings may also affect permissions of what may be modified. The settings menu can be found in the nav-bar as a cog icon, or by pressing the keyboard shortcut 'O'.
 
 UI Modes
---------------
+--------
 
 Ui modes are collections of settings creating seperate workspaces, each designed with a specific use case in mind.
 
@@ -34,7 +34,7 @@ Tabs Breakdown
 **Developer**  -  Settings used by developers to debug Eagle
 
 User Options
-""""""""""""""""
+""""""""""""
 
 **Confirm Discard Changes** - Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.
 
@@ -56,7 +56,7 @@ User Options
 
 
 UI options
-""""""""""""""""
+""""""""""
 
 **Show non key parameters** - Show additional parameters that are not marked as key parameters for the current graph.
 
@@ -86,7 +86,7 @@ Advanced Editing
 **Auto-suggest destination nodes** - If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.
 
 External Services
-""""""""""""""""
+"""""""""""""""""
 
 **Translator URL** - The URL of the translator server
 
@@ -97,7 +97,7 @@ External Services
 **Docker Hub Username** - The username to use when retrieving data on images stored on Docker Hub.
 
 Developer
-""""""""""""""""
+"""""""""
 
 **Enable Performance Display** - Display the frame time of the graph renderer.
 
