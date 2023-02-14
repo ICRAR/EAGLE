@@ -29,6 +29,7 @@ import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
 import {Category} from './Category';
+import {CategoryData} from './CategoryData';
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Errors} from './Errors';
@@ -235,6 +236,17 @@ $(function(){
     $(".hierarchy").on("click", function(){
         (<any>window).eagle.selectedObjects([]);
     })
+
+
+    // check that all categories have category data
+    for (const category of Utils.enumKeys(Category)){
+        CategoryData.getCategoryData(<Category>category);
+
+        // exit after the last category
+        if (category === Category.Component){
+            break;
+        }
+    }
 });
 
 function autoLoad(eagle: Eagle, service: Eagle.RepositoryService, repository: string, branch: string, path: string, filename: string) {
