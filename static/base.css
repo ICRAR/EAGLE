@@ -2187,6 +2187,9 @@ palette-component input.form-control.selected {
     visibility: visible;
 }
 
+.popover-body {
+}
+
 #errorsModal ul.list-group .list-group-item span {
     max-width: 80%;
 }

@@ -18,6 +18,7 @@
         "./src/bindingHandlers/disabled.ts",
         "./src/bindingHandlers/graphRenderer.ts",
         "./src/bindingHandlers/eagleTooltip.ts",
+        "./src/bindingHandlers/eaglePopover.ts",
         "./src/bindingHandlers/eagleRightClick.ts",
         "./src/components.ts",
         "./src/main.ts",
