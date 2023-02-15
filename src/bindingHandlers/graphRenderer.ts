@@ -81,6 +81,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const mousePosition = {x:0, y:0};
     const selectionRegionStart = {x:0, y:0};
     const selectionRegionEnd = {x:0, y:0};
+    const dragStart = {x:0, y:0};
     const headerHeight = 57.78 + 30
 
     const DOUBLE_CLICK_DURATION : number = 200;
@@ -111,9 +112,26 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const MIN_AUTO_COMPLETE_EDGE_RANGE : number = 150;
 
+    const snapToGridSize : number = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
+
     const svgContainer = d3
         .select("#" + elementId)
         .append("svg");
+
+    // add a grid pattern to the svg
+    const svgDefs = svgContainer.append("defs");
+    const svgDefsPattern = svgDefs
+        .append("pattern")
+        .attr("id", "grid")
+        .attr("width", snapToGridSize)
+        .attr("height", snapToGridSize)
+        .attr("patternUnits", "userSpaceOnUse");
+    svgDefsPattern
+        .append("path")
+        .attr("d", "M " + snapToGridSize + " 0 L 0 0 0 " + snapToGridSize)
+        .attr("fill", "none")
+        .attr("stroke", "grey")
+        .attr("stroke-width", 0.5);
 
     // add a root node to the SVG, we'll scale this root node
     const rootContainer = svgContainer
@@ -145,10 +163,20 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             .attr("fill", value[1]);
     })
 
-    // background
+    // background (and grid if enabled)
+    const rectWidth = $('#logicalGraphD3Div').width();
+    const rectHeight = $('#logicalGraphD3Div').height();
+    const offsetX = -eagle.globalOffsetX / eagle.globalScale;
+    const offsetY = -eagle.globalOffsetY / eagle.globalScale;
+
     rootContainer
         .append("rect")
-        .attr("class", "background");
+        .attr("class", "background")
+        .attr("fill", eagle.snapToGrid() ? "url(#grid)" : "transparent")
+        .attr("x", offsetX)
+        .attr("y", offsetY)
+        .attr("width", rectWidth*10)
+        .attr("height", rectHeight*10);
 
     $("#logicalGraphD3Div svg").mousedown(function(e:any){
         if(e.button === 2){
@@ -354,7 +382,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 selectNode(node, d3.event.sourceEvent.shiftKey);
             }
 
+            // reset real
+            for (const node of eagle.logicalGraph().getNodes()){
+                node.resetReal();
+            }
 
+            // record drag start position
+            dragStart.x = d3.event.sourceEvent.movementX;
+            dragStart.y = d3.event.sourceEvent.movementY;
 
             //tick();
         })
@@ -379,13 +414,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             // get distance the mouse was moved
-            let movementSource = 0;
             let movementX = d3.event.sourceEvent.movementX;
             let movementY = d3.event.sourceEvent.movementY;
 
             // in testcafe, d3.event.sourceEvent.movementX and Y are always zero, use the d3.event.dx and dy instead
             if (movementX === 0 && movementY === 0){
-                movementSource = 1;
                 movementX = d3.event.dx;
                 movementY = d3.event.dy;
 
@@ -402,16 +435,25 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const dx = DISPLAY_TO_REAL_SCALE(movementX);
             const dy = DISPLAY_TO_REAL_SCALE(movementY);
 
+            // count number of nodes in the current selection
+            let numSelectedNodes = 0;
+            for (const object of eagle.selectedObjects()){
+                if (object instanceof Node){
+                    numSelectedNodes += 1;
+                }
+            }
+
             // move all selected nodes, skip edges (they just follow nodes anyway)
             for (const object of eagle.selectedObjects()){
                 if (object instanceof Node){
-                    object.changePosition(dx, dy);
-
+                    const actualChange = object.changePosition(dx, dy, numSelectedNodes === 1);
+                    
                     if (!isDraggingWithAlt){
-                        moveChildNodes(object, dx, dy);
+                        moveChildNodes(object, dx, dy, actualChange.dx, actualChange.dy);
                     }
                 }
             }
+
             // trigger updates
             eagle.flagActiveFileModified();
             eagle.logicalGraph.valueHasMutated();
@@ -1321,6 +1363,21 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function tick(){
         const startTime = performance.now();
         eagle.rendererFrameCountTick = eagle.rendererFrameCountTick + 1;
+
+
+        // background (and grid if enabled)
+        const rectWidth = $('#logicalGraphD3Div').width();
+        const rectHeight = $('#logicalGraphD3Div').height();
+        const offsetX = -eagle.globalOffsetX / eagle.globalScale;
+        const offsetY = -eagle.globalOffsetY / eagle.globalScale;
+
+        rootContainer
+            .selectAll("rect.background")
+            .attr("fill", eagle.snapToGrid() ? "url(#grid)" : "transparent")
+            .attr("x", offsetX)
+            .attr("y", offsetY)
+            .attr("width", rectWidth*10)
+            .attr("height", rectHeight*10);
 
         // scale the root node
         rootContainer
@@ -3479,7 +3536,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         eagle.logicalGraph.valueHasMutated();
     }
 
-    function moveChildNodes(node: Node, deltax: number, deltay: number) : void {
+    // realDeltaX - amount the mouse moved in X
+    // realDeltaY - amount the mouse moved in Y
+    // actualDeltaX - amount the moving object moved in X, may be different from realDeltaX if snap-to-grid is enabled
+    // actualDeltaY - amount the moving object moved in Y, may be different from realDeltaY if snap-to-grid is enabled
+    function moveChildNodes(node: Node, realDeltaX: number, realDeltaY: number, actualDeltaX: number, actualDeltaY: number) : void {
         // get id of parent node
         const parentKey : number = node.getKey();
 
@@ -3491,14 +3552,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
 
             if (n.getParentKey() === parentKey){
-                moveNode(n, deltax, deltay);
-                moveChildNodes(n, deltax, deltay);
+                moveNode(n, actualDeltaX, actualDeltaY);
+                moveChildNodes(n, realDeltaX, realDeltaY, actualDeltaX, actualDeltaY);
             }
         }
     }
 
     function moveNode(node : Node, deltax : number, deltay : number) : void {
-        node.setPosition(getX(node) + deltax, getY(node) + deltay);
+        node.setPosition(getX(node) + deltax, getY(node) + deltay, false);
     }
 
     function findAncestorCollapsedNode(node : Node) : Node {

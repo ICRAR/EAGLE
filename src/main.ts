@@ -121,6 +121,11 @@ $(function(){
         });
     }
 
+    // set other state based on settings values
+    if (Setting.findValue(Utils.SNAP_TO_GRID)){
+        eagle.snapToGrid(Setting.findValue(Utils.SNAP_TO_GRID));
+    }
+
     // load schemas
     Utils.loadSchemas();
 

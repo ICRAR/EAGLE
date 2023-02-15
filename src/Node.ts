@@ -38,8 +38,13 @@ export class Node {
     private key : ko.Observable<number>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
-    private x : number;
+
+    private x : number; // display position
     private y : number;
+    private realX : number; // underlying position (pre snap-to-grid)
+    private realY : number;
+    
+    
     private width : number;
     private height : number;
     private color : ko.Observable<string>;
@@ -98,8 +103,13 @@ export class Node {
         this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
+        
+        // display position
         this.x = 0;
         this.y = 0;
+        this.realX = 0;
+        this.realY = 0;
+
         this.width = Node.DEFAULT_WIDTH;
         this.height = Node.DEFAULT_HEIGHT;
         this.color = ko.observable(Utils.getColorForNode(category));
@@ -197,14 +207,45 @@ export class Node {
         return {x: this.x, y: this.y};
     }
 
-    setPosition = (x: number, y: number) : void => {
-        this.x = x;
-        this.y = y;
+    getRealPosition = () : {x:number, y:number} => {
+        return {x: this.realX, y: this.realY};
     }
 
-    changePosition = (dx : number, dy : number) : void => {
-        this.x += dx;
-        this.y += dy;
+    setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {
+        this.realX = x;
+        this.realY = y;
+
+        if (Eagle.getInstance().snapToGrid() && allowSnap){
+            this.x = Utils.snapToGrid(this.realX, this.getDisplayWidth());
+            this.y = Utils.snapToGrid(this.realY, this.getDisplayHeight());
+        } else {
+            this.x = this.realX;
+            this.y = this.realY;
+        }
+    }
+
+    changePosition = (dx : number, dy : number, allowSnap: boolean = true) : {dx:number, dy:number} => {
+        this.realX += dx;
+        this.realY += dy;
+
+        const beforePos = {x:this.x, y:this.y};
+
+        if (Eagle.getInstance().snapToGrid() && allowSnap){
+            this.x = Utils.snapToGrid(this.realX, this.getDisplayWidth());
+            this.y = Utils.snapToGrid(this.realY, this.getDisplayHeight());
+
+            return {dx:this.x - beforePos.x, dy:this.y - beforePos.y};
+        } else {
+            this.x = this.realX;
+            this.y = this.realY;
+            
+            return {dx:dx, dy:dy};
+        }
+    }
+
+    resetReal = () : void => {
+        this.realX = this.x;
+        this.realY = this.y;
     }
 
     getWidth = () : number => {

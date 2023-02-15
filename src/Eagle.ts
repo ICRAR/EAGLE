@@ -97,6 +97,7 @@ export class Eagle {
     showTableModal : ko.Observable<boolean>;
 
     showDataNodes : ko.Observable<boolean>;
+    snapToGrid : ko.Observable<boolean>;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -168,7 +169,8 @@ export class Eagle {
                     new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Utils.HIDE_READONLY_PARAMETERS, false),
                     new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Utils.USER_TRANSLATOR_MODE, Eagle.TranslatorMode.Default, Object.values(Eagle.TranslatorMode)),
                     new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000),
-
+                    new Setting("Snap To Grid", "Align positions of nodes in graph to a grid", Setting.Type.Boolean, Utils.SNAP_TO_GRID, false),
+                    new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Utils.SNAP_TO_GRID_SIZE, 50),
                 ]
             ),
             new SettingsGroup(
@@ -252,6 +254,7 @@ export class Eagle {
         Eagle.shortcuts.push(new KeyboardShortcut("open_inspector", "Open Inspector", ["3"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)}));
         Eagle.shortcuts.push(new KeyboardShortcut("open_hierarchy", "Open Hierarchy", ["2"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Hierarchy)}));
         Eagle.shortcuts.push(new KeyboardShortcut("toggle_show_data_nodes", "Toggle Show Data Nodes", ["j"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleShowDataNodes(); }));
+        Eagle.shortcuts.push(new KeyboardShortcut("toggle_snap_to_grid", "Toggle Snap-to-Grid", ["y"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleSnapToGrid(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("check_for_component_updates", "Check for Component Updates", ["q"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.checkForComponentUpdates(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("copy_from_graph", "Copy from graph", ["c"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.copySelectionToClipboard(); }));
         Eagle.shortcuts.push(new KeyboardShortcut("paste_to_graph", "Paste to graph", ["v"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.pasteFromClipboard(); }));
@@ -281,6 +284,7 @@ export class Eagle {
         this.showTableModal = ko.observable(false)
 
         this.showDataNodes = ko.observable(true);
+        this.snapToGrid = ko.observable(false);
 
         this.selectedObjects.subscribe(function(){
             this.logicalGraph.valueHasMutated();
@@ -452,6 +456,13 @@ export class Eagle {
         this.selectedObjects([]);
 
         this.showDataNodes(!this.showDataNodes());
+    }
+
+    toggleSnapToGrid = () : void => {
+        this.snapToGrid(!this.snapToGrid());
+
+        // store in settings
+        Setting.setValue(Utils.SNAP_TO_GRID, this.snapToGrid());
     }
 
     deployDefaultTranslationAlgorithm = () : void => {

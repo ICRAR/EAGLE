@@ -96,6 +96,8 @@ export class Utils {
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
     static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
+    static readonly SNAP_TO_GRID: string = "SnapToGrid";
+    static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
 
     static ojsGraphSchema : object = {};
     static v3GraphSchema : object = {};
@@ -1990,6 +1992,8 @@ export class Utils {
                 "expanded":node.getExpanded(),
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
+                "realX":node.getRealPosition().x,
+                "realY":node.getRealPosition().y,
                 "width":node.getWidth(),
                 "height":node.getHeight(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
@@ -2117,6 +2121,11 @@ export class Utils {
         });
     }
 
+    static snapToGrid = (coord: number, offset: number) : number => {
+        const gridSize = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
+        return (gridSize * Math.round((coord + offset)/gridSize)) - offset;
+    }
+    
     static enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
         return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
     }
