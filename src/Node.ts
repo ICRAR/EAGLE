@@ -674,14 +674,13 @@ export class Node {
 
         // build some common sections
         const markdownSection = "<p>" + Utils.markdown2html(this.getDescription()) +  "</p>";
-        const linkSection = "<p><a href='https://daliuge.readthedocs.io/en/latest/' target='_blank'>Documentation</a></p>";
 
         // check if name and category are the same (or similar except for capitalisation and whitespace)
         // if so, only use the name, the category is redundant
         if (this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
-            return "<p><h5>" + this.getName() + "</h5></p>" + markdownSection + linkSection;
+            return "<p><h5>" + this.getName() + "</h5></p>" + markdownSection;
         } else {
-            return "<p><h5>" + this.getCategory() + " : " + this.getName() + "</h5></p>" + markdownSection + linkSection;
+            return "<p><h5>" + this.getCategory() + " : " + this.getName() + "</h5></p>" + markdownSection;
         }
     }, this);
 
