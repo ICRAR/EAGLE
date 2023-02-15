@@ -24,6 +24,7 @@
 
 import * as ko from "knockout";
 
+import {Category} from './Category';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
 import {Errors} from './Errors';
@@ -154,6 +155,28 @@ export class LogicalGraph {
             errorsWarnings.errors.push(Errors.Message(error));
 
             result.fileInfo().name = file.name;
+        }
+
+        // add a step here to check that no edges are incident on constructs, and move any edges found to the embedded applications
+        // add warnings to errorsWarnings
+        for (const edge of result.edges){
+            // get references to actual source and destination nodes (from the keys)
+            const sourceNode : Node = result.findNodeByKey(edge.getSrcNodeKey());
+            const destinationNode : Node = result.findNodeByKey(edge.getDestNodeKey());
+
+            // if source node or destination node is a construct, then something is wrong, constructs should not have ports
+            if (sourceNode.getCategoryType() === Category.Type.Construct){
+                const srcKeyAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
+                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNodeKey() + " to embedded application " + srcKeyAndPort.key;
+                errorsWarnings.warnings.push(Errors.Message(warning));
+                edge.setSrcNodeKey(srcKeyAndPort.key);
+            }
+            if (destinationNode.getCategoryType() === Category.Type.Construct){
+                const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPortId());
+                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeKey() + " to embedded application " + destKeyAndPort.key;
+                errorsWarnings.warnings.push(Errors.Message(warning));
+                edge.setDestNodeKey(destKeyAndPort.key);
+            }
         }
 
         // move all the nodes into the
@@ -514,6 +537,24 @@ export class LogicalGraph {
 
     removeNode = (node: Node) : void => {
         const key = node.getKey();
+
+        // NOTE: this section handles an unusual case where:
+        //  - the removed node is an embedded node within a construct
+        //  - there are edge(s) connected to a port on the embedded node
+        //  - but the edge(s) have source or destination node id of the construct
+        // This situation should not occur in a well-formed graph, but does occur in many existing graphs
+        const that = this
+        if(node.isEmbedded()){
+            node.getFields().forEach(function(field:Field){
+                if(field.isInputPort() || field.isOutputPort()){
+                    that.getEdges().forEach(function(edge:Edge){
+                        if(edge.getDestPortId() === field.getId() || edge.getSrcPortId() === field.getId()){
+                            that.removeEdgeById(edge.getId())
+                        }
+                    })
+                }
+            })
+        }
 
         // delete edges incident on this node
         this.removeEdgesByKey(key);

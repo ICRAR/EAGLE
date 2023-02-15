@@ -180,7 +180,7 @@ export class GraphUpdater {
         }
 
         if (category === "mpi"){
-            return Category.MPI;
+            return Category.Mpi;
         }
 
         if (category === "docker"){

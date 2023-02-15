@@ -794,22 +794,36 @@
                                                         </select> 
                                                     </td>
                                                 <!-- /ko -->
+                                            <!-- /ko -->
+
+                                            <td class="tableReadonlyCell">
+                                                <!-- ko if: $root.parameterTable().getNodeLockedState($data) -->
+                                                    <!-- ko if: $data.isReadonly() -->
+                                                        <button class="btn btn-secondary btn-sm" type="button" disabled data-bind="click: function(){$data.toggleReadOnly();}, eagleTooltip: 'Parameter is read only<br/>Click to toggle'" data-bs-placement="left">
+                                                            <i class="material-icons">lock</i>
+                                                        </button>
+                                                    <!-- /ko -->
+                                                    <!-- ko ifnot: $data.isReadonly() -->
+                                                        <button class="btn btn-secondary btn-sm" type="button" disabled data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip: 'Parameter is not read only<br/>Click to toggle'" data-bs-placement="left">
+                                                            <i class="material-icons">lock_open</i>
+                                                        </button>
+                                                    <!-- /ko -->
+                                                <!-- /ko -->
 
                                                 <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
-                                                    <td><input class="tableParameter" tabindex='-1' data-bind="checked: readonly, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr: {type: 'checkbox'}"></td>
-                                                <!-- /ko -->
-                                            <!-- /ko -->
-
-                                            <!-- ko if: $root.parameterTable().getParameterTableVisibility('readOnly') -->
-                                                <!-- ko if: $root.parameterTable().getNodeLockedState($data) -->
-                                                    <!-- ko if: $root.getCurrentParamReadonly($data) -->
-                                                        <td><i class="material-icons md-20" data-bind="eagleTooltip: Utils.getReadOnlyText">lock</i></td>
+                                                    <!-- ko if: $data.isReadonly() -->
+                                                        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$data.toggleReadOnly();}, eagleTooltip: 'Parameter is read only<br/>Click to toggle'" data-bs-placement="left">
+                                                            <i class="material-icons">lock</i>
+                                                        </button>
                                                     <!-- /ko -->
-                                                    <!-- ko ifnot: $root.getCurrentParamReadonly($data) -->
-                                                        <td><i class="material-icons md-20" data-bind="eagleTooltip: 'value is readwrite'">lock_open</i></td>
+                                                    <!-- ko ifnot: $data.isReadonly() -->
+                                                        <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip: 'Parameter is not read only<br/>Click to toggle'" data-bs-placement="left">
+                                                            <i class="material-icons">lock_open</i>
+                                                        </button>
                                                     <!-- /ko -->
                                                 <!-- /ko -->
-                                            <!-- /ko -->
+                                            </td>
+                                            
 
                                             <!-- default value fields -->
                                             <!-- ko if: $root.parameterTable().getParameterTableVisibility('defaultValue') -->

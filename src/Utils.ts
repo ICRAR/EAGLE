@@ -1897,8 +1897,31 @@ export class Utils {
         field.setType(Eagle.DataType_Object + "." + field.getType());
     }
 
+    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
+        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+
+        // if the SOURCE node is a construct, find the port within the embedded apps, and modify the edge with a new source node
+        if (srcNode.getCategoryType() === Category.Type.Construct){
+            const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPortId());
+
+            if (embeddedApplicationKeyAndPort.key !== null){
+                edge.setSrcNodeKey(embeddedApplicationKeyAndPort.key);
+            }
+        }
+
+        // if the DESTINATION node is a construct, find the port within the embedded apps, and modify the edge with a new destination node
+        if (destNode.getCategoryType() === Category.Type.Construct){
+            const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPortId());
+
+            if (embeddedApplicationKeyAndPort.key !== null){
+                edge.setDestNodeKey(embeddedApplicationKeyAndPort.key);
+            }
+        }
+    }
+
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
-        console.log("callFixFunc");
         fixFunc();
         Utils.postFixFunc(eagle);
     }
@@ -2101,5 +2124,9 @@ export class Utils {
     static snapToGrid = (coord: number, offset: number) : number => {
         const gridSize = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
         return (gridSize * Math.round((coord + offset)/gridSize)) - offset;
+    }
+    
+    static enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
+        return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
     }
 }
