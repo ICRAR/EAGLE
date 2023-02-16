@@ -3,6 +3,7 @@ import {Eagle} from './Eagle';
 import {Edge} from './Edge';
 import {Node} from './Node';
 import { Palette } from './Palette';
+import * as ko from "knockout";
 
 export class RightClick {
 
@@ -123,6 +124,37 @@ export class RightClick {
         })
 
         return paletteList
+    }
+
+    static getNodeDescriptionDropdown = () : string => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        var node = Eagle.selectedRightClickObject()
+
+        var htmlNodeDescription = "<span class='contextmenuNodeDescription' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'> Node Info"
+            htmlNodeDescription = htmlNodeDescription + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
+
+            htmlNodeDescription = htmlNodeDescription + '<div class="contextMenuDropdown">'
+                htmlNodeDescription = htmlNodeDescription + '<div class="container">'
+                    htmlNodeDescription = htmlNodeDescription + '<div class="row">'
+                        htmlNodeDescription = htmlNodeDescription + "<span id='nodeInfoName'><h4>Name:  </h4>" + node.getName() + "</span>"
+                    htmlNodeDescription = htmlNodeDescription+"</div>"
+                    if(eagle.displayNodeKeys()){
+                        htmlNodeDescription = htmlNodeDescription + '<div class="row">'
+                            htmlNodeDescription = htmlNodeDescription + "<span id='nodeInfoKey'><h4>Key:  </h4>" + node.getKey() + "</span>"
+                        htmlNodeDescription = htmlNodeDescription+"</div>"
+                    }
+                    htmlNodeDescription = htmlNodeDescription + '<div class="row">'
+                        htmlNodeDescription = htmlNodeDescription + "<span id='nodeInfoCategory'><h4>Category:  </h4>" + node.getCategory() + "</span>"
+                    htmlNodeDescription = htmlNodeDescription+"</div>"
+                    htmlNodeDescription = htmlNodeDescription + '<div class="row">'
+                        htmlNodeDescription = htmlNodeDescription + "<span><h4>Description:  </h4>" + node.getDescription() + "</span>"
+                    htmlNodeDescription = htmlNodeDescription+"</div>"
+                htmlNodeDescription = htmlNodeDescription+"</div>"
+            htmlNodeDescription = htmlNodeDescription+"</div>"
+        htmlNodeDescription = htmlNodeDescription+"</span>"
+
+        return htmlNodeDescription
     }
 
     static initiateQuickSelect = () : void => {
@@ -319,13 +351,15 @@ export class RightClick {
                 Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
     
                 if(Eagle.allowPaletteEditing()){
-                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
-                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+                    $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
+                    $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
+                    $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to another palette</a>')
                 }
             }else if(targetClass.includes('rightClick_hierarchyNode')){
                 Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
-    
+
+                $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
                 $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Inspector Table</a>')
                 $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Key Parameters Table</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
@@ -335,6 +369,7 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
     
             }else if(passedObjectClass === 'rightClick_graphNode'){
+                $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
                 $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
                 $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Key Parameters Table</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
@@ -345,7 +380,6 @@ export class RightClick {
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
                     $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
-    
     
             }else if(passedObjectClass === 'rightClick_graphEdge'){
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')

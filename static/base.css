@@ -2241,6 +2241,41 @@ palette-component input.form-control.selected {
     text-decoration: none;
 }
 
+.contextmenuNodeDescription{
+    border-bottom: 1px solid white;
+}
+
+.contextmenuNodeDescription .contextMenuDropdown{
+    width: 300px;
+}
+
+.contextmenuNodeDescription .contextMenuDropdown span:hover{
+    background-color: transparent!important;
+    cursor: default!important;
+}
+
+#customContextMenu h4 {
+    font-size:14px;
+    font-weight: bold;
+    display: inline;
+}
+
+#customContextMenu #nodeInfoName{
+    display: inline-block;
+}
+
+#customContextMenu #nodeInfoKey{
+    display: inline-block;
+}
+
+#customContextMenu #nodeInfoCategory{
+    display: block;
+}
+
+#customContextMenu #nodeInfoDescription{
+    display: block;
+}
+
 .rightClickFocus,.rightClickFocusParent{
     background-color: #001d3b;
 }
