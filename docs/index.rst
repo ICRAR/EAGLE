@@ -6,11 +6,11 @@ Introduction to Eagle
 
    Installation <installation>
    Quick Start <quickStart2>
+   Settings <settings>
    Hello World Example <helloWorld>
    Components <components>
    Palettes <palettes>
    Templates and Graphs <graphs>
-   Modules <modules>
 
 .. Indices and tables
 .. ==================

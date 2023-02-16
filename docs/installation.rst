@@ -55,12 +55,12 @@ Non-docker installation
 For debugging and testing in a local environment EAGLE has an internal web server, which is provided by the underlying Flask framework.
 
 Clone EAGLE repository
-^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""
 
     git clone https://github.com/ICRAR/EAGLE
 
 Install NPM
-^^^^^^^^^^^
+"""""""""""
 
 EAGLE is based on typescript and that and the supporting infrastructure needs to be installed first.
 
@@ -71,14 +71,14 @@ Linux users should use apt
     sudo apt install npm
 
 Install typescript
-^^^^^^^^^^^^^^^^^^
+""""""""""""""""""
 
 This is a useful tool to install globally
 
     sudo npm install -g typescript
 
 Install dependencies using NPM
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""
 
 EAGLE depends on a number of packages. These are listed in package.json. To install all the dependencies:
 
@@ -87,7 +87,7 @@ EAGLE depends on a number of packages. These are listed in package.json. To inst
 within the EAGLE directory.
 
 Compile the Typescript
-^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""
 
 Since Typescript is not interpretable by browsers, the source must be compiled/transcoded into native javascript. Run the Typescript compiler in the EAGLE directory.
 
@@ -98,7 +98,7 @@ If you are actively developing EAGLE, it is recommended to use the Typescript co
     tsc -w
 
 Install, create and activate virtualenv
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""""
 
 Virtualenvs are standard in python3 and the recommended method
 is to use pyenv. EAGLE does not impose any particular way of
@@ -108,12 +108,12 @@ using virtual environments, but strongly recommends to use a separate one for EA
     pyenv activate eagle
 
 Install EAGLE
-^^^^^^^^^^^^^
+"""""""""""""
 
     pip install .
 
 Start Server
-^^^^^^^^^^^^
+""""""""""""
 
 Simply start it using in the main directory:
 
