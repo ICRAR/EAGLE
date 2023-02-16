@@ -4187,6 +4187,18 @@ export class Eagle {
         if (callback !== null) callback(firstEdge);
     }
 
+    editNodeDescription = () : void => {
+        console.log("editNodeDescription()");
+
+        Utils.requestUserText("Node Description", "Please edit the description for the node", this.selectedNode().getDescription(), (completed, userText) => {
+            if (!completed){
+                return;
+            }
+
+            this.selectedNode().setDescription(userText);
+        })
+    }
+
     editNodeCategory = () : void => {
         let selectedIndex = 0;
         let eligibleCategories : Category[];

@@ -681,6 +681,10 @@ export class Node {
         }
     }, this);
 
+    getDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        return Utils.markdown2html(this.getDescription());
+    }, this);
+
     getSubjectKey = () : number => {
         return this.subject();
     }

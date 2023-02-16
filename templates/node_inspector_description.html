@@ -4,9 +4,15 @@
         <i class="material-icons">note</i>
         <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip: 'The description of the component’s functionality.'">Description</span>
     </h5>
+    <!-- ko ifnot: selectedNode().isLocked() || selectedNode().getDescriptionReadonly() -->
+        <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind="click: $root.editNodeDescription, clickBubble: false, eagleTooltip: 'Edit Description'">
+            <i class="material-icons md-18">edit</i>
+        </button>
+    <!-- /ko -->
     <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse10">
         <div class="card-body">
-            <textarea class="form-control" rows="3" data-bind="value: selectedNode().description, readonly: selectedNode().isLocked() || selectedNode().getDescriptionReadonly()"></textarea>
+            <div data-bind="html: selectedNode().getDescriptionHTML()">
+            </div>
         </div>
     </div>
 </div>
