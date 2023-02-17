@@ -15,7 +15,7 @@ export class Tutorial {
         this.tutorialSteps = tutorialSteps
     }
 
-    getTutorials = () : TutorialStep[] => {
+    getTutorialSteps = () : TutorialStep[] => {
         return this.tutorialSteps;
     }
 
@@ -25,6 +25,20 @@ export class Tutorial {
 
     getDescription = () : string => {
         return this.description;
+    }
+
+    initiateTutorial = (tutorialName:string) : void => {
+        const eagle = (<any>window).eagle;
+
+        Eagle.tutorials.forEach(function(tut){
+            if(tutorialName === tut.getName()){
+                //this is the requsted tutorial
+                console.log(tut.getName())
+                tut.getTutorialSteps().forEach(function(tutStep){
+                    console.log(tutStep.getText())
+                })
+            }
+        })
     }
 }
 
@@ -74,8 +88,8 @@ export const tutorialArray = [
         'This tutorial is for testing purposes of the tutorial system',
         [
             new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#graphArea')"),
-            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#paletteList')"),
-            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#settings')"),
+            new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "$('#paletteList')"),
+            new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "$('#settings')"),
         ]
     ),
     new Tutorial(
@@ -83,8 +97,8 @@ export const tutorialArray = [
         'This tutorial is for testing purposes of the tutorial system',
         [
             new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#graphArea')"),
-            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#paletteList')"),
-            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#settings')"),
+            new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "$('#paletteList')"),
+            new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "$('#settings')"),
         ]
     )
 ]

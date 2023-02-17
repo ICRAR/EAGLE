@@ -60,6 +60,7 @@ export class Eagle {
 
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
+    tutorial : ko.Observable<Tutorial>;
 
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
@@ -146,6 +147,7 @@ export class Eagle {
         Eagle.tableSearchString = ko.observable("");
 
         Eagle.tutorials = tutorialArray
+        this.tutorial = ko.observable(Eagle.tutorials[0]);
 
         Eagle.settings = [
             new SettingsGroup(
