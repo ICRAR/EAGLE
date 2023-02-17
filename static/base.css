@@ -975,6 +975,10 @@ select.form-control{
     height:40vh;
 }
 
+#inputTextModalInput {
+    font-family: monospace;
+}
+
 #nodeInspector select{
     padding:2px 15px;
 }
