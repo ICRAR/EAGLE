@@ -44,7 +44,7 @@ import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {Setting, SettingsGroup} from './Setting';
-import {Tutorial, TutorialStep, x} from './Tutorial';
+import {Tutorial, TutorialStep, tutorialArray} from './Tutorial';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
@@ -107,7 +107,7 @@ export class Eagle {
 
     static settings : SettingsGroup[];
     static shortcuts : ko.ObservableArray<KeyboardShortcut>;
-    static tutorial : Tutorial[];
+    static tutorials : Tutorial[];
 
     static dragStartX : number;
     static lastClickTime : number = 0;
@@ -145,7 +145,7 @@ export class Eagle {
         Eagle.applicationArgsSearchString = ko.observable("");
         Eagle.tableSearchString = ko.observable("");
 
-        Eagle.tutorial= x
+        Eagle.tutorials = tutorialArray
 
         Eagle.settings = [
             new SettingsGroup(

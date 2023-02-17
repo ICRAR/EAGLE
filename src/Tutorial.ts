@@ -68,9 +68,18 @@ export namespace TutorialStep {
     }
 }
 
-const x = [
+export const tutorialArray = [
     new Tutorial(
         "Test Tutorial",
+        'This tutorial is for testing purposes of the tutorial system',
+        [
+            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#graphArea')"),
+            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#paletteList')"),
+            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#settings')"),
+        ]
+    ),
+    new Tutorial(
+        "Test Tutorial2",
         'This tutorial is for testing purposes of the tutorial system',
         [
             new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#graphArea')"),
@@ -80,17 +89,3 @@ const x = [
     )
 ]
 
-export{x}
-
-// Eagle.tutorial = [
-//     new Tutorial(
-//         "Test Tutorial",
-//         'This tutorial is for testing purposes of the tutorial system',
-//         [
-//             new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#graphArea')"),
-//             new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#graphArea')"),
-//             new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#graphArea')"),
-        
-//         ]
-//     )
-// ]
