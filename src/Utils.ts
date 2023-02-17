@@ -1814,6 +1814,7 @@ export class Utils {
 
     static markdown2html(markdown: string) : string {
         const converter = new Showdown.Converter();
+        converter.setOption('tables', true);
         return converter.makeHtml(markdown);
     }
 
