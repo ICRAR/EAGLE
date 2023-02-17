@@ -1814,7 +1814,13 @@ export class Utils {
 
     static markdown2html(markdown: string) : string {
         const converter = new Showdown.Converter();
-        return converter.makeHtml(markdown);
+        converter.setOption('tables', true);
+        let html = converter.makeHtml(markdown);
+
+        // add some bootstrap CSS to the converted html
+        html = html.replaceAll("<table>", "<table class='table'>");
+
+        return html;
     }
 
     static asBool(value: string) : boolean {
