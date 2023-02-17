@@ -28,7 +28,9 @@ export class Tutorial {
     }
 
     initiateTutorial = (tutorialName:string) : void => {
+        console.log('initiating tut')
         const eagle = (<any>window).eagle;
+        const that = this
 
         Eagle.tutorials.forEach(function(tut){
             if(tutorialName === tut.getName()){
@@ -36,10 +38,44 @@ export class Tutorial {
                 console.log(tut.getName())
                 tut.getTutorialSteps().forEach(function(tutStep){
                     console.log(tutStep.getText())
+
+                    //call teh correct function depending on which type of tutorial step this is
+                    if(tutStep.getType() === TutorialStep.Type.Info){
+                        that.initiateInfoStep(tutStep)
+                    }else if(tutStep.getType() === TutorialStep.Type.Press){
+                        that.initiatePressStep(tutStep)
+                    }else if(tutStep.getType() === TutorialStep.Type.Input){
+                        that.initiateInputStep(tutStep)
+                    }else if(tutStep.getType() === TutorialStep.Type.Condition){
+                        const condition = ''
+                        that.initiateConditionStep(tutStep,condition)
+                    }
                 })
             }
         })
     }
+
+    initiateInfoStep = (tutStep:TutorialStep) : void => {
+        console.log('initiating text step')
+
+    }
+
+    initiatePressStep = (tutStep:TutorialStep) : void => {
+        console.log('initiating text step')
+    }
+
+    initiateInputStep = (tutStep:TutorialStep) : void => {
+        console.log('initiating text step')
+    }
+
+    initiateConditionStep = (tutStep:TutorialStep, condition:string) : void => {
+        console.log('initiating text step')
+    }
+
+    highlightStepTarget = (selector:string) : void => {
+        console.log('initiating step target highlighter')
+        $(selector).addClass('bopped')
+    }   
 }
 
 export class TutorialStep {
@@ -87,18 +123,18 @@ export const tutorialArray = [
         "Test Tutorial",
         'This tutorial is for testing purposes of the tutorial system',
         [
-            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#graphArea')"),
-            new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "$('#paletteList')"),
-            new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "$('#settings')"),
+            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "#graphArea"),
+            new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "#paletteList"),
+            new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "#settings"),
         ]
     ),
     new Tutorial(
         "Test Tutorial2",
         'This tutorial is for testing purposes of the tutorial system',
         [
-            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "$('#graphArea')"),
-            new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "$('#paletteList')"),
-            new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "$('#settings')"),
+            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "#graphArea"),
+            new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "#paletteList"),
+            new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "#settings"),
         ]
     )
 ]
