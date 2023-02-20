@@ -171,6 +171,7 @@ export class Eagle {
                     new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000),
                     new Setting("Snap To Grid", "Align positions of nodes in graph to a grid", Setting.Type.Boolean, Utils.SNAP_TO_GRID, false),
                     new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Utils.SNAP_TO_GRID_SIZE, 50),
+                    new Setting("Show edge/node errors/warnings in inspector", "Show the errors/warnings found for the selected node/edge in the inspector", Setting.Type.Select, Utils.SHOW_INSPECTOR_WARNINGS, Eagle.ShowErrorsMode.Errors, Object.values(Eagle.ShowErrorsMode)),
                 ]
             ),
             new SettingsGroup(
@@ -368,6 +369,30 @@ export class Eagle {
 
     static isInUIMode = (mode : Eagle.UIMode) : boolean => {
         return Setting.findValue(Utils.USER_INTERFACE_MODE) === mode;
+    }
+
+    static showInspectorWarnings = () : boolean => {
+        return Setting.findValue(Utils.SHOW_INSPECTOR_WARNINGS) === Eagle.ShowErrorsMode.Warnings;
+    }
+
+    static showInspectorErrors = () : boolean => {
+        return Setting.findValue(Utils.SHOW_INSPECTOR_WARNINGS) === Eagle.ShowErrorsMode.Warnings || Setting.findValue(Utils.SHOW_INSPECTOR_WARNINGS) === Eagle.ShowErrorsMode.Errors;
+    }
+
+    static showInspectorErrorsWarnings = () : boolean => {
+        const eagle = Eagle.getInstance();
+            
+        switch (Setting.findValue(Utils.SHOW_INSPECTOR_WARNINGS)){
+            case Eagle.ShowErrorsMode.Warnings:
+                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length + eagle.selectedNode().getErrorsWarnings(eagle).warnings.length > 0;
+                break;
+            case Eagle.ShowErrorsMode.Errors:
+                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length > 0;
+                break;
+            case Eagle.ShowErrorsMode.None:
+            default:
+                return false;
+        }
     }
 
     static selectedNodeGraph = () : LogicalGraph => {
@@ -4505,6 +4530,12 @@ export namespace Eagle
         Graph = "Graph"
     }
     
+    export enum ShowErrorsMode {
+        None = "None",
+        Errors = "Errors",
+        Warnings = "Warnings"
+    }
+            
     export enum UIMode {
         Minimal = "minimal",
         Default = "default",
