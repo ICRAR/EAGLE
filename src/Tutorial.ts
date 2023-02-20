@@ -154,6 +154,10 @@ export class Tutorial {
 
         $('body').append(tooltipPopUp)
     }
+
+    closeInfoPopUp = () : void =>{
+        $("#tutorialInfoPopUp").remove()
+    }
 }
 
 export class TutorialStep {
