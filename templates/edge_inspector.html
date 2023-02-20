@@ -83,18 +83,22 @@
                 </div>
                 <!-- /ko -->
             </div>
-            <div class="card-body">
-                <!-- ko if: selectedEdge() != null -->
+            <!-- ko if: selectedEdge() != null -->
+                <div class="card-body">
                     <!-- ko with: selectedEdge().getErrorsWarnings($root) -->
-                        <!-- ko foreach: errors -->
-                            <fix params="data: $data, isError: true"></fix>
+                        <!-- ko if: Eagle.showInspectorErrors() -->
+                            <!-- ko foreach: errors -->
+                                <fix params="data: $data, isError: true"></fix>
+                            <!-- /ko -->
                         <!-- /ko -->
-                        <!-- ko foreach: warnings -->
-                            <fix params="data: $data, isError: false"></fix>
+                        <!-- ko if: Eagle.showInspectorWarnings() -->
+                            <!-- ko foreach: warnings -->
+                                <fix params="data: $data, isError: false"></fix>
+                            <!-- /ko -->
                         <!-- /ko -->
                     <!-- /ko -->
-                <!-- /ko -->
-            </div>
+                </div>
+            <!-- /ko -->
         </div>
     <!-- /ko -->
 </div>

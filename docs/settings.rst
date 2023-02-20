@@ -78,6 +78,8 @@ UI options
 
 **Graph Zoom Divisor** - The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.
 
+**Show edge/node errors/warnings in inspector** - Show the errors/warnings found for the selected node/edge in the inspector, below the other editor widgets. Errors and warnings are always shown the the checkGraph display in the navbar.
+
 Advanced Editing
 """"""""""""""""
 
