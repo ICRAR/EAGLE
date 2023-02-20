@@ -81,7 +81,7 @@ export class GitLab {
      * Shows the remote files
      */
     static loadRepoContent(repository : Repository) : void {
-        const token = Setting.findValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
@@ -183,7 +183,7 @@ export class GitLab {
      * @param filePath File path.
      */
     static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        const token = Setting.findValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");

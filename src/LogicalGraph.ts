@@ -65,7 +65,7 @@ export class LogicalGraph {
         // add links
         result.linkDataArray = [];
         for (const edge of graph.getEdges()){
-            if (forTranslation && Setting.findValue(Utils.SKIP_CLOSE_LOOP_EDGES)){
+            if (forTranslation && Setting.findValue(Setting.SKIP_CLOSE_LOOP_EDGES)){
                 if (edge.isClosesLoop()){
                     continue;
                 }

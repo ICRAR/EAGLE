@@ -52,54 +52,6 @@ export class Utils {
         "md" // for markdown e.g. README.md
     ];
 
-    static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
-    static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
-    static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
-    static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
-
-    static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
-    static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
-    static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
-    static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
-
-    static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
-
-    static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
-    static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
-    static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
-    static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
-    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters";
-    static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
-
-    static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
-    static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
-
-    static readonly TRANSLATOR_URL : string = "TranslatorURL";
-
-    static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
-    static readonly USE_OLD_OUTPUT_FORMAT: string = "UseOldOutputFormat"; // temp fix to prolong use of old graph format while corresponding DALiuGE changes are in progress
-
-    static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
-    static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
-    static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
-
-    static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
-    static readonly OPEN_TRANSLATOR_IN_CURRENT_TAB: string = "OpenTranslatorInCurrentTab";
-    static readonly OVERWRITE_TRANSLATION_TAB: string = "OverwriteTranslationTab";
-    static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
-    static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
-    static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";
-
-    static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
-    static readonly USER_INTERFACE_MODE: string = "UserInterfaceMode";
-    static readonly USER_TRANSLATOR_MODE: string = "UserTranslatorMode";
-
-    static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
-    static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
-    static readonly SNAP_TO_GRID: string = "SnapToGrid";
-    static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
-    static readonly SHOW_INSPECTOR_WARNINGS: string = "ShowInspectorWarnings";
-
     static ojsGraphSchema : object = {};
     static v3GraphSchema : object = {};
     static appRefGraphSchema : object = {};
@@ -917,7 +869,7 @@ export class Utils {
     }
 
     static showPalettesModal(eagle: Eagle) : void {
-        const token = Setting.findValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
@@ -1443,7 +1395,7 @@ export class Utils {
 
     static getRightWindowWidth() : number {
         // try localStorage first
-        const local : string = localStorage.getItem(this.RIGHT_WINDOW_WIDTH_KEY);
+        const local : string = localStorage.getItem(Setting.RIGHT_WINDOW_WIDTH_KEY);
 
         // if found, return
         if (local !== null){
@@ -1454,12 +1406,12 @@ export class Utils {
     }
 
     static setRightWindowWidth(width : number) : void {
-        localStorage.setItem(this.RIGHT_WINDOW_WIDTH_KEY, width.toString());
+        localStorage.setItem(Setting.RIGHT_WINDOW_WIDTH_KEY, width.toString());
     }
 
     static getLeftWindowWidth() : number {
         // try localStorage first
-        const local : string = localStorage.getItem(this.LEFT_WINDOW_WIDTH_KEY);
+        const local : string = localStorage.getItem(Setting.LEFT_WINDOW_WIDTH_KEY);
 
         // if found, return
         if (local !== null){
@@ -1470,7 +1422,7 @@ export class Utils {
     }
 
     static setLeftWindowWidth(width : number) : void {
-        localStorage.setItem(this.LEFT_WINDOW_WIDTH_KEY, width.toString());
+        localStorage.setItem(Setting.LEFT_WINDOW_WIDTH_KEY, width.toString());
     }
 
     static getLocalStorageKey(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
@@ -2129,7 +2081,7 @@ export class Utils {
     }
 
     static snapToGrid = (coord: number, offset: number) : number => {
-        const gridSize = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
+        const gridSize = Setting.findValue(Setting.SNAP_TO_GRID_SIZE);
         return (gridSize * Math.round((coord + offset)/gridSize)) - offset;
     }
     

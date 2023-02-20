@@ -104,7 +104,7 @@ export class Undo {
             this.memory()[index] = null;
         }
 
-        if (Setting.findValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
             Undo.printTable();
         }
     }
@@ -121,7 +121,7 @@ export class Undo {
         this._loadFromIndex(prevprevIndex, eagle);
         this.current((this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE);
 
-        if (Setting.findValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
             Undo.printTable();
         }
 
@@ -138,7 +138,7 @@ export class Undo {
         this._loadFromIndex(this.current(), eagle);
         this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
 
-        if (Setting.findValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
             Undo.printTable();
         }
 

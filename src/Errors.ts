@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
+import {Setting} from './Setting';
 import {Utils} from './Utils';
 
 export class Errors {
@@ -54,9 +55,9 @@ export class Errors {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (eagle.errorsMode()){
-            case Eagle.ErrorsMode.Loading:
+            case Setting.ErrorsMode.Loading:
                 return eagle.loadingWarnings();
-            case Eagle.ErrorsMode.Graph:
+            case Setting.ErrorsMode.Graph:
                 return eagle.graphWarnings();
             default:
                 console.warn("Unknown errorsMode (" + eagle.errorsMode() + "). Unable to getWarnings()");
@@ -68,9 +69,9 @@ export class Errors {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (eagle.errorsMode()){
-            case Eagle.ErrorsMode.Loading:
+            case Setting.ErrorsMode.Loading:
                 return eagle.loadingErrors();
-            case Eagle.ErrorsMode.Graph:
+            case Setting.ErrorsMode.Graph:
                 return eagle.graphErrors();
             default:
                 console.warn("Unknown errorsMode (" + eagle.errorsMode() + "). Unable to getErrors()");
