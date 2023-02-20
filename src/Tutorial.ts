@@ -68,7 +68,7 @@ export class Tutorial {
                 }else if(tutStep.getType() === TutorialStep.Type.Input){
                     that.initiateInputStep(tutStep)
                 }else if(tutStep.getType() === TutorialStep.Type.Condition){
-                    const condition = ''
+                    const condition = '' //this should be a link to another function that returns a boolean value
                     that.initiateConditionStep(tutStep,condition)
                 }
             }
@@ -77,7 +77,7 @@ export class Tutorial {
 
     initiateInfoStep = (tutStep:TutorialStep) : void => {
         console.log('initiating text step')
-
+        this.highlightStepTarget(tutStep.getSelector())
     }
 
     initiatePressStep = (tutStep:TutorialStep) : void => {
@@ -95,6 +95,31 @@ export class Tutorial {
     highlightStepTarget = (selector:string) : void => {
         console.log('initiating step target highlighter')
         $(selector).addClass('bopped')
+        var coords = $(selector).offset()
+        var docHeight = $(document).height()
+        var docWidth = $(document).width()
+        var top_y = coords.top
+        var top = docHeight - top_y
+        var right_x = coords.left+$(selector).outerWidth()
+        var right = docWidth - right_x
+        var bottom_y = coords.top+$(selector).outerHeight()
+        var bottom = docHeight - bottom_y
+        var left_x = coords.left
+        var left = docWidth - left_x
+        console.log(coords, $(selector).width(), $(selector).height())
+
+
+
+        //in order to darken the screen save the selection target, we must add four divs. above, below and on each side of the element
+        //top
+        $('body').append("<div class='tutorialHighlight' style='top:0px; right:0px;bottom:"+top+"px;left:0px;'></div>")
+        //right
+        $('body').append("<div class='tutorialHighlight' style='top:"+coords.top+"px; right:0px;bottom:"+bottom+"px;left:"+right_x+"px;'></div>")
+        //bottom
+        $('body').append("<div class='tutorialHighlight' style='top:"+bottom_y+"px; right:0px;bottom:0px;left:0px;'></div>")
+        //left
+        $('body').append("<div class='tutorialHighlight' style='top:"+coords.top+"px; right:"+left+"px;bottom:"+bottom+"px;left:0px;'></div>")
+
     }   
 }
 
@@ -143,7 +168,7 @@ export const tutorialArray = [
         "Test Tutorial",
         'This tutorial is for testing purposes of the tutorial system',
         [
-            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "#graphArea"),
+            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "#toggleSnapToGrid"),
             new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "#paletteList"),
             new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "#settings"),
         ]

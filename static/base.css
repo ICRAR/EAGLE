@@ -2275,6 +2275,12 @@ palette-component input.form-control.selected {
     position: relative;
 }
 
+.tutorialHighlight{
+    position:absolute;
+    background-color: rgba(0, 0, 0, 0.45);
+    z-index:9999;
+}
+
 .rightWindow .searchBarContainer{
     margin-bottom: 15px;
 }
