@@ -174,7 +174,7 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownHelp">
                     <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
-                    <a class="dropdown-item" id="about" href="#" data-bind="click: tutorial().initiateTutorial('Test Tutorial')">test tutorial</a>
+                    <a class="dropdown-item" id="about" href="#" data-bind="click: function(){tutorial().initiateTutorial('Test Tutorial')}">test tutorial</a>
                     <a class="dropdown-item" id="navbarIntroduction" href="#" data-bind="click: function(){runTutorial('nav.navbar');}">Navbar Introduction</a>
                     <a class="dropdown-item" id="onlineDocs" href="#" data-bind="click: onlineDocs">Online Docs</a>
                     <a class="dropdown-item" id="readme" href="#" data-bind="click: readme">GitHub README</a>

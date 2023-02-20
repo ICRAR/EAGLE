@@ -3,16 +3,19 @@ import * as ko from "knockout";
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 
+let activeTut = '';
+let activeTutStepsNo = 0;
+let activeTutCurrentStep = 0;
+
 export class Tutorial {
     private name : string;
     private description : string;
     private tutorialSteps : TutorialStep[];
 
-
     constructor(name: string,description: string, tutorialSteps: TutorialStep[]){
         this.name = name;
         this.description = description;
-        this.tutorialSteps = tutorialSteps
+        this.tutorialSteps = tutorialSteps;
     }
 
     getTutorialSteps = () : TutorialStep[] => {
@@ -29,28 +32,45 @@ export class Tutorial {
 
     initiateTutorial = (tutorialName:string) : void => {
         console.log('initiating tut')
-        const eagle = (<any>window).eagle;
-        const that = this
+        const that = this;
 
         Eagle.tutorials.forEach(function(tut){
             if(tutorialName === tut.getName()){
                 //this is the requsted tutorial
                 console.log(tut.getName())
-                tut.getTutorialSteps().forEach(function(tutStep){
-                    console.log(tutStep.getText())
+                activeTut = tut.getName()
+                activeTutStepsNo = tut.getTutorialSteps().length
+                activeTutCurrentStep = -1
+                console.log(activeTut)
+                console.log(activeTutStepsNo)
+                console.log(activeTutCurrentStep)
+                that.initiateNextStep()
+            }
+        })
+    }
 
-                    //call teh correct function depending on which type of tutorial step this is
-                    if(tutStep.getType() === TutorialStep.Type.Info){
-                        that.initiateInfoStep(tutStep)
-                    }else if(tutStep.getType() === TutorialStep.Type.Press){
-                        that.initiatePressStep(tutStep)
-                    }else if(tutStep.getType() === TutorialStep.Type.Input){
-                        that.initiateInputStep(tutStep)
-                    }else if(tutStep.getType() === TutorialStep.Type.Condition){
-                        const condition = ''
-                        that.initiateConditionStep(tutStep,condition)
-                    }
-                })
+    initiateNextStep = () :void => {
+        const that = this;
+
+        Eagle.tutorials.forEach(function(tut){
+            if(activeTut === tut.getName()){
+                activeTutCurrentStep ++
+                console.log(activeTutCurrentStep)
+
+                var tutStep = tut.getTutorialSteps()[activeTutCurrentStep]
+                console.log(tutStep.getText())
+
+                //call the correct function depending on which type of tutorial step this is
+                if(tutStep.getType() === TutorialStep.Type.Info){
+                    that.initiateInfoStep(tutStep)
+                }else if(tutStep.getType() === TutorialStep.Type.Press){
+                    that.initiatePressStep(tutStep)
+                }else if(tutStep.getType() === TutorialStep.Type.Input){
+                    that.initiateInputStep(tutStep)
+                }else if(tutStep.getType() === TutorialStep.Type.Condition){
+                    const condition = ''
+                    that.initiateConditionStep(tutStep,condition)
+                }
             }
         })
     }
