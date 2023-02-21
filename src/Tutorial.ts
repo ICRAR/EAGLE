@@ -40,39 +40,34 @@ export class Tutorial {
                 console.log(tut.getName())
                 activeTut = tut
                 activeTutStepsNo = tut.getTutorialSteps().length
-                activeTutCurrentStep = -1
+                activeTutCurrentStep = 0
                 console.log(activeTut)
                 console.log(activeTutStepsNo)
                 console.log(activeTutCurrentStep)
-                that.initiateNextStep()
+                that.initiateTutStep()
             }
         })
     }
 
-    initiateNextStep = () :void => {
+    initiateTutStep = () :void => {
         const that = this;
 
-        Eagle.tutorials.forEach(function(tut){
-            if(activeTut === tut){
-                activeTutCurrentStep ++
-                console.log(activeTutCurrentStep)
+            console.log(activeTutCurrentStep)
 
-                var tutStep = tut.getTutorialSteps()[activeTutCurrentStep]
-                console.log(tutStep.getText())
+            var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep]
+            console.log(tutStep.getText())
 
-                //call the correct function depending on which type of tutorial step this is
-                if(tutStep.getType() === TutorialStep.Type.Info){
-                    that.initiateInfoStep(tutStep)
-                }else if(tutStep.getType() === TutorialStep.Type.Press){
-                    that.initiatePressStep(tutStep)
-                }else if(tutStep.getType() === TutorialStep.Type.Input){
-                    that.initiateInputStep(tutStep)
-                }else if(tutStep.getType() === TutorialStep.Type.Condition){
-                    const condition = '' //this should be a link to another function that returns a boolean value
-                    that.initiateConditionStep(tutStep,condition)
-                }
+            //call the correct function depending on which type of tutorial step this is
+            if(tutStep.getType() === TutorialStep.Type.Info){
+                that.initiateInfoStep(tutStep)
+            }else if(tutStep.getType() === TutorialStep.Type.Press){
+                that.initiatePressStep(tutStep)
+            }else if(tutStep.getType() === TutorialStep.Type.Input){
+                that.initiateInputStep(tutStep)
+            }else if(tutStep.getType() === TutorialStep.Type.Condition){
+                const condition = '' //this should be a link to another function that returns a boolean value
+                that.initiateConditionStep(tutStep,condition)
             }
-        })
     }
 
     initiateInfoStep = (tutStep:TutorialStep) : void => {
@@ -133,20 +128,28 @@ export class Tutorial {
 
         var tooltipPopUp
 
-        tooltipPopUp = "<div id='tutorialInfoPopUp' class='"+orientation+"' style='position:absolute;width:700px;height:200px;left:"+selectedLocationX+"px;top:"+selectedLocationY+"px;z-index:1000; color:white;font-family:monospace;'>"
-            tooltipPopUp = tooltipPopUp + "<div style='position:relative; height:100%;width:100%;'>"
+        tooltipPopUp = "<div id='tutorialInfoPopUp' class='"+orientation+"' style='left:"+selectedLocationX+"px;top:"+selectedLocationY+"px;'>"
+            tooltipPopUp = tooltipPopUp + "<div class='tutorialArrowContainer'>"
                 if(orientation === 'tutorialRight'){
-                    tooltipPopUp = tooltipPopUp + "<img src='static/assets/img/tooltip_arrow.svg' style='transform:scale(-1,1);position:absolute; top:0px; left:0px; height:60%;'></img>"
+                    tooltipPopUp = tooltipPopUp + "<img class='tutToTheRight' src='static/assets/img/tooltip_arrow.svg'></img>"
 
                 }else{
-                    tooltipPopUp = tooltipPopUp + "<img src='static/assets/img/tooltip_arrow.svg' style='position:absolute; top:0px; right:0px; height:6    0%;'></img>"
+                    tooltipPopUp = tooltipPopUp + "<img class='tutToTheLeft' src='static/assets/img/tooltip_arrow.svg'></img>"
                 }
 
-                tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoTitle' style='margin-left:140px;padding-top:50px;'>"
-                    tooltipPopUp = tooltipPopUp + "<h4 style='font-size:40px;'>"+step.getTitle()+"</h4>"
+                tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoTitle'>"
+                    tooltipPopUp = tooltipPopUp + "<h4>"+step.getTitle()+"</h4>"
                 tooltipPopUp = tooltipPopUp + "</div>"
-                tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoText' style='margin-left:140px;'>"
+                tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoText'>"
                     tooltipPopUp = tooltipPopUp + "<span>"+step.getText()+"</span>"
+                tooltipPopUp = tooltipPopUp + "</div>"
+                tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoButtons'>"
+                    if(activeTutCurrentStep>0){
+                        tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
+                    }
+                    tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
+                    tooltipPopUp = tooltipPopUp + "<span class='tutProgress'></span>"
+                    tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn'>End</button>"
                 tooltipPopUp = tooltipPopUp + "</div>"
 
             tooltipPopUp = tooltipPopUp + "</div>"
@@ -157,6 +160,21 @@ export class Tutorial {
 
     closeInfoPopUp = () : void =>{
         $("#tutorialInfoPopUp").remove()
+        $(".tutorialHighlight").remove()
+    }
+
+    tutButtonNext = () : void => {
+        this.closeInfoPopUp()
+        activeTutCurrentStep ++
+        this.initiateTutStep()
+    }
+
+    tutButtonPrev = () : void => {
+        if(activeTutCurrentStep>0){
+            this.closeInfoPopUp()
+            activeTutCurrentStep --
+            this.initiateTutStep()
+        }
     }
 }
 
@@ -206,7 +224,7 @@ export const tutorialArray = [
         'This tutorial is for testing purposes of the tutorial system',
         [
             new TutorialStep("Snap To Grid", "Toggle snap-to-grid behaviour within the graph editor.This allows you to snap nodes in the graph to a grid to keep thing nice and clean!", TutorialStep.Type.Info, "#toggleSnapToGrid"),
-            new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "#paletteList"),
+            new TutorialStep("Check For Component Upgrades", "This button checks if there is an updated version of the selected component at the source link", TutorialStep.Type.Info, "#checkForComponentUpdates"),
             new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "#settings"),
         ]
     ),
@@ -215,7 +233,7 @@ export const tutorialArray = [
         'This tutorial is for testing purposes of the tutorial system',
         [
             new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "#graphArea"),
-            new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "#paletteList"),
+            new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "#checkForComponentUpdates"),
             new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "#settings"),
         ]
     )

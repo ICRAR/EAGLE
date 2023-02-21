@@ -2277,8 +2277,85 @@ palette-component input.form-control.selected {
 
 .tutorialHighlight{
     position:absolute;
-    background-color: rgba(0, 0, 0, 0.45);
+    background-color: rgba(0, 0, 0, 0.65);
     z-index:999;
+}
+
+#tutorialInfoPopUp{
+    position:absolute;
+    width:700px;
+    height:250px;
+    z-index:1000;
+    color:white;
+    font-family:cursive;
+}
+
+#tutorialInfoPopUp .tutorialArrowContainer{
+    position:relative; 
+    height:100%;
+    width:100%;
+}
+
+#tutorialInfoPopUp img.tutToTheRight{
+    transform:scale(-1,1);
+    position:absolute; 
+    top:0px; 
+    left:0px; 
+    height:60%;
+}
+
+#tutorialInfoPopUp img.tutToTheLeft{
+    position:absolute; 
+    top:0px; 
+    right:0px; 
+    height:60%;
+}
+
+#tutorialInfoPopUp .tutorialInfoTitle{
+    margin-left:160px;
+    padding-top:70px;
+}
+
+#tutorialInfoPopUp .tutorialInfoTitle h4{
+    font-size:30px;
+}
+
+#tutorialInfoPopUp .tutorialInfoText{
+    margin-left:160px;
+}
+
+#tutorialInfoPopUp .tutorialInfoButtons{
+    margin-left:160px;
+    position: relative;
+    height:50px;
+}
+
+#tutorialInfoPopUp .tutorialInfoButtons button{
+    background-color: transparent;
+    border: none;
+    color: white;
+    padding: 0px;
+    bottom: 0px;
+    font-size:22px ;
+}
+
+#tutorialInfoPopUp .tutorialInfoButtons button:hover{
+    text-decoration: underline;
+}
+
+#tutorialInfoPopUp .tutPreviousBtn{
+    position: absolute;
+    left: 0px;
+}
+
+#tutorialInfoPopUp .tutNextBtn{
+    position: absolute;
+    right: 60px;
+}
+
+#tutorialInfoPopUp .tutEndBtn{
+    position: absolute;
+    right: 0px;
 }
 
 .rightWindow .searchBarContainer{
