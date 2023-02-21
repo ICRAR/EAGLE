@@ -105,7 +105,7 @@ export class Eagle {
     static tableSearchString : ko.Observable<string>;
 
     static settings : SettingsGroup[];
-    static shortcuts : ko.ObservableArray<KeyboardShortcut>;
+    static shortcuts : KeyboardShortcut[];
 
     static dragStartX : number;
     static lastClickTime : number = 0;
@@ -145,7 +145,7 @@ export class Eagle {
 
         Eagle.settings = Setting.getSettings();
 
-        Eagle.shortcuts = ko.observableArray(KeyboardShortcut.getShortcuts());
+        Eagle.shortcuts = KeyboardShortcut.getShortcuts();
         
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;

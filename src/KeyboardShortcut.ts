@@ -28,7 +28,7 @@ export class KeyboardShortcut {
     }
 
     static changeShortcutKey = (eagle : Eagle, key:string, newShortcutKey:string, newModifier:KeyboardShortcut.Modifier) : void => {
-        for (const shortcut of Eagle.shortcuts()){
+        for (const shortcut of Eagle.shortcuts){
             if (shortcut.key === key){
                 shortcut.keys = [newShortcutKey]
                 shortcut.modifier = newModifier
@@ -81,7 +81,7 @@ export class KeyboardShortcut {
         const eagle = (<any>window).eagle;
 
         // loop through all the keyboard shortcuts here
-        for (const shortcut of Eagle.shortcuts()){
+        for (const shortcut of Eagle.shortcuts){
             // check that the event is of the correct type
             if (e.type !== shortcut.eventType){
                 continue;

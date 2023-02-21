@@ -1717,7 +1717,7 @@ export class Utils {
         const eagle: Eagle = Eagle.getInstance();
         const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
 
-        for (const object of Eagle.shortcuts()){
+        for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
             if (object.display === KeyboardShortcut.Display.Disabled){
                 continue;
@@ -1736,7 +1736,7 @@ export class Utils {
     }
 
     static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
-        for (const shortcut of Eagle.shortcuts()){
+        for (const shortcut of Eagle.shortcuts){
             if (shortcut.key === key){
                 const ks = [];
                 for (const k of shortcut.keys){
