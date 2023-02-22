@@ -149,7 +149,7 @@ export class Tutorial {
                     }
                     tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
                     tooltipPopUp = tooltipPopUp + "<span class='tutProgress'></span>"
-                    tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn'>End</button>"
+                    tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>End</button>"
                 tooltipPopUp = tooltipPopUp + "</div>"
 
             tooltipPopUp = tooltipPopUp + "</div>"
@@ -175,6 +175,10 @@ export class Tutorial {
             activeTutCurrentStep --
             this.initiateTutStep()
         }
+    }
+
+    tutButtonEnd = () : void => {
+        this.closeInfoPopUp()
     }
 }
 
