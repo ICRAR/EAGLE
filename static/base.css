@@ -2287,7 +2287,7 @@ palette-component input.form-control.selected {
     height:250px;
     z-index:1000;
     color:white;
-    font-family:cursive;
+    font-family:'Comic Neue';
 }
 
 #tutorialInfoPopUp .tutorialArrowContainer{
