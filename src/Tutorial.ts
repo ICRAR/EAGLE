@@ -156,7 +156,7 @@ export class Tutorial {
                     if(activeTutCurrentStep<activeTutStepsNo){
                         tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
                     }
-                    tooltipPopUp = tooltipPopUp + "<span class='tutProgress'></span>"
+                    tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeTutCurrentStep +" of "+activeTutStepsNo+"</span>"
                     tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>End</button>"
                 tooltipPopUp = tooltipPopUp + "</div>"
 

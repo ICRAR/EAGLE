@@ -2386,6 +2386,12 @@ palette-component input.form-control.selected {
     right: 60px;
 }
 
+#tutorialInfoPopUp .tutProgress{
+    right: 270px;
+    bottom: 2px;
+    position: absolute;
+}
+
 #tutorialInfoPopUp .tutEndBtn{
     position: absolute;
     right: 0px;
