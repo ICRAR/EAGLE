@@ -88,7 +88,7 @@ export class Eagle {
 
     explorePalettes : ko.Observable<ExplorePalettes>;
 
-    errorsMode : ko.Observable<Eagle.ErrorsMode>;
+    errorsMode : ko.Observable<Setting.ErrorsMode>;
     graphWarnings : ko.ObservableArray<Errors.Issue>;
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
@@ -105,7 +105,7 @@ export class Eagle {
     static tableSearchString : ko.Observable<string>;
 
     static settings : SettingsGroup[];
-    static shortcuts : ko.ObservableArray<KeyboardShortcut>;
+    static shortcuts : KeyboardShortcut[];
 
     static dragStartX : number;
     static lastClickTime : number = 0;
@@ -143,125 +143,10 @@ export class Eagle {
         Eagle.applicationArgsSearchString = ko.observable("");
         Eagle.tableSearchString = ko.observable("");
 
-        Eagle.settings = [
-            new SettingsGroup(
-                "User Options",
-                () => {return true;},
-                [
-                    new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true),
-                    new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true),
-                    new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true),
-                    new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, true),
-                    new Setting("Confirm Delete", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_OBJECTS, true),
-                    new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false),
-                    new Setting("Overwrite Existing Translator Tab", "When translating a graph, overwrite an existing translator tab", Setting.Type.Boolean, Utils.OVERWRITE_TRANSLATION_TAB, true),
-                    new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false),
-                    new Setting("UI Mode", "User Interface Mode. Simple Mode removes palettes, uses a single graph repository, simplifies the parameters table. Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Select, Utils.USER_INTERFACE_MODE, Eagle.UIMode.Default, Object.values(Eagle.UIMode)),
-                ]
-            ),
-            new SettingsGroup(
-                "UI Options",
-                () => {return !Eagle.isInUIMode(Eagle.UIMode.Minimal);},
-                [
-                    new Setting("Show non key parameters", "Show additional parameters that are not marked as key parameters for the current graph", Setting.Type.Boolean, Utils.SHOW_NON_KEY_PARAMETERS, true),
-                    new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, false),
-                    new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Utils.HIDE_PALETTE_TAB, false),
-                    new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Utils.HIDE_READONLY_PARAMETERS, false),
-                    new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Utils.USER_TRANSLATOR_MODE, Eagle.TranslatorMode.Default, Object.values(Eagle.TranslatorMode)),
-                    new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000),
-                    new Setting("Snap To Grid", "Align positions of nodes in graph to a grid", Setting.Type.Boolean, Utils.SNAP_TO_GRID, false),
-                    new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Utils.SNAP_TO_GRID_SIZE, 50),
-                    new Setting("Show edge/node errors/warnings in inspector", "Show the errors/warnings found for the selected node/edge in the inspector", Setting.Type.Select, Utils.SHOW_INSPECTOR_WARNINGS, Eagle.ShowErrorsMode.Errors, Object.values(Eagle.ShowErrorsMode)),
-                ]
-            ),
-            new SettingsGroup(
-                "Advanced Editing",
-                () => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
-                [
-                    new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, true),
-                    new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, true),
-                    new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Utils.ALLOW_PALETTE_EDITING, true),
-                    new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PALETTE_EDITING, true),
-                    new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, true),
-                    new Setting("Auto-suggest destination nodes", "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", Setting.Type.Boolean, Utils.AUTO_SUGGEST_DESTINATION_NODES, true)
-                ]
-            ),
-            new SettingsGroup(
-                "External Services",
-                () => {return true;},
-                [
-                    new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"),
-                    new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""),
-                    new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, ""),
-                    new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, "icrar")
-                ]
-            ),
-            new SettingsGroup(
-                "Developer",
-                () => {return Eagle.isInUIMode(Eagle.UIMode.Expert);},
-                [
-                    new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false),
-                    new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
-                    new Setting("Open Translator In Current Tab", "When translating a graph, display the output of the translator in the current tab", Setting.Type.Boolean, Utils.OPEN_TRANSLATOR_IN_CURRENT_TAB, false),
-                    new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
-                    new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Utils.SKIP_CLOSE_LOOP_EDGES, true),
-                    new Setting("Print Undo state to JS Console", "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", Setting.Type.Boolean, Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE, false),
-                    new Setting("Use Old Output Format", "Prolong use of 'old' output format, with 'inputPorts' and 'outputPorts' arrays, while corresponding changes to DALiuGE are in progress", Setting.Type.Boolean, Utils.USE_OLD_OUTPUT_FORMAT, true),
-                ]
-            )
-        ];
+        Eagle.settings = Setting.getSettings();
 
-        Eagle.shortcuts = ko.observableArray();
-        Eagle.shortcuts.push(new KeyboardShortcut("new_graph", "New Graph", ["n"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.newLogicalGraph();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, Eagle.allowPaletteEditing, (eagle): void => {eagle.newPalette();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_graph_from_repo", "Open graph from repo", ["g"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().mode(Eagle.RightWindowMode.Repository);eagle.rightWindow().shown(true);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_graph_from_local_disk", "Open graph from local disk", ["g"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_palette_from_repo", "Open palette from repo", ["p"], "keydown", KeyboardShortcut.Modifier.None,KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().mode(Eagle.RightWindowMode.Repository);eagle.rightWindow().shown(true);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_palette_from_local_disk", "Open palette from local disk", ["p"], "keydown", KeyboardShortcut.Modifier.Shift,KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("add_graph_nodes_to_palette", "Add graph nodes to palette", ["a"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.addGraphNodesToPalette();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("insert_graph_from_local_disk", "Insert graph from local disk", ["i"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToInsert();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("save_graph", "Save Graph", ["s"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraph();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("save_as_graph", "Save Graph As", ["s"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraphAs()}));
-        Eagle.shortcuts.push(new KeyboardShortcut("deploy_translator", "Generate PGT Using Default Algorithm", ["d"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.deployDefaultTranslationAlgorithm(); }));
-        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection", "Delete Selection", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection('',false, true);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("delete_selection_except_children", "Delete Without Children", ["Backspace", "Delete"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection('',false, false);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("duplicate_selection", "Duplicate Selection", ["d"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection('normal');}));
-        Eagle.shortcuts.push(new KeyboardShortcut("create_subgraph_from_selection", "Create subgraph from selection", ["["], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("create_construct_from_selection", "Create construct from selection", ["]"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("change_selected_node_parent", "Change Selected Node Parent", ["f"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("change_selected_node_subject", "Change Selected Node Subject", ["f"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.commentNodeIsSelected, (eagle): void => {eagle.changeNodeSubject();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("add_edge","Add Edge", ["e"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.addEdgeToLogicalGraph();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("modify_selected_edge","Modify Selected Edge", ["m"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.editSelectedEdge();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("center_graph", "Center graph", ["c"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
-        // NB: we need two entries for zoom_in here, the first handles '+' without shift (as found on the numpad), the second handles '+' with shift (as found sharing the '=' key)
-        Eagle.shortcuts.push(new KeyboardShortcut("zoom_in", "Zoom In", ["+"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.zoomIn();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("zoom_in", "Zoom In", ["+"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Disabled, KeyboardShortcut.true, (eagle): void => {eagle.zoomIn();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("zoom_out", "Zoom Out", ["-"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.zoomOut();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("toggle_left_window", "Toggle left window", ["l"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("toggle_right_window", "Toggle right window", ["r"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("toggle_both_window", "Toggle both windows", ["b"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.toggleWindows();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_settings", "Open setting", ["o"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openSettings();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("close_settings", "Close setting", ["o"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Disabled, KeyboardShortcut.true, (eagle): void => {eagle.openSettings();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_help", "Open help", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.onlineDocs();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("close_keyboard_shortcut_modal", "Close Keyboard Shortcut Modal", ["k"], "keyup", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Disabled, KeyboardShortcut.true, (eagle): void => {eagle.openShortcuts();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_component_parameter_table_modal", "Open Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('inspectorTableModal','normal');}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_key_parameter_table_modal", "Open Key Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('keyParametersTableModal','normal');}));
-        Eagle.shortcuts.push(new KeyboardShortcut("undo", "Undo", ["z"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().prevSnapshot(eagle)}));
-        Eagle.shortcuts.push(new KeyboardShortcut("redo", "Redo", ["z"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.undo().nextSnapshot(eagle)}));
-        Eagle.shortcuts.push(new KeyboardShortcut("check_graph", "Check Graph", ["!"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.showGraphErrors();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_repository", "Open Repository", ["1"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_translation", "Open Translation", ["4"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.TranslationMenu)}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_inspector", "Open Inspector", ["3"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)}));
-        Eagle.shortcuts.push(new KeyboardShortcut("open_hierarchy", "Open Hierarchy", ["2"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Hierarchy)}));
-        Eagle.shortcuts.push(new KeyboardShortcut("toggle_show_data_nodes", "Toggle Show Data Nodes", ["j"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleShowDataNodes(); }));
-        Eagle.shortcuts.push(new KeyboardShortcut("toggle_snap_to_grid", "Toggle Snap-to-Grid", ["y"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.toggleSnapToGrid(); }));
-        Eagle.shortcuts.push(new KeyboardShortcut("check_for_component_updates", "Check for Component Updates", ["q"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.checkForComponentUpdates(); }));
-        Eagle.shortcuts.push(new KeyboardShortcut("copy_from_graph", "Copy from graph", ["c"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.copySelectionToClipboard(); }));
-        Eagle.shortcuts.push(new KeyboardShortcut("paste_to_graph", "Paste to graph", ["v"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => { eagle.pasteFromClipboard(); }));
-        Eagle.shortcuts.push(new KeyboardShortcut("select_all_in_graph", "Select all in graph", ["a"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.Display.Enabled, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.selectAllInGraph(); }));
-        Eagle.shortcuts.push(new KeyboardShortcut("select_none_in_graph", "Select none in graph", ["Escape"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.somethingIsSelected, (eagle): void => { eagle.selectNoneInGraph(); }));
-
+        Eagle.shortcuts = KeyboardShortcut.getShortcuts();
+        
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
@@ -275,7 +160,7 @@ export class Eagle {
 
         this.explorePalettes = ko.observable(new ExplorePalettes());
 
-        this.errorsMode = ko.observable(Eagle.ErrorsMode.Loading);
+        this.errorsMode = ko.observable(Setting.ErrorsMode.Loading);
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
         this.loadingWarnings = ko.observableArray([]);
@@ -332,64 +217,64 @@ export class Eagle {
     }
 
     static allowInvalidEdges = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_INVALID_EDGES);
+        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_INVALID_EDGES);
     }
 
     static allowPaletteEditing = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_PALETTE_EDITING);
+        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
     }
 
     static hidePaletteTab = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.HIDE_PALETTE_TAB);
+        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.HIDE_PALETTE_TAB);
     }
 
     static hideReadonlyParamters = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.HIDE_READONLY_PARAMETERS);
+        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.HIDE_READONLY_PARAMETERS);
     }
 
     static allowReadonlyPaletteEditing = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_READONLY_PALETTE_EDITING);
+        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
     }
 
     static allowComponentEditing = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_COMPONENT_EDITING);
+        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
     }
 
     static allowEdgeEditing = (): boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Expert) && Setting.findValue(Utils.ALLOW_EDGE_EDITING);
+        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_EDGE_EDITING);
     }
 
     static showNonKeyParameters = () : boolean => {
-        return Eagle.isInUIMode(Eagle.UIMode.Minimal) || Setting.findValue(Utils.SHOW_NON_KEY_PARAMETERS) || Eagle.isInUIMode(Eagle.UIMode.Expert);
+        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || Eagle.isInUIMode(Setting.UIMode.Expert);
     }
 
-    static translatorUiMode = (mode : Eagle.TranslatorMode) : boolean => {
-        return Setting.findValue(Utils.USER_TRANSLATOR_MODE) === mode;
+    static translatorUiMode = (mode : Setting.TranslatorMode) : boolean => {
+        return Setting.findValue(Setting.USER_TRANSLATOR_MODE) === mode;
     }
 
-    static isInUIMode = (mode : Eagle.UIMode) : boolean => {
-        return Setting.findValue(Utils.USER_INTERFACE_MODE) === mode;
+    static isInUIMode = (mode : Setting.UIMode) : boolean => {
+        return Setting.findValue(Setting.USER_INTERFACE_MODE) === mode;
     }
 
     static showInspectorWarnings = () : boolean => {
-        return Setting.findValue(Utils.SHOW_INSPECTOR_WARNINGS) === Eagle.ShowErrorsMode.Warnings;
+        return Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings;
     }
 
     static showInspectorErrors = () : boolean => {
-        return Setting.findValue(Utils.SHOW_INSPECTOR_WARNINGS) === Eagle.ShowErrorsMode.Warnings || Setting.findValue(Utils.SHOW_INSPECTOR_WARNINGS) === Eagle.ShowErrorsMode.Errors;
+        return Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings || Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Errors;
     }
 
     static showInspectorErrorsWarnings = () : boolean => {
         const eagle = Eagle.getInstance();
             
-        switch (Setting.findValue(Utils.SHOW_INSPECTOR_WARNINGS)){
-            case Eagle.ShowErrorsMode.Warnings:
+        switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
+            case Setting.ShowErrorsMode.Warnings:
                 return eagle.selectedNode().getErrorsWarnings(eagle).errors.length + eagle.selectedNode().getErrorsWarnings(eagle).warnings.length > 0;
                 break;
-            case Eagle.ShowErrorsMode.Errors:
+            case Setting.ShowErrorsMode.Errors:
                 return eagle.selectedNode().getErrorsWarnings(eagle).errors.length > 0;
                 break;
-            case Eagle.ShowErrorsMode.None:
+            case Setting.ShowErrorsMode.None:
             default:
                 return false;
         }
@@ -422,11 +307,11 @@ export class Eagle {
     }
 
     displayNodeKeys = () :boolean => {
-        return Setting.findValue(Utils.DISPLAY_NODE_KEYS);
+        return Setting.findValue(Setting.DISPLAY_NODE_KEYS);
     }
 
     showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Setting.findValue(Utils.ENABLE_PERFORMANCE_DISPLAY);
+        return Setting.findValue(Setting.ENABLE_PERFORMANCE_DISPLAY);
     }, this);
 
     types : ko.PureComputed<string[]> = ko.pureComputed(() => {
@@ -487,7 +372,7 @@ export class Eagle {
         this.snapToGrid(!this.snapToGrid());
 
         // store in settings
-        Setting.setValue(Utils.SNAP_TO_GRID, this.snapToGrid());
+        Setting.setValue(Setting.SNAP_TO_GRID, this.snapToGrid());
     }
 
     deployDefaultTranslationAlgorithm = () : void => {
@@ -884,7 +769,7 @@ export class Eagle {
     }
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
-        const showErrors: boolean = Setting.findValue(Utils.SHOW_FILE_LOADING_ERRORS);
+        const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
         // show errors (if found)
         if (errorsWarnings.errors.length > 0 || errorsWarnings.warnings.length > 0){
@@ -894,7 +779,7 @@ export class Eagle {
                 this.loadingErrors(errorsWarnings.errors);
                 this.loadingWarnings(errorsWarnings.warnings);
 
-                this.errorsMode(Eagle.ErrorsMode.Loading);
+                this.errorsMode(Setting.ErrorsMode.Loading);
                 Utils.showErrorsModal("Loading File");
             }
         } else {
@@ -1735,10 +1620,10 @@ export class Eagle {
 
         switch (repository.service){
             case Eagle.RepositoryService.GitHub:
-                token = Setting.findValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+                token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
                 break;
             case Eagle.RepositoryService.GitLab:
-                token = Setting.findValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+                token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
                 break;
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
@@ -1752,7 +1637,7 @@ export class Eagle {
         }
 
         // validate json
-        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
+        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
@@ -2003,7 +1888,7 @@ export class Eagle {
         const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
 
         // if dictated by settings, reload the palette immediately
-        if (alreadyLoadedPalette !== null && Setting.findValue(Utils.CONFIRM_RELOAD_PALETTES)){
+        if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
             Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
                 if (confirmed){
                     this._reloadPalette(file, data, alreadyLoadedPalette);
@@ -2073,7 +1958,7 @@ export class Eagle {
             if (p.fileInfo().name === palette.fileInfo().name){
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
-                if (p.fileInfo().modified && Setting.findValue(Utils.CONFIRM_DISCARD_CHANGES)){
+                if (p.fileInfo().modified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
                     Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", (confirmed : boolean) : void => {
                         if (confirmed){
                             this.palettes.splice(i, 1);
@@ -2124,7 +2009,7 @@ export class Eagle {
         const json = Palette.toOJSJson(p_clone);
 
         // validate json
-        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
+        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Palette);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
@@ -2182,7 +2067,7 @@ export class Eagle {
         const json : object = LogicalGraph.toOJSJson(lg_clone, false);
 
         // validate json
-        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
+        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
@@ -2237,10 +2122,10 @@ export class Eagle {
 
             switch (repositoryService){
                 case Eagle.RepositoryService.GitHub:
-                    token = Setting.findValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+                    token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
                     break;
                 case Eagle.RepositoryService.GitLab:
-                    token = Setting.findValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+                    token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
                     break;
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
@@ -2276,7 +2161,7 @@ export class Eagle {
     }
 
     setTranslatorUrl = () : void => {
-        const translatorURLSetting : Setting = Setting.find(Utils.TRANSLATOR_URL);
+        const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
 
         Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false, (completed : boolean, userString : string) : void => {
             // abort if user cancelled the action
@@ -2296,7 +2181,7 @@ export class Eagle {
     }
 
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        const defaultTranslatorMode :any = Eagle.translatorUiMode(Eagle.TranslatorMode.Default)
+        const defaultTranslatorMode :any = Eagle.translatorUiMode(Setting.TranslatorMode.Default)
         if(!defaultTranslatorMode){
             return true
         }
@@ -2877,7 +2762,7 @@ export class Eagle {
         }
 
         // skip confirmation if setting dictates
-        if (!Setting.find(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
+        if (!Setting.find(Setting.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
             this._deleteSelection(deleteChildren,data,mode);
             return;
         }
@@ -3212,7 +3097,7 @@ export class Eagle {
         Utils.showNotification("EAGLE", "Fetching data from Docker Hub", "info");
 
         const that = this;
-        const username = Setting.findValue(Utils.DOCKER_HUB_USERNAME);
+        const username = Setting.findValue(Setting.DOCKER_HUB_USERNAME);
 
         // request eagle server to fetch a list of docker hub images
         Utils.httpPostJSON("/getDockerImages", {username:username}, function(error : string, data: any){
@@ -4101,7 +3986,7 @@ export class Eagle {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
             // switch to graph errors mode
-            this.errorsMode(Eagle.ErrorsMode.Graph);
+            this.errorsMode(Setting.ErrorsMode.Graph);
 
             // show graph modal
             Utils.showErrorsModal("Check Graph");
@@ -4523,32 +4408,6 @@ export namespace Eagle
         Down = "Down",
         Left = "Left",
         Right = "Right"
-    }
-
-    export enum ErrorsMode {
-        Loading = "Loading",
-        Graph = "Graph"
-    }
-    
-    export enum ShowErrorsMode {
-        None = "None",
-        Errors = "Errors",
-        Warnings = "Warnings"
-    }
-            
-    export enum UIMode {
-        Minimal = "minimal",
-        Default = "default",
-        Graph = "graph",
-        Palette = "palette",
-        Expert = "expert",
-        Custom = "custom"
-    }
-
-    export enum TranslatorMode {
-        Minimal = "minimal",
-        Default = "default",
-        Expert = "expert"
     }
 }
 

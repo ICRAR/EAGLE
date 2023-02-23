@@ -375,7 +375,7 @@ export class Field {
             keyAttribute:field.keyAttribute()
         };
 
-        const useOldOutputFormat : boolean = Setting.findValue(Utils.USE_OLD_OUTPUT_FORMAT);
+        const useOldOutputFormat : boolean = Setting.findValue(Setting.USE_OLD_OUTPUT_FORMAT);
         if (!useOldOutputFormat){
             result.id = field.id();
             result.parameterType = field.parameterType();
@@ -400,7 +400,7 @@ export class Field {
             keyAttribute:field.keyAttribute()
         };
 
-        const useOldOutputFormat : boolean = Setting.findValue(Utils.USE_OLD_OUTPUT_FORMAT);
+        const useOldOutputFormat : boolean = Setting.findValue(Setting.USE_OLD_OUTPUT_FORMAT);
         if (!useOldOutputFormat){
             result.id = field.id();
             result.parameterType = field.parameterType();
