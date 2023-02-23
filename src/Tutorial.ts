@@ -31,19 +31,14 @@ export class Tutorial {
     }
 
     initiateTutorial = (tutorialName:string) : void => {
-        console.log('initiating tut')
         const that = this;
 
         Eagle.tutorials.forEach(function(tut){
             if(tutorialName === tut.getName()){
                 //this is the requsted tutorial
-                console.log(tut.getName())
                 activeTut = tut
-                activeTutStepsNo = tut.getTutorialSteps().length - 1
-                activeTutCurrentStep = 0
-                console.log(activeTut)
-                console.log(activeTutStepsNo)
-                console.log(activeTutCurrentStep)
+                activeTutStepsNo = tut.getTutorialSteps().length
+                activeTutCurrentStep = 1
                 that.initiateTutStep()
             }
         })
@@ -52,10 +47,7 @@ export class Tutorial {
     initiateTutStep = () :void => {
         const that = this;
 
-            console.log(activeTutCurrentStep)
-
-            var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep]
-            console.log(tutStep.getText())
+            var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
 
             //call the correct function depending on which type of tutorial step this is
             if(tutStep.getType() === TutorialStep.Type.Info){
@@ -71,7 +63,6 @@ export class Tutorial {
     }
 
     initiateInfoStep = (tutStep:TutorialStep) : void => {
-        console.log('initiating text step')
         this.highlightStepTarget(tutStep.getSelector())
         this.openInfoPopUp(activeTut, tutStep)
     }
@@ -89,7 +80,6 @@ export class Tutorial {
     }
 
     highlightStepTarget = (selector:string) : void => {
-        console.log('initiating step target highlighter')
         $(selector).addClass('bopped')
         var coords = $(selector).offset()
         var docHeight = $(document).height()
@@ -101,7 +91,6 @@ export class Tutorial {
         var bottom = docHeight - bottom_y
         var left_x = coords.left
         var left = docWidth - left_x
-        console.log(coords, $(selector).width(), $(selector).height())
 
         //in order to darken the screen save the selection target, we must add four divs. above, below and on each side of the element
         //top
@@ -149,10 +138,9 @@ export class Tutorial {
                     tooltipPopUp = tooltipPopUp + "<span>"+step.getText()+"</span>"
                 tooltipPopUp = tooltipPopUp + "</div>"
                 tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoButtons'>"
-                    if(activeTutCurrentStep>0){
+                    if(activeTutCurrentStep>1){
                         tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
                     }
-                    console.log(activeTutCurrentStep, activeTutStepsNo)
                     if(activeTutCurrentStep<activeTutStepsNo){
                         tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
                     }
@@ -178,7 +166,7 @@ export class Tutorial {
     }
 
     tutButtonPrev = () : void => {
-        if(activeTutCurrentStep>0){
+        if(activeTutCurrentStep>1){
             this.closeInfoPopUp()
             activeTutCurrentStep --
             this.initiateTutStep()
