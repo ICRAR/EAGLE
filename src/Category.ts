@@ -16,6 +16,7 @@ export enum Category {
     Mpi = "Mpi",
     Docker = "Docker",
 
+    PythonMemberFunction = "PythonMemberFunction",
     PythonObject = "PythonObject",
 
     NGAS = "NGAS",
@@ -72,7 +73,6 @@ export namespace Category {
         Container = "Container",
         Control = "Control",
         Data = "Data",
-        Object = "Object",
         Other = "Other",
         Service = "Service",
         Socket = "Socket",

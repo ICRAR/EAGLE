@@ -3065,6 +3065,18 @@ export class Eagle {
             }
         }
 
+        // if node is a PythonMemberFunction, then we should generate a new PythonObject node too
+        if (node.getCategory() === Category.PythonMemberFunction){
+            console.log("Add Python Object");
+            const pythonObjectNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
+
+            const OBJECT_OFFSET_X = 200;
+            const OBJECT_OFFSET_Y = 0;
+
+            this.addNode(pythonObjectNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, null);
+        }
+
+
         this.addNode(node, pos.x, pos.y, (newNode: Node) => {
             // make sure the new node is selected
             this.setSelection(Eagle.RightWindowMode.Inspector, newNode, Eagle.FileType.Graph);
