@@ -2296,7 +2296,7 @@ palette-component input.form-control.selected {
     width:100%;
 }
 
-#tutorialInfoPopUp img.tutToTheRight{
+#tutorialInfoPopUp.tutorialRight img{
     transform:scale(-1,1);
     position:absolute; 
     top:0px; 
@@ -2304,30 +2304,63 @@ palette-component input.form-control.selected {
     height:60%;
 }
 
-#tutorialInfoPopUp img.tutToTheLeft{
+#tutorialInfoPopUp.tutorialRightTop img{
+    transform:scale(-1,-1);
+    position:absolute; 
+    bottom:0px; 
+    left:0px; 
+    height:60%;
+}
+
+#tutorialInfoPopUp.tutorialRight .tutorialInfoTitle,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoTitle{
+    margin-left:160px;
+    padding-top:70px;
+}
+
+#tutorialInfoPopUp.tutorialRight .tutorialInfoText,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoText{
+    margin-left:160px;
+}
+
+#tutorialInfoPopUp.tutorialRight .tutorialInfoButtons,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoButtons{
+    margin-left:160px;
+    position: relative;
+    height:50px;
+}
+
+#tutorialInfoPopUp.tutorialLeft img{
     position:absolute; 
     top:0px; 
     right:0px; 
     height:60%;
 }
 
-#tutorialInfoPopUp .tutorialInfoTitle{
-    margin-left:160px;
+#tutorialInfoPopUp.tutorialLeftTop img{
+    transform:scale(1,-1);
+    position:absolute; 
+    bottom:0px; 
+    right:0px; 
+    height:60%;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialInfoTitle,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoTitle{
+    margin-right:160px;
     padding-top:70px;
+    text-align: right;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialInfoText,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoText{
+    margin-right:160px;
+    text-align: right;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialInfoButtons,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoButtons{
+    margin-right:160px;
+    position: relative;
+    height:50px;
 }
 
 #tutorialInfoPopUp .tutorialInfoTitle h4{
     font-size:30px;
-}
-
-#tutorialInfoPopUp .tutorialInfoText{
-    margin-left:160px;
-}
-
-#tutorialInfoPopUp .tutorialInfoButtons{
-    margin-left:160px;
-    position: relative;
-    height:50px;
 }
 
 #tutorialInfoPopUp .tutorialInfoButtons button{

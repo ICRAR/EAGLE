@@ -39,7 +39,7 @@ export class Tutorial {
                 //this is the requsted tutorial
                 console.log(tut.getName())
                 activeTut = tut
-                activeTutStepsNo = tut.getTutorialSteps().length
+                activeTutStepsNo = tut.getTutorialSteps().length - 1
                 activeTutCurrentStep = 0
                 console.log(activeTut)
                 console.log(activeTutStepsNo)
@@ -117,25 +117,30 @@ export class Tutorial {
     openInfoPopUp = (tut:Tutorial, step:TutorialStep) :void => {
 
         //figuring out if there is enough space to place the tutorial to the right
-        var orientation = 'tutorialRight'
-        var selectedLocationX = $(step.getSelector()).offset().left
+        var selectedLocationX = $(step.getSelector()).offset().left+$(step.getSelector()).width()
         var selectedLocationY = $(step.getSelector()).offset().top + $(step.getSelector()).height()
         var docWidth = $(document).width()
+        var docHeight = $(document).height()
 
+        var orientation = 'tutorialRight'
         if(docWidth-selectedLocationX<700){
             orientation = 'tutorialLeft'
+            selectedLocationX = selectedLocationX-660-$(step.getSelector()).width()
+            if (docHeight-selectedLocationY<250){
+                orientation = 'tutorialLeftTop'
+                selectedLocationY = selectedLocationY-290
+            }
+        }else if (docWidth-selectedLocationX>700&&docHeight-selectedLocationY<250){
+            orientation = 'tutorialRightTop'
+            selectedLocationY = selectedLocationY-290
         }
 
         var tooltipPopUp
 
         tooltipPopUp = "<div id='tutorialInfoPopUp' class='"+orientation+"' style='left:"+selectedLocationX+"px;top:"+selectedLocationY+"px;'>"
             tooltipPopUp = tooltipPopUp + "<div class='tutorialArrowContainer'>"
-                if(orientation === 'tutorialRight'){
-                    tooltipPopUp = tooltipPopUp + "<img class='tutToTheRight' src='static/assets/img/tooltip_arrow.svg'></img>"
 
-                }else{
-                    tooltipPopUp = tooltipPopUp + "<img class='tutToTheLeft' src='static/assets/img/tooltip_arrow.svg'></img>"
-                }
+                tooltipPopUp = tooltipPopUp + "<img src='static/assets/img/tooltip_arrow.svg'></img>"
 
                 tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoTitle'>"
                     tooltipPopUp = tooltipPopUp + "<h4>"+step.getTitle()+"</h4>"
@@ -147,7 +152,10 @@ export class Tutorial {
                     if(activeTutCurrentStep>0){
                         tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
                     }
-                    tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
+                    console.log(activeTutCurrentStep, activeTutStepsNo)
+                    if(activeTutCurrentStep<activeTutStepsNo){
+                        tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
+                    }
                     tooltipPopUp = tooltipPopUp + "<span class='tutProgress'></span>"
                     tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>End</button>"
                 tooltipPopUp = tooltipPopUp + "</div>"
@@ -229,7 +237,9 @@ export const tutorialArray = [
         [
             new TutorialStep("Snap To Grid", "Toggle snap-to-grid behaviour within the graph editor.This allows you to snap nodes in the graph to a grid to keep thing nice and clean!", TutorialStep.Type.Info, "#toggleSnapToGrid"),
             new TutorialStep("Check For Component Upgrades", "This button checks if there is an updated version of the selected component at the source link", TutorialStep.Type.Info, "#checkForComponentUpdates"),
-            new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "#settings"),
+            new TutorialStep("Settings", "This button shows the settings menu. In here you are able to tailor eagle to the workflow you intend to apply it for.", TutorialStep.Type.Info, "#settings"),
+            new TutorialStep("Palettes", "This is where the palettes can be found and managed. Plattes contain components that are the building blocks for creating a graph.", TutorialStep.Type.Info, ".leftWindowDisplay"),
+            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, ".rightWindowDisplay"),
         ]
     ),
     new Tutorial(
