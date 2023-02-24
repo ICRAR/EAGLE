@@ -2297,32 +2297,32 @@ palette-component input.form-control.selected {
 }
 
 #tutorialInfoPopUp.tutorialRight img{
-    transform:scale(-1,1);
+    transform:scale(1,1);
     position:absolute; 
     top:0px; 
     left:0px; 
-    height:60%;
+    width: 160px;
 }
 
 #tutorialInfoPopUp.tutorialRightTop img{
-    transform:scale(-1,-1);
+    transform:scale(1,-1);
     position:absolute; 
     bottom:0px; 
     left:0px; 
-    height:60%;
+    width: 160px;
 }
 
 #tutorialInfoPopUp.tutorialRight .tutorialInfoTitle,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoTitle{
-    margin-left:160px;
-    padding-top:70px;
+    margin-left:170px;
+    padding-top:96px;
 }
 
 #tutorialInfoPopUp.tutorialRight .tutorialInfoText,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoText{
-    margin-left:160px;
+    margin-left:170px;
 }
 
 #tutorialInfoPopUp.tutorialRight .tutorialInfoButtons,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoButtons{
-    margin-left:160px;
+    margin-left:170px;
     position: relative;
     height:50px;
 }
@@ -2331,30 +2331,31 @@ palette-component input.form-control.selected {
     position:absolute; 
     top:0px; 
     right:0px; 
-    height:60%;
+    transform:scale(-1,1);
+    width: 160px;
 }
 
 #tutorialInfoPopUp.tutorialLeftTop img{
-    transform:scale(1,-1);
+    transform:scale(-1,-1);
     position:absolute; 
     bottom:0px; 
     right:0px; 
-    height:60%;
+    width: 160px;
 }
 
 #tutorialInfoPopUp.tutorialLeft .tutorialInfoTitle,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoTitle{
-    margin-right:160px;
-    padding-top:70px;
+    margin-right:170px;
+    padding-top:96px;
     text-align: right;
 }
 
 #tutorialInfoPopUp.tutorialLeft .tutorialInfoText,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoText{
-    margin-right:160px;
+    margin-right:170px;
     text-align: right;
 }
 
 #tutorialInfoPopUp.tutorialLeft .tutorialInfoButtons,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoButtons{
-    margin-right:160px;
+    margin-right:170px;
     position: relative;
     height:50px;
 }

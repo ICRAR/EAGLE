@@ -1,13 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with Vectornator (http://vectornator.io/) -->
-<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 1800 1800" width="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink">
-<defs/>
-<g id="Layer-1" vectornator:layerName="Layer 1">
-<g opacity="1">
-<path d="M89.5129 1182.91C464.501 1394.4 769.814 1465.05 1023.53 1354.99C1361.26 1208.48 1475.22 889.64 1425.19 440.36" fill="none" opacity="1" stroke="#0071ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="130.187"/>
-<path d="M1201.36 647.97L1421.91 313.708L1201.36 647.97Z" fill="none" opacity="1" stroke="#0071ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="130.187"/>
-<path d="M1680.9 613.299C1680.9 613.299 1426.36 320.567 1431.7 324.576" fill="none" opacity="1" stroke="#0071ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="130.187"/>
-</g>
-</g>
-</svg>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 94.37 69.8"><defs><style>.cls-1{fill:#0080c7;}</style></defs><title>arrow2</title><path class="cls-1" d="M6.09,14.43a33,33,0,0,0,6.74-9.95H8.51C10.67,8.79,14.3,12.06,18,15c2.5,2,6.07-1.56,3.53-3.54C18.16,8.78,14.81,5.9,12.83,2,12,.39,9.25.26,8.51,2a29.32,29.32,0,0,1-5.95,8.93c-2.25,2.3,1.28,5.84,3.53,3.54Z" transform="translate(-1.83 -0.73)"/><path class="cls-1" d="M8.28,9.31C8.37,19.88,9.08,32.08,13,42S24.84,58.53,34.38,62.69c18.1,7.89,40,8.29,59.41,7.62,3.21-.11,3.23-5.11,0-5-17.42.6-36.11.19-52.82-5.42-10-3.35-19.26-9.38-23.28-19.52-3.75-9.46-4.32-21-4.41-31.06,0-3.22-5-3.22-5,0Z" transform="translate(-1.83 -0.73)"/></svg>
