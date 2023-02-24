@@ -3114,14 +3114,14 @@ export class Eagle {
                     const sourcePort: Field = newNode.findPortByIdText("self", false, false);
 
                     // make sure node has input/output "self" port
-                    const selfPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputOutput, false);
-                    pythonObjectNode.addField(selfPort);
-                    console.log("addField", selfPort.getId());
+                    const inputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputPort, false);
+                    const outputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, false, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.OutputPort, false);
+                    pythonObjectNode.addField(inputPort);
+                    pythonObjectNode.addField(outputPort);
 
                     // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
                     if (sourcePort !== null){
-                        console.log("addEdge", newNode.getKey(), pythonObjectNode.getKey());
-                        this.addEdge(newNode, sourcePort, pythonObjectNode, selfPort, false, false, null);
+                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputPort, false, false, null);
                     } else {
                         Utils.showNotification("Edge Error", "Unable to connect edge between PythonMemberFunction and new PythonObject. The PythonMemberFunction does not have a 'self' port.", "danger");
                     }
