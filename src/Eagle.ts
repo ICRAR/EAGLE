@@ -3092,21 +3092,22 @@ export class Eagle {
                 console.log("Add Python Object Node");
 
                 // create node
-                const pythonObjectNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
-
-                // set parent to same as PythonMemberFunction
-                pythonObjectNode.setParentKey(newNode.getParentKey());
-
-                // make sure node has input/output "self" port
-                const selfPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, Eagle.DataType_Object, false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputOutput, false);
-                pythonObjectNode.addField(selfPort);
+                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
 
                 // add node to LogicalGraph
                 const OBJECT_OFFSET_X = 200;
                 const OBJECT_OFFSET_Y = 0;
-                this.addNode(pythonObjectNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
+                this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
+                    // set parent to same as PythonMemberFunction
+                    pythonObjectNode.setParentKey(newNode.getParentKey());
+
                     // find the "self" port on the PythonMemberFunction
                     const sourcePort: Field = newNode.findPortByIdText("self", false, false);
+
+                    // make sure node has input/output "self" port
+                    const selfPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputOutput, false);
+                    pythonObjectNode.addField(selfPort);
+                    console.log("addField", selfPort.getId());
 
                     // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
                     if (sourcePort !== null){
