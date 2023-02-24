@@ -3065,18 +3065,6 @@ export class Eagle {
             }
         }
 
-        // if node is a PythonMemberFunction, then we should generate a new PythonObject node too
-        if (node.getCategory() === Category.PythonMemberFunction){
-            console.log("Add Python Object");
-            const pythonObjectNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
-
-            const OBJECT_OFFSET_X = 200;
-            const OBJECT_OFFSET_Y = 0;
-
-            this.addNode(pythonObjectNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, null);
-        }
-
-
         this.addNode(node, pos.x, pos.y, (newNode: Node) => {
             // make sure the new node is selected
             this.setSelection(Eagle.RightWindowMode.Inspector, newNode, Eagle.FileType.Graph);
@@ -3097,6 +3085,37 @@ export class Eagle {
             if (parent === null && newNode.getParentKey() !== null){
                 //console.log("set parent", null);
                 newNode.setParentKey(null);
+            }
+
+            // if node is a PythonMemberFunction, then we should generate a new PythonObject node too
+            if (newNode.getCategory() === Category.PythonMemberFunction){
+                console.log("Add Python Object Node");
+
+                // create node
+                const pythonObjectNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
+
+                // set parent to same as PythonMemberFunction
+                pythonObjectNode.setParentKey(newNode.getParentKey());
+
+                // make sure node has input/output "self" port
+                const selfPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, Eagle.DataType_Object, false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputOutput, false);
+                pythonObjectNode.addField(selfPort);
+
+                // add node to LogicalGraph
+                const OBJECT_OFFSET_X = 200;
+                const OBJECT_OFFSET_Y = 0;
+                this.addNode(pythonObjectNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
+                    // find the "self" port on the PythonMemberFunction
+                    const sourcePort: Field = newNode.findPortByIdText("self", false, false);
+
+                    // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
+                    if (sourcePort !== null){
+                        console.log("addEdge", newNode.getKey(), pythonObjectNode.getKey());
+                        this.addEdge(newNode, sourcePort, pythonObjectNode, selfPort, false, false, null);
+                    } else {
+                        Utils.showNotification("Edge Error", "Unable to connect edge between PythonMemberFunction and new PythonObject. The PythonMemberFunction does not have a 'self' port.", "danger");
+                    }
+                });
             }
 
             this.checkGraph();
