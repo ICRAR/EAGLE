@@ -3101,6 +3101,15 @@ export class Eagle {
                     // set parent to same as PythonMemberFunction
                     pythonObjectNode.setParentKey(newNode.getParentKey());
 
+                    // copy PythonMemberFunction node's 'basename' field to the PythonObject node
+                    const FIELD_NAME = 'basename';
+                    const basenameField: Field = newNode.findFieldByIdText(FIELD_NAME, Eagle.ParameterType.ApplicationArgument);
+                    if (basenameField !== null){
+                        pythonObjectNode.addField(basenameField.clone());
+                    } else {
+                        Utils.showNotification("Python Object", "Unable to set " + FIELD_NAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
+                    }
+
                     // find the "self" port on the PythonMemberFunction
                     const sourcePort: Field = newNode.findPortByIdText("self", false, false);
 
