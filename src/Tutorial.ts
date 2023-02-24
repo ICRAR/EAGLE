@@ -106,12 +106,21 @@ export class Tutorial {
 
         //figuring out if there is enough space to place the tutorial to the right
         var selectedLocationX = $(step.getSelector()).offset().left+$(step.getSelector()).width()
-        var selectedLocationY = $(step.getSelector()).offset().top + $(step.getSelector()).height()
+        var selectedLocationY = $(step.getSelector()).offset().top + $(step.getSelector()).outerHeight()
         var docWidth = $(document).width()
         var docHeight = $(document).height()
 
         var orientation = 'tutorialRight'
-        if(docWidth-selectedLocationX<700){
+        
+        if( $(step.getSelector()).outerWidth() === docWidth){
+            //if this is the case then we are looking at an object that is set to 100% of the sceen 
+            //such as the navbar or canvas. we will then position the tutorial in the middle of the object
+            selectedLocationX = selectedLocationX - ($(step.getSelector()).width() / 2)
+            if((docHeight - $(step.getSelector()).outerHeight())<250){
+                selectedLocationY = selectedLocationY -  ($(step.getSelector()).height() / 2)
+            }
+        }else if(docWidth-selectedLocationX<700){
+    
             orientation = 'tutorialLeft'
             selectedLocationX = selectedLocationX-660-$(step.getSelector()).width()
             if (docHeight-selectedLocationY<250){
@@ -225,8 +234,10 @@ export const tutorialArray = [
             new TutorialStep("Snap To Grid", "Toggle snap-to-grid behaviour within the graph editor.This allows you to snap nodes in the graph to a grid to keep thing nice and clean!", TutorialStep.Type.Info, "#toggleSnapToGrid"),
             new TutorialStep("Check For Component Upgrades", "This button checks if there is an updated version of the selected component at the source link", TutorialStep.Type.Info, "#checkForComponentUpdates"),
             new TutorialStep("Settings", "This button shows the settings menu. In here you are able to tailor eagle to the workflow you intend to apply it for.", TutorialStep.Type.Info, "#settings"),
-            new TutorialStep("Palettes", "This is where the palettes can be found and managed. Plattes contain components that are the building blocks for creating a graph.", TutorialStep.Type.Info, "#logicalGraphD3Div"),
+            new TutorialStep("Palettes", "This is where the palettes can be found and managed. Plattes contain components that are the building blocks for creating a graph.", TutorialStep.Type.Info, ".leftWindow"),
             new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, ".rightWindowDisplay"),
+            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, "#graphNameWrapper"),
+            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, "#graphArea"),
         ]
     ),
     new Tutorial(
