@@ -2277,7 +2277,7 @@ palette-component input.form-control.selected {
 
 .tutorialHighlight{
     position:absolute;
-    background-color: rgba(0, 0, 0, 0.65);
+    background-color: rgba(0, 0, 0, 0.7);
     z-index:999;
 }
 
@@ -2302,6 +2302,7 @@ palette-component input.form-control.selected {
     top:0px; 
     left:0px; 
     width: 160px;
+    z-index: 1;
 }
 
 #tutorialInfoPopUp.tutorialRightTop img{
@@ -2310,19 +2311,21 @@ palette-component input.form-control.selected {
     bottom:0px; 
     left:0px; 
     width: 160px;
+    z-index: 1;
 }
 
-#tutorialInfoPopUp.tutorialRight .tutorialInfoTitle,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoTitle{
-    margin-left:170px;
-    padding-top:96px;
+#tutorialInfoPopUp.tutorialMiddle .tutorialContent{
+    background-color: rgb(0 0 0 / 60%);
+    box-shadow: 0px 0px 25px 25px rgb(0 0 0 / 60%);
 }
 
-#tutorialInfoPopUp.tutorialRight .tutorialInfoText,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoText{
-    margin-left:170px;
+#tutorialInfoPopUp.tutorialRight .tutorialContent,#tutorialInfoPopUp.tutorialRightTop .tutorialContent{
+    position: absolute;
+    left: 170px;
+    top: 96px;
 }
 
 #tutorialInfoPopUp.tutorialRight .tutorialInfoButtons,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoButtons{
-    margin-left:170px;
     position: relative;
     height:50px;
 }
@@ -2333,6 +2336,7 @@ palette-component input.form-control.selected {
     right:0px; 
     transform:scale(-1,1);
     width: 160px;
+    z-index: 1;
 }
 
 #tutorialInfoPopUp.tutorialLeftTop img{
@@ -2341,21 +2345,24 @@ palette-component input.form-control.selected {
     bottom:0px; 
     right:0px; 
     width: 160px;
+    z-index: 1;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialContent,#tutorialInfoPopUp.tutorialLeftTop .tutorialContent{
+    position: absolute;
+    right: 170px;
+    top: 96px;
 }
 
 #tutorialInfoPopUp.tutorialLeft .tutorialInfoTitle,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoTitle{
-    margin-right:170px;
-    padding-top:96px;
     text-align: right;
 }
 
 #tutorialInfoPopUp.tutorialLeft .tutorialInfoText,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoText{
-    margin-right:170px;
     text-align: right;
 }
 
 #tutorialInfoPopUp.tutorialLeft .tutorialInfoButtons,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoButtons{
-    margin-right:170px;
     position: relative;
     height:50px;
 }

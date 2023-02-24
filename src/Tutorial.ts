@@ -104,7 +104,7 @@ export class Tutorial {
 
     openInfoPopUp = (tut:Tutorial, step:TutorialStep) :void => {
 
-        //figuring out if there is enough space to place the tutorial to the right
+        //figuring out where there is enough space to place the tutorial
         var selectedLocationX = $(step.getSelector()).offset().left+$(step.getSelector()).width()
         var selectedLocationY = $(step.getSelector()).offset().top + $(step.getSelector()).outerHeight()
         var docWidth = $(document).width()
@@ -118,9 +118,9 @@ export class Tutorial {
             selectedLocationX = selectedLocationX - ($(step.getSelector()).width() / 2)
             if((docHeight - $(step.getSelector()).outerHeight())<250){
                 selectedLocationY = selectedLocationY -  ($(step.getSelector()).height() / 2)
+                orientation = 'tutorialRight tutorialMiddle'
             }
         }else if(docWidth-selectedLocationX<700){
-    
             orientation = 'tutorialLeft'
             selectedLocationX = selectedLocationX-660-$(step.getSelector()).width()
             if (docHeight-selectedLocationY<250){
@@ -132,6 +132,7 @@ export class Tutorial {
             selectedLocationY = selectedLocationY-290
         }
 
+        //creating the html tooltip before appending
         var tooltipPopUp
 
         tooltipPopUp = "<div id='tutorialInfoPopUp' class='"+orientation+"' style='left:"+selectedLocationX+"px;top:"+selectedLocationY+"px;'>"
@@ -139,21 +140,23 @@ export class Tutorial {
 
                 tooltipPopUp = tooltipPopUp + "<img src='static/assets/img/tooltip_arrow.svg'></img>"
 
-                tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoTitle'>"
-                    tooltipPopUp = tooltipPopUp + "<h4>"+step.getTitle()+"</h4>"
-                tooltipPopUp = tooltipPopUp + "</div>"
-                tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoText'>"
-                    tooltipPopUp = tooltipPopUp + "<span>"+step.getText()+"</span>"
-                tooltipPopUp = tooltipPopUp + "</div>"
-                tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoButtons'>"
-                    if(activeTutCurrentStep>1){
-                        tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
-                    }
-                    if(activeTutCurrentStep<activeTutStepsNo){
-                        tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
-                    }
-                    tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeTutCurrentStep +" of "+activeTutStepsNo+"</span>"
-                    tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>End</button>"
+                tooltipPopUp = tooltipPopUp + "<div class='tutorialContent'>"
+                    tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoTitle'>"
+                        tooltipPopUp = tooltipPopUp + "<h4>"+step.getTitle()+"</h4>"
+                    tooltipPopUp = tooltipPopUp + "</div>"
+                    tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoText'>"
+                        tooltipPopUp = tooltipPopUp + "<span>"+step.getText()+"</span>"
+                    tooltipPopUp = tooltipPopUp + "</div>"
+                    tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoButtons'>"
+                        if(activeTutCurrentStep>1){
+                            tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
+                        }
+                        if(activeTutCurrentStep<activeTutStepsNo){
+                            tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
+                        }
+                        tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeTutCurrentStep +" of "+activeTutStepsNo+"</span>"
+                        tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>End</button>"
+                    tooltipPopUp = tooltipPopUp + "</div>"
                 tooltipPopUp = tooltipPopUp + "</div>"
 
             tooltipPopUp = tooltipPopUp + "</div>"
