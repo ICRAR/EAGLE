@@ -3115,7 +3115,7 @@ export class Eagle {
 
                     // make sure node has input/output "self" port
                     const inputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputPort, false);
-                    const outputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, false, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.OutputPort, false);
+                    const outputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.OutputPort, false);
                     pythonObjectNode.addField(inputPort);
                     pythonObjectNode.addField(outputPort);
 
