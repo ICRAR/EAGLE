@@ -3095,7 +3095,7 @@ export class Eagle {
                 const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
 
                 // add node to LogicalGraph
-                const OBJECT_OFFSET_X = 200;
+                const OBJECT_OFFSET_X = 300;
                 const OBJECT_OFFSET_Y = 0;
                 this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
                     // set parent to same as PythonMemberFunction
