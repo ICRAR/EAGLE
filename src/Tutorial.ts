@@ -49,6 +49,12 @@ export class Tutorial {
 
             var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
 
+            //if there is a preFunction set, then we execute it here
+            var preFunction = tutStep.getPreFunct()
+            if(preFunction != ""){
+                eval(preFunction)
+            }
+
             //call the correct function depending on which type of tutorial step this is
             if(tutStep.getType() === TutorialStep.Type.Info){
                 that.initiateInfoStep(tutStep)
@@ -194,12 +200,14 @@ export class TutorialStep {
     private text : string;
     private type : TutorialStep.Type;
     private selector : string;
+    private preFunction : string;
 
-    constructor(title : string, text : string, type : TutorialStep.Type, selector:string){
+    constructor(title : string, text : string, type : TutorialStep.Type, selector:string, preFunction:string){
         this.title = title;
         this.text = text;
         this.type = type;
         this.selector = selector;
+        this.preFunction = preFunction;
     }
 
     getTitle = () : string => {
@@ -218,6 +226,10 @@ export class TutorialStep {
         return this.selector;
     }
 
+    getPreFunct = () : any => {
+        return this.preFunction;
+    }
+
 }
 
 export namespace TutorialStep {
@@ -234,23 +246,23 @@ export const tutorialArray = [
         "Test Tutorial",
         'This tutorial is for testing purposes of the tutorial system',
         [
-            new TutorialStep("Snap To Grid", "Toggle snap-to-grid behaviour within the graph editor.This allows you to snap nodes in the graph to a grid to keep thing nice and clean!", TutorialStep.Type.Info, "#toggleSnapToGrid"),
-            new TutorialStep("Check For Component Upgrades", "This button checks if there is an updated version of the selected component at the source link", TutorialStep.Type.Info, "#checkForComponentUpdates"),
-            new TutorialStep("Settings", "This button shows the settings menu. In here you are able to tailor eagle to the workflow you intend to apply it for.", TutorialStep.Type.Info, "#settings"),
-            new TutorialStep("Palettes", "This is where the palettes can be found and managed. Plattes contain components that are the building blocks for creating a graph.", TutorialStep.Type.Info, ".leftWindow"),
-            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, ".rightWindowDisplay"),
-            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, "#graphNameWrapper"),
-            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, "#graphArea"),
+            new TutorialStep("Snap To Grid", "Toggle snap-to-grid behaviour within the graph editor.This allows you to snap nodes in the graph to a grid to keep thing nice and clean!", TutorialStep.Type.Info, "#toggleSnapToGrid",""),
+            new TutorialStep("Check For Component Upgrades", "This button checks if there is an updated version of the selected component at the source link", TutorialStep.Type.Info, "#checkForComponentUpdates","console.log('beepboop')"),
+            new TutorialStep("Settings", "This button shows the settings menu. In here you are able to tailor eagle to the workflow you intend to apply it for.", TutorialStep.Type.Info, "#settings",""),
+            new TutorialStep("Palettes", "This is where the palettes can be found and managed. Plattes contain components that are the building blocks for creating a graph.", TutorialStep.Type.Info, ".leftWindow",""),
+            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, ".rightWindowDisplay",""),
+            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, "#graphNameWrapper",""),
+            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, "#graphArea",""),
         ]
     ),
     new Tutorial(
         "Quick Start Tutorial",
         'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.',
         [
-            new TutorialStep("Welcome to Eagle!", "Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the 'exit' button or ESC key.", TutorialStep.Type.Info, "#eagleAndVersion"),
-            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's functionality is iconised. However, you can always however on elements in the User Interface to get more information on what it does.", TutorialStep.Type.Info, "#navbarSupportedContent .btn-group"),
-            new TutorialStep("Key Attributes Table", "This is where you can tweak the key attributes of a graph. These Key attributes are set by a Graph's or Component's creator.", TutorialStep.Type.Info, "#openKeyParameterTable"),
-            new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "#settings"),
+            new TutorialStep("Welcome to Eagle!", "Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the 'exit' button or ESC key.", TutorialStep.Type.Info, "#eagleAndVersion",""),
+            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's functionality is iconised. However, you can always however on elements in the User Interface to get more information on what it does.", TutorialStep.Type.Info, "#navbarSupportedContent .btn-group",""),
+            new TutorialStep("Key Attributes Table", "This is where you can tweak the key attributes of a graph. These Key attributes are set by a Graph's or Component's creator.", TutorialStep.Type.Info, "#openKeyParameterTable",""),
+            new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "#settings","console.log('beepboop')"),
         ]
     )
 ]
