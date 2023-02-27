@@ -2478,6 +2478,10 @@ export class Eagle {
         return
     }
 
+    closeShortcuts = () : void => {
+        Utils.showShortcutsModal();
+    }
+
     // TODO: move to Setting.ts?
     //copies currently set settings in case the user wishes to cancel changes in the setting modal
     copyCurrentSettings = () : void => {

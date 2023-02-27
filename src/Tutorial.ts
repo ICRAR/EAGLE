@@ -48,6 +48,7 @@ export class Tutorial {
         const that = this;
 
             var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
+            const eagle: Eagle = Eagle.getInstance();
 
             //if there is a preFunction set, then we execute it here
             var preFunction = tutStep.getPreFunct()
@@ -247,7 +248,7 @@ export const tutorialArray = [
         'This tutorial is for testing purposes of the tutorial system',
         [
             new TutorialStep("Snap To Grid", "Toggle snap-to-grid behaviour within the graph editor.This allows you to snap nodes in the graph to a grid to keep thing nice and clean!", TutorialStep.Type.Info, "#toggleSnapToGrid",""),
-            new TutorialStep("Check For Component Upgrades", "This button checks if there is an updated version of the selected component at the source link", TutorialStep.Type.Info, "#checkForComponentUpdates","console.log('beepboop')"),
+            new TutorialStep("Check For Component Upgrades", "This button checks if there is an updated version of the selected component at the source link", TutorialStep.Type.Info, "#checkForComponentUpdates",""),
             new TutorialStep("Settings", "This button shows the settings menu. In here you are able to tailor eagle to the workflow you intend to apply it for.", TutorialStep.Type.Info, "#settings",""),
             new TutorialStep("Palettes", "This is where the palettes can be found and managed. Plattes contain components that are the building blocks for creating a graph.", TutorialStep.Type.Info, ".leftWindow",""),
             new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, ".rightWindowDisplay",""),
@@ -259,10 +260,14 @@ export const tutorialArray = [
         "Quick Start Tutorial",
         'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.',
         [
-            new TutorialStep("Welcome to Eagle!", "Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the 'exit' button or ESC key.", TutorialStep.Type.Info, "#eagleAndVersion",""),
-            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's functionality is iconised. However, you can always however on elements in the User Interface to get more information on what it does.", TutorialStep.Type.Info, "#navbarSupportedContent .btn-group",""),
+            new TutorialStep("Welcome to Eagle!", "Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the 'exit' button or ESC key.", TutorialStep.Type.Info, "#eagleAndVersion a",""),
+            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's interface is iconised. However, you can always hover on elements to get more information on they do.", TutorialStep.Type.Info, "#navbarSupportedContent .btn-group",""),
             new TutorialStep("Key Attributes Table", "This is where you can tweak the key attributes of a graph. These Key attributes are set by a Graph's or Component's creator.", TutorialStep.Type.Info, "#openKeyParameterTable",""),
-            new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "#settings","console.log('beepboop')"),
+            new TutorialStep("Settings", "The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>.", TutorialStep.Type.Info, "#settings",""),
+            new TutorialStep("Keyboard Shortcuts", "You can view and execute keyboard shortcut functions in the keyboard shortcuts modal. To access it, find it in the navbar under 'Help' or simply press 'k'.", TutorialStep.Type.Info, "#shortcutsModal","eagle.openShortcuts()"),
+            new TutorialStep("Graph Options", "Here you are able to load, save or create graphs", TutorialStep.Type.Info, "#navbarDropdownGraph","eagle.closeShortcuts()"),
+            new TutorialStep("Repositories Tab", "You can browse and load graphs from linked github repositories here.", TutorialStep.Type.Info, "#rightWindowModeRepositories","$('#rightWindowModeRepositories').click()"),
+            new TutorialStep("Setup External Services", "In the external services section of the settings you are able to set up your github access token, feel free to do so now.", TutorialStep.Type.Info, "#settingsModal","eagle.openSettings();$('#settingCategoryExternalServices').click()"),
         ]
     )
 ]

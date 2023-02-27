@@ -2285,7 +2285,7 @@ palette-component input.form-control.selected {
     position:absolute;
     width:700px;
     height:250px;
-    z-index:1000;
+    z-index:2000;
     color:white;
     font-family:'Comic Neue';
 }
@@ -2360,6 +2360,7 @@ palette-component input.form-control.selected {
 
 #tutorialInfoPopUp.tutorialLeft .tutorialInfoText,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoText{
     text-align: right;
+    min-width: 450px;
 }
 
 #tutorialInfoPopUp.tutorialLeft .tutorialInfoButtons,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoButtons{
@@ -2369,6 +2370,11 @@ palette-component input.form-control.selected {
 
 #tutorialInfoPopUp .tutorialInfoTitle h4{
     font-size:30px;
+    text-shadow: black 1px 0 10px;
+}
+
+#tutorialInfoPopUp span, #tutorialInfoPopUp a{
+    text-shadow: black 1px 0 10px;
 }
 
 #tutorialInfoPopUp .tutorialInfoButtons button{
@@ -2378,6 +2384,7 @@ palette-component input.form-control.selected {
     padding: 0px;
     bottom: 0px;
     font-size:22px ;
+    text-shadow: black 1px 0 10px;
 }
 
 #tutorialInfoPopUp .tutorialInfoButtons button:hover{
