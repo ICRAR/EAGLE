@@ -155,7 +155,7 @@ export class Tutorial {
                             tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
                         }
                         tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeTutCurrentStep +" of "+activeTutStepsNo+"</span>"
-                        tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>End</button>"
+                        tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>Exit</button>"
                     tooltipPopUp = tooltipPopUp + "</div>"
                 tooltipPopUp = tooltipPopUp + "</div>"
 
@@ -244,11 +244,12 @@ export const tutorialArray = [
         ]
     ),
     new Tutorial(
-        "Test Tutorial2",
-        'This tutorial is for testing purposes of the tutorial system',
+        "Quick Start Tutorial",
+        'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.',
         [
-            new TutorialStep("Step title", "step text", TutorialStep.Type.Info, "#graphArea"),
-            new TutorialStep("Step title", "step text2", TutorialStep.Type.Info, "#checkForComponentUpdates"),
+            new TutorialStep("Welcome to Eagle!", "Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the 'exit' button or ESC key.", TutorialStep.Type.Info, "#eagleAndVersion"),
+            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's functionality is iconised. However, you can always however on elements in the User Interface to get more information on what it does.", TutorialStep.Type.Info, "#navbarSupportedContent .btn-group"),
+            new TutorialStep("Key Attributes Table", "This is where you can tweak the key attributes of a graph. These Key attributes are set by a Graph's or Component's creator.", TutorialStep.Type.Info, "#openKeyParameterTable"),
             new TutorialStep("Step title", "step text3", TutorialStep.Type.Info, "#settings"),
         ]
     )
