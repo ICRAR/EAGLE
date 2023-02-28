@@ -112,7 +112,7 @@ export class Tutorial {
     openInfoPopUp = (tut:Tutorial, step:TutorialStep) :void => {
 
         //figuring out where there is enough space to place the tutorial
-        var selectedLocationX = $(step.getSelector()).offset().left+$(step.getSelector()).width()
+        var selectedLocationX = $(step.getSelector()).offset().left+($(step.getSelector()).width()/2)
         var selectedLocationY = $(step.getSelector()).offset().top + $(step.getSelector()).outerHeight()
         var docWidth = $(document).width()
         var docHeight = $(document).height()
@@ -122,14 +122,14 @@ export class Tutorial {
         if( $(step.getSelector()).outerWidth() === docWidth){
             //if this is the case then we are looking at an object that is set to 100% of the sceen 
             //such as the navbar or canvas. we will then position the tutorial in the middle of the object
-            selectedLocationX = selectedLocationX - ($(step.getSelector()).width() / 2)
+            selectedLocationX = selectedLocationX
             if((docHeight - $(step.getSelector()).outerHeight())<250){
                 selectedLocationY = selectedLocationY -  ($(step.getSelector()).height() / 2)
                 orientation = 'tutorialRight tutorialMiddle'
             }
         }else if(docWidth-selectedLocationX<700){
             orientation = 'tutorialLeft'
-            selectedLocationX = selectedLocationX-660-$(step.getSelector()).width()
+            selectedLocationX = selectedLocationX-660-($(step.getSelector()).width()/2)
             if (docHeight-selectedLocationY<250){
                 orientation = 'tutorialLeftTop'
                 selectedLocationY = selectedLocationY-290
