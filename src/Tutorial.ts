@@ -47,26 +47,38 @@ export class Tutorial {
     initiateTutStep = () :void => {
         const that = this;
 
-            var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
-            const eagle: Eagle = Eagle.getInstance();
+        var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
 
-            //if there is a preFunction set, then we execute it here
-            var preFunction = tutStep.getPreFunct()
-            if(preFunction != ""){
-                eval(preFunction)
-            }
+        //if there is a preFunction set, then we execute it here
+        var preFunction = tutStep.getPreFunct()
+        if(preFunction != ""){
+            eval(preFunction)
+            setTimeout(
+                function() 
+                {
+                    that.pickStepType(tutStep)
+                }, 500);
+        }else{
+            that.pickStepType(tutStep)
+        }
 
-            //call the correct function depending on which type of tutorial step this is
-            if(tutStep.getType() === TutorialStep.Type.Info){
-                that.initiateInfoStep(tutStep)
-            }else if(tutStep.getType() === TutorialStep.Type.Press){
-                that.initiatePressStep(tutStep)
-            }else if(tutStep.getType() === TutorialStep.Type.Input){
-                that.initiateInputStep(tutStep)
-            }else if(tutStep.getType() === TutorialStep.Type.Condition){
-                const condition = '' //this should be a link to another function that returns a boolean value
-                that.initiateConditionStep(tutStep,condition)
-            }
+            
+    }
+
+    pickStepType = (tutStep:TutorialStep) :void => {
+        const that = this;
+
+        //call the correct function depending on which type of tutorial step this is
+        if(tutStep.getType() === TutorialStep.Type.Info){
+            that.initiateInfoStep(tutStep)
+        }else if(tutStep.getType() === TutorialStep.Type.Press){
+            that.initiatePressStep(tutStep)
+        }else if(tutStep.getType() === TutorialStep.Type.Input){
+            that.initiateInputStep(tutStep)
+        }else if(tutStep.getType() === TutorialStep.Type.Condition){
+            const condition = '' //this should be a link to another function that returns a boolean value
+            that.initiateConditionStep(tutStep,condition)
+        }
     }
 
     initiateInfoStep = (tutStep:TutorialStep) : void => {
@@ -111,25 +123,27 @@ export class Tutorial {
 
     openInfoPopUp = (tut:Tutorial, step:TutorialStep) :void => {
 
+        var currentSelector = step.getSelector()
+
         //figuring out where there is enough space to place the tutorial
-        var selectedLocationX = $(step.getSelector()).offset().left+($(step.getSelector()).width()/2)
-        var selectedLocationY = $(step.getSelector()).offset().top + $(step.getSelector()).outerHeight()
+        var selectedLocationX = currentSelector.offset().left+(currentSelector.width()/2)
+        var selectedLocationY = currentSelector.offset().top + currentSelector.outerHeight()
         var docWidth = $(document).width()
         var docHeight = $(document).height()
 
         var orientation = 'tutorialRight'
         
-        if( $(step.getSelector()).outerWidth() === docWidth){
+        if( currentSelector.outerWidth() === docWidth){
             //if this is the case then we are looking at an object that is set to 100% of the sceen 
             //such as the navbar or canvas. we will then position the tutorial in the middle of the object
             selectedLocationX = selectedLocationX
-            if((docHeight - $(step.getSelector()).outerHeight())<250){
-                selectedLocationY = selectedLocationY -  ($(step.getSelector()).height() / 2)
+            if((docHeight - currentSelector.outerHeight())<250){
+                selectedLocationY = selectedLocationY -  (currentSelector.height() / 2)
                 orientation = 'tutorialRight tutorialMiddle'
             }
         }else if(docWidth-selectedLocationX<700){
             orientation = 'tutorialLeft'
-            selectedLocationX = selectedLocationX-660-($(step.getSelector()).width()/2)
+            selectedLocationX = selectedLocationX-660-(currentSelector.width()/2)
             if (docHeight-selectedLocationY<250){
                 orientation = 'tutorialLeftTop'
                 selectedLocationY = selectedLocationY-290
@@ -200,10 +214,10 @@ export class TutorialStep {
     private title : string;
     private text : string;
     private type : TutorialStep.Type;
-    private selector : string;
+    private selector : JQuery<HTMLElement>;
     private preFunction : string;
 
-    constructor(title : string, text : string, type : TutorialStep.Type, selector:string, preFunction:string){
+    constructor(title : string, text : string, type : TutorialStep.Type, selector:JQuery<HTMLElement>, preFunction:string){
         this.title = title;
         this.text = text;
         this.type = type;
@@ -247,27 +261,30 @@ export const tutorialArray = [
         "Test Tutorial",
         'This tutorial is for testing purposes of the tutorial system',
         [
-            new TutorialStep("Snap To Grid", "Toggle snap-to-grid behaviour within the graph editor.This allows you to snap nodes in the graph to a grid to keep thing nice and clean!", TutorialStep.Type.Info, "#toggleSnapToGrid",""),
-            new TutorialStep("Check For Component Upgrades", "This button checks if there is an updated version of the selected component at the source link", TutorialStep.Type.Info, "#checkForComponentUpdates",""),
-            new TutorialStep("Settings", "This button shows the settings menu. In here you are able to tailor eagle to the workflow you intend to apply it for.", TutorialStep.Type.Info, "#settings",""),
-            new TutorialStep("Palettes", "This is where the palettes can be found and managed. Plattes contain components that are the building blocks for creating a graph.", TutorialStep.Type.Info, ".leftWindow",""),
-            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, ".rightWindowDisplay",""),
-            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, "#graphNameWrapper",""),
-            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, "#graphArea",""),
+            new TutorialStep("Snap To Grid", "Toggle snap-to-grid behaviour within the graph editor.This allows you to snap nodes in the graph to a grid to keep thing nice and clean!", TutorialStep.Type.Info, $('#toggleSnapToGrid'),""),
+            new TutorialStep("Check For Component Upgrades", "This button checks if there is an updated version of the selected component at the source link", TutorialStep.Type.Info, $("#checkForComponentUpdates"),""),
+            new TutorialStep("Settings", "This button shows the settings menu. In here you are able to tailor eagle to the workflow you intend to apply it for.", TutorialStep.Type.Info, $("#settings"),""),
+            new TutorialStep("Palettes", "This is where the palettes can be found and managed. Plattes contain components that are the building blocks for creating a graph.", TutorialStep.Type.Info, $(".leftWindow"),""),
+            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, $(".rightWindowDisplay"),""),
+            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, $("#graphNameWrapper"),""),
+            new TutorialStep("Active Panel", "There are sever al different tabs with actions to be found here.", TutorialStep.Type.Info, $("#graphArea"),""),
         ]
     ),
     new Tutorial(
         "Quick Start Tutorial",
         'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.',
         [
-            new TutorialStep("Welcome to Eagle!", "Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the 'exit' button or ESC key.", TutorialStep.Type.Info, "#eagleAndVersion a",""),
-            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's interface is iconised. However, you can always hover on elements to get more information on they do.", TutorialStep.Type.Info, "#navbarSupportedContent .btn-group",""),
-            new TutorialStep("Key Attributes Table", "This is where you can tweak the key attributes of a graph. These Key attributes are set by a Graph's or Component's creator.", TutorialStep.Type.Info, "#openKeyParameterTable",""),
-            new TutorialStep("Settings", "The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>.", TutorialStep.Type.Info, "#settings",""),
-            new TutorialStep("Keyboard Shortcuts", "You can view and execute keyboard shortcut functions in the keyboard shortcuts modal. To access it, find it in the navbar under 'Help' or simply press 'k'.", TutorialStep.Type.Info, "#shortcutsModal","eagle.openShortcuts()"),
-            new TutorialStep("Graph Options", "Here you are able to load, save or create graphs", TutorialStep.Type.Info, "#navbarDropdownGraph","eagle.closeShortcuts()"),
-            new TutorialStep("Repositories Tab", "You can browse and load graphs from linked github repositories here.", TutorialStep.Type.Info, "#rightWindowModeRepositories","$('#rightWindowModeRepositories').click()"),
-            new TutorialStep("Setup External Services", "In the external services section of the settings you are able to set up your github access token, feel free to do so now.", TutorialStep.Type.Info, "#settingsModal","eagle.openSettings();$('#settingCategoryExternalServices').click()"),
+            new TutorialStep("Welcome to Eagle!", "Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the 'exit' button or ESC key.", TutorialStep.Type.Info, $("#eagleAndVersion a"),""),
+            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's interface is iconised. However, you can always hover on elements to get more information on they do.", TutorialStep.Type.Info, $("#navbarSupportedContent .btn-group"),""),
+            new TutorialStep("Graph Options", "Here you are able to load, save or create graphs", TutorialStep.Type.Info, $("#navbarDropdownGraph"),""),
+            new TutorialStep("Repositories Tab", "You can browse and load graphs from linked github repositories here.", TutorialStep.Type.Info, $("#rightWindowModeRepositories"),"$('#rightWindowModeRepositories').click()"),
+            new TutorialStep("Settings", "The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>.", TutorialStep.Type.Info, $("#settings"),""),
+            new TutorialStep("Setup External Services", "In the external services section of the settings you are able to set up your github access token, feel free to do so now.", TutorialStep.Type.Info, $("#settingGitHubAccessTokenValue"),"eagle.openSettings();$('#settingCategoryExternalServices').click()"),
+            new TutorialStep("Saving Settings", "Settings only apply once you hit 'ok'. If you've changed something and dont wish to save it, you are able to cancel.", TutorialStep.Type.Info, $("#settingsModalAffirmativeButton"),""),
+            new TutorialStep("Key Attributes Table", "This is where you can tweak the key attributes of a graph. These Key attributes are set by a Graph's or Component's creator.", TutorialStep.Type.Info, $("#openKeyParameterTable"),"eagle.openSettings()"),
+            new TutorialStep("Keyboard Shortcuts", "To get through these menus quicker you can view our keyboard shurtcuts here. To access this modal, find it in the navbar under 'Help' or simply press 'K'.", TutorialStep.Type.Info, $("#shortcutsModal"),"eagle.openShortcuts()"),
+            new TutorialStep("Setting up the translator", "In the Translator tab you are able to set up the translator url and settigns.", TutorialStep.Type.Info, $("#rightWindowModeTranslation"),"eagle.openShortcuts();eagle.rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);eagle.rightWindow().shown(true);"),
+        
         ]
     )
 ]
