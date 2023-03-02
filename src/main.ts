@@ -159,6 +159,9 @@ $(function(){
     // auto load the file
     autoLoad(eagle, service, auto_load_repository, auto_load_branch, auto_load_path, auto_load_filename);
 
+    // auto load a tutorial, if specified on the url
+    autoTutorial(eagle);
+
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
         $(".dropdown-toggle").removeClass("show")
@@ -265,4 +268,14 @@ function autoLoad(eagle: Eagle, service: Eagle.RepositoryService, repository: st
 
     // load
     Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+}
+
+function autoTutorial(eagle: Eagle){
+    const urlParams = new URLSearchParams(window.location.search);
+    const tutorialName = urlParams.get('tutorial');
+
+    if (tutorialName !== null){
+        console.log("Running tutorial:", tutorialName);
+        eagle.tutorial().initiateTutorial(tutorialName);
+    }
 }
