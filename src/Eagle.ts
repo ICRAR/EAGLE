@@ -3089,8 +3089,6 @@ export class Eagle {
 
             // if node is a PythonMemberFunction, then we should generate a new PythonObject node too
             if (newNode.getCategory() === Category.PythonMemberFunction){
-                console.log("Add Python Object Node");
-
                 // create node
                 const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
 
@@ -3105,6 +3103,7 @@ export class Eagle {
                     const FIELD_NAME = 'basename';
                     const basenameField: Field = newNode.findFieldByIdText(FIELD_NAME, Eagle.ParameterType.ApplicationArgument);
                     if (basenameField !== null){
+                        pythonObjectNode.setName(basenameField.getValue());
                         pythonObjectNode.addField(basenameField.clone());
                     } else {
                         Utils.showNotification("Python Object", "Unable to set " + FIELD_NAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
