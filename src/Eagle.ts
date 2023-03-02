@@ -2972,6 +2972,46 @@ export class Eagle {
                 newNode.setParentKey(null);
             }
 
+            // if node is a PythonMemberFunction, then we should generate a new PythonObject node too
+            if (newNode.getCategory() === Category.PythonMemberFunction){
+                // create node
+                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
+
+                // add node to LogicalGraph
+                const OBJECT_OFFSET_X = 300;
+                const OBJECT_OFFSET_Y = 0;
+                this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
+                    // set parent to same as PythonMemberFunction
+                    pythonObjectNode.setParentKey(newNode.getParentKey());
+
+                    // copy PythonMemberFunction node's 'basename' field to the PythonObject node
+                    const FIELD_NAME = 'basename';
+                    const basenameField: Field = newNode.findFieldByIdText(FIELD_NAME, Eagle.ParameterType.ApplicationArgument);
+                    if (basenameField !== null){
+                        pythonObjectNode.setName(basenameField.getValue());
+                        pythonObjectNode.addField(basenameField.clone());
+                    } else {
+                        Utils.showNotification("Python Object", "Unable to set " + FIELD_NAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
+                    }
+
+                    // find the "self" port on the PythonMemberFunction
+                    const sourcePort: Field = newNode.findPortByIdText("self", false, false);
+
+                    // make sure node has input/output "self" port
+                    const inputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputPort, false);
+                    const outputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.OutputPort, false);
+                    pythonObjectNode.addField(inputPort);
+                    pythonObjectNode.addField(outputPort);
+
+                    // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
+                    if (sourcePort !== null){
+                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputPort, false, false, null);
+                    } else {
+                        Utils.showNotification("Edge Error", "Unable to connect edge between PythonMemberFunction and new PythonObject. The PythonMemberFunction does not have a 'self' port.", "danger");
+                    }
+                });
+            }
+
             this.checkGraph();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
