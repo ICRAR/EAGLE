@@ -28,7 +28,7 @@
                 <!-- <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: saveAsPNG, eagleTooltip: 'Save as PNG'" data-intro="Save a PNG of the current graph.">
                     <i class="material-icons md-18">image</i>
                 </button> -->
-                <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: openModelDataModal, eagleTooltip: 'Open Graph ModelData'">
+                <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: Utils.showModelDataModal, eagleTooltip: 'Open Graph ModelData'">
                     <i class="material-icons md-18">info</i>
                 </button>
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" data-intro="Center the current graph within the graph rendering area.">

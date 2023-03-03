@@ -863,7 +863,6 @@ export class Utils {
         $('#parameterTableModal').modal("toggle");
     }
 
-
     static showShortcutsModal() : void {
         $('#shortcutsModal').modal("toggle");
     }
@@ -910,6 +909,10 @@ export class Utils {
             // process files into a more complex structure
             eagle.explorePalettes().initialise(explorePalettes);
         });
+    }
+
+    static showModelDataModal = () : void => {
+        $('#modelDataModal').modal("toggle");
     }
 
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {

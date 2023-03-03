@@ -356,6 +356,14 @@ export class FileInfo {
         return s;
     }
 
+    getValues = (): {key:string, value:string}[] => {
+        const values: {key:string, value:string}[] = [];
+
+        values.push({key:"name", value: this._name()});
+
+        return values;
+    }
+
     static toOJSJson = (fileInfo : FileInfo) : object => {
         return {
             fileType: fileInfo.type,
