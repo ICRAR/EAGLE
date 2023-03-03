@@ -2278,14 +2278,14 @@ palette-component input.form-control.selected {
 .tutorialHighlight{
     position:absolute;
     background-color: rgba(0, 0, 0, 0.7);
-    z-index:999;
+    z-index:2000;
 }
 
 #tutorialInfoPopUp{
     position:absolute;
     width:700px;
     height:250px;
-    z-index:2000;
+    z-index:2001;
     color:white;
     font-family:'Comic Neue';
 }
