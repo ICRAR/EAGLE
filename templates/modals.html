@@ -1104,7 +1104,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modelDataModalTitle">Graph ModelData</h5>
+                <h5 class="modal-title" id="modelDataModalTitle">ModelData</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -1115,8 +1115,8 @@
                             <th>Value</th>
                         </tr>
                     </thead>
-                    <!-- ko if: $root.logicalGraph() !== null -->
-                    <tbody data-bind="foreach: $root.logicalGraph().fileInfo().getValues()">
+                    <!-- ko if: $root.currentFileInfo() !== null -->
+                    <tbody data-bind="foreach: $root.currentFileInfo().getValues()">
                         <tr>
                             <td data-bind="text: $data.key, eagleTooltip: $data.tooltip"></td>
                             <td data-bind="html: $data.value"></td>

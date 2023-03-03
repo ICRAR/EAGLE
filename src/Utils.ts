@@ -41,6 +41,7 @@ import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {ParameterTable} from './ParameterTable';
+import {FileInfo} from "./FileInfo";
 
 export class Utils {
     // Allowed file extenstions.
@@ -911,7 +912,10 @@ export class Utils {
         });
     }
 
-    static showModelDataModal = () : void => {
+    static showModelDataModal = (fileInfo: FileInfo) : void => {
+        const eagle = Eagle.getInstance();
+        eagle.currentFileInfo(fileInfo);
+
         $('#modelDataModal').modal("toggle");
     }
 
