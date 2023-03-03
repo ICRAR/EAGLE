@@ -2340,6 +2340,10 @@ export class Eagle {
         }
     }
 
+    openModelDataModal = () : void => {
+        console.log("openModelDataModal()");
+    }
+
     getCurrentParamReadonly = (field: Field) : boolean => {
         // check that we actually found the right field, otherwise abort
         if (field === null){
