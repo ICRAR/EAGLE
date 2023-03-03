@@ -1118,7 +1118,7 @@
                     <!-- ko if: $root.logicalGraph() !== null -->
                     <tbody data-bind="foreach: $root.logicalGraph().fileInfo().getValues()">
                         <tr>
-                            <td data-bind="text: $data.key"></td>
+                            <td data-bind="text: $data.key, eagleTooltip: $data.tooltip"></td>
                             <td data-bind="text: $data.value"></td>
                         </tr>
                     </tbody>

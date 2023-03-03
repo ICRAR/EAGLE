@@ -357,9 +357,13 @@ export class FileInfo {
     }
 
     getValues = (): {key:string, value:string}[] => {
-        const values: {key:string, value:string}[] = [];
+        const values: {key:string, value:string, tooltip:string}[] = [];
 
-        values.push({key:"name", value: this._name()});
+        // NOTE: individual items are pushed manually here so that we can control the ordering
+        values.push({key:"fileType", value: this._type(), tooltip:"The type of content in the file. Options: " + Utils.enumKeys(Eagle.FileType)});
+        values.push({key:"repoService", value: this._repositoryService(), tooltip:"The service in which this file is stored. Options: " + Utils.enumKeys(Eagle.RepositoryService)});
+        values.push({key:"repo", value: this._repositoryName(), tooltip:""});
+        values.push({key:"repoBranch", value: this._repositoryBranch(), tooltip:""});
 
         return values;
     }
