@@ -2370,11 +2370,11 @@ palette-component input.form-control.selected {
 
 #tutorialInfoPopUp .tutorialInfoTitle h4{
     font-size:30px;
-    text-shadow: black 1px 0 10px;
+    text-shadow: black 1px 0 10px,black 1px 0px 10px,black 1px 0px 10px;
 }
 
 #tutorialInfoPopUp span, #tutorialInfoPopUp a{
-    text-shadow: black 1px 0 10px;
+    text-shadow: black 1px 0 10px,black 1px 0px 10px,black 1px 0px 10px;
 }
 
 #tutorialInfoPopUp .tutorialInfoButtons button{
@@ -2384,7 +2384,7 @@ palette-component input.form-control.selected {
     padding: 0px;
     bottom: 0px;
     font-size:22px ;
-    text-shadow: black 1px 0 10px;
+    text-shadow: black 1px 0 10px,black 1px 0px 10px,black 1px 0px 10px;
 }
 
 #tutorialInfoPopUp .tutorialInfoButtons button:hover{

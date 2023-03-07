@@ -2419,6 +2419,10 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
+    closeSettings = () : void => {
+        Utils.hideSettingsModal();
+    }
+
     openParamsTableModal = (mode:string,selectType:string) : void => {
         this.showTableModal(true)
         if(selectType === 'rightClick'){
@@ -2479,7 +2483,7 @@ export class Eagle {
     }
 
     closeShortcuts = () : void => {
-        Utils.showShortcutsModal();
+        Utils.closeShortcutsModal();
     }
 
     // TODO: move to Setting.ts?
