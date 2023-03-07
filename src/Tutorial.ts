@@ -60,31 +60,29 @@ export class Tutorial {
             preFunction(eagle)
             
         }else{
-            that.pickStepType(tutStep)
+            that.pickStepType(tutStep,null)
         }
-
-            
     }
 
-    pickStepType = (tutStep:TutorialStep) :void => {
+    pickStepType = (tutStep:TutorialStep, alternateHighlightSelector:JQuery<HTMLElement>) :void => {
         const that = this;
 
         //call the correct function depending on which type of tutorial step this is
         if(tutStep.getType() === TutorialStep.Type.Info){
-            that.initiateInfoStep(tutStep)
+            that.initiateInfoStep(tutStep, alternateHighlightSelector)
         }else if(tutStep.getType() === TutorialStep.Type.Press){
-            that.initiatePressStep(tutStep)
+            that.initiatePressStep(tutStep,alternateHighlightSelector)
         }else if(tutStep.getType() === TutorialStep.Type.Input){
-            that.initiateInputStep(tutStep)
+            that.initiateInputStep(tutStep,alternateHighlightSelector)
         }else if(tutStep.getType() === TutorialStep.Type.Condition){
             const condition = '' //this should be a link to another function that returns a boolean value
-            that.initiateConditionStep(tutStep,condition)
+            that.initiateConditionStep(tutStep,condition,alternateHighlightSelector)
         }
     }
 
     initiateWaitForElement = (waitType:string) :void => {
         if(waitType===''){
-            this.pickStepType(activeTut.getTutorialSteps()[activeTutCurrentStep-1])
+            this.pickStepType(activeTut.getTutorialSteps()[activeTutCurrentStep-1],null)
         }else{
             waitForElementTimer = setInterval(function(){activeTut.waitForElement(waitType)}, 100);  
             setTimeout(function(){
@@ -99,11 +97,15 @@ export class Tutorial {
         var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
         var elementAvailable = false
         var selectorElement = tutStep.getSelector()
+        var alternateHighlightSelector = null
 
         if(waitType === 'modal'){
             if(!selectorElement().hasClass('modal')){
                 selectorElement = selectorElement().closest('.modal')
+                alternateHighlightSelector = selectorElement
+                console.log('gettign modal parent', selectorElement)
             }else{
+                console.log('not gettign modal parent')
                 selectorElement = selectorElement()
             }
             elementAvailable = selectorElement.hasClass('show')
@@ -119,34 +121,38 @@ export class Tutorial {
         }
        
         if(elementAvailable){
-            this.pickStepType(tutStep)
+            this.pickStepType(tutStep, alternateHighlightSelector)
             clearTimeout(waitForElementTimer);
         }else{
             return
         }
     }
 
-    initiateInfoStep = (tutStep:TutorialStep) : void => {
+    initiateInfoStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
         var selectorElement = tutStep.getSelector()
-
-        this.highlightStepTarget(selectorElement())
+        if(alternateHighlightSelector != null){
+            this.highlightStepTarget(alternateHighlightSelector)
+        }else{
+            this.highlightStepTarget(selectorElement())
+        }
         this.openInfoPopUp(activeTut, tutStep)
     }
 
-    initiatePressStep = (tutStep:TutorialStep) : void => {
+    initiatePressStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
         console.log('initiating text step')
     }
 
-    initiateInputStep = (tutStep:TutorialStep) : void => {
+    initiateInputStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
         console.log('initiating text step')
     }
 
-    initiateConditionStep = (tutStep:TutorialStep, condition:string) : void => {
+    initiateConditionStep = (tutStep:TutorialStep, condition:string,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
         console.log('initiating text step')
     }
 
-    highlightStepTarget = (selector:string) : void => {
-        var coords = $(selector).offset()
+    highlightStepTarget = (selector:JQuery<HTMLElement>) : void => {
+        console.log(selector)
+        var coords = selector.offset()
         var docHeight = $(document).height()
         var docWidth = $(document).width()
         var top_y = coords.top
@@ -315,7 +321,8 @@ export const tutorialArray = [
             new TutorialStep("Graph Options", "Here you are able to load, save or create graphs", TutorialStep.Type.Info, function(){return $("#navbarDropdownGraph")},null,""),
             new TutorialStep("Repositories Tab", "You can browse and load graphs from linked github repositories here.", TutorialStep.Type.Info, function(){return $("#rightWindowModeRepositories")},function(eagle){$('#rightWindowModeRepositories').click();activeTut.initiateWaitForElement('element');},""),
             new TutorialStep("Settings", "The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>.", TutorialStep.Type.Info, function(){return $("#settings")},null,""),
-            new TutorialStep("Setup External Services", "In the external services section of the settings you are able to set up your github access token, feel free to do so now.", TutorialStep.Type.Info, function(){return $("#settingTranslatorURLValue").parent()},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();activeTut.initiateWaitForElement('modal');},""),
+            new TutorialStep("Setup External Services", "In the external services section of the settings you are able to set up your github access token, feel free to do so now.", TutorialStep.Type.Info, function(){return $("#settingTranslatorURLValue")},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();activeTut.initiateWaitForElement('modal');},""),
+            new TutorialStep("Setup External Services", "In the external services section of the settings you are able to set up your github access token, feel free to do so now.", TutorialStep.Type.Info, function(){return $("#settingGitHubAccessTokenValue")},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();activeTut.initiateWaitForElement('modal');},""),
             new TutorialStep("Saving Settings", "Settings only apply once you hit 'ok'. If you've changed something and dont wish to save it, you are able to cancel.", TutorialStep.Type.Info, function(){return $("#settingsModalAffirmativeButton")},null,""),
             new TutorialStep("Key Attributes Table", "This is where you can tweak the key attributes of a graph. These Key attributes are set by a Graph's or Component's creator.", TutorialStep.Type.Info, function(){return $("#openKeyParameterTable")},function(eagle){eagle.openSettings()},""),
             new TutorialStep("Keyboard Shortcuts", "To get through these menus quicker you can view our keyboard shurtcuts here. To access this modal, find it in the navbar under 'Help' or simply press 'K'.", TutorialStep.Type.Info, function(){return $("#shortcutsModal")},function(eagle){eagle.openShortcuts()},""),
