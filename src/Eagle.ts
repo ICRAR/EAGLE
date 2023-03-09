@@ -25,7 +25,6 @@
 "use strict";
 
 import * as ko from "knockout";
-import * as ij from "intro.js";
 
 import {Utils} from './Utils';
 import {GitHub} from './GitHub';
@@ -2368,13 +2367,6 @@ export class Eagle {
 
     showAbout = () : void => {
         $('#aboutModal').modal('show');
-    }
-
-    runTutorial = (name : string) : void => {
-        console.log("runTutorial(" + name + ")");
-
-        // start the tutorial
-        ij(name).setOption("showStepNumbers", false).setOption("skipLabel", "Exit").start();
     }
 
     onlineDocs = () : void => {

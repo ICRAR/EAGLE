@@ -10,7 +10,7 @@
         "target": "es5",
         "lib": ["es2017", "dom"],
         "allowJs": false,
-        "types": ["jquery", "bootstrap", "bootstrap-notify", "intro.js"]
+        "types": ["jquery", "bootstrap", "bootstrap-notify"]
     },
     "files": [
         "./src/require-config.ts",

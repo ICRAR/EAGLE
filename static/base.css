@@ -1673,10 +1673,6 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     color: white !important;
 }
 
-.navbar .introjs-tooltipbuttons a{
-    color: #002349 !important;
-}
-
 .inactiveLink {
     pointer-events: none;
     cursor: default;
@@ -1981,10 +1977,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 .ports-row h5 {
     margin-top: 5px;
-}
-
-nav.navbar .introjs-helperLayer {
-    background-color: rgba(255, 255, 255, 0.5);
 }
 
 .navbar-nav.navbar-center {
