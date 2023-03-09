@@ -2376,6 +2376,9 @@ palette-component input.form-control.selected {
 #tutorialInfoPopUp span, #tutorialInfoPopUp a{
     text-shadow: black 1px 0 10px,black 1px 0px 10px,black 1px 0px 10px;
 }
+#tutorialInfoPopUp a{
+    color: #ffc437;
+}
 
 #tutorialInfoPopUp .tutorialInfoButtons button{
     background-color: transparent;
