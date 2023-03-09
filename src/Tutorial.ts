@@ -51,7 +51,6 @@ export class Tutorial {
     }
 
     initiateTutQuickSelect = () : void => {
-        console.log('trying to initiate ')
         var that = this
         $("body").on('keydown',function(e){
 
@@ -145,7 +144,6 @@ export class Tutorial {
     }
 
     waitForElement = (waitType:Wait.Type) :void => {
-        console.log('waiting',waitType)
         var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
         var elementAvailable = false
         var selectorElement = tutStep.getSelector()
@@ -155,13 +153,10 @@ export class Tutorial {
             if(!selectorElement().hasClass('modal')){
                 selectorElement = selectorElement().closest('.modal')
                 alternateHighlightSelector = selectorElement
-                console.log('gettign modal parent', selectorElement)
             }else{
-                console.log('not gettign modal parent')
                 selectorElement = selectorElement()
             }
             elementAvailable = selectorElement.hasClass('show')
-            console.log('has class?',elementAvailable)
         }else if (waitType === Wait.Type.Element){
             if(selectorElement().length){
                 elementAvailable = true
@@ -192,20 +187,21 @@ export class Tutorial {
         this.openInfoPopUp(activeTut, tutStep)
     }
 
+
+    //these are ground work for fufture tutorial system functionality
     initiatePressStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
-        console.log('initiating text step')
+        console.log('initiating button step')
     }
 
     initiateInputStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
-        console.log('initiating text step')
+        console.log('initiating input step')
     }
 
     initiateConditionStep = (tutStep:TutorialStep, condition:string,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
-        console.log('initiating text step')
+        console.log('initiating condition step')
     }
 
     highlightStepTarget = (selector:JQuery<HTMLElement>) : void => {
-        console.log(selector)
         var coords = selector.offset()
         var docHeight = $(document).height()
         var docWidth = $(document).width()
