@@ -46,6 +46,39 @@ export class Tutorial {
                 that.initiateTutStep('next')
             }
         })
+        this.initiateTutQuickSelect()
+    }
+
+    initiateTutQuickSelect = () : void => {
+        console.log('trying to initiate ')
+        var that = this
+        $("body").on('keydown',function(e){
+
+            switch(e.which) {
+                case 37: // left
+                    that.tutButtonPrev()
+                break;
+        
+                case 38: // up
+                    that.tutButtonPrev()
+                break;
+        
+                case 39: // right
+                    that.tutButtonNext() 
+                break;
+        
+                case 40: // down
+                    that.tutButtonNext()
+                break;
+
+                case 27: //escape
+                e.preventDefault()
+                    that.tutButtonEnd()
+                break;
+        
+                default: return; // exit this handler for other keys
+            }
+        })
     }
 
     initiateTutStep = (direction:string) :void => {
@@ -271,6 +304,7 @@ export class Tutorial {
 
     tutButtonEnd = () : void => {
         this.closeInfoPopUp()
+        $('body').unbind();
     }
 }
 
