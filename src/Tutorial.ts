@@ -289,9 +289,13 @@ export class Tutorial {
     }
 
     tutButtonNext = () : void => {
-        this.closeInfoPopUp()
-        activeTutCurrentStep ++
-        this.initiateTutStep('next')
+        if(activeTutCurrentStep<activeTutStepsNo){
+            this.closeInfoPopUp()
+            activeTutCurrentStep ++
+            this.initiateTutStep('next')
+        }else{
+            this.tutButtonEnd()
+        }
     }
 
     tutButtonPrev = () : void => {
