@@ -20,7 +20,6 @@ export class Tutorial {
         this.tutorialSteps = tutorialSteps;
 
     }
-    private tutorial = this
 
 
     getTutorialSteps = () : TutorialStep[] => {
@@ -90,7 +89,6 @@ export class Tutorial {
     }
 
     initiateTutStep = (direction:string) :void => {
-        const that = this;  
         const eagle = Eagle.getInstance()
 
         var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
@@ -112,26 +110,11 @@ export class Tutorial {
         this.initiateWaitForElement(tutStep.getWaitType())
     }
 
-    pickStepType = (tutStep:TutorialStep, alternateHighlightSelector:JQuery<HTMLElement>) :void => {
-        const that = this;
-
-        //call the correct function depending on which type of tutorial step this is
-        if(tutStep.getType() === TutorialStep.Type.Info){
-            that.initiateInfoStep(tutStep, alternateHighlightSelector)
-        }else if(tutStep.getType() === TutorialStep.Type.Press){
-            that.initiatePressStep(tutStep,alternateHighlightSelector)
-        }else if(tutStep.getType() === TutorialStep.Type.Input){
-            that.initiateInputStep(tutStep,alternateHighlightSelector)
-        }else if(tutStep.getType() === TutorialStep.Type.Condition){
-            const condition = '' //this should be a link to another function that returns a boolean value
-            that.initiateConditionStep(tutStep,condition,alternateHighlightSelector)
-        }
-    }
-
     initiateWaitForElement = (waitType:Wait.Type) :void => {
         if(waitType===Wait.Type.None){
             this.pickStepType(activeTut.getTutorialSteps()[activeTutCurrentStep-1],null)
         }else{
+            //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
             waitForElementTimer = setInterval(function(){activeTut.waitForElement(waitType)}, 100);  
             setTimeout(function(){
                 if(waitForElementTimer != null){
@@ -139,7 +122,7 @@ export class Tutorial {
                     waitForElementTimer = null;
                     console.warn('waiting for next tutorial step element timed out')
                 }
-            }, 5000)
+            }, 2000)
         }
     }
 
@@ -150,6 +133,9 @@ export class Tutorial {
         var alternateHighlightSelector = null
 
         if(waitType === Wait.Type.Modal){
+            //in  case of a modal we make sure the selector is for the modal, we then check if it has the class 'show'
+            //we also pass this modal selector to the highlighting function, so whole modal is highlighted, 
+            //but the arrow still points at a specific object in the modal
             if(!selectorElement().hasClass('modal')){
                 selectorElement = selectorElement().closest('.modal')
                 alternateHighlightSelector = selectorElement
@@ -177,8 +163,25 @@ export class Tutorial {
         }
     }
 
+    pickStepType = (tutStep:TutorialStep, alternateHighlightSelector:JQuery<HTMLElement>) :void => {
+        const that = this;
+
+        //call the correct function depending on which type of tutorial step this is
+        if(tutStep.getType() === TutorialStep.Type.Info){
+            that.initiateInfoStep(tutStep, alternateHighlightSelector)
+        }else if(tutStep.getType() === TutorialStep.Type.Press){
+            that.initiatePressStep(tutStep,alternateHighlightSelector)
+        }else if(tutStep.getType() === TutorialStep.Type.Input){
+            that.initiateInputStep(tutStep,alternateHighlightSelector)
+        }else if(tutStep.getType() === TutorialStep.Type.Condition){
+            const condition = '' //this should be a link to another function that returns a boolean value
+            that.initiateConditionStep(tutStep,condition,alternateHighlightSelector)
+        }
+    }
+
     initiateInfoStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
         var selectorElement = tutStep.getSelector()
+        //the alternate highlight selector is for modals in which case we highlight the whole modal while the arrow points at a specific child
         if(alternateHighlightSelector != null){
             this.highlightStepTarget(alternateHighlightSelector)
         }else{
@@ -186,7 +189,6 @@ export class Tutorial {
         }
         this.openInfoPopUp(activeTut, tutStep)
     }
-
 
     //these are ground work for fufture tutorial system functionality
     initiatePressStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
@@ -202,26 +204,26 @@ export class Tutorial {
     }
 
     highlightStepTarget = (selector:JQuery<HTMLElement>) : void => {
+        
+        //in order to darken the screen save the selection target, we must add divs on each side of the element.
         var coords = selector.offset()
         var docHeight = $(document).height()
         var docWidth = $(document).width()
-        var top_y = coords.top
-        var top = docHeight - top_y
-        var right_x = coords.left+$(selector).outerWidth()
-        var bottom_y = coords.top+$(selector).outerHeight()
-        var bottom = docHeight - bottom_y
-        var left_x = coords.left
-        var left = docWidth - left_x
+        var top_actual = coords.top
+        var top = docHeight - top_actual
+        var right = coords.left+$(selector).outerWidth()
+        var bottom_actual = coords.top+$(selector).outerHeight()
+        var bottom = docHeight - bottom_actual
+        var left = docWidth - coords.left
 
-        //in order to darken the screen save the selection target, we must add four divs. above, below and on each side of the element
         //top
         $('body').append("<div class='tutorialHighlight' style='top:0px; right:0px;bottom:"+top+"px;left:0px;'></div>")
         //right
-        $('body').append("<div class='tutorialHighlight' style='top:"+top_y+"px; right:0px;bottom:"+bottom+"px;left:"+right_x+"px;'></div>")
+        $('body').append("<div class='tutorialHighlight' style='top:"+top_actual+"px; right:0px;bottom:"+bottom+"px;left:"+right+"px;'></div>")
         //bottom
-        $('body').append("<div class='tutorialHighlight' style='top:"+bottom_y+"px; right:0px;bottom:0px;left:0px;'></div>")
+        $('body').append("<div class='tutorialHighlight' style='top:"+bottom_actual+"px; right:0px;bottom:0px;left:0px;'></div>")
         //left
-        $('body').append("<div class='tutorialHighlight' style='top:"+top_y+"px; right:"+left+"px;bottom:"+bottom+"px;left:0px;'></div>")
+        $('body').append("<div class='tutorialHighlight' style='top:"+top_actual+"px; right:"+left+"px;bottom:"+bottom+"px;left:0px;'></div>")
     }   
 
     openInfoPopUp = (tut:Tutorial, step:TutorialStep) :void => {
@@ -389,6 +391,8 @@ export namespace Wait {
     }
 }
 
+
+//add new tutorials here.
 export const tutorialArray = [
     
     new Tutorial(
