@@ -43,22 +43,31 @@ export class Tutorial {
                 activeTut = tut
                 activeTutStepsNo = tut.getTutorialSteps().length
                 activeTutCurrentStep = 1
-                that.initiateTutStep()
+                that.initiateTutStep('next')
             }
         })
     }
 
-    initiateTutStep = () :void => {
+    initiateTutStep = (direction:string) :void => {
         const that = this;  
         const eagle = Eagle.getInstance()
 
         var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
 
         //if there is a preFunction set, then we execute it here
-        var preFunction = tutStep.getPreFunct()
+        var preFunction
+
+        if(direction === 'next'){
+            preFunction = tutStep.getPreFunct()
+        }else if(direction === 'prev'){
+            preFunction = tutStep.getBackPreFunct()
+        }
+        
         if(preFunction != null){
             preFunction(eagle)
         }
+        
+        //we always pass through the wait funciton, it is decided there if we actully wait or not
         this.initiateWaitForElement(tutStep.getWaitType())
     }
 
@@ -249,14 +258,14 @@ export class Tutorial {
     tutButtonNext = () : void => {
         this.closeInfoPopUp()
         activeTutCurrentStep ++
-        this.initiateTutStep()
+        this.initiateTutStep('next')
     }
 
     tutButtonPrev = () : void => {
         if(activeTutCurrentStep>1){
             this.closeInfoPopUp()
             activeTutCurrentStep --
-            this.initiateTutStep()
+            this.initiateTutStep('prev')
         }
     }
 
@@ -272,9 +281,9 @@ export class TutorialStep {
     private waitType : Wait.Type;
     private selector : () => void;
     private preFunction : (eagle:Eagle) => void;
-    private backPreFunction : string;
+    private backPreFunction : (eagle:Eagle) => void;
 
-    constructor(title : string, text : string, type : TutorialStep.Type,waitType: Wait.Type, selector:() => void, preFunction:(eagle:Eagle) => void, backPreFunction:string){
+    constructor(title : string, text : string, type : TutorialStep.Type,waitType: Wait.Type, selector:() => void, preFunction:(eagle:Eagle) => void, backPreFunction:(eagle:Eagle) => void){
         this.title = title;
         this.text = text;
         this.type = type;
@@ -308,6 +317,10 @@ export class TutorialStep {
         return this.preFunction;
     }
 
+    getBackPreFunct = () : any => {
+        return this.backPreFunction;
+    }
+
 }
 
 export namespace TutorialStep {
@@ -333,18 +346,18 @@ export const tutorialArray = [
         "Quick Start Tutorial",
         'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.',
         [
-            new TutorialStep("Welcome to Eagle!", "Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the 'exit' button or ESC key.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#eagleAndVersion a")},null,""),
-            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's interface is iconised. However, you can always hover on elements to get more information on they do.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#navbarSupportedContent .btn-group")},null,""),
-            new TutorialStep("Graph Options", "Here you are able to load, save or create graphs", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#navbarDropdownGraph")},null,""),
-            new TutorialStep("Repositories Tab", "You can browse and load graphs from linked github repositories here.", TutorialStep.Type.Info,Wait.Type.Element, function(){return $("#rightWindowModeRepositories")},function(eagle){$('#rightWindowModeRepositories').click();},""),
-            new TutorialStep("Settings", "The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#settings")},null,""),
-            new TutorialStep("Setup External Services", "In the external services section of the settings you are able to set up your github access token, feel free to do so now.", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#settingTranslatorURLValue")},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();},""),
-            new TutorialStep("Setup your git access token", "Setting up a github access token is necessary for getting full access to your git repositories. feel free, to add one now.", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#settingGitHubAccessTokenValue")},null,""),
-            new TutorialStep("Saving Settings", "Press 'Ok' to save your changes. You are also able to revert the changes you made by hitting 'cancel'", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#settingsModalAffirmativeButton")},null,""),
-            new TutorialStep("Key Attributes Table", "This is where you can tweak the key attributes of a graph. These Key attributes are set by a Graph's or Component's creator.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#openKeyParameterTable")},function(eagle){eagle.closeSettings()},""),
-            new TutorialStep("Keyboard Shortcuts", "To get through these menus quicker you can view our keyboard shurtcuts here. To access this modal, find it in the navbar under 'Help' or simply press 'K'.", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#shortcutsModal")},function(eagle){eagle.openShortcuts()},""),
-            new TutorialStep("Setting up the translator", "In the Translator tab you are able to set up the translator url and settigns.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#rightWindowModeTranslation")},function(eagle){eagle.closeShortcuts();eagle.rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);eagle.rightWindow().shown(true);},""),
-            new TutorialStep("Translating", "If youve set up everything so far, you should be able to deploy the translator. More information on translation on our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/graphs.html#templates-and-graphs'>templates and graphs documentation</a>", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#navDeployBtn a")},null,""),
+            new TutorialStep("Welcome to Eagle!", "Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the 'exit' button or ESC key.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#eagleAndVersion a")},null,null),
+            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's interface is iconised. However, you can always hover on elements to get more information on they do.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#navbarSupportedContent .btn-group")},null,null),
+            new TutorialStep("Graph Options", "Here you are able to load, save or create graphs", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#navbarDropdownGraph")},null,null),
+            new TutorialStep("Repositories Tab", "You can browse and load graphs from linked github repositories here.", TutorialStep.Type.Info,Wait.Type.Element, function(){return $("#rightWindowModeRepositories")},function(eagle){$('#rightWindowModeRepositories').click();},function(eagle){$('#rightWindowModeRepositories').click();}),
+            new TutorialStep("Settings", "The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#settings")},null,function(eagle){eagle.closeSettings()}),
+            new TutorialStep("Setup External Services", "In the external services section of the settings you are able to set up your github access token, feel free to do so now.", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#settingTranslatorURLValue")},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();}),
+            new TutorialStep("Setup your git access token", "Setting up a github access token is necessary for getting full access to your git repositories. feel free, to add one now.", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#settingGitHubAccessTokenValue")},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();}),
+            new TutorialStep("Saving Settings", "Press 'Ok' to save your changes. You are also able to revert the changes you made by hitting 'cancel'", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#settingsModalAffirmativeButton")},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();}),
+            new TutorialStep("Key Attributes Table", "This is where you can tweak the key attributes of a graph. These Key attributes are set by a Graph's or Component's creator.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#openKeyParameterTable")},function(eagle){eagle.closeSettings()},function(eagle){eagle.closeShortcuts()}),
+            new TutorialStep("Keyboard Shortcuts", "To get through these menus quicker you can view our keyboard shurtcuts here. To access this modal, find it in the navbar under 'Help' or simply press 'K'.", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#shortcutsModal")},function(eagle){eagle.openShortcuts()},function(eagle){eagle.openShortcuts()}),
+            new TutorialStep("Setting up the translator", "In the Translator tab you are able to set up the translator url and settigns.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#rightWindowModeTranslation")},function(eagle){eagle.closeShortcuts();eagle.rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);eagle.rightWindow().shown(true);},function(eagle){eagle.rightWindow().shown(true);}),
+            new TutorialStep("Translating", "If youve set up everything so far, you should be able to deploy the translator. More information on translation on our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/graphs.html#templates-and-graphs'>templates and graphs documentation</a>", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#navDeployBtn a")},null,null),
         
         ]
     )

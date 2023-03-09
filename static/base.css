@@ -2279,6 +2279,11 @@ palette-component input.form-control.selected {
     position:absolute;
     background-color: rgba(0, 0, 0, 0.7);
     z-index:2000;
+    
+    /*wip, the background is recreated each time, this means when there is some delay it results in a flash
+    /* animation: tutFadeInAnimation ease 3s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards; */
 }
 
 #tutorialInfoPopUp{
@@ -2413,6 +2418,16 @@ palette-component input.form-control.selected {
 #tutorialInfoPopUp .tutEndBtn{
     position: absolute;
     right: 0px;
+}
+
+
+@keyframes tutFadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+     }
 }
 
 .rightWindow .searchBarContainer{
