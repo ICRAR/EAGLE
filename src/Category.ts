@@ -16,6 +16,9 @@ export enum Category {
     Mpi = "Mpi",
     Docker = "Docker",
 
+    PythonMemberFunction = "PythonMemberFunction",
+    PythonObject = "PythonObject",
+
     NGAS = "NGAS",
     S3 = "S3",
     Memory = "Memory",
@@ -66,10 +69,10 @@ export namespace Category {
     // TODO: add to CategoryData somehow? use in Node.isData() etc?
     export enum Type {
         Application = "Application",
+        Construct = "Construct",
         Container = "Container",
         Control = "Control",
         Data = "Data",
-        Construct = "Construct",
         Other = "Other",
         Service = "Service",
         Socket = "Socket",
@@ -77,12 +80,13 @@ export namespace Category {
     }
 
     export enum Color {
-        Data = "#2c2c2c",
         Application = "#0059a5",
-        Group = "rgb(211 165 0)",
+        Control = "rgb(88 167 94)",
+        Data = "#2c2c2c",
         Description = "rgb(157 43 96)",
         Error = "#FF66CC",
-        Control = "rgb(88 167 94)",
+        Group = "rgb(211 165 0)",
+        Object = "#00F5FF",
         Service = "purple"
     }
 
@@ -90,6 +94,7 @@ export namespace Category {
     export enum SortOrder {
         Control,
         Application,
+        Object,
         Data,
         Construct,
         Documentation,

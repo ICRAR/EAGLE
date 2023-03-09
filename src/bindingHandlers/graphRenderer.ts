@@ -112,7 +112,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     const MIN_AUTO_COMPLETE_EDGE_RANGE : number = 150;
 
-    const snapToGridSize : number = Setting.findValue(Utils.SNAP_TO_GRID_SIZE);
+    const snapToGridSize : number = Setting.findValue(Setting.SNAP_TO_GRID_SIZE);
 
     const svgContainer = d3
         .select("#" + elementId)
@@ -294,7 +294,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         e.preventDefault()
         // Somehow only the eagle.globalScale does something...
         const wheelDelta = e.originalEvent.deltaY;
-        const zoomDivisor = Setting.findValue(Utils.GRAPH_ZOOM_DIVISOR);
+        const zoomDivisor = Setting.findValue(Setting.GRAPH_ZOOM_DIVISOR);
 
         const xs = (e.clientX - eagle.globalOffsetX) / eagle.globalScale
         const ys = (e.clientY - eagle.globalOffsetY) / eagle.globalScale
@@ -1076,7 +1076,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     const eligibleComponents = Utils.getComponentsWithPort(eagle.palettes(), !sourcePort.isInputPort(), sourcePortType, dataEligible);
                                     console.log("Found", eligibleComponents.length, "eligible automatically suggested components that could connect to port type", sourcePortType);
 
-                                    if (Setting.findValue(Utils.AUTO_SUGGEST_DESTINATION_NODES) && eligibleComponents.length > 0){
+                                    if (Setting.findValue(Setting.AUTO_SUGGEST_DESTINATION_NODES) && eligibleComponents.length > 0){
 
                                         // get list of strings from list of eligible components
                                         const eligibleComponentNames : string[] = [];

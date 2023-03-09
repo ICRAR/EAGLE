@@ -100,7 +100,7 @@
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="visible: selectedObjects().length > 0, click: function(){rightWindow().mode(Eagle.RightWindowMode.Inspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Inspector}">
                             Inspector
                         </button>
-                        <!-- ko ifnot: Eagle.translatorUiMode(Eagle.TranslatorMode.Minimal)-->
+                        <!-- ko ifnot: Eagle.translatorUiMode(Setting.TranslatorMode.Minimal)-->
                             <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}">
                                 Translation
                             </button>
@@ -163,7 +163,7 @@
                         </div>
                     </div>
                     <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
-                        <!-- ko ifnot: Eagle.translatorUiMode(Eagle.TranslatorMode.Minimal)-->
+                        <!-- ko ifnot: Eagle.translatorUiMode(Setting.TranslatorMode.Minimal)-->
                             {% include 'translation_menu.html' %}
                         <!-- /ko -->
                     </div>

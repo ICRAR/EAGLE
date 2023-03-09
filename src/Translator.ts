@@ -61,8 +61,8 @@ export class Translator {
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
         // consult EAGLE settings to determine whether to open the transator in a new tab
-        const translateInCurrentTab: boolean = Setting.findValue(Utils.OPEN_TRANSLATOR_IN_CURRENT_TAB);
-        const overwriteTranslationTab: boolean = Setting.findValue(Utils.OVERWRITE_TRANSLATION_TAB);
+        const translateInCurrentTab: boolean = Setting.findValue(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB);
+        const overwriteTranslationTab: boolean = Setting.findValue(Setting.OVERWRITE_TRANSLATION_TAB);
 
         // create form element
         const form = document.createElement("form");
@@ -127,7 +127,7 @@ export class Translator {
             return;
         }
 
-        const translatorURL : string = Setting.findValue(Utils.TRANSLATOR_URL);
+        const translatorURL : string = Setting.findValue(Setting.TRANSLATOR_URL);
         console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
 
         // set the schema version
@@ -166,7 +166,7 @@ export class Translator {
         }
 
         // validate json
-        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
+        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, format, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";

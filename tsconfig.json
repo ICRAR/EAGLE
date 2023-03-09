@@ -8,7 +8,7 @@
         "module": "umd",
         "moduleResolution": "node",
         "target": "es5",
-        "lib": ["es2017", "dom"],
+        "lib": ["es2021", "dom"],
         "allowJs": false,
         "types": ["jquery", "bootstrap", "bootstrap-notify"]
     },

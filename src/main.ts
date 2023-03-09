@@ -88,10 +88,10 @@ $(function(){
     const user_interface_mode = (<any>window).mode;
     if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
         // make sure that the specified user interface mode is a known mode
-        if (Object.values(Eagle.UIMode).includes(user_interface_mode)){
-            Setting.find(Utils.USER_INTERFACE_MODE).setValue(user_interface_mode);
+        if (Object.values(Setting.UIMode).includes(user_interface_mode)){
+            Setting.find(Setting.USER_INTERFACE_MODE).setValue(user_interface_mode);
         } else {
-            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Eagle.UIMode).join(','));
+            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Setting.UIMode).join(','));
         }
 
         // hide the ?mode=x part of the url
@@ -99,7 +99,7 @@ $(function(){
     }
 
     // Get the list of git repos
-    if (Eagle.isInUIMode(Eagle.UIMode.Minimal)){
+    if (Eagle.isInUIMode(Setting.UIMode.Minimal)){
         GitHub.loadStudentRepoList();
     } else {
         GitHub.loadRepoList();
@@ -107,7 +107,7 @@ $(function(){
     }
 
     // load the default palette
-    if (Setting.findValue(Utils.OPEN_DEFAULT_PALETTE)){
+    if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
             {name:"Builtin Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true}
@@ -122,8 +122,8 @@ $(function(){
     }
 
     // set other state based on settings values
-    if (Setting.findValue(Utils.SNAP_TO_GRID)){
-        eagle.snapToGrid(Setting.findValue(Utils.SNAP_TO_GRID));
+    if (Setting.findValue(Setting.SNAP_TO_GRID)){
+        eagle.snapToGrid(Setting.findValue(Setting.SNAP_TO_GRID));
     }
 
     // load schemas
@@ -136,7 +136,7 @@ $(function(){
     Modals.init(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
-    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
+    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
 
     // keyboard shortcut event listener
     document.onkeydown = KeyboardShortcut.processKey;

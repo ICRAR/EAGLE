@@ -681,6 +681,10 @@ export class Node {
         }
     }, this);
 
+    getDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        return Utils.markdown2html(this.getDescription());
+    }, this);
+
     getSubjectKey = () : number => {
         return this.subject();
     }
@@ -1777,7 +1781,7 @@ export class Node {
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
             if (!node.hasInputApplication()){
-                if (Setting.findValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
+                if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                     node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Category.UnknownApplication, "", node.getKey()));
                     errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention."));
                 } else {
@@ -1791,7 +1795,7 @@ export class Node {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
             if (node.canHaveOutputApplication()){
                 if (!node.hasOutputApplication()){
-                    if (Setting.findValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
+                    if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                         node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Category.UnknownApplication, "", node.getKey()));
                         errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
                     } else {
@@ -1805,7 +1809,7 @@ export class Node {
                 // if possible, add port to output side of input application
                 if (node.canHaveInputApplication()){
                     if (!node.hasInputApplication()){
-                        if (Setting.findValue(Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
+                        if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                             node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Category.UnknownApplication, "", node.getKey()));
                         } else {
                             errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
@@ -1823,8 +1827,8 @@ export class Node {
 
     static toOJSPaletteJson = (node : Node) : object => {
         const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
-        const useOldOutputFormat : boolean = Setting.findValue(Utils.USE_OLD_OUTPUT_FORMAT);
+        const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
+        const useOldOutputFormat : boolean = Setting.findValue(Setting.USE_OLD_OUTPUT_FORMAT);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
         result.categoryType = node.categoryType();
@@ -1951,8 +1955,8 @@ export class Node {
 
     static toOJSGraphJson = (node : Node) : object => {
         const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
-        const useOldOutputFormat : boolean = Setting.findValue(Utils.USE_OLD_OUTPUT_FORMAT);
+        const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
+        const useOldOutputFormat : boolean = Setting.findValue(Setting.USE_OLD_OUTPUT_FORMAT);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
         result.categoryType = node.categoryType();
