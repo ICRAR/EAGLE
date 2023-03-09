@@ -7,6 +7,7 @@ let activeTut : Tutorial
 let activeTutStepsNo = 0;
 let activeTutCurrentStep = 0;
 var waitForElementTimer:number = null
+var cooldown:boolean = false
 
 export class Tutorial {
     private name : string;
@@ -79,6 +80,14 @@ export class Tutorial {
                 default: return; // exit this handler for other keys
             }
         })
+    }
+
+    //cooldown function that prevents too many actions that would cause the tutorial steps to go out of whack
+    startCooldown = () : void => {
+        cooldown = true
+        setTimeout(function(){
+            cooldown = false
+        }, 500)
     }
 
     initiateTutStep = (direction:string) :void => {
@@ -289,20 +298,26 @@ export class Tutorial {
     }
 
     tutButtonNext = () : void => {
-        if(activeTutCurrentStep<activeTutStepsNo){
-            this.closeInfoPopUp()
-            activeTutCurrentStep ++
-            this.initiateTutStep('next')
-        }else{
-            this.tutButtonEnd()
+        if(cooldown === false){
+            if(activeTutCurrentStep<activeTutStepsNo){
+                this.closeInfoPopUp()
+                activeTutCurrentStep ++
+                this.initiateTutStep('next')
+                this.startCooldown()
+            }else{
+                this.tutButtonEnd()
+            }
         }
     }
 
     tutButtonPrev = () : void => {
-        if(activeTutCurrentStep>1){
-            this.closeInfoPopUp()
-            activeTutCurrentStep --
-            this.initiateTutStep('prev')
+        if(cooldown === false){
+            if(activeTutCurrentStep>1){
+                this.closeInfoPopUp()
+                activeTutCurrentStep --
+                this.initiateTutStep('prev')
+                this.startCooldown()
+            }
         }
     }
 
