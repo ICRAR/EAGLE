@@ -51,7 +51,7 @@ export class Tutorial {
 
     initiateTutQuickSelect = () : void => {
         var that = this
-        $("body").on('keydown',function(e){
+        $("body").on('keydown.tutEventListener',function(e){
 
             switch(e.which) {
                 case 37: // left
@@ -63,7 +63,9 @@ export class Tutorial {
                 break;
         
                 case 39: // right
-                    that.tutButtonNext() 
+                    if(activeTut.getTutorialSteps()[activeTutCurrentStep-1].getType() != TutorialStep.Type.Press){
+                        that.tutButtonNext() 
+                    }
                 break;
         
                 case 40: // down
@@ -179,6 +181,7 @@ export class Tutorial {
         }
     }
 
+    //normal info step
     initiateInfoStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
         var selectorElement = tutStep.getSelector()
         //the alternate highlight selector is for modals in which case we highlight the whole modal while the arrow points at a specific child
@@ -187,14 +190,25 @@ export class Tutorial {
         }else{
             this.highlightStepTarget(selectorElement())
         }
-        this.openInfoPopUp(activeTut, tutStep)
+        this.openInfoPopUp()
+    }
+
+    //a selector press step
+    initiatePressStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
+        var selectorElement = tutStep.getSelector()
+        if(alternateHighlightSelector != null){
+            this.highlightStepTarget(alternateHighlightSelector)
+        }else{
+            this.highlightStepTarget(selectorElement())
+        }
+        const eagle = Eagle.getInstance()
+
+        selectorElement().on('click.tutButtonListener',eagle.tutorial().tutPressStepListener).addClass('tutButtonListener')
+
+        this.openInfoPopUp()
     }
 
     //these are ground work for fufture tutorial system functionality
-    initiatePressStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
-        console.log('initiating button step')
-    }
-
     initiateInputStep = (tutStep:TutorialStep,alternateHighlightSelector:JQuery<HTMLElement>) : void => {
         console.log('initiating input step')
     }
@@ -226,8 +240,9 @@ export class Tutorial {
         $('body').append("<div class='tutorialHighlight' style='top:"+top_actual+"px; right:"+left+"px;bottom:"+bottom+"px;left:0px;'></div>")
     }   
 
-    openInfoPopUp = (tut:Tutorial, step:TutorialStep) :void => {
+    openInfoPopUp = () :void => {
 
+        var step = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
         var currentSelector = step.getSelector()
         //figuring out where there is enough space to place the tutorial
         var selectedLocationX = currentSelector().offset().left+(currentSelector().width()/2)
@@ -276,7 +291,7 @@ export class Tutorial {
                         if(activeTutCurrentStep>1){
                             tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
                         }
-                        if(activeTutCurrentStep<activeTutStepsNo){
+                        if(activeTutCurrentStep<activeTutStepsNo && step.getType() != TutorialStep.Type.Press){
                             tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
                         }
                         tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeTutCurrentStep +" of "+activeTutStepsNo+"</span>"
@@ -321,7 +336,13 @@ export class Tutorial {
 
     tutButtonEnd = () : void => {
         this.closeInfoPopUp()
-        $('body').unbind();
+        $('body').off('keydown.tutEventListener');
+        $('.tutButtonListener').off('click.tutButtonListener')
+    } 
+
+    tutPressStepListener = () : void => {
+        $('.tutButtonListener').off('click.tutButtonListener')
+        this.tutButtonNext()
     }
 }
 
@@ -391,7 +412,6 @@ export namespace Wait {
     }
 }
 
-
 //add new tutorials here.
 export const tutorialArray = [
     
@@ -403,15 +423,15 @@ export const tutorialArray = [
             new TutorialStep("User Interface Element Tooltips", "Much of Eagle's interface is iconised. However, you can always hover on elements to get more information on they do.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#navbarSupportedContent .btn-group")},null,null),
             new TutorialStep("Graph Options", "Here you are able to load, save or create graphs", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#navbarDropdownGraph")},null,null),
             new TutorialStep("Repositories Tab", "You can browse and load graphs from linked github repositories here.", TutorialStep.Type.Info,Wait.Type.Element, function(){return $("#rightWindowModeRepositories")},function(eagle){$('#rightWindowModeRepositories').click();},function(eagle){$('#rightWindowModeRepositories').click();}),
-            new TutorialStep("Settings", "The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#settings")},null,function(eagle){eagle.closeSettings()}),
+            new TutorialStep("Click To Open Settings", "The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>.", TutorialStep.Type.Press,Wait.Type.None, function(){return $("#settings")},null,function(eagle){eagle.closeSettings()}),
             new TutorialStep("Setup External Services", "In the external services section of the settings you are able to set up your github access token, feel free to do so now.", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#settingTranslatorURLValue")},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();}),
             new TutorialStep("Setup your git access token", "Setting up a github access token is necessary for getting full access to your git repositories. feel free, to add one now.", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#settingGitHubAccessTokenValue")},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();}),
-            new TutorialStep("Saving Settings", "Press 'Ok' to save your changes. You are also able to revert the changes you made by hitting 'cancel'", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#settingsModalAffirmativeButton")},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();}),
+            new TutorialStep("Click To Save Settings", "Press 'Ok' to save your changes. You are also able to revert the changes you made by hitting 'cancel'", TutorialStep.Type.Press,Wait.Type.Modal, function(){return $("#settingsModalAffirmativeButton")},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();},function(eagle){eagle.openSettings();$('#settingCategoryExternalServices').click();}),
             new TutorialStep("Key Attributes Table", "This is where you can tweak the key attributes of a graph. These Key attributes are set by a Graph's or Component's creator.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#openKeyParameterTable")},function(eagle){eagle.closeSettings()},function(eagle){eagle.closeShortcuts()}),
             new TutorialStep("Keyboard Shortcuts", "To get through these menus quicker you can view our keyboard shurtcuts here. To access this modal, find it in the navbar under 'Help' or simply press 'K'.", TutorialStep.Type.Info,Wait.Type.Modal, function(){return $("#shortcutsModal")},function(eagle){eagle.openShortcuts()},function(eagle){eagle.openShortcuts()}),
             new TutorialStep("Setting up the translator", "In the Translator tab you are able to set up the translator url and settigns.", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#rightWindowModeTranslation")},function(eagle){eagle.closeShortcuts();eagle.rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);eagle.rightWindow().shown(true);},function(eagle){eagle.rightWindow().shown(true);}),
             new TutorialStep("Translating", "If youve set up everything so far, you should be able to deploy the translator. More information on translation on our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/graphs.html#templates-and-graphs'>templates and graphs documentation</a>", TutorialStep.Type.Info,Wait.Type.None, function(){return $("#navDeployBtn a")},null,null),
-        
+
         ]
     )
 ]
