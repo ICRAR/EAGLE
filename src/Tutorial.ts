@@ -139,8 +139,16 @@ export class Tutorial {
             //we also pass this modal selector to the highlighting function, so whole modal is highlighted, 
             //but the arrow still points at a specific object in the modal
             if(!selectorElement().hasClass('modal')){
+                if(selectorElement().closest('.modal-body').length > 0){
+                    alternateHighlightSelector = selectorElement().closest('.modal-body')
+                }else if(selectorElement().closest('.modal-footer').length > 0){
+                    alternateHighlightSelector = selectorElement().closest('.modal-footer')
+                }else if(selectorElement().closest('.modal-header').length > 0){
+                    alternateHighlightSelector = selectorElement().closest('.modal-header')
+                }else{
+                    alternateHighlightSelector = selectorElement().closest('.modal')
+                }
                 selectorElement = selectorElement().closest('.modal')
-                alternateHighlightSelector = selectorElement
             }else{
                 selectorElement = selectorElement()
             }
