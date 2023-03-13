@@ -48,6 +48,7 @@ import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {ParameterTable} from "./ParameterTable";
 import {SideWindow} from "./SideWindow";
+import { TutorialSystem } from "./Tutorial";
 
 let eagle : Eagle;
 
@@ -68,6 +69,7 @@ $(function(){
     (<any>window).Repositories = Repositories;
     (<any>window).ParameterTable = ParameterTable;
     (<any>window).SideWindow = SideWindow;
+    (<any>window).TutorialSystem = TutorialSystem;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
@@ -276,6 +278,6 @@ function autoTutorial(eagle: Eagle){
 
     if (tutorialName !== null){
         console.log("Running tutorial:", tutorialName);
-        eagle.tutorial().initiateTutorial(tutorialName);
+        TutorialSystem.initiateTutorial(tutorialName);
     }
 }

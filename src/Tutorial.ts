@@ -3,11 +3,75 @@ import * as ko from "knockout";
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 
-let activeTut : Tutorial 
-let activeTutNumSteps : number = 0;
-let activeTutCurrentStepIndex : number = 0;
-var waitForElementTimer:number = null
-var cooldown:boolean = false
+
+export class TutorialSystem {
+
+
+
+    static activeTut : Tutorial 
+    static activeTutNumSteps : number = 0;
+    static activeTutCurrentStepIndex : number = 0;
+    static waitForElementTimer:number = null
+    static cooldown:boolean = false
+
+    static initiateTutorial = (tutorialName:string) : void => {
+
+        Eagle.tutorials.forEach(function(tut){
+            if(tutorialName === tut.getName()){
+                //this is the requsted tutorial
+                TutorialSystem.activeTut = tut
+                TutorialSystem.activeTutNumSteps = tut.getTutorialSteps().length
+                TutorialSystem.activeTutCurrentStepIndex = 1
+                TutorialSystem.activeTut.initiateTutStep('next')
+            }
+        })
+        TutorialSystem.addTutKeyboardShortcuts()
+    }
+
+    static addTutKeyboardShortcuts = () : void => {
+        //these are the keyboard shortcuts for the tutorial system
+        $("body").on('keydown.tutEventListener',function(e){
+
+            switch(e.which) {
+                case 37: // left
+                    TutorialSystem.activeTut.tutButtonPrev()
+                break;
+        
+                case 38: // up
+                    TutorialSystem.activeTut.tutButtonPrev()
+                break;
+        
+                case 39: // right
+                    if(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1].getType() != TutorialStep.Type.Press){
+                        TutorialSystem.activeTut.tutButtonNext() 
+                    }
+                break;
+        
+                case 40: // down
+                    TutorialSystem.activeTut.tutButtonNext()
+                break;
+
+                case 27: //escape
+                    e.preventDefault()
+                    TutorialSystem.activeTut.tutButtonEnd()
+                break;
+        
+                default: return; // exit this handler for other keys
+            }
+        })
+    }
+
+    //cooldown function that prevents too many actions that would cause the tutorial steps to go out of whack
+    static startCooldown = () : void => {
+        TutorialSystem.cooldown = true
+        setTimeout(function(){
+            TutorialSystem.cooldown = false
+        }, 500)
+    }
+
+
+
+}
 
 export class Tutorial {
     private name : string;
@@ -21,7 +85,6 @@ export class Tutorial {
 
     }
 
-
     getTutorialSteps = () : TutorialStep[] => {
         return this.tutorialSteps;
     }
@@ -34,66 +97,10 @@ export class Tutorial {
         return this.description;
     }
 
-    initiateTutorial = (tutorialName:string) : void => {
-
-        Eagle.tutorials.forEach(function(tut){
-            if(tutorialName === tut.getName()){
-                //this is the requsted tutorial
-                activeTut = tut
-                activeTutNumSteps = tut.getTutorialSteps().length
-                activeTutCurrentStepIndex = 1
-                activeTut.initiateTutStep('next')
-            }
-        })
-        this.initiateTutQuickSelect()
-    }
-
-    initiateTutQuickSelect = () : void => {
-        //these are the keyboard shortcuts for the tutorial system
-        var that = this
-        $("body").on('keydown.tutEventListener',function(e){
-
-            switch(e.which) {
-                case 37: // left
-                    that.tutButtonPrev()
-                break;
-        
-                case 38: // up
-                    that.tutButtonPrev()
-                break;
-        
-                case 39: // right
-                    if(activeTut.getTutorialSteps()[activeTutCurrentStepIndex-1].getType() != TutorialStep.Type.Press){
-                        that.tutButtonNext() 
-                    }
-                break;
-        
-                case 40: // down
-                    that.tutButtonNext()
-                break;
-
-                case 27: //escape
-                e.preventDefault()
-                    that.tutButtonEnd()
-                break;
-        
-                default: return; // exit this handler for other keys
-            }
-        })
-    }
-
-    //cooldown function that prevents too many actions that would cause the tutorial steps to go out of whack
-    startCooldown = () : void => {
-        cooldown = true
-        setTimeout(function(){
-            cooldown = false
-        }, 500)
-    }
-
     initiateTutStep = (direction:string) :void => {
         const eagle = Eagle.getInstance()
 
-        var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStepIndex-1]
+        var tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1]
         if(tutStep.getSelector()().length === 0){
             console.warn('skipping step, selector could not be found: ', tutStep.getSelector())
             this.tutButtonNext()
@@ -119,14 +126,14 @@ export class Tutorial {
 
     initiateWaitForElement = (waitType:Wait.Type) :void => {
         if(waitType===Wait.Type.None){
-            this.pickStepType(activeTut.getTutorialSteps()[activeTutCurrentStepIndex-1],null)
+            this.pickStepType(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1],null)
         }else{
             //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
-            waitForElementTimer = setInterval(function(){activeTut.waitForElement(waitType)}, 100);  
+            TutorialSystem.waitForElementTimer = setInterval(function(){TutorialSystem.activeTut.waitForElement(waitType)}, 100);  
             setTimeout(function(){
-                if(waitForElementTimer != null){
-                    clearTimeout(waitForElementTimer);
-                    waitForElementTimer = null;
+                if(TutorialSystem.waitForElementTimer != null){
+                    clearTimeout(TutorialSystem.waitForElementTimer);
+                    TutorialSystem.waitForElementTimer = null;
                     console.warn('waiting for next tutorial step element timed out')
                 }
             }, 2000)
@@ -134,7 +141,7 @@ export class Tutorial {
     }
 
     waitForElement = (waitType:Wait.Type) :void => {
-        var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStepIndex-1]
+        var tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1]
         var elementAvailable = false
         var selectorElement = tutStep.getSelector()
         var alternateHighlightSelector = null
@@ -171,8 +178,8 @@ export class Tutorial {
        
         if(elementAvailable){
             this.pickStepType(tutStep, alternateHighlightSelector)
-            clearTimeout(waitForElementTimer);
-            waitForElementTimer = null;
+            clearTimeout(TutorialSystem.waitForElementTimer);
+            TutorialSystem.waitForElementTimer = null;
         }else{
             return
         }
@@ -255,7 +262,7 @@ export class Tutorial {
 
     openInfoPopUp = () :void => {
 
-        var step = activeTut.getTutorialSteps()[activeTutCurrentStepIndex-1]
+        var step = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1]
         var currentSelector = step.getSelector()
         //figuring out where there is enough space to place the tutorial
         var selectedLocationX = currentSelector().offset().left+(currentSelector().width()/2)
@@ -301,13 +308,13 @@ export class Tutorial {
                         tooltipPopUp = tooltipPopUp + "<span>"+step.getText()+"</span>"
                     tooltipPopUp = tooltipPopUp + "</div>"
                     tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoButtons'>"
-                        if(activeTutCurrentStepIndex>1){
+                        if(TutorialSystem.activeTutCurrentStepIndex>1){
                             tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
                         }
-                        if(activeTutCurrentStepIndex<activeTutNumSteps && step.getType() != TutorialStep.Type.Press){
+                        if(TutorialSystem.activeTutCurrentStepIndex<TutorialSystem.activeTutNumSteps && step.getType() != TutorialStep.Type.Press){
                             tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
                         }
-                        tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeTutCurrentStepIndex +" of "+activeTutNumSteps+"</span>"
+                        tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ TutorialSystem.activeTutCurrentStepIndex +" of "+TutorialSystem.activeTutNumSteps+"</span>"
                         tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>Exit</button>"
                     tooltipPopUp = tooltipPopUp + "</div>"
                 tooltipPopUp = tooltipPopUp + "</div>"
@@ -324,12 +331,12 @@ export class Tutorial {
     }
 
     tutButtonNext = () : void => {
-        if(cooldown === false){
-            if(activeTutCurrentStepIndex<activeTutNumSteps){
+        if(TutorialSystem.cooldown === false){
+            if(TutorialSystem.activeTutCurrentStepIndex<TutorialSystem.activeTutNumSteps){
                 this.closeInfoPopUp()
-                activeTutCurrentStepIndex ++
+                TutorialSystem.activeTutCurrentStepIndex ++
                 this.initiateTutStep('next')
-                this.startCooldown()
+                TutorialSystem.startCooldown()
             }else{
                 this.tutButtonEnd()
             }
@@ -337,12 +344,12 @@ export class Tutorial {
     }
 
     tutButtonPrev = () : void => {
-        if(cooldown === false){
-            if(activeTutCurrentStepIndex>1){
+        if(TutorialSystem.cooldown === false){
+            if(TutorialSystem.activeTutCurrentStepIndex>1){
                 this.closeInfoPopUp()
-                activeTutCurrentStepIndex --
+                TutorialSystem.activeTutCurrentStepIndex --
                 this.initiateTutStep('prev')
-                this.startCooldown()
+                TutorialSystem.startCooldown()
             }
         }
     }
@@ -358,13 +365,12 @@ export class Tutorial {
         this.tutButtonNext()
     }
 
-    //helpers
 
+    //helpers
     openSettingsSection = (tab:string) :void => {
         const eagle = Eagle.getInstance()
         eagle.openSettings()
         $(tab).click()
-
     }
 
 }
