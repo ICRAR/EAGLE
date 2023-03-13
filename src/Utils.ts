@@ -41,6 +41,7 @@ import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {ParameterTable} from './ParameterTable';
+import {FileInfo} from "./FileInfo";
 
 export class Utils {
     // Allowed file extenstions.
@@ -863,7 +864,6 @@ export class Utils {
         $('#parameterTableModal').modal("toggle");
     }
 
-
     static showShortcutsModal() : void {
         $('#shortcutsModal').modal("toggle");
     }
@@ -910,6 +910,13 @@ export class Utils {
             // process files into a more complex structure
             eagle.explorePalettes().initialise(explorePalettes);
         });
+    }
+
+    static showModelDataModal = (fileInfo: FileInfo) : void => {
+        const eagle = Eagle.getInstance();
+        eagle.currentFileInfo(fileInfo);
+
+        $('#modelDataModal').modal("toggle");
     }
 
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {
