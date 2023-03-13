@@ -206,7 +206,10 @@ export class Tutorial {
         }else{
             this.highlightStepTarget(tutStep.getTargetFunc()())
         }
-        this.openInfoPopUp()
+        //the little wait is waiting for the css animation of the highlighting system
+        setTimeout(function(){
+            TutorialSystem.activeTut.openInfoPopUp()
+        },510);
     }
 
     //a selector press step
@@ -220,8 +223,11 @@ export class Tutorial {
         const eagle = Eagle.getInstance()
 
         targetElement.on('click.tutButtonListener',eagle.tutorial().tutPressStepListener).addClass('tutButtonListener')
-
-        this.openInfoPopUp()
+        
+        //the little wait is waiting for the css animation of the highlighting system
+        setTimeout(function(){
+            TutorialSystem.activeTut.openInfoPopUp()
+        },510);
     }
 
     //these are ground work for fufture tutorial system functionality
@@ -246,14 +252,29 @@ export class Tutorial {
         const bottom = docHeight - bottom_actual
         const left = docWidth - coords.left
 
+        //i am appending these once if they dont exist. they are then adjusted for each step. and finally removed when exiting the tutorial
+        if($('.tutorialHighlight').length === 0){
+            //top
+            $('body').append("<div class='tutorialHighlight tutorialHighlightTop'></div>")
+            //right
+            $('body').append("<div class='tutorialHighlight tutorialHighlightRight'></div>")
+            //bottom
+            $('body').append("<div class='tutorialHighlight tutorialHighlightBottom'></div>")
+            //left
+            $('body').append("<div class='tutorialHighlight tutorialHighlightLeft'></div>")
+        }
+
         //top
-        $('body').append("<div class='tutorialHighlight' style='top:0px; right:0px;bottom:"+top+"px;left:0px;'></div>")
+        $('.tutorialHighlight.tutorialHighlightTop').css({"top":"0px", "right":"0px","bottom":top+"px","left":"0px"})
         //right
-        $('body').append("<div class='tutorialHighlight' style='top:"+top_actual+"px; right:0px;bottom:"+bottom+"px;left:"+right+"px;'></div>")
+        $('.tutorialHighlight.tutorialHighlightRight').css({"top":top_actual+"px", "right":"0px","bottom":bottom+"px","left":right+"px"})
+
         //bottom
-        $('body').append("<div class='tutorialHighlight' style='top:"+bottom_actual+"px; right:0px;bottom:0px;left:0px;'></div>")
+        $('.tutorialHighlight.tutorialHighlightBottom').css({"top":bottom_actual+"px", "right":"0px","bottom":"0px","left":"0px"})
+
         //left
-        $('body').append("<div class='tutorialHighlight' style='top:"+top_actual+"px; right:"+left+"px;bottom:"+bottom+"px;left:0px;'></div>")
+        $('.tutorialHighlight.tutorialHighlightLeft').css({"top":top_actual+"px", "right":left+"px","bottom":bottom+"px","left":"0px"})
+
     }   
 
     openInfoPopUp = () :void => {
@@ -324,7 +345,6 @@ export class Tutorial {
 
     closeInfoPopUp = () : void =>{
         $("#tutorialInfoPopUp").remove()
-        $(".tutorialHighlight").remove()
     }
 
     tutButtonNext = () : void => {
@@ -355,6 +375,7 @@ export class Tutorial {
         this.closeInfoPopUp()
         $('body').off('keydown.tutEventListener');
         $('.tutButtonListener').off('click.tutButtonListener').removeClass('tutButtonListener')
+        $(".tutorialHighlight").remove()
     } 
 
     tutPressStepListener = () : void => {
