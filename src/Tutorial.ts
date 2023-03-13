@@ -6,13 +6,11 @@ import {Utils} from './Utils';
 
 export class TutorialSystem {
 
-
-
-    static activeTut : Tutorial 
-    static activeTutNumSteps : number = 0;
-    static activeTutCurrentStepIndex : number = 0;
-    static waitForElementTimer:number = null
-    static cooldown:boolean = false
+    static activeTut : Tutorial //current active tutorial
+    static activeTutNumSteps : number = 0;  //total number of steps in the active tutorial
+    static activeTutCurrentStepIndex : number = 0;  //index of the current step in the active tutorial
+    static waitForElementTimer:number = null    //this houses the time out timer when waiting for a target element to appear
+    static cooldown:boolean = false //boolean if the tutorial system is currently on cooldown
 
     static initiateTutorial = (tutorialName:string) : void => {
 
@@ -21,8 +19,8 @@ export class TutorialSystem {
                 //this is the requsted tutorial
                 TutorialSystem.activeTut = tut
                 TutorialSystem.activeTutNumSteps = tut.getTutorialSteps().length
-                TutorialSystem.activeTutCurrentStepIndex = 1
-                TutorialSystem.activeTut.initiateTutStep('next')
+                TutorialSystem.activeTutCurrentStepIndex = 0
+                TutorialSystem.activeTut.initiateTutStep(TutorialStep.Direction.Next)
             }
         })
         TutorialSystem.addTutKeyboardShortcuts()
@@ -30,6 +28,7 @@ export class TutorialSystem {
 
     static addTutKeyboardShortcuts = () : void => {
         //these are the keyboard shortcuts for the tutorial system
+        //by putting a .name after an even type, we are giving this specific listener a name. This allows us to remove or modify it later
         $("body").on('keydown.tutEventListener',function(e){
 
             switch(e.which) {
@@ -42,7 +41,7 @@ export class TutorialSystem {
                 break;
         
                 case 39: // right
-                    if(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1].getType() != TutorialStep.Type.Press){
+                    if(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex].getType() != TutorialStep.Type.Press){
                         TutorialSystem.activeTut.tutButtonNext() 
                     }
                 break;
@@ -97,10 +96,10 @@ export class Tutorial {
         return this.description;
     }
 
-    initiateTutStep = (direction:string) :void => {
+    initiateTutStep = (direction:TutorialStep.Direction) :void => {
         const eagle = Eagle.getInstance()
 
-        const tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1]
+        const tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
         if(tutStep.getTargetFunc()().length === 0){
             console.warn('skipping step, selector could not be found: ', tutStep.getTargetFunc())
             this.tutButtonNext()
@@ -110,9 +109,9 @@ export class Tutorial {
         //if there is a preFunction set, then we execute it here
         let preFunction
 
-        if(direction === 'next'){
+        if(direction === TutorialStep.Direction.Next){
             preFunction = tutStep.getPreFunct()
-        }else if(direction === 'prev'){
+        }else if(direction === TutorialStep.Direction.Prev){
             preFunction = tutStep.getBackPreFunct()
         }
         
@@ -122,7 +121,7 @@ export class Tutorial {
         
         //we always pass through the wait function, it is decided there if we actually wait or not
         if(tutStep.getWaitType()===TutorialStep.Wait.None){
-            this.initiateStep(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1],null)
+            this.initiateStep(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex],null)
         }else{
             //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
             TutorialSystem.waitForElementTimer = setInterval(function(){TutorialSystem.activeTut.waitForElementThenRun(tutStep.getWaitType())}, 100);  
@@ -137,7 +136,7 @@ export class Tutorial {
     }
 
     waitForElementThenRun = (waitType:TutorialStep.Wait) :void => {
-        const tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1]
+        const tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
         let elementAvailable:boolean = false
         let targetElement:JQuery<HTMLElement> = tutStep.getTargetFunc()()
         let alternateHighlightTarget:JQuery<HTMLElement>  = null
@@ -259,7 +258,7 @@ export class Tutorial {
 
     openInfoPopUp = () :void => {
 
-        const step = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1]
+        const step = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
         const currentTarget:JQuery<HTMLElement> = step.getTargetFunc()()
         //figuring out where there is enough space to place the tutorial
         let selectedLocationX = currentTarget.offset().left+(currentTarget.width()/2)
@@ -291,6 +290,7 @@ export class Tutorial {
 
         //creating the html tooltip before appending
         let tooltipPopUp:string
+        const activeStepIndexDisplay = TutorialSystem.activeTutCurrentStepIndex+1
 
         tooltipPopUp = "<div id='tutorialInfoPopUp' class='"+orientation+"' style='left:"+selectedLocationX+"px;top:"+selectedLocationY+"px;'>"
             tooltipPopUp = tooltipPopUp + "<div class='tutorialArrowContainer'>"
@@ -305,13 +305,13 @@ export class Tutorial {
                         tooltipPopUp = tooltipPopUp + "<span>"+step.getText()+"</span>"
                     tooltipPopUp = tooltipPopUp + "</div>"
                     tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoButtons'>"
-                        if(TutorialSystem.activeTutCurrentStepIndex>1){
+                        if(TutorialSystem.activeTutCurrentStepIndex>0){
                             tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
                         }
-                        if(TutorialSystem.activeTutCurrentStepIndex<TutorialSystem.activeTutNumSteps && step.getType() != TutorialStep.Type.Press){
+                        if(TutorialSystem.activeTutCurrentStepIndex+1!==TutorialSystem.activeTutNumSteps && step.getType() != TutorialStep.Type.Press){
                             tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
                         }
-                        tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ TutorialSystem.activeTutCurrentStepIndex +" of "+TutorialSystem.activeTutNumSteps+"</span>"
+                        tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeStepIndexDisplay +" of "+TutorialSystem.activeTutNumSteps+"</span>"
                         tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>Exit</button>"
                     tooltipPopUp = tooltipPopUp + "</div>"
                 tooltipPopUp = tooltipPopUp + "</div>"
@@ -329,10 +329,10 @@ export class Tutorial {
 
     tutButtonNext = () : void => {
         if(TutorialSystem.cooldown === false){
-            if(TutorialSystem.activeTutCurrentStepIndex<TutorialSystem.activeTutNumSteps){
+            if(TutorialSystem.activeTutCurrentStepIndex+1!==TutorialSystem.activeTutNumSteps){
                 this.closeInfoPopUp()
                 TutorialSystem.activeTutCurrentStepIndex ++
-                this.initiateTutStep('next')
+                this.initiateTutStep(TutorialStep.Direction.Next)
                 TutorialSystem.startCooldown()
             }else{
                 this.tutButtonEnd()
@@ -342,10 +342,10 @@ export class Tutorial {
 
     tutButtonPrev = () : void => {
         if(TutorialSystem.cooldown === false){
-            if(TutorialSystem.activeTutCurrentStepIndex>1){
+            if(TutorialSystem.activeTutCurrentStepIndex>0){
                 this.closeInfoPopUp()
                 TutorialSystem.activeTutCurrentStepIndex --
-                this.initiateTutStep('prev')
+                this.initiateTutStep(TutorialStep.Direction.Prev)
                 TutorialSystem.startCooldown()
             }
         }
@@ -427,6 +427,11 @@ export namespace TutorialStep {
         Press,
         Input,
         Condition
+    }
+
+    export enum Direction {
+        Next,
+        Prev
     }
 
     export enum Wait {
