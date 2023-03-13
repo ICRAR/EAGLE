@@ -148,9 +148,6 @@ export class Eagle {
         Eagle.tutorials = tutorialArray
         this.tutorial = ko.observable(Eagle.tutorials[0]);
 
-        Eagle.tutorials = tutorialArray
-        this.tutorial = ko.observable(Eagle.tutorials[0]);
-
         Eagle.settings = Setting.getSettings();
         Eagle.shortcuts = KeyboardShortcut.getShortcuts();
         

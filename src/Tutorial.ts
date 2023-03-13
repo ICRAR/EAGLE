@@ -4,8 +4,8 @@ import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 
 let activeTut : Tutorial 
-let activeTutStepsNo = 0;
-let activeTutCurrentStep = 0;
+let activeTutNumSteps : number = 0;
+let activeTutCurrentStep : number = 0;
 var waitForElementTimer:number = null
 var cooldown:boolean = false
 
@@ -41,7 +41,7 @@ export class Tutorial {
             if(tutorialName === tut.getName()){
                 //this is the requsted tutorial
                 activeTut = tut
-                activeTutStepsNo = tut.getTutorialSteps().length
+                activeTutNumSteps = tut.getTutorialSteps().length
                 activeTutCurrentStep = 1
                 that.initiateTutStep('next')
             }
@@ -305,10 +305,10 @@ export class Tutorial {
                         if(activeTutCurrentStep>1){
                             tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
                         }
-                        if(activeTutCurrentStep<activeTutStepsNo && step.getType() != TutorialStep.Type.Press){
+                        if(activeTutCurrentStep<activeTutNumSteps && step.getType() != TutorialStep.Type.Press){
                             tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
                         }
-                        tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeTutCurrentStep +" of "+activeTutStepsNo+"</span>"
+                        tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeTutCurrentStep +" of "+activeTutNumSteps+"</span>"
                         tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>Exit</button>"
                     tooltipPopUp = tooltipPopUp + "</div>"
                 tooltipPopUp = tooltipPopUp + "</div>"
@@ -326,7 +326,7 @@ export class Tutorial {
 
     tutButtonNext = () : void => {
         if(cooldown === false){
-            if(activeTutCurrentStep<activeTutStepsNo){
+            if(activeTutCurrentStep<activeTutNumSteps){
                 this.closeInfoPopUp()
                 activeTutCurrentStep ++
                 this.initiateTutStep('next')
