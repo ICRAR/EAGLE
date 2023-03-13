@@ -100,7 +100,7 @@ export class Tutorial {
     initiateTutStep = (direction:string) :void => {
         const eagle = Eagle.getInstance()
 
-        var tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1]
+        const tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1]
         if(tutStep.getTargetFunc()().length === 0){
             console.warn('skipping step, selector could not be found: ', tutStep.getTargetFunc())
             this.tutButtonNext()
@@ -108,7 +108,7 @@ export class Tutorial {
         }
 
         //if there is a preFunction set, then we execute it here
-        var preFunction
+        let preFunction
 
         if(direction === 'next'){
             preFunction = tutStep.getPreFunct()
@@ -122,7 +122,7 @@ export class Tutorial {
         
         //we always pass through the wait function, it is decided there if we actually wait or not
         if(tutStep.getWaitType()===TutorialStep.Wait.None){
-            this.pickStepType(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1],null)
+            this.initiateStep(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex-1],null)
         }else{
             //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
             TutorialSystem.waitForElementTimer = setInterval(function(){TutorialSystem.activeTut.waitForElementThenRun(tutStep.getWaitType())}, 100);  
@@ -175,7 +175,7 @@ export class Tutorial {
         }
        
         if(elementAvailable){
-            this.pickStepType(tutStep, alternateHighlightTarget)
+            this.initiateStep(tutStep, alternateHighlightTarget)
             clearTimeout(TutorialSystem.waitForElementTimer);
             TutorialSystem.waitForElementTimer = null;
         }else{
@@ -183,7 +183,7 @@ export class Tutorial {
         }
     }
 
-    pickStepType = (tutStep:TutorialStep, alternateHighlightTarget:JQuery<HTMLElement>) :void => {
+    initiateStep = (tutStep:TutorialStep, alternateHighlightTarget:JQuery<HTMLElement>) :void => {
         const that = this;
 
         //call the correct function depending on which type of tutorial step this is
@@ -212,7 +212,7 @@ export class Tutorial {
 
     //a selector press step
     initiatePressStep = (tutStep:TutorialStep,alternateHighlightTarget:JQuery<HTMLElement>) : void => {
-        var targetElement = tutStep.getTargetFunc()()
+        const targetElement = tutStep.getTargetFunc()()
         if(alternateHighlightTarget != null){
             this.highlightStepTarget(alternateHighlightTarget)
         }else{
@@ -234,18 +234,18 @@ export class Tutorial {
         console.log('initiating condition step')
     }
 
-    highlightStepTarget = (selector:JQuery<HTMLElement>) : void => {
+    highlightStepTarget = (target:JQuery<HTMLElement>) : void => {
         
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
-        var coords = selector.offset()
-        var docHeight = $(document).height()
-        var docWidth = $(document).width()
-        var top_actual = coords.top
-        var top = docHeight - top_actual
-        var right = coords.left+$(selector).outerWidth()
-        var bottom_actual = coords.top+$(selector).outerHeight()
-        var bottom = docHeight - bottom_actual
-        var left = docWidth - coords.left
+        const coords = target.offset()
+        const docHeight = $(document).height()
+        const docWidth = $(document).width()
+        const top_actual = coords.top
+        const top = docHeight - top_actual
+        const right = coords.left+$(target).outerWidth()
+        const bottom_actual = coords.top+$(target).outerHeight()
+        const bottom = docHeight - bottom_actual
+        const left = docWidth - coords.left
 
         //top
         $('body').append("<div class='tutorialHighlight' style='top:0px; right:0px;bottom:"+top+"px;left:0px;'></div>")
@@ -381,12 +381,12 @@ export class TutorialStep {
     private preFunction : (eagle:Eagle) => void;
     private backPreFunction : (eagle:Eagle) => void;
 
-    constructor(title : string, text : string, type : TutorialStep.Type,waitType: TutorialStep.Wait, selector:() => void, preFunction:(eagle:Eagle) => void, backPreFunction:(eagle:Eagle) => void){
+    constructor(title : string, text : string, type : TutorialStep.Type,waitType: TutorialStep.Wait, targetFunc:() => void, preFunction:(eagle:Eagle) => void, backPreFunction:(eagle:Eagle) => void){
         this.title = title;
         this.text = text;
         this.type = type;
         this.waitType = waitType
-        this.targetFunc = selector;
+        this.targetFunc = targetFunc;
         this.preFunction = preFunction;
         this.backPreFunction = backPreFunction;
     }
