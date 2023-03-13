@@ -356,36 +356,6 @@ export class FileInfo {
         return s;
     }
 
-    getValues = (): {key:string, value:string}[] => {
-        const values: {key:string, value:string, tooltip:string}[] = [];
-
-        // NOTE: individual items are pushed manually here so that we can control the ordering
-        values.push({key:"fileType", value: this._type(), tooltip:"The type of content in the file. Options: " + Utils.enumKeys(Eagle.FileType)});
-        values.push({key:"repoService", value: this._repositoryService(), tooltip:"The service in which this file is stored. Options: " + Utils.enumKeys(Eagle.RepositoryService)});
-        values.push({key:"repo", value: this._repositoryName(), tooltip:""});
-        values.push({key:"repoBranch", value: this._repositoryBranch(), tooltip:""});
-        values.push({key:"filePath", value: this._path(), tooltip:""});
-        
-        values.push({key:"eagleVersion", value: this._eagleVersion(), tooltip:""});
-        values.push({key:"eagleCommitHash", value: this._eagleCommitHash(), tooltip:""});
-
-        values.push({key:"schemaVersion", value: this._schemaVersion(), tooltip:""});
-        values.push({key:"readonly", value: this._readonly().toString(), tooltip:""});
-
-        values.push({key:"repositoryUrl", value: this._repositoryUrl(), tooltip:""});
-        values.push({key:"commitHash", value: this._commitHash(), tooltip:""});
-        values.push({key:"downloadUrl", value: "<a href='" + this._downloadUrl() + "'>" + this._downloadUrl() + "</a>", tooltip:""});
-        values.push({key:"signature", value: this._signature(), tooltip:""});
-
-        values.push({key:"lastModifiedName", value: this._lastModifiedName(), tooltip:"Name of the user who last modified this file"});
-        values.push({key:"lastModifiedEmail", value: this._lastModifiedEmail(), tooltip:"Email of the user who last modified this file"});
-        values.push({key:"lastModifiedDatetime", value: this._lastModifiedDatetime().toString(), tooltip:"Date and time when this file was last modified"});
-
-        values.push({key:"numLGNodes", value: this._numLGNodes().toString(), tooltip:"Number of nodes within this file"});
-
-        return values;
-    }
-
     static toOJSJson = (fileInfo : FileInfo) : object => {
         return {
             fileType: fileInfo.type,
