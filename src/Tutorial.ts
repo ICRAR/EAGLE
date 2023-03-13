@@ -50,6 +50,7 @@ export class Tutorial {
     }
 
     initiateTutQuickSelect = () : void => {
+        //these are the keyboard shortcuts for the tutorial system
         var that = this
         $("body").on('keydown.tutEventListener',function(e){
 
@@ -94,6 +95,11 @@ export class Tutorial {
         const eagle = Eagle.getInstance()
 
         var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
+        if(tutStep.getSelector()().length === 0){
+            console.warn('skipping step, selector could not be found: ', tutStep.getSelector())
+            this.tutButtonNext()
+            return
+        }
 
         //if there is a preFunction set, then we execute it here
         var preFunction
