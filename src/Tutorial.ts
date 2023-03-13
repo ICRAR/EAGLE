@@ -5,7 +5,7 @@ import {Utils} from './Utils';
 
 let activeTut : Tutorial 
 let activeTutNumSteps : number = 0;
-let activeTutCurrentStep : number = 0;
+let activeTutCurrentStepIndex : number = 0;
 var waitForElementTimer:number = null
 var cooldown:boolean = false
 
@@ -35,15 +35,14 @@ export class Tutorial {
     }
 
     initiateTutorial = (tutorialName:string) : void => {
-        const that = this;
 
         Eagle.tutorials.forEach(function(tut){
             if(tutorialName === tut.getName()){
                 //this is the requsted tutorial
                 activeTut = tut
                 activeTutNumSteps = tut.getTutorialSteps().length
-                activeTutCurrentStep = 1
-                that.initiateTutStep('next')
+                activeTutCurrentStepIndex = 1
+                activeTut.initiateTutStep('next')
             }
         })
         this.initiateTutQuickSelect()
@@ -64,7 +63,7 @@ export class Tutorial {
                 break;
         
                 case 39: // right
-                    if(activeTut.getTutorialSteps()[activeTutCurrentStep-1].getType() != TutorialStep.Type.Press){
+                    if(activeTut.getTutorialSteps()[activeTutCurrentStepIndex-1].getType() != TutorialStep.Type.Press){
                         that.tutButtonNext() 
                     }
                 break;
@@ -94,7 +93,7 @@ export class Tutorial {
     initiateTutStep = (direction:string) :void => {
         const eagle = Eagle.getInstance()
 
-        var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
+        var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStepIndex-1]
         if(tutStep.getSelector()().length === 0){
             console.warn('skipping step, selector could not be found: ', tutStep.getSelector())
             this.tutButtonNext()
@@ -120,7 +119,7 @@ export class Tutorial {
 
     initiateWaitForElement = (waitType:Wait.Type) :void => {
         if(waitType===Wait.Type.None){
-            this.pickStepType(activeTut.getTutorialSteps()[activeTutCurrentStep-1],null)
+            this.pickStepType(activeTut.getTutorialSteps()[activeTutCurrentStepIndex-1],null)
         }else{
             //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
             waitForElementTimer = setInterval(function(){activeTut.waitForElement(waitType)}, 100);  
@@ -135,7 +134,7 @@ export class Tutorial {
     }
 
     waitForElement = (waitType:Wait.Type) :void => {
-        var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
+        var tutStep = activeTut.getTutorialSteps()[activeTutCurrentStepIndex-1]
         var elementAvailable = false
         var selectorElement = tutStep.getSelector()
         var alternateHighlightSelector = null
@@ -256,7 +255,7 @@ export class Tutorial {
 
     openInfoPopUp = () :void => {
 
-        var step = activeTut.getTutorialSteps()[activeTutCurrentStep-1]
+        var step = activeTut.getTutorialSteps()[activeTutCurrentStepIndex-1]
         var currentSelector = step.getSelector()
         //figuring out where there is enough space to place the tutorial
         var selectedLocationX = currentSelector().offset().left+(currentSelector().width()/2)
@@ -302,13 +301,13 @@ export class Tutorial {
                         tooltipPopUp = tooltipPopUp + "<span>"+step.getText()+"</span>"
                     tooltipPopUp = tooltipPopUp + "</div>"
                     tooltipPopUp = tooltipPopUp + "<div class='tutorialInfoButtons'>"
-                        if(activeTutCurrentStep>1){
+                        if(activeTutCurrentStepIndex>1){
                             tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
                         }
-                        if(activeTutCurrentStep<activeTutNumSteps && step.getType() != TutorialStep.Type.Press){
+                        if(activeTutCurrentStepIndex<activeTutNumSteps && step.getType() != TutorialStep.Type.Press){
                             tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
                         }
-                        tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeTutCurrentStep +" of "+activeTutNumSteps+"</span>"
+                        tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>"+ activeTutCurrentStepIndex +" of "+activeTutNumSteps+"</span>"
                         tooltipPopUp = tooltipPopUp + "<button class='tutEndBtn' onclick='eagle.tutorial().tutButtonEnd()'>Exit</button>"
                     tooltipPopUp = tooltipPopUp + "</div>"
                 tooltipPopUp = tooltipPopUp + "</div>"
@@ -326,9 +325,9 @@ export class Tutorial {
 
     tutButtonNext = () : void => {
         if(cooldown === false){
-            if(activeTutCurrentStep<activeTutNumSteps){
+            if(activeTutCurrentStepIndex<activeTutNumSteps){
                 this.closeInfoPopUp()
-                activeTutCurrentStep ++
+                activeTutCurrentStepIndex ++
                 this.initiateTutStep('next')
                 this.startCooldown()
             }else{
@@ -339,9 +338,9 @@ export class Tutorial {
 
     tutButtonPrev = () : void => {
         if(cooldown === false){
-            if(activeTutCurrentStep>1){
+            if(activeTutCurrentStepIndex>1){
                 this.closeInfoPopUp()
-                activeTutCurrentStep --
+                activeTutCurrentStepIndex --
                 this.initiateTutStep('prev')
                 this.startCooldown()
             }
