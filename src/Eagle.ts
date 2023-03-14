@@ -4106,11 +4106,11 @@ export class Eagle {
         let newOutputPort = newNode.findPortByIdText(destPort.getIdText(), false, false);
 
         if (!newInputPort){
-            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputPort, false);
+            newInputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputPort, false);
             newNode.addField(newInputPort);
         }
         if (!newOutputPort){
-            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.OutputPort, false);
+            newOutputPort = new Field(Utils.uuidv4(), destPort.getDisplayText(), destPort.getIdText(), "", "", "", false, destPort.getType(), false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.OutputPort, false);
             newNode.addField(newOutputPort);
         }
 
