@@ -741,6 +741,7 @@ export class Eagle {
     insertGraphFile = () : void => {
         const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
         const fileFullPath : string = uploadedGraphFileToInsertInputElement.value;
+        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -761,7 +762,9 @@ export class Eagle {
             this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                 const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
-                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+
+                // TODO: handle errors and warnings
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Insert Logical Graph");
@@ -912,7 +915,7 @@ export class Eagle {
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
-    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node) : void => {
+    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) : void => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
@@ -1015,10 +1018,14 @@ export class Eagle {
             const mappedParent: Node = keyMap.get(node.getParentKey());
 
             // make sure parent is set correctly
-            // if no mapping is available for the parent, then use the original parent as the parent for the new node
+            // if no mapping is available for the parent, then set parent to the new parentNode, or if no parentNode exists, just set parent to null
             // if a mapping is available, then use the mapped node as the parent for the new node
             if (typeof mappedParent === 'undefined'){
-                insertedNode.setParentKey(node.getParentKey());
+                if (parentNode === null){
+                    insertedNode.setParentKey(null);
+                } else {
+                    insertedNode.setParentKey(parentNode.getKey());
+                }
             } else {
                 insertedNode.setParentKey(mappedParent.getKey());
             }
@@ -1026,8 +1033,16 @@ export class Eagle {
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
+            const srcNode = keyMap.get(edge.getSrcNodeKey());
+            const destNode = keyMap.get(edge.getDestNodeKey());
+
+            if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
+                errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
+                continue;
+            }
+
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
+            this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
         }
     }
 
@@ -1174,9 +1189,11 @@ export class Eagle {
 
             const nodes : Node[] = [];
             const edges : Edge[] = [];
+            const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
 
             for (const n of clipboard.nodes){
                 const node = Node.fromOJSJson(n, null, (): number => {
+                    // TODO: add error to errorsWarnings
                     console.error("Should not have to generate new key for node", n);
                     return 0;
                 });
@@ -1190,10 +1207,11 @@ export class Eagle {
                 edges.push(edge);
             }
 
-            this.insertGraph(nodes, edges, null);
+            this.insertGraph(nodes, edges, null, errorsWarnings);
 
             // display notification to user
             Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+            // TODO: show errors
 
             // ensure changes are reflected in display
             this.checkGraph();
@@ -1269,10 +1287,9 @@ export class Eagle {
                 Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
                 break;
             case Eagle.RepositoryService.Url:
-                // TODO: new code
                 this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
-                ], (palettes: Palette[]):void => {
+                ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
                     for (const palette of palettes){
                         if (palette !== null){
                             this.palettes.splice(index, 0, palette);
@@ -1662,7 +1679,7 @@ export class Eagle {
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, jsonData);
     }
 
-    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
+    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
@@ -1702,7 +1719,7 @@ export class Eagle {
                     }
                 }
                 if (allComplete){
-                    callback(results);
+                    callback(errorsWarnings, results);
                 }
             });
         }
@@ -1871,7 +1888,7 @@ export class Eagle {
             const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
             // perform insert
-            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
 
             // trigger re-render
             this.logicalGraph.valueHasMutated();
@@ -2502,6 +2519,7 @@ export class Eagle {
                 {
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
+                    const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // split objects into nodes and edges
                     for (const object of incomingNodes){
@@ -2514,7 +2532,7 @@ export class Eagle {
                         }
                     }
 
-                    this.insertGraph(nodes, edges, null);
+                    this.insertGraph(nodes, edges, null, errorsWarnings);
                     this.checkGraph();
                     this.undo().pushSnapshot(this, "Duplicate selection");
                     this.logicalGraph.valueHasMutated();
@@ -2594,11 +2612,12 @@ export class Eagle {
             return;
         }
 
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const nodes : Node[] = [];
         const edges : Edge[] = [];
 
         for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, null, (): number => {
+            const node = Node.fromOJSJson(n, errorsWarnings, (): number => {
                 console.error("Should not have to generate new key for node", n);
                 return 0;
             });
@@ -2607,15 +2626,19 @@ export class Eagle {
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, null);
+            const edge = Edge.fromOJSJson(e, errorsWarnings);
 
             edges.push(edge);
         }
 
-        this.insertGraph(nodes, edges, null);
+        this.insertGraph(nodes, edges, null, errorsWarnings);
 
         // display notification to user
-        Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
+
+        } else {
+            Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+        }
 
         // ensure changes are reflected in display
         this.checkGraph();

@@ -51,6 +51,14 @@ export class Errors {
         Utils.postFixFunc(eagle);
     }
 
+    static hasWarnings = (errorsWarnings: Errors.ErrorsWarnings) : boolean => {
+        return errorsWarnings.warnings.length > 0;
+    }
+
+    static hasErrors = (errorsWarnings: Errors.ErrorsWarnings) : boolean => {
+        return errorsWarnings.errors.length > 0;
+    }
+
     static getWarnings : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
