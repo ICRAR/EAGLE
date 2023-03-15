@@ -155,10 +155,10 @@ export class Translator {
 
     private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
         // get json for logical graph
-        let json;
+        let jsonString: string;
         switch (format){
             case Eagle.DALiuGESchemaVersion.OJS:
-                json = LogicalGraph.toOJSJson(eagle.logicalGraph(), true);
+                jsonString = LogicalGraph.toOJSJsonString(eagle.logicalGraph(), true);
                 break;
             default:
                 console.error("Unsupported graph format for translator!");
@@ -167,7 +167,8 @@ export class Translator {
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, format, Eagle.FileType.Graph);
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, format, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -179,7 +180,7 @@ export class Translator {
         const translatorData = {
             algo: algorithmName,
             lg_name: eagle.logicalGraph().fileInfo().name,
-            json_data: JSON.stringify(json),
+            json_data: jsonString,
             test: testingMode.toString()
         };
 
@@ -190,7 +191,7 @@ export class Translator {
         console.log("---------");
         console.log(translatorData);
         console.log("---------");
-        console.log(json);
+        console.log(JSON.parse(jsonString));
         console.log("---------");
     }
 }

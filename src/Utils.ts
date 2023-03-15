@@ -371,6 +371,26 @@ export class Utils {
         });
     }
 
+    static httpPostJSONString(url : string, jsonString : string, callback : (error : string, data : string) => void) : void {
+        console.log("httpPostJSON() : ", url);
+        $.ajax({
+            url : url,
+            type : 'POST',
+            data : jsonString,
+            contentType : 'application/json',
+            success : function(data : string) {
+                callback(null, data);
+            },
+            error: function(xhr, status, error : string) {
+                if (typeof xhr.responseJSON === 'undefined'){
+                    callback(error, null);
+                } else {
+                    callback(xhr.responseJSON.error, null);
+                }
+            }
+        });
+    }
+
     static httpPostForm(url : string, formData : FormData, callback : (error : string, data : string) => void) : void {
         console.log("httpPostForm() : ", url);
 
@@ -2094,5 +2114,22 @@ export class Utils {
     
     static enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
         return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
+    }
+
+    static createCommitJsonString = (jsonString: string, repository: Repository, token: string, fullFileName: string, commitMessage: string): string => {
+        // NOTE: we need to build the JSON manually here, since we want to enforce a particular ordering of attributes within the jsonData attribute (modelData first)
+        let result = "";
+
+        result += "{\n";
+        result += '"jsonData": ' + jsonString + ",";
+        result += '"repositoryBranch": "' + repository.branch + '",';
+        result += '"repositoryName": "' + repository.name + '",';
+        result += '"repositoryService": "' + repository.service + '",';
+        result += '"token": "' + token + '",';
+        result += '"filename": "' + fullFileName + '",';
+        result += '"commitMessage": "' + commitMessage + '"';
+        result += "}\n";
+
+        return result;
     }
 }
