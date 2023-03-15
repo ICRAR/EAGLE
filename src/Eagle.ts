@@ -1362,7 +1362,6 @@ export class Eagle {
                 Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
                 break;
             case Eagle.RepositoryService.Url:
-                // TODO: new code
                 this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
                 ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
