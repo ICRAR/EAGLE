@@ -16,77 +16,6 @@
     </div>
 </div>
 
-<!-- Errors Modal -->
-<div class="modal fade" id="errorsModal" tabindex="-1" role="dialog" aria-labelledby="errorsModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="errorsModalTitle">Title</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class='accordion' id='errorsModalAccordion'>
-
-                    <div class="accordion-item" id="errorsModalErrorsAccordionItem">
-                        <h2 class="accordion-header" id="checkGraphAccordionHeadingOne">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount" data-bind="text: '[' + Errors.getErrors().length + ']'"></span></button>
-                        </h2>
-                        <div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">
-                            <div class="accordion-body" id="errorsModalErrorsAccordionBody">
-                                <ul class="list-group">
-                                <!-- ko foreach: Errors.getErrors -->
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span data-bind="text: $data.message"></span>
-                                        <div>
-                                        <!-- ko if: $data.show !== null -->
-                                            <button class="btn btn-secondary btn-sm" data-bind="click: $data.show, eagleTooltip: 'Show object to investigate error'">Show</button>
-                                        <!-- /ko -->
-                                        <!-- ko if: $data.fix !== null -->
-                                            <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
-                                        <!-- /ko -->
-                                        </div>
-                                    </li>
-                                <!-- /ko -->
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item" id="errorsModalWarningsAccordionItem">
-                        <h2 class="accordion-header" id="checkGraphAccordionHeadingTwo">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount" data-bind="text: '[' + Errors.getWarnings().length + ']'"></span></button>
-                        </h2>
-                        <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
-                            <div class="accordion-body" id="errorsModalWarningsAccordionBody">
-                                <ul class="list-group">
-                                <!-- ko foreach: Errors.getWarnings -->
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span data-bind="text: $data.message"></span>
-                                        <div>
-                                        <!-- ko if: $data.show !== null -->
-                                            <button class="btn btn-secondary btn-sm" data-bind="click: function($data){$root.checkErrorModalShowError($data)}, eagleTooltip: 'Show object to investigate warning'">Show</button>
-                                        <!-- /ko -->
-                                        <!-- ko if: $data.fix !== null -->
-                                            <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
-                                        <!-- /ko -->
-                                        </div>
-                                    </li>
-                                <!-- /ko -->
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            <div class="modal-footer" style="justify-content: space-between;">
-                <button class="btn btn-primary" data-bind="click: Errors.fixAll, disable: Errors.getNumFixableIssues() === 0, eagleTooltip: Errors.getNumFixableIssues() + ' fix(es) available'">Fix All</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Request User Input Modal -->
 <div class="modal fade" id="inputModal" tabindex="-1" role="dialog" aria-labelledby="inputModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -358,6 +287,7 @@
     </div>
 </div>
 
+{% include 'modals/errors.html' %}
 
 {% include 'modals/settings.html' %}
 {% include 'modals/shortcuts.html' %}
