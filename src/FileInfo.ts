@@ -6,6 +6,9 @@ import {Errors} from './Errors';
 
 export class FileInfo {
     private _name : ko.Observable<string>;
+    private _shortDescription : ko.Observable<string>;
+    private _detailedDescription : ko.Observable<string>;
+
     private _path : ko.Observable<string>;
     private _type : ko.Observable<Eagle.FileType>;
     private _repositoryService : ko.Observable<Eagle.RepositoryService>;
@@ -31,6 +34,9 @@ export class FileInfo {
 
     constructor(){
         this._name = ko.observable("");
+        this._shortDescription = ko.observable("");
+        this._detailedDescription = ko.observable("");
+
         this._path = ko.observable("");
         this._type = ko.observable(Eagle.FileType.Unknown);
         this._repositoryService = ko.observable(Eagle.RepositoryService.Unknown);
@@ -61,6 +67,22 @@ export class FileInfo {
 
     set name(name : string){
         this._name(name);
+    }
+
+    get shortDescription() : string{
+        return this._shortDescription();
+    }
+
+    set shortDescription(shortDescription : string){
+        this._shortDescription(shortDescription);
+    }
+
+    get detailedDescription() : string{
+        return this._detailedDescription();
+    }
+
+    set detailedDescription(detailedDescription : string){
+        this._detailedDescription(detailedDescription);
     }
 
     get path() : string{
@@ -217,6 +239,9 @@ export class FileInfo {
 
     clear = () : void => {
         this._name("");
+        this._shortDescription("");
+        this._detailedDescription("");
+
         this._path("");
         this._type(Eagle.FileType.Unknown);
         this._repositoryService(Eagle.RepositoryService.Unknown);
@@ -245,6 +270,9 @@ export class FileInfo {
         const result : FileInfo = new FileInfo();
 
         result.name = this._name();
+        result.shortDescription = this._shortDescription();
+        result.detailedDescription = this._detailedDescription();
+
         result.path = this._path();
         result.type = this._type();
         result.repositoryService = this._repositoryService();
@@ -330,6 +358,9 @@ export class FileInfo {
         let s = "";
 
         s += "Name:" + this._name();
+        s += " Short Description:" + this._shortDescription();
+        s += " Detailed Description:" + this._detailedDescription();
+
         s += " Path:" + this._path();
         s += " Type:" + this._type();
         s += " Repository Service:" + this._repositoryService();
@@ -358,11 +389,17 @@ export class FileInfo {
 
     static toOJSJson = (fileInfo : FileInfo) : object => {
         return {
+            // name and path variables are written together into fullPath
+            filePath: fileInfo.fullPath(),
             fileType: fileInfo.type,
+
+            shortDescription: fileInfo.shortDescription,
+            detailedDescription: fileInfo.detailedDescription,
+
             repoService: fileInfo.repositoryService,
             repoBranch: fileInfo.repositoryBranch,
             repo: fileInfo.repositoryName,
-            filePath: fileInfo.fullPath(),
+            
             eagleVersion: fileInfo.eagleVersion,
             eagleCommitHash: fileInfo.eagleCommitHash,
             schemaVersion: fileInfo.schemaVersion,
@@ -382,13 +419,15 @@ export class FileInfo {
     }
 
     // TODO: use errors array if attributes cannot be found
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     static fromOJSJson = (modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo => {
         const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
         result.name = Utils.getFileNameFromFullPath(modelData.filePath);
         result.type = Utils.translateStringToFileType(modelData.fileType);
+
+        result.shortDescription = modelData.shortDescription == undefined ? "" : modelData.shortDescription;
+        result.detailedDescription = modelData.detailedDescription == undefined ? "" : modelData.detailedDescription;
 
         result.repositoryService = modelData.repoService == undefined ? Eagle.RepositoryService.Unknown : modelData.repoService;
         result.repositoryBranch = modelData.repoBranch == undefined ? "" : modelData.repoBranch;

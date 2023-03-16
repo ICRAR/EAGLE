@@ -16,7 +16,9 @@
         "lastModifiedName": "",
         "lastModifiedEmail": "",
         "lastModifiedDatetime": 0,
-        "numLGNodes": 76
+        "numLGNodes": 76,
+        "shortDescription": "",
+        "detailedDescription": ""
     },
     "nodeDataArray": [
         {

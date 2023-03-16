@@ -1232,7 +1232,7 @@ export class Eagle {
         cloneLG.fileInfo().lastModifiedEmail = "";
         cloneLG.fileInfo().lastModifiedDatetime = 0;
 
-        const jsonString: string = JSON.stringify(LogicalGraph.toOJSJson(cloneLG, false), null, 4);
+        const jsonString: string = LogicalGraph.toOJSJsonString(cloneLG, false);
 
         Utils.requestUserText("Export Graph to JSON", "", jsonString, null);
     }
@@ -1387,7 +1387,7 @@ export class Eagle {
     /**
      * Saves a file to the remote server repository.
      */
-    saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, json : object) : void => {
+    saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, jsonString : string) : void => {
         console.log("saveFileToRemote() repository.name", repository.name, "repository.service", repository.service);
 
         let url : string;
@@ -1405,7 +1405,7 @@ export class Eagle {
         }
 
 
-        Utils.httpPostJSON(url, json, (error : string, data: string) : void => {
+        Utils.httpPostJSONString(url, jsonString, (error : string, data: string) : void => {
             if (error !== null){
                 Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
                 console.error("Error: " + JSON.stringify(error, null, 2) + " Data: " + data);
@@ -1617,20 +1617,20 @@ export class Eagle {
             // clone the logical graph
             const lg_clone : LogicalGraph = (<LogicalGraph> obj).clone();
             lg_clone.fileInfo().updateEagleInfo();
-            const json = LogicalGraph.toOJSJson(lg_clone, false);
+            const jsonString: string = LogicalGraph.toOJSJsonString(lg_clone, false);
 
-            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, json);
+            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
         } else {
             // clone the palette
             const p_clone : Palette = (<Palette> obj).clone();
             p_clone.fileInfo().updateEagleInfo();
-            const json = Palette.toOJSJson(p_clone);
+            const jsonString: string = Palette.toOJSJsonString(p_clone);
 
-            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, json);
+            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
         }
     }
 
-    _saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, json: object) : void => {
+    _saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string) : void => {
         // generate filename
         const fullFileName : string = Utils.joinPath(filePath, fileName);
 
@@ -1657,7 +1657,8 @@ export class Eagle {
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, fileType);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -1666,17 +1667,8 @@ export class Eagle {
             }
         }
 
-        const jsonData : object = {
-            jsonData: json,
-            repositoryBranch: repository.branch,
-            repositoryName: repository.name,
-            repositoryService: repository.service,
-            token: token,
-            filename: fullFileName,
-            commitMessage: commitMessage
-        };
-
-        this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, jsonData);
+        const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
+        this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
     }
 
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
@@ -2025,11 +2017,12 @@ export class Eagle {
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().removeGitInfo();
         p_clone.fileInfo().updateEagleInfo();
-        const json = Palette.toOJSJson(p_clone);
+        const jsonString: string = Palette.toOJSJsonString(p_clone);
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Palette);
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Palette);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2038,7 +2031,7 @@ export class Eagle {
             }
         }
 
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
                 Utils.showUserMessage("Error", "Error saving the file!");
                 console.error(error);
@@ -2083,11 +2076,12 @@ export class Eagle {
         const lg_clone : LogicalGraph = this.logicalGraph().clone();
         lg_clone.fileInfo().removeGitInfo();
         lg_clone.fileInfo().updateEagleInfo();
-        const json : object = LogicalGraph.toOJSJson(lg_clone, false);
+        const jsonString : string = LogicalGraph.toOJSJsonString(lg_clone, false);
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2096,7 +2090,7 @@ export class Eagle {
             }
         }
 
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
                 Utils.showUserMessage("Error", "Error saving the file!");
                 console.error(error);
@@ -2162,20 +2156,11 @@ export class Eagle {
             // clone the palette
             const p_clone : Palette = palette.clone();
             p_clone.fileInfo().updateEagleInfo();
-            const json = Palette.toOJSJson(p_clone);
+            const jsonString: string = Palette.toOJSJsonString(p_clone);
 
-            const jsonData : object = {
-                jsonData: json,
-                repositoryBranch: repository.branch,
-                repositoryName: repository.name,
-                repositoryService: repository.service,
-                token: token,
-                filename: fullFileName,
-                commitMessage: commitMessage
-            };
+            const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
 
-
-            this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, jsonData);
+            this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
         });
     }
 
