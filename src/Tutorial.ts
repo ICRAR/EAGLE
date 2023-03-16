@@ -287,6 +287,8 @@ export class Tutorial {
         const docWidth = $(document).width()
         const docHeight = $(document).height()
 
+        this.closeInfoPopUp()
+
         let orientation = 'tutorialRight'
 
         if (currentTarget.outerWidth() === docWidth) {
@@ -473,7 +475,6 @@ export const tutorialArray = [
             new TutorialStep("left window", "left windows", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $(".leftWindow") }, null, null),
             new TutorialStep("graph area", "This is the graph canvas", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#logicalGraphParent") }, null, null),
             new TutorialStep("Right window", "Multipurpose window with several systems", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $(".rightWindow") }, null, null),
-            new TutorialStep("Repository information", "Displays the path of your current Gaph's repository path", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#graphNameWrapper") }, null, null),
             new TutorialStep("User Interface Element Tooltips", "Much of Eagle's interface is iconised. However, you can always hover over the icons to get more information on what they are doing.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navbarSupportedContent .btn-group") }, null, function (eagle) { eagle.closeShortcuts() }),
             new TutorialStep("Keyboard Shortcuts", "To get through the functions quicker you can view our keyboard shurtcuts here. To access this modal, find it in the navbar under 'Help' or simply press 'K'.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#shortcutsModal") }, function (eagle) { eagle.openShortcuts() }, function (eagle) { eagle.openShortcuts() }),
             new TutorialStep("Translate Button", "Once set up, You are able to translate quickly by using this button", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navDeployBtn") }, function (eagle) { eagle.closeShortcuts() }, null),
@@ -483,6 +484,7 @@ export const tutorialArray = [
             new TutorialStep("Click To Open Settings", "The settings modal allows to cusomize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>.", TutorialStep.Type.Press, TutorialStep.Wait.None, function () { return $("#settings") }, null, function (eagle) { eagle.closeSettings() }),
             new TutorialStep("Setup the URL for the Translator Service", "This is required when you want to submit a graph for translation and execution. Feel free to enter it now.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingTranslatorURLValue") }, function (eagle) { eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); }, null),
             new TutorialStep("Setup your git access token", "Setting up the access tokens is necessary for getting access to the GitHub and GitLab repositories (see also the <a target='_blank' href='https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token'>GitHub tutorial</a>). Feel free, to add one or both now.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingGitHubAccessTokenValue") }, null, null),
+            new TutorialStep("DockerHub Value", "dockerhub value", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingDockerHubUserNameValue") }, null, null),
             new TutorialStep("Click To Save Settings", "Press 'Ok' (or hit Enter) to save your changes. You are also able to revert the changes you made by hitting 'cancel'", TutorialStep.Type.Press, TutorialStep.Wait.Modal, function () { return $("#settingsModalAffirmativeButton") }, function (eagle) { $('#settingsModalNegativeButton').on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener'); }, function (eagle) { eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); $('#settingsModalNegativeButton').on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener'); }),
         ]
     )
