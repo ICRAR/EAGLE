@@ -2363,6 +2363,7 @@ palette-component input.form-control.selected {
     position: absolute;
     left: 170px;
     top: 96px;
+    min-width: 70%;
 }
 
 #tutorialInfoPopUp.tutorialRight .tutorialInfoButtons,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoButtons{
@@ -2445,7 +2446,8 @@ palette-component input.form-control.selected {
 }
 
 #tutorialInfoPopUp .tutProgress{
-    right: 270px;
+    left: 50%;
+    transform: translateX(-80%);
     bottom: 2px;
     position: absolute;
 }
