@@ -1,7 +1,4 @@
-import * as ko from "knockout";
-
 import {Eagle} from './Eagle';
-import {Utils} from './Utils';
 
 
 export class TutorialSystem {
