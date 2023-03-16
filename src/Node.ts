@@ -2293,7 +2293,7 @@ export class Node {
             }
         }
 
-        // check that fields and application parameters don't share the same name
+        // check that multiple fields don't share the same name
         // NOTE: this code checks many pairs of fields twice
         for (const field0 of node.getFields()){
             for (const field1 of node.getFields()){
@@ -2301,6 +2301,18 @@ export class Node {
                     const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, null, "");
                     errorsWarnings.warnings.push(issue);
                 }
+            }
+        }
+
+        // check that fields are parameter types that are suitable for this node
+        for (const field of node.getFields()){
+            if (
+                (field.getParameterType() === Eagle.ParameterType.ComponentParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
+                (field.getParameterType() === Eagle.ParameterType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments
+            ){
+                const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
+                const issue: Errors.Issue = Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldParameterType(eagle, field)}, "Switch to suitable type");
+                errorsWarnings.warnings.push(issue);
             }
         }
 
