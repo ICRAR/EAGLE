@@ -1040,6 +1040,14 @@ export class Node {
     }
 
     addField = (field : Field) : void => {
+        // check that field type is appropriate for this Node
+        if (
+            (field.getParameterType() === Eagle.ParameterType.ComponentParameter) && !CategoryData.getCategoryData(this.getCategory()).canHaveComponentParameters ||
+            (field.getParameterType() === Eagle.ParameterType.ApplicationArgument) && !CategoryData.getCategoryData(this.getCategory()).canHaveApplicationArguments
+        ){
+            console.warn("Added unsuitable field (" + field.getDisplayText() + ") of type (" + field.getParameterType() + ") to", this.getCategory(), "node");
+        }
+
         this.fields.push(field);
         field.setNodeKey(this.key());
     }
