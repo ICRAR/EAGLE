@@ -1887,6 +1887,15 @@ export class Utils {
         }
     }
 
+    // WARN: this just blindly swaps the parameter type, which is not robust
+    static fixFieldParameterType(eagle: Eagle, field: Field){
+        if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
+            field.setParameterType(Eagle.ParameterType.ApplicationArgument);
+        } else {
+            field.setParameterType(Eagle.ParameterType.ComponentParameter);
+        }
+    }
+
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
         fixFunc();
         Utils.postFixFunc(eagle);
