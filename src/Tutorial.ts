@@ -291,13 +291,18 @@ export class Tutorial {
 
         let orientation = 'tutorialRight'
 
-        if (currentTarget.outerWidth() === docWidth) {
+        if (currentTarget.outerWidth() === docWidth||currentTarget.outerHeight()/docHeight>0.7) {
             //if this is the case then we are looking at an object that is set to 100% of the sceen 
             //such as the navbar or canvas. we will then position the tutorial in the middle of the object
             selectedLocationX = selectedLocationX
             if ((docHeight - currentTarget.outerHeight()) < 250) {
                 selectedLocationY = selectedLocationY - (currentTarget.height() / 2)
-                orientation = 'tutorialRight tutorialMiddle'
+                if (docWidth - selectedLocationX < 700){
+                    orientation = 'tutorialLeft tutorialMiddle'
+                    selectedLocationX = selectedLocationX - 600 - (currentTarget.width() / 2)
+                }else{
+                    orientation = 'tutorialRight tutorialMiddle'
+                }
             }
         } else if (docWidth - selectedLocationX < 700) {
             orientation = 'tutorialLeft'
