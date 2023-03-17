@@ -232,6 +232,20 @@ export class Tutorial {
     //these are ground work for fufture tutorial system functionality
     initiateInputStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
         console.log('initiating input step')
+
+        if (alternateHighlightTarget != null) {
+            this.highlightStepTarget(alternateHighlightTarget)
+        } else {
+            this.highlightStepTarget(tutStep.getTargetFunc()())
+        }
+
+        //the little wait is waiting for the css animation of the highlighting system
+        setTimeout(function () {
+            TutorialSystem.activeTut.openInfoPopUp()
+        }, 510);
+
+        tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc')
+
     }
 
     initiateConditionStep = (tutStep: TutorialStep, condition: string, alternateHighlightTarget: JQuery<HTMLElement>): void => {
@@ -407,8 +421,9 @@ export class TutorialStep {
     private targetFunc: () => void;
     private preFunction: (eagle: Eagle) => void;
     private backPreFunction: (eagle: Eagle) => void;
+    private stepArgument : string;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, targetFunc: () => void, preFunction: (eagle: Eagle) => void, backPreFunction: (eagle: Eagle) => void) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, targetFunc: () => void, preFunction: (eagle: Eagle) => void, backPreFunction: (eagle: Eagle) => void, stepArgument:string) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -416,6 +431,7 @@ export class TutorialStep {
         this.targetFunc = targetFunc;
         this.preFunction = preFunction;
         this.backPreFunction = backPreFunction;
+        this.stepArgument = stepArgument
     }
 
     getTitle = (): string => {
@@ -475,23 +491,24 @@ export const tutorialArray = [
         "Quick Start Tutorial",
         'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.',
         [
-            new TutorialStep("Welcome to Eagle!", "Welcome to the basic UI tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#eagleAndVersion a") }, null, null),
-            new TutorialStep("Left Panel", "This panel displays the components available to construct graphs. The components are organised in so-called <a target='_blanl' href='https://eagle-dlg.readthedocs.io/en/master/palettes.html'>Palettes</a>. By default EAGLE loads two palettes, which are part of the core system, but users can develop their own palettes as well and load them here.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $(".leftWindow") }, null, null),
-            new TutorialStep("Graph Canvas", "In the graph canvas you can construct graphs using components from the palettes in the Palette Panel on the left.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#logicalGraphParent") }, null, null),
-            new TutorialStep("Right Panel", "Multipurpose panel with several tabs offering a variety of functions.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $(".rightWindow") }, null, null),
-            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's interface is using icons. You can always hover over the icons and most of the other elements to get more information on what they do.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navbarSupportedContent .btn-group") }, null, function (eagle) { eagle.closeShortcuts() }),
-            new TutorialStep("Keyboard Shortcuts", "Many of the major functions are available through keyboard shurtcuts and you can find the mapping here. To access this modal, find it in the navbar under 'Help' or simply press 'K'.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#shortcutsModal") }, function (eagle) { eagle.openShortcuts() }, function (eagle) { eagle.openShortcuts() }),
-            new TutorialStep("Click To Open Settings", "The settings modal allows to cusomize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <b>To continue the tutorial please click the settings button!</b>", TutorialStep.Type.Press, TutorialStep.Wait.None, function () { return $("#settings") }, function(eagle){eagle.closeShortcuts();}, function (eagle) { eagle.closeSettings() }),
-            new TutorialStep("Set up Eagle to how you need it.", "Eagle has a lot of functionality, as such, there are various settings that affect how eagle behaves and how much of it is hidden.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingsModal .modal-body") }, null, null),
-            new TutorialStep("Eagle UI modes", "To help with this, there are a few <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#ui-modes'>UI modes</a> for different use cases of EAGLE.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingUserInterfaceModeValue") }, function (eagle) { eagle.tutorial().openSettingsSection('#settingCategoryUserOptions'); }, function (eagle) { eagle.tutorial().openSettingsSection('#settingCategoryUserOptions'); }),
-            new TutorialStep("Setup the URL for the Translator Service", "This is required when you want to submit a graph for translation and execution. The default value is correct, if the translator has been started on the same node as EAGLE. Feel free to change it now. This setting is also used to configure the function of the 'Translate' button.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingTranslatorURLValue") }, function (eagle) { eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); }, null),
-            new TutorialStep("Setup your git access token", "Setting up the access tokens is necessary for getting access to the GitHub and GitLab repositories (see also the <a target='_blank' href='https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token'>GitHub tutorial</a>). Feel free, to add one or both now.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingGitHubAccessTokenValue") }, null, null),
-            new TutorialStep("DockerHub user name", "DockerHub user name setup. This is an optional setting, but required if you want to make use of docker components loaded from DockerHub", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingDockerHubUserNameValue") }, null, null),
-            new TutorialStep("Click To Save Settings", "Press 'Ok' (or hit Enter) to save your changes. You are also able to revert the changes you made by hitting 'cancel'", TutorialStep.Type.Press, TutorialStep.Wait.Modal, function () { return $("#settingsModalAffirmativeButton") }, function (eagle) { $('#settingsModalNegativeButton').on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener'); }, function (eagle) { eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); $('#settingsModalNegativeButton').on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener'); }),
-            new TutorialStep("Help Menu", "This menu allows you view the various help and documentation options.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navbarDropdownHelp") }, null, null),
-            new TutorialStep("Palette Menu", "This menu allows you to load a palette. If the more advanced interface options are switched on, you can also save and create palettes.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navbarDropdownPalette") }, null, null),
-            new TutorialStep("Graph Menu", "This menu allows you to load, save or create new graphs", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navbarDropdownGraph") }, null, null),
-            new TutorialStep("Translate Button", "Once configured, you are able to translate the constructed graph quickly by using this button", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navDeployBtn") },null, null),
+            new TutorialStep("input your input!", "enter something and press enter", TutorialStep.Type.Input, TutorialStep.Wait.None, function () { return $(".leftWindow .componentSearchBar") }, null, null,''),
+            new TutorialStep("Welcome to Eagle!", "Welcome to the basic UI tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#eagleAndVersion a") }, null, null,null),
+            new TutorialStep("Left Panel", "This panel displays the components available to construct graphs. The components are organised in so-called <a target='_blanl' href='https://eagle-dlg.readthedocs.io/en/master/palettes.html'>Palettes</a>. By default EAGLE loads two palettes, which are part of the core system, but users can develop their own palettes as well and load them here.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $(".leftWindow") }, null, null,null),
+            new TutorialStep("Graph Canvas", "In the graph canvas you can construct graphs using components from the palettes in the Palette Panel on the left.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#logicalGraphParent") }, null, null,null),
+            new TutorialStep("Right Panel", "Multipurpose panel with several tabs offering a variety of functions.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $(".rightWindow") }, null, null,null),
+            new TutorialStep("User Interface Element Tooltips", "Much of Eagle's interface is using icons. You can always hover over the icons and most of the other elements to get more information on what they do.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navbarSupportedContent .btn-group") }, null, function (eagle) { eagle.closeShortcuts() },null),
+            new TutorialStep("Keyboard Shortcuts", "Many of the major functions are available through keyboard shurtcuts and you can find the mapping here. To access this modal, find it in the navbar under 'Help' or simply press 'K'.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#shortcutsModal") }, function (eagle) { eagle.openShortcuts() }, function (eagle) { eagle.openShortcuts() },null),
+            new TutorialStep("Click To Open Settings", "The settings modal allows to cusomize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <b>To continue the tutorial please click the settings button!</b>", TutorialStep.Type.Press, TutorialStep.Wait.None, function () { return $("#settings") }, function(eagle){eagle.closeShortcuts();}, function (eagle) { eagle.closeSettings() },null),
+            new TutorialStep("Set up Eagle to how you need it.", "Eagle has a lot of functionality, as such, there are various settings that affect how eagle behaves and how much of it is hidden.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingsModal .modal-body") }, null, null,null),
+            new TutorialStep("Eagle UI modes", "To help with this, there are a few <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#ui-modes'>UI modes</a> for different use cases of EAGLE.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingUserInterfaceModeValue") }, function (eagle) { eagle.tutorial().openSettingsSection('#settingCategoryUserOptions'); }, function (eagle) { eagle.tutorial().openSettingsSection('#settingCategoryUserOptions'); },null),
+            new TutorialStep("Setup the URL for the Translator Service", "This is required when you want to submit a graph for translation and execution. The default value is correct, if the translator has been started on the same node as EAGLE. Feel free to change it now. This setting is also used to configure the function of the 'Translate' button.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingTranslatorURLValue") }, function (eagle) { eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); }, null,null),
+            new TutorialStep("Setup your git access token", "Setting up the access tokens is necessary for getting access to the GitHub and GitLab repositories (see also the <a target='_blank' href='https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token'>GitHub tutorial</a>). Feel free, to add one or both now.", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingGitHubAccessTokenValue") }, null, null,null),
+            new TutorialStep("DockerHub user name", "DockerHub user name setup. This is an optional setting, but required if you want to make use of docker components loaded from DockerHub", TutorialStep.Type.Info, TutorialStep.Wait.Modal, function () { return $("#settingDockerHubUserNameValue") }, null, null,null),
+            new TutorialStep("Click To Save Settings", "Press 'Ok' (or hit Enter) to save your changes. You are also able to revert the changes you made by hitting 'cancel'", TutorialStep.Type.Press, TutorialStep.Wait.Modal, function () { return $("#settingsModalAffirmativeButton") }, function (eagle) { $('#settingsModalNegativeButton').on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener'); }, function (eagle) { eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); $('#settingsModalNegativeButton').on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener'); },null),
+            new TutorialStep("Help Menu", "This menu allows you view the various help and documentation options.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navbarDropdownHelp") }, null, null,null),
+            new TutorialStep("Palette Menu", "This menu allows you to load a palette. If the more advanced interface options are switched on, you can also save and create palettes.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navbarDropdownPalette") }, null, null,null),
+            new TutorialStep("Graph Menu", "This menu allows you to load, save or create new graphs", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navbarDropdownGraph") }, null, null,null),
+            new TutorialStep("Translate Button", "Once configured, you are able to translate the constructed graph quickly by using this button", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#navDeployBtn") },null, null,null),
         ]
     )
 ]
