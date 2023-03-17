@@ -2542,28 +2542,53 @@ export class Eagle {
         }
     }
 
-    copySelectionToClipboard = () : void => {
+    // TODO: currently only works when copying from the LG, doesn't work when copying from a palette!
+    copySelectionToClipboard = (copyChildren: boolean) : void => {
         console.log("copySelectionToClipboard()");
 
-        const nodes: object[] = [];
-        const edges: object[] = [];
+        const nodes: Node[] = [];
+        const edges: Edge[] = [];
 
+        // add all items in selection to the set of objects to copy
+        // if copyChildren is true, add children of selected items too
         for (const object of this.selectedObjects()){
             if (object instanceof Node){
-                // serialise node
-                const node = Node.toOJSGraphJson(object);
-                nodes.push(node);
+                if (copyChildren){
+                    this._addNodeAndChildren(this.logicalGraph().getNodes(), object, nodes);
+                } else {
+                    this._addUniqueNode(nodes, object);
+                }
             }
 
             if (object instanceof Edge){
-                const edge = Edge.toOJSJson(object);
-                edges.push(edge);
+                edges.push(object);
             }
         }
 
+        // if copyChildren, add all edges adjacent to the nodes in the list objects
+        if (copyChildren){
+            for (const edge of this.logicalGraph().getEdges()){
+                for (const node of nodes){
+                    if (node.getKey() === edge.getSrcNodeKey() || node.getKey() === edge.getDestNodeKey()){
+                        this._addUniqueEdge(edges, edge);
+                    }
+                }
+            }
+        }
+
+        // TODO: serialise nodes and edges
+        const serialisedNodes = [];
+        for (const node of nodes){
+            serialisedNodes.push(Node.toOJSGraphJson(node));
+        }
+        const serialisedEdges = [];
+        for (const edge of edges){
+            serialisedEdges.push(Edge.toOJSJson(edge));
+        }
+
         const clipboard = {
-            nodes: nodes,
-            edges: edges
+            nodes: serialisedNodes,
+            edges: serialisedEdges
         };
         
         // write to clipboard
@@ -2577,6 +2602,41 @@ export class Eagle {
                 Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
             }
         );
+    }
+
+    // NOTE: support func for copySelectionToKeyboard() above
+    _addNodeAndChildren = (nodes: Node[], node: Node, output:Node[]) : void => {
+        this._addUniqueNode(output, node);
+
+        for (const n of nodes){
+            if (n.getParentKey() === node.getKey()){
+                this._addNodeAndChildren(nodes, n, output);
+            }
+        }
+    }
+
+    // NOTE: support func for copySelectionToKeyboard() above
+    // only add the new node to the nodes list if it is not already present
+    _addUniqueNode = (nodes: Node[], newNode: Node): void => {
+        for (const node of nodes){
+            if (node.getKey() === newNode.getKey()){
+                return;
+            }
+        }
+
+        nodes.push(newNode);
+    }
+
+    // NOTE: support func for copySelectionToKeyboard() above
+    // only add the new edge to the edges list if it is not already present
+    _addUniqueEdge = (edges: Edge[], newEdge: Edge): void => {
+        for (const edge of edges){
+            if (edge.getId() === newEdge.getId()){
+                return;
+            }
+        }
+
+        edges.push(newEdge);
     }
 
     pasteFromClipboard = async () => {
