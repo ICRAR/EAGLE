@@ -1,7 +1,4 @@
-import * as ko from "knockout";
-
-import { Eagle } from './Eagle';
-import { Utils } from './Utils';
+import {Eagle} from './Eagle';
 
 
 export class TutorialSystem {
@@ -184,6 +181,7 @@ export class Tutorial {
 
     initiateStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
         const that = this;
+        $(':focus').blur()
         tutStep.getTargetFunc()().focus()
 
         //call the correct function depending on which type of tutorial step this is

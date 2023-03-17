@@ -1,19 +1,14 @@
-import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
 import {Node} from './Node';
 import { Palette } from './Palette';
-import * as ko from "knockout";
 
 export class RightClick {
 
-    constructor(){
-    }
-
     static rightClickReloadPalette = () : void => {
         const eagle: Eagle = Eagle.getInstance();
-        var index = 0
-        var palettes = eagle.palettes()
+        let index = 0
+        const palettes = eagle.palettes()
 
         palettes.forEach(function(palette){
             if (palette === Eagle.selectedRightClickObject()){
@@ -34,7 +29,7 @@ export class RightClick {
 
     static checkSearchField = () : void => {
         const eagle: Eagle = Eagle.getInstance();
-        var searchValue:string = $(event.target).val().toString()
+        const searchValue:string = $(event.target).val().toString()
         $(".rightClickFocus").removeClass('rightClickFocus')
         if(searchValue !== ''){
             //if the search bar is not empty
@@ -43,11 +38,11 @@ export class RightClick {
             $('#paletteNodesSearchResult').remove()
             $('#customContextMenu').append("<div id='paletteNodesSearchResult'></div>")
 
-            var palettes = eagle.palettes()
+            const palettes = eagle.palettes()
 
             palettes.forEach(function(palette){
                 palette.getNodes().forEach(function(paletteNode){
-                    var paletteNodeName = paletteNode.getName().toLowerCase()
+                    const paletteNodeName = paletteNode.getName().toLowerCase()
 
                     if(paletteNodeName.includes(searchValue)){
                         $('#paletteNodesSearchResult').append(`<a onclick='eagle.addNodeToLogicalGraph("`+paletteNode.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+paletteNode.getName()+'</a>')
@@ -84,12 +79,10 @@ export class RightClick {
     }
 
     static rightClicktoggleSearchExclude = (bool:boolean) : void => {
-        const eagle: Eagle = Eagle.getInstance();
         Eagle.selectedRightClickObject().setSearchExclude(bool)
     }
 
-    static rightClickCopyPaletteUrl = (bool:boolean) : void => {
-        const eagle: Eagle = Eagle.getInstance();
+    static rightClickCopyPaletteUrl = () : void => {
         Eagle.selectedRightClickObject().copyUrl()
     }
 
@@ -108,11 +101,11 @@ export class RightClick {
     static createHtmlPaletteList = () : string => {
         const eagle: Eagle = Eagle.getInstance();
 
-        var paletteList:string = ''
-        var palettes = eagle.palettes()
+        let paletteList:string = ''
+        const palettes = eagle.palettes()
 
         palettes.forEach(function(palette){
-            var htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'>"+palette.fileInfo().name
+            let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'>"+palette.fileInfo().name
             htmlPalette = htmlPalette + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
             htmlPalette = htmlPalette + '<div class="contextMenuDropdown">'
             palette.getNodes().forEach(function(node){
@@ -129,9 +122,9 @@ export class RightClick {
     static getNodeDescriptionDropdown = () : string => {
         const eagle: Eagle = Eagle.getInstance();
 
-        var node = Eagle.selectedRightClickObject()
+        const node = Eagle.selectedRightClickObject()
 
-        var htmlNodeDescription = "<span class='contextmenuNodeDescription' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'> Node Info"
+        let htmlNodeDescription = "<span class='contextmenuNodeDescription' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'> Node Info"
             htmlNodeDescription = htmlNodeDescription + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
 
             htmlNodeDescription = htmlNodeDescription + '<div class="contextMenuDropdown">'
@@ -159,7 +152,7 @@ export class RightClick {
 
     static initiateQuickSelect = () : void => {
         $("#customContextMenu").on('keydown',function(e){
-            var current = $(".rightClickFocus")
+            const current = $(".rightClickFocus")
 
             switch(e.which) {
                 case 37: // left
@@ -246,9 +239,8 @@ export class RightClick {
 
     static initiateContextMenu = (data:any, eventTarget:any) : void => {
         //graph node specific context menu intitating function, we cannot use ko bindings within the d3 svg 
-        const eagle: Eagle = Eagle.getInstance();
 
-        var passedObjectClass
+        let passedObjectClass
         if(data instanceof Node){
             passedObjectClass = 'rightClick_graphNode'
         }else if(data instanceof Edge){
@@ -265,9 +257,9 @@ export class RightClick {
         //getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
-        var thisEvent = event as MouseEvent
-        var mouseX = thisEvent.clientX
-        var mouseY = thisEvent.clientY
+        const thisEvent = event as MouseEvent
+        const mouseX = thisEvent.clientX
+        const mouseY = thisEvent.clientY
 
         if(data instanceof Node||data instanceof Edge || data instanceof Palette){
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
@@ -275,12 +267,10 @@ export class RightClick {
         }
 
 
-        var targetClass = ''
-        var targetId = ''
+        let targetClass = ''
 
         if(passedObjectClass === ''){
             targetClass = $(targetElement).attr('class')
-            targetId = $(targetElement).attr('id')
         }
 
         //setting up the menu div
@@ -291,8 +281,8 @@ export class RightClick {
 
         //in change of calculating the right click location as the location where to place the node
         const offset = $(targetElement).offset();
-        var x = mouseX - offset.left;
-        var y = mouseY - offset.top;
+        let x = mouseX - offset.left;
+        let y = mouseY - offset.top;
 
         // transform display coords into real coords
         x = (x - eagle.globalOffsetX)/eagle.globalScale;

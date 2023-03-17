@@ -6,6 +6,7 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "module": "umd",
+        "strictNullChecks" : false,
         "moduleResolution": "node",
         "target": "es5",
         "lib": ["es2021", "dom"],
