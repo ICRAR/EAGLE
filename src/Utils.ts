@@ -41,6 +41,7 @@ import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {ParameterTable} from './ParameterTable';
+import {FileInfo} from "./FileInfo";
 
 export class Utils {
     // Allowed file extenstions.
@@ -356,6 +357,26 @@ export class Utils {
             url : url,
             type : 'POST',
             data : JSON.stringify(json),
+            contentType : 'application/json',
+            success : function(data : string) {
+                callback(null, data);
+            },
+            error: function(xhr, status, error : string) {
+                if (typeof xhr.responseJSON === 'undefined'){
+                    callback(error, null);
+                } else {
+                    callback(xhr.responseJSON.error, null);
+                }
+            }
+        });
+    }
+
+    static httpPostJSONString(url : string, jsonString : string, callback : (error : string, data : string) => void) : void {
+        console.log("httpPostJSON() : ", url);
+        $.ajax({
+            url : url,
+            type : 'POST',
+            data : jsonString,
             contentType : 'application/json',
             success : function(data : string) {
                 callback(null, data);
@@ -867,7 +888,6 @@ export class Utils {
         $('#parameterTableModal').modal("toggle");
     }
 
-
     static showShortcutsModal() : void {
         $('#shortcutsModal').modal("show");
     }
@@ -918,6 +938,13 @@ export class Utils {
             // process files into a more complex structure
             eagle.explorePalettes().initialise(explorePalettes);
         });
+    }
+
+    static showModelDataModal = (fileInfo: FileInfo) : void => {
+        const eagle = Eagle.getInstance();
+        eagle.currentFileInfo(fileInfo);
+
+        $('#modelDataModal').modal("toggle");
     }
 
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {
@@ -1722,17 +1749,11 @@ export class Utils {
     }
 
     static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
-        const eagle: Eagle = Eagle.getInstance();
         const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
 
         for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
             if (object.display === KeyboardShortcut.Display.Disabled){
-                continue;
-            }
-
-            // skip if shortcut can not be run in the current state
-            if (!object.canRun(eagle)){
                 continue;
             }
 
@@ -1885,6 +1906,15 @@ export class Utils {
             if (embeddedApplicationKeyAndPort.key !== null){
                 edge.setDestNodeKey(embeddedApplicationKeyAndPort.key);
             }
+        }
+    }
+
+    // WARN: this just blindly swaps the parameter type, which is not robust
+    static fixFieldParameterType(eagle: Eagle, field: Field){
+        if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
+            field.setParameterType(Eagle.ParameterType.ApplicationArgument);
+        } else {
+            field.setParameterType(Eagle.ParameterType.ComponentParameter);
         }
     }
 
@@ -2095,5 +2125,22 @@ export class Utils {
     
     static enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
         return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
+    }
+
+    static createCommitJsonString = (jsonString: string, repository: Repository, token: string, fullFileName: string, commitMessage: string): string => {
+        // NOTE: we need to build the JSON manually here, since we want to enforce a particular ordering of attributes within the jsonData attribute (modelData first)
+        let result = "";
+
+        result += "{\n";
+        result += '"jsonData": ' + jsonString + ",";
+        result += '"repositoryBranch": "' + repository.branch + '",';
+        result += '"repositoryName": "' + repository.name + '",';
+        result += '"repositoryService": "' + repository.service + '",';
+        result += '"token": "' + token + '",';
+        result += '"filename": "' + fullFileName + '",';
+        result += '"commitMessage": "' + commitMessage + '"';
+        result += "}\n";
+
+        return result;
     }
 }

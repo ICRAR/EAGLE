@@ -17,8 +17,8 @@ export class Errors {
 
     static fixAll = () : void => {
         const eagle: Eagle = Eagle.getInstance();
-
-        console.log("fixAll()");
+        const initialNumWarnings = eagle.graphWarnings().length;
+        const initialNumErrors = eagle.graphErrors().length;
         let numErrors   = Infinity;
         let numWarnings = Infinity;
         let numIterations = 0;
@@ -48,7 +48,18 @@ export class Errors {
             eagle.checkGraph();
         }
 
+        // show notification
+        Utils.showNotification("Fix All Graph Errors", initialNumErrors + " error(s), " + numErrors + " remain. " + initialNumWarnings + " warning(s), " + numWarnings + " remain.", "info");
+
         Utils.postFixFunc(eagle);
+    }
+
+    static hasWarnings = (errorsWarnings: Errors.ErrorsWarnings) : boolean => {
+        return errorsWarnings.warnings.length > 0;
+    }
+
+    static hasErrors = (errorsWarnings: Errors.ErrorsWarnings) : boolean => {
+        return errorsWarnings.errors.length > 0;
     }
 
     static getWarnings : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
