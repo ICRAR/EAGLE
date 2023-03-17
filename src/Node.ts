@@ -127,7 +127,9 @@ export class Node {
         this.fields = ko.observableArray([]);
 
         this.category = ko.observable(category);
-        this.categoryType = ko.observable(Category.Type.Unknown);
+
+        // lookup correct categoryType based on category
+        this.categoryType = ko.observable(CategoryData.getCategoryData(category).categoryType);
 
         this.subject = ko.observable(null);
 
