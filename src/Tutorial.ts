@@ -184,6 +184,8 @@ export class Tutorial {
 
     initiateStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
         const that = this;
+        console.log( tutStep.getTargetFunc()())
+        tutStep.getTargetFunc()().focus()
 
         //call the correct function depending on which type of tutorial step this is
         if (tutStep.getType() === TutorialStep.Type.Info) {
