@@ -1698,9 +1698,6 @@ export class Eagle {
                     palette.fileInfo().type = Eagle.FileType.Palette;
                     palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
 
-                    // debug
-                    console.log("palette:", palette.fileInfo());
-
                     // sort palette and add to results
                     palette.sort();
                     results[index] = palette;
