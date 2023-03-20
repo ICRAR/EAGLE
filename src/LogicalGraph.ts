@@ -124,7 +124,7 @@ export class LogicalGraph {
         for (const nodeData of dataObject.nodeDataArray){
             const extraUsedKeys: number[] = [];
 
-            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, (): number => {
+            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false, (): number => {
                 const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                 const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
                 const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));

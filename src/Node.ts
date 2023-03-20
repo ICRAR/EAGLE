@@ -1608,7 +1608,7 @@ export class Node {
             if (!CategoryData.getCategoryData(category).canHaveInputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
-                node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, generateKeyFunc));
+                node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, isPaletteNode, generateKeyFunc));
                 node.inputApplication().setEmbedKey(node.getKey());
             }
         }
@@ -1616,7 +1616,7 @@ export class Node {
             if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, generateKeyFunc));
+                node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, isPaletteNode, generateKeyFunc));
                 node.outputApplication().setEmbedKey(node.getKey());
             }
         }

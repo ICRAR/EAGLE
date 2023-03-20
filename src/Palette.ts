@@ -61,7 +61,7 @@ export class Palette {
             const nodeData = dataObject.nodeDataArray[i];
 
             // read node
-            const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, (): number => {
+            const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, true, (): number => {
                 return Utils.newKey(result.nodes());
             });
 

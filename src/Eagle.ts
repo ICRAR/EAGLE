@@ -1192,7 +1192,7 @@ export class Eagle {
             const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
 
             for (const n of clipboard.nodes){
-                const node = Node.fromOJSJson(n, null, (): number => {
+                const node = Node.fromOJSJson(n, null, false, (): number => {
                     // TODO: add error to errorsWarnings
                     console.error("Should not have to generate new key for node", n);
                     return 0;
@@ -2665,7 +2665,7 @@ export class Eagle {
         const edges : Edge[] = [];
 
         for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, errorsWarnings, (): number => {
+            const node = Node.fromOJSJson(n, errorsWarnings, false, (): number => {
                 console.error("Should not have to generate new key for node", n);
                 return 0;
             });
