@@ -2360,8 +2360,6 @@ palette-component input.form-control.selected {
 }
 
 .tutorialContent{
-    /* potential background for legibility */
-
     background: rgba(1,1,1,0.3);
     border-radius: 10px;
     box-shadow: 0px 0px 25px 25px rgba(1,1,1,0.3);
