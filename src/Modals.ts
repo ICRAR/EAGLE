@@ -6,6 +6,7 @@ import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
+import { TutorialSystem } from './Tutorial';
 
 export class Modals {
 
@@ -207,17 +208,14 @@ export class Modals {
         $('#settingsModal').on('shown.bs.modal', function(){
             $('#settingsModal').data('completed', false);
             eagle.copyCurrentSettings()
-            $('#settingsModalAffirmativeButton').focus();
+            if(TutorialSystem.activeTut===null){
+                $('#settingsModalAffirmativeButton').focus();
+            }
         });
-
-        // $("#settingsModalNegativeButton").on('click', function(){
-        //     eagle.cancelSettingChanges()
-        // })
 
         $("#settingsModalAffirmativeButton").on('click', function(){
             $('#settingsModal').data('completed', true);
         })
-
 
         $('#settingsModal').on('hidden.bs.modal', function () {
             const completed : boolean = $('#settingsModal').data('completed');
@@ -229,8 +227,11 @@ export class Modals {
         $('#settingsModal').on("keydown", function (event) {
             if (event.key === "Enter") {
                 // if pressing enter in the setting modal save settings
-                event.preventDefault()
-                $("#settingsModalAffirmativeButton").focus().click();
+                if(TutorialSystem.activeTut===null){
+                    event.preventDefault()
+                    $("#settingsModalAffirmativeButton").focus().click();
+                }
+                
                 //pressing excape cancels setting changes
             }else if(event.key === "Escape"){
                 $("#settingsModalNegativeButton").focus().click();
