@@ -169,7 +169,7 @@ export class LogicalGraph {
         // check for missing name
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            errorsWarnings.errors.push(Errors.Message(error));
+            errorsWarnings.warnings.push(Errors.Message(error));
 
             result.fileInfo().name = file.name;
         }

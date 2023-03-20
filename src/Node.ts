@@ -1418,7 +1418,7 @@ export class Node {
         return CategoryData.getCategoryData(node.getCategory()).canHaveOutputApplication;
     }
 
-    static fromOJSJson = (nodeData : any, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number) : Node => {
+    static fromOJSJson = (nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node => {
         let name = "";
         if (typeof nodeData.text !== 'undefined'){
             name = nodeData.text;
@@ -1458,7 +1458,7 @@ export class Node {
         const node : Node = new Node(key, name, "", category);
 
         // set position
-        node.setPosition(x, y);
+        node.setPosition(x, y, !isPaletteNode);
 
         // set categoryType based on the category
         node.categoryType(CategoryData.getCategoryData(category).categoryType);

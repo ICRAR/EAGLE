@@ -67,18 +67,16 @@ export class Palette {
 
             // check that node has no group
             if (newNode.getParentKey() !== null){
-                const error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
-                console.warn(error);
-                errorsWarnings.errors.push(Errors.Message(error));
+                const error : string = file.name + " Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
+                errorsWarnings.warnings.push(Errors.Message(error));
 
                 newNode.setParentKey(null);
             }
 
             // check that x, y, position is the default
             if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
-                const error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
-                console.warn(error);
-                errorsWarnings.errors.push(Errors.Message(error));
+                const error : string = file.name + " Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
+                errorsWarnings.warnings.push(Errors.Message(error));
 
                 newNode.setPosition(0, 0);
             }
@@ -89,15 +87,16 @@ export class Palette {
 
         // check for missing name
         if (result.fileInfo().name === ""){
-            const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            console.warn(error);
-            errorsWarnings.errors.push(Errors.Message(error));
+            const error : string = file.name + " FileInfo.name is empty. Setting name to " + file.name;
+            errorsWarnings.warnings.push(Errors.Message(error));
 
             result.fileInfo().name = file.name;
         }
 
-        // check palette, and then add any resulting errors to the end of the errors list
-        errorsWarnings.errors.push(...Utils.checkPalette(result));
+        // check palette, and then add any resulting errors/warnings to the end of the errors/warnings list
+        const checkResult = Utils.checkPalette(result);
+        errorsWarnings.errors.push(...checkResult.errors);
+        errorsWarnings.warnings.push(...checkResult.warnings);
 
         return result;
     }

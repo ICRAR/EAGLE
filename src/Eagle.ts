@@ -777,7 +777,7 @@ export class Eagle {
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
         // show errors (if found)
-        if (errorsWarnings.errors.length > 0 || errorsWarnings.warnings.length > 0){
+        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
             if (showErrors){
 
                 // add warnings/errors to the arrays
@@ -1697,6 +1697,9 @@ export class Eagle {
                     palette.fileInfo().downloadUrl = paletteList[index].filename;
                     palette.fileInfo().type = Eagle.FileType.Palette;
                     palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
+
+                    // debug
+                    console.log("palette:", palette.fileInfo());
 
                     // sort palette and add to results
                     palette.sort();

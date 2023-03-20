@@ -1522,8 +1522,9 @@ export class Utils {
         return port0.getType() === port1.getType();
     }
 
-    static checkPalette(palette: Palette): Errors.Issue[] {
-        const results: Errors.Issue[] = [];
+    static checkPalette(palette: Palette): Errors.ErrorsWarnings {
+        const eagle: Eagle = Eagle.getInstance();
+        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
 
         // check for duplicate keys
         const keys: number[] = [];
@@ -1531,13 +1532,18 @@ export class Utils {
         for (const node of palette.getNodes()){
             // check existing keys
             if (keys.indexOf(node.getKey()) !== -1){
-                results.push(Errors.Message("Key " + node.getKey() + " used by multiple components in palette."));
+                errorsWarnings.errors.push(Errors.Message("Key " + node.getKey() + " used by multiple components in palette."));
             } else {
                 keys.push(node.getKey());
             }
         }
 
-        return results;
+        // check all nodes are valid
+        for (const node of palette.getNodes()){
+            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errorsWarnings);
+        }
+
+        return errorsWarnings;
     }
 
     static checkGraph(eagle: Eagle): Errors.ErrorsWarnings {
