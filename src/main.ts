@@ -114,9 +114,16 @@ $(function(){
             {name:"Builtin Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true}
         ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
-            // TODO: display of errors could be improved
-            if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
-                console.error(errorsWarnings);
+            const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
+
+            // display of errors if setting is true
+            if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
+                // add warnings/errors to the arrays
+                eagle.loadingErrors(errorsWarnings.errors);
+                eagle.loadingWarnings(errorsWarnings.warnings);
+
+                eagle.errorsMode(Setting.ErrorsMode.Loading);
+                Utils.showErrorsModal("Loading File");
             }
 
             for (const palette of palettes){

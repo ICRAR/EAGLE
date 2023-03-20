@@ -124,7 +124,7 @@ export class LogicalGraph {
         for (const nodeData of dataObject.nodeDataArray){
             const extraUsedKeys: number[] = [];
 
-            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, (): number => {
+            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false, (): number => {
                 const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                 const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
                 const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
@@ -169,7 +169,7 @@ export class LogicalGraph {
         // check for missing name
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            errorsWarnings.errors.push(Errors.Message(error));
+            errorsWarnings.warnings.push(Errors.Message(error));
 
             result.fileInfo().name = file.name;
         }

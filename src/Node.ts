@@ -1418,7 +1418,7 @@ export class Node {
         return CategoryData.getCategoryData(node.getCategory()).canHaveOutputApplication;
     }
 
-    static fromOJSJson = (nodeData : any, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number) : Node => {
+    static fromOJSJson = (nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node => {
         let name = "";
         if (typeof nodeData.text !== 'undefined'){
             name = nodeData.text;
@@ -1458,7 +1458,7 @@ export class Node {
         const node : Node = new Node(key, name, "", category);
 
         // set position
-        node.setPosition(x, y);
+        node.setPosition(x, y, !isPaletteNode);
 
         // set categoryType based on the category
         node.categoryType(CategoryData.getCategoryData(category).categoryType);
@@ -1608,7 +1608,7 @@ export class Node {
             if (!CategoryData.getCategoryData(category).canHaveInputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
-                node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, generateKeyFunc));
+                node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, isPaletteNode, generateKeyFunc));
                 node.inputApplication().setEmbedKey(node.getKey());
             }
         }
@@ -1616,7 +1616,7 @@ export class Node {
             if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, generateKeyFunc));
+                node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, isPaletteNode, generateKeyFunc));
                 node.outputApplication().setEmbedKey(node.getKey());
             }
         }
