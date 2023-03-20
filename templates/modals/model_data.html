@@ -205,12 +205,7 @@
                         <tr>
                             <td data-bind="text: 'Last Modified Datetime', eagleTooltip: 'Date and time when this file was last modified'"></td>
                             <!-- ko if: $root.currentFileInfo -->
-                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
-                            <td><input type="text" data-bind="value: $root.currentFileInfo()._lastModifiedDatetime, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
-                            <!-- /ko -->
-                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
-                                <td data-bind="text: $root.currentFileInfo()._lastModifiedDatetime"></td>
-                            <!-- /ko -->
+                                <td data-bind="text: $root.currentFileInfo().lastModifiedDatetimeText()"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
