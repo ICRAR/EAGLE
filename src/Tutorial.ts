@@ -241,8 +241,6 @@ export class Tutorial {
 
     //these are ground work for fufture tutorial system functionality
     initiateInputStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
-        console.log('initiating input step')
-
         if (alternateHighlightTarget != null) {
             this.highlightStepTarget(alternateHighlightTarget)
         } else {
@@ -254,6 +252,7 @@ export class Tutorial {
             TutorialSystem.activeTut.openInfoPopUp()
         }, 510);
 
+        //attatching an input handler for checking input
         tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc',function(event:any){TutorialSystem.activeTut.tutInputCheckFunc(event,tutStep)})
     }
 
@@ -424,16 +423,18 @@ export class Tutorial {
     }
 
     tutInputCheckFunc = (event:any,tutStep:TutorialStep):void => {
-        if(event.which === 37||event.which === 38||event.which === 39||event.which === 40){
+        if(event.which === 37||event.which === 38||event.which === 39||event.which === 40||event.which === 8){
             return
         }
         if(tutStep.getStepArgument() === ''){
             if(event.which === 13){
                 TutorialSystem.activeTut.tutButtonNext()
+                tutStep.getTargetFunc()().off('keydown.tutInputCheckFunc')
             }
         }else{
             if(tutStep.getTargetFunc()().val() === tutStep.getStepArgument()){
                 TutorialSystem.activeTut.tutButtonNext()
+                tutStep.getTargetFunc()().off('keydown.tutInputCheckFunc')
             }
         }
     }
@@ -521,7 +522,6 @@ export const tutorialArray = [
         "Quick Start Tutorial",
         'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.',
         [
-            new TutorialStep("input your input!", "enter something and press enter", TutorialStep.Type.Input, TutorialStep.Wait.None, function () { return $(".leftWindow .componentSearchBar") }, null, null,'cheese'),
             new TutorialStep("Welcome to Eagle!", "Welcome to the basic UI tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#eagleAndVersion a") }, null, null,null),
             new TutorialStep("Left Panel", "This panel displays the components available to construct graphs. The components are organised in so-called <a target='_blanl' href='https://eagle-dlg.readthedocs.io/en/master/palettes.html'>Palettes</a>. By default EAGLE loads two palettes, which are part of the core system, but users can develop their own palettes as well and load them here.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $(".leftWindow") }, null, null,null),
             new TutorialStep("Graph Canvas", "In the graph canvas you can construct graphs using components from the palettes in the Palette Panel on the left.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#logicalGraphParent") }, null, null,null),
