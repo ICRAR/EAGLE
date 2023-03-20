@@ -283,6 +283,8 @@ function autoTutorial(eagle: Eagle){
 
     if (tutorialName !== null){
         console.log("Running tutorial:", tutorialName);
-        TutorialSystem.initiateTutorial(tutorialName);
+        setTimeout(function () {
+            TutorialSystem.initiateTutorial(tutorialName);
+        },1000)
     }
 }

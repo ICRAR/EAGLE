@@ -168,7 +168,7 @@ export class Tutorial {
 
             elementAvailable = targetElement.hasClass('show')
 
-        } else if (waitType === TutorialStep.Wait.Element) {      //in case of an element we check if the element exists
+        } else if (waitType === TutorialStep.Wait.Element|| TutorialSystem.activeTutCurrentStepIndex === 0 ) {      //in case of an element we check if the element exists
             if (targetElement.length) {
                 elementAvailable = true
             } else {
