@@ -41,14 +41,16 @@ export class TutorialSystem {
 
                 case 39: // right
                     e.preventDefault()
-                    if (TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex].getType() != TutorialStep.Type.Press) {
+                    if (TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex].getType() === TutorialStep.Type.Info) {
                         TutorialSystem.activeTut.tutButtonNext()
                     }
                     break;
 
                 case 40: // down
                     e.preventDefault()
-                    TutorialSystem.activeTut.tutButtonNext()
+                    if (TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex].getType() === TutorialStep.Type.Info) {
+                        TutorialSystem.activeTut.tutButtonNext()
+                    }
                     break;
 
                 case 27: //escape
@@ -252,8 +254,7 @@ export class Tutorial {
             TutorialSystem.activeTut.openInfoPopUp()
         }, 510);
 
-        tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc')
-
+        tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc',function(event:any){TutorialSystem.activeTut.tutInputCheckFunc(event,tutStep)})
     }
 
     initiateConditionStep = (tutStep: TutorialStep, condition: string, alternateHighlightTarget: JQuery<HTMLElement>): void => {
@@ -287,6 +288,7 @@ export class Tutorial {
 
         //top
         $('.tutorialHighlight.tutorialHighlightTop').css({ "top": "0px", "right": "0px", "bottom": top + "px", "left": "0px" })
+
         //right
         $('.tutorialHighlight.tutorialHighlightRight').css({ "top": top_actual + "px", "right": "0px", "bottom": bottom + "px", "left": right + "px" })
 
@@ -357,7 +359,7 @@ export class Tutorial {
         if (TutorialSystem.activeTutCurrentStepIndex > 0) {
             tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
         }
-        if (TutorialSystem.activeTutCurrentStepIndex + 1 !== TutorialSystem.activeTutNumSteps && step.getType() != TutorialStep.Type.Press) {
+        if (TutorialSystem.activeTutCurrentStepIndex + 1 !== TutorialSystem.activeTutNumSteps && step.getType() === TutorialStep.Type.Info) {
             tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
         }
         tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>" + activeStepIndexDisplay + " of " + TutorialSystem.activeTutNumSteps + "</span>"
@@ -421,6 +423,20 @@ export class Tutorial {
         $(tab).click()
     }
 
+    tutInputCheckFunc = (event:any,tutStep:TutorialStep):void => {
+        if(event.which === 37||event.which === 38||event.which === 39||event.which === 40){
+            return
+        }
+        if(tutStep.getStepArgument() === ''){
+            if(event.which === 13){
+                TutorialSystem.activeTut.tutButtonNext()
+            }
+        }else{
+            if(tutStep.getTargetFunc()().val() === tutStep.getStepArgument()){
+                TutorialSystem.activeTut.tutButtonNext()
+            }
+        }
+    }
 }
 
 export class TutorialStep {
@@ -472,6 +488,10 @@ export class TutorialStep {
         return this.backPreFunction;
     }
 
+    getStepArgument = (): any => {
+        return this.stepArgument;
+    }
+
 }
 
 export namespace TutorialStep {
@@ -501,7 +521,7 @@ export const tutorialArray = [
         "Quick Start Tutorial",
         'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.',
         [
-            new TutorialStep("input your input!", "enter something and press enter", TutorialStep.Type.Input, TutorialStep.Wait.None, function () { return $(".leftWindow .componentSearchBar") }, null, null,''),
+            new TutorialStep("input your input!", "enter something and press enter", TutorialStep.Type.Input, TutorialStep.Wait.None, function () { return $(".leftWindow .componentSearchBar") }, null, null,'cheese'),
             new TutorialStep("Welcome to Eagle!", "Welcome to the basic UI tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#eagleAndVersion a") }, null, null,null),
             new TutorialStep("Left Panel", "This panel displays the components available to construct graphs. The components are organised in so-called <a target='_blanl' href='https://eagle-dlg.readthedocs.io/en/master/palettes.html'>Palettes</a>. By default EAGLE loads two palettes, which are part of the core system, but users can develop their own palettes as well and load them here.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $(".leftWindow") }, null, null,null),
             new TutorialStep("Graph Canvas", "In the graph canvas you can construct graphs using components from the palettes in the Palette Panel on the left.", TutorialStep.Type.Info, TutorialStep.Wait.None, function () { return $("#logicalGraphParent") }, null, null,null),
