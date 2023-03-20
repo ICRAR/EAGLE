@@ -875,7 +875,11 @@ export class Utils {
     }
 
     static showSettingsModal() : void {
-        $('#settingsModal').modal("toggle");
+        $('#settingsModal').modal("show");
+    }
+
+    static hideSettingsModal() : void {
+        $('#settingsModal').modal("hide");
     }
 
     static showOpenParamsTableModal(mode:string) : void {
@@ -885,7 +889,11 @@ export class Utils {
     }
 
     static showShortcutsModal() : void {
-        $('#shortcutsModal').modal("toggle");
+        $('#shortcutsModal').modal("show");
+    }
+
+    static closeShortcutsModal() : void {
+        $('#shortcutsModal').modal("hide");
     }
 
     static showPalettesModal(eagle: Eagle) : void {

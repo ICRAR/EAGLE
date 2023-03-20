@@ -10,7 +10,7 @@
         "target": "es5",
         "lib": ["es2021", "dom"],
         "allowJs": false,
-        "types": ["jquery", "bootstrap", "bootstrap-notify", "intro.js"]
+        "types": ["jquery", "bootstrap", "bootstrap-notify"]
     },
     "files": [
         "./src/require-config.ts",
@@ -41,6 +41,7 @@
         "./src/Edge.ts",
         "./src/FileInfo.ts",
         "./src/Setting.ts",
+        "./src/Tutorial.ts",
         "./src/InspectorState.ts",
         "./src/KeyboardShortcut.ts",
         "./src/PaletteInfo.ts",

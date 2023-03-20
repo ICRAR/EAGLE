@@ -3,7 +3,7 @@
     <object data="/static/assets/svg/liu.svg" type="image/svg+xml" width="30" height="30" class="d-inline-block align-top" alt="LiuIcon"></object>
     <img src="static/assets/img/favicon.png" width="30" height="30" id="brandEagleIcon" class="d-inline-block align-top" alt="">
     <div id="eagleAndVersion">
-        <a class="navbar-brand inactiveLink" href="" disabled data-intro='Welcome to a quickstart tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. Abort anytime using the "Exit" button or ESC key.'>
+        <a class="navbar-brand inactiveLink" href="#" disabled >
             EAGLE
         </a>
         <span>{{version}}</span>
@@ -25,49 +25,49 @@
                     <i class="material-icons md-18">grid_on</i>
                 </button>
                 -->
-                <!-- <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: saveAsPNG, eagleTooltip: 'Save as PNG'" data-intro="Save a PNG of the current graph.">
+                <!-- <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: saveAsPNG, eagleTooltip: 'Save as PNG'" >
                     <i class="material-icons md-18">image</i>
                 </button> -->
                 <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal($root.logicalGraph().fileInfo());}, eagleTooltip: 'Open Graph ModelData'">
                     <i class="material-icons md-18">info</i>
                 </button>
-                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" data-intro="Center the current graph within the graph rendering area.">
+                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" >
                     <i class="material-icons md-18">filter_center_focus</i>
                 </button>
-                <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomIn, eagleTooltip: 'Zoom In '  + Utils.getKeyboardShortcutTextByKey('zoom_in', true)" data-intro="Zoom in on the graph within the graph rendering area.">
+                <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomIn, eagleTooltip: 'Zoom In '  + Utils.getKeyboardShortcutTextByKey('zoom_in', true)" >
                     <i class="material-icons md-18">zoom_in</i>
                 </button>
-                <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out ' + Utils.getKeyboardShortcutTextByKey('zoom_out', true)" data-intro="Zoom out from the graph within the graph rendering area.">
+                <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out ' + Utils.getKeyboardShortcutTextByKey('zoom_out', true)" >
                     <i class="material-icons md-18">zoom_out</i>
                 </button>
-                <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: 'Toggle Snap-to-Grid ' + Utils.getKeyboardShortcutTextByKey('toggle_snap_to_grid', true), css: { 'navbar-btn-active': snapToGrid() }" data-intro="Toggle snap-to-grid behaviour within the graph editor.">
+                <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: 'Toggle Snap-to-Grid ' + Utils.getKeyboardShortcutTextByKey('toggle_snap_to_grid', true), css: { 'navbar-btn-active': snapToGrid() }" >
                     <i class="material-icons md-18">apps</i>
                 </button>
                 <!-- ko if: Eagle.allowPaletteEditing() -->
-                <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + Utils.getKeyboardShortcutTextByKey('add_graph_nodes_to_palette', true)" data-intro="Add all nodes in the current graph to the a new or existing palette.">
+                <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + Utils.getKeyboardShortcutTextByKey('add_graph_nodes_to_palette', true)" >
                     <i class="material-icons md-18">palette</i>
                 </button>
                 <!-- /ko -->
-                <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllGroups, eagleTooltip: 'Collapse/Expand All Groups'" data-intro="Toggle all groups between collapsed and expanded states.">
+                <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllGroups, eagleTooltip: 'Collapse/Expand All Groups'" >
                     <i class="material-icons md-18">tab_unselected</i>
                 </button>
-                <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllNodes, eagleTooltip: 'Collapse/Expand All Nodes'" data-intro="Toggle all nodes between collapsed and expanded states.">
+                <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllNodes, eagleTooltip: 'Collapse/Expand All Nodes'" >
                     <i class="material-icons md-18">vertical_align_center</i>
                 </button>
-                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" data-intro="Create a url that points to the current graph and copy the url to the clipboard.">
+                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
                     <i class="material-icons md-18">content_copy</i>
                 </button>
-                <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true), css: { 'navbar-btn-active': showDataNodes() === false }" data-intro="Toggle the display of data nodes in the current graph. Hiding the data nodes can greatly simplify the appearance of the graph.">
+                <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true), css: { 'navbar-btn-active': showDataNodes() === false }">
                     <i class="material-icons md-18">subtitles</i>
                 </button>
-                <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: 'Check for component updates ' + Utils.getKeyboardShortcutTextByKey('check_for_component_updates', true)" data-intro="Check for updates to the definitions of components used in the current graph.">
+                <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: 'Check for component updates ' + Utils.getKeyboardShortcutTextByKey('check_for_component_updates', true)">
                     <i class="material-icons md-18">star</i>
                 </button>
             </div>
-            <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)" data-intro="Open The Graph's Key Parameters Table">
+            <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
                 <i class="material-icons md-18">table_chart</i>
             </button>
-            <ul class="nav navbar-nav ms-4" data-intro="Check the graph for common issues and missing information.">
+            <ul class="nav navbar-nav ms-4">
                 <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'">
                     <i class="material-icons md-18">done_all</i>
                 </button>
@@ -83,7 +83,7 @@
                 <a href='javascript:void(0)' data-bind="click: function(){$root.deployDefaultTranslationAlgorithm()}">Translate</a>
             </div>
             <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
-            <li class="nav-item dropdown" data-intro='Create new graphs'>
+            <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle ms-auto" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Graph
                 </a>
@@ -130,7 +130,7 @@
             </li>
             <!-- /ko -->
             <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
-            <li class="nav-item dropdown" data-intro='Create new palettes'>
+            <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPalette" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Palette
                 </a>
@@ -171,13 +171,13 @@
                 </div>
             </li>
             <!-- /ko -->
-            <li class="nav-item dropdown" data-intro='Additional usage information and introductions to EAGLE features.'>
+            <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Help
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownHelp">
                     <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
-                    <a class="dropdown-item" id="navbarIntroduction" href="#" data-bind="click: function(){runTutorial('nav.navbar');}">Navbar Introduction</a>
+                    <a class="dropdown-item" id="about" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Quick Start Tutorial')}">Introductory Tour</a>
                     <a class="dropdown-item" id="onlineDocs" href="#" data-bind="click: onlineDocs">Online Docs</a>
                     <a class="dropdown-item" id="readme" href="#" data-bind="click: readme">GitHub README</a>
                     <a class="dropdown-item" id="submitIssue" href="#" data-bind="click: submitIssue">Submit Issue</a>
@@ -186,7 +186,7 @@
                     </a>
                 </div>
             </li>
-            <a class="nav-link" data-bs-placement="bottom" id="settings" href="#" data-bind="click: openSettings, eagleTooltip: 'Settings'" data-intro="Set user options, editing permissions and external services such as a github/lab tokens and the translator url."><img src="/static/assets/img/settings_white_24dp.svg" alt=""></a>
+            <a class="nav-link" data-bs-placement="bottom" id="settings" href="#" data-bind="click: openSettings, eagleTooltip: 'Settings'"><img src="/static/assets/img/settings_white_24dp.svg" alt=""></a>
         </ul>
 
     </div>

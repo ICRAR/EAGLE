@@ -42,6 +42,13 @@
 .material-icons.md-48 { font-size: 48px; }
 
 @font-face {
+  font-family: 'Comic Neue';
+  font-style: light;
+  src: 
+    url(fonts/ComicNeue-Light.ttf) format('truetype')
+}
+
+@font-face {
   font-family: 'icomoon';
   src:  url('fonts/icomoon.eot?ply1bf');
   src:  url('fonts/icomoon.eot?ply1bf#iefix') format('embedded-opentype'),

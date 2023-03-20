@@ -1685,10 +1685,6 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     color: white !important;
 }
 
-.navbar .introjs-tooltipbuttons a{
-    color: #002349 !important;
-}
-
 .inactiveLink {
     pointer-events: none;
     cursor: default;
@@ -1993,10 +1989,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 .ports-row h5 {
     margin-top: 5px;
-}
-
-nav.navbar .introjs-helperLayer {
-    background-color: rgba(255, 255, 255, 0.5);
 }
 
 .navbar-nav.navbar-center {
@@ -2320,6 +2312,167 @@ palette-component input.form-control.selected {
 
 .searchBarContainer{
     position: relative;
+}
+
+.tutorialHighlight{
+    position:absolute;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index:2000;
+    transition: 0.5s ease;
+}
+
+#tutorialInfoPopUp{
+    position:absolute;
+    width:700px;
+    height:250px;
+    z-index:2001;
+    color:white;
+    font-family:'Comic Neue';
+}
+
+#tutorialInfoPopUp .tutorialArrowContainer{
+    position:relative; 
+    height:100%;
+    width:100%;
+}
+
+#tutorialInfoPopUp.tutorialRight img{
+    transform:scale(1,1);
+    position:absolute; 
+    top:0px; 
+    left:0px; 
+    width: 160px;
+    z-index: 1;
+}
+
+#tutorialInfoPopUp.tutorialRightTop img{
+    transform:scale(1,-1);
+    position:absolute; 
+    bottom:0px; 
+    left:0px; 
+    width: 160px;
+    z-index: 1;
+}
+
+#tutorialInfoPopUp.tutorialMiddle .tutorialContent{
+    background-color: rgb(0 0 0 / 60%);
+    box-shadow: 0px 0px 25px 25px rgb(0 0 0 / 60%);
+}
+
+.tutorialContent{
+    /* potential background for legibility */
+
+    background: rgba(1,1,1,0.3);
+    border-radius: 10px;
+    box-shadow: 0px 0px 25px 25px rgba(1,1,1,0.3);
+}
+
+#tutorialInfoPopUp.tutorialRight .tutorialContent,#tutorialInfoPopUp.tutorialRightTop .tutorialContent{
+    position: absolute;
+    left: 170px;
+    top: 96px;
+    min-width: 70%;
+}
+
+#tutorialInfoPopUp.tutorialRight .tutorialInfoButtons,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoButtons{
+    position: relative;
+    height:50px;
+}
+
+#tutorialInfoPopUp.tutorialLeft img{
+    position:absolute; 
+    top:0px; 
+    right:0px; 
+    transform:scale(-1,1);
+    width: 160px;
+    z-index: 1;
+}
+
+#tutorialInfoPopUp.tutorialLeftTop img{
+    transform:scale(-1,-1);
+    position:absolute; 
+    bottom:0px; 
+    right:0px; 
+    width: 160px;
+    z-index: 1;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialContent,#tutorialInfoPopUp.tutorialLeftTop .tutorialContent{
+    position: absolute;
+    right: 170px;
+    top: 96px;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialInfoTitle,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoTitle{
+    text-align: right;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialInfoText,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoText{
+    text-align: right;
+    min-width: 450px;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialInfoButtons,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoButtons{
+    position: relative;
+    height:50px;
+}
+
+#tutorialInfoPopUp .tutorialInfoTitle h4{
+    font-size:30px;
+    text-shadow: black 1px 0 10px,black 1px 0px 10px,black 1px 0px 10px;
+}
+
+#tutorialInfoPopUp span, #tutorialInfoPopUp a{
+    text-shadow: black 1px 0 10px,black 1px 0px 10px,black 1px 0px 10px;
+}
+#tutorialInfoPopUp a{
+    color: #ffc437;
+}
+
+#tutorialInfoPopUp .tutorialInfoButtons button{
+    background-color: transparent;
+    border: none;
+    color: white;
+    padding: 0px;
+    bottom: 0px;
+    font-size:22px ;
+    text-shadow: black 1px 0 10px,black 1px 0px 10px,black 1px 0px 10px;
+}
+
+#tutorialInfoPopUp .tutorialInfoButtons button:hover{
+    text-decoration: underline;
+}
+
+#tutorialInfoPopUp .tutPreviousBtn{
+    position: absolute;
+    left: 0px;
+}
+
+#tutorialInfoPopUp .tutNextBtn{
+    position: absolute;
+    right: 60px;
+}
+
+#tutorialInfoPopUp .tutProgress{
+    left: 50%;
+    transform: translateX(-80%);
+    bottom: 2px;
+    position: absolute;
+}
+
+#tutorialInfoPopUp .tutEndBtn{
+    position: absolute;
+    right: 0px;
+}
+
+
+@keyframes tutFadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+     }
 }
 
 .rightWindow .searchBarContainer{

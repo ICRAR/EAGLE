@@ -25,7 +25,6 @@
 "use strict";
 
 import * as ko from "knockout";
-import * as ij from "intro.js";
 
 import {Utils} from './Utils';
 import {GitHub} from './GitHub';
@@ -44,6 +43,7 @@ import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {Setting, SettingsGroup} from './Setting';
+import {Tutorial, TutorialStep, tutorialArray} from './Tutorial';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
 import {InspectorState} from './InspectorState';
@@ -59,6 +59,7 @@ export class Eagle {
 
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
+    tutorial : ko.Observable<Tutorial>;
 
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
@@ -107,6 +108,7 @@ export class Eagle {
 
     static settings : SettingsGroup[];
     static shortcuts : KeyboardShortcut[];
+    static tutorials : Tutorial[];
 
     static dragStartX : number;
     static lastClickTime : number = 0;
@@ -144,8 +146,10 @@ export class Eagle {
         Eagle.applicationArgsSearchString = ko.observable("");
         Eagle.tableSearchString = ko.observable("");
 
-        Eagle.settings = Setting.getSettings();
+        Eagle.tutorials = tutorialArray
+        this.tutorial = ko.observable(Eagle.tutorials[0]);
 
+        Eagle.settings = Setting.getSettings();
         Eagle.shortcuts = KeyboardShortcut.getShortcuts();
         
         this.globalOffsetX = 0;
@@ -2278,13 +2282,6 @@ export class Eagle {
         $('#aboutModal').modal('show');
     }
 
-    runTutorial = (name : string) : void => {
-        console.log("runTutorial(" + name + ")");
-
-        // start the tutorial
-        ij(name).setOption("showStepNumbers", false).setOption("skipLabel", "Exit").start();
-    }
-
     onlineDocs = () : void => {
         console.log("online help");
 
@@ -2325,6 +2322,10 @@ export class Eagle {
             $(".settingsModalButton").first().click()
         }
         Utils.showSettingsModal();
+    }
+
+    closeSettings = () : void => {
+        Utils.hideSettingsModal();
     }
 
     openParamsTableModal = (mode:string,selectType:string) : void => {
@@ -2384,6 +2385,10 @@ export class Eagle {
             Utils.showShortcutsModal();
         }
         return
+    }
+
+    closeShortcuts = () : void => {
+        Utils.closeShortcutsModal();
     }
 
     // TODO: move to Setting.ts?
