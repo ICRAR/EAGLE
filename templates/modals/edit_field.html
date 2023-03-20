@@ -1,0 +1,163 @@
+<!-- Edit Field Modal -->
+<div class="modal fade" id="editFieldModal" tabindex="-1" role="dialog" aria-labelledby="editFieldModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <input type="checkbox" tabindex='-1' class="form-control form-check-input material-icons" id="editFieldModalKeyParameterCheckbox">
+                <h5 class="modal-title" id="editFieldModalTitle">Edit Parameter</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container" id="addParameterWrapper">
+                    <div class="row">
+                        <p id="ComponentModalMessage">Please select a parameter name or create a custom parameter.</p>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="fieldModalSelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container" id="customParameterOptionsWrapper">
+                    <div class="row">
+                        <div class="col-3">
+                            <p data-bind="eagleTooltip: 'Internal name used by DALiuGE'" data-bs-placement="left">Id Text:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3 has-validation">
+                                <input type="text" class="form-control" id="editFieldModalIdTextInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p data-bind="eagleTooltip: 'User-facing name'" data-bs-placement="left">Display Text:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="editFieldModalDisplayTextInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="editFieldModalValue">
+                        <div class="col-3">
+                            <p>Value:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3 has-validation">
+                                <textarea type="text" class="form-control" id="editFieldModalValueInputText"></textarea>
+                                <input type="number" id="editFieldModalValueInputNumber" class="form-control ">
+                                <div class="input-group componentCheckbox" id="componentValueCheckbox">
+                                    <span class="noselect"></span>
+                                    <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalValueInputCheckbox">
+                                </div>
+                                <select class="form-control" id="editFieldModalValueInputSelect">
+                                    <!-- options are added dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="editFieldModalDefaultValue">
+                        <div class="col-3">
+                            <p>Default Value:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <textarea type="text" class="form-control" id="editFieldModalDefaultValueInputText"></textarea>
+                                <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control ">
+                                <div class="input-group componentCheckbox" id="componentDefaultValueCheckbox">
+                                    <span class="noselect"></span>
+                                    <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox">
+                                </div>
+                                <select class="form-control" id="editFieldModalDefaultValueInputSelect">
+                                    <!-- options are added dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Description:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <textarea type="text" class="form-control" id="editFieldModalDescriptionInput"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Type:</p>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <input id="editFieldModalTypeInput" type="text" class="form-control" aria-label="Text input with dropdown button" autocomplete="false">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Types</button>
+                                <ul id="editFieldModalTypeSelect" class="dropdown-menu dropdown-menu-end">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Flags:</p>
+                        </div>
+                        <div class="col-9">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="input-group mb-3 componentCheckbox" data-bind="eagleTooltip:'Argument never suppressed'">
+                                        <span>Precious</span>
+                                        <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalPreciousInputCheckbox">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="input-group mb-3 componentCheckbox" data-bind="eagleTooltip:'If checked only the value of this argument will be put on the command line'">
+                                        <span>Positional</span>
+                                        <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalPositionalInputCheckbox">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="input-group mb-3 componentCheckbox" data-bind="eagleTooltip:'No write access when checked'">
+                                        <span>Read Only</span>
+                                        <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalAccessInputCheckbox">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="editFieldModalParameterTypeSelectRow">
+                        <div class="col-3">
+                            <p>Parameter Type:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="editFieldModalParameterTypeSelect">
+                                    <!-- options are added dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="editFieldModalParameterUsageSelectRow">
+                        <div class="col-3">
+                            <p>Parameter Usage:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="editFieldModalParameterUsageSelect">
+                                    <!-- options are added dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content:space-between;">
+                <button type="button" class="btn btn-secondary" id="editFieldModalResetToDefaultButton"><span>Reset to Default</span></button>
+                <button type="button" class="btn btn-primary" id="editFieldModalAffirmativeButton" data-bs-dismiss="modal"><span id="editFieldModalAffirmativeAnswer">OK</span></button>
+            </div>
+        </div>
+    </div>
+</div>

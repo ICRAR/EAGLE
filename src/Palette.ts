@@ -114,8 +114,23 @@ export class Palette {
             result.nodeDataArray.push(Node.toOJSPaletteJson(node));
         }
 
-        // add links
+        // add links (none in a palette)
         result.linkDataArray = [];
+
+        return result;
+    }
+
+    static toOJSJsonString = (palette: Palette) : string => {
+        let result: string = "";
+
+        const json: any = this.toOJSJson(palette);
+
+        // manually build the JSON so that we can enforce ordering of attributes (modelData first)
+        result += "{\n";
+        result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
+        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
+        result += "}\n";
 
         return result;
     }

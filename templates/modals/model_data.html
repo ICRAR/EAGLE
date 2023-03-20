@@ -1,0 +1,235 @@
+<!-- ModelData Modal -->
+<div class="modal fade" id="modelDataModal" tabindex="-1" role="dialog" aria-labelledby="modelDataModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modelDataModalTitle">ModelData</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="modelDataModalTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-bind="text: 'File Type', eagleTooltip: 'The type of content in the file. Options: ' + Utils.enumKeys(Eagle.FileType)"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td><input type="text" data-bind="value: $root.currentFileInfo()._type, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._type"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Short Descripton', eagleTooltip: 'A one-line description of the purpose of this file'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td><input type="text" data-bind="value: $root.currentFileInfo()._shortDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._shortDescription"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Detailed Descripton', eagleTooltip: 'A complete description of the purpose of this file'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td><textarea data-bind="value: $root.currentFileInfo()._detailedDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></textarea></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._detailedDescription"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Repository Service', eagleTooltip: 'The service in which this file is stored. Options: ' + Utils.enumKeys(Eagle.RepositoryService)"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._repositoryService, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._repositoryService"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Repository Name', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._repositoryName, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._repositoryName"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Repository Branch', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._repositoryBranch, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._repositoryBranch"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'File Path', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._path, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._path"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Eagle Version', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._eagleVersion, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._eagleVersion"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Eagle Commit Hash', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._eagleCommitHash, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._eagleCommitHash"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Schema Version', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._schemaVersion, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._schemaVersion"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Readonly', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._readonly, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._readonly"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Repository URL', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._repositoryUrl, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._repositoryUrl"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Commit Hash', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._commitHash, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._commitHash"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Download URL', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._downloadURL, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._downloadURL"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Signature', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._signature, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._signature"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Last Modified Name', eagleTooltip: 'Name of the user who last modified this file'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._lastModifiedName, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._lastModifiedName"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Last Modified Email', eagleTooltip: 'Email of the user who last modified this file'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._lastModifiedEmail, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._lastModifiedEmail"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Last Modified Datetime', eagleTooltip: 'Date and time when this file was last modified'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._lastModifiedDatetime, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._lastModifiedDatetime"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Num Nodes', eagleTooltip: 'Number of nodes within this file'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <td><input type="text" data-bind="value: $root.currentFileInfo()._numLGNodes, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                                <td data-bind="text: $root.currentFileInfo()._numLGNodes"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="modelDataModalOKButton" data-bs-dismiss="modal"><span>OK</span></button>
+            </div>
+        </div>
+    </div>
+</div>

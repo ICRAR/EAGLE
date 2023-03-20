@@ -65,6 +65,8 @@ export class LogicalGraph {
         // add links
         result.linkDataArray = [];
         for (const edge of graph.getEdges()){
+
+            // depending on the settings and purpose, skip close-loop edges
             if (forTranslation && Setting.findValue(Setting.SKIP_CLOSE_LOOP_EDGES)){
                 if (edge.isClosesLoop()){
                     continue;
@@ -92,6 +94,21 @@ export class LogicalGraph {
 
             result.linkDataArray.push(linkData);
         }
+
+        return result;
+    }
+
+    static toOJSJsonString = (graph : LogicalGraph, forTranslation : boolean) : string => {
+        let result: string = "";
+
+        const json: any = this.toOJSJson(graph, forTranslation);
+
+        // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
+        result += "{\n";
+        result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
+        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
+        result += "}\n";
 
         return result;
     }

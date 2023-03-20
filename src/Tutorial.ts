@@ -30,26 +30,36 @@ export class TutorialSystem {
 
             switch (e.which) {
                 case 37: // left
+                    e.preventDefault()
                     TutorialSystem.activeTut.tutButtonPrev()
                     break;
 
                 case 38: // up
+                    e.preventDefault()
                     TutorialSystem.activeTut.tutButtonPrev()
                     break;
 
                 case 39: // right
+                    e.preventDefault()
                     if (TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex].getType() != TutorialStep.Type.Press) {
                         TutorialSystem.activeTut.tutButtonNext()
                     }
                     break;
 
                 case 40: // down
+                    e.preventDefault()
                     TutorialSystem.activeTut.tutButtonNext()
                     break;
 
                 case 27: //escape
                     e.preventDefault()
                     TutorialSystem.activeTut.tutButtonEnd()
+                    break;
+
+                case 13: //enter
+                    e.preventDefault()
+                    e.stopImmediatePropagation()
+                    $(':focus').click()
                     break;
 
                 default: return; // exit this handler for other keys
@@ -64,8 +74,6 @@ export class TutorialSystem {
             TutorialSystem.cooldown = false
         }, 500)
     }
-
-
 
 }
 
@@ -396,6 +404,7 @@ export class Tutorial {
         $('body').off('keydown.tutEventListener');
         $('.tutButtonListener').off('click.tutButtonListener').removeClass('tutButtonListener')
         $(".tutorialHighlight").remove()
+        TutorialSystem.activeTut = null
     }
 
     tutPressStepListener = (): void => {
@@ -408,6 +417,7 @@ export class Tutorial {
     openSettingsSection = (tab: string): void => {
         const eagle = Eagle.getInstance()
         eagle.openSettings()
+        $(':focus').blur()
         $(tab).click()
     }
 

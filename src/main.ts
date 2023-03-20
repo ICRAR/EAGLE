@@ -113,7 +113,12 @@ $(function(){
         eagle.loadPalettes([
             {name:"Builtin Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true}
-        ], (palettes: Palette[]):void => {
+        ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
+            // TODO: display of errors could be improved
+            if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
+                console.error(errorsWarnings);
+            }
+
             for (const palette of palettes){
                 if (palette !== null){
                     eagle.palettes.push(palette);

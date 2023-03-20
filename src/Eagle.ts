@@ -96,6 +96,7 @@ export class Eagle {
     loadingErrors : ko.ObservableArray<Errors.Issue>;
     tableModalType : ko.Observable<string>;
     showTableModal : ko.Observable<boolean>;
+    currentFileInfo : ko.Observable<FileInfo>;
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
@@ -172,6 +173,7 @@ export class Eagle {
 
         this.tableModalType = ko.observable('')
         this.showTableModal = ko.observable(false)
+        this.currentFileInfo = ko.observable(null);
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
@@ -743,6 +745,7 @@ export class Eagle {
     insertGraphFile = () : void => {
         const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
         const fileFullPath : string = uploadedGraphFileToInsertInputElement.value;
+        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -763,7 +766,9 @@ export class Eagle {
             this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                 const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
-                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+
+                // TODO: handle errors and warnings
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Insert Logical Graph");
@@ -914,7 +919,7 @@ export class Eagle {
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
-    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node) : void => {
+    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) : void => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
@@ -1017,10 +1022,14 @@ export class Eagle {
             const mappedParent: Node = keyMap.get(node.getParentKey());
 
             // make sure parent is set correctly
-            // if no mapping is available for the parent, then use the original parent as the parent for the new node
+            // if no mapping is available for the parent, then set parent to the new parentNode, or if no parentNode exists, just set parent to null
             // if a mapping is available, then use the mapped node as the parent for the new node
             if (typeof mappedParent === 'undefined'){
-                insertedNode.setParentKey(node.getParentKey());
+                if (parentNode === null){
+                    insertedNode.setParentKey(null);
+                } else {
+                    insertedNode.setParentKey(parentNode.getKey());
+                }
             } else {
                 insertedNode.setParentKey(mappedParent.getKey());
             }
@@ -1028,8 +1037,16 @@ export class Eagle {
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
+            const srcNode = keyMap.get(edge.getSrcNodeKey());
+            const destNode = keyMap.get(edge.getDestNodeKey());
+
+            if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
+                errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
+                continue;
+            }
+
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
+            this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
         }
     }
 
@@ -1176,9 +1193,11 @@ export class Eagle {
 
             const nodes : Node[] = [];
             const edges : Edge[] = [];
+            const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
 
             for (const n of clipboard.nodes){
                 const node = Node.fromOJSJson(n, null, (): number => {
+                    // TODO: add error to errorsWarnings
                     console.error("Should not have to generate new key for node", n);
                     return 0;
                 });
@@ -1192,10 +1211,11 @@ export class Eagle {
                 edges.push(edge);
             }
 
-            this.insertGraph(nodes, edges, null);
+            this.insertGraph(nodes, edges, null, errorsWarnings);
 
             // display notification to user
             Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+            // TODO: show errors
 
             // ensure changes are reflected in display
             this.checkGraph();
@@ -1216,7 +1236,7 @@ export class Eagle {
         cloneLG.fileInfo().lastModifiedEmail = "";
         cloneLG.fileInfo().lastModifiedDatetime = 0;
 
-        const jsonString: string = JSON.stringify(LogicalGraph.toOJSJson(cloneLG, false), null, 4);
+        const jsonString: string = LogicalGraph.toOJSJsonString(cloneLG, false);
 
         Utils.requestUserText("Export Graph to JSON", "", jsonString, null);
     }
@@ -1271,10 +1291,9 @@ export class Eagle {
                 Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
                 break;
             case Eagle.RepositoryService.Url:
-                // TODO: new code
                 this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
-                ], (palettes: Palette[]):void => {
+                ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
                     for (const palette of palettes){
                         if (palette !== null){
                             this.palettes.splice(index, 0, palette);
@@ -1372,7 +1391,7 @@ export class Eagle {
     /**
      * Saves a file to the remote server repository.
      */
-    saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, json : object) : void => {
+    saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, jsonString : string) : void => {
         console.log("saveFileToRemote() repository.name", repository.name, "repository.service", repository.service);
 
         let url : string;
@@ -1390,7 +1409,7 @@ export class Eagle {
         }
 
 
-        Utils.httpPostJSON(url, json, (error : string, data: string) : void => {
+        Utils.httpPostJSONString(url, jsonString, (error : string, data: string) : void => {
             if (error !== null){
                 Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
                 console.error("Error: " + JSON.stringify(error, null, 2) + " Data: " + data);
@@ -1602,20 +1621,20 @@ export class Eagle {
             // clone the logical graph
             const lg_clone : LogicalGraph = (<LogicalGraph> obj).clone();
             lg_clone.fileInfo().updateEagleInfo();
-            const json = LogicalGraph.toOJSJson(lg_clone, false);
+            const jsonString: string = LogicalGraph.toOJSJsonString(lg_clone, false);
 
-            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, json);
+            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
         } else {
             // clone the palette
             const p_clone : Palette = (<Palette> obj).clone();
             p_clone.fileInfo().updateEagleInfo();
-            const json = Palette.toOJSJson(p_clone);
+            const jsonString: string = Palette.toOJSJsonString(p_clone);
 
-            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, json);
+            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
         }
     }
 
-    _saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, json: object) : void => {
+    _saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string) : void => {
         // generate filename
         const fullFileName : string = Utils.joinPath(filePath, fileName);
 
@@ -1642,7 +1661,8 @@ export class Eagle {
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, fileType);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -1651,20 +1671,11 @@ export class Eagle {
             }
         }
 
-        const jsonData : object = {
-            jsonData: json,
-            repositoryBranch: repository.branch,
-            repositoryName: repository.name,
-            repositoryService: repository.service,
-            token: token,
-            filename: fullFileName,
-            commitMessage: commitMessage
-        };
-
-        this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, jsonData);
+        const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
+        this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
     }
 
-    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
+    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
@@ -1704,7 +1715,7 @@ export class Eagle {
                     }
                 }
                 if (allComplete){
-                    callback(results);
+                    callback(errorsWarnings, results);
                 }
             });
         }
@@ -1873,7 +1884,7 @@ export class Eagle {
             const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
             // perform insert
-            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
 
             // trigger re-render
             this.logicalGraph.valueHasMutated();
@@ -2010,11 +2021,12 @@ export class Eagle {
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().removeGitInfo();
         p_clone.fileInfo().updateEagleInfo();
-        const json = Palette.toOJSJson(p_clone);
+        const jsonString: string = Palette.toOJSJsonString(p_clone);
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Palette);
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Palette);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2023,7 +2035,7 @@ export class Eagle {
             }
         }
 
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
                 Utils.showUserMessage("Error", "Error saving the file!");
                 console.error(error);
@@ -2068,11 +2080,12 @@ export class Eagle {
         const lg_clone : LogicalGraph = this.logicalGraph().clone();
         lg_clone.fileInfo().removeGitInfo();
         lg_clone.fileInfo().updateEagleInfo();
-        const json : object = LogicalGraph.toOJSJson(lg_clone, false);
+        const jsonString : string = LogicalGraph.toOJSJsonString(lg_clone, false);
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2081,7 +2094,7 @@ export class Eagle {
             }
         }
 
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
                 Utils.showUserMessage("Error", "Error saving the file!");
                 console.error(error);
@@ -2147,20 +2160,11 @@ export class Eagle {
             // clone the palette
             const p_clone : Palette = palette.clone();
             p_clone.fileInfo().updateEagleInfo();
-            const json = Palette.toOJSJson(p_clone);
+            const jsonString: string = Palette.toOJSJsonString(p_clone);
 
-            const jsonData : object = {
-                jsonData: json,
-                repositoryBranch: repository.branch,
-                repositoryName: repository.name,
-                repositoryService: repository.service,
-                token: token,
-                filename: fullFileName,
-                commitMessage: commitMessage
-            };
+            const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
 
-
-            this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, jsonData);
+            this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
         });
     }
 
@@ -2505,6 +2509,7 @@ export class Eagle {
                 {
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
+                    const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // split objects into nodes and edges
                     for (const object of incomingNodes){
@@ -2517,7 +2522,7 @@ export class Eagle {
                         }
                     }
 
-                    this.insertGraph(nodes, edges, null);
+                    this.insertGraph(nodes, edges, null, errorsWarnings);
                     this.checkGraph();
                     this.undo().pushSnapshot(this, "Duplicate selection");
                     this.logicalGraph.valueHasMutated();
@@ -2542,28 +2547,53 @@ export class Eagle {
         }
     }
 
-    copySelectionToClipboard = () : void => {
+    // TODO: currently only works when copying from the LG, doesn't work when copying from a palette!
+    copySelectionToClipboard = (copyChildren: boolean) : void => {
         console.log("copySelectionToClipboard()");
 
-        const nodes: object[] = [];
-        const edges: object[] = [];
+        const nodes: Node[] = [];
+        const edges: Edge[] = [];
 
+        // add all items in selection to the set of objects to copy
+        // if copyChildren is true, add children of selected items too
         for (const object of this.selectedObjects()){
             if (object instanceof Node){
-                // serialise node
-                const node = Node.toOJSGraphJson(object);
-                nodes.push(node);
+                if (copyChildren){
+                    this._addNodeAndChildren(this.logicalGraph().getNodes(), object, nodes);
+                } else {
+                    this._addUniqueNode(nodes, object);
+                }
             }
 
             if (object instanceof Edge){
-                const edge = Edge.toOJSJson(object);
-                edges.push(edge);
+                edges.push(object);
             }
         }
 
+        // if copyChildren, add all edges adjacent to the nodes in the list objects
+        if (copyChildren){
+            for (const edge of this.logicalGraph().getEdges()){
+                for (const node of nodes){
+                    if (node.getKey() === edge.getSrcNodeKey() || node.getKey() === edge.getDestNodeKey()){
+                        this._addUniqueEdge(edges, edge);
+                    }
+                }
+            }
+        }
+
+        // TODO: serialise nodes and edges
+        const serialisedNodes = [];
+        for (const node of nodes){
+            serialisedNodes.push(Node.toOJSGraphJson(node));
+        }
+        const serialisedEdges = [];
+        for (const edge of edges){
+            serialisedEdges.push(Edge.toOJSJson(edge));
+        }
+
         const clipboard = {
-            nodes: nodes,
-            edges: edges
+            nodes: serialisedNodes,
+            edges: serialisedEdges
         };
         
         // write to clipboard
@@ -2577,6 +2607,41 @@ export class Eagle {
                 Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
             }
         );
+    }
+
+    // NOTE: support func for copySelectionToKeyboard() above
+    _addNodeAndChildren = (nodes: Node[], node: Node, output:Node[]) : void => {
+        this._addUniqueNode(output, node);
+
+        for (const n of nodes){
+            if (n.getParentKey() === node.getKey()){
+                this._addNodeAndChildren(nodes, n, output);
+            }
+        }
+    }
+
+    // NOTE: support func for copySelectionToKeyboard() above
+    // only add the new node to the nodes list if it is not already present
+    _addUniqueNode = (nodes: Node[], newNode: Node): void => {
+        for (const node of nodes){
+            if (node.getKey() === newNode.getKey()){
+                return;
+            }
+        }
+
+        nodes.push(newNode);
+    }
+
+    // NOTE: support func for copySelectionToKeyboard() above
+    // only add the new edge to the edges list if it is not already present
+    _addUniqueEdge = (edges: Edge[], newEdge: Edge): void => {
+        for (const edge of edges){
+            if (edge.getId() === newEdge.getId()){
+                return;
+            }
+        }
+
+        edges.push(newEdge);
     }
 
     pasteFromClipboard = async () => {
@@ -2597,11 +2662,12 @@ export class Eagle {
             return;
         }
 
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const nodes : Node[] = [];
         const edges : Edge[] = [];
 
         for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, null, (): number => {
+            const node = Node.fromOJSJson(n, errorsWarnings, (): number => {
                 console.error("Should not have to generate new key for node", n);
                 return 0;
             });
@@ -2610,15 +2676,19 @@ export class Eagle {
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, null);
+            const edge = Edge.fromOJSJson(e, errorsWarnings);
 
             edges.push(edge);
         }
 
-        this.insertGraph(nodes, edges, null);
+        this.insertGraph(nodes, edges, null, errorsWarnings);
 
         // display notification to user
-        Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
+
+        } else {
+            Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+        }
 
         // ensure changes are reflected in display
         this.checkGraph();
