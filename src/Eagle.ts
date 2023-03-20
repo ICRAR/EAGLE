@@ -97,6 +97,7 @@ export class Eagle {
     tableModalType : ko.Observable<string>;
     showTableModal : ko.Observable<boolean>;
     currentFileInfo : ko.Observable<FileInfo>;
+    currentFileInfoTitle : ko.Observable<string>;
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
@@ -174,6 +175,7 @@ export class Eagle {
         this.tableModalType = ko.observable('')
         this.showTableModal = ko.observable(false)
         this.currentFileInfo = ko.observable(null);
+        this.currentFileInfoTitle = ko.observable("");
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
