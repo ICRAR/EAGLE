@@ -1042,7 +1042,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                                     // check if edge is back-to-front (input-to-output), if so, swap the source and destination
                                     //const backToFront : boolean = (srcPortType === "input" || srcPortType === "outputLocal") && (destPortType === "output" || destPortType === "inputLocal");
-                                    const backToFront : boolean = (srcPort.isInputPort()) && (destPort.isOutputPort());
+                                    const backToFront : boolean = !srcPort.isOutputPort() && srcPort.isInputPort() && !destPort.isInputPort() && destPort.isOutputPort();
                                     const realSourceNode: Node       = backToFront ? destNode : srcNode;
                                     const realSourcePort: Field      = backToFront ? destPort : srcPort;
                                     const realDestinationNode: Node  = backToFront ? srcNode  : destNode;
@@ -2992,7 +2992,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), true).x;
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), false, true).x;
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
@@ -3003,7 +3003,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        return findNodePortPosition(node, edge.getSrcPortId(), true).x;
+        return findNodePortPosition(node, edge.getSrcPortId(), false, true).x;
     }
 
     function edgeGetY1(edge: Edge) : number {
@@ -3065,14 +3065,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), true).y - PORT_ICON_HEIGHT;
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), false, true).y - PORT_ICON_HEIGHT;
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
-        return findNodePortPosition(node, edge.getSrcPortId(), true).y - PORT_ICON_HEIGHT;
+        return findNodePortPosition(node, edge.getSrcPortId(), false, true).y - PORT_ICON_HEIGHT;
     }
 
     function edgeGetX2(edge: Edge) : number {
@@ -3114,7 +3114,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            return findNodePortPosition(containingConstruct, edge.getDestPortId(), false).x;
+            return findNodePortPosition(containingConstruct, edge.getDestPortId(), true, false).x;
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
@@ -3125,7 +3125,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        return findNodePortPosition(node, edge.getDestPortId(), false).x;
+        return findNodePortPosition(node, edge.getDestPortId(), true, false).x;
     }
 
     function edgeGetY2(edge: Edge) : number {
@@ -3163,14 +3163,14 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            return findNodePortPosition(containingConstruct, edge.getDestPortId(), false).y - PORT_ICON_HEIGHT;
+            return findNodePortPosition(containingConstruct, edge.getDestPortId(), true, false).y - PORT_ICON_HEIGHT;
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
-        return findNodePortPosition(node, edge.getDestPortId(), false).y - PORT_ICON_HEIGHT;
+        return findNodePortPosition(node, edge.getDestPortId(), true, false).y - PORT_ICON_HEIGHT;
     }
 
     function portIndexRatio(portIndex: number, numPorts: number){
@@ -3181,66 +3181,73 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return portIndex / (numPorts - 1);
     }
 
-    function findNodePortPosition(node : Node, portId: string, inset: boolean) : {x: number, y: number} {
+    function findNodePortPosition(node : Node, portId: string, input: boolean, inset: boolean) : {x: number, y: number} {
         let local : boolean;
-        let input : boolean;
+        //let input : boolean;
         let index : number;
         const flipped : boolean = node.isFlipPorts();
         const position = {x: node.getPosition().x, y: node.getPosition().y};
 
         // find the port within the node
-        for (let i = 0 ; i < node.getInputPorts().length ; i++){
-            const port : Field = node.getInputPorts()[i];
-            if (port.getId() === portId){
-                local = false;
-                input = true;
-                index = i;
+        if (input){
+            for (let i = 0 ; i < node.getInputPorts().length ; i++){
+                const port : Field = node.getInputPorts()[i];
+                if (port.getId() === portId){
+                    local = false;
+                    index = i;
+                }
             }
         }
 
-        for (let i = 0 ; i < node.getOutputPorts().length ; i++){
-            const port : Field = node.getOutputPorts()[i];
-            if (port.getId() === portId){
-                local = false;
-                input = false;
-                index = i;
+        if (!input){
+            for (let i = 0 ; i < node.getOutputPorts().length ; i++){
+                const port : Field = node.getOutputPorts()[i];
+                if (port.getId() === portId){
+                    local = false;
+                    index = i;
+                }
             }
         }
 
         // check input application ports
-        for (let i = 0 ; i < node.getInputApplicationInputPorts().length ; i++){
-            const port : Field = node.getInputApplicationInputPorts()[i];
-            if (port.getId() === portId){
-                local = false;
-                input = true;
-                index = i;
+        if (input){
+            for (let i = 0 ; i < node.getInputApplicationInputPorts().length ; i++){
+                const port : Field = node.getInputApplicationInputPorts()[i];
+                if (port.getId() === portId){
+                    local = false;
+                    index = i;
+                }
             }
         }
 
-        for (let i = 0 ; i < node.getInputApplicationOutputPorts().length ; i++){
-            const port : Field = node.getInputApplicationOutputPorts()[i];
-            if (port.getId() === portId){
-                local = true;
-                input = true;
-                index = i + node.getInputApplicationInputPorts().length;
+        if (!input){
+            for (let i = 0 ; i < node.getInputApplicationOutputPorts().length ; i++){
+                const port : Field = node.getInputApplicationOutputPorts()[i];
+                if (port.getId() === portId){
+                    local = true;
+                    index = i + node.getInputApplicationInputPorts().length;
+                }
             }
         }
 
         // check output application ports
-        for (let i = 0 ; i < node.getOutputApplicationInputPorts().length ; i++){
-            const port : Field = node.getOutputApplicationInputPorts()[i];
-            if (port.getId() === portId){
-                local = true;
-                input = false;
-                index = i + node.getOutputApplicationOutputPorts().length;
+        if (input){
+            for (let i = 0 ; i < node.getOutputApplicationInputPorts().length ; i++){
+                const port : Field = node.getOutputApplicationInputPorts()[i];
+                if (port.getId() === portId){
+                    local = true;
+                    index = i + node.getOutputApplicationOutputPorts().length;
+                }
             }
         }
-        for (let i = 0 ; i < node.getOutputApplicationOutputPorts().length ; i++){
-            const port : Field = node.getOutputApplicationOutputPorts()[i];
-            if (port.getId() === portId){
-                local = false;
-                input = false;
-                index = i;
+
+        if (!input){
+            for (let i = 0 ; i < node.getOutputApplicationOutputPorts().length ; i++){
+                const port : Field = node.getOutputApplicationOutputPorts()[i];
+                if (port.getId() === portId){
+                    local = false;
+                    index = i;
+                }
             }
         }
 
