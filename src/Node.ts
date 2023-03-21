@@ -2327,7 +2327,7 @@ export class Node {
         for (const field0 of node.getFields()){
             for (const field1 of node.getFields()){
                 if (field0.getId() !== field1.getId() && field0.getIdText() === field1.getIdText() && field0.getParameterType() === field1.getParameterType()){
-                    const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, null, "");
+                    const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeMergeFields(eagle, node, field0, field1)}, "Merge fields");
                     errorsWarnings.warnings.push(issue);
                 }
             }

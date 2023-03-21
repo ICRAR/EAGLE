@@ -1858,6 +1858,41 @@ export class Utils {
         node.setCategory(category);
     }
 
+    static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
+        const usage0 = field0.getUsage();
+        const usage1 = field1.getUsage();
+        let newUsage = field0.getUsage();
+
+        // decide if we need to merge an input port and output port
+        if (usage0 !== usage1 && (usage0 === Eagle.ParameterUsage.InputPort || usage0 === Eagle.ParameterUsage.OutputPort) && (usage1 === Eagle.ParameterUsage.InputPort || usage1 === Eagle.ParameterUsage.OutputPort)){
+            newUsage = Eagle.ParameterUsage.InputOutput;
+        }
+
+        // remove old fields
+        node.removeFieldById(field0.getId());
+        node.removeFieldById(field1.getId());
+
+        // create new field
+        const newField = field0.clone();
+        newField.setUsage(newUsage);
+
+        // add new field
+        node.addField(newField);
+
+        // update all edges to use new field
+        for (const edge of eagle.logicalGraph().getEdges()){
+            // update src port
+            if (edge.getSrcPortId() === field0.getId() || edge.getSrcPortId() === field1.getId()){
+                edge.setSrcPortId(newField.getId());
+            }
+
+            // update dest port
+            if (edge.getDestPortId() === field0.getId() || edge.getDestPortId() === field1.getId()){
+                edge.setDestPortId(newField.getId());
+            }
+        }
+    }
+
     static fixFieldId(eagle: Eagle, field: Field){
         field.setId(Utils.uuidv4());
     }
@@ -2082,6 +2117,7 @@ export class Utils {
                 "id":field.getId(),
                 "idText":field.getIdText(),
                 "displayText":field.getDisplayText(),
+                "nodeKey":field.getNodeKey(),
                 "type":field.getType(),
                 "parameterType":field.getParameterType(),
                 "usage":field.getUsage(),

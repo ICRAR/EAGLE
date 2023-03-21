@@ -361,14 +361,14 @@ export class Edge {
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port and destination port are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
-        // check if source and destination are both input
-        if (sourceNode.findPortIsInputById(sourcePortId) && destinationNode.findPortIsInputById(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port and destination port are both input", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+        // check that source is output
+        if (!sourcePort.isOutputPort()){
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port is not output port", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
-        // check if source and destination are both output
-        if (!sourceNode.findPortIsInputById(sourcePortId) && !destinationNode.findPortIsInputById(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port and destination port are both output", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+        // check that destination in input
+        if (!destinationPort.isInputPort()){
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Destination port is not input port", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         if (sourcePort !== null && destinationPort !== null){
