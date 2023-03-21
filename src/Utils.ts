@@ -1802,6 +1802,12 @@ export class Utils {
     }
 
     static markdown2html(markdown: string) : string {
+        // check that input is not undefined
+        if (typeof markdown === "undefined"){
+            console.warn("Could not convert markdown to html! Input:", markdown);
+            return "";
+        }
+
         const converter = new Showdown.Converter();
         converter.setOption('tables', true);
         let html = converter.makeHtml(markdown);

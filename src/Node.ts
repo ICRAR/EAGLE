@@ -1519,6 +1519,33 @@ export class Node {
             outputApplicationKey = nodeData.outputApplicationKey;
         }
 
+        // read embedded application data from node
+        let inputApplicationName: string = "";
+        let inputApplicationType: Category = Category.None;
+        let inputApplicationDescription: string = null;
+        let outputApplicationName: string = "";
+        let outputApplicationType: Category = Category.None;
+        let outputApplicationDescription: string = null;
+
+        if (typeof nodeData.inputAppName !== 'undefined'){
+            inputApplicationName = nodeData.inputAppName;
+        }
+        if (typeof nodeData.inputApplicationType !== 'undefined'){
+            inputApplicationType = nodeData.inputApplicationType;
+        }
+        if (typeof nodeData.inputApplicationDescription !== 'undefined'){
+            inputApplicationDescription = nodeData.inputApplicationDescription;
+        }
+        if (typeof nodeData.outputAppName !== 'undefined'){
+            outputApplicationName = nodeData.outputAppName;
+        }
+        if (typeof nodeData.outputApplicationType !== 'undefined'){
+            outputApplicationType = nodeData.outputApplicationType;
+        }
+        if (typeof nodeData.outputApplicationDescription !== 'undefined'){
+            outputApplicationDescription = nodeData.outputApplicationDescription;
+        }
+
         // debug
         //console.log("node", nodeData.text);
         //console.log("inputAppName", nodeData.inputAppName, "inputApplicationName", nodeData.inputApplicationName, "inpuApplication", nodeData.inputApplication, "inputApplicationType", nodeData.inputApplicationType);
@@ -1527,53 +1554,53 @@ export class Node {
         // these next six if statements are covering old versions of nodes, that
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
-        if (nodeData.inputAppName !== undefined && nodeData.inputAppName !== ""){
+        if (inputApplicationName !== ""){
             if (!CategoryData.getCategoryData(category).canHaveInputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (CategoryData.getCategoryData(nodeData.inputApplicationType).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputAppName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey()));
+                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
+                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, inputApplicationName, inputApplicationType, inputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node."));
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
                 }
             }
         }
 
-        if (nodeData.inputApplicationName !== undefined && nodeData.inputApplicationType !== Category.None){
+        if (inputApplicationName !== "" && inputApplicationType !== Category.None){
             if (!CategoryData.getCategoryData(category).canHaveInputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (CategoryData.getCategoryData(nodeData.inputApplicationType).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, nodeData.inputApplicationName, nodeData.inputApplicationType, nodeData.inputApplicationDescription, node.getKey()));
+                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
+                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, inputApplicationName, inputApplicationType, inputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + nodeData.inputApplicationType + ", to node."));
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
                 }
             }
         }
 
-        if (nodeData.outputAppName !== undefined && nodeData.outputAppName !== ""){
+        if (outputApplicationName !== ""){
             if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (CategoryData.getCategoryData(nodeData.outputApplicationType).categoryType === Category.Type.Application){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputAppName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey()));
+                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
+                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, outputApplicationName, outputApplicationType, outputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node."));
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
                 }
             }
         }
 
-        if (nodeData.outputApplicationName !== undefined && nodeData.outputApplicationType !== Category.None){
+        if (outputApplicationName !== "" && outputApplicationType !== Category.None){
             if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                if (CategoryData.getCategoryData(nodeData.outputApplicationType).categoryType === Category.Type.Application){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, nodeData.outputApplicationName, nodeData.outputApplicationType, nodeData.outputApplicationDescription, node.getKey()));
+                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
+                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, outputApplicationName, outputApplicationType, outputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + nodeData.outputApplicationType + ", to node."));
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
                 }
             }
         }
