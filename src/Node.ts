@@ -1042,14 +1042,6 @@ export class Node {
     }
 
     addField = (field : Field) : void => {
-        // check that field type is appropriate for this Node
-        if (
-            (field.getParameterType() === Eagle.ParameterType.ComponentParameter) && !CategoryData.getCategoryData(this.getCategory()).canHaveComponentParameters ||
-            (field.getParameterType() === Eagle.ParameterType.ApplicationArgument) && !CategoryData.getCategoryData(this.getCategory()).canHaveApplicationArguments
-        ){
-            console.warn("Added unsuitable field (" + field.getDisplayText() + ") of type (" + field.getParameterType() + ") to", this.getCategory(), "node");
-        }
-
         this.fields.push(field);
         field.setNodeKey(this.key());
     }
@@ -1357,37 +1349,6 @@ export class Node {
     setKeepExpanded = (value : boolean) : void => {
         this.keepExpanded(value);
     }
-
-    /*
-    fillFieldTypeCell = (fieldType: Eagle.FieldType):string => {
-        let options:string = "";
-
-        const allowedTypes: Eagle.FieldType[] = [];
-
-        if (this.canHaveComponentParameters()){
-            allowedTypes.push(Eagle.FieldType.ComponentParameter);
-        }
-        if (this.canHaveApplicationArguments()){
-            allowedTypes.push(Eagle.FieldType.ApplicationArgument);
-        }
-        if (this.canHaveInputs()){
-            allowedTypes.push(Eagle.FieldType.InputPort);
-        }
-        if (this.canHaveOutputs()){
-            allowedTypes.push(Eagle.FieldType.OutputPort);
-        }
-
-        for (const dataType of allowedTypes){
-            let selected=""
-            if(fieldType === dataType){
-                selected = "selected=true"
-            }
-            options = options + "<option value="+dataType+"  "+selected+">"+dataType+"</option>";
-        }
-
-        return options
-    }
-    */
 
     static match = (node0: Node, node1: Node) : boolean => {
         // first just check if they have matching ids
