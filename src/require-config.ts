@@ -38,6 +38,7 @@ require.config({
         "FileInfo": "./static/built/FileInfo",
         "Setting": "./static/built/Setting",
         "Tutorial": "./static/built/Tutorial",
+        "tutorials/quickStart": "./static/built/tutorials/quickStart",
         "SideWindow": "./static/built/SideWindow",
         "InspectorState": "./static/built/InspectorState",
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
