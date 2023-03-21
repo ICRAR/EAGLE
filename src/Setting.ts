@@ -37,6 +37,7 @@ export class Setting {
     private defaultValue : any;
     private oldValue : any;
     private options : string[];
+    private display : boolean; // if true, display setting in settings modal, otherwise do not display
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
     static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
@@ -86,7 +87,7 @@ export class Setting {
     static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
     static readonly SHOW_INSPECTOR_WARNINGS: string = "ShowInspectorWarnings";
 
-    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any, options?: string[]){
+    constructor(name : string, description : string, type : Setting.Type, key : string, defaultValue : any, display: boolean, options?: string[]){
         this.name = name;
         this.description = description;
         this.type = type;
@@ -95,6 +96,7 @@ export class Setting {
         this.defaultValue = defaultValue;
         this.oldValue = "";
         this.options = options;
+        this.display = display;
 
         this.load();
 
@@ -126,6 +128,10 @@ export class Setting {
 
     setValue = (value: any) : void => {
         this.value(value);
+    }
+
+    getDisplay = () : boolean => {
+        return this.display;
     }
 
     save = () : void => {
@@ -296,65 +302,65 @@ const settings : SettingsGroup[] = [
         "User Options",
         () => {return true;},
         [
-            new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Setting.CONFIRM_DISCARD_CHANGES, true),
-            new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Setting.CONFIRM_REMOVE_REPOSITORES, true),
-            new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Setting.CONFIRM_RELOAD_PALETTES, true),
-            new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Setting.OPEN_DEFAULT_PALETTE, true),
-            new Setting("Confirm Delete", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Setting.CONFIRM_DELETE_OBJECTS, true),
-            new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Setting.DISABLE_JSON_VALIDATION, false),
-            new Setting("Overwrite Existing Translator Tab", "When translating a graph, overwrite an existing translator tab", Setting.Type.Boolean, Setting.OVERWRITE_TRANSLATION_TAB, true),
-            new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Setting.SHOW_FILE_LOADING_ERRORS, false),
-            new Setting("UI Mode", "User Interface Mode. Simple Mode removes palettes, uses a single graph repository, simplifies the parameters table. Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Select, Setting.USER_INTERFACE_MODE, Setting.UIMode.Default, Object.values(Setting.UIMode)),
+            new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Setting.CONFIRM_DISCARD_CHANGES, true, true),
+            new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Setting.CONFIRM_REMOVE_REPOSITORES, true, true),
+            new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Setting.CONFIRM_RELOAD_PALETTES, true, true),
+            new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Setting.OPEN_DEFAULT_PALETTE, true, true),
+            new Setting("Confirm Delete", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Setting.CONFIRM_DELETE_OBJECTS, true, true),
+            new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Setting.DISABLE_JSON_VALIDATION, false, true),
+            new Setting("Overwrite Existing Translator Tab", "When translating a graph, overwrite an existing translator tab", Setting.Type.Boolean, Setting.OVERWRITE_TRANSLATION_TAB, true, true),
+            new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Setting.SHOW_FILE_LOADING_ERRORS, false, true),
+            new Setting("UI Mode", "User Interface Mode. Simple Mode removes palettes, uses a single graph repository, simplifies the parameters table. Expert Mode enables the display of additional settings usually reserved for advanced users", Setting.Type.Select, Setting.USER_INTERFACE_MODE, Setting.UIMode.Default, true, Object.values(Setting.UIMode)),
         ]
     ),
     new SettingsGroup(
         "UI Options",
         () => {return !Eagle.isInUIMode(Setting.UIMode.Minimal);},
         [
-            new Setting("Show non key parameters", "Show additional parameters that are not marked as key parameters for the current graph", Setting.Type.Boolean, Setting.SHOW_NON_KEY_PARAMETERS, true),
-            new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Setting.DISPLAY_NODE_KEYS, false),
-            new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Setting.HIDE_PALETTE_TAB, false),
-            new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Setting.HIDE_READONLY_PARAMETERS, false),
-            new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Setting.USER_TRANSLATOR_MODE, Setting.TranslatorMode.Default, Object.values(Setting.TranslatorMode)),
-            new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Setting.GRAPH_ZOOM_DIVISOR, 1000),
-            new Setting("Snap To Grid", "Align positions of nodes in graph to a grid", Setting.Type.Boolean, Setting.SNAP_TO_GRID, false),
-            new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Setting.SNAP_TO_GRID_SIZE, 50),
-            new Setting("Show edge/node errors/warnings in inspector", "Show the errors/warnings found for the selected node/edge in the inspector", Setting.Type.Select, Setting.SHOW_INSPECTOR_WARNINGS, Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
+            new Setting("Show non key parameters", "Show additional parameters that are not marked as key parameters for the current graph", Setting.Type.Boolean, Setting.SHOW_NON_KEY_PARAMETERS, true, true),
+            new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Setting.DISPLAY_NODE_KEYS, false, true),
+            new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Setting.HIDE_PALETTE_TAB, false, true),
+            new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Setting.HIDE_READONLY_PARAMETERS, false, true),
+            new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Setting.USER_TRANSLATOR_MODE, Setting.TranslatorMode.Default, true, Object.values(Setting.TranslatorMode)),
+            new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Setting.GRAPH_ZOOM_DIVISOR, 1000, true),
+            new Setting("Snap To Grid", "Align positions of nodes in graph to a grid", Setting.Type.Boolean, Setting.SNAP_TO_GRID, false, false),
+            new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Setting.SNAP_TO_GRID_SIZE, 50, true),
+            new Setting("Show edge/node errors/warnings in inspector", "Show the errors/warnings found for the selected node/edge in the inspector", Setting.Type.Select, Setting.SHOW_INSPECTOR_WARNINGS, Setting.ShowErrorsMode.Errors, true, Object.values(Setting.ShowErrorsMode)),
         ]
     ),
     new SettingsGroup(
         "Advanced Editing",
         () => {return Eagle.isInUIMode(Setting.UIMode.Expert);},
         [
-            new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Setting.ALLOW_INVALID_EDGES, true),
-            new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Setting.ALLOW_COMPONENT_EDITING, true),
-            new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Setting.ALLOW_PALETTE_EDITING, true),
-            new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Setting.ALLOW_READONLY_PALETTE_EDITING, true),
-            new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Setting.ALLOW_EDGE_EDITING, true),
-            new Setting("Auto-suggest destination nodes", "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", Setting.Type.Boolean, Setting.AUTO_SUGGEST_DESTINATION_NODES, true)
+            new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Setting.ALLOW_INVALID_EDGES, true, true),
+            new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Setting.ALLOW_COMPONENT_EDITING, true, true),
+            new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Setting.ALLOW_PALETTE_EDITING, true, true),
+            new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Setting.ALLOW_READONLY_PALETTE_EDITING, true, true),
+            new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Setting.ALLOW_EDGE_EDITING, true, true),
+            new Setting("Auto-suggest destination nodes", "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", Setting.Type.Boolean, Setting.AUTO_SUGGEST_DESTINATION_NODES, true, true)
         ]
     ),
     new SettingsGroup(
         "External Services",
         () => {return true;},
         [
-            new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Setting.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"),
-            new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Setting.GITHUB_ACCESS_TOKEN_KEY, ""),
-            new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Setting.GITLAB_ACCESS_TOKEN_KEY, ""),
-            new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Setting.DOCKER_HUB_USERNAME, "icrar")
+            new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Setting.TRANSLATOR_URL, "http://localhost:8084/gen_pgt", true),
+            new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Setting.GITHUB_ACCESS_TOKEN_KEY, "", true),
+            new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Setting.GITLAB_ACCESS_TOKEN_KEY, "", true),
+            new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Setting.DOCKER_HUB_USERNAME, "icrar", true)
         ]
     ),
     new SettingsGroup(
         "Developer",
         () => {return Eagle.isInUIMode(Setting.UIMode.Expert);},
         [
-            new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Setting.ENABLE_PERFORMANCE_DISPLAY, false),
-            new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Setting.TRANSLATE_WITH_NEW_CATEGORIES, false),
-            new Setting("Open Translator In Current Tab", "When translating a graph, display the output of the translator in the current tab", Setting.Type.Boolean, Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, false),
-            new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
-            new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Setting.SKIP_CLOSE_LOOP_EDGES, true),
-            new Setting("Print Undo state to JS Console", "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", Setting.Type.Boolean, Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, false),
-            new Setting("Use Old Output Format", "Prolong use of 'old' output format, with 'inputPorts' and 'outputPorts' arrays, while corresponding changes to DALiuGE are in progress", Setting.Type.Boolean, Setting.USE_OLD_OUTPUT_FORMAT, true),
+            new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Setting.ENABLE_PERFORMANCE_DISPLAY, false, true),
+            new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Setting.TRANSLATE_WITH_NEW_CATEGORIES, false, true),
+            new Setting("Open Translator In Current Tab", "When translating a graph, display the output of the translator in the current tab", Setting.Type.Boolean, Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, false, true),
+            new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true, true),
+            new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Setting.SKIP_CLOSE_LOOP_EDGES, true, true),
+            new Setting("Print Undo state to JS Console", "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", Setting.Type.Boolean, Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, false, true),
+            new Setting("Use Old Output Format", "Prolong use of 'old' output format, with 'inputPorts' and 'outputPorts' arrays, while corresponding changes to DALiuGE are in progress", Setting.Type.Boolean, Setting.USE_OLD_OUTPUT_FORMAT, true, true),
         ]
     )
 ];
