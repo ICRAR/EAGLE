@@ -28,7 +28,7 @@
                 <!-- <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: saveAsPNG, eagleTooltip: 'Save as PNG'" >
                     <i class="material-icons md-18">image</i>
                 </button> -->
-                <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal($root.logicalGraph().fileInfo());}, eagleTooltip: 'Open Graph ModelData'">
+                <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Open Graph ModelData'">
                     <i class="material-icons md-18">info</i>
                 </button>
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" >

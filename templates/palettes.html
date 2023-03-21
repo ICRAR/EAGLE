@@ -57,7 +57,7 @@
                     <!-- ko if: $data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown && $data.fileInfo().repositoryService !== Eagle.RepositoryService.File -->
                     <a href="#" data-bind="click: $data.copyUrl"><span>Copy Palette URL</span></a>
                     <!-- /ko -->
-                    <a href="#" data-bind="click: function(){Utils.showModelDataModal(fileInfo());}"><span>Show Palette ModelData</span></a>
+                    <a href="#" data-bind="click: function(){Utils.showModelDataModal('Palette Info', fileInfo());}"><span>Show Palette ModelData</span></a>
                 </div>
                 <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: SideWindow.nodeDragOver, drop: $root.nodeDropPalette }">
                     <div class="accordion-header">

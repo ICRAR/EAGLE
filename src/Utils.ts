@@ -940,8 +940,9 @@ export class Utils {
         });
     }
 
-    static showModelDataModal = (fileInfo: FileInfo) : void => {
+    static showModelDataModal = (title: string, fileInfo: FileInfo) : void => {
         const eagle = Eagle.getInstance();
+        eagle.currentFileInfoTitle(title);
         eagle.currentFileInfo(fileInfo);
 
         $('#modelDataModal').modal("toggle");

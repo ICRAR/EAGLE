@@ -331,6 +331,10 @@ export class FileInfo {
         return this._name() + (this._modified() ? "*" : "");
     }, this);
 
+    lastModifiedDatetimeText : ko.PureComputed<string> = ko.pureComputed(() => {
+        return new Date(this._lastModifiedDatetime() * 1000).toLocaleString();
+    }, this);
+
     getSummaryHTML = (title : string) : string => {
         let text
         if (this._repositoryService() === Eagle.RepositoryService.Unknown){
