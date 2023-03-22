@@ -95,7 +95,7 @@ setup(
 #    include_package_data=True,
     package_data={
         "EAGLE": ["README", "*.txt"],
-        "templates": ["*.html"],
+        "templates": ["**/*.html"],
         "static": static_files,
         # "docs": ["*"],
     },
