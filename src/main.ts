@@ -48,7 +48,10 @@ import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {ParameterTable} from "./ParameterTable";
 import {SideWindow} from "./SideWindow";
-import { TutorialSystem } from "./Tutorial";
+import {TutorialSystem} from "./Tutorial";
+
+import * as quickStart from './tutorials/quickStart'
+console.assert(quickStart != null) //this is needed to run the tutorial file
 
 let eagle : Eagle;
 
