@@ -3075,14 +3075,13 @@ export class Eagle {
                     const sourcePort: Field = newNode.findPortByIdText("self", false, false);
 
                     // make sure node has input/output "self" port
-                    const inputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputPort, false);
-                    const outputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.OutputPort, false);
-                    pythonObjectNode.addField(inputPort);
-                    pythonObjectNode.addField(outputPort);
+                    const inputOutputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputOutput, false);
+                    pythonObjectNode.addField(inputOutputPort);
+
 
                     // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
                     if (sourcePort !== null){
-                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputPort, false, false, null);
+                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
                     } else {
                         Utils.showNotification("Edge Error", "Unable to connect edge between PythonMemberFunction and new PythonObject. The PythonMemberFunction does not have a 'self' port.", "danger");
                     }
@@ -3845,9 +3844,9 @@ export class Eagle {
                 if (!completed){
                     return;
                 }
-                
-                // update field data
-                field.copyWithKeyAndId(newField, newField.getNodeKey(), newField.getId());
+
+                // update field data (keep existing nodeKey and id)
+                field.copyWithKeyAndId(newField, field.getNodeKey(), field.getId());
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
