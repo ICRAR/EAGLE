@@ -1097,13 +1097,19 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                             Eagle.nodeDropLocation.y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
 
                                             eagle.addNodeToLogicalGraph(choice, (node: Node) => {                                            
-                                                const destPort = node.findPortByType(sourcePortType, !srcPort.isInputPort());
-                                                
+                                                const destPort = node.findPortByType(sourcePortType, srcPort.isOutputPort());
+
                                                 // create edge (in correct direction)
-                                                if (srcPort.isInputPort()){
-                                                    addEdge(node, destPort, srcNode, srcPort, false, false);
-                                                } else {
-                                                    addEdge(srcNode, srcPort, node, destPort, false, false);
+                                                switch(srcPort.getUsage()){
+                                                    case Eagle.ParameterUsage.InputPort:
+                                                        addEdge(node, destPort, srcNode, srcPort, false, false);
+                                                        break;
+                                                    case Eagle.ParameterUsage.OutputPort:
+                                                    case Eagle.ParameterUsage.InputOutput:
+                                                        addEdge(srcNode, srcPort, node, destPort, false, false);
+                                                        break;
+                                                    default:
+                                                        console.warn("Dragging edge from field that is not a known port usage", srcPort.getUsage());
                                                 }
                                             },'');
                                         });
