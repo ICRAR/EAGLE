@@ -1859,30 +1859,48 @@ export class Utils {
     }
 
     // NOTE: merges field1 into field0
+    static fixNodeMergeFieldsByIndex(eagle: Eagle, node: Node, field0Index: number, field1Index: number){
+        //console.log("fixNodeMergeFieldsByIndex()", node.getName(), field0Index, field1Index);
+
+        // abort if one or more of the fields is not found
+        const field0 = node.getFields()[field0Index];
+        const field1 = node.getFields()[field1Index];
+        //console.log("field0", field0, field0 ? field0.getId() : "", field0 ? field0.getUsage() : "", "field1", field1, field1 ? field1.getId() : "", field1 ? field1.getUsage() : "");
+        if (typeof field0 === "undefined" || typeof field1 === "undefined"){
+            return;
+        }
+
+        const usage0 = field0.getUsage();
+        const usage1 = field1.getUsage();
+        const newUsage = this._mergeUsage(usage0, usage1);
+        //console.log("usage0", usage0, "usage1", usage1, "newUsage", newUsage);
+
+        // remove field1
+        node.removeFieldByIndex(field1Index);
+
+        // update usage of remaining field (field0)
+        field0.setUsage(newUsage);
+
+        // update all edges to use new field
+        this._mergeEdges(eagle, field1.getId(), field0.getId());
+    }
+
+    // NOTE: merges field1 into field0
     static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
+        //console.log("fixNodeMergeFieldsById()", node.getName(), field0.getDisplayText(), field1.getDisplayText());
+
         // abort if one or more of the fields is not found
         const f0 = node.findFieldById(field0.getId());
         const f1 = node.findFieldById(field1.getId());
+        //console.log("f0", f0, f0 ? f0.getId() : "", f0 ? f0.getUsage() : "", "f1", f1, f1 ? f1.getId() : "", f1 ? f1.getUsage() : "");
         if (f0 === null || f1 === null){
             return;
         }
 
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
-        let newUsage = field0.getUsage();
-
-        // decide if we need to merge an input port and output port
-        if (usage0 !== usage1 && (usage0 === Eagle.ParameterUsage.InputPort || usage0 === Eagle.ParameterUsage.OutputPort) && (usage1 === Eagle.ParameterUsage.InputPort || usage1 === Eagle.ParameterUsage.OutputPort)){
-            newUsage = Eagle.ParameterUsage.InputOutput;
-        }
-
-        // TODO: if one field is a NoPort?
-        if (usage0 === Eagle.ParameterUsage.NoPort){
-            newUsage = usage1;
-        }
-        if (usage1 === Eagle.ParameterUsage.NoPort){
-            newUsage = usage0;
-        }
+        const newUsage = this._mergeUsage(usage0, usage1);
+        //console.log("usage0", usage0, "usage1", usage1, "newUsage", newUsage);
 
         // remove field1
         node.removeFieldById(field1.getId());
@@ -1891,15 +1909,39 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
+        this._mergeEdges(eagle, field1.getId(), field0.getId());
+    }
+
+    static _mergeUsage(usage0: Eagle.ParameterUsage, usage1: Eagle.ParameterUsage) : Eagle.ParameterUsage {
+        let result: Eagle.ParameterUsage = usage0;
+
+        // decide if we need to merge an input port and output port
+        if (usage0 !== usage1 && (usage0 === Eagle.ParameterUsage.InputPort || usage0 === Eagle.ParameterUsage.OutputPort) && (usage1 === Eagle.ParameterUsage.InputPort || usage1 === Eagle.ParameterUsage.OutputPort)){
+            result = Eagle.ParameterUsage.InputOutput;
+        }
+
+        // if one field is a NoPort?
+        if (usage0 === Eagle.ParameterUsage.NoPort){
+            result = usage1;
+        }
+        if (usage1 === Eagle.ParameterUsage.NoPort){
+            result = usage0;
+        }
+
+        return result;
+    }
+
+    static _mergeEdges(eagle: Eagle, oldFieldId: string, newFieldId: string){
+        // update all edges to use new field
         for (const edge of eagle.logicalGraph().getEdges()){
             // update src port
-            if (edge.getSrcPortId() === field1.getId()){
-                edge.setSrcPortId(field0.getId());
+            if (edge.getSrcPortId() === oldFieldId){
+                edge.setSrcPortId(newFieldId);
             }
 
             // update dest port
-            if (edge.getDestPortId() === field1.getId()){
-                edge.setDestPortId(field0.getId());
+            if (edge.getDestPortId() === oldFieldId){
+                edge.setDestPortId(newFieldId);
             }
         }
     }

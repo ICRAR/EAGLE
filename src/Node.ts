@@ -2277,11 +2277,18 @@ export class Node {
 
         // check that multiple fields don't share the same name
         // NOTE: this code checks many pairs of fields twice
-        for (const field0 of node.getFields()){
-            for (const field1 of node.getFields()){
-                if (field0.getId() !== field1.getId() && field0.getIdText() === field1.getIdText() && field0.getParameterType() === field1.getParameterType()){
-                    const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeMergeFields(eagle, node, field0, field1)}, "Merge fields");
-                    errorsWarnings.warnings.push(issue);
+        for (let i = 0 ; i < node.getFields().length ; i++){
+            const field0 = node.getFields()[i];
+            for (let j = 0 ; j < node.getFields().length ; j++){
+                const field1 = node.getFields()[j];
+                if (i !== j && field0.getIdText() === field1.getIdText() && field0.getParameterType() === field1.getParameterType()){
+                    if (field0.getId() === field1.getId()){
+                        const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeMergeFieldsByIndex(eagle, node, i, j)}, "Merge fields");
+                        errorsWarnings.warnings.push(issue);
+                    } else {
+                        const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeMergeFields(eagle, node, field0, field1)}, "Merge fields");
+                        errorsWarnings.warnings.push(issue);
+                    }
                 }
             }
         }

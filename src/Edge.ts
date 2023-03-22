@@ -349,11 +349,13 @@ export class Edge {
         // check if source port was found
         if (sourcePort === null) {
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port doesn't exist on source node", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            return Eagle.LinkValid.Invalid;
         }
 
         // check if destination port was found
         if (destinationPort === null){
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Destination port doesn't exist on destination node", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            return Eagle.LinkValid.Invalid;
         }
 
         // check that we are not connecting a port to itself
