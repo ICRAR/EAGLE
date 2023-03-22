@@ -1228,7 +1228,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("fill", "transparent")
         .style("display", "inline");
 
-    function determineDirection(source: boolean, node: Node, portIndex: number, portType: string): Eagle.Direction {
+    function determineDirection(source: boolean, node: Node, portIndex: number, portType: Eagle.ParameterUsage): Eagle.Direction {
         if (source){
             if (node.isBranch()){
                 if (portIndex === 0){
@@ -1239,7 +1239,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 }
             }
 
-            if (portType === "output" || portType === "inputLocal"){
+            if (portType === Eagle.ParameterUsage.OutputPort || portType === Eagle.ParameterUsage.InputOutput){
                 return node.isFlipPorts() ? Eagle.Direction.Left : Eagle.Direction.Right;
             } else {
                 return node.isFlipPorts() ? Eagle.Direction.Right : Eagle.Direction.Left;
@@ -1254,7 +1254,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 }
             }
 
-            if (portType === "input" || portType === "outputLocal"){
+            if (portType === Eagle.ParameterUsage.InputPort || portType === Eagle.ParameterUsage.InputOutput){
                 return node.isFlipPorts() ? Eagle.Direction.Left : Eagle.Direction.Right;
             } else {
                 return node.isFlipPorts() ? Eagle.Direction.Right : Eagle.Direction.Left;
@@ -1272,8 +1272,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return createBezier(0,0,0,0,Eagle.Direction.Down,Eagle.Direction.Down, edge.isClosesLoop());
         }
 
-        const srcPortType : string =  srcNode.findPortTypeById(edge.getSrcPortId());
-        const destPortType : string = destNode.findPortTypeById(edge.getDestPortId());
+        const srcPortType : Eagle.ParameterUsage = srcNode.findFieldById(edge.getSrcPortId()).getUsage();
+        const destPortType : Eagle.ParameterUsage = destNode.findFieldById(edge.getDestPortId()).getUsage();
         const srcPortIndex : number = srcNode.findPortIndexById(edge.getSrcPortId());
         const destPortIndex : number = destNode.findPortIndexById(edge.getDestPortId());
 
@@ -1295,6 +1295,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         const startDirection = determineDirection(true, srcNode, srcPortIndex, srcPortType);
         const endDirection = determineDirection(false, destNode, destPortIndex, destPortType);
+        //console.log("edge", edge.getId(), "startDir", startDirection, "endDir", endDirection, "srcPortType", srcPortType, "destPortType", destPortType);
 
         return createBezier(x1, y1, x2, y2, startDirection, endDirection, edge.isClosesLoop());
     }

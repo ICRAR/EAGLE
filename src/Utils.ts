@@ -1868,6 +1868,13 @@ export class Utils {
             newUsage = Eagle.ParameterUsage.InputOutput;
         }
 
+        // abort if one or more of the fields is not found
+        const f0 = node.findFieldById(field0.getId());
+        const f1 = node.findFieldById(field1.getId());
+        if (f0 === null || f1 === null){
+            return;
+        }
+
         // remove old fields
         node.removeFieldById(field0.getId());
         node.removeFieldById(field1.getId());

@@ -875,53 +875,6 @@ export class Node {
         return {key: null, port: null};
     }
 
-    // TODO: I have a feeling this should not be necessary. Especially the 'inputLocal' and 'outputLocal' stuff
-    findPortTypeById = (portId : string) : string => {
-        // check input ports
-        for (const inputPort of this.getInputPorts()){
-            if (inputPort.getId() === portId){
-                return "input";
-            }
-        }
-
-        // check output ports
-        for (const outputPort of this.getOutputPorts()){
-            if (outputPort.getId() === portId){
-                return "output";
-            }
-        }
-
-        // if node has an inputApplication, check those ports too
-        if (this.hasInputApplication()){
-            for (const inputPort of this.inputApplication().getInputPorts()){
-                if (inputPort.getId() === portId){
-                    return "input";
-                }
-            }
-            for (const outputPort of this.inputApplication().getOutputPorts()){
-                if (outputPort.getId() === portId){
-                    return "inputLocal";
-                }
-            }
-        }
-
-        // if node has an outputApplication, check those ports too
-        if (this.hasOutputApplication()){
-            for (const inputPort of this.outputApplication().getInputPorts()){
-                if (inputPort.getId() === portId){
-                    return "outputLocal";
-                }
-            }
-            for (const outputPort of this.outputApplication().getOutputPorts()){
-                if (outputPort.getId() === portId){
-                    return "output";
-                }
-            }
-        }
-
-        return "";
-    }
-
     findPortIndexById = (portId : string) : number => {
         // check input ports
         for (let i = 0; i < this.getInputPorts().length; i++){
