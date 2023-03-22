@@ -363,12 +363,12 @@ export class Edge {
 
         // check that source is output
         if (!sourcePort.isOutputPort()){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port is not output port", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port is not output port (" + sourcePort.getUsage() + ")", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // check that destination in input
         if (!destinationPort.isInputPort()){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Destination port is not input port", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Destination port is not input port (" + destinationPort.getUsage() + ")", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         if (sourcePort !== null && destinationPort !== null){

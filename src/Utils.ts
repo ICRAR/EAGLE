@@ -1868,10 +1868,24 @@ export class Utils {
             newUsage = Eagle.ParameterUsage.InputOutput;
         }
 
+        // TODO: if one field is a NoPort?
+        if (usage0 === Eagle.ParameterUsage.NoPort){
+            newUsage = usage1;
+        }
+        if (usage1 === Eagle.ParameterUsage.NoPort){
+            newUsage = usage0;
+        }
+
+        // debug
+        if (node.getKey() === -19){
+            console.log("field0", field0.getIdText(), field0.getId(), "usage0", usage0, "field1", field1.getIdText(), field1.getId(), "usage1", usage1, "newUsage", newUsage);
+        }
+
         // abort if one or more of the fields is not found
         const f0 = node.findFieldById(field0.getId());
         const f1 = node.findFieldById(field1.getId());
         if (f0 === null || f1 === null){
+            console.warn("Missing field", "f0", f0, "f1", f1);
             return;
         }
 
@@ -1882,6 +1896,7 @@ export class Utils {
         // create new field
         const newField = field0.clone();
         newField.setUsage(newUsage);
+        console.log("newField:", newField.getId());
 
         // add new field
         node.addField(newField);
