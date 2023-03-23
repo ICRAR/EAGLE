@@ -568,6 +568,10 @@ td:first-child input {
     right: 100%;
 }
 
+.dropDropDown .dropdown-item:focus{
+    background-color: #004d91;
+}
+
 .dropDropDownParent:hover .dropDropDown {
     visibility: visible;
 }
@@ -1595,6 +1599,11 @@ select.form-control{
 
 .forceHide{
     display: none !important;
+}
+
+.forceShow{
+    display: block !important;
+    visibility: visible !important;
 }
 
 .nodeInspectorDropdownDiv{

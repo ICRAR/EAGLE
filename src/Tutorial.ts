@@ -462,7 +462,7 @@ export class Tutorial {
         if(event.which === 37||event.which === 38||event.which === 39||event.which === 40||event.which === 8){
             return
         }
-        if(tutStep.getExpectedInput() === ''){
+        if(tutStep.getExpectedInput() === ''||tutStep.getExpectedInput() === null){
             if(event.which === 13){
                 TutorialSystem.activeTut.tutButtonNext()
                 tutStep.getTargetFunc()().off('keydown.tutInputCheckFunc')
