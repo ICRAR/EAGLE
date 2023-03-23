@@ -1,6 +1,5 @@
 import {TutorialStep, TutorialSystem} from '../Tutorial';
 
-console.log('RUNNING')
 const newTut = TutorialSystem.newTutorial('Quick Start Tutorial', 'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.')
 
 newTut.newTutStep("Welcome to Eagle!", "Welcome to the basic UI tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", function(){return $("#eagleAndVersion a")})

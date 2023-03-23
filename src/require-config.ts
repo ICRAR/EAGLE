@@ -39,6 +39,7 @@ require.config({
         "Setting": "./static/built/Setting",
         "Tutorial": "./static/built/Tutorial",
         "tutorials/quickStart": "./static/built/tutorials/quickStart",
+        "tutorials/testTut": "./static/built/tutorials/testTut",
         "SideWindow": "./static/built/SideWindow",
         "InspectorState": "./static/built/InspectorState",
         "KeyboardShortcut": "./static/built/KeyboardShortcut",

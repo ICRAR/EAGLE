@@ -4,6 +4,7 @@ import {Eagle} from './Eagle';
 export class TutorialSystem {
 
     static activeTut: Tutorial //current active tutorial
+    static activeTutCurrentStep: TutorialStep //current active tutorial step
     static activeTutNumSteps: number = 0;  //total number of steps in the active tutorial
     static activeTutCurrentStepIndex: number = 0;  //index of the current step in the active tutorial
     static waitForElementTimer: number = null    //this houses the time out timer when waiting for a target element to appear
@@ -42,14 +43,14 @@ export class TutorialSystem {
 
                 case 39: // right
                     e.preventDefault()
-                    if (TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex].getType() === TutorialStep.Type.Info) {
+                    if (TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Info) {
                         TutorialSystem.activeTut.tutButtonNext()
                     }
                     break;
 
                 case 40: // down
                     e.preventDefault()
-                    if (TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex].getType() === TutorialStep.Type.Info) {
+                    if (TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Info) {
                         TutorialSystem.activeTut.tutButtonNext()
                     }
                     break;
@@ -115,15 +116,16 @@ export class Tutorial {
     }
 
     newTutStep = (title:string,description:string,selector:() => void) : TutorialStep =>{
-        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None, selector, null, null,null,null)
+        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None, selector, null, null,null,null,null)
         this.tutorialSteps.push(x)
         return x
     }
 
     initiateTutStep = (direction: TutorialStep.Direction): void => {
         const eagle = Eagle.getInstance()
-
-        const tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
+        TutorialSystem.activeTutCurrentStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
+        const tutStep = TutorialSystem.activeTutCurrentStep
+        // const tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
         if (tutStep.getTargetFunc()().length === 0) {
             console.warn('skipping step, selector could not be found: ', tutStep.getTargetFunc())
             this.tutButtonNext()
@@ -145,7 +147,7 @@ export class Tutorial {
 
         //we always pass through the wait function, it is decided there if we actually wait or not
         if (tutStep.getWaitType() === TutorialStep.Wait.None) {
-            this.initiateStep(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex], null)
+            this.initiateStep(TutorialSystem.activeTutCurrentStep, null)
         } else {
             //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
             TutorialSystem.waitForElementTimer = setInterval(function () { TutorialSystem.activeTut.waitForElementThenRun(tutStep.getWaitType()) }, 100);
@@ -160,7 +162,7 @@ export class Tutorial {
     }
 
     waitForElementThenRun = (waitType: TutorialStep.Wait): void => {
-        const tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
+        const tutStep = TutorialSystem.activeTutCurrentStep
         let elementAvailable: boolean = false
         let targetElement: JQuery<HTMLElement> = tutStep.getTargetFunc()()
         let alternateHighlightTarget: JQuery<HTMLElement> = null
@@ -288,7 +290,10 @@ export class Tutorial {
     }
 
     highlightStepTarget = (target: JQuery<HTMLElement>): void => {
-
+        if(TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc() != null){
+            target = TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc()()
+        }
+        console.log(target)
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
         const coords = target.offset()
         const docHeight = $(document).height()
@@ -328,7 +333,7 @@ export class Tutorial {
 
     openInfoPopUp = (): void => {
 
-        const step = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
+        const step = TutorialSystem.activeTutCurrentStep
         const currentTarget: JQuery<HTMLElement> = step.getTargetFunc()()
         //figuring out where there is enough space to place the tutorial
         let selectedLocationX = currentTarget.offset().left + (currentTarget.width() / 2)
@@ -491,12 +496,13 @@ export class TutorialStep {
     private type: TutorialStep.Type;
     private waitType: TutorialStep.Wait;
     private targetFunc: () => void;
+    private alternateHighlightTargetFunc: () => void;
     private preFunction: (eagle: Eagle) => void;
     private backPreFunction: (eagle: Eagle) => void;
     private expectedInput : string;
     private conditionFunction : (eagle: Eagle) => void;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, targetFunc: () => void, preFunction: (eagle: Eagle) => void, backPreFunction: (eagle: Eagle) => void, expectedInput:string, conditionFunction:(eagle: Eagle) => boolean) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, targetFunc: () => void, preFunction: (eagle: Eagle) => void, backPreFunction: (eagle: Eagle) => void, expectedInput:string, conditionFunction:(eagle: Eagle) => boolean,alternateHighlightTargetFunc: () => void) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -506,6 +512,7 @@ export class TutorialStep {
         this.backPreFunction = backPreFunction;
         this.expectedInput = expectedInput;
         this.conditionFunction = conditionFunction;
+        this.alternateHighlightTargetFunc = alternateHighlightTargetFunc;
     }
 
     getTitle = (): string => {
@@ -544,6 +551,10 @@ export class TutorialStep {
         return this.conditionFunction;
     }
 
+    getAlternateHightlightTargetFunc = () : any => {
+        return this.alternateHighlightTargetFunc;
+    }
+
     setType = (newType:TutorialStep.Type): TutorialStep =>{
         this.type = newType;
         return this
@@ -571,6 +582,11 @@ export class TutorialStep {
 
     setConditionFunction = (newConditionFunction:(eagle: Eagle) => void): TutorialStep =>{
         this.conditionFunction = newConditionFunction;
+        return this
+    }
+
+    setAlternateHighlightTargetFunc = (newAlternateHighlightTargetFunc:() => void): TutorialStep =>{
+        this.alternateHighlightTargetFunc = newAlternateHighlightTargetFunc;
         return this
     }
 
