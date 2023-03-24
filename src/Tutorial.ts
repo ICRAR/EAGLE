@@ -22,7 +22,6 @@ export class TutorialSystem {
                 TutorialSystem.activeTut.initiateTutStep(TutorialStep.Direction.Next)
             }
         })
-        TutorialSystem.addTutKeyboardShortcuts()
     }
 
     static addTutKeyboardShortcuts = (): void => {
@@ -63,7 +62,10 @@ export class TutorialSystem {
                 case 13: //enter
                     e.preventDefault()
                     e.stopImmediatePropagation()
-                    $(':focus').click()
+                    if(TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Press){
+                        console.log('bop',TutorialSystem.activeTutCurrentStep.getTitle())
+                        $(':focus').click()
+                    }
                     break;
 
                 default: return; // exit this handler for other keys
@@ -122,6 +124,7 @@ export class Tutorial {
     }
 
     initiateTutStep = (direction: TutorialStep.Direction): void => {
+
         const eagle = Eagle.getInstance()
         TutorialSystem.activeTutCurrentStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
         const tutStep = TutorialSystem.activeTutCurrentStep
@@ -131,6 +134,9 @@ export class Tutorial {
             this.tutButtonNext()
             return
         }
+        
+        $('body').off('keydown.tutEventListener');
+        TutorialSystem.addTutKeyboardShortcuts()
 
         //if there is a preFunction set, then we execute it here
         let preFunction
@@ -464,6 +470,8 @@ export class Tutorial {
         }
         if(tutStep.getExpectedInput() === ''||tutStep.getExpectedInput() === null){
             if(event.which === 13){
+                event.preventDefault()
+                event.stopImmediatePropagation()
                 TutorialSystem.activeTut.tutButtonNext()
                 tutStep.getTargetFunc()().off('keydown.tutInputCheckFunc')
             }

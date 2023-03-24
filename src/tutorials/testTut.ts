@@ -18,17 +18,18 @@ newTut.newTutStep("Creating a New Graph", "Click on 'Create new graph'", functio
 .setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//keeping the 'new' drop drop down section open as well
 .setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('.dropdown-item').first().parent().addClass('forceShow');TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//force showing both of the navbar graph drop downs
 
-newTut.newTutStep("Creating a new graph", "Give it a name and press enter", function(){return $("#inputModalInput")})
+newTut.newTutStep("Creating a new graph", "The just give it a name and press enter", function(){return $("#inputModalInput")})
 .setWaitType(TutorialStep.Wait.Modal)
 .setType(TutorialStep.Type.Input)
 .setPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide
 
-newTut.newTutStep("Creating a new graph", "And 'Ok' to save!", function(){return $("#messageModal .affermativeBtn")})
+newTut.newTutStep("Creating a new graph", "And 'Ok' to save!", function(){return $("#inputModal .affermativeBtn")})
 .setWaitType(TutorialStep.Wait.Modal)
 .setType(TutorialStep.Type.Press)
 
-newTut.newTutStep("Graph Description Node", "A new description node is created. You can use this to enter a description for your graph. Click it to select the node.", function(){return $("#logicalGraphD3Div #node0")})
+newTut.newTutStep("Graph Description Node", "A new description node is created. You can use this to enter a description for your graph. Click it to select the node.", function(){return $("#logicalGraphD3Div #node0 .nodeIcon")})
 .setType(TutorialStep.Type.Press)
+.setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
 
 newTut.newTutStep("The Node Inspector", "Notice, when you select a node, the inspector becomes available in the right window. This is where you can edit the parameters of a node.", function(){return $("#rightWindowContainer")})
 

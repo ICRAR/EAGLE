@@ -35,10 +35,13 @@ export class Modals {
             $('#inputModalInput').focus();
         });
         $('#inputModalInput').on('keypress', function(e){
-            if (e.which === 13){
-                $('#inputModal').data('completed', true);
-                $('#inputModal').modal('hide');
+            if(TutorialSystem.activeTut === null){
+                if (e.which === 13){
+                    $('#inputModal').data('completed', true);
+                    $('#inputModal').modal('hide');
+                }
             }
+           
         });
 
         // #inputTextModal - requestUserText()
@@ -59,9 +62,11 @@ export class Modals {
             $('#inputTextModalInput').focus();
         });
         $('#inputTextModalInput').on('keypress', function(e){
-            if (e.which === 13){
-                $('#inputTextModal').data('completed', true);
-                $('#inputTextModal').modal('hide');
+            if(TutorialSystem.activeTut === null){
+                if (e.which === 13){
+                    $('#inputTextModal').data('completed', true);
+                    $('#inputTextModal').modal('hide');
+                }
             }
         });
 
@@ -96,9 +101,11 @@ export class Modals {
             }
         });
         $('#choiceModalString').on('keypress', function(e){
-            if (e.which === 13){
-                $('#choiceModal').data('completed', true);
-                $('#choiceModal').modal('hide');
+            if(TutorialSystem.activeTut === null){
+                if (e.which === 13){
+                    $('#choiceModal').data('completed', true);
+                    $('#choiceModal').modal('hide');
+                }
             }
         });
 
