@@ -27,8 +27,22 @@ newTut.newTutStep("Creating a new graph", "And 'Ok' to save!", function(){return
 .setWaitType(TutorialStep.Wait.Modal)
 .setType(TutorialStep.Type.Press)
 
-newTut.newTutStep("Graph Description Node", "A new description node is created. You can use this to enter a description for your graph. Click it to select the node.", function(){return $("#logicalGraphD3Div #node0 .nodeIcon")})
+newTut.newTutStep("Graph Model Data", "This button brings up the 'Graph Modal Data' which allows you to add a description for your graph.", function(){return $("#openGraphModelDataModal")})
 .setType(TutorialStep.Type.Press)
+
+newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed decription in addition to a description node in the graph, should you need it.", function(){return $("#modelDataDescription")})
+.setWaitType(TutorialStep.Wait.Modal)
+
+newTut.newTutStep("Other Graph Information", "Most of the other information is automatically filled out when saving a graph, such as the version of EAGLE used for creating it.", function(){return $("#modelDataEagleVersion")})
+.setWaitType(TutorialStep.Wait.Modal)
+
+newTut.newTutStep("Close the Modal", "Press OK to close the modal and continue the Tutorial", function(){return $("#modelDataModalOKButton")})
+.setWaitType(TutorialStep.Wait.Modal)
+.setType(TutorialStep.Type.Press)
+
+newTut.newTutStep("Graph Description Node", "A new description node is created. You can use this to enter a description for your graph. Click it to select the node.", function(){return $("#logicalGraphD3Div #node0 .nodeIcon .icon-description")})
+.setType(TutorialStep.Type.Press)
+.setWaitType(TutorialStep.Wait.Element)
 .setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
 
 newTut.newTutStep("The Node Inspector", "Notice, when you select a node, the inspector becomes available in the right window. This is where you can edit the parameters of a node.", function(){return $("#rightWindowContainer")})

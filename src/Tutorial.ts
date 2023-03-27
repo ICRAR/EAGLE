@@ -63,7 +63,6 @@ export class TutorialSystem {
                     e.preventDefault()
                     e.stopImmediatePropagation()
                     if(TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Press){
-                        console.log('bop',TutorialSystem.activeTutCurrentStep.getTitle())
                         $(':focus').click()
                     }
                     break;
@@ -299,7 +298,6 @@ export class Tutorial {
         if(TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc() != null){
             target = TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc()()
         }
-        console.log(target)
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
         const coords = target.offset()
         const docHeight = $(document).height()
