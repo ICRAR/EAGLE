@@ -1803,7 +1803,7 @@ export class Utils {
 
     static markdown2html(markdown: string) : string {
         // check that input is not undefined
-        if (typeof markdown === "undefined"){
+        if (typeof markdown === "undefined" || markdown === null){
             console.warn("Could not convert markdown to html! Input:", markdown);
             return "";
         }
@@ -1811,6 +1811,12 @@ export class Utils {
         const converter = new Showdown.Converter();
         converter.setOption('tables', true);
         let html = converter.makeHtml(markdown);
+
+        // check that the returned html is not null
+        if (html === null){
+            console.warn("Could not convert markdown to html! Input:", markdown);
+            return "";
+        }
 
         // add some bootstrap CSS to the converted html
         html = html.replaceAll("<table>", "<table class='table'>");
