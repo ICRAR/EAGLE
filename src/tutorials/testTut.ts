@@ -50,7 +50,7 @@ newTut.newTutStep("Adding base components into the graph", "To add one into the 
 // newTut.newTutStep("Graph nodes", "Each of these components in a palette performs a function that can be used in your graph", function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
 // .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
-newTut.newTutStep("Adding base components into the graph", "To add one into the graph, simply click on the icon or drag the component into the graph. Click on the icon to continue..", function(){return $("#rightWindowContainer")})        
-            .setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
+newTut.newTutStep("Editing component parameters", "To add one into the graph, simply click on the icon or drag the component into the graph. Click on the icon to continue..", function(){return $("#rightWindowContainer")})        
+.setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
 
 
