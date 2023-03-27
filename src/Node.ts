@@ -1436,13 +1436,16 @@ export class Node {
         // read embedded application data from node
         let inputApplicationName: string = "";
         let inputApplicationType: Category = Category.None;
-        let inputApplicationDescription: string = null;
+        let inputApplicationDescription: string = "";
         let outputApplicationName: string = "";
         let outputApplicationType: Category = Category.None;
-        let outputApplicationDescription: string = null;
+        let outputApplicationDescription: string = "";
 
         if (typeof nodeData.inputAppName !== 'undefined'){
             inputApplicationName = nodeData.inputAppName;
+        }
+        if (typeof nodeData.inputApplicationName !== 'undefined'){
+            inputApplicationName = nodeData.inputApplicationName;
         }
         if (typeof nodeData.inputApplicationType !== 'undefined'){
             inputApplicationType = nodeData.inputApplicationType;
@@ -1452,6 +1455,9 @@ export class Node {
         }
         if (typeof nodeData.outputAppName !== 'undefined'){
             outputApplicationName = nodeData.outputAppName;
+        }
+        if (typeof nodeData.outputApplicationName !== 'undefined'){
+            outputApplicationName = nodeData.outputApplicationName;
         }
         if (typeof nodeData.outputApplicationType !== 'undefined'){
             outputApplicationType = nodeData.outputApplicationType;
