@@ -90,6 +90,12 @@ export class TutorialSystem {
         return x
     }
 
+    static initiateFindGraphNodeIdByNodeName = (name:string) : JQuery<HTMLElement> => {
+        const eagle = Eagle.getInstance()
+        let x = $('#'+eagle.logicalGraph().findNodeGraphIdByNodeName(name))
+        return x
+    }
+
 }
 
 export class Tutorial {

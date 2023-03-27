@@ -163,6 +163,11 @@ export class Node {
         }
     }
 
+    getGraphNodeId = () :string => {
+        let x = Math.abs(this.getKey())-1
+        return 'node'+x
+    }
+
     getName = () : string => {
         return this.name();
     }

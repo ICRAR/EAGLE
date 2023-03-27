@@ -1,4 +1,6 @@
 import {Tutorial, TutorialStep, TutorialSystem} from '../Tutorial';
+import {Eagle} from '../Eagle';
+
 
 const newTut = TutorialSystem.newTutorial('Test Tutorial', 'This tutorial is for testing purposes.')
 
@@ -40,10 +42,15 @@ newTut.newTutStep("Close the Modal", "Press OK to close the modal and continue t
 .setWaitType(TutorialStep.Wait.Modal)
 .setType(TutorialStep.Type.Press)
 
-newTut.newTutStep("Graph Description Node", "A new description node is created. You can use this to enter a description for your graph. Click it to select the node.", function(){return $("#logicalGraphD3Div #node0 .nodeIcon .icon-description")})
-.setType(TutorialStep.Type.Press)
-.setWaitType(TutorialStep.Wait.Element)
-.setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
+newTut.newTutStep("Palette Components", "Each of these components in a palette performs a function that can be used in your graph", function(){return $("#palette_0_HelloWorldApp")})
 
-newTut.newTutStep("The Node Inspector", "Notice, when you select a node, the inspector becomes available in the right window. This is where you can edit the parameters of a node.", function(){return $("#rightWindowContainer")})
+newTut.newTutStep("Adding base components into the graph", "To add one into the graph, simply click on the icon or drag the component into the graph. Click on the icon to continue..", function(){return $("#addPaletteNodeHelloWorldApp")})
+.setType(TutorialStep.Type.Press)
+
+// newTut.newTutStep("Graph nodes", "Each of these components in a palette performs a function that can be used in your graph", function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
+// .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
+
+newTut.newTutStep("Adding base components into the graph", "To add one into the graph, simply click on the icon or drag the component into the graph. Click on the icon to continue..", function(){return $("#rightWindowContainer")})        
+            .setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
+
 
