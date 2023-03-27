@@ -3005,7 +3005,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const input = containingConstruct.getInputApplication().getKey() === node.getKey();
 
             // debug
-            console.log("embedded", node.getName(), containingConstruct.getName(), "input:", input);
+            console.log("edgeGetX1(): embedded", node.getName(), containingConstruct.getName(), "input:", input);
 
             return findNodePortPosition(containingConstruct, edge.getSrcPortId(), input, true).x;
         }
@@ -3080,7 +3080,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), false, true).y - PORT_ICON_HEIGHT;
+
+            // NOTE: we use input=true for nodes embedded on the left (inputApplications)
+            //       we use input=false for nodes embedded on the right (outputApplications) (MKN-only)
+            const input = containingConstruct.getInputApplication().getKey() === node.getKey();
+
+            // debug
+            console.log("edgeGetY1(): embedded", node.getName(), containingConstruct.getName(), "input:", input);
+
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), input, true).y - PORT_ICON_HEIGHT;
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
@@ -3800,7 +3808,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
         const result: Node[] = [];
 
-        console.log("findNodesInRange(): sourceNodeKey", sourceNodeKey);
+        //console.log("findNodesInRange(): sourceNodeKey", sourceNodeKey);
 
         for (let i = 0; i < nodeData.length; i++){
             // skip the source node
@@ -3818,7 +3826,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const distance = Utils.positionToNodeDistance(positionX, positionY, nodeData[i]);
 
             if (distance <= range){
-                console.log("distance to", nodeData[i].getName(), nodeData[i].getKey(), "=", distance);
+                //console.log("distance to", nodeData[i].getName(), nodeData[i].getKey(), "=", distance);
                 result.push(nodeData[i]);
             }
         }
