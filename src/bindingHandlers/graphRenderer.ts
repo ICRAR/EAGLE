@@ -2999,7 +2999,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), false, true).x;
+
+            // NOTE: we use input=true for nodes embedded on the left (inputApplications)
+            //       we use input=false for nodes embedded on the right (outputApplications) (MKN-only)
+            const input = containingConstruct.getInputApplication().getKey() === node.getKey();
+
+            // debug
+            console.log("embedded", node.getName(), containingConstruct.getName(), "input:", input);
+
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), input, true).x;
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
