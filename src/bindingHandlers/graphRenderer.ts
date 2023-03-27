@@ -2999,15 +2999,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-
-            // NOTE: we use input=true for nodes embedded on the left (inputApplications)
-            //       we use input=false for nodes embedded on the right (outputApplications) (MKN-only)
-            const input = containingConstruct.getInputApplication().getKey() === node.getKey();
+            const isInputApplication : boolean = containingConstruct.getInputApplication().getKey() === node.getKey();
+            const isInputPort: boolean = node.findPortIsInputById(edge.getSrcPortId());
 
             // debug
-            console.log("edgeGetX1(): embedded", node.getName(), containingConstruct.getName(), "input:", input);
+            console.log("edgeGetX1(): embedded", node.getName(), containingConstruct.getName(), "isInputApplication:", isInputApplication, "isInputPort:", isInputPort);
 
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), input, true).x;
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), isInputApplication, true).x;
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
@@ -3080,15 +3078,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-
-            // NOTE: we use input=true for nodes embedded on the left (inputApplications)
-            //       we use input=false for nodes embedded on the right (outputApplications) (MKN-only)
-            const input = containingConstruct.getInputApplication().getKey() === node.getKey();
+            const isInputApplication : boolean = containingConstruct.getInputApplication().getKey() === node.getKey();
+            const isInputPort: boolean = node.findPortIsInputById(edge.getSrcPortId());
 
             // debug
-            console.log("edgeGetY1(): embedded", node.getName(), containingConstruct.getName(), "input:", input);
+            console.log("edgeGetY1(): embedded", node.getName(), containingConstruct.getName(), "isInputApplication:", isInputApplication, "isInputPort:", isInputPort);
 
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), input, true).y - PORT_ICON_HEIGHT;
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), isInputPort, true).y - PORT_ICON_HEIGHT;
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
@@ -3210,6 +3206,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let index : number;
         const flipped : boolean = node.isFlipPorts();
         const position = {x: node.getPosition().x, y: node.getPosition().y};
+
+        console.log("findNodePortPosition()", node.getName(), portId, input, inset);
 
         // find the port within the node
         if (input){
