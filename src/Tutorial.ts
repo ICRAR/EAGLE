@@ -447,6 +447,7 @@ export class Tutorial {
         $('body').off('keydown.tutEventListener');
         $('.tutButtonListener').off('click.tutButtonListener').removeClass('tutButtonListener')
         $(".tutorialHighlight").remove()
+        $('.forceShow').removeClass('forceShow')
         TutorialSystem.activeTut = null
         clearTimeout(TutorialSystem.conditionCheck);
         TutorialSystem.conditionCheck = null;
