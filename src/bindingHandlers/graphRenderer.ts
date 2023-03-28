@@ -2999,7 +2999,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), false, true).x;
+            const isInputApplication : boolean = containingConstruct.hasInputApplication() && containingConstruct.getInputApplication().getKey() === node.getKey();
+            const isInputPort: boolean = node.findPortIsInputById(edge.getSrcPortId());
+
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), isInputApplication, true).x;
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
@@ -3072,7 +3075,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), false, true).y - PORT_ICON_HEIGHT;
+            const isInputApplication : boolean = containingConstruct.hasInputApplication() && containingConstruct.getInputApplication().getKey() === node.getKey();
+            const isInputPort: boolean = node.findPortIsInputById(edge.getSrcPortId());
+
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), isInputPort, true).y - PORT_ICON_HEIGHT;
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
@@ -3132,7 +3138,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        return findNodePortPosition(node, edge.getDestPortId(), true, false).x;
+        const srcNode : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
+        const isInputPort: boolean = srcNode.findPortIsInputById(edge.getSrcPortId());
+
+        return findNodePortPosition(node, edge.getDestPortId(), !isInputPort, false).x;
     }
 
     function edgeGetY2(edge: Edge) : number {
@@ -3177,7 +3186,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
         }
 
-        return findNodePortPosition(node, edge.getDestPortId(), true, false).y - PORT_ICON_HEIGHT;
+        const srcNode : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
+        const isInputPort: boolean = srcNode.findPortIsInputById(edge.getSrcPortId());
+
+        return findNodePortPosition(node, edge.getDestPortId(), !isInputPort, false).y - PORT_ICON_HEIGHT;
     }
 
     function portIndexRatio(portIndex: number, numPorts: number){
@@ -3792,9 +3804,17 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
         const result: Node[] = [];
 
+        //console.log("findNodesInRange(): sourceNodeKey", sourceNodeKey);
+
         for (let i = 0; i < nodeData.length; i++){
             // skip the source node
             if (nodeData[i].getKey() === sourceNodeKey){
+                continue;
+            }
+
+            // skip nodes that can't have inputs or outputs
+            const categoryData = CategoryData.getCategoryData(nodeData[i].getCategory());
+            if (categoryData.maxInputs === 0 && categoryData.maxOutputs === 0){
                 continue;
             }
 
@@ -3802,7 +3822,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             const distance = Utils.positionToNodeDistance(positionX, positionY, nodeData[i]);
 
             if (distance <= range){
-                //console.log("distance to", nodeData[i].getName(), "=", distance);
+                //console.log("distance to", nodeData[i].getName(), nodeData[i].getKey(), "=", distance);
                 result.push(nodeData[i]);
             }
         }
