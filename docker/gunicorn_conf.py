@@ -9,6 +9,10 @@ web_concurrency_str = os.getenv("WEB_CONCURRENCY", None)
 host = os.getenv("HOST", "0.0.0.0")
 port = os.getenv("PORT", "80")
 bind_env = os.getenv("BIND", None)
+logdir = "/var/log/gunicorn"
+os.mkdir(logdir)
+errorlog = f"{logdir}/error.log"
+accesslog = f"{logdir}/access.log"
 use_loglevel = os.getenv("LOG_LEVEL", "info")
 if bind_env:
     use_bind = bind_env
@@ -29,7 +33,8 @@ loglevel = use_loglevel
 workers = web_concurrency
 bind = use_bind
 keepalive = 120
-errorlog = "-"
+errorlog = errorlog
+accesslog = accesslog
 timeout = 60
 reload = True
 

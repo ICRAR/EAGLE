@@ -4,13 +4,10 @@ RUN apt-get update && apt-get install -y npm bash git curl libffi-dev &&\
     npm install -g typescript &&\
     pip install --upgrade pip &&\
     pip install --no-cache-dir . &&\
-    # sphinx-apidoc -o docs/source eagleServer &&\
-    # cd docs; make html; cd .. &&\
-    # pip list | grep -i sphinx | awk '{print $1}'|xargs pip uninstall -y &&\
     pip uninstall -y pip &&\
     mv /app/docker/prestart.dep.sh /tmp/prestart.sh &&\
+    mv /app/docker/gunicorn_conf.py /tmp/gunicorn_conf.py &&\
     mv static/VERSION /usr/local/lib/python3.8/site-packages/static/. &&\
-    # cp -R static/docs /usr/local/lib/python3.8/site-packages/static &&\
     rm -rf * .[a-z]* &&\
     mv /tmp/* .
-    
+

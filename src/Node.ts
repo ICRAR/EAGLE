@@ -880,53 +880,6 @@ export class Node {
         return {key: null, port: null};
     }
 
-    // TODO: I have a feeling this should not be necessary. Especially the 'inputLocal' and 'outputLocal' stuff
-    findPortTypeById = (portId : string) : string => {
-        // check input ports
-        for (const inputPort of this.getInputPorts()){
-            if (inputPort.getId() === portId){
-                return "input";
-            }
-        }
-
-        // check output ports
-        for (const outputPort of this.getOutputPorts()){
-            if (outputPort.getId() === portId){
-                return "output";
-            }
-        }
-
-        // if node has an inputApplication, check those ports too
-        if (this.hasInputApplication()){
-            for (const inputPort of this.inputApplication().getInputPorts()){
-                if (inputPort.getId() === portId){
-                    return "input";
-                }
-            }
-            for (const outputPort of this.inputApplication().getOutputPorts()){
-                if (outputPort.getId() === portId){
-                    return "inputLocal";
-                }
-            }
-        }
-
-        // if node has an outputApplication, check those ports too
-        if (this.hasOutputApplication()){
-            for (const inputPort of this.outputApplication().getInputPorts()){
-                if (inputPort.getId() === portId){
-                    return "outputLocal";
-                }
-            }
-            for (const outputPort of this.outputApplication().getOutputPorts()){
-                if (outputPort.getId() === portId){
-                    return "output";
-                }
-            }
-        }
-
-        return "";
-    }
-
     findPortIndexById = (portId : string) : number => {
         // check input ports
         for (let i = 0; i < this.getInputPorts().length; i++){
@@ -1488,13 +1441,16 @@ export class Node {
         // read embedded application data from node
         let inputApplicationName: string = "";
         let inputApplicationType: Category = Category.None;
-        let inputApplicationDescription: string = null;
+        let inputApplicationDescription: string = "";
         let outputApplicationName: string = "";
         let outputApplicationType: Category = Category.None;
-        let outputApplicationDescription: string = null;
+        let outputApplicationDescription: string = "";
 
         if (typeof nodeData.inputAppName !== 'undefined'){
             inputApplicationName = nodeData.inputAppName;
+        }
+        if (typeof nodeData.inputApplicationName !== 'undefined'){
+            inputApplicationName = nodeData.inputApplicationName;
         }
         if (typeof nodeData.inputApplicationType !== 'undefined'){
             inputApplicationType = nodeData.inputApplicationType;
@@ -1504,6 +1460,9 @@ export class Node {
         }
         if (typeof nodeData.outputAppName !== 'undefined'){
             outputApplicationName = nodeData.outputAppName;
+        }
+        if (typeof nodeData.outputApplicationName !== 'undefined'){
+            outputApplicationName = nodeData.outputApplicationName;
         }
         if (typeof nodeData.outputApplicationType !== 'undefined'){
             outputApplicationType = nodeData.outputApplicationType;
@@ -2290,11 +2249,18 @@ export class Node {
 
         // check that multiple fields don't share the same name
         // NOTE: this code checks many pairs of fields twice
-        for (const field0 of node.getFields()){
-            for (const field1 of node.getFields()){
-                if (field0.getId() !== field1.getId() && field0.getIdText() === field1.getIdText() && field0.getParameterType() === field1.getParameterType()){
-                    const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, null, "");
-                    errorsWarnings.warnings.push(issue);
+        for (let i = 0 ; i < node.getFields().length ; i++){
+            const field0 = node.getFields()[i];
+            for (let j = 0 ; j < node.getFields().length ; j++){
+                const field1 = node.getFields()[j];
+                if (i !== j && field0.getIdText() === field1.getIdText() && field0.getParameterType() === field1.getParameterType()){
+                    if (field0.getId() === field1.getId()){
+                        const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeMergeFieldsByIndex(eagle, node, i, j)}, "Merge fields");
+                        errorsWarnings.warnings.push(issue);
+                    } else {
+                        const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeMergeFields(eagle, node, field0, field1)}, "Merge fields");
+                        errorsWarnings.warnings.push(issue);
+                    }
                 }
             }
         }
