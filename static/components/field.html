@@ -37,6 +37,9 @@
             </div>
             <!-- /ko -->
 
+        <!-- /ko -->
+
+        <!-- ko if: Eagle.allowSetKeyParameter() -->
             <div class="input-group-append">
                 <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){this.toggleKeyAttribute()}, eagleTooltip: 'toggle favourite'" data-bs-placement="left">
                     <!-- ko if: isKeyAttribute() -->
@@ -48,7 +51,6 @@
                 </button>
             </div>
         <!-- /ko -->
-
 
         <!-- ko ifnot: $root.selectedNode().isLocked() -->
         <div class="input-group-append">

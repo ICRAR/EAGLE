@@ -60,6 +60,7 @@ export class Setting {
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
     static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
+    static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
@@ -334,6 +335,7 @@ const settings : SettingsGroup[] = [
         [
             new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Setting.ALLOW_INVALID_EDGES, true, true),
             new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Setting.ALLOW_COMPONENT_EDITING, true, true),
+            new Setting("Allow Set Key Parameter", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Setting.ALLOW_SET_KEY_PARAMETER, true, true),
             new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Setting.ALLOW_PALETTE_EDITING, true, true),
             new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Setting.ALLOW_READONLY_PALETTE_EDITING, true, true),
             new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Setting.ALLOW_EDGE_EDITING, true, true),

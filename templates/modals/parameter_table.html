@@ -121,7 +121,7 @@
                                     <tr>
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('keyAttribute') -->
                                             <td>
-                                                <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
+                                                <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Eagle.allowSetKeyParameter(), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
                                             </td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeName') -->
