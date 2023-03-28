@@ -256,6 +256,14 @@ export class Eagle {
         return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || Eagle.isInUIMode(Setting.UIMode.Expert);
     }
 
+    static allowSetKeyParameter = () : boolean => {
+        if(Eagle.isInUIMode(Setting.UIMode.Minimal)){
+            return false
+        }else{
+            return Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER) || Eagle.isInUIMode(Setting.UIMode.Expert);
+        }
+    }
+
     static translatorUiMode = (mode : Setting.TranslatorMode) : boolean => {
         return Setting.findValue(Setting.USER_TRANSLATOR_MODE) === mode;
     }
