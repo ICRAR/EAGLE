@@ -1158,13 +1158,10 @@ export class Eagle {
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
-            const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Category.Description);
-            const pos = this.getNewNodePosition(node.getDisplayWidth(), node.getDisplayHeight());
-            node.setColor(Utils.getColorForNode(Category.Description));
-            this.addNode(node, pos.x, pos.y, null);
             this.checkGraph();
             this.undo().pushSnapshot(this, "New Logical Graph");
             this.logicalGraph.valueHasMutated();
+            Utils.showNotification("New Graph Created",name, "success");
         });
         this.resetEditor()
     }
