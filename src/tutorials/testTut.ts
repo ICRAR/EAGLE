@@ -47,10 +47,14 @@ newTut.newTutStep("Palette Components", "Each of these components in a palette p
 newTut.newTutStep("Adding base components into the graph", "To add one into the graph, simply click on the icon or drag the component into the graph. Click on the icon to continue..", function(){return $("#addPaletteNodeHelloWorldApp")})
 .setType(TutorialStep.Type.Press)
 
-// newTut.newTutStep("Graph nodes", "Each of these components in a palette performs a function that can be used in your graph", function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
-// .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
+newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is in your own instance. This means you can adjust its parameters and they will be saved with the graph. Select the node to continue..",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
+.setType(TutorialStep.Type.Condition)
+.setWaitType(TutorialStep.Wait.Element)
+.setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('HelloWorldApp')})
+.setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
+.setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
-newTut.newTutStep("Editing component parameters", "To add one into the graph, simply click on the icon or drag the component into the graph. Click on the icon to continue..", function(){return $("#rightWindowContainer")})        
-.setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
+newTut.newTutStep("Editing component parameters", "The inspector houses all the editable parameters of a node. We are after the ", function(){return $("#rightWindowContainer")})        
+.setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector);setTimeout(function () {$("#nodeInspectorComponentParamsHeader").click()},2000)})
 
 

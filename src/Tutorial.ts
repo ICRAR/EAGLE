@@ -92,8 +92,21 @@ export class TutorialSystem {
 
     static initiateFindGraphNodeIdByNodeName = (name:string) : JQuery<HTMLElement> => {
         const eagle = Eagle.getInstance()
-        let x = $('#'+eagle.logicalGraph().findNodeGraphIdByNodeName(name))
+        let x = $('#'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+' rect')
         return x
+    }
+
+    static isRequestedNodeSelected = (name:string) : boolean => {
+        //used when asking the user to select a specific node
+        const eagle = Eagle.getInstance()
+        if(eagle.selectedObjects().length>1 || eagle.selectedObjects().length<1){
+            return false
+        }
+        if(name = eagle.selectedNode().getName()){
+            return true
+        }else{
+            return false
+        }
     }
 
 }
@@ -133,12 +146,6 @@ export class Tutorial {
         const eagle = Eagle.getInstance()
         TutorialSystem.activeTutCurrentStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
         const tutStep = TutorialSystem.activeTutCurrentStep
-        // const tutStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
-        if (tutStep.getTargetFunc()().length === 0) {
-            console.warn('skipping step, selector could not be found: ', tutStep.getTargetFunc())
-            this.tutButtonNext()
-            return
-        }
         
         $('body').off('keydown.tutEventListener');
         TutorialSystem.addTutKeyboardShortcuts()
@@ -167,6 +174,7 @@ export class Tutorial {
                     clearTimeout(TutorialSystem.waitForElementTimer);
                     TutorialSystem.waitForElementTimer = null;
                     console.warn('waiting for next tutorial step element timed out')
+                    this.tutButtonNext()
                 }
             }, 2000)
         }
@@ -304,6 +312,7 @@ export class Tutorial {
         if(TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc() != null){
             target = TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc()()
         }
+
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
         const coords = target.offset()
         const docHeight = $(document).height()
