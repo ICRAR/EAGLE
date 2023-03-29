@@ -1,5 +1,6 @@
 import {Tutorial, TutorialStep, TutorialSystem} from '../Tutorial';
 import {Eagle} from '../Eagle';
+import {InspectorState} from '../InspectorState';
 
 
 const newTut = TutorialSystem.newTutorial('Test Tutorial', 'This tutorial is for testing purposes.')
@@ -54,7 +55,12 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
-newTut.newTutStep("Editing component parameters", "The inspector houses all the editable parameters of a node. We are after the ", function(){return $("#rightWindowContainer")})        
-.setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector);setTimeout(function () {$("#nodeInspectorComponentParamsHeader").click()},2000)})
+newTut.newTutStep("Editing Components", "The inspector houses all the editable parameters of a node. Component parameters are .. while application arguments ... ", function(){return $("#rightWindowContainer")})        
+.setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
+
+newTut.newTutStep("Click to expand", "Click to expand the application arguments section and continue..", function(){return $("#nodeInspectorApplicationArgumentsHeader")})        
+
+newTut.newTutStep("Click to expand", "Click to expand the application arguments section and continue..", function(){return $("#nodeInspectorApplicationArgumentsHeader")})        
+
 
 

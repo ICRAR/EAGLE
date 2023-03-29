@@ -128,7 +128,7 @@ export class InspectorState {
 
         state(!state());
     }
-
+    
     updateAllInspectorSections = (): void => {
         $(".nodeInspectorCollapseAll").each((index: number, element: HTMLElement): void => {
             const h5 = $(element).parent().find('h5');
