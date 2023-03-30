@@ -77,7 +77,6 @@ newTut.newTutStep("Right Click to add nodes", "There are also various right clic
 .setConditionFunction(function(){ if($('#customContextMenu').length){return true}else{return false}})
 .setBackPreFunction(function(){$("#customContextMenu").removeClass('forceShow')})
 
-
 newTut.newTutStep("Graph Context menu", "all of your loaded palettes and their contents will appear here", function(){return $("#rightClickPaletteList")})  
 .setPreFunction(function(){$("#customContextMenu").addClass('forceShow')})
 .setWaitType(TutorialStep.Wait.Delay)
@@ -98,3 +97,19 @@ newTut.newTutStep("Node Ports", "And this is the input for the file storage node
 newTut.newTutStep("Connecting nodes", "To save the output of the hello world app onto the file we need to draw an edge connecting the nodes. Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em>", function(){return $("#logicalGraphParent")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().length != 0){return true}else{return false}}) //check if there are any edges present in the graph
+
+newTut.newTutStep("Graph Errors and warnings", "Notice that we have a few graph errors detected. <em>Click here to view them</em>", function(){return $("#checkGraphWarnings")})
+.setType(TutorialStep.Type.Press)
+
+newTut.newTutStep("Graph Errors and warnings", "This modal may aid you in troubleshooting graphs. In this case these errors are all port type errors. Eagle can automatically fix errors such as these for you. To do this <em>click on fix all</em>", function(){return $("#errorModalFixAll")})
+.setType(TutorialStep.Type.Press)
+.setWaitType(TutorialStep.Wait.Modal)
+.setAlternateHighlightTargetFunc(function(){return $("#errorModalFixAll").parent().parent()})
+
+newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue..</em>", function(){return $("#navbarDropdownGraph")})
+.setType(TutorialStep.Type.Press)
+.setBackPreFunction(function(eagle:Eagle){eagle.hide;$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide
+
+newTut.newTutStep("Saving a Graph", "You are able to download the graph in the 'local storage' section, or save the graph onto your github repository under 'git storage'", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-menu')})
+
+newTut.newTutStep("Well Done!", "You have completed the Hello world graph creation tutorial! Be sure to check our online documentation for additional help and guidance.", function(){return $("#logicalGraphParent")})
