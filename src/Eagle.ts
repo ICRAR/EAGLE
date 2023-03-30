@@ -2335,6 +2335,10 @@ export class Eagle {
         Utils.hideSettingsModal();
     }
 
+    closeErrorsModal = () : void => {
+        Utils.closeErrorsModal();
+    }
+
     openParamsTableModal = (mode:string,selectType:string) : void => {
         this.showTableModal(true)
         if(selectType === 'rightClick'){

@@ -896,6 +896,10 @@ export class Utils {
         $('#shortcutsModal').modal("hide");
     }
 
+    static closeErrorsModal() : void {
+        $('#errorsModal').modal("hide");
+    }
+
     static showPalettesModal(eagle: Eagle) : void {
         const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
