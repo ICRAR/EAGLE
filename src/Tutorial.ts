@@ -109,6 +109,16 @@ export class TutorialSystem {
         }
     }
 
+    static findInspectorInputGroupByName = (name:string) : JQuery<HTMLElement> =>{
+        let requestedElement :JQuery<HTMLElement>=null
+        $('#nodeInspector .input-group-text').each(function(i,obj){
+            if($(obj).text() === name){
+                requestedElement = $(obj)
+            }
+        })
+            requestedElement = requestedElement.closest('.input-group')
+            return requestedElement
+    }
 }
 
 export class Tutorial {
@@ -136,7 +146,7 @@ export class Tutorial {
     }
 
     newTutStep = (title:string,description:string,selector:() => void) : TutorialStep =>{
-        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None, selector, null, null,null,null,null)
+        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null,null,null,null)
         this.tutorialSteps.push(x)
         return x
     }
@@ -163,10 +173,20 @@ export class Tutorial {
             preFunction(eagle)
         }
 
+        const that = this
         //we always pass through the wait function, it is decided there if we actually wait or not
         if (tutStep.getWaitType() === TutorialStep.Wait.None) {
             this.initiateStep(TutorialSystem.activeTutCurrentStep, null)
-        } else {
+        } else if (tutStep.getWaitType() === TutorialStep.Wait.Delay) {
+            //if a delay amount is not specified we will default to 4ms
+            let delay:number = 400
+            if(TutorialSystem.activeTutCurrentStep.getDelayAmount()!=null){
+                delay = TutorialSystem.activeTutCurrentStep.getDelayAmount()
+            }
+            setTimeout(function () {
+                that.initiateStep(TutorialSystem.activeTutCurrentStep, null)
+            }, delay)
+        }else {
             //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
             TutorialSystem.waitForElementTimer = setInterval(function () { TutorialSystem.activeTut.waitForElementThenRun(tutStep.getWaitType()) }, 100);
             setTimeout(function () {
@@ -174,7 +194,7 @@ export class Tutorial {
                     clearTimeout(TutorialSystem.waitForElementTimer);
                     TutorialSystem.waitForElementTimer = null;
                     console.warn('waiting for next tutorial step element timed out')
-                    this.tutButtonNext()
+                    that.tutButtonNext()
                 }
             }, 2000)
         }
@@ -213,7 +233,7 @@ export class Tutorial {
                 //the element has not been found yet
                 return
             }
-        } else {
+        }else {
             console.warn('no Wait type for the tutorial is set')
             return
         }
@@ -347,7 +367,6 @@ export class Tutorial {
 
         //left
         $('.tutorialHighlight.tutorialHighlightLeft').css({ "top": top_actual + "px", "right": left + "px", "bottom": bottom + "px", "left": "0px" })
-
     }
 
     openInfoPopUp = (): void => {
@@ -517,6 +536,7 @@ export class TutorialStep {
     private text: string;
     private type: TutorialStep.Type;
     private waitType: TutorialStep.Wait;
+    private delayAmount : number;
     private targetFunc: () => void;
     private alternateHighlightTargetFunc: () => void;
     private preFunction: (eagle: Eagle) => void;
@@ -524,11 +544,12 @@ export class TutorialStep {
     private expectedInput : string;
     private conditionFunction : (eagle: Eagle) => void;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, targetFunc: () => void, preFunction: (eagle: Eagle) => void, backPreFunction: (eagle: Eagle) => void, expectedInput:string, conditionFunction:(eagle: Eagle) => boolean,alternateHighlightTargetFunc: () => void) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => void, preFunction: (eagle: Eagle) => void, backPreFunction: (eagle: Eagle) => void, expectedInput:string, conditionFunction:(eagle: Eagle) => boolean,alternateHighlightTargetFunc: () => void) {
         this.title = title;
         this.text = text;
         this.type = type;
         this.waitType = waitType;
+        this.delayAmount = delayAmount
         this.targetFunc = targetFunc;
         this.preFunction = preFunction;
         this.backPreFunction = backPreFunction;
@@ -551,6 +572,10 @@ export class TutorialStep {
 
     getWaitType = (): TutorialStep.Wait => {
         return this.waitType;
+    }
+
+    getDelayAmount = (): number => {
+        return this.delayAmount;
     }
 
     getTargetFunc = (): any => {
@@ -584,6 +609,11 @@ export class TutorialStep {
 
     setWaitType = (newWaitType:TutorialStep.Wait): TutorialStep =>{
         this.waitType = newWaitType;
+        return this
+    }
+
+    setDelayAmount= (newDelayAmount:number): TutorialStep =>{
+        this.delayAmount = newDelayAmount;
         return this
     }
 
@@ -630,6 +660,7 @@ export namespace TutorialStep {
     export enum Wait {
         Modal,
         Element,
+        Delay,
         None
     }
 }

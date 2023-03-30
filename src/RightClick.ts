@@ -2,6 +2,7 @@ import {Eagle} from './Eagle';
 import {Edge} from './Edge';
 import {Node} from './Node';
 import { Palette } from './Palette';
+import { TutorialSystem } from './Tutorial';
 
 export class RightClick {
 
@@ -87,9 +88,11 @@ export class RightClick {
     }
 
     static closeCustomContextMenu = (force:boolean) : void => {
-        if(force){
+        if($('#customContextMenu').hasClass('forceShow')){
+            return
+        }else if(force){
             $("#customContextMenu").remove()
-        }else{
+        }else {
             setTimeout(function() {
                 if($("#customContextMenu:hover").length === 0){
                     $("#customContextMenu").remove()

@@ -1606,6 +1606,11 @@ select.form-control{
     visibility: visible !important;
 }
 
+.tutorialContent em{
+    font-style: normal;
+    color:springgreen;
+}
+
 .nodeInspectorDropdownDiv{
     position: static;
     position: relative;
