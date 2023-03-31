@@ -444,12 +444,12 @@ export class Edge {
         }
 
         // check that all edges have same data type as their source and destination ports
-        if (sourcePort !== null && dataType !== sourcePort.getType()){
+        if (sourcePort !== null && !Utils.typesMatch(dataType, sourcePort.getType())){
             const x = Errors.Fix("Edge data type (" + dataType + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + ").", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, sourcePort.getType());}, "Change edge data type to match source port type");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
         }
 
-        if (destinationPort !== null && dataType !== destinationPort.getType()){
+        if (destinationPort !== null && !Utils.typesMatch(dataType, destinationPort.getType())){
             const x = Errors.Fix("Edge data type (" + dataType + ") does not match end port (" + destinationPort.getDisplayText() + ") data type (" + destinationPort.getType() + ").", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, destinationPort.getType());}, "Change edge data type to match destination port type");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
         }
