@@ -433,6 +433,12 @@ export class FileInfo {
         result.shortDescription = modelData.shortDescription == undefined ? "" : modelData.shortDescription;
         result.detailedDescription = modelData.detailedDescription == undefined ? "" : modelData.detailedDescription;
 
+        // if shortDescription is not set, and detailed description is set, then use first sentence of detailed as the short
+        // NOTE: doesn't actually do any semantic analysis of text, just grabs everything before the first '.' in the detailed description
+        if (result.shortDescription === "" && result.detailedDescription !== ""){
+            result.shortDescription = result.detailedDescription.split('. ', 1)[0];
+        }
+
         result.repositoryService = modelData.repoService == undefined ? Eagle.RepositoryService.Unknown : modelData.repoService;
         result.repositoryBranch = modelData.repoBranch == undefined ? "" : modelData.repoBranch;
         result.repositoryName = modelData.repo == undefined ? "" : modelData.repo;
