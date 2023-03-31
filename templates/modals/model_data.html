@@ -36,10 +36,10 @@
                         <tr>
                             <td data-bind="text: 'Detailed Descripton', eagleTooltip: 'A complete description of the purpose of this file'"></td>
                             <!-- ko if: $root.currentFileInfo -->
-                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
                                 <td><textarea data-bind="value: $root.currentFileInfo()._detailedDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></textarea></td>
                             <!-- /ko -->
-                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Expert) -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
                                 <td data-bind="text: $root.currentFileInfo()._detailedDescription"></td>
                             <!-- /ko -->
                             <!-- /ko -->
