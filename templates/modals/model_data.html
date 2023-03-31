@@ -30,7 +30,12 @@
                         <tr>
                             <td data-bind="text: 'Short Descripton', eagleTooltip: 'A one-line description of the purpose of this file'"></td>
                             <!-- ko if: $root.currentFileInfo -->
-                                <td data-bind="text: $root.currentFileInfo().shortDescriptionText()"></td>
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
+                                <td><input type="text" data-bind="value: $root.currentFileInfo()._shortDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
+                                <td data-bind="text: $root.currentFileInfo()._shortDescription"></td>
+                            <!-- /ko -->
                             <!-- /ko -->
                         </tr>
                         <tr>
