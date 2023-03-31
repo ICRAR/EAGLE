@@ -5,11 +5,6 @@ import {InspectorState} from '../InspectorState';
 
 const newTut = TutorialSystem.newTutorial('Test Tutorial', 'This tutorial is for testing purposes.')
 
-newTut.newTutStep("Welcome to the Hello World tutorial!", "You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", function(){return $(".leftWindowDisplay .searchBarContainer input")})
-
-newTut.newTutStep("Palette Components", "Each of these components in a palette performs a function that can be used in your graph", function(){return $("#palette_0_HelloWorldApp")})
-
-
 newTut.newTutStep("Welcome to the Hello World tutorial!", "You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", function(){return $("#logicalGraphParent")})
 
 newTut.newTutStep("Creating a New Graph", "First we are going to create a new graph. Options for creating, loading and saving graphs can be found here. <em>Click on 'Graph' to continue..</em>", function(){return $("#navbarDropdownGraph")})

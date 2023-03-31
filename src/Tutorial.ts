@@ -332,14 +332,11 @@ export class Tutorial {
         if(TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc() != null){
             target = TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc()()
         }
-        console.log(target)
 
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
         const coords = target.offset()
-        const docHeight = window.innerHeight
         const docWidth = window.innerWidth
         const top_actual = Math.round(coords.top)//distance of the top of the element from the top of the document
-        const top = docHeight - top_actual //distance of the top of the element from the bottom of the document
         const right = coords.left + $(target).outerWidth() 
         const left = docWidth - coords.left
         const targetHeight = Math.round($(target).outerHeight())
