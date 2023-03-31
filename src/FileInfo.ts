@@ -331,6 +331,11 @@ export class FileInfo {
         return this._name() + (this._modified() ? "*" : "");
     }, this);
 
+    // NOTE: doesn't actually do any semantic analysis of text, just grabs everything before the first '.' in the detailed description
+    shortDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
+        return this._detailedDescription().split('. ', 1)[0];
+    }, this);
+
     lastModifiedDatetimeText : ko.PureComputed<string> = ko.pureComputed(() => {
         return new Date(this._lastModifiedDatetime() * 1000).toLocaleString();
     }, this);
