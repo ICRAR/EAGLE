@@ -101,7 +101,7 @@ newTut.newTutStep("Connecting nodes", "To save the output of the hello world app
 newTut.newTutStep("Graph Errors and warnings", "Notice that we have a few graph errors detected. <em>Click here to view them</em>", function(){return $("#checkGraphWarnings")})
 .setType(TutorialStep.Type.Press)
 
-newTut.newTutStep("Graph Errors and warnings", "This modal may aid you in troubleshooting graphs. In this case these errors are all port type errors. Eagle can automatically fix errors such as these for you. To do this <em>click on fix all</em>", function(){return $("#errorModalFixAll")})
+newTut.newTutStep("Graph Errors and warnings", "This modal may aid you in troubleshooting graphs. In this case these errors are all port type errors. Eagle can automatically fix errors such as these for you. To do this <em>click on 'Fix All'</em>", function(){return $("#errorModalFixAll")})
 .setType(TutorialStep.Type.Press)
 .setWaitType(TutorialStep.Wait.Modal)
 .setAlternateHighlightTargetFunc(function(){return $("#errorModalFixAll").parent().parent()})
@@ -111,6 +111,6 @@ newTut.newTutStep("Saving a Graph", "Options to save your graph are available in
 .setPreFunction(function(eagle:Eagle){eagle.closeErrorsModal()})
 .setBackPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide
 
-newTut.newTutStep("Saving a Graph", "You are able to download the graph in the 'local storage' section, or save the graph onto your github repository under 'git storage'", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-menu')})
+newTut.newTutStep("Saving a Graph", "You are able to download the graph in the 'local storage' section, or save the graph into your github repository under 'git storage'", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-menu')})
 
-newTut.newTutStep("Well Done!", "You have completed the Hello world graph creation tutorial! Be sure to check our online documentation for additional help and guidance.", function(){return $("#logicalGraphParent")})
+newTut.newTutStep("Well Done!", "You have completed the Hello world graph creation tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance.", function(){return $("#logicalGraphParent")})
