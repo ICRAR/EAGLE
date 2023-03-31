@@ -338,16 +338,12 @@ export class Tutorial {
         const coords = target.offset()
         const docHeight = window.innerHeight
         const docWidth = window.innerWidth
-        const top_actual = Math.round(coords.top)
-        const top = docHeight - top_actual
-        const right = coords.left + $(target).outerWidth()
-        const bottom_actual = Math.round(coords.top + $(target).outerHeight())
-        const bottom = docHeight - bottom_actual
+        const top_actual = Math.round(coords.top)//distance of the top of the element from the top of the document
+        const top = docHeight - top_actual //distance of the top of the element from the bottom of the document
+        const right = coords.left + $(target).outerWidth() 
         const left = docWidth - coords.left
-
-        console.log(target)
-        console.log($(target).outerHeight(),docHeight, top_actual,top,top_actual+top)
-
+        const targetHeight = Math.round($(target).outerHeight())
+        const bottom_actual = Math.round(coords.top + targetHeight) //distance from the bottom of the target element to the bottom of the document
 
         //i am appending these once if they dont exist. they are then adjusted for each step. and finally removed when exiting the tutorial
         if ($('.tutorialHighlight').length === 0) {
@@ -362,16 +358,16 @@ export class Tutorial {
         }
         
         //top
-        $('.tutorialHighlight.tutorialHighlightTop').attr("style", "top: 0px; right: 0px; bottom: "+top + "px; left: 0px" )
+        $('.tutorialHighlight.tutorialHighlightTop').attr("style", "top: 0px; left: 0px;width:100%;height:"+top_actual+"px" )
 
         //right
-        $('.tutorialHighlight.tutorialHighlightRight').attr("style", "top: "+top_actual+"px; right: 0px; bottom: "+bottom + "px; left: "+right+"px" )
+        $('.tutorialHighlight.tutorialHighlightRight').attr("style", "top: "+top_actual+"px; right: 0px; left: "+right+"px; height:"+targetHeight+"px;" )
 
         //bottom
         $('.tutorialHighlight.tutorialHighlightBottom').attr("style", "top: "+bottom_actual+"px; right: 0px; bottom: 0px; left: 0px" )
 
         //left
-        $('.tutorialHighlight.tutorialHighlightLeft').attr("style", "top: "+top_actual+"px; right: "+left+"px; bottom: "+bottom + "px; left: 0px" )
+        $('.tutorialHighlight.tutorialHighlightLeft').attr("style", "top: "+top_actual+"px; right: "+left+"px; left: 0px;height:"+targetHeight+"px;" )
     }
 
     openInfoPopUp = (): void => {
