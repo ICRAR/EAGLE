@@ -332,17 +332,22 @@ export class Tutorial {
         if(TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc() != null){
             target = TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc()()
         }
+        console.log(target)
 
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
         const coords = target.offset()
-        const docHeight = $(document).height()
-        const docWidth = $(document).width()
-        const top_actual = coords.top
+        const docHeight = window.innerHeight
+        const docWidth = window.innerWidth
+        const top_actual = Math.round(coords.top)
         const top = docHeight - top_actual
         const right = coords.left + $(target).outerWidth()
-        const bottom_actual = coords.top + $(target).outerHeight()
+        const bottom_actual = Math.round(coords.top + $(target).outerHeight())
         const bottom = docHeight - bottom_actual
         const left = docWidth - coords.left
+
+        console.log(target)
+        console.log($(target).outerHeight(),docHeight, top_actual,top,top_actual+top)
+
 
         //i am appending these once if they dont exist. they are then adjusted for each step. and finally removed when exiting the tutorial
         if ($('.tutorialHighlight').length === 0) {
@@ -355,18 +360,18 @@ export class Tutorial {
             //left
             $('body').append("<div class='tutorialHighlight tutorialHighlightLeft'></div>")
         }
-
+        
         //top
-        $('.tutorialHighlight.tutorialHighlightTop').css({ "top": "0px", "right": "0px", "bottom": top + "px", "left": "0px" })
+        $('.tutorialHighlight.tutorialHighlightTop').attr("style", "top: 0px; right: 0px; bottom: "+top + "px; left: 0px" )
 
         //right
-        $('.tutorialHighlight.tutorialHighlightRight').css({ "top": top_actual + "px", "right": "0px", "bottom": bottom + "px", "left": right + "px" })
+        $('.tutorialHighlight.tutorialHighlightRight').attr("style", "top: "+top_actual+"px; right: 0px; bottom: "+bottom + "px; left: "+right+"px" )
 
         //bottom
-        $('.tutorialHighlight.tutorialHighlightBottom').css({ "top": bottom_actual + "px", "right": "0px", "bottom": "0px", "left": "0px" })
+        $('.tutorialHighlight.tutorialHighlightBottom').attr("style", "top: "+bottom_actual+"px; right: 0px; bottom: 0px; left: 0px" )
 
         //left
-        $('.tutorialHighlight.tutorialHighlightLeft').css({ "top": top_actual + "px", "right": left + "px", "bottom": bottom + "px", "left": "0px" })
+        $('.tutorialHighlight.tutorialHighlightLeft').attr("style", "top: "+top_actual+"px; right: "+left+"px; bottom: "+bottom + "px; left: 0px" )
     }
 
     openInfoPopUp = (): void => {
