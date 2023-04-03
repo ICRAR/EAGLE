@@ -2477,7 +2477,7 @@ palette-component input.form-control.selected {
 #tutorialInfoPopUp .tutEndBtn{
     position: absolute;
     right: 0px;
-    color: red;
+    color: #ff3e3e !important;
 }
 
 
