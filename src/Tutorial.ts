@@ -194,7 +194,7 @@ export class Tutorial {
                     clearTimeout(TutorialSystem.waitForElementTimer);
                     TutorialSystem.waitForElementTimer = null;
                     console.warn('waiting for next tutorial step element timed out')
-                    that.tutButtonNext()
+                    that.tutButtonPrev()
                 }
             }, 2000)
         }

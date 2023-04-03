@@ -2342,6 +2342,7 @@ palette-component input.form-control.selected {
     z-index:2001;
     color:white;
     font-family:'Comic Neue';
+    pointer-events: none;
 }
 
 #tutorialInfoPopUp .tutorialArrowContainer{
@@ -2377,6 +2378,7 @@ palette-component input.form-control.selected {
     background: rgba(1,1,1,0.5);
     border-radius: 10px;
     box-shadow: 0px 0px 25px 25px rgba(1,1,1,0.5);
+    pointer-events: all;
 }
 
 #tutorialInfoPopUp.tutorialRight .tutorialContent,#tutorialInfoPopUp.tutorialRightTop .tutorialContent{

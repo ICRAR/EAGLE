@@ -115,14 +115,16 @@ newTut.newTutStep("Graph Errors and warnings", "This modal may aid you in troubl
 .setType(TutorialStep.Type.Press)
 .setWaitType(TutorialStep.Wait.Modal)
 .setAlternateHighlightTargetFunc(function(){return $("#errorModalFixAll").parent().parent()})
+.setBackPreFunction(function(){$('#errorsModal').modal('show')})
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)
 .setPreFunction(function(eagle:Eagle){eagle.closeErrorsModal()})
-.setBackPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide
+.setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$(".dropdown-toggle").removeClass("show");$(".dropdown-menu").removeClass("show")}) //allowing the graph navbar dropdown to hide
 
 newTut.newTutStep("Saving a Graph", "You are able to download the graph in the 'local storage' section, or save the graph into your github repository under 'git storage'", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-menu')})
-.setPreFunction(function(){$('.forceShow').addClass('forceShow')}) //allowing the graph navbar dropdown to hide
+.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().addClass('forceShow')}) //keeping the navbar graph doropdown open
+.setBackSkip(true)
 
 newTut.newTutStep("Well Done!", "You have completed the Hello world graph creation tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance.", function(){return $("#logicalGraphParent")})
 .setPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide

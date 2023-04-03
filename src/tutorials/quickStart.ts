@@ -54,3 +54,5 @@ newTut.newTutStep("Palette Menu", "This menu allows you to load a palette. If th
 newTut.newTutStep("Graph Menu", "This menu allows you to load, save or create new graphs", function(){return $("#navbarDropdownGraph")})
 
 newTut.newTutStep("Translate Button", "Once configured, you are able to translate the constructed graph quickly by using this button", function(){return $("#navDeployBtn")})
+
+newTut.newTutStep("Well Done!", "You have completed the quick introduction tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance.", function(){return $("#logicalGraphParent")})
