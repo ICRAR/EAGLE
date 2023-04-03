@@ -18,7 +18,7 @@ newTut.newTutStep("Keyboard Shortcuts", "Many of the major functions are availab
     .setBackPreFunction(function(eagle){eagle.openShortcuts()})
     .setPreFunction(function(eagle){eagle.openShortcuts()})
 
-newTut.newTutStep("Click To Open Settings", "The settings modal allows to cusomize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <b>To continue the tutorial please click the settings button!</b>", function(){return $("#settings")})
+newTut.newTutStep("Click To Open Settings", "The settings modal allows to cusomize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <em>To continue the tutorial please click the highlighted settings icon button!</em>", function(){return $("#settings")})
     .setType(TutorialStep.Type.Press)
     .setPreFunction(function(eagle){eagle.closeShortcuts();})
     .setBackPreFunction(function(eagle){eagle.closeSettings();})
@@ -45,7 +45,7 @@ newTut.newTutStep("Click To Save Settings", "Press 'Ok' (or hit Enter) to save y
     .setType(TutorialStep.Type.Press)
     .setWaitType(TutorialStep.Wait.Modal)
     .setPreFunction(function(eagle){$('#settingsModalNegativeButton').on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');})
-    .setBackPreFunction(function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); $('#settingsModalNegativeButton').on('click.tutButtonListener',eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');})
+    .setBackPreFunction(function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); $('#settingsModalNegativeButton').on('click.tutButtonListener',eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');$("#settingsModalAffirmativeButton").focus();})
 
 newTut.newTutStep("Help Menu", "This menu allows you view the various help and documentation options.", function(){return $("#navbarDropdownHelp")})
 
