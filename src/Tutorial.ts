@@ -146,7 +146,7 @@ export class Tutorial {
     }
 
     newTutStep = (title:string,description:string,selector:() => void) : TutorialStep =>{
-        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null,null,null,null)
+        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null,false,null,null,null)
         this.tutorialSteps.push(x)
         return x
     }
@@ -462,8 +462,12 @@ export class Tutorial {
             if (TutorialSystem.activeTutCurrentStepIndex > 0) {
                 this.closeInfoPopUp()
                 TutorialSystem.activeTutCurrentStepIndex--
-                this.initiateTutStep(TutorialStep.Direction.Prev)
-                TutorialSystem.startCooldown()
+                if(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex].getBackSkip() === true){
+                    this.tutButtonPrev()
+                }else{
+                    this.initiateTutStep(TutorialStep.Direction.Prev)
+                    TutorialSystem.startCooldown()
+                }
             }
         }
     }
@@ -539,10 +543,11 @@ export class TutorialStep {
     private alternateHighlightTargetFunc: () => void;
     private preFunction: (eagle: Eagle) => void;
     private backPreFunction: (eagle: Eagle) => void;
+    private backSkip : boolean;
     private expectedInput : string;
     private conditionFunction : (eagle: Eagle) => void;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => void, preFunction: (eagle: Eagle) => void, backPreFunction: (eagle: Eagle) => void, expectedInput:string, conditionFunction:(eagle: Eagle) => boolean,alternateHighlightTargetFunc: () => void) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => void, preFunction: (eagle: Eagle) => void, backPreFunction: (eagle: Eagle) => void, backSkip:boolean, expectedInput:string, conditionFunction:(eagle: Eagle) => boolean,alternateHighlightTargetFunc: () => void) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -551,6 +556,7 @@ export class TutorialStep {
         this.targetFunc = targetFunc;
         this.preFunction = preFunction;
         this.backPreFunction = backPreFunction;
+        this.backSkip = backSkip
         this.expectedInput = expectedInput;
         this.conditionFunction = conditionFunction;
         this.alternateHighlightTargetFunc = alternateHighlightTargetFunc;
@@ -588,6 +594,10 @@ export class TutorialStep {
         return this.backPreFunction;
     }
 
+    getBackSkip = (): boolean => {
+        return this.backSkip;
+    }
+
     getExpectedInput = (): any => {
         return this.expectedInput;
     }
@@ -622,6 +632,11 @@ export class TutorialStep {
 
     setBackPreFunction = (newBackPreFunct:(eagle: Eagle) => void): TutorialStep =>{
         this.backPreFunction = newBackPreFunct;
+        return this
+    }
+
+    setBackSkip = (newBackSkip:boolean): TutorialStep =>{
+        this.backSkip = newBackSkip;
         return this
     }
 

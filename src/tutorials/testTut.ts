@@ -9,30 +9,35 @@ newTut.newTutStep("Welcome to the Hello World tutorial!", "You can quit this tut
 
 newTut.newTutStep("Creating a New Graph", "First we are going to create a new graph. Options for creating, loading and saving graphs can be found here. <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)
-.setBackPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide
+.setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$('.modal').modal("hide");}) //allowing the graph navbar dropdown to hide
 
 newTut.newTutStep("Creating a New Graph", "<em>Click on 'New'.</em>", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-item').first()})
 .setType(TutorialStep.Type.Press)
 .setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')}) //keeping the navbar graph doropdown open
 .setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('#createNewGraph').removeClass('forceShow')})//allowing the 'new' drop drop down section to close
+.setBackSkip(true)
 
 newTut.newTutStep("Creating a New Graph", "<em>Click on 'Create new graph'</em>", function(){return $("#navbarDropdownGraph").parent().find('#createNewGraph')})
 .setType(TutorialStep.Type.Press)
 .setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//keeping the 'new' drop drop down section open as well
 .setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('.dropdown-item').first().parent().addClass('forceShow');TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//force showing both of the navbar graph drop downs
+.setBackSkip(true)
 
 newTut.newTutStep("Creating a new graph", "Then just <em>give it a name and press enter</em>", function(){return $("#inputModalInput")})
 .setWaitType(TutorialStep.Wait.Modal)
 .setType(TutorialStep.Type.Input)
 .setPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide
+.setBackSkip(true)
 
 newTut.newTutStep("Creating a new graph", "<em>And 'Ok' to save!</em>", function(){return $("#inputModal .affermativeBtn")})
 .setWaitType(TutorialStep.Wait.Modal)
 .setType(TutorialStep.Type.Press)
+.setBackSkip(true)
 
 newTut.newTutStep("Graph Model Data", "This button brings up the 'Graph Modal Data' which allows you to add a description for your graph. <em>Try clicking it now to try it out</em>", function(){return $("#openGraphModelDataModal")})
 .setType(TutorialStep.Type.Press)
-
+.setBackPreFunction(function(){$('.modal').modal("hide");}) //hiding open moddals
+ 
 newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed decription in addition to description nodes in the graph, should you need it.", function(){return $("#modelDataDescription")})
 .setWaitType(TutorialStep.Wait.Modal)
 
@@ -42,6 +47,7 @@ newTut.newTutStep("Other Graph Information", "Most of the other information is a
 newTut.newTutStep("Close the Modal", "<em>Press OK to close the modal and continue the Tutorial.</em>", function(){return $("#modelDataModalOKButton")})
 .setWaitType(TutorialStep.Wait.Modal)
 .setType(TutorialStep.Type.Press)
+.setBackPreFunction(function(){$('#modelDataModal').modal('show')})
 
 newTut.newTutStep("Palette Components", "Each of these components in a palette performs a function that can be used in your graph", function(){return $("#palette_0_HelloWorldApp")})
 
@@ -74,26 +80,31 @@ newTut.newTutStep("Key Attributes", "You can view the key attributes of a graph 
 newTut.newTutStep("Right Click to add nodes", "There are also various right click options available in eagle. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})  
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){ if($('#customContextMenu').length){return true}else{return false}})
+.setPreFunction(function(){$('.modal').modal("hide");}) //hiding open moddals
 .setBackPreFunction(function(){$("#customContextMenu").removeClass('forceShow')})
 
 newTut.newTutStep("Graph Context menu", "all of your loaded palettes and their contents will appear here", function(){return $("#rightClickPaletteList")})  
 .setPreFunction(function(){$("#customContextMenu").addClass('forceShow')})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
+.setBackSkip(true)
 
 newTut.newTutStep("Quickly adding nodes", "If you already know what you want you can quickly add it by using the search bar. <em>Search for 'file' now and press enter</em>", function(){return $("#rightClickSearchBar")})
 .setType(TutorialStep.Type.Input)
 .setExpectedInput('file')
+.setBackSkip(true)
 
-newTut.newTutStep("Node Ports", "This is the output port of the Hello world app",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp').parent().find('.outputPorts').find('circle')})
+newTut.newTutStep("Connecting nodes", "To save the output of the hello world app onto the file we need to draw an edge from the 'Hello World' node's output port to the 'File' node's input port.", function(){return $("#logicalGraphParent")})
+
+newTut.newTutStep("Node Ports", "This is the output port of the Hello world app, Outpout ports are always shown on the right side of the node.",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp').parent().find('.outputPorts').find('circle')})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
 .setWaitType(TutorialStep.Wait.Element)
 
-newTut.newTutStep("Node Ports", "And this is the input port for the file storage node",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File').parent().find('.inputPorts').find('circle')})
+newTut.newTutStep("Node Ports", "And this is the input port for the file storage node, Iutpout ports are always shown on the left side of the node.",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File').parent().find('.inputPorts').find('circle')})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File')})
 .setWaitType(TutorialStep.Wait.Element)
 
-newTut.newTutStep("Connecting nodes", "To save the output of the hello world app onto the file we need to draw an edge connecting the nodes. <em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em>", function(){return $("#logicalGraphParent")})
+newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em> Note, Eagle will complain about the edge being invalid.", function(){return $("#logicalGraphParent")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().length != 0){return true}else{return false}}) //check if there are any edges present in the graph
 
