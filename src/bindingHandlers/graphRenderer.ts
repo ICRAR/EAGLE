@@ -3228,17 +3228,26 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if an ancestor is collapsed, if so, use center of ancestor
         const collapsedAncestor : Node = findAncestorCollapsedNode(node);
         if (collapsedAncestor !== null){
-            return collapsedAncestor.getPosition().x + Node.GROUP_COLLAPSED_WIDTH;
+            return {
+                x: collapsedAncestor.getPosition().x + Node.GROUP_COLLAPSED_WIDTH,
+                y: collapsedAncestor.getPosition().y
+            };
         }
 
         if (node.isCollapsed() && !node.isData()){
             if (node.isBranch()){
-                const portIndex = findNodePortIndex(node, edge.getSrcPortId());
+                const portIndex = findNodePortIndex(node, portId);
 
                 if (portIndex === 0){
-                    return node.getPosition().x + node.getWidth()/2;
+                    return {
+                        x: node.getPosition().x + node.getWidth()/2,
+                        y: node.getPosition().y + node.getHeight()
+                    };
                 } else {
-                    return node.getPosition().x + node.getWidth()*3/4;
+                    return {
+                        x: node.getPosition().x + node.getWidth()*3/4,
+                        y: node.getPosition().y + node.getHeight()*3/4 - 4
+                    };
                 }
             }
         }
