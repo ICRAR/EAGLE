@@ -3225,6 +3225,73 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         console.log("findNodePortPosition()", "portId", portId, "input", input, "inset", inset);
 
+        // check if an ancestor is collapsed, if so, use center of ancestor
+        const collapsedAncestor : Node = findAncestorCollapsedNode(node);
+        if (collapsedAncestor !== null){
+            return collapsedAncestor.getPosition().x + Node.GROUP_COLLAPSED_WIDTH;
+        }
+
+        if (node.isCollapsed() && !node.isData()){
+            if (node.isBranch()){
+                const portIndex = findNodePortIndex(node, edge.getSrcPortId());
+
+                if (portIndex === 0){
+                    return node.getPosition().x + node.getWidth()/2;
+                } else {
+                    return node.getPosition().x + node.getWidth()*3/4;
+                }
+            }
+        }
+
+        if (node.isBranch()){
+            const portIndex = findNodePortIndex(node, edge.getSrcPortId());
+            const sourceIsInput = node.findPortIsInputById(edge.getSrcPortId());
+
+            if (sourceIsInput === false){
+                // calculate position of edge starting from a branch OUTPUT port
+                if (portIndex === 0){
+                    return node.getPosition().x + node.getWidth()/2;
+                }
+                if (portIndex === 1){
+                    if (!node.isCollapsed() || node.isPeek()){
+                        return node.getPosition().x + node.getWidth();
+                    } else {
+                        return node.getPosition().x + node.getWidth()*3/4;
+                    }
+                }
+            } else {
+                // calculate position of edge starting from a branch INPUT port
+                if (portIndex === 0){
+                    return node.getPosition().x + node.getWidth()/2;
+                }
+                if (portIndex === 1){
+                    if (!node.isCollapsed() || node.isPeek()){
+                        return node.getPosition().x;
+                    } else {
+                        return node.getPosition().x;
+                    }
+                }
+            }
+        }
+
+        // check if node is an embedded app, if so, use position of the construct in which the app is embedded
+        if (node.isEmbedded()){
+            const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
+            const isInputApplication : boolean = containingConstruct.hasInputApplication() && containingConstruct.getInputApplication().getKey() === node.getKey();
+            const isInputPort: boolean = node.findPortIsInputById(edge.getSrcPortId());
+
+            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), isInputApplication, true).x;
+        }
+
+        if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
+            if (node.isFlipPorts()){
+                return node.getPosition().x + getIconLocationX(node);
+            } else {
+                return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
+            }
+        }
+
+
         // find the port within the node
         if (input){
             for (let i = 0 ; i < node.getInputPorts().length ; i++){
