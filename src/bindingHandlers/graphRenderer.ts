@@ -93,7 +93,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     const HEADER_INSET : number = NODE_STROKE_WIDTH - 4;
 
     const PORT_OFFSET_X : number = 2;
-    const PORT_ICON_HEIGHT : number = 8;
+    const PORT_ICON_HEIGHT : number = 12;
     const PORT_INSET : number = 10;
 
     const RESIZE_CONTROL_SIZE : number = 16;
@@ -1283,15 +1283,31 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const srcPortIndex : number = srcNode.findPortIndexById(edge.getSrcPortId());
         const destPortIndex : number = destNode.findPortIndexById(edge.getDestPortId());
 
-        let x1 = edgeGetX1(edge);
-        let y1 = edgeGetY1(edge);
-        let x2 = edgeGetX2(edge);
-        let y2 = edgeGetY2(edge);
+        // TODO: this will only work for non-embedded, non-flipped, non-branch, non-collapsed nodes
+        //       we need to add back in the smarts of edgeGetXX() functions
+        const srcPortPos = findNodePortPosition(srcNode, edge.getSrcPortId(), false, false);
+        const destPortPos = findNodePortPosition(destNode, edge.getDestPortId(), true, false);
 
-        console.assert(!isNaN(x1));
-        console.assert(!isNaN(y1));
-        console.assert(!isNaN(x2));
-        console.assert(!isNaN(y2));
+        let x1 = srcPortPos.x;
+        let y1 = srcPortPos.y - PORT_ICON_HEIGHT/2;
+        let x2 = destPortPos.x;
+        let y2 = destPortPos.y - PORT_ICON_HEIGHT/2;
+
+        /*
+        console.log("x1");
+        let x1 = edgeGetX1(edge);
+        console.log("y1");
+        let y1 = edgeGetY1(edge);
+        console.log("x2");
+        let x2 = edgeGetX2(edge);
+        console.log("y2");
+        let y2 = edgeGetY2(edge);
+        */
+
+        console.assert(!isNaN(x1), "Source x-coord of edge cannot be found: " + srcNode.getName() + " -> " + destNode.getName());
+        console.assert(!isNaN(y1), "Source y-coord of edge cannot be found: " + srcNode.getName() + " -> " + destNode.getName());
+        console.assert(!isNaN(x2), "Destination x-coord of edge cannot be found: " + srcNode.getName() + " -> " + destNode.getName());
+        console.assert(!isNaN(y2), "Destination y-coord of edge cannot be found: " + srcNode.getName() + " -> " + destNode.getName());
 
         // if coordinate isNaN, replace with a default, so at least the edge can be drawn
         if (isNaN(x1)) x1 = 0;
@@ -3207,6 +3223,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const flipped : boolean = node.isFlipPorts();
         const position = {x: node.getPosition().x, y: node.getPosition().y};
 
+        console.log("findNodePortPosition()", "portId", portId, "input", input, "inset", inset);
+
         // find the port within the node
         if (input){
             for (let i = 0 ; i < node.getInputPorts().length ; i++){
@@ -3270,6 +3288,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
+        console.log("local", local, "index", index);
+
         // determine whether we need to move down an extra amount to clear the apps display title row
         let appsOffset : number = 0;
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
@@ -3304,6 +3324,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
+        console.log("position", position);
+        
         return position;
     }
 
