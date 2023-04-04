@@ -1532,8 +1532,13 @@ export class Utils {
     }
 
     static typesMatch(type0: string, type1: string){
-        // match if they both start with "Object"
-        if (type0.startsWith("Object") && type1.startsWith("Object")){
+        // match if either type is "Object"
+        if (type0 === "Object" || type1 === "Object"){
+            return true;
+        }
+
+        // match if one type is an extension of the other
+        if (type0.startsWith(type1) || type1.startsWith(type0)){
             return true;
         }
 
