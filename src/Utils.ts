@@ -1532,7 +1532,16 @@ export class Utils {
     }
 
     static portsMatch(port0: Field, port1: Field){
-        return port0.getType() === port1.getType();
+        return Utils.typesMatch(port0.getType(), port1.getType());
+    }
+
+    static typesMatch(type0: string, type1: string){
+        // match if they both start with "Object"
+        if (type0.startsWith("Object") && type1.startsWith("Object")){
+            return true;
+        }
+
+        return type0 === type1;
     }
 
     static checkPalette(palette: Palette): Errors.ErrorsWarnings {

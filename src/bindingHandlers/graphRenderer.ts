@@ -3899,7 +3899,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         destinationPort = port;
         destinationNode = graph.findNodeByKey(port.getNodeKey());
 
-        isDraggingPortValid = Edge.isValid(eagle, null, sourceNode.getKey(), sourcePort.getId(), destinationNode.getKey(), destinationPort.getId(), sourcePort.getType(), false, false, true, true, {errors:[], warnings:[]});
+        isDraggingPortValid = Edge.isValid(eagle, null, sourceNode.getKey(), sourcePort.getId(), destinationNode.getKey(), destinationPort.getId(), sourcePort.getType(), false, false, false, false, {errors:[], warnings:[]});
     }
 
     function mouseLeavePort(port : Field) : void {
