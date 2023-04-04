@@ -2960,27 +2960,51 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         return "inline";
     }
 
-    function edgeGetX1(edge: Edge) : number {
-        const node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
+    function branchPortPosition(node: Node, portId: string, input: boolean) : {x: number, y: number}{
+        const portIndex = findNodePortIndex(node, portId);
+        const sourceIsInput = node.findPortIsInputById(portId);
+        const collapsed: boolean = node.isCollapsed();
 
-        // check if an ancestor is collapsed, if so, use center of ancestor
-        const collapsedAncestor : Node = findAncestorCollapsedNode(node);
-        if (collapsedAncestor !== null){
-            return collapsedAncestor.getPosition().x + Node.GROUP_COLLAPSED_WIDTH;
-        }
-
-        if (node.isCollapsed() && !node.isData()){
-            if (node.isBranch()){
-                const portIndex = findNodePortIndex(node, edge.getSrcPortId());
-
+        if (node.isCollapsed()){
+            if (input){
                 if (portIndex === 0){
-                    return node.getPosition().x + node.getWidth()/2;
+                    return {
+                        x: node.getPosition().x + node.getWidth()/2,
+                        y: node.getPosition().y
+                    };
                 } else {
-                    return node.getPosition().x + node.getWidth()*3/4;
+                    return {
+                        x: node.getPosition().x + node.getWidth()*1/4,
+                        y: node.getPosition().y + node.getHeight()*3/4 - 4
+                    };
+                }
+            } else {
+                if (portIndex === 0){
+                    return {
+                        x: node.getPosition().x + node.getWidth()/2,
+                        y: node.getPosition().y + node.getHeight()
+                    };
+                } else {
+                    return {
+                        x: node.getPosition().x + node.getWidth()*3/4,
+                        y: node.getPosition().y + node.getHeight()*3/4 - 4
+                    };
                 }
             }
         }
 
+        // debug
+
+
+
+        return {x:0, y:0};
+    }
+
+
+    function edgeGetX1(edge: Edge) : number {
+        const node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
+
+        // not collapsed ^
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
             const sourceIsInput = node.findPortIsInputById(edge.getSrcPortId());
@@ -3035,24 +3059,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function edgeGetY1(edge: Edge) : number {
         const node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
 
-        // check if an ancestor is collapsed, if so, use center of ancestor
-        const collapsedAncestor : Node = findAncestorCollapsedNode(node);
-        if (collapsedAncestor !== null){
-            return collapsedAncestor.getPosition().y;
-        }
-
-        if (node.isCollapsed() && !node.isData()){
-            if (node.isBranch()){
-                const portIndex = findNodePortIndex(node, edge.getSrcPortId());
-
-                if (portIndex === 0){
-                    return node.getPosition().y + node.getHeight();
-                } else {
-                    return node.getPosition().y + node.getHeight()*3/4 - 4;
-                }
-            }
-        }
-
+        // not collapsed ^
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getSrcPortId());
             const sourceIsInput = node.findPortIsInputById(edge.getSrcPortId());
@@ -3107,28 +3114,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function edgeGetX2(edge: Edge) : number {
         const node : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
 
-        // check if an ancestor is collapsed, if so, use center of ancestor
-        const collapsedAncestor : Node = findAncestorCollapsedNode(node);
-        if (collapsedAncestor !== null){
-            return collapsedAncestor.getPosition().x;
-        }
-
-        if (node.isCollapsed() && !node.isData()){
-            if (node.isBranch()){
-                const portIndex = findNodePortIndex(node, edge.getDestPortId());
-
-                if (portIndex === 0){
-                    return node.getPosition().x + node.getWidth()/2;
-                } else {
-                    return node.getPosition().x + node.getWidth()*1/4;
-                }
-            }
-        }
-
-        if (node.isCollapsed() && node.isGroup()){
-
-        }
-
+        // not collapsed ^
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getDestPortId());
             const numPorts = node.getInputPorts().length;
@@ -3163,24 +3149,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function edgeGetY2(edge: Edge) : number {
         const node : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
 
-        // check if an ancestor is collapsed, if so, use center of ancestor
-        const collapsedAncestor : Node = findAncestorCollapsedNode(node);
-        if (collapsedAncestor !== null){
-            return collapsedAncestor.getPosition().y;
-        }
-
-        if (node.isCollapsed() && !node.isData()){
-            if (node.isBranch()){
-                const portIndex = findNodePortIndex(node, edge.getDestPortId());
-
-                if (portIndex === 0){
-                    return node.getPosition().y;
-                } else {
-                    return node.getPosition().y + node.getHeight()*3/4 -4;
-                }
-            }
-        }
-
+        // not collapsed ^
         if (node.isBranch()){
             const portIndex = findNodePortIndex(node, edge.getDestPortId());
             const numPorts = node.getInputPorts().length;
@@ -3218,12 +3187,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function findNodePortPosition(node : Node, portId: string, input: boolean, inset: boolean) : {x: number, y: number} {
         let local : boolean;
-        //let input : boolean;
         let index : number;
         const flipped : boolean = node.isFlipPorts();
         const position = {x: node.getPosition().x, y: node.getPosition().y};
 
-        console.log("findNodePortPosition()", "portId", portId, "input", input, "inset", inset);
+        console.log("findNodePortPosition()", "portId", portId, "input", input, "inset", inset, "node.isBranch()", node.isBranch(), "node.isEmbedded()", node.isEmbedded());
 
         // check if an ancestor is collapsed, if so, use center of ancestor
         const collapsedAncestor : Node = findAncestorCollapsedNode(node);
@@ -3234,53 +3202,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             };
         }
 
-        if (node.isCollapsed() && !node.isData()){
-            if (node.isBranch()){
-                const portIndex = findNodePortIndex(node, portId);
-
-                if (portIndex === 0){
-                    return {
-                        x: node.getPosition().x + node.getWidth()/2,
-                        y: node.getPosition().y + node.getHeight()
-                    };
-                } else {
-                    return {
-                        x: node.getPosition().x + node.getWidth()*3/4,
-                        y: node.getPosition().y + node.getHeight()*3/4 - 4
-                    };
-                }
-            }
-        }
-
+        // check if node is a branch
         if (node.isBranch()){
-            const portIndex = findNodePortIndex(node, edge.getSrcPortId());
-            const sourceIsInput = node.findPortIsInputById(edge.getSrcPortId());
-
-            if (sourceIsInput === false){
-                // calculate position of edge starting from a branch OUTPUT port
-                if (portIndex === 0){
-                    return node.getPosition().x + node.getWidth()/2;
-                }
-                if (portIndex === 1){
-                    if (!node.isCollapsed() || node.isPeek()){
-                        return node.getPosition().x + node.getWidth();
-                    } else {
-                        return node.getPosition().x + node.getWidth()*3/4;
-                    }
-                }
-            } else {
-                // calculate position of edge starting from a branch INPUT port
-                if (portIndex === 0){
-                    return node.getPosition().x + node.getWidth()/2;
-                }
-                if (portIndex === 1){
-                    if (!node.isCollapsed() || node.isPeek()){
-                        return node.getPosition().x;
-                    } else {
-                        return node.getPosition().x;
-                    }
-                }
-            }
+            return branchPortPosition(node, portId, input);
         }
 
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
