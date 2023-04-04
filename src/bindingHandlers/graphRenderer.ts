@@ -1050,7 +1050,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                                     // check if edge is back-to-front (input-to-output), if so, swap the source and destination
                                     //const backToFront : boolean = (srcPortType === "input" || srcPortType === "outputLocal") && (destPortType === "output" || destPortType === "inputLocal");
-                                    const backToFront : boolean = !srcPort.isOutputPort() && srcPort.isInputPort() && !destPort.isInputPort() && destPort.isOutputPort();
+                                    const backToFront : boolean = sourcePortIsInput;
                                     const realSourceNode: Node       = backToFront ? destNode : srcNode;
                                     const realSourcePort: Field      = backToFront ? destPort : srcPort;
                                     const realDestinationNode: Node  = backToFront ? srcNode  : destNode;
@@ -3719,7 +3719,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : Field {
-        console.log("findNearestMatchingPort(), sourcePortIsInput", sourcePortIsInput);
+        //console.log("findNearestMatchingPort(), sourcePortIsInput", sourcePortIsInput);
         let minDistance = Number.MAX_SAFE_INTEGER;
         let minPort = null;
 
