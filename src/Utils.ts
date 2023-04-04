@@ -1280,7 +1280,7 @@ export class Utils {
         return null;
     }
 
-    static getComponentsWithPort(palettes: Palette[], input: boolean, type: string, dataEligible: boolean) : Node[] {
+    static getComponentsWithMatchingPort(palettes: Palette[], input: boolean, type: string, dataEligible: boolean) : Node[] {
         const result: Node[] = [];
 
         // add all data components (except ineligible)
@@ -1296,7 +1296,7 @@ export class Utils {
                 const ports: Field[] = input ? node.getInputPorts() : node.getOutputPorts();
 
                 for (const port of ports){
-                    if (port.getType() === type){
+                    if (Utils.typesMatch(port.getType(), type)){
                         hasInputOfType = true;
                     }
                 }
@@ -1532,8 +1532,13 @@ export class Utils {
     }
 
     static typesMatch(type0: string, type1: string){
-        // match if they both start with "Object"
-        if (type0.startsWith("Object") && type1.startsWith("Object")){
+        // match if either type is "Object"
+        if (type0 === "Object" || type1 === "Object"){
+            return true;
+        }
+
+        // match if one type is an extension of the other
+        if (type0.startsWith(type1) || type1.startsWith(type0)){
             return true;
         }
 
