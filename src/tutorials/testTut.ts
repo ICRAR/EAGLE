@@ -104,11 +104,11 @@ newTut.newTutStep("Node Ports", "And this is the input port for the file storage
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File')})
 .setWaitType(TutorialStep.Wait.Element)
 
-newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em> Note, Eagle will complain about the edge being invalid.", function(){return $("#logicalGraphParent")})
+newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em>", function(){return $("#logicalGraphParent")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().length != 0){return true}else{return false}}) //check if there are any edges present in the graph
 
-newTut.newTutStep("Graph Errors and warnings", "Notice that we have a few graph errors detected. <em>Click here to view them</em>", function(){return $("#checkGraphWarnings")})
+newTut.newTutStep("Graph Errors and warnings", "Notice that we have a few graph warnings detected. <em>Click here to view them</em>", function(){return $("#checkGraphWarnings")})
 .setType(TutorialStep.Type.Press)
 
 newTut.newTutStep("Graph Errors and warnings", "This modal may aid you in troubleshooting graphs. In this case these errors are all port type errors. Eagle can automatically fix errors such as these for you. To do this you can press 'F' in the graph or <em>click on 'Fix All'</em>", function(){return $("#errorModalFixAll")})
