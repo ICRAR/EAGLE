@@ -4185,7 +4185,7 @@ export class Eagle {
 
         // set the parent of the new node
         // by default, set parent to parent of source node,
-        newNode.setParentKey(srcNode.getParentKey());
+        newNode.setParentKey(destNode.getParentKey());
 
         // if source node is a child of dest node, make the new node a child too
         if (srcNode.getParentKey() === destNode.getKey()){

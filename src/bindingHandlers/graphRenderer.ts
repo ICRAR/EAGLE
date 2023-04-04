@@ -1289,20 +1289,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const destPortPos = findNodePortPosition(destNode, edge.getDestPortId(), true, false);
 
         let x1 = srcPortPos.x;
-        let y1 = srcPortPos.y - PORT_ICON_HEIGHT/2;
+        let y1 = srcPortPos.y;
         let x2 = destPortPos.x;
-        let y2 = destPortPos.y - PORT_ICON_HEIGHT/2;
-
-        /*
-        console.log("x1");
-        let x1 = edgeGetX1(edge);
-        console.log("y1");
-        let y1 = edgeGetY1(edge);
-        console.log("x2");
-        let x2 = edgeGetX2(edge);
-        console.log("y2");
-        let y2 = edgeGetY2(edge);
-        */
+        let y2 = destPortPos.y;
 
         console.assert(!isNaN(x1), "Source x-coord of edge cannot be found: " + srcNode.getName() + " -> " + destNode.getName());
         console.assert(!isNaN(y1), "Source y-coord of edge cannot be found: " + srcNode.getName() + " -> " + destNode.getName());
@@ -1978,9 +1967,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let draggingY2 : number;
 
         if (isDraggingPort){
-            const tempEdge: Edge = new Edge(sourceNode.getKey(), sourcePort.getId(), 0, "", "", false, false,false);
-            draggingX1 = edgeGetX1(tempEdge);
-            draggingY1 = edgeGetY1(tempEdge);
+            const srcPortPos = findNodePortPosition(sourceNode, sourcePort.getId(), false, false);
+
+            draggingX1 = srcPortPos.x;
+            draggingY1 = srcPortPos.y;
             draggingX2 = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
             draggingY2 = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
 
@@ -2010,9 +2000,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // autocomplete link
         if (isDraggingPort && suggestedNode !== null){
-            const tempEdge: Edge = new Edge(sourceNode.getKey(), sourcePort.getId(), suggestedNode.getKey(), suggestedPort.getId(), "", false, false,false);
-            const x2 : number = edgeGetX2(tempEdge);
-            const y2 : number = edgeGetY2(tempEdge);
+            const destPortPos = findNodePortPosition(suggestedNode, suggestedPort.getId(), true, false);
+            const x2 : number = destPortPos.x;
+            const y2 : number = destPortPos.y;
 
             autoCompleteLink.attr("x1", draggingX2)
                             .attr("y1", draggingY2)
@@ -2963,9 +2953,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     function branchPortPosition(node: Node, portId: string, input: boolean) : {x: number, y: number}{
         const portIndex = findNodePortIndex(node, portId);
         const sourceIsInput = node.findPortIsInputById(portId);
-        const collapsed: boolean = node.isCollapsed();
 
-        if (node.isCollapsed()){
+        if (node.isCollapsed()){ // TODO: maybe add && !node.isPeek() here
             if (input){
                 if (portIndex === 0){
                     return {
@@ -2992,189 +2981,36 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 }
             }
         }
-
-        // debug
-
-
+        else { // not collapsed
+            if (input){
+                // calculate position of edge starting from a branch INPUT port
+                if (portIndex === 0){
+                    return {
+                        x: node.getPosition().x + node.getWidth()/2,
+                        y: node.getPosition().y
+                    };
+                } else {
+                    return {
+                        x: node.getPosition().x,
+                        y: node.getPosition().y + 50
+                    };
+                }
+            } else {
+                if (portIndex === 0){
+                    return {
+                        x: node.getPosition().x + node.getWidth()/2,
+                        y: node.getPosition().y + 100
+                    };
+                } else {
+                    return {
+                        x: node.getPosition().x + node.getWidth(),
+                        y: node.getPosition().y + 50
+                    };
+                }
+            }
+        }
 
         return {x:0, y:0};
-    }
-
-
-    function edgeGetX1(edge: Edge) : number {
-        const node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
-
-        // not collapsed ^
-        if (node.isBranch()){
-            const portIndex = findNodePortIndex(node, edge.getSrcPortId());
-            const sourceIsInput = node.findPortIsInputById(edge.getSrcPortId());
-
-            if (sourceIsInput === false){
-                // calculate position of edge starting from a branch OUTPUT port
-                if (portIndex === 0){
-                    return node.getPosition().x + node.getWidth()/2;
-                }
-                if (portIndex === 1){
-                    if (!node.isCollapsed() || node.isPeek()){
-                        return node.getPosition().x + node.getWidth();
-                    } else {
-                        return node.getPosition().x + node.getWidth()*3/4;
-                    }
-                }
-            } else {
-                // calculate position of edge starting from a branch INPUT port
-                if (portIndex === 0){
-                    return node.getPosition().x + node.getWidth()/2;
-                }
-                if (portIndex === 1){
-                    if (!node.isCollapsed() || node.isPeek()){
-                        return node.getPosition().x;
-                    } else {
-                        return node.getPosition().x;
-                    }
-                }
-            }
-        }
-
-        // check if node is an embedded app, if so, use position of the construct in which the app is embedded
-        if (node.isEmbedded()){
-            const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            const isInputApplication : boolean = containingConstruct.hasInputApplication() && containingConstruct.getInputApplication().getKey() === node.getKey();
-            const isInputPort: boolean = node.findPortIsInputById(edge.getSrcPortId());
-
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), isInputApplication, true).x;
-        }
-
-        if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
-            if (node.isFlipPorts()){
-                return node.getPosition().x + getIconLocationX(node);
-            } else {
-                return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
-            }
-        }
-
-        return findNodePortPosition(node, edge.getSrcPortId(), false, true).x;
-    }
-
-    function edgeGetY1(edge: Edge) : number {
-        const node : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
-
-        // not collapsed ^
-        if (node.isBranch()){
-            const portIndex = findNodePortIndex(node, edge.getSrcPortId());
-            const sourceIsInput = node.findPortIsInputById(edge.getSrcPortId());
-
-            if (sourceIsInput === false){
-                // calculate position of edge starting from a branch OUTPUT port
-                if (portIndex === 0){
-                    if (!node.isCollapsed() || node.isPeek()){
-                        // TODO: magic number
-                        return node.getPosition().y + 100;
-                    } else {
-                        return node.getPosition().y + node.getHeight();
-                    }
-                }
-                if (portIndex === 1){
-                    // TODO: magic number
-                    return node.getPosition().y + 50;
-                }
-            } else {
-                // calculate position of edge starting from a branch INPUT port
-                if (portIndex === 0){
-                    if (!node.isCollapsed() || node.isPeek()){
-                        // TODO: magic number
-                        return node.getPosition().y;
-                    } else {
-                        return node.getPosition().y;
-                    }
-                }
-                if (portIndex === 1){
-                    // TODO: magic number
-                    return node.getPosition().y + 50;
-                }
-            }
-        }
-
-        // check if node is an embedded app, if so, use position of the construct in which the app is embedded
-        if (node.isEmbedded()){
-            const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            const isInputApplication : boolean = containingConstruct.hasInputApplication() && containingConstruct.getInputApplication().getKey() === node.getKey();
-            const isInputPort: boolean = node.findPortIsInputById(edge.getSrcPortId());
-
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), isInputPort, true).y - PORT_ICON_HEIGHT;
-        }
-
-        if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
-            return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
-        }
-
-        return findNodePortPosition(node, edge.getSrcPortId(), false, true).y - PORT_ICON_HEIGHT;
-    }
-
-    function edgeGetX2(edge: Edge) : number {
-        const node : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
-
-        // not collapsed ^
-        if (node.isBranch()){
-            const portIndex = findNodePortIndex(node, edge.getDestPortId());
-            const numPorts = node.getInputPorts().length;
-
-            if (!node.isCollapsed() || node.isPeek()){
-                return node.getPosition().x + node.getWidth()/2 - node.getWidth()/2 * portIndexRatio(portIndex, numPorts);
-            } else {
-                return node.getPosition().x + node.getWidth()/2 - node.getWidth()/4 * portIndexRatio(portIndex, numPorts);
-            }
-        }
-
-        // check if node is an embedded app, if so, use position of the construct in which the app is embedded
-        if (node.isEmbedded()){
-            const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            return findNodePortPosition(containingConstruct, edge.getDestPortId(), true, false).x;
-        }
-
-        if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
-            if (node.isFlipPorts()){
-                return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
-            } else {
-                return node.getPosition().x + getIconLocationX(node);
-            }
-        }
-
-        const srcNode : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
-        const isInputPort: boolean = srcNode.findPortIsInputById(edge.getSrcPortId());
-
-        return findNodePortPosition(node, edge.getDestPortId(), !isInputPort, false).x;
-    }
-
-    function edgeGetY2(edge: Edge) : number {
-        const node : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
-
-        // not collapsed ^
-        if (node.isBranch()){
-            const portIndex = findNodePortIndex(node, edge.getDestPortId());
-            const numPorts = node.getInputPorts().length;
-
-            if (!node.isCollapsed() || node.isPeek()){
-                return node.getPosition().y + 50 * portIndexRatio(portIndex, numPorts);
-            } else {
-                return node.getPosition().y + 25 + 25 * portIndexRatio(portIndex, numPorts);
-            }
-        }
-
-        // check if node is an embedded app, if so, use position of the construct in which the app is embedded
-        if (node.isEmbedded()){
-            const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            return findNodePortPosition(containingConstruct, edge.getDestPortId(), true, false).y - PORT_ICON_HEIGHT;
-        }
-
-        if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
-            return node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2;
-        }
-
-        const srcNode : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
-        const isInputPort: boolean = srcNode.findPortIsInputById(edge.getSrcPortId());
-
-        return findNodePortPosition(node, edge.getDestPortId(), !isInputPort, false).y - PORT_ICON_HEIGHT;
     }
 
     function portIndexRatio(portIndex: number, numPorts: number){
@@ -3191,7 +3027,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const flipped : boolean = node.isFlipPorts();
         const position = {x: node.getPosition().x, y: node.getPosition().y};
 
-        console.log("findNodePortPosition()", "portId", portId, "input", input, "inset", inset, "node.isBranch()", node.isBranch(), "node.isEmbedded()", node.isEmbedded());
+        //console.log("findNodePortPosition()", "portId", portId, "input", input, "inset", inset, "node.isBranch()", node.isBranch(), "node.isEmbedded()", node.isEmbedded());
 
         // check if an ancestor is collapsed, if so, use center of ancestor
         const collapsedAncestor : Node = findAncestorCollapsedNode(node);
@@ -3210,20 +3046,22 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         // check if node is an embedded app, if so, use position of the construct in which the app is embedded
         if (node.isEmbedded()){
             const containingConstruct : Node = findNodeWithKey(node.getEmbedKey(), nodeData);
-            const isInputApplication : boolean = containingConstruct.hasInputApplication() && containingConstruct.getInputApplication().getKey() === node.getKey();
-            const isInputPort: boolean = node.findPortIsInputById(edge.getSrcPortId());
-
-            return findNodePortPosition(containingConstruct, edge.getSrcPortId(), isInputApplication, true).x;
+            return findNodePortPosition(containingConstruct, portId, input, true);
         }
 
         if (!node.isGroup() && node.isCollapsed() && !node.isPeek()){
-            if (node.isFlipPorts()){
-                return node.getPosition().x + getIconLocationX(node);
+            if ((input && !node.isFlipPorts()) || (!input && node.isFlipPorts())){
+                return {
+                    x: node.getPosition().x + getIconLocationX(node),
+                    y: node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2
+                };
             } else {
-                return node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH;
+                return {
+                    x: node.getPosition().x + getIconLocationX(node) + Node.DATA_COMPONENT_WIDTH,
+                    y: node.getPosition().y + getIconLocationY(node) + Node.DATA_COMPONENT_HEIGHT/2
+                };
             }
         }
-
 
         // find the port within the node
         if (input){
@@ -3288,19 +3126,29 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        console.log("local", local, "index", index);
-
         // determine whether we need to move down an extra amount to clear the apps display title row
         let appsOffset : number = 0;
         if (Node.canHaveInputApp(node) || Node.canHaveOutputApp(node)){
             appsOffset = APPS_HEIGHT;
         }
 
+        // translate the three pieces of info into the x,y position
+        let drawLeftHandSide: boolean = false;
+        if (input){
+            drawLeftHandSide = !drawLeftHandSide;
+        }
+        if (flipped){
+            drawLeftHandSide = !drawLeftHandSide;
+        }
+        if (local){
+            drawLeftHandSide = !drawLeftHandSide;
+        }
+        //console.log("input", input, "flipped", flipped, "local", local, "index", index, "drawLeftHandSide", drawLeftHandSide);
+
         const headerHeight: number = getHeaderBackgroundHeight(node);
 
-        // translate the three pieces of info into the x,y position
         // outer if is an XOR
-        if ((input && !flipped) || (!input && flipped)){
+        if (drawLeftHandSide){
             // left hand side
             if (inset){
                 position.x += PORT_INSET;
@@ -3324,7 +3172,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             }
         }
 
-        console.log("position", position);
+        //console.log("position", position);
         
         return position;
     }
