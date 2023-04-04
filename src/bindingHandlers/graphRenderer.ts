@@ -1073,8 +1073,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     
                                     // no destination, ask user to choose a new node
                                     const dataEligible = sourceNode.getCategoryType() !== Category.Type.Data;
-                                    const eligibleComponents = Utils.getComponentsWithPort(eagle.palettes(), !sourcePort.isInputPort(), sourcePortType, dataEligible);
+                                    const eligibleComponents = Utils.getComponentsWithMatchingPort(eagle.palettes(), !sourcePort.isInputPort(), sourcePortType, dataEligible);
                                     console.log("Found", eligibleComponents.length, "eligible automatically suggested components that could connect to port type", sourcePortType);
+
+                                    if (eligibleComponents.length === 0){
+                                        Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + sourcePortType + ")", "info");
+                                    }
 
                                     if (Setting.findValue(Setting.AUTO_SUGGEST_DESTINATION_NODES) && eligibleComponents.length > 0){
 
@@ -1097,7 +1101,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                             Eagle.nodeDropLocation.y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
 
                                             eagle.addNodeToLogicalGraph(choice, (node: Node) => {                                            
-                                                const destPort = node.findPortByType(sourcePortType, srcPort.isOutputPort());
+                                                const destPort = node.findPortByMatchingType(sourcePortType, srcPort.isOutputPort());
 
                                                 // create edge (in correct direction)
                                                 switch(srcPort.getUsage()){

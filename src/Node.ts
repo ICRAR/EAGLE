@@ -923,18 +923,18 @@ export class Node {
     }
 
 
-    findPortByType = (type: string, input: boolean) : Field => {
+    findPortByMatchingType = (type: string, input: boolean) : Field => {
         if (input){
             // check input ports
             for (const inputPort of this.getInputPorts()){
-                if (inputPort.getType() === type){
+                if (Utils.typesMatch(inputPort.getType(), type)){
                     return inputPort;
                 }
             }
         } else {
             // check output ports
             for (const outputPort of this.getOutputPorts()){
-                if (outputPort.getType() === type){
+                if (Utils.typesMatch(outputPort.getType(), type)){
                     return outputPort;
                 }
             }
