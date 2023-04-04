@@ -1007,7 +1007,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 const nearbyNodes = findNodesInRange(mouseX, mouseY, MIN_AUTO_COMPLETE_EDGE_RANGE, sourceNode.getKey());
 
                                 // check for nearest matching port in the nearby nodes
-                                const matchingPort: Field = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourceNode, sourcePort, !sourcePortIsInput);
+                                const matchingPort: Field = findNearestMatchingPort(mouseX, mouseY, nearbyNodes, sourceNode, sourcePort, sourcePortIsInput);
 
                                 if (matchingPort !== null){
                                     suggestedNode = graph.findNodeByKey(matchingPort.getNodeKey());
@@ -1295,8 +1295,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const srcPortIndex : number = srcNode.findPortIndexById(edge.getSrcPortId());
         const destPortIndex : number = destNode.findPortIndexById(edge.getDestPortId());
 
-        // TODO: this will only work for non-embedded, non-flipped, non-branch, non-collapsed nodes
-        //       we need to add back in the smarts of edgeGetXX() functions
         const srcPortPos = findNodePortPosition(srcNode, edge.getSrcPortId(), false, false);
         const destPortPos = findNodePortPosition(destNode, edge.getDestPortId(), true, false);
 
@@ -1987,7 +1985,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let draggingY2 : number;
 
         if (isDraggingPort){
-            const srcPortPos = findNodePortPosition(sourceNode, sourcePort.getId(), false, false);
+            const srcPortPos = findNodePortPosition(sourceNode, sourcePort.getId(), sourcePortIsInput, false);
 
             draggingX1 = srcPortPos.x;
             draggingY1 = srcPortPos.y;
@@ -2020,7 +2018,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // autocomplete link
         if (isDraggingPort && suggestedNode !== null){
-            const destPortPos = findNodePortPosition(suggestedNode, suggestedPort.getId(), true, false);
+            const destPortPos = findNodePortPosition(suggestedNode, suggestedPort.getId(), !sourcePortIsInput, false);
             const x2 : number = destPortPos.x;
             const y2 : number = destPortPos.y;
 
@@ -3721,6 +3719,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : Field {
+        console.log("findNearestMatchingPort(), sourcePortIsInput", sourcePortIsInput);
         let minDistance = Number.MAX_SAFE_INTEGER;
         let minPort = null;
 
