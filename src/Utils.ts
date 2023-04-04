@@ -1280,7 +1280,7 @@ export class Utils {
         return null;
     }
 
-    static getComponentsWithPort(palettes: Palette[], input: boolean, type: string, dataEligible: boolean) : Node[] {
+    static getComponentsWithMatchingPort(palettes: Palette[], input: boolean, type: string, dataEligible: boolean) : Node[] {
         const result: Node[] = [];
 
         // add all data components (except ineligible)
@@ -1296,7 +1296,7 @@ export class Utils {
                 const ports: Field[] = input ? node.getInputPorts() : node.getOutputPorts();
 
                 for (const port of ports){
-                    if (port.getType() === type){
+                    if (Utils.typesMatch(port.getType(), type)){
                         hasInputOfType = true;
                     }
                 }
