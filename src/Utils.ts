@@ -1281,7 +1281,6 @@ export class Utils {
     }
 
     static getComponentsWithMatchingPort(palettes: Palette[], input: boolean, type: string, dataEligible: boolean) : Node[] {
-        //console.log("getComponentsWithMatchingPort() input", input, "type", type, "dataEligible", dataEligible);
         const result: Node[] = [];
 
         // add all data components (except ineligible)

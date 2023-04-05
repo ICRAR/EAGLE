@@ -4184,7 +4184,7 @@ export class Eagle {
         newNode.addField(newInputOutputPort);
 
         // set the parent of the new node
-        // by default, set parent to parent of source node,
+        // by default, set parent to parent of dest node,
         newNode.setParentKey(destNode.getParentKey());
 
         // if source node is a child of dest node, make the new node a child too

@@ -1075,56 +1075,56 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         console.warn("link not valid, result", linkValid);
                                     }
                                 } else {
-                                    const srcNode: Node = sourceNode;
-                                    const srcPort: Field = sourcePort;
-                                    const sourcePortType: string = sourcePort.getType();
-                                    
                                     // no destination, ask user to choose a new node
                                     const dataEligible = sourceNode.getCategoryType() !== Category.Type.Data;
-                                    const eligibleComponents = Utils.getComponentsWithMatchingPort(eagle.palettes(), !sourcePortIsInput, sourcePortType, dataEligible);
-                                    console.log("Found", eligibleComponents.length, "eligible automatically suggested components that could connect to port type", sourcePortType);
+                                    const eligibleComponents = Utils.getComponentsWithMatchingPort(eagle.palettes(), !sourcePortIsInput, sourcePort.getType(), dataEligible);
+                                    console.log("Found", eligibleComponents.length, "eligible automatically suggested components that have a " + (sourcePortIsInput ? "output" : "input") + " port of type:", sourcePort.getType());
 
-                                    if (eligibleComponents.length === 0){
-                                        Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + sourcePortType + ")", "info");
-                                    }
+                                    if (Setting.findValue(Setting.AUTO_SUGGEST_DESTINATION_NODES)){
 
-                                    if (Setting.findValue(Setting.AUTO_SUGGEST_DESTINATION_NODES) && eligibleComponents.length > 0){
+                                        // check we found at least one eligible component
+                                        if (eligibleComponents.length === 0){
+                                            Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + sourcePort.getType() + ")", "info");
+                                        } else {
 
-                                        // get list of strings from list of eligible components
-                                        const eligibleComponentNames : string[] = [];
-                                        for (const c of eligibleComponents){
-                                            eligibleComponentNames.push(c.getDisplayName());
-                                        }
-
-                                        // ask the user to select which component they want
-                                        Utils.requestUserChoice("Connect to '" + sourcePortType + "' port", "Select a component to connect to the '" + sourcePortType + "' port", eligibleComponentNames, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
-                                            if (!completed){
-                                                return;
+                                            // get list of strings from list of eligible components
+                                            const eligibleComponentNames : string[] = [];
+                                            for (const c of eligibleComponents){
+                                                eligibleComponentNames.push(c.getDisplayName());
                                             }
 
-                                            const choice: Node = eligibleComponents[userChoiceIndex];
+                                            // NOTE: create local copy of the sourceNode, sourcePort, sourcePortIsInput, so that they are available in the callbacks below, not sure why this is required
+                                            const sNode = sourceNode;
+                                            const sPort = sourcePort;
+                                            const sPortIsInput = sourcePortIsInput;
 
-                                            // convert mouse position to graph coordinates
-                                            Eagle.nodeDropLocation.x = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
-                                            Eagle.nodeDropLocation.y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
-
-                                            eagle.addNodeToLogicalGraph(choice, (node: Node) => {                                            
-                                                const destPort = node.findPortByMatchingType(sourcePortType, srcPort.isOutputPort());
-
-                                                // create edge (in correct direction)
-                                                switch(srcPort.getUsage()){
-                                                    case Eagle.ParameterUsage.InputPort:
-                                                        addEdge(node, destPort, srcNode, srcPort, false, false);
-                                                        break;
-                                                    case Eagle.ParameterUsage.OutputPort:
-                                                    case Eagle.ParameterUsage.InputOutput:
-                                                        addEdge(srcNode, srcPort, node, destPort, false, false);
-                                                        break;
-                                                    default:
-                                                        console.warn("Dragging edge from field that is not a known port usage", srcPort.getUsage());
+                                            // ask the user to select which component they want
+                                            Utils.requestUserChoice("Connect to '" + sourcePort.getType() + "' port", "Select a component to connect to the '" + sourcePort.getType() + "' port", eligibleComponentNames, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
+                                                if (!completed){
+                                                    return;
                                                 }
-                                            },'');
-                                        });
+
+                                                const choice: Node = eligibleComponents[userChoiceIndex];
+
+                                                // convert mouse position to graph coordinates
+                                                Eagle.nodeDropLocation.x = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
+                                                Eagle.nodeDropLocation.y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
+
+                                                eagle.addNodeToLogicalGraph(choice, (node: Node) => {
+                                                    const realSourceNode = sNode;
+                                                    const realSourcePort = sPort;
+                                                    const realDestNode = node;
+                                                    const realDestPort = node.findPortByMatchingType(sPort.getType(), !sPortIsInput);
+
+                                                    // create edge (in correct direction)
+                                                    if (!sPortIsInput){
+                                                        addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
+                                                    } else {    
+                                                        addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
+                                                    }
+                                                },'');
+                                            });
+                                        }
                                     }
                                 }
 
@@ -3297,8 +3297,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean) : void {
-        //console.log("addEdge()", "srcNode", srcNode, "srcPort", srcPort, "to port", destPort, "on node", destNode, "loopAware", loopAware, "closesLoop", closesLoop);
-
         if (srcPort.getId() === destPort.getId()){
             console.warn("Abort addLink() from port to itself!");
             return;
