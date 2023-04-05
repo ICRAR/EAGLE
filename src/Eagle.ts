@@ -384,6 +384,14 @@ export class Eagle {
         this.showDataNodes(!this.showDataNodes());
     }
 
+    inspectorToggleAll = () : void => {
+        if($('#inspectorAccordion .accordion-button:not(.collapsed)').length>0){
+            $('#inspectorAccordion .accordion-button:not(.collapsed)').click();
+        }else{
+            $('#inspectorAccordion .accordion-button.collapsed').click();
+        }
+    }
+
     toggleSnapToGrid = () : void => {
         this.snapToGrid(!this.snapToGrid());
 

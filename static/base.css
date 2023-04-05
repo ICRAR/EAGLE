@@ -121,7 +121,7 @@ body {
     font-size: 9px;
     position: absolute;
     padding: 3px 4px;
-    right: 20px;
+    right: 1rem;
     top: 2px;
 }
 
@@ -2137,6 +2137,9 @@ ul.nav.navbar-nav .dropdown-item:hover{
 #inspectorAccordion .accordion-button {
     padding: 5px 10px 5px 45px;
     z-index: 0;
+    
+    color: rgb(66, 66, 66);
+    background-color: rgba(0,0,0,.03);
 }
 
 #inspectorAccordion .accordion-header{
