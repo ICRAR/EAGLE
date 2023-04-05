@@ -233,7 +233,7 @@
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('usage') -->
                                         <td>
-                                            <select data-bind="options: Object.values(Eagle.ParameterUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data)">
+                                            <select data-bind="options: Object.values(Eagle.ParameterUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: $root.parameterTable().fieldUsageChanged}">
                                                 <!-- options are added dynamically -->
                                             </select>
                                         </td>

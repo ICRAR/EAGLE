@@ -135,6 +135,33 @@ export class ParameterTable {
         }
     }
 
+    fieldUsageChanged = (field: Field) : void => {
+        console.log("fieldUsageChanged", field.getUsage(), field.getNodeKey());
+        
+        const eagle: Eagle = Eagle.getInstance();
+        const edgesToRemove: string[] = [];
+
+        for (const edge of eagle.logicalGraph().getEdges()){
+            // check edges whose source is this field
+            if (edge.getSrcPortId() === field.getId() && !field.isOutputPort()){
+                // remove edge
+                edgesToRemove.push(edge.getId());
+            }
+
+            // check edges whose destination is this field
+            if (edge.getDestPortId() === field.getId() && !field.isInputPort()){
+                // remove edge
+                edgesToRemove.push(edge.getId());
+            }
+        }
+
+        // remove edges
+        for (const edgeId of edgesToRemove){
+            console.log("remove edge", edgeId);
+            eagle.logicalGraph().removeEdgeById(edgeId);
+        }
+    }
+
     /*
     getFieldUseAsForTable = (nodeKey:number,fieldType:Eagle.FieldType) : any => {
         const eagle: Eagle = Eagle.getInstance();
