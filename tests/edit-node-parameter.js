@@ -51,7 +51,7 @@ test('Edit node parameter', async t =>{
         .expect(Selector("#nodeNameValue").value).eql("HelloWorldApp")
 
         // click the header for the parameters section
-        .click(Selector('h5.card-header[href="#nodeCategoryCollapse9"]'))
+        .click(Selector('#inspectorComponentParamsHeading'))
 
         // edit first parameter in the node inspector
         .typeText(Selector('#field4'), DUMMY_VALUE, {replace: true})
