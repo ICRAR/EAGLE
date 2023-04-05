@@ -2129,6 +2129,21 @@ ul.nav.navbar-nav .dropdown-item:hover{
     background: rgba(255, 255, 255, 0.171);
 }
 
+#inspectorAccordion .accordion-button::after {
+    position: absolute;
+    left: 1rem;
+}
+
+#inspectorAccordion .accordion-button {
+    padding: 5px 10px 5px 45px;
+    z-index: 0;
+}
+
+#inspectorAccordion .accordion-header{
+    position: relative !important;
+    padding:
+}
+
 .headerBtns button {
     background-color: transparent;
     padding:0px 4px;
@@ -2158,7 +2173,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 .nodeInspectorSubsectionTitle{
     font-size: 1rem;
-    padding-left:5px;
+    padding-left:10px;
 }
 
 .nodeInspectorButton{

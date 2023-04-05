@@ -1,11 +1,12 @@
-<div class="card">
-    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse4" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Graph Description">
-        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().graphDescription}">keyboard_arrow_down</i>
-        <i class="material-icons">device_hub</i>
-        <span class="nodeInspectorSubsectionTitle">Graph Description</span>
-    </h5>
-    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse4">
-        <div class="card-body">
+<div class="accordion-item">
+    <h2 class="accordion-header" id="inspectorGraphDescriptionHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inspectorGraphDescriptionCollapse" aria-expanded="false" aria-controls="inspectorGraphDescriptionCollapse">
+            <i class="material-icons">device_hub</i>
+            <span class="nodeInspectorSubsectionTitle">Graph Description</span>
+        </button>
+    </h2>
+    <div id="inspectorGraphDescriptionCollapse" class="accordion-collapse collapse">
+        <div class="accordion-body">
             <textarea class="form-control" rows="3" data-bind="value: selectedNode().getCustomData(), readonly: selectedNode().isLocked(), event: {keyup: eagle.selectedNode().customDataChanged}"></textarea>
         </div>
     </div>

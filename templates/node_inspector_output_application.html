@@ -1,11 +1,12 @@
-<div class="card">
-    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse7" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Output Application">
-        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().outputApplication}">keyboard_arrow_down</i>
-        <i class="material-icons">apps</i>
-        <span class="nodeInspectorSubsectionTitle">Output Application</span>
-    </h5>
-    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse7">
-        <div class="card-body output-application">
+<div class="accordion-item">
+    <h2 class="accordion-header" id="inspectorOutputAppHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inspectorOutputAppCollapse" aria-expanded="false" aria-controls="inspectorOutputAppCollapse">
+            <i class="material-icons">apps</i>
+            <span class="nodeInspectorSubsectionTitle">Output Application</span>
+        </button>
+    </h2>
+    <div id="inspectorOutputAppCollapse" class="accordion-collapse collapse">
+        <div class="accordion-body">
             <inspector-component params="node: $root.selectedNode().outputApplication, selectCallback: function(){$root.setNodeOutputApplication($root.selectedNode().key())}, inspectCallback: $root.selectOutputApplicationNode, selectId:'nodeInspectorAddOutputApplication', changeId:'nodeInspectorChangeOutputApplication', inspectId:'nodeInspectorInspectOutputApplication'"></inspector-component>
         </div>
     </div>

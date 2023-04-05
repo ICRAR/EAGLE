@@ -1,18 +1,20 @@
-<div class="card">
-    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse10" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Description">
-        <i class="material-icons interactive nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().description}">keyboard_arrow_down</i>
-        <i class="material-icons">note</i>
-        <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip: 'The description of the component’s functionality.'">Description</span>
-    </h5>
-    <!-- ko ifnot: selectedNode().isLocked() || selectedNode().getDescriptionReadonly() -->
-        <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind="click: $root.editNodeDescription, clickBubble: false, eagleTooltip: 'Edit Description'">
-            <i class="material-icons md-18">edit</i>
+
+<div class="accordion-item">
+    <h2 class="accordion-header" id="inspectorDescriptionHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inspectorDescriptionCollapse" aria-expanded="false" aria-controls="inspectorDescriptionCollapse">
+            <i class="material-icons">note</i>
+            <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip: 'The description of the component’s functionality.'">Description</span>
         </button>
-    <!-- /ko -->
-    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse10">
-        <div class="card-body">
-            <div data-bind="html: selectedNode().getDescriptionHTML()">
-            </div>
+        <!-- ko ifnot: selectedNode().isLocked() || selectedNode().getDescriptionReadonly() -->
+            <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind="click: $root.editNodeDescription, clickBubble: false, eagleTooltip: 'Edit Description'">
+                <i class="material-icons md-18">edit</i>
+            </button>
+        <!-- /ko -->
+    </h2>
+    <div id="inspectorDescriptionCollapse" class="accordion-collapse collapse">
+      <div class="accordion-body">
+        <div data-bind="html: selectedNode().getDescriptionHTML()">
         </div>
+      </div>
     </div>
 </div>
