@@ -458,9 +458,9 @@ export class Node {
         return false;
     }
 
-    getFieldByDisplayText = (idText : string) : Field | null => {
+    getFieldByDisplayText = (displayText : string) : Field | null => {
         for (const field of this.fields()){
-            if (field.getDisplayText() === idText){
+            if (field.getDisplayText() === displayText){
                 return field;
             }
         }
@@ -468,9 +468,9 @@ export class Node {
         return null;
     }
 
-    hasFieldWithDisplayText = (idText : string) : boolean => {
+    hasFieldWithDisplayText = (displayText : string) : boolean => {
         for (const field of this.fields()){
-            if (field.getDisplayText() === idText){
+            if (field.getDisplayText() === displayText){
                 return true;
             }
         }

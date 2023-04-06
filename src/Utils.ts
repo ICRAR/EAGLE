@@ -1591,22 +1591,6 @@ export class Utils {
         return /^[0-9]$/i.test(ch);
     }
 
-    static validateIdText(idText: string) : boolean {
-        // must start with a letter of underscore character
-        if (idText[0] !== "_" && !Utils.isAlpha(idText[0])){
-            return false;
-        }
-
-        // can only contain alpha-numeric and underscores
-        for (let i = 1 ; i < idText.length ; i++){
-            if (!Utils.isAlpha(idText[i]) && !Utils.isNumeric(idText[i]) && idText[i] !== "_"){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     static validateField(type: string, value: string) : boolean {
         let valid: boolean = true;
 

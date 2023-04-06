@@ -53,7 +53,7 @@ export class ComponentUpdater {
             // try to find a field with the same name in the destination
             let destField = dest.findFieldById(srcField.getId());
 
-            // if dest field not found, try to find something that matches by idText AND fieldType
+            // if dest field not found, try to find something that matches by displayText AND fieldType
             if (destField === null){
                 destField = dest.findFieldByDisplayText(srcField.getDisplayText(), srcField.getParameterType());
             }
