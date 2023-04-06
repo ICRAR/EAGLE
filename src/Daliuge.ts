@@ -29,6 +29,7 @@ export class Daliuge {
     static readonly PARAMETER_NAME_GROUP_START: string = "Group start";
     static readonly PARAMETER_NAME_GROUP_END: string = "Group end";
 
+    static readonly PARAMETER_NAME_INPUT_ERROR_RATE: string = "Input error rate (%)";
     static readonly PARAMETER_NAME_NUM_OF_COPIES: string = "No. of copies";
     static readonly PARAMETER_NAME_NUM_OF_CPUS: string = "No. of CPUs";
     static readonly PARAMETER_NAME_NUM_OF_INPUTS: string = "No. of inputs";
@@ -51,14 +52,16 @@ export class Daliuge {
     static readonly PARAMETER_NAME_DIGEST: string = "Digest";
 
     static readonly PARAMETER_NAMES: string[] = [
+        this.PARAMETER_NAME_APPLICATION_CLASS,
         this.PARAMETER_NAME_DATA_VOLUME,
         this.PARAMETER_NAME_EXECUTION_TIME,
         this.PARAMETER_NAME_GROUP_START,
         this.PARAMETER_NAME_GROUP_END,
 
-        "Input error rate (%)",
+        this.PARAMETER_NAME_INPUT_ERROR_RATE,
         this.PARAMETER_NAME_NUM_OF_CPUS,
         this.PARAMETER_NAME_NUM_OF_COPIES,
+        this.PARAMETER_NAME_NUM_OF_INPUTS,
         this.PARAMETER_NAME_NUM_OF_TRIES,
         this.PARAMETER_NAME_NUM_OF_ITERATIONS,
 
