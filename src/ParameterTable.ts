@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import {Field} from './Field';
 import {Eagle} from './Eagle';
+import {Utils} from './Utils';
 
 export class ParameterTable {
 
@@ -135,6 +136,38 @@ export class ParameterTable {
         }
     }
 
+    fieldUsageChanged = (field: Field) : void => {
+        console.log("fieldUsageChanged", field.getUsage(), field.getNodeKey());
+        
+        const eagle: Eagle = Eagle.getInstance();
+        const edgesToRemove: string[] = [];
+
+        for (const edge of eagle.logicalGraph().getEdges()){
+            // check edges whose source is this field
+            if (edge.getSrcPortId() === field.getId() && !field.isOutputPort()){
+                // remove edge
+                edgesToRemove.push(edge.getId());
+            }
+
+            // check edges whose destination is this field
+            if (edge.getDestPortId() === field.getId() && !field.isInputPort()){
+                // remove edge
+                edgesToRemove.push(edge.getId());
+            }
+        }
+
+        // remove edges
+        for (const edgeId of edgesToRemove){
+            console.log("remove edge", edgeId);
+            eagle.logicalGraph().removeEdgeById(edgeId);
+        }
+
+        // notify user
+        if (edgesToRemove.length > 0){
+            Utils.showNotification("Removed edges", "Removed " + edgesToRemove.length + " edge(s) made invalid by the change in port usage", "info");
+        }
+    }
+
     /*
     getFieldUseAsForTable = (nodeKey:number,fieldType:Eagle.FieldType) : any => {
         const eagle: Eagle = Eagle.getInstance();
@@ -186,18 +219,17 @@ export class ParameterTable {
 
     static initiateResizableColumns = (upId:string) : void => {
         //need this oen initially to set the mousedown handler
-            var upcol = $('#'+upId)[0]
-            var upresizer = $(upcol).find('div')
+            let upcol: HTMLElement = $('#'+upId)[0]
+            let upresizer: JQuery<HTMLElement> = $(upcol).find('div')
 
-            var downcol:any
-            var downresizer:any
+            let downcol: HTMLElement
+            let downresizer: JQuery<HTMLElement>
 
-            var tableWidth:any
+            let tableWidth: number
 
             // Track the current position of mouse
             let x = 0;
             let upW = 0;
-
             let downW = 0;
 
             const mouseDownHandler = function (e:any) {
@@ -232,8 +264,8 @@ export class ParameterTable {
                 const dx = e.clientX - x;
 
                 //converting these new px values into percentages
-                let newUpWidth = ((upW + dx)/tableWidth)*100
-                let newDownWidth = ((downW - dx)/tableWidth)*100
+                const newUpWidth: number = ((upW + dx)/tableWidth)*100
+                const newDownWidth: number = ((downW - dx)/tableWidth)*100
 
                 // Update the width of column
                 upcol.style.width = `${newUpWidth}%`;

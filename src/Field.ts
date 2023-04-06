@@ -372,14 +372,10 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional:field.positional(),
-            keyAttribute:field.keyAttribute()
-        };
-
-        const useOldOutputFormat : boolean = Setting.findValue(Setting.USE_OLD_OUTPUT_FORMAT);
-        if (!useOldOutputFormat){
-            result.id = field.id();
-            result.parameterType = field.parameterType();
-            result.usage = field.usage();
+            keyAttribute:field.keyAttribute(),
+            id: field.id(),
+            parameterType: field.parameterType(),
+            usage: field.usage(),
         }
 
         return result;
@@ -397,15 +393,11 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional: field.positional(),
-            keyAttribute:field.keyAttribute()
+            keyAttribute:field.keyAttribute(),
+            id: field.id(),
+            parameterType: field.parameterType(),
+            usage: field.usage()
         };
-
-        const useOldOutputFormat : boolean = Setting.findValue(Setting.USE_OLD_OUTPUT_FORMAT);
-        if (!useOldOutputFormat){
-            result.id = field.id();
-            result.parameterType = field.parameterType();
-            result.usage = field.usage();
-        }
 
         return result;
     }
