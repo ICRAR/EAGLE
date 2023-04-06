@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import {Field} from './Field';
 import {Eagle} from './Eagle';
+import {Utils} from './Utils';
 
 export class ParameterTable {
 
@@ -159,6 +160,11 @@ export class ParameterTable {
         for (const edgeId of edgesToRemove){
             console.log("remove edge", edgeId);
             eagle.logicalGraph().removeEdgeById(edgeId);
+        }
+
+        // notify user
+        if (edgesToRemove.length > 0){
+            Utils.showNotification("Removed edges", "Removed " + edgesToRemove.length + " edge(s) made invalid by the change in port usage", "info");
         }
     }
 
