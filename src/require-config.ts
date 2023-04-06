@@ -39,7 +39,7 @@ require.config({
         "Setting": "./static/built/Setting",
         "Tutorial": "./static/built/Tutorial",
         "tutorials/quickStart": "./static/built/tutorials/quickStart",
-        "tutorials/testTut": "./static/built/tutorials/testTut",
+        "tutorials/graphCreation": "./static/built/tutorials/graphCreation",
         "SideWindow": "./static/built/SideWindow",
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
         "PaletteInfo": "./static/built/PaletteInfo",
