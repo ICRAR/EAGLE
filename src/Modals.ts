@@ -280,7 +280,6 @@ export class Modals {
 
             // extract field data from HTML elements
             const id : string = Utils.uuidv4();
-            const idText : string = $('#editFieldModalIdTextInput').val().toString();
             const displayText : string = $('#editFieldModalDisplayTextInput').val().toString();
 
             // only one of these three ui elements contains the "real" value,
@@ -364,10 +363,6 @@ export class Modals {
 
             // re-validate, given the new type
             Modals._validateFieldModalValueInputText();
-        });
-        // add some validation of the idText
-        $('#editFieldModalIdTextInput').on('keyup', function(){
-            Modals._validateFieldModalIdText();
         });
 
         // add some validation to the value entry field
@@ -464,13 +459,6 @@ export class Modals {
 
             eagle.checkGraph();
         });
-    }
-
-    static _validateFieldModalIdText(){
-        const idText: string = $('#editFieldModalIdTextInput').val().toString();
-        const isValid = Utils.validateIdText(idText);
-
-        Modals._setValidClasses('#editFieldModalIdTextInput', isValid);
     }
 
     static _validateFieldModalValueInputText(){

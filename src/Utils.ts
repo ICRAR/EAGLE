@@ -40,7 +40,6 @@ import {Palette} from './Palette';
 import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
-import {ParameterTable} from './ParameterTable';
 import {FileInfo} from "./FileInfo";
 
 export class Utils {
@@ -722,7 +721,6 @@ export class Utils {
 
         // populate UI with current field data
         $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
-        $('#editFieldModalIdTextInput').val(field.getIdText());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputNumber').val(field.getValue());
         $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
@@ -1020,7 +1018,7 @@ export class Utils {
             for (const port of srcNode.getOutputPorts()){
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
-                    text: port.getIdText(),
+                    text: port.getDisplayText(),
                     selected: edge.getSrcPortId() === port.getId()
                 }));
             }
@@ -1078,7 +1076,7 @@ export class Utils {
             for (const port of destNode.getInputPorts()){
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
-                    text: port.getIdText(),
+                    text: port.getDisplayText(),
                     selected: edge.getDestPortId() === port.getId()
                 }));
             }
@@ -1099,14 +1097,14 @@ export class Utils {
                 // add input port names into the list
                 for (const port of node.getInputPorts()) {
                     if (!port.getIsEvent()){
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // add output port names into the list
                 for (const port of node.getOutputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1117,14 +1115,14 @@ export class Utils {
             // add input port names into the list
             for (const port of node.getInputPorts()) {
                 if (!port.getIsEvent()){
-                    Utils._addPortIfUnique(uniquePorts, port.clone());
+                    Utils._addFieldIfUnique(uniquePorts, port.clone());
                 }
             }
 
             // add output port names into the list
             for (const port of node.getOutputPorts()) {
                 if (!port.getIsEvent()) {
-                    Utils._addPortIfUnique(uniquePorts, port.clone());
+                    Utils._addFieldIfUnique(uniquePorts, port.clone());
                 }
             }
 
@@ -1133,14 +1131,14 @@ export class Utils {
                 // input ports
                 for (const port of node.getInputApplication().getInputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getInputApplication().getOutputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1150,14 +1148,14 @@ export class Utils {
                 // input ports
                 for (const port of node.getOutputApplication().getInputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getOutputApplication().getOutputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1310,19 +1308,6 @@ export class Utils {
         return result;
     }
 
-    private static _addPortIfUnique = (ports : Field[], port: Field) : void => {
-
-        // check if the new port matches an existing port (by name and type), if so, abort
-        for (const p of ports){
-            if (p.getIdText() === port.getIdText() && p.getType() === port.getType()){
-                return;
-            }
-        }
-
-        // otherwise add the port
-        ports.push(port);
-    }
-
     static addTypeIfUnique = (types: string[], newType: string) : void => {
         for (const t of types){
             if (t === newType){
@@ -1370,7 +1355,7 @@ export class Utils {
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
         // check if the new field matches an existing field (by name and type), if so, abort
         for (const f of fields){
-            if (f.getIdText() === field.getIdText() && f.getType() === field.getType()){
+            if (f.getDisplayText() === field.getDisplayText() && f.getType() === field.getType()){
                 return;
             }
         }
@@ -2188,7 +2173,6 @@ export class Utils {
         for (const field of eagle.logicalGraph().getNodes()[nodeIndex].getFields()){
             tableData.push({
                 "id":field.getId(),
-                "idText":field.getIdText(),
                 "displayText":field.getDisplayText(),
                 "nodeKey":field.getNodeKey(),
                 "type":field.getType(),
