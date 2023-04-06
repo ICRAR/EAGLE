@@ -121,7 +121,7 @@ body {
     font-size: 9px;
     position: absolute;
     padding: 3px 4px;
-    right: 20px;
+    right: 1rem;
     top: 2px;
 }
 
@@ -2016,8 +2016,8 @@ ul.nav.navbar-nav .dropdown-item:hover{
     padding:0px 5px;
 }
 
-.closedIcon{
-    transform:rotate(270deg)
+.openIcon{
+    transform:rotate(180deg)
 }
 
 .hierarchyCollapseRotate{
@@ -2129,6 +2129,23 @@ ul.nav.navbar-nav .dropdown-item:hover{
     background: rgba(255, 255, 255, 0.171);
 }
 
+#inspectorAccordion .accordion-button::after {
+    position: absolute;
+    left: 1rem;
+}
+
+#inspectorAccordion .accordion-button {
+    padding: 5px 10px 5px 45px;
+    z-index: 0;
+    
+    color: rgb(66, 66, 66);
+    background-color: rgba(0,0,0,.03);
+}
+
+#inspectorAccordion .accordion-header{
+    position: relative !important;
+}
+
 .headerBtns button {
     background-color: transparent;
     padding:0px 4px;
@@ -2158,7 +2175,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 .nodeInspectorSubsectionTitle{
     font-size: 1rem;
-    padding-left:5px;
+    padding-left:10px;
 }
 
 .nodeInspectorButton{

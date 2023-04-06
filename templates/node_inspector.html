@@ -10,10 +10,10 @@
     <!-- /ko -->
 
     <!-- ko if: selectedNode() != null -->
-        <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: selectedNode().color}, click: inspectorState().toggleAll">
+        <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: selectedNode().color}">
             <div class="col-12 headerBtns" data-bs-placement="left" data-bind="eagleTooltip: getInspectorHeadingTooltip(selectedNode().getName(), selectedNode().getCategory(),selectedNode().description())">
-                <button type="button" class="btn btn-secondary btn-sm" data-bind="click: inspectorState().toggleAll, eagleTooltip: 'Expand/Collapse All'">
-                    <i class="material-icons md-24" data-bind="css:{closedIcon: inspectorState().all}">keyboard_arrow_down</i>
+                <button type="button" id="inspectorCollapseStateIcon" class="btn btn-secondary btn-sm" data-bind="click: $root.inspectorToggleAll, eagleTooltip: 'Expand/Collapse All'" data-html="true">
+                    <i class="material-icons md-24" >keyboard_arrow_down</i>
                 </button>
                 <span data-bind="text: selectedNode().getName()"></span>
             </div>
@@ -82,47 +82,49 @@
             </div>
         </div>
 
-        <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
-        {% include 'node_inspector_description.html' %}
-        <!-- /ko -->
+        <div class="accordion" id="inspectorAccordion">
+            <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
+            {% include 'node_inspector_description.html' %}
+            <!-- /ko -->
 
-        {% include 'node_inspector_display_options.html' %}
+            {% include 'node_inspector_display_options.html' %}
 
-        <!-- ko if: selectedNode().canHaveComponentParameters() -->
-        {% include 'node_inspector_parameters.html' %}
-        <!-- /ko -->
+            <!-- ko if: selectedNode().canHaveComponentParameters() -->
+            {% include 'node_inspector_parameters.html' %}
+            <!-- /ko -->
 
-        <!-- ko if: selectedNode().canHaveApplicationArguments() -->
-        {% include 'node_inspector_application_parameters.html' %}
-        <!-- /ko -->
+            <!-- ko if: selectedNode().canHaveApplicationArguments() -->
+            {% include 'node_inspector_application_parameters.html' %}
+            <!-- /ko -->
 
-        <!-- input application type -->
-        <!-- ko if: selectedNode().canHaveInputApplication() -->
-        {% include 'node_inspector_input_application.html' %}
-        <!-- /ko -->
+            <!-- input application type -->
+            <!-- ko if: selectedNode().canHaveInputApplication() -->
+            {% include 'node_inspector_input_application.html' %}
+            <!-- /ko -->
 
-        <!-- output application type -->
-        <!-- ko if: selectedNode().canHaveOutputApplication() -->
-        {% include 'node_inspector_output_application.html' %}
-        <!-- /ko -->
+            <!-- output application type -->
+            <!-- ko if: selectedNode().canHaveOutputApplication() -->
+            {% include 'node_inspector_output_application.html' %}
+            <!-- /ko -->
 
-        <!-- input ports area -->
-        <!-- ko if: selectedNode().canHaveInputs() -->
-        {% include 'node_inspector_inputs.html' %}
-        <!-- /ko -->
+            <!-- input ports area -->
+            <!-- ko if: selectedNode().canHaveInputs() -->
+            {% include 'node_inspector_inputs.html' %}
+            <!-- /ko -->
 
-        <!-- output ports area -->
-        <!-- ko if: selectedNode().canHaveOutputs() -->
-        {% include 'node_inspector_outputs.html' %}
-        <!-- /ko -->
+            <!-- output ports area -->
+            <!-- ko if: selectedNode().canHaveOutputs() -->
+            {% include 'node_inspector_outputs.html' %}
+            <!-- /ko -->
 
-        <!-- ko if: selectedNode().getCategory() === "Description" -->
-        {% include 'node_inspector_graph_description.html' %}
-        <!-- /ko -->
+            <!-- ko if: selectedNode().getCategory() === "Description" -->
+            {% include 'node_inspector_graph_description.html' %}
+            <!-- /ko -->
 
-        <!-- ko if: selectedNode().getCategory() === "Comment" -->
-        {% include 'node_inspector_graph_comment.html' %}
-        <!-- /ko -->
+            <!-- ko if: selectedNode().getCategory() === "Comment" -->
+            {% include 'node_inspector_graph_comment.html' %}
+            <!-- /ko -->
+        </div>
 
         <!-- ko if: Eagle.showInspectorErrorsWarnings() -->
             <div class="card pt-2" id="nodeInspectorErrorsCard">
