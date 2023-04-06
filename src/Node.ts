@@ -928,18 +928,18 @@ export class Node {
     }
 
 
-    findPortByType = (type: string, input: boolean) : Field => {
+    findPortByMatchingType = (type: string, input: boolean) : Field => {
         if (input){
             // check input ports
             for (const inputPort of this.getInputPorts()){
-                if (inputPort.getType() === type){
+                if (Utils.typesMatch(inputPort.getType(), type)){
                     return inputPort;
                 }
             }
         } else {
             // check output ports
             for (const outputPort of this.getOutputPorts()){
-                if (outputPort.getType() === type){
+                if (Utils.typesMatch(outputPort.getType(), type)){
                     return outputPort;
                 }
             }
@@ -1790,7 +1790,6 @@ export class Node {
     static toOJSPaletteJson = (node : Node) : object => {
         const result : any = {};
         const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
-        const useOldOutputFormat : boolean = Setting.findValue(Setting.USE_OLD_OUTPUT_FORMAT);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
         result.categoryType = node.categoryType();
@@ -1812,64 +1811,10 @@ export class Node {
             result.embedKey = node.embedKey();
         }
 
-        if (useOldOutputFormat){
-            // add input ports
-            result.inputPorts = [];
-            if (node.hasInputApplication()){
-                Node.copyPorts(node.inputApplication().getInputPorts(), result.inputPorts);
-            } else {
-                Node.copyPorts(node.getInputPorts(), result.inputPorts);
-            }
-
-            // add output ports
-            result.outputPorts = [];
-            if (node.hasOutputApplication()){
-                // add outputApp output ports here
-                Node.copyPorts(node.outputApplication().getOutputPorts(), result.outputPorts);
-            } else {
-                Node.copyPorts(node.getOutputPorts(), result.outputPorts);
-            }
-
-            // add input ports from the inputApplication
-            // ! should be inputApp output ports - i think !
-            result.inputLocalPorts = [];
-            if (node.hasInputApplication()){
-                for (const outputPort of node.inputApplication().getOutputPorts()){
-                    result.inputLocalPorts.push(Field.toOJSJsonPort(outputPort));
-                }
-            }
-
-            // add input ports from the outputApplication
-            // ! should be outputApp input ports - i think !
-            // ! AND       exitApp input ports - i think !
-            result.outputLocalPorts = [];
-            if (node.hasOutputApplication()){
-                for (const inputPort of node.outputApplication().getInputPorts()){
-                    result.outputLocalPorts.push(Field.toOJSJsonPort(inputPort));
-                }
-            }
-        }
-
         // add fields
         result.fields = [];
         for (const field of node.fields()){
-            if (useOldOutputFormat){
-                if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
-                    result.fields.push(Field.toOJSJson(field));
-                }
-            } else {
-                result.fields.push(Field.toOJSJson(field));
-            }
-        }
-
-        if (useOldOutputFormat){
-            // add applicationArgs
-            result.applicationArgs = [];
-            for (const field of node.fields()){
-                if (field.getParameterType() === Eagle.ParameterType.ApplicationArgument && field.getUsage() === Eagle.ParameterUsage.NoPort){
-                    result.applicationArgs.push(Field.toOJSJson(field));
-                }
-            }
+            result.fields.push(Field.toOJSJson(field));
         }
 
         // add fields from inputApplication
@@ -1918,7 +1863,6 @@ export class Node {
     static toOJSGraphJson = (node : Node) : object => {
         const result : any = {};
         const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
-        const useOldOutputFormat : boolean = Setting.findValue(Setting.USE_OLD_OUTPUT_FORMAT);
 
         result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
         result.categoryType = node.categoryType();
@@ -1952,62 +1896,10 @@ export class Node {
             result.embedKey = node.embedKey();
         }
 
-        if (useOldOutputFormat){
-            // add input ports
-            result.inputPorts = [];
-            if (node.hasInputApplication()){
-                Node.copyPorts(node.inputApplication().getInputPorts(), result.inputPorts);
-            } else {
-                Node.copyPorts(node.getInputPorts(), result.inputPorts);
-            }
-
-            // add output ports
-            result.outputPorts = [];
-            if (node.hasOutputApplication()){
-                Node.copyPorts(node.outputApplication().getOutputPorts(), result.outputPorts);
-            } else {
-                Node.copyPorts(node.getOutputPorts(), result.outputPorts);
-            }
-
-            // add input ports from the inputApplication
-            // ! should be inputApp output ports - i think !
-            result.inputLocalPorts = [];
-            if (node.hasInputApplication()){
-                for (const outputPort of node.inputApplication().getOutputPorts()){
-                    result.inputLocalPorts.push(Field.toOJSJsonPort(outputPort));
-                }
-            }
-
-            // add input ports from the outputApplication
-            // ! should be outputApp input ports - i think !
-            result.outputLocalPorts = [];
-            if (node.hasOutputApplication()){
-                for (const inputPort of node.outputApplication().getInputPorts()){
-                    result.outputLocalPorts.push(Field.toOJSJsonPort(inputPort));
-                }
-            }
-        }
-
         // add fields
         result.fields = [];
         for (const field of node.fields()){
-            if (useOldOutputFormat){
-                if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
-                    result.fields.push(Field.toOJSJson(field));
-                }
-            } else {
-                result.fields.push(Field.toOJSJson(field));
-            }
-        }
-
-        if (useOldOutputFormat){
-            // add applicationArgs
-            result.applicationArgs = [];
-            for (const field of node.fields()){
-                if (field.getParameterType() === Eagle.ParameterType.ApplicationArgument && field.getUsage() === Eagle.ParameterUsage.NoPort){
-                    result.applicationArgs.push(Field.toOJSJson(field));
-                }
-            }
+            result.fields.push(Field.toOJSJson(field));
         }
 
         // add fields from inputApplication

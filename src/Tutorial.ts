@@ -14,12 +14,14 @@ export class TutorialSystem {
     static initiateTutorial = (tutorialName: string): void => {
 
         Eagle.tutorials.forEach(function (tut) {
+
             if (tutorialName === tut.getName()) {
                 //this is the requsted tutorial
                 TutorialSystem.activeTut = tut
                 TutorialSystem.activeTutNumSteps = tut.getTutorialSteps().length
                 TutorialSystem.activeTutCurrentStepIndex = 0
                 TutorialSystem.activeTut.initiateTutStep(TutorialStep.Direction.Next)
+                TutorialSystem.addTutKeyboardShortcuts()
             }
         })
     }

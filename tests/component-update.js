@@ -30,12 +30,6 @@ test('Update components', async t =>{
         // click the 'expert' option
         .click(Selector('#settingUserInterfaceModeValue').find('option').withText('expert'))
 
-        // switch to 'developer' tab
-        .click('#settingCategoryDeveloper')
-
-        // click the 'Use Old Output Format' button
-        .click('#settingUseOldOutputFormatButton')
-
         // close settings modal
         .click('#settingsModalAffirmativeButton')
 
@@ -83,9 +77,9 @@ test('Update components', async t =>{
     await t.expect(obj2.nodeDataArray[2].fields[5].name).eql("hello", {timeout:3000});
     await t.expect(obj2.nodeDataArray[2].fields[6].name).eql("hello", {timeout:3000});
     await t.expect(obj2.nodeDataArray[2].fields[7].name).eql("bufsize", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[8].name).eql("input_error_threshold", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[9].name).eql("n_tries", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[10].name).eql("dummy", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[8].name).eql("n_tries", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[9].name).eql("dummy_in", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[10].name).eql("dummy_out", {timeout:3000});
 });
 
 const fetchGraph = (filename) => {

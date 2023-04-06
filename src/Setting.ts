@@ -65,7 +65,6 @@ export class Setting {
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
 
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
-    static readonly USE_OLD_OUTPUT_FORMAT: string = "UseOldOutputFormat"; // temp fix to prolong use of old graph format while corresponding DALiuGE changes are in progress
 
     static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
     static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
@@ -362,7 +361,6 @@ const settings : SettingsGroup[] = [
             new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true, true),
             new Setting("Skip 'closes loop' edges in JSON output", "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", Setting.Type.Boolean, Setting.SKIP_CLOSE_LOOP_EDGES, true, true),
             new Setting("Print Undo state to JS Console", "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", Setting.Type.Boolean, Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, false, true),
-            new Setting("Use Old Output Format", "Prolong use of 'old' output format, with 'inputPorts' and 'outputPorts' arrays, while corresponding changes to DALiuGE are in progress", Setting.Type.Boolean, Setting.USE_OLD_OUTPUT_FORMAT, true, true),
         ]
     )
 ];
