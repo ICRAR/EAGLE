@@ -1,11 +1,12 @@
-<div class="card">
-    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse3" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Graph Comment">
-        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().graphComment}">keyboard_arrow_down</i>
+<div class="accordion-item">
+    <h2 class="accordion-header" id="inspectorGraphCommentHeading">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inspectorGraphCommentCollapse" aria-expanded="false" aria-controls="inspectorGraphCommentCollapse" onclick="eagle.inspectorCollapseState()">
         <i class="material-icons">device_hub</i>
         <span class="nodeInspectorSubsectionTitle">Graph Comment</span>
-    </h5>
-    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse3">
-        <div class="card-body">
+      </button>
+    </h2>
+    <div id="inspectorGraphCommentCollapse" class="accordion-collapse collapse">
+        <div class="accordion-body">
             <textarea class="form-control" rows="3" data-bind="value: selectedNode().getCustomData(), readonly: selectedNode().isLocked(), event: {keyup: eagle.selectedNode().customDataChanged}"></textarea>
         </div>
     </div>

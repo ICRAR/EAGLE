@@ -234,7 +234,7 @@ test('Hello World graph', async t =>{
     await showNoteBox('A new description node is created. You can use this to enter a description of your graph.', rect, 'above', 1.3);
 
 	await t.click(Selector('#nodeInspector span').withText('Graph Description'));
-    await t.typeText('#nodeCategoryCollapse4 .form-control', "AA graph saving the output of a HelloWorldApp to disk");
+    await t.typeText('#inspectorGraphDescriptionCollapse .form-control', "AA graph saving the output of a HelloWorldApp to disk");
     await page.moveNode('#node0', 200, 800);
 
     //Note

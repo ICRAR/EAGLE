@@ -64,7 +64,7 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 newTut.newTutStep("Editing Components", "The inspector houses all the editable parameters of a node. Component parameters are .. while application arguments ... ", function(){return $("#rightWindowContainer")})        
 .setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
 
-newTut.newTutStep("Click to expand", "<em>Click to expand the application arguments section and continue.</em>", function(){return $("#nodeInspectorApplicationArgumentsHeader")})
+newTut.newTutStep("Click to expand", "<em>Click to expand the application arguments section and continue.</em>", function(){return $("#inspectorAppArgsHeading button")})
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
 

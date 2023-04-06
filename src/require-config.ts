@@ -41,7 +41,6 @@ require.config({
         "tutorials/quickStart": "./static/built/tutorials/quickStart",
         "tutorials/testTut": "./static/built/tutorials/testTut",
         "SideWindow": "./static/built/SideWindow",
-        "InspectorState": "./static/built/InspectorState",
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
         "PaletteInfo": "./static/built/PaletteInfo",
         "ExplorePalettes": "./static/built/ExplorePalettes",

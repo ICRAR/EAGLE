@@ -1,14 +1,15 @@
-<div class="card">
-    <h5 class="card-header" data-bs-toggle="collapse" id="nodeInspectorComponentParamsHeader" href="#nodeCategoryCollapse9" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Component Parameters">
-        <i class="material-icons interactive nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().componentParameters}">keyboard_arrow_down</i>
-        <i class="material-icons">archive</i>
-        <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Wrapper parameters describing this component for the DALiuGE system.'">Component Parameters</span>
-    </h5>
-    <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind=" click: function(data, event){openParamsTableModal('inspectorTableModal','normal')}, clickBubble: false, eagleTooltip: 'Open Component Parameters in Table ' + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)">
-        <i class="material-icons md-18">table_chart</i>
-    </button>
-    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse9">
-        <div class="card-body" >
+<div class="accordion-item">
+    <h2 class="accordion-header" id="inspectorComponentParamsHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inspectorComponentParamsCollapse" aria-expanded="false" aria-controls="inspectorComponentParamsCollapse" onclick="eagle.inspectorCollapseState()">
+            <i class="material-icons">archive</i>
+            <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Wrapper parameters describing this component for the DALiuGE system.'">Component Parameters</span>
+        </button>
+        <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind=" click: function(data, event){openParamsTableModal('inspectorTableModal','normal')}, clickBubble: false, eagleTooltip: 'Open Component Parameters in Table ' + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)">
+            <i class="material-icons md-18">table_chart</i>
+        </button>
+    </h2>
+    <div id="inspectorComponentParamsCollapse" class="accordion-collapse collapse">
+        <div class="accordion-body">
             <div class="searchBarContainer">
                 <i class="material-icons md-18 searchBarIcon">search</i>
                 <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.componentParamsSearchString,data,event)}">
