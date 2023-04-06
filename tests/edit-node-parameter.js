@@ -54,10 +54,10 @@ test('Edit node parameter', async t =>{
         .click(Selector('h5.card-header[href="#nodeCategoryCollapse9"]'))
 
         // edit first parameter in the node inspector
-        .typeText(Selector('#field4'), DUMMY_VALUE, {replace: true})
+        .typeText(Selector('#field1'), DUMMY_VALUE, {replace: true})
 
         // check that first parameter was updated
-        .expect(Selector("#field4").value).eql(DUMMY_VALUE)
+        .expect(Selector("#field1").value).eql(DUMMY_VALUE)
 
         // end
         .wait(3000);
