@@ -3,7 +3,7 @@ import {Eagle} from '../Eagle';
 import {InspectorState} from '../InspectorState';
 
 
-const newTut = TutorialSystem.newTutorial('Graph Creation Tutorial', 'This tutorial is for testing purposes.')
+const newTut = TutorialSystem.newTutorial('Graph Creation', 'This tutorial is for testing purposes.')
 
 newTut.newTutStep("Welcome to the Hello World tutorial!", "You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", function(){return $("#logicalGraphParent")})
 
@@ -65,6 +65,7 @@ newTut.newTutStep("Editing Components", "The inspector houses all the editable p
 .setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
 
 newTut.newTutStep("Click to expand", "<em>Click to expand the application arguments section and continue.</em>", function(){return $("#inspectorAppArgsHeading button")})
+.setBackPreFunction(function(){$("#inspectorAppArgsHeading button").click()})
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
 
