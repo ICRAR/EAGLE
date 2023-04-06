@@ -23,10 +23,6 @@
 */
 
 export class Daliuge {
-    static readonly PARAMETER_NAME_APPLICATION_CLASS: string = "Application Class";
-    static readonly PARAMETER_NAME_DATA_VOLUME: string = "Data volume";
-
-
     // automatically loaded palettes
     static readonly PALETTE_URL : string  = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette";
     static readonly TEMPLATE_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master-template.palette";
