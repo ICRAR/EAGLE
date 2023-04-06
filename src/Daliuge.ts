@@ -25,60 +25,7 @@
 export class Daliuge {
     static readonly PARAMETER_NAME_APPLICATION_CLASS: string = "Application Class";
     static readonly PARAMETER_NAME_DATA_VOLUME: string = "Data volume";
-    static readonly PARAMETER_NAME_EXECUTION_TIME: string = "Execution Time";
-    static readonly PARAMETER_NAME_GROUP_START: string = "Group start";
-    static readonly PARAMETER_NAME_GROUP_END: string = "Group end";
 
-    static readonly PARAMETER_NAME_INPUT_ERROR_RATE: string = "Input error rate (%)";
-    static readonly PARAMETER_NAME_NUM_OF_COPIES: string = "No. of copies";
-    static readonly PARAMETER_NAME_NUM_OF_CPUS: string = "No. of CPUs";
-    static readonly PARAMETER_NAME_NUM_OF_INPUTS: string = "No. of inputs";
-    static readonly PARAMETER_NAME_NUM_OF_ITERATIONS: string = "No. of iterations";
-    static readonly PARAMETER_NAME_NUM_OF_TRIES: string = "No. of tries";
-
-    static readonly PARAMETER_NAME_STREAMING: string = "Streaming";
-    static readonly PARAMETER_NAME_PERSIST: string = "Persist";
-    
-    static readonly PARAMETER_NAME_M: string = "M";
-    static readonly PARAMETER_NAME_K: string = "K";
-    static readonly PARAMETER_NAME_N: string = "N";
-
-    static readonly PARAMETER_NAME_BASENAME: string = "Basename"; // used in PythonMemberFunction components to specify base Python class
-    static readonly PARAMETER_NAME_SELF: string = "Self"; // also PythonMemberFunction
-
-    // docker
-    static readonly PARAMETER_NAME_IMAGE: string = "Image";
-    static readonly PARAMETER_NAME_TAG: string = "Tag";
-    static readonly PARAMETER_NAME_DIGEST: string = "Digest";
-
-    static readonly PARAMETER_NAMES: string[] = [
-        this.PARAMETER_NAME_APPLICATION_CLASS,
-        this.PARAMETER_NAME_DATA_VOLUME,
-        this.PARAMETER_NAME_EXECUTION_TIME,
-        this.PARAMETER_NAME_GROUP_START,
-        this.PARAMETER_NAME_GROUP_END,
-
-        this.PARAMETER_NAME_INPUT_ERROR_RATE,
-        this.PARAMETER_NAME_NUM_OF_CPUS,
-        this.PARAMETER_NAME_NUM_OF_COPIES,
-        this.PARAMETER_NAME_NUM_OF_INPUTS,
-        this.PARAMETER_NAME_NUM_OF_TRIES,
-        this.PARAMETER_NAME_NUM_OF_ITERATIONS,
-
-        this.PARAMETER_NAME_STREAMING,
-        this.PARAMETER_NAME_PERSIST,
-        
-        this.PARAMETER_NAME_M,
-        this.PARAMETER_NAME_K,
-        this.PARAMETER_NAME_N,
-
-        this.PARAMETER_NAME_BASENAME,
-        this.PARAMETER_NAME_SELF,
-
-        this.PARAMETER_NAME_IMAGE,
-        this.PARAMETER_NAME_TAG,
-        this.PARAMETER_NAME_DIGEST
-    ];
 
     // automatically loaded palettes
     static readonly PALETTE_URL : string  = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette";
@@ -86,4 +33,36 @@ export class Daliuge {
 
     // schemas
     static readonly GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg/dropmake/lg.graph.schema";
+}
+
+export namespace Daliuge {
+    export enum ParameterNames {
+        APPLICATION_CLASS = "Application Class",
+        DATA_VOLUME = "Data volume",
+        EXECUTION_TIME = "Execution Time",
+        GROUP_START = "Group start",
+        GROUP_END = "Group end",
+    
+        INPUT_ERROR_RATE = "Input error rate (%)",
+        NUM_OF_COPIES = "No. of copies",
+        NUM_OF_CPUS = "No. of CPUs",
+        NUM_OF_INPUTS = "No. of inputs",
+        NUM_OF_ITERATIONS = "No. of iterations",
+        NUM_OF_TRIES = "No. of tries",
+    
+        STREAMING = "Streaming",
+        PERSIST = "Persist",
+        
+        M = "M",
+        K = "K",
+        N = "N",
+    
+        BASENAME = "Basename", // used in PythonMemberFunction components to specify base Python class
+        SELF = "Self", // also PythonMemberFunction
+    
+        // docker
+        IMAGE = "Image",
+        TAG = "Tag",
+        DIGEST = "Digest"
+    }
 }

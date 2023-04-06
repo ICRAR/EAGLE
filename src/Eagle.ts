@@ -2281,11 +2281,11 @@ export class Eagle {
 
         this.checkGraph();
 
-        const groupStartValue = destNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_GROUP_START).getValue();
-        const groupEndValue = sourceNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_GROUP_END).getValue();
+        const groupStartValue = destNode.getFieldByDisplayText(Daliuge.ParameterNames.GROUP_START).getValue();
+        const groupEndValue = sourceNode.getFieldByDisplayText(Daliuge.ParameterNames.GROUP_END).getValue();
         Utils.showNotification(
             "Toggle edge closes loop",
-            "Node " + sourceNode.getName() + " component parameter '" + Daliuge.PARAMETER_NAME_GROUP_END + "' set to " + groupEndValue + ". Node " + destNode.getName() + " component parameter '" + Daliuge.PARAMETER_NAME_GROUP_START + "' set to " + groupStartValue + ".", "success"
+            "Node " + sourceNode.getName() + " component parameter '" + Daliuge.ParameterNames.GROUP_END + "' set to " + groupEndValue + ". Node " + destNode.getName() + " component parameter '" + Daliuge.ParameterNames.GROUP_START + "' set to " + groupStartValue + ".", "success"
         );
 
         this.selectedObjects.valueHasMutated();
@@ -3074,16 +3074,16 @@ export class Eagle {
                     pythonObjectNode.setParentKey(newNode.getParentKey());
 
                     // copy PythonMemberFunction node's 'basename' field to the PythonObject node
-                    const basenameField: Field = newNode.findFieldByDisplayText(Daliuge.PARAMETER_NAME_BASENAME, Eagle.ParameterType.ApplicationArgument);
+                    const basenameField: Field = newNode.findFieldByDisplayText(Daliuge.ParameterNames.BASENAME, Eagle.ParameterType.ApplicationArgument);
                     if (basenameField !== null){
                         pythonObjectNode.setName(basenameField.getValue());
                         pythonObjectNode.addField(basenameField.clone());
                     } else {
-                        Utils.showNotification("Python Object", "Unable to set " + Daliuge.PARAMETER_NAME_BASENAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
+                        Utils.showNotification("Python Object", "Unable to set " + Daliuge.ParameterNames.BASENAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
                     }
 
                     // find the "self" port on the PythonMemberFunction
-                    const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.PARAMETER_NAME_SELF, false, false);
+                    const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.ParameterNames.SELF, false, false);
 
                     // make sure node has input/output "self" port
                     const inputOutputPort = new Field(Utils.uuidv4(), "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputOutput, false);
@@ -3274,9 +3274,9 @@ export class Eagle {
                         const selectedNode = that.selectedNode();
 
                         // get references to image, tag and digest fields in this component
-                        const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_IMAGE);
-                        const tagField:    Field = selectedNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_TAG);
-                        const digestField: Field = selectedNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_DIGEST);
+                        const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.ParameterNames.IMAGE);
+                        const tagField:    Field = selectedNode.getFieldByDisplayText(Daliuge.ParameterNames.TAG);
+                        const digestField: Field = selectedNode.getFieldByDisplayText(Daliuge.ParameterNames.DIGEST);
 
                         // set values for the fields
                         if (imageField !== null){

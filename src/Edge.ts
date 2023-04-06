@@ -471,13 +471,13 @@ export class Edge {
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
-            if (!sourceNode.hasFieldWithDisplayText(Daliuge.PARAMETER_NAME_GROUP_END) || !Utils.asBool(sourceNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_GROUP_END).getValue())){
-                const x = Errors.Show("'Closes Loop' Edge (" + edgeId + ") start node (" + sourceNode.getName() + ") does not have '" + Daliuge.PARAMETER_NAME_GROUP_END + "' set to true.", function(){Utils.showEdge(eagle, edgeId);});
+            if (!sourceNode.hasFieldWithDisplayText(Daliuge.ParameterNames.GROUP_END) || !Utils.asBool(sourceNode.getFieldByDisplayText(Daliuge.ParameterNames.GROUP_END).getValue())){
+                const x = Errors.Show("'Closes Loop' Edge (" + edgeId + ") start node (" + sourceNode.getName() + ") does not have '" + Daliuge.ParameterNames.GROUP_END + "' set to true.", function(){Utils.showEdge(eagle, edgeId);});
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
-            if (!destinationNode.hasFieldWithDisplayText(Daliuge.PARAMETER_NAME_GROUP_START) || !Utils.asBool(destinationNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_GROUP_START).getValue())){
-                const x = Errors.Show("'Closes Loop' Edge (" + edgeId + ") end node (" + destinationNode.getName() + ") does not have '" + Daliuge.PARAMETER_NAME_GROUP_START + "' set to true.", function(){Utils.showEdge(eagle, edgeId);});
+            if (!destinationNode.hasFieldWithDisplayText(Daliuge.ParameterNames.GROUP_START) || !Utils.asBool(destinationNode.getFieldByDisplayText(Daliuge.ParameterNames.GROUP_START).getValue())){
+                const x = Errors.Show("'Closes Loop' Edge (" + edgeId + ") end node (" + destinationNode.getName() + ") does not have '" + Daliuge.ParameterNames.GROUP_START + "' set to true.", function(){Utils.showEdge(eagle, edgeId);});
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
         }

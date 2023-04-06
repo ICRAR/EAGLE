@@ -289,7 +289,7 @@ export class Field {
     }, this);
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Daliuge.PARAMETER_NAMES.indexOf(this.displayText()) > -1;
+        return Object.values<string>(Daliuge.ParameterNames).includes(this.displayText());
     }, this);
 
     getHtmlInputType = () : string => {

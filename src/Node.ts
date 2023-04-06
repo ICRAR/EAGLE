@@ -332,7 +332,7 @@ export class Node {
     }
 
     isStreaming = () : boolean => {
-        const streamingField = this.findFieldByDisplayText(Daliuge.PARAMETER_NAME_STREAMING, Eagle.ParameterType.ComponentParameter);
+        const streamingField = this.findFieldByDisplayText(Daliuge.ParameterNames.STREAMING, Eagle.ParameterType.ComponentParameter);
 
         if (streamingField !== null){
             return streamingField.valIsTrue(streamingField.getValue());
@@ -342,7 +342,7 @@ export class Node {
     }
 
     isPersist = () : boolean => {
-        const persistField = this.findFieldByDisplayText(Daliuge.PARAMETER_NAME_PERSIST, Eagle.ParameterType.ComponentParameter);
+        const persistField = this.findFieldByDisplayText(Daliuge.ParameterNames.PERSIST, Eagle.ParameterType.ComponentParameter);
 
         if (persistField !== null){
             return persistField.valIsTrue(persistField.getValue());
@@ -1006,18 +1006,18 @@ export class Node {
     }
 
     setGroupStart = (value: boolean) => {
-        if (!this.hasFieldWithDisplayText(Daliuge.PARAMETER_NAME_GROUP_START)){
-            this.addField(new Field(Utils.uuidv4(), Daliuge.PARAMETER_NAME_GROUP_START, value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
+        if (!this.hasFieldWithDisplayText(Daliuge.ParameterNames.GROUP_START)){
+            this.addField(new Field(Utils.uuidv4(), Daliuge.ParameterNames.GROUP_START, value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
         } else {
-            this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_GROUP_START).setValue(value.toString());
+            this.getFieldByDisplayText(Daliuge.ParameterNames.GROUP_START).setValue(value.toString());
         }
     }
 
     setGroupEnd = (value: boolean) => {
-        if (!this.hasFieldWithDisplayText(Daliuge.PARAMETER_NAME_GROUP_END)){
-            this.addField(new Field(Utils.uuidv4(), Daliuge.PARAMETER_NAME_GROUP_END, value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
+        if (!this.hasFieldWithDisplayText(Daliuge.ParameterNames.GROUP_END)){
+            this.addField(new Field(Utils.uuidv4(), Daliuge.ParameterNames.GROUP_END, value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
         } else {
-            this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_GROUP_END).setValue(value.toString());
+            this.getFieldByDisplayText(Daliuge.ParameterNames.GROUP_END).setValue(value.toString());
         }
     }
 
@@ -1142,7 +1142,7 @@ export class Node {
 
     getInputMultiplicity = () : number => {
         if (this.isMKN()){
-            const m : Field = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_M);
+            const m : Field = this.getFieldByDisplayText(Daliuge.ParameterNames.M);
 
             if (m === null){
                 console.warn("Unable to determine input multiplicity of MKN, no 'm' field. Using default value (1).");
@@ -1153,7 +1153,7 @@ export class Node {
         }
 
         if (this.isGather()){
-            const numInputs : Field = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_NUM_OF_INPUTS);
+            const numInputs : Field = this.getFieldByDisplayText(Daliuge.ParameterNames.NUM_OF_INPUTS);
 
             if (numInputs === null){
                 console.warn("Unable to determine input multiplicity of Gather, no 'num_of_inputs' field. Using default value (1).");
@@ -1168,7 +1168,7 @@ export class Node {
 
     getOutputMultiplicity = () : number => {
         if (this.isMKN()){
-            const n : Field = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_N);
+            const n : Field = this.getFieldByDisplayText(Daliuge.ParameterNames.N);
 
             if (n === null){
                 console.warn("Unable to determine output multiplicity of MKN, no 'n' field. Using default value (1).");
@@ -1179,7 +1179,7 @@ export class Node {
         }
 
         if (this.isScatter()){
-            const numCopies : Field = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_NUM_OF_COPIES);
+            const numCopies : Field = this.getFieldByDisplayText(Daliuge.ParameterNames.NUM_OF_COPIES);
 
             if (numCopies === null){
                 console.warn("Unable to determine output multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
@@ -1194,7 +1194,7 @@ export class Node {
 
     getLocalMultiplicity = () : number => {
         if (this.isMKN()){
-            const k : Field = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_K);
+            const k : Field = this.getFieldByDisplayText(Daliuge.ParameterNames.K);
 
             if (k === null){
                 console.warn("Unable to determine local multiplicity of MKN, no 'k' field. Using default value (1).");
@@ -1205,7 +1205,7 @@ export class Node {
         }
 
         if (this.isScatter()){
-            const numCopies = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_NUM_OF_COPIES);
+            const numCopies = this.getFieldByDisplayText(Daliuge.ParameterNames.NUM_OF_COPIES);
 
             if (numCopies === null){
                 console.warn("Unable to determine local multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
@@ -1221,7 +1221,7 @@ export class Node {
         }
 
         if (this.isLoop()){
-            const numIter = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_NUM_OF_ITERATIONS);
+            const numIter = this.getFieldByDisplayText(Daliuge.ParameterNames.NUM_OF_ITERATIONS);
 
             if (numIter === null){
                 console.warn("Unable to determine local multiplicity of Loop, no 'num_of_iter' field. Using default value (1).");
@@ -1575,13 +1575,13 @@ export class Node {
 
         // handle obsolete 'precious' attribute, add it as a 'persist' field
         if (typeof nodeData.precious !== 'undefined'){
-            const preciousField = new Field(Utils.uuidv4(), Daliuge.PARAMETER_NAME_PERSIST, nodeData.precious.toString(), "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+            const preciousField = new Field(Utils.uuidv4(), Daliuge.ParameterNames.PERSIST, nodeData.precious.toString(), "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
             node.addField(preciousField);
         }
 
         // handle obsolete 'streaming' attribute, add it as a 'streaming' field
         if (typeof nodeData.streaming !== 'undefined'){
-            const streamingField = new Field(Utils.uuidv4(), Daliuge.PARAMETER_NAME_STREAMING, nodeData.streaming.toString(), "false", "Specifies whether this data component streams input and output data", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+            const streamingField = new Field(Utils.uuidv4(), Daliuge.ParameterNames.STREAMING, nodeData.streaming.toString(), "false", "Specifies whether this data component streams input and output data", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
             node.addField(streamingField);
         }
 
