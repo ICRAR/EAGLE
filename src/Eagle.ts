@@ -46,7 +46,6 @@ import {Setting, SettingsGroup} from './Setting';
 import {Tutorial, TutorialStep, tutorialArray} from './Tutorial';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
-import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {Hierarchy} from './Hierarchy';
 import {Undo} from './Undo';
@@ -79,8 +78,6 @@ export class Eagle {
     globalOffsetX : number;
     globalOffsetY : number;
     globalScale : number;
-
-    inspectorState : ko.Observable<InspectorState>;
 
     rendererFrameDisplay : ko.Observable<string>;
     rendererFrameMax : number;
@@ -156,8 +153,6 @@ export class Eagle {
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
-
-        this.inspectorState = ko.observable(new InspectorState());
 
         this.rendererFrameDisplay = ko.observable("");
         this.rendererFrameMax = 0;
@@ -636,9 +631,6 @@ export class Eagle {
                 this.rightWindow().mode(Eagle.RightWindowMode.Inspector)
             }
         }
-
-        // update the display of all the sections of the node inspector (collapse/expand as appropriate)
-        this.inspectorState().updateAllInspectorSections();
     }
 
     editSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
