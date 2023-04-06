@@ -2016,8 +2016,8 @@ ul.nav.navbar-nav .dropdown-item:hover{
     padding:0px 5px;
 }
 
-.closedIcon{
-    transform:rotate(270deg)
+.openIcon{
+    transform:rotate(180deg)
 }
 
 .hierarchyCollapseRotate{

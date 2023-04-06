@@ -11,7 +11,10 @@
 
     <!-- ko if: selectedNode() != null -->
         <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: selectedNode().color}">
-            <div class="col-12 headerBtns" data-bs-placement="left" data-bind="eagleTooltip: getInspectorHeadingTooltip(selectedNode().getName(), selectedNode().getCategory(),selectedNode().description()),click: $root.inspectorToggleAll">
+            <div class="col-12 headerBtns" data-bs-placement="left" data-bind="eagleTooltip: getInspectorHeadingTooltip(selectedNode().getName(), selectedNode().getCategory(),selectedNode().description())">
+                <button type="button" id="inspectorCollapseStateIcon" class="btn btn-secondary btn-sm" data-bind="click: $root.inspectorToggleAll, eagleTooltip: 'Expand/Collapse All'" data-html="true">
+                    <i class="material-icons md-24" >keyboard_arrow_down</i>
+                </button>
                 <span data-bind="text: selectedNode().getName()"></span>
             </div>
             <div class="col-12 headerBtns" id="inspectorHeaderIconRow">
