@@ -219,18 +219,17 @@ export class ParameterTable {
 
     static initiateResizableColumns = (upId:string) : void => {
         //need this oen initially to set the mousedown handler
-            var upcol = $('#'+upId)[0]
-            var upresizer = $(upcol).find('div')
+            let upcol: HTMLElement = $('#'+upId)[0]
+            let upresizer: JQuery<HTMLElement> = $(upcol).find('div')
 
-            var downcol:any
-            var downresizer:any
+            let downcol: HTMLElement
+            let downresizer: JQuery<HTMLElement>
 
-            var tableWidth:any
+            let tableWidth: number
 
             // Track the current position of mouse
             let x = 0;
             let upW = 0;
-
             let downW = 0;
 
             const mouseDownHandler = function (e:any) {
@@ -265,8 +264,8 @@ export class ParameterTable {
                 const dx = e.clientX - x;
 
                 //converting these new px values into percentages
-                let newUpWidth = ((upW + dx)/tableWidth)*100
-                let newDownWidth = ((downW - dx)/tableWidth)*100
+                const newUpWidth: number = ((upW + dx)/tableWidth)*100
+                const newDownWidth: number = ((downW - dx)/tableWidth)*100
 
                 // Update the width of column
                 upcol.style.width = `${newUpWidth}%`;
