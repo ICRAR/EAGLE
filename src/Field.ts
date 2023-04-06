@@ -3,11 +3,9 @@ import * as ko from "knockout";
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {Config} from './Config';
-import {Setting} from './Setting';
 
 export class Field {
-    private displayText : ko.Observable<string>; // external user-facing name
-    private idText : ko.Observable<string>; // internal no-whitespace name
+    private displayText : ko.Observable<string>; // user-facing name
     private value : ko.Observable<string>; // the current value
     private defaultValue : ko.Observable<string>;  // default value
     private description : ko.Observable<string>;
@@ -25,9 +23,8 @@ export class Field {
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
-    constructor(id: string, displayText: string, idText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage, keyAttribute: boolean){
+    constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
-        this.idText = ko.observable(idText);
         this.value = ko.observable(value);
         this.defaultValue = ko.observable(defaultValue);
         this.description = ko.observable(description);
@@ -59,14 +56,6 @@ export class Field {
 
     setDisplayText = (displayText: string): void => {
         this.displayText(displayText);
-    }
-
-    getIdText = () : string => {
-        return this.idText();
-    }
-
-    setIdText = (name: string): void => {
-        this.idText(name);
     }
 
     getValue = () : string => {
@@ -203,7 +192,6 @@ export class Field {
 
     clear = () : void => {
         this.displayText("");
-        this.idText("");
         this.value("");
         this.defaultValue("");
         this.description("");
@@ -222,7 +210,7 @@ export class Field {
     }
 
     clone = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.idText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
+        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
         return f;
     }
@@ -241,7 +229,6 @@ export class Field {
 
     copyWithKeyAndId = (src: Field, nodeKey: number, id: string) : void => {
         this.displayText(src.displayText());
-        this.idText(src.idText());
         this.value(src.value());
         this.defaultValue(src.defaultValue());
         this.description(src.description());
@@ -302,7 +289,7 @@ export class Field {
     }, this);
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.idText()) > -1;
+        return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.displayText()) > -1;
     }, this);
 
     getHtmlInputType = () : string => {
@@ -363,7 +350,6 @@ export class Field {
     static toOJSJson = (field : Field) : object => {
         const result : any = {
             text:field.displayText(),
-            name:field.idText(),
             value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
@@ -384,7 +370,6 @@ export class Field {
     static toV3Json = (field : Field) : object => {
         const result : any =  {
             text:field.displayText(),
-            name:field.idText(),
             value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
@@ -405,7 +390,6 @@ export class Field {
     static toOJSJsonPort = (field : Field) : object => {
         return {
             Id:field.id(),
-            IdText:field.idText(),
             text:field.displayText(),
             event:field.isEvent(),
             type:field.type(),
@@ -417,7 +401,6 @@ export class Field {
     static fromOJSJson = (data : any) : Field => {
         let id: string = Utils.uuidv4();
         let text: string = "";
-        let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
         let type: string = Eagle.DataType_Unknown;
@@ -435,8 +418,6 @@ export class Field {
             id = data.id;
         if (typeof data.text !== 'undefined')
             text = data.text;
-        if (typeof data.name !== 'undefined')
-            name = data.name;
         if (typeof data.description !== 'undefined')
             description = data.description;
         if (typeof data.readonly !== 'undefined')
@@ -493,7 +474,7 @@ export class Field {
             event = data.event;
         if (typeof data.keyAttribute !== 'undefined')
             keyAttribute = data.keyAttribute;
-        const result = new Field(id, text, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
+        const result = new Field(id, text, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
         result.setIsEvent(isEvent);
         return result;
     }
@@ -521,16 +502,16 @@ export class Field {
             text = data.IdText;
         }
      
-        const f = new Field(data.Id, text, data.IdText, "", "", description, false, type, false, [], false, Eagle.ParameterType.Unknown, Eagle.ParameterUsage.NoPort, keyAttribute);
+        const f = new Field(data.Id, text, "", "", description, false, type, false, [], false, Eagle.ParameterType.Unknown, Eagle.ParameterUsage.NoPort, keyAttribute);
         f.setIsEvent(event);
         return f;
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {
-        if (a.idText() < b.idText())
+        if (a.displayText() < b.displayText())
             return -1;
 
-        if (a.idText() > b.idText())
+        if (a.displayText() > b.displayText())
             return 1;
 
         if (a.type() < b.type())

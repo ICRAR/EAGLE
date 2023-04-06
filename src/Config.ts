@@ -28,13 +28,13 @@ export class Config {
     static readonly paletteNodeWidth : number = 130;
 
     static readonly DALIUGE_PARAMETER_NAMES = [
-        "data_volume",
-        "execution_time",
-        "num_cpus",
-        "group_start",
-        "group_end",
-        "input_error_threshold",
-        "n_tries"
+        "Data volume",
+        "Execution time",
+        "No. of CPUs",
+        "Group start",
+        "Group end",
+        "Input error rate (%)",
+        "Number of tries"
     ];
 
     static readonly defaultRightWindowWidth : number = 400;
