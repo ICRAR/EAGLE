@@ -41,12 +41,20 @@ export class Daliuge {
     static readonly PARAMETER_NAME_K: string = "K";
     static readonly PARAMETER_NAME_N: string = "N";
 
+    static readonly PARAMETER_NAME_BASENAME: string = "Basename"; // used in PythonMemberFunction components to specify base Python class
+    static readonly PARAMETER_NAME_SELF: string = "Self"; // also PythonMemberFunction
+
+    // docker
+    static readonly PARAMETER_NAME_IMAGE: string = "Image";
+    static readonly PARAMETER_NAME_TAG: string = "Tag";
+    static readonly PARAMETER_NAME_DIGEST: string = "Digest";
+
     static readonly PARAMETER_NAMES: string[] = [
         this.PARAMETER_NAME_DATA_VOLUME,
         this.PARAMETER_NAME_EXECUTION_TIME,
         this.PARAMETER_NAME_GROUP_START,
         this.PARAMETER_NAME_GROUP_END,
-        
+
         "Input error rate (%)",
         this.PARAMETER_NAME_NUM_OF_CPUS,
         this.PARAMETER_NAME_NUM_OF_COPIES,
@@ -58,7 +66,14 @@ export class Daliuge {
         
         this.PARAMETER_NAME_M,
         this.PARAMETER_NAME_K,
-        this.PARAMETER_NAME_N
+        this.PARAMETER_NAME_N,
+
+        this.PARAMETER_NAME_BASENAME,
+        this.PARAMETER_NAME_SELF,
+
+        this.PARAMETER_NAME_IMAGE,
+        this.PARAMETER_NAME_TAG,
+        this.PARAMETER_NAME_DIGEST
     ];
 
     // automatically loaded palettes

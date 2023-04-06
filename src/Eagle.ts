@@ -35,6 +35,7 @@ import {RepositoryFile} from './RepositoryFile';
 import {Translator} from './Translator';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
+import {Daliuge} from './Daliuge';
 
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
@@ -2279,7 +2280,13 @@ export class Eagle {
         destNode.setGroupStart(this.selectedEdge().isClosesLoop());
 
         this.checkGraph();
-        Utils.showNotification("Toggle edge closes loop", "Node " + sourceNode.getName() + " component parameter 'group_end' set to " + sourceNode.getFieldByIdText("group_end").getValue() + ". Node " + destNode.getName() + " component parameter 'group_start' set to " + destNode.getFieldByIdText("group_start").getValue() + ".", "success");
+
+        const groupStartValue = destNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_GROUP_START).getValue();
+        const groupEndValue = sourceNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_GROUP_END).getValue();
+        Utils.showNotification(
+            "Toggle edge closes loop",
+            "Node " + sourceNode.getName() + " component parameter '" + Daliuge.PARAMETER_NAME_GROUP_END + "' set to " + groupEndValue + ". Node " + destNode.getName() + " component parameter '" + Daliuge.PARAMETER_NAME_GROUP_START + "' set to " + groupStartValue + ".", "success"
+        );
 
         this.selectedObjects.valueHasMutated();
         this.logicalGraph.valueHasMutated();
@@ -3067,20 +3074,19 @@ export class Eagle {
                     pythonObjectNode.setParentKey(newNode.getParentKey());
 
                     // copy PythonMemberFunction node's 'basename' field to the PythonObject node
-                    const FIELD_NAME = 'basename';
-                    const basenameField: Field = newNode.findFieldByIdText(FIELD_NAME, Eagle.ParameterType.ApplicationArgument);
+                    const basenameField: Field = newNode.findFieldByDisplayText(Daliuge.PARAMETER_NAME_BASENAME, Eagle.ParameterType.ApplicationArgument);
                     if (basenameField !== null){
                         pythonObjectNode.setName(basenameField.getValue());
                         pythonObjectNode.addField(basenameField.clone());
                     } else {
-                        Utils.showNotification("Python Object", "Unable to set " + FIELD_NAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
+                        Utils.showNotification("Python Object", "Unable to set " + Daliuge.PARAMETER_NAME_BASENAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
                     }
 
                     // find the "self" port on the PythonMemberFunction
-                    const sourcePort: Field = newNode.findPortByIdText("self", false, false);
+                    const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.PARAMETER_NAME_SELF, false, false);
 
                     // make sure node has input/output "self" port
-                    const inputOutputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputOutput, false);
+                    const inputOutputPort = new Field(Utils.uuidv4(), "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputOutput, false);
                     pythonObjectNode.addField(inputOutputPort);
 
 
@@ -3268,9 +3274,9 @@ export class Eagle {
                         const selectedNode = that.selectedNode();
 
                         // get references to image, tag and digest fields in this component
-                        const imageField:  Field = selectedNode.getFieldByIdText("image");
-                        const tagField:    Field = selectedNode.getFieldByIdText("tag");
-                        const digestField: Field = selectedNode.getFieldByIdText("digest");
+                        const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_IMAGE);
+                        const tagField:    Field = selectedNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_TAG);
+                        const digestField: Field = selectedNode.getFieldByDisplayText(Daliuge.PARAMETER_NAME_DIGEST);
 
                         // set values for the fields
                         if (imageField !== null){
@@ -3779,7 +3785,7 @@ export class Eagle {
         // once done, sort fields and then collect names into the allFieldNames list
         allFields.sort(Field.sortFunc);
         for (const field of allFields){
-            allFieldNames.push(field.getIdText() + " (" + field.getType() + ")");
+            allFieldNames.push(field.getDisplayText() + " (" + field.getType() + ")");
         }
 
         // if we are summoning this editField modal from the params table, close the params table
@@ -3796,7 +3802,7 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -3869,11 +3875,11 @@ export class Eagle {
 
         const copiedField = this.selectedNode().getFields()[index].clone()
         copiedField.setId(Utils.uuidv4())
-        copiedField.setIdText(copiedField.getIdText()+'copy')
+        copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
         if(ParameterTable.hasSelection()){
             //if a cell in the table is selected in this case the new node will be placed below the currently selected node
             fieldIndex = ParameterTable.selectionParentIndex() + 1
-            this.selectedNode().addFieldAtPosition(copiedField,fieldIndex)
+            this.selectedNode().addFieldByIndex(copiedField,fieldIndex)
         }else{
             //if no call in the table is selected, in this case the new node is 
             this.selectedNode().addField(copiedField)
@@ -4180,7 +4186,7 @@ export class Eagle {
         newNode.removeAllOutputPorts();
 
         // add InputOutput port for dataType
-        const newInputOutputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputOutput, false);
+        const newInputOutputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputOutput, false);
         newNode.addField(newInputOutputPort);
 
         // set the parent of the new node

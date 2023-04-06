@@ -55,7 +55,7 @@ export class ComponentUpdater {
 
             // if dest field not found, try to find something that matches by idText AND fieldType
             if (destField === null){
-                destField = dest.findFieldByIdText(srcField.getIdText(), srcField.getParameterType());
+                destField = dest.findFieldByDisplayText(srcField.getDisplayText(), srcField.getParameterType());
             }
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
