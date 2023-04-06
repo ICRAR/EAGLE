@@ -30,12 +30,6 @@ test('Update components', async t =>{
         // click the 'expert' option
         .click(Selector('#settingUserInterfaceModeValue').find('option').withText('expert'))
 
-        // switch to 'developer' tab
-        .click('#settingCategoryDeveloper')
-
-        // click the 'Use Old Output Format' button
-        .click('#settingUseOldOutputFormatButton')
-
         // close settings modal
         .click('#settingsModalAffirmativeButton')
 
