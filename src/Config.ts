@@ -27,26 +27,10 @@ export class Config {
     static readonly paletteNodeHeight : number = 22;
     static readonly paletteNodeWidth : number = 130;
 
-    static readonly DALIUGE_PARAMETER_NAMES = [
-        "Data volume",
-        "Execution time",
-        "No. of CPUs",
-        "Group start",
-        "Group end",
-        "Input error rate (%)",
-        "Number of tries"
-    ];
-
     static readonly defaultRightWindowWidth : number = 400;
     static readonly defaultLeftWindowWidth : number = 310;
 
-    // automatically loaded palettes
     static readonly DEFAULT_PALETTE_REPOSITORY : string = "ICRAR/EAGLE_test_repo";
-    static readonly DALIUGE_PALETTE_URL : string  = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette";
-    static readonly DALIUGE_TEMPLATE_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master-template.palette";
-
-    // schemas
-    static readonly DALIUGE_GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg/dropmake/lg.graph.schema";
 
     static readonly UNDO_MEMORY_SIZE : number = 10;
 

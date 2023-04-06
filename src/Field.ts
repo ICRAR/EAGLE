@@ -2,7 +2,7 @@ import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
-import {Config} from './Config';
+import {Daliuge} from './Daliuge';
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
@@ -289,7 +289,7 @@ export class Field {
     }, this);
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Config.DALIUGE_PARAMETER_NAMES.indexOf(this.displayText()) > -1;
+        return Daliuge.PARAMETER_NAMES.indexOf(this.displayText()) > -1;
     }, this);
 
     getHtmlInputType = () : string => {

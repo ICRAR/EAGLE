@@ -32,6 +32,7 @@ import {Errors} from './Errors';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Setting} from './Setting';
+import {Daliuge} from './Daliuge';
 
 export class Node {
     private _id : string
@@ -331,7 +332,7 @@ export class Node {
     }
 
     isStreaming = () : boolean => {
-        const streamingField = this.findFieldByIdText("streaming", Eagle.ParameterType.ComponentParameter);
+        const streamingField = this.findFieldByDisplayText(Daliuge.PARAMETER_NAME_STREAMING, Eagle.ParameterType.ComponentParameter);
 
         if (streamingField !== null){
             return streamingField.valIsTrue(streamingField.getValue());
@@ -341,7 +342,7 @@ export class Node {
     }
 
     isPersist = () : boolean => {
-        const persistField = this.findFieldByIdText("persist", Eagle.ParameterType.ComponentParameter);
+        const persistField = this.findFieldByDisplayText(Daliuge.PARAMETER_NAME_PERSIST, Eagle.ParameterType.ComponentParameter);
 
         if (persistField !== null){
             return persistField.valIsTrue(persistField.getValue());
@@ -457,9 +458,9 @@ export class Node {
         return false;
     }
 
-    getFieldByIdText = (idText : string) : Field | null => {
+    getFieldByDisplayText = (idText : string) : Field | null => {
         for (const field of this.fields()){
-            if (field.getIdText() === idText){
+            if (field.getDisplayText() === idText){
                 return field;
             }
         }
@@ -467,9 +468,9 @@ export class Node {
         return null;
     }
 
-    hasFieldWithIdText = (idText : string) : boolean => {
+    hasFieldWithDisplayText = (idText : string) : boolean => {
         for (const field of this.fields()){
-            if (field.getIdText() === idText){
+            if (field.getDisplayText() === idText){
                 return true;
             }
         }
@@ -895,11 +896,11 @@ export class Node {
         return -1;
     }
 
-    findPortByIdText = (idText : string, input : boolean, local : boolean) : Field => {
+    findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field => {
         console.assert(!local);
 
         for (const field of this.fields()){
-            if (field.getIdText() === idText){
+            if (field.getDisplayText() === displayText){
                 if (input && field.isInputPort()){
                     return field;
                 }
@@ -912,9 +913,9 @@ export class Node {
         return null;
     }
 
-    findFieldByIdText = (idText: string, fieldType: Eagle.ParameterType) : Field => {
+    findFieldByDisplayText = (displayText: string, fieldType: Eagle.ParameterType) : Field => {
         for (const field of this.fields()){
-            if (field.getParameterType() === fieldType && field.getIdText() === idText){
+            if (field.getParameterType() === fieldType && field.getDisplayText() === displayText){
                 return field;
             }
         }
@@ -990,8 +991,8 @@ export class Node {
         return null;
     }
 
-    hasPortWithIdText = (idText : string, input : boolean, local : boolean) : boolean => {
-        return this.findPortByIdText(idText, input, local) !== null;
+    hasPortWithDisplayText = (displayText : string, input : boolean, local : boolean) : boolean => {
+        return this.findPortByDisplayText(displayText, input, local) !== null;
     }
 
     addField = (field : Field) : void => {
@@ -999,24 +1000,24 @@ export class Node {
         field.setNodeKey(this.key());
     }
 
-    addFieldAtPosition = (field : Field, i : number) : void => {
+    addFieldByIndex = (field : Field, i : number) : void => {
         this.fields.splice(i, 0, field);
         field.setNodeKey(this.key());
     }
 
     setGroupStart = (value: boolean) => {
-        if (!this.hasFieldWithIdText("group_start")){
-            this.addField(new Field(Utils.uuidv4(), "Group Start", "group_start", value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
+        if (!this.hasFieldWithDisplayText(Daliuge.PARAMETER_NAME_GROUP_START)){
+            this.addField(new Field(Utils.uuidv4(), Daliuge.PARAMETER_NAME_GROUP_START, value.toString(), "false", "Is this node the start of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
         } else {
-            this.getFieldByIdText("group_start").setValue(value.toString());
+            this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_GROUP_START).setValue(value.toString());
         }
     }
 
     setGroupEnd = (value: boolean) => {
-        if (!this.hasFieldWithIdText("group_end")){
-            this.addField(new Field(Utils.uuidv4(), "Group End", "group_end", value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
+        if (!this.hasFieldWithDisplayText(Daliuge.PARAMETER_NAME_GROUP_END)){
+            this.addField(new Field(Utils.uuidv4(), Daliuge.PARAMETER_NAME_GROUP_END, value.toString(), "false", "Is this node the end of a group?", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
         } else {
-            this.getFieldByIdText("group_end").setValue(value.toString());
+            this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_GROUP_END).setValue(value.toString());
         }
     }
 
@@ -1037,19 +1038,6 @@ export class Node {
 
     removeAllFields = () : void => {
         this.fields([]);
-    }
-
-    removeAllNonArgFields = () : Field[] => {
-        const result : Field[] = [];
-
-        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            const field : Field = this.fields()[i];
-            if (!Utils.isParameterArgument(field.getIdText())){
-                result.push(this.fields.splice(i, 1)[0]);
-            }
-        }
-
-        return result;
     }
 
     removeAllComponentParameters = () : void => {
@@ -1154,7 +1142,7 @@ export class Node {
 
     getInputMultiplicity = () : number => {
         if (this.isMKN()){
-            const m : Field = this.getFieldByIdText("m");
+            const m : Field = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_M);
 
             if (m === null){
                 console.warn("Unable to determine input multiplicity of MKN, no 'm' field. Using default value (1).");
@@ -1165,7 +1153,7 @@ export class Node {
         }
 
         if (this.isGather()){
-            const numInputs : Field = this.getFieldByIdText("num_of_inputs");
+            const numInputs : Field = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_NUM_OF_INPUTS);
 
             if (numInputs === null){
                 console.warn("Unable to determine input multiplicity of Gather, no 'num_of_inputs' field. Using default value (1).");
@@ -1180,7 +1168,7 @@ export class Node {
 
     getOutputMultiplicity = () : number => {
         if (this.isMKN()){
-            const n : Field = this.getFieldByIdText("n");
+            const n : Field = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_N);
 
             if (n === null){
                 console.warn("Unable to determine output multiplicity of MKN, no 'n' field. Using default value (1).");
@@ -1191,7 +1179,7 @@ export class Node {
         }
 
         if (this.isScatter()){
-            const numCopies : Field = this.getFieldByIdText("num_of_copies");
+            const numCopies : Field = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_NUM_OF_COPIES);
 
             if (numCopies === null){
                 console.warn("Unable to determine output multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
@@ -1206,7 +1194,7 @@ export class Node {
 
     getLocalMultiplicity = () : number => {
         if (this.isMKN()){
-            const k : Field = this.getFieldByIdText("k");
+            const k : Field = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_K);
 
             if (k === null){
                 console.warn("Unable to determine local multiplicity of MKN, no 'k' field. Using default value (1).");
@@ -1217,7 +1205,7 @@ export class Node {
         }
 
         if (this.isScatter()){
-            const numCopies = this.getFieldByIdText("num_of_copies");
+            const numCopies = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_NUM_OF_COPIES);
 
             if (numCopies === null){
                 console.warn("Unable to determine local multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
@@ -1233,14 +1221,14 @@ export class Node {
         }
 
         if (this.isLoop()){
-            const numCopies = this.getFieldByIdText("num_of_iter");
+            const numIter = this.getFieldByDisplayText(Daliuge.PARAMETER_NAME_NUM_OF_ITERATIONS);
 
-            if (numCopies === null){
+            if (numIter === null){
                 console.warn("Unable to determine local multiplicity of Loop, no 'num_of_iter' field. Using default value (1).");
                 return 1;
             }
 
-            return parseInt(numCopies.getValue(), 10);
+            return parseInt(numIter.getValue(), 10);
         }
 
         return 1;
@@ -1261,19 +1249,19 @@ export class Node {
 
         // if no fields exist, create at least one, to store the custom data
         if (this.fields().length === 0){
-            this.addField(new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Unknown, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
+            this.addField(new Field(Utils.uuidv4(), "", "", "", "", false, Eagle.DataType_Unknown, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false));
         }
 
         this.fields()[0].setValue(e.value);
     }
 
     addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", "", false, Eagle.DataType_String, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+        const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", false, Eagle.DataType_String, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
 
         if(index === -1){
             this.addField(newField);
         }else{
-            this.addFieldAtPosition(newField, index);
+            this.addFieldByIndex(newField, index);
         }
     }
 
@@ -1587,13 +1575,13 @@ export class Node {
 
         // handle obsolete 'precious' attribute, add it as a 'persist' field
         if (typeof nodeData.precious !== 'undefined'){
-            const preciousField = new Field(Utils.uuidv4(), "Persist", "persist", nodeData.precious.toString(), "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+            const preciousField = new Field(Utils.uuidv4(), Daliuge.PARAMETER_NAME_PERSIST, nodeData.precious.toString(), "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
             node.addField(preciousField);
         }
 
         // handle obsolete 'streaming' attribute, add it as a 'streaming' field
         if (typeof nodeData.streaming !== 'undefined'){
-            const streamingField = new Field(Utils.uuidv4(), "Streaming", "streaming", nodeData.streaming.toString(), "false", "Specifies whether this data component streams input and output data", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+            const streamingField = new Field(Utils.uuidv4(), Daliuge.PARAMETER_NAME_STREAMING, nodeData.streaming.toString(), "false", "Specifies whether this data component streams input and output data", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
             node.addField(streamingField);
         }
 
@@ -1739,42 +1727,42 @@ export class Node {
         if (input){
             if (!node.hasInputApplication()){
                 if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Category.UnknownApplication, "", node.getKey()));
+                    node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
                     errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention."));
                 } else {
-                    errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
+                    errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
                     return;
                 }
             }
             node.inputApplication().addField(port);
-            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")"));
+            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")"));
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
             if (node.canHaveOutputApplication()){
                 if (!node.hasOutputApplication()){
                     if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                        node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Category.UnknownApplication, "", node.getKey()));
+                        node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
                         errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
                     } else {
-                        errorsWarnings.errors.push(Errors.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
+                        errorsWarnings.errors.push(Errors.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
                         return;
                     }
                 }
                 node.outputApplication().addField(port);
-                errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")"));
+                errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")"));
             } else {
                 // if possible, add port to output side of input application
                 if (node.canHaveInputApplication()){
                     if (!node.hasInputApplication()){
                         if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                            node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Category.UnknownApplication, "", node.getKey()));
+                            node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
                         } else {
-                            errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
+                            errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
                             return;
                         }
                     }
                     node.inputApplication().addField(port);
-                    errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application"));
+                    errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application"));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add port to embedded application. Node can't have output OR exit application."));
                 }
@@ -2140,12 +2128,12 @@ export class Node {
             const field0 = node.getFields()[i];
             for (let j = 0 ; j < node.getFields().length ; j++){
                 const field1 = node.getFields()[j];
-                if (i !== j && field0.getIdText() === field1.getIdText() && field0.getParameterType() === field1.getParameterType()){
+                if (i !== j && field0.getDisplayText() === field1.getDisplayText() && field0.getParameterType() === field1.getParameterType()){
                     if (field0.getId() === field1.getId()){
-                        const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeMergeFieldsByIndex(eagle, node, i, j)}, "Merge fields");
+                        const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeMergeFieldsByIndex(eagle, node, i, j)}, "Merge fields");
                         errorsWarnings.warnings.push(issue);
                     } else {
-                        const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same id text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeMergeFields(eagle, node, field0, field1)}, "Merge fields");
+                        const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeMergeFields(eagle, node, field0, field1)}, "Merge fields");
                         errorsWarnings.warnings.push(issue);
                     }
                 }

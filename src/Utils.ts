@@ -29,6 +29,7 @@ import * as ko from "knockout";
 import {Category} from './Category';
 import {CategoryData} from "./CategoryData";
 import {Config} from './Config';
+import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
 import {Errors} from './Errors';
@@ -406,24 +407,6 @@ export class Utils {
                 callback(error + " " + xhr.responseText, null);
             }
         });
-    }
-
-    /**
-     * Returns true if the node parameter is an (Arg01...Arg10)-argument.
-     */
-    static isParameterArgument(parameterName : string) : boolean {
-        // Regular expression for Arg01...Arg10 parameters.
-        const re : RegExp = /Arg\d\d$/;
-        return re.test(parameterName);
-    }
-
-    static showParameter(name : string, value: string) : boolean {
-        if (Utils.isParameterArgument(name)){
-            // return true if we find a '='
-            return value.indexOf('=') !== -1;
-        } else {
-            return true;
-        }
     }
 
     static fieldTextToFieldName(text : string) : string {
@@ -2210,7 +2193,7 @@ export class Utils {
     }
 
     static loadSchemas = () : void => {
-        Utils.httpGet(Config.DALIUGE_GRAPH_SCHEMA_URL, (error : string, data : string) => {
+        Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL, (error : string, data : string) => {
             if (error !== null){
                 console.error(error);
                 return;

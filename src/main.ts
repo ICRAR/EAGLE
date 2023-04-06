@@ -31,6 +31,7 @@ import * as bootstrap from 'bootstrap';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Config} from './Config';
+import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
 import {Errors} from './Errors';
 import {GitHub} from './GitHub';
@@ -114,8 +115,8 @@ $(function(){
     // load the default palette
     if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
-            {name:"Builtin Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
-            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true}
+            {name:"Builtin Components", filename:Daliuge.PALETTE_URL, readonly:true},
+            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
         ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
             const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
