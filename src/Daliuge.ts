@@ -23,8 +23,9 @@
 */
 
 export class Daliuge {
+    static readonly PARAMETER_NAME_APPLICATION_CLASS: string = "Application Class";
     static readonly PARAMETER_NAME_DATA_VOLUME: string = "Data volume";
-    static readonly PARAMETER_NAME_EXECUTION_TIME: string = "Execution time";
+    static readonly PARAMETER_NAME_EXECUTION_TIME: string = "Execution Time";
     static readonly PARAMETER_NAME_GROUP_START: string = "Group start";
     static readonly PARAMETER_NAME_GROUP_END: string = "Group end";
 

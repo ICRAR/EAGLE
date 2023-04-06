@@ -66,20 +66,19 @@ test('Update components', async t =>{
     const obj2 = JSON.parse(outputJSON);
 
     // !!!!!!!!!!!!! CHECK FOR EXPECTED INPUT COMPONENTS
-    await t.expect(obj1.nodeDataArray[2].fields.length).eql(5, {timeout:3000});
-    await t.expect(obj1.nodeDataArray[2].fields[0].name).eql("appclass", {timeout:3000});
+    await t.expect(obj1.nodeDataArray[2].fields.length).eql(7, {timeout:3000});
+    await t.expect(obj1.nodeDataArray[2].fields[0].text).eql("Application Class", {timeout:3000});
     await t.expect(obj1.nodeDataArray[2].fields[0].value).eql("dlg.apps.simple.CopyAppBad", {timeout:3000});
 
     // !!!!!!!!!!!!! CHECK FOR CORRECTLY UPDATED OUTPUT COMPONENTS
-    await t.expect(obj2.nodeDataArray[2].fields.length).eql(11, {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[0].name).eql("appclass", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields.length).eql(10, {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[0].text).eql("Application Class", {timeout:3000});
     await t.expect(obj2.nodeDataArray[2].fields[0].value).eql("dlg.apps.simple.CopyApp", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[5].name).eql("hello", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[6].name).eql("hello", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[7].name).eql("bufsize", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[8].name).eql("n_tries", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[9].name).eql("dummy_in", {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[10].name).eql("dummy_out", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[5].text).eql("hello", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[6].text).eql("hello", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[7].text).eql("buffer size", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[8].text).eql("Number of tries", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[9].text).eql("dummy", {timeout:3000});
 });
 
 const fetchGraph = (filename) => {
