@@ -1,3 +1,4 @@
+import { active } from 'd3';
 import {Eagle} from './Eagle';
 
 
@@ -30,7 +31,7 @@ export class TutorialSystem {
         //these are the keyboard shortcuts for the tutorial system
         //by putting a .name after an even type, we are giving this specific listener a name. This allows us to remove or modify it later
         $("body").on('keydown.tutEventListener', function (e) {
-
+            if(TutorialSystem.activeTut===null){return} //catching a nieche error
             switch (e.which) {
                 case 37: // left
                     e.preventDefault()
