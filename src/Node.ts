@@ -647,6 +647,10 @@ export class Node {
         return CategoryData.getCategoryData(this.category()).canHaveApplicationArguments;
     }
 
+    canHaveConstructParameters = () : boolean => {
+        return CategoryData.getCategoryData(this.category()).canHaveConstructParameters;
+    }
+
     canHaveType = (parameterType: Eagle.ParameterType) : boolean => {
         if (parameterType === Eagle.ParameterType.ComponentParameter){
             return this.canHaveComponentParameters()
