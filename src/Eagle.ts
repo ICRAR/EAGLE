@@ -4401,34 +4401,6 @@ export class Eagle {
             }
         });
     }
-
-    static getCategoryData = (category : Category) : Category.CategoryData => {
-        const c = CategoryData.getCategoryData(category);
-
-        if (typeof c === 'undefined'){
-            console.error("Could not fetch category data for category", category);
-            return {
-                categoryType: Category.Type.Unknown,
-                isResizable: false,
-                canContainComponents: false,
-                minInputs: 0,
-                maxInputs: 0,
-                minOutputs: 0,
-                maxOutputs: 0,
-                canHaveInputApplication: false,
-                canHaveOutputApplication: false,
-                canHaveComponentParameters: false,
-                canHaveApplicationArguments: false,
-                icon: "error",
-                color: "pink",
-                collapsedHeaderOffsetY: 0,
-                expandedHeaderOffsetY: 20,
-                sortOrder: Number.MAX_SAFE_INTEGER,
-            };
-        }
-
-        return c;
-    }
 }
 
 export namespace Eagle
@@ -4507,6 +4479,7 @@ export namespace Eagle
         Unknown = "Unknown",
         ComponentParameter = "ComponentParameter",
         ApplicationArgument = "ApplicationArgument",
+        ConstructParameter = "ConstructParameter"
     }
 
     export enum ParameterUsage {
