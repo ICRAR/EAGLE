@@ -102,6 +102,7 @@ export class Eagle {
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
     static applicationArgsSearchString : ko.Observable<string>;
+    static constructParamsSearchString : ko.Observable<string>;
     static tableSearchString : ko.Observable<string>;
 
     static settings : SettingsGroup[];
@@ -142,6 +143,7 @@ export class Eagle {
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("");
         Eagle.applicationArgsSearchString = ko.observable("");
+        Eagle.constructParamsSearchString = ko.observable("");
         Eagle.tableSearchString = ko.observable("");
 
         Eagle.tutorials = tutorialArray
@@ -3813,6 +3815,8 @@ export class Eagle {
                 if (!completed){
                     return;
                 }
+
+                console.log("callback", completed, newField.getParameterType());
 
                 // check selected option in select tag
                 const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);

@@ -328,6 +328,8 @@ export class Modals {
             const realParameterUsage: Eagle.ParameterUsage = Utils.translateStringToParameterUsage(parameterUsage);
             let newField;
 
+            console.log("realParameterType", realParameterType);
+
             switch(realType){
                 case Eagle.DataType_Boolean:
                     newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);

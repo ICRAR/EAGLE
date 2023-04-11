@@ -782,7 +782,7 @@ export class Utils {
 
         // delete all options, then iterate through the values in the Eagle.ParameterType enum, adding each as an option to the select
         $('#editFieldModalParameterTypeSelect').empty();
-        for (const ft of [Eagle.ParameterType.ComponentParameter, Eagle.ParameterType.ApplicationArgument]){
+        for (const ft of [Eagle.ParameterType.ComponentParameter, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterType.ConstructParameter]){
             $('#editFieldModalParameterTypeSelect').append(
                 $('<option>', {
                     value: ft,
@@ -791,7 +791,6 @@ export class Utils {
                 })
             );
         }
-
 
         // delete all options, then iterate through the values in the Eagle.ParameterUsage enum, adding each as an option to the select
         $('#editFieldModalParameterUsageSelect').empty();

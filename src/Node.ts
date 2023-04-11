@@ -532,6 +532,30 @@ export class Node {
         return result;
     }
 
+    getConstructParameters = () : Field[] => {
+        const result: Field[] = [];
+
+        for (const field of this.fields()){
+            if (field.getParameterType() === Eagle.ParameterType.ConstructParameter){
+                result.push(field);
+            }
+        }
+
+        return result;
+    }
+
+    getConstructParametersWithNoPorts = () : Field[] => {
+        const result: Field[] = [];
+
+        for (const field of this.fields()){
+            if (field.getParameterType() === Eagle.ParameterType.ConstructParameter && field.getUsage() === Eagle.ParameterUsage.NoPort){
+                result.push(field);
+            }
+        }
+
+        return result;
+    }
+
     getDescriptionReadonly = () : boolean => {
         const allowParam : boolean = Eagle.allowComponentEditing();
 
