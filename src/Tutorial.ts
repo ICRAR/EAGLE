@@ -13,7 +13,7 @@ export class TutorialSystem {
     static conditionCheck:number = null //this hosues the condition interval function
 
     static initiateTutorial = (tutorialName: string): void => {
-
+        console.log('initiating tutorial: ' ,tutorialName)
         Eagle.tutorials.forEach(function (tut) {
 
             if (tutorialName === tut.getName()) {

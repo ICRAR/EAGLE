@@ -55,4 +55,4 @@ newTut.newTutStep("Graph Menu", "This menu allows you to load, save or create ne
 
 newTut.newTutStep("Translate Button", "Once configured, you are able to translate the constructed graph quickly by using this button", function(){return $("#navDeployBtn")})
 
-newTut.newTutStep("Well Done!", "You have completed the quick introduction tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance.", function(){return $("#logicalGraphParent")})
+newTut.newTutStep("Well Done!", "You have completed the quick introduction tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance. To continue to our tutorial on graph building press <a  onclick='TutorialSystem.initiateTutorial(`Graph Building`)' href='#'>here!</a>", function(){return $("#logicalGraphParent")})
