@@ -177,8 +177,13 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownHelp">
                     <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
-                    <a class="dropdown-item" id="about" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Quick Start Tutorial')}">Introductory Tour</a>
                     <a class="dropdown-item" id="onlineDocs" href="#" data-bind="click: onlineDocs">Online Docs</a>
+                    <span class="dropdown-item dropDropDownParent" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownTutorials">Tutorials
+                        <div class="dropDropDown">
+                            <a class="dropdown-item" id="quickIntroTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Quick Start')}">Quick Intoduction</a>
+                            <a class="dropdown-item" id="graphBuildingTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Graph Building')}">Graph Building</a>
+                        </div>
+                    </span>
                     <a class="dropdown-item" id="readme" href="#" data-bind="click: readme">GitHub README</a>
                     <a class="dropdown-item" id="submitIssue" href="#" data-bind="click: submitIssue">Submit Issue</a>
                     <a class="dropdown-item" id="keyboardShortcuts" href="#" data-bind="click: openShortcuts">Keyboard Shortcuts
