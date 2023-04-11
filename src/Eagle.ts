@@ -2345,7 +2345,28 @@ export class Eagle {
         Utils.hideSettingsModal();
     }
 
+    smartToggleModal = (modal:string) : void => {
+        console.log(modal)
+        if($('.modal.show').length>0){
+            if($('.modal.show').attr('id')===modal){
+                $('#'+modal).modal('hide')
+            }else{
+                return
+            }
+        }else{
+            if(modal === 'settingsModal'){
+                if(!$(".settingCategoryActive").length){
+                    $(".settingsModalButton").first().click()
+                }
+            }
+            $('#'+modal).modal('show')
+        }
+    }
+
     openParamsTableModal = (mode:string,selectType:string) : void => {
+        if($('.modal.show').length>0){
+            return
+        }
         this.showTableModal(true)
         if(selectType === 'rightClick'){
             this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
@@ -4120,7 +4141,7 @@ export class Eagle {
             this.errorsMode(Setting.ErrorsMode.Graph);
 
             // show graph modal
-            Utils.showErrorsModal("Check Graph");
+            this.smartToggleModal('errorsModal')
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
