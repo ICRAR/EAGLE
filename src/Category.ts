@@ -59,6 +59,7 @@ export namespace Category {
         canHaveOutputApplication: boolean,
         canHaveComponentParameters: boolean,
         canHaveApplicationArguments: boolean,
+        canHaveConstructParameters: boolean, 
         icon: string,
         color: string,
         collapsedHeaderOffsetY: number,
