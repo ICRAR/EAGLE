@@ -627,13 +627,17 @@ export class Utils {
         // determine which dropdown menu should be filled with appropriate items
         switch(parameterType){
             case Eagle.ParameterType.ApplicationArgument:
-            dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
-            divID = "nodeInspectorAddApplicationParamDiv";
-            break;
+                dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
+                divID = "nodeInspectorAddApplicationParamDiv";
+                break;
             case Eagle.ParameterType.ComponentParameter:
-            dropDownKO = $("#nodeInspectorFieldDropDownKO");
-            divID = "nodeInspectorAddFieldDiv";
-            break;
+                dropDownKO = $("#nodeInspectorFieldDropDownKO");
+                divID = "nodeInspectorAddFieldDiv";
+                break;
+            case Eagle.ParameterType.ConstructParameter:
+                dropDownKO = $("#nodeInspectorConstructParameterDropDownKO");
+                divID = "nodeInspectorAddConstructParameterDiv";
+                break;
             default:
             console.error("Unknown parameter type");
         }
@@ -700,6 +704,9 @@ export class Utils {
             ko.cleanNode(dropDownKO[0]);
             ko.applyBindings(eagle, dropDownKO[0]);
 
+            // set the type/usage of the new field to match the details requested by the user
+            field.setParameterType(parameterType);
+            field.setUsage(parameterUsage);
         }
 
         // populate UI with current field data
@@ -763,7 +770,7 @@ export class Utils {
 
         // delete all options, then iterate through the values in the Eagle.ParameterType enum, adding each as an option to the select
         $('#editFieldModalParameterTypeSelect').empty();
-        for (const ft of [Eagle.ParameterType.ComponentParameter, Eagle.ParameterType.ApplicationArgument]){
+        for (const ft of [Eagle.ParameterType.ComponentParameter, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterType.ConstructParameter]){
             $('#editFieldModalParameterTypeSelect').append(
                 $('<option>', {
                     value: ft,
@@ -772,7 +779,6 @@ export class Utils {
                 })
             );
         }
-
 
         // delete all options, then iterate through the values in the Eagle.ParameterUsage enum, adding each as an option to the select
         $('#editFieldModalParameterUsageSelect').empty();

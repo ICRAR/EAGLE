@@ -275,6 +275,16 @@ export class Field {
         }
     },this)
 
+    fitsConstructSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        if(Eagle.constructParamsSearchString() === ""){
+            return true
+        }else if(this.displayText().toLowerCase().indexOf(Eagle.constructParamsSearchString().toLowerCase())>=0){
+            return true
+        }else{
+            return false
+        }
+    },this)
+
     fitsTableSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if (Eagle.tableSearchString() === ""){
             return true;

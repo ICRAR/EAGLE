@@ -48,13 +48,13 @@ class Page {
     this.deleteNodeButton = Selector('#deleteSelectedNode');
     this.confirmButton = Selector('#confirmModalAffirmativeButton');
 
-    this.description = Selector('h5.card-header[href="#nodeCategoryCollapse10"]');
-    this.displayOptions = Selector('h5.card-header[href="#nodeCategoryCollapse1"]');
-    this.parameters = Selector('h5.card-header[href="#nodeCategoryCollapse9"]');
-    this.inputPorts = Selector('h5.card-header[href="#nodeCategoryCollapse6"]');
-    this.outputPorts = Selector('h5.card-header[href="#nodeCategoryCollapse8"]');
-    this.inputApplication = Selector('h5.card-header[href="#nodeCategoryCollapse5"]');
-    this.outputApplication = Selector('h5.card-header[href="#nodeCategoryCollapse7"]');
+    this.description = Selector('#inspectorDescriptionHeading');
+    this.displayOptions = Selector('#inspectorDisplayOptionsHeading');
+    this.parameters = Selector('#inspectorComponentParamsHeading');
+    this.inputPorts = Selector('#inspectorInputsHeading');
+    this.outputPorts = Selector('#inspectorOutputsHeading');
+    this.inputApplication = Selector('#inspectorInpuputAppHeading');
+    this.outputApplication = Selector('#inspectorInputAppHeading');
 
     this.nodeNameValue = Selector('#nodeNameValue');
     this.parentButton = Selector('#nodeInspectorChangeParent');

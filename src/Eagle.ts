@@ -47,7 +47,6 @@ import {Setting, SettingsGroup} from './Setting';
 import {Tutorial, TutorialStep, tutorialArray} from './Tutorial';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
-import {InspectorState} from './InspectorState';
 import {ExplorePalettes} from './ExplorePalettes';
 import {Hierarchy} from './Hierarchy';
 import {Undo} from './Undo';
@@ -81,8 +80,6 @@ export class Eagle {
     globalOffsetY : number;
     globalScale : number;
 
-    inspectorState : ko.Observable<InspectorState>;
-
     rendererFrameDisplay : ko.Observable<string>;
     rendererFrameMax : number;
     rendererFrameCountRender : number;
@@ -106,6 +103,7 @@ export class Eagle {
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
     static applicationArgsSearchString : ko.Observable<string>;
+    static constructParamsSearchString : ko.Observable<string>;
     static tableSearchString : ko.Observable<string>;
 
     static settings : SettingsGroup[];
@@ -146,6 +144,7 @@ export class Eagle {
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("");
         Eagle.applicationArgsSearchString = ko.observable("");
+        Eagle.constructParamsSearchString = ko.observable("");
         Eagle.tableSearchString = ko.observable("");
 
         Eagle.tutorials = tutorialArray
@@ -157,8 +156,6 @@ export class Eagle {
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
-
-        this.inspectorState = ko.observable(new InspectorState());
 
         this.rendererFrameDisplay = ko.observable("");
         this.rendererFrameMax = 0;
@@ -383,6 +380,24 @@ export class Eagle {
         this.selectedObjects([]);
 
         this.showDataNodes(!this.showDataNodes());
+    }
+
+    inspectorToggleAll = () : void => {
+        if($('#inspectorAccordion .accordion-button:not(.collapsed)').length>0){
+            $('#inspectorAccordion .accordion-button:not(.collapsed)').click();
+            $("#inspectorCollapseStateIcon i").removeClass('openIcon')
+        }else{
+            $('#inspectorAccordion .accordion-button.collapsed').click();
+        }
+    }
+
+    inspectorCollapseState = () :void => {
+        if($('#inspectorAccordion .accordion-button:not(.collapsed)').length>0){
+            $("#inspectorCollapseStateIcon i").addClass('openIcon')
+        }else{
+            $("#inspectorCollapseStateIcon i").removeClass('openIcon')
+        }
+        
     }
 
     toggleSnapToGrid = () : void => {
@@ -629,9 +644,6 @@ export class Eagle {
                 this.rightWindow().mode(Eagle.RightWindowMode.Inspector)
             }
         }
-
-        // update the display of all the sections of the node inspector (collapse/expand as appropriate)
-        this.inspectorState().updateAllInspectorSections();
     }
 
     editSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
@@ -2342,7 +2354,28 @@ export class Eagle {
         Utils.hideSettingsModal();
     }
 
+    smartToggleModal = (modal:string) : void => {
+        //used for keyboard shortcuts, preventing opening several modals at once
+        if($('.modal.show').length>0){
+            if($('.modal.show').attr('id')===modal){
+                $('#'+modal).modal('hide')
+            }else{
+                return
+            }
+        }else{
+            if(modal === 'settingsModal'){
+                if(!$(".settingCategoryActive").length){
+                    $(".settingsModalButton").first().click()
+                }
+            }
+            $('#'+modal).modal('show')
+        }
+    }
+
     openParamsTableModal = (mode:string,selectType:string) : void => {
+        if($('.modal.show').length>0){
+            return
+        }
         this.showTableModal(true)
         if(selectType === 'rightClick'){
             this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
@@ -3298,6 +3331,11 @@ export class Eagle {
         Utils.showPalettesModal(this);
     }
 
+    // TODO: can probably combine addFieldHTML, addApplicationArgHTML, addConstructParameterHTML, addInputPortHTML, addOutputPortHTML
+    //       they are all basically the same
+    // TODO: the #nodeInspectorAddFieldDiv, #nodeInspectorAddApplicationParamDiv, #nodeInspectorAddConstructParameterDiv, #nodeInspectorAddInputPortDiv, #nodeInspectorAddOutputPortDiv
+    //       element are all basically the same too (I think)
+
     // Adds an field to the selected node via HTML
     addFieldHTML = () : void => {
         const node: Node = this.selectedNode();
@@ -3328,6 +3366,22 @@ export class Eagle {
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
         $("#nodeInspectorAddApplicationParamDiv").show();
+    }
+
+    // Adds an construct parameter to the selected node via HTML
+    addConstructParameterHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add construct parameter when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddConstructParameterDiv").show();
     }
 
     // Adds an output port to the selected node via HTML
@@ -4116,7 +4170,7 @@ export class Eagle {
             this.errorsMode(Setting.ErrorsMode.Graph);
 
             // show graph modal
-            Utils.showErrorsModal("Check Graph");
+            this.smartToggleModal('errorsModal')
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
@@ -4397,34 +4451,6 @@ export class Eagle {
             }
         });
     }
-
-    static getCategoryData = (category : Category) : Category.CategoryData => {
-        const c = CategoryData.getCategoryData(category);
-
-        if (typeof c === 'undefined'){
-            console.error("Could not fetch category data for category", category);
-            return {
-                categoryType: Category.Type.Unknown,
-                isResizable: false,
-                canContainComponents: false,
-                minInputs: 0,
-                maxInputs: 0,
-                minOutputs: 0,
-                maxOutputs: 0,
-                canHaveInputApplication: false,
-                canHaveOutputApplication: false,
-                canHaveComponentParameters: false,
-                canHaveApplicationArguments: false,
-                icon: "error",
-                color: "pink",
-                collapsedHeaderOffsetY: 0,
-                expandedHeaderOffsetY: 20,
-                sortOrder: Number.MAX_SAFE_INTEGER,
-            };
-        }
-
-        return c;
-    }
 }
 
 export namespace Eagle
@@ -4503,6 +4529,7 @@ export namespace Eagle
         Unknown = "Unknown",
         ComponentParameter = "ComponentParameter",
         ApplicationArgument = "ApplicationArgument",
+        ConstructParameter = "ConstructParameter"
     }
 
     export enum ParameterUsage {

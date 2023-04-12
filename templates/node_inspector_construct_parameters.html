@@ -1,0 +1,42 @@
+<div class="accordion-item">
+    <h2 class="accordion-header" id="inspectorConstructParamsHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inspectorConstructParamsCollapse" aria-expanded="false" aria-controls="inspectorConstructParamsCollapse" onclick="eagle.inspectorCollapseState()">
+            <i class="material-icons">archive</i>
+            <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Wrapper parameters describing this construct for the DALiuGE system.'">Construct Parameters</span>
+        </button>
+    </h2>
+    <div id="inspectorConstructParamsCollapse" class="accordion-collapse collapse">
+        <div class="accordion-body">
+            <div class="searchBarContainer">
+                <i class="material-icons md-18 searchBarIcon">search</i>
+                <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.constructParamsSearchString,data,event)}">
+                    <i class="material-icons md-18 searchBarIconClose">close</i>
+                </a>
+                <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.constructParamsSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}}"></input>
+            </div>
+            <!-- ko foreach: selectedNode().getConstructParametersWithNoPorts() -->
+                <!-- ko if: $data.fitsConstructSearchQuery() -->
+                    <!-- ko if: !$data.isDaliugeField() || Eagle.showNonKeyParameters() -->
+                        <field params="data: $data, ro: $data.isReadonly()"></field>
+                    <!-- /ko -->
+                <!-- /ko -->
+            <!-- /ko -->
+
+            <!-- ko ifnot: selectedNode().isLocked()-->
+                <button class="btn btn-secondary btn-block nodeInspectorDropDown btn_wide" id="nodeInspectorAddField" type="button" data-bind="click: $root.addConstructParameterHTML, eagleTooltip:'Add parameter'" data-bs-placement="left">
+                    <i class="material-icons md-18">add</i>
+                </button>
+                <div id="nodeInspectorAddConstructParameterDiv" class="nodeInspectorDropdownDiv">
+                    <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:function(){hideDropDown('nodeInspectorAddConstructParameterDiv')}}">
+                        <div id="nodeInspectorConstructParameterDropDownKO">
+                            <!-- options added dynamically -->
+                        </div>
+                    </div>
+                </div>
+                <!-- ko if: selectedNode().category() === Category.Docker -->
+                    <button class="btn btn-secondary btn-block mt-1 btn_wide" id="nodeInspectorFetchDocker" type="button" data-bind="click: $root.fetchDockerHTML, eagleTooltip:'Fetch docker image data from Docker Hub'" data-bs-placement="left">Fetch from Docker Hub</button>
+                <!-- /ko -->
+            <!-- /ko -->
+        </div>
+    </div>
+</div>
