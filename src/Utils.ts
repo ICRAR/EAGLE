@@ -2026,6 +2026,11 @@ export class Utils {
 
     // only update result if it is worse that current result
     static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
+        if (errorsWarnings === null){
+            console.warn("errorsWarnings is null");
+            return Eagle.LinkValid.Valid;
+        }
+
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
             return Eagle.LinkValid.Valid;
         }
