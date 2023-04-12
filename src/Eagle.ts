@@ -3837,8 +3837,6 @@ export class Eagle {
                     return;
                 }
 
-                console.log("callback", completed, newField.getParameterType());
-
                 // check selected option in select tag
                 const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
 
