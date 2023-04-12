@@ -645,13 +645,17 @@ export class Utils {
         // determine which dropdown menu should be filled with appropriate items
         switch(parameterType){
             case Eagle.ParameterType.ApplicationArgument:
-            dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
-            divID = "nodeInspectorAddApplicationParamDiv";
-            break;
+                dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
+                divID = "nodeInspectorAddApplicationParamDiv";
+                break;
             case Eagle.ParameterType.ComponentParameter:
-            dropDownKO = $("#nodeInspectorFieldDropDownKO");
-            divID = "nodeInspectorAddFieldDiv";
-            break;
+                dropDownKO = $("#nodeInspectorFieldDropDownKO");
+                divID = "nodeInspectorAddFieldDiv";
+                break;
+            case Eagle.ParameterType.ConstructParameter:
+                dropDownKO = $("#nodeInspectorConstructParameterDropDownKO");
+                divID = "nodeInspectorAddConstructParameterDiv";
+                break;
             default:
             console.error("Unknown parameter type");
         }

@@ -3304,6 +3304,11 @@ export class Eagle {
         Utils.showPalettesModal(this);
     }
 
+    // TODO: can probably combine addFieldHTML, addApplicationArgHTML, addConstructParameterHTML, addInputPortHTML, addOutputPortHTML
+    //       they are all basically the same
+    // TODO: the #nodeInspectorAddFieldDiv, #nodeInspectorAddApplicationParamDiv, #nodeInspectorAddConstructParameterDiv, #nodeInspectorAddInputPortDiv, #nodeInspectorAddOutputPortDiv
+    //       element are all basically the same too (I think)
+
     // Adds an field to the selected node via HTML
     addFieldHTML = () : void => {
         const node: Node = this.selectedNode();
@@ -3334,6 +3339,22 @@ export class Eagle {
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
         $("#nodeInspectorAddApplicationParamDiv").show();
+    }
+
+    // Adds an construct parameter to the selected node via HTML
+    addConstructParameterHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add construct parameter when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddConstructParameterDiv").show();
     }
 
     // Adds an output port to the selected node via HTML
