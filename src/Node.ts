@@ -2184,7 +2184,8 @@ export class Node {
         for (const field of node.getFields()){
             if (
                 (field.getParameterType() === Eagle.ParameterType.ComponentParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
-                (field.getParameterType() === Eagle.ParameterType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments
+                (field.getParameterType() === Eagle.ParameterType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
+                (field.getParameterType() === Eagle.ParameterType.ConstructParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveConstructParameters
             ){
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
                 const issue: Errors.Issue = Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldParameterType(eagle, field)}, "Switch to suitable type");

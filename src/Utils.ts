@@ -722,6 +722,9 @@ export class Utils {
             ko.cleanNode(dropDownKO[0]);
             ko.applyBindings(eagle, dropDownKO[0]);
 
+            // set the type/usage of the new field to match the details requested by the user
+            field.setParameterType(parameterType);
+            field.setUsage(parameterUsage);
         }
 
         // populate UI with current field data
