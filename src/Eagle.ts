@@ -2346,7 +2346,7 @@ export class Eagle {
     }
 
     smartToggleModal = (modal:string) : void => {
-        console.log(modal)
+        //used for keyboard shortcuts, preventing opening several modals at once
         if($('.modal.show').length>0){
             if($('.modal.show').attr('id')===modal){
                 $('#'+modal).modal('hide')

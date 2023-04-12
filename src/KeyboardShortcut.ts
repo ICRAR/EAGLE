@@ -119,6 +119,9 @@ export class KeyboardShortcut {
                 if (key.toLowerCase() === e.key.toLowerCase()){
                     if (shortcut.canRun(eagle)){
                         shortcut.run(eagle);
+                        if($('#shortcutsModal').hasClass('show')){
+                            $('#shortcutsModal').modal('hide')
+                        }
                         e.preventDefault();
                     } else {
                         Utils.showNotification("Warning", "Shortcut (" + shortcut.name + ") not available in current state.", "warning");
