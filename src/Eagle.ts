@@ -2527,7 +2527,7 @@ export class Eagle {
             const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
-            this.logicalGraph().removeEdgeById(edge.getId());
+            this.logicalGraph().removeEdgeById(selectedEdge.getId());
             this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit edge");

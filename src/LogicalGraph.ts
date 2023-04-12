@@ -627,10 +627,17 @@ export class LogicalGraph {
     }
 
     removeEdgeById = (id: string) : void => {
+        let found = false;
+
         for (let i = this.edges.length - 1; i >= 0 ; i--){
             if (this.edges[i].getId() === id){
+                found = true;
                 this.edges.splice(i, 1);
             }
+        }
+
+        if (!found){
+            console.warn("Could not removeEdgeById(), edge not found with id:", id);
         }
     }
 

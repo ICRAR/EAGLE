@@ -48,7 +48,7 @@ test('Change destination port used by edge', async t =>{
         .click(Selector('#editEdgeModalDestNodeKeySelect').find('option').withText('CopyApp'))
 
         // close the add edge modal
-        .click('#editEdgeModalAffirmativeAnswer')
+        .click('#editEdgeModalAffirmativeButton')
 
         .wait(1000);
     
@@ -89,7 +89,7 @@ test('Change destination port used by edge', async t =>{
         .click(Selector('#editEdgeModalDestPortIdSelect').find('option').withText(FIELD_NAME))
 
         // close the edit edge modal
-        .click('#editEdgeModalAffirmativeAnswer')
+        .click('#editEdgeModalAffirmativeButton')
 
         .wait(1000);
 
