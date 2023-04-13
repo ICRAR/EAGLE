@@ -13,7 +13,6 @@ export class TutorialSystem {
     static conditionCheck:number = null //this hosues the condition interval function
 
     static initiateTutorial = (tutorialName: string): void => {
-        console.log('initiating tutorial: ' ,tutorialName)
         Eagle.tutorials.forEach(function (tut) {
 
             if (tutorialName === tut.getName()) {
@@ -159,6 +158,9 @@ export class Tutorial {
         const eagle = Eagle.getInstance()
         TutorialSystem.activeTutCurrentStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
         const tutStep = TutorialSystem.activeTutCurrentStep
+        
+        clearTimeout(TutorialSystem.conditionCheck);
+        TutorialSystem.conditionCheck = null;
         
         $('body').off('keydown.tutEventListener');
         TutorialSystem.addTutKeyboardShortcuts()
@@ -328,7 +330,7 @@ export class Tutorial {
             TutorialSystem.activeTut.openInfoPopUp()
         }, 510);
 
-        TutorialSystem.conditionCheck = setInterval(function(){TutorialSystem.activeTut.checkConditionFunction(tutStep)}, 500);
+        TutorialSystem.conditionCheck = setInterval(function(){TutorialSystem.activeTut.checkConditionFunction(tutStep)}, 100);
     }
 
     highlightStepTarget = (target: JQuery<HTMLElement>): void => {
@@ -527,9 +529,9 @@ export class Tutorial {
 
         conditionReturn = tutStep.getConditionFunction()(eagle)
         if(conditionReturn){
-            this.tutButtonNext()
             clearTimeout(TutorialSystem.conditionCheck);
             TutorialSystem.conditionCheck = null;
+            this.tutButtonNext()
         }else{
             return
         }

@@ -88,14 +88,16 @@ export class RightClick {
     }
 
     static closeCustomContextMenu = (force:boolean) : void => {
-        if($('#customContextMenu').hasClass('forceShow')){
-            return
-        }else if(force){
+        if(force){
             $("#customContextMenu").remove()
         }else {
             setTimeout(function() {
                 if($("#customContextMenu:hover").length === 0){
-                    $("#customContextMenu").remove()
+                    if($('#customContextMenu').hasClass('forceShow')){
+                        return
+                    }else {
+                        $("#customContextMenu").remove()
+                    }
                 }
             }, 300);
         }
@@ -261,8 +263,8 @@ export class RightClick {
         const eagle: Eagle = Eagle.getInstance();
 
         const thisEvent = event as MouseEvent
-        const mouseX = thisEvent.clientX
-        const mouseY = thisEvent.clientY
+        const mouseX = thisEvent.clientX+2
+        const mouseY = thisEvent.clientY+2
 
         if(data instanceof Node||data instanceof Edge || data instanceof Palette){
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)

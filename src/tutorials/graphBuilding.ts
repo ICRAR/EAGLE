@@ -3,7 +3,7 @@ import {Eagle} from '../Eagle';
 import {InspectorState} from '../InspectorState';
 
 
-const newTut = TutorialSystem.newTutorial('Graph Building', 'This tutorial is for testing purposes.')
+const newTut = TutorialSystem.newTutorial('Graph Building', 'An introduction to graph building.')
 
 newTut.newTutStep("Welcome to the Graph Building tutorial!", "You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", function(){return $("#logicalGraphParent")})
 
@@ -61,7 +61,7 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
-newTut.newTutStep("Editing Components", "The inspector houses all the editable parameters of a node. Component parameters are .. while application arguments ... ", function(){return $("#rightWindowContainer")})        
+newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component. The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $("#rightWindowContainer")})        
 .setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
 
 newTut.newTutStep("Click to expand", "<em>Click to expand the application arguments section and continue.</em>", function(){return $("#inspectorAppArgsHeading button")})
@@ -78,16 +78,15 @@ newTut.newTutStep("Key Attributes", "You can flag important parameters and attri
 
 newTut.newTutStep("Key Attributes", "You can view the key attributes of a graph by opening the key attributes table located here.", function(){return $("#openKeyParameterTable")})
 
-newTut.newTutStep("Right Click to add nodes", "There are also various right click options available in eagle. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})  
+newTut.newTutStep("Right Click to add nodes", "There are also various right click options available in EAGLE. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})  
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){ if($('#customContextMenu').length){return true}else{return false}})
 .setPreFunction(function(){$('.modal').modal("hide");}) //hiding open moddals
-.setBackPreFunction(function(){$("#customContextMenu").removeClass('forceShow')})
+.setBackPreFunction(function(){$("#customContextMenu").remove();})
 
 newTut.newTutStep("Graph Context menu", "all of your loaded palettes and their contents will appear here", function(){return $("#rightClickPaletteList")})  
 .setPreFunction(function(){$("#customContextMenu").addClass('forceShow')})
-.setWaitType(TutorialStep.Wait.Delay)
-.setDelayAmount(200)
+.setWaitType(TutorialStep.Wait.Element)
 .setBackSkip(true)
 
 newTut.newTutStep("Quickly adding nodes", "If you already know what you want you can quickly add it by using the search bar. <em>Search for 'file' now and press enter</em>", function(){return $("#rightClickSearchBar")})
@@ -97,16 +96,17 @@ newTut.newTutStep("Quickly adding nodes", "If you already know what you want you
 
 newTut.newTutStep("Connecting nodes", "To save the output of the hello world app onto the file we need to draw an edge from the 'Hello World' node's output port to the 'File' node's input port.", function(){return $("#logicalGraphParent")})
 
-newTut.newTutStep("Node Ports", "This is the output port of the Hello world app, Outpout ports are always shown on the right side of the node.",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp').parent().find('.outputPorts').find('circle')})
+newTut.newTutStep("Node Ports", "This is the output port of the Hello world app, Output ports are always shown on the right side of the node.",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp').parent().find('.outputPorts').find('circle')})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
 .setWaitType(TutorialStep.Wait.Element)
 
-newTut.newTutStep("Node Ports", "And this is the input port for the file storage node, Iutpout ports are always shown on the left side of the node.",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File').parent().find('.inputPorts').find('circle')})
+newTut.newTutStep("Node Ports", "And this is the input port for the file storage node, Iutput ports are always shown on the left side of the node.",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File').parent().find('.inputPorts').find('circle')})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File')})
 .setWaitType(TutorialStep.Wait.Element)
 
-newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em>", function(){return $("#logicalGraphParent")})
+newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em>",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp').parent().find('.outputPorts').find('circle')})
 .setType(TutorialStep.Type.Condition)
+.setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
 .setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().length != 0){return true}else{return false}}) //check if there are any edges present in the graph
 
 newTut.newTutStep("Graph Errors and warnings", "Notice that we have a few graph warnings detected. <em>Click here to view them</em>", function(){return $("#checkGraphWarnings")})
