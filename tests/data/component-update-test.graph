@@ -80,7 +80,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Persist",
+                    "name": "Persist",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -95,7 +95,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Streaming",
+                    "name": "Streaming",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -110,7 +110,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Data volume",
+                    "name": "Data volume",
                     "type": "Float",
                     "usage": "NoPort",
                     "value": 5
@@ -125,7 +125,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Group end",
+                    "name": "Group end",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -140,7 +140,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "NGAS Server",
+                    "name": "NGAS Server",
                     "type": "String",
                     "usage": "NoPort",
                     "value": "ngas.ddns.net"
@@ -155,7 +155,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "NGAS Port",
+                    "name": "NGAS Port",
                     "type": "Integer",
                     "usage": "NoPort",
                     "value": 7777
@@ -170,7 +170,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "File ID",
+                    "name": "File ID",
                     "type": "String",
                     "usage": "NoPort",
                     "value": "HelloWorldOut.txt"
@@ -185,7 +185,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Connection timeout",
+                    "name": "Connection timeout",
                     "type": "Integer",
                     "usage": "NoPort",
                     "value": 2
@@ -200,7 +200,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "NGAS mime-type",
+                    "name": "NGAS mime-type",
                     "type": "String",
                     "usage": "NoPort",
                     "value": "application/octet-stream"
@@ -215,7 +215,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "NGAS timeout",
+                    "name": "NGAS timeout",
                     "type": "Integer",
                     "usage": "NoPort",
                     "value": 2
@@ -230,7 +230,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "hello",
+                    "name": "hello",
                     "type": "String",
                     "usage": "OutputPort",
                     "value": ""
@@ -279,7 +279,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Persist",
+                    "name": "Persist",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -294,7 +294,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Streaming",
+                    "name": "Streaming",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -309,7 +309,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Data volume",
+                    "name": "Data volume",
                     "type": "Float",
                     "usage": "NoPort",
                     "value": 5
@@ -324,7 +324,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Group end",
+                    "name": "Group end",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -339,7 +339,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Check file path exists",
+                    "name": "Check file path exists",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -354,7 +354,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "File path",
+                    "name": "File path",
                     "type": "String",
                     "usage": "NoPort",
                     "value": ""
@@ -369,7 +369,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Directory name",
+                    "name": "Directory name",
                     "type": "String",
                     "usage": "NoPort",
                     "value": ""
@@ -384,7 +384,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "hello",
+                    "name": "hello",
                     "type": "String",
                     "usage": "InputPort",
                     "value": ""
@@ -399,7 +399,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "hello",
+                    "name": "hello",
                     "type": "String",
                     "usage": "OutputPort",
                     "value": ""
@@ -448,7 +448,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": true,
-                    "text": "Application Class",
+                    "name": "Application Class",
                     "type": "String",
                     "usage": "NoPort",
                     "value": "dlg.apps.simple.CopyAppBad"
@@ -463,7 +463,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Execution Time",
+                    "name": "Execution Time",
                     "type": "Float",
                     "usage": "NoPort",
                     "value": 5
@@ -478,7 +478,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "No. of CPUs",
+                    "name": "No. of CPUs",
                     "type": "Integer",
                     "usage": "NoPort",
                     "value": 1
@@ -493,7 +493,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Group start",
+                    "name": "Group start",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -508,7 +508,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Bad Param",
+                    "name": "Bad Param",
                     "type": "String",
                     "usage": "NoPort",
                     "value": "wrong"
@@ -523,7 +523,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "hello",
+                    "name": "hello",
                     "type": "String",
                     "usage": "InputPort",
                     "value": ""
@@ -538,7 +538,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "hello",
+                    "name": "hello",
                     "type": "String",
                     "usage": "OutputPort",
                     "value": ""
@@ -587,7 +587,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Persist",
+                    "name": "Persist",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -602,7 +602,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Streaming",
+                    "name": "Streaming",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -617,7 +617,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Data volume",
+                    "name": "Data volume",
                     "type": "Float",
                     "usage": "NoPort",
                     "value": 5
@@ -632,7 +632,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Group end",
+                    "name": "Group end",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -647,7 +647,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "NGAS Server",
+                    "name": "NGAS Server",
                     "type": "String",
                     "usage": "NoPort",
                     "value": "ngas.ddns.net"
@@ -662,7 +662,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "NGAS Port",
+                    "name": "NGAS Port",
                     "type": "Integer",
                     "usage": "NoPort",
                     "value": 7777
@@ -677,7 +677,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "File ID",
+                    "name": "File ID",
                     "type": "String",
                     "usage": "NoPort",
                     "value": ""
@@ -692,7 +692,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Connection timeout",
+                    "name": "Connection timeout",
                     "type": "Integer",
                     "usage": "NoPort",
                     "value": 2
@@ -707,7 +707,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "NGAS mime-type",
+                    "name": "NGAS mime-type",
                     "type": "String",
                     "usage": "NoPort",
                     "value": "text/ascii"
@@ -722,7 +722,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "NGAS timeout",
+                    "name": "NGAS timeout",
                     "type": "Integer",
                     "usage": "NoPort",
                     "value": 2
@@ -737,7 +737,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "hello",
+                    "name": "hello",
                     "type": "String",
                     "usage": "InputPort",
                     "value": ""
@@ -786,7 +786,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": true,
-                    "text": "Application Class",
+                    "name": "Application Class",
                     "type": "String",
                     "usage": "NoPort",
                     "value": "dlg.apps.simple.CopyAppBad"
@@ -801,7 +801,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Execution Time",
+                    "name": "Execution Time",
                     "type": "Float",
                     "usage": "NoPort",
                     "value": 5
@@ -816,7 +816,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "No. of CPUs",
+                    "name": "No. of CPUs",
                     "type": "Integer",
                     "usage": "NoPort",
                     "value": -1
@@ -831,7 +831,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "Group start",
+                    "name": "Group start",
                     "type": "Boolean",
                     "usage": "NoPort",
                     "value": false
@@ -846,7 +846,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "hello",
+                    "name": "hello",
                     "type": "String",
                     "usage": "InputPort",
                     "value": ""
@@ -861,7 +861,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": false,
-                    "text": "hello",
+                    "name": "hello",
                     "type": "String",
                     "usage": "OutputPort",
                     "value": ""
