@@ -514,6 +514,10 @@ td:first-child input {
     height: 100%;
 }
 
+#nodeInspectorKOWrapper .accordion-item{
+    overflow: unset;
+}
+
 #rightWindowContainer{
     padding: 4px;
     height: 100%;
