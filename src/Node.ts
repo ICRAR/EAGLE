@@ -537,6 +537,30 @@ export class Node {
         return result;
     }
 
+    getConstructParameters = () : Field[] => {
+        const result: Field[] = [];
+
+        for (const field of this.fields()){
+            if (field.getParameterType() === Eagle.ParameterType.ConstructParameter){
+                result.push(field);
+            }
+        }
+
+        return result;
+    }
+
+    getConstructParametersWithNoPorts = () : Field[] => {
+        const result: Field[] = [];
+
+        for (const field of this.fields()){
+            if (field.getParameterType() === Eagle.ParameterType.ConstructParameter && field.getUsage() === Eagle.ParameterUsage.NoPort){
+                result.push(field);
+            }
+        }
+
+        return result;
+    }
+
     getDescriptionReadonly = () : boolean => {
         const allowParam : boolean = Eagle.allowComponentEditing();
 
@@ -650,6 +674,10 @@ export class Node {
 
     canHaveApplicationArguments = () : boolean => {
         return CategoryData.getCategoryData(this.category()).canHaveApplicationArguments;
+    }
+
+    canHaveConstructParameters = () : boolean => {
+        return CategoryData.getCategoryData(this.category()).canHaveConstructParameters;
     }
 
     canHaveType = (parameterType: Eagle.ParameterType) : boolean => {
@@ -2161,7 +2189,8 @@ export class Node {
         for (const field of node.getFields()){
             if (
                 (field.getParameterType() === Eagle.ParameterType.ComponentParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
-                (field.getParameterType() === Eagle.ParameterType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments
+                (field.getParameterType() === Eagle.ParameterType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
+                (field.getParameterType() === Eagle.ParameterType.ConstructParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveConstructParameters
             ){
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
                 const issue: Errors.Issue = Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldParameterType(eagle, field)}, "Switch to suitable type");

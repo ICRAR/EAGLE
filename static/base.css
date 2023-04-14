@@ -939,6 +939,7 @@ select.form-control{
     margin-left: 50%;
     transform: translateX(-50%);
     position:absolute;
+    filter: drop-shadow(2px 7px 10px #000);
 }
 
 .modal-body{
@@ -959,6 +960,10 @@ select.form-control{
     bottom: 0px;
     width: 100%;
     z-index:10;
+}
+
+#confirmModal{
+    z-index: 1056;
 }
 
 #confirmModal .modal-content{

@@ -333,8 +333,8 @@ export class Modals {
             const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
             const realParameterType: Eagle.ParameterType = Utils.translateStringToParameterType(parameterType);
             const realParameterUsage: Eagle.ParameterUsage = Utils.translateStringToParameterUsage(parameterUsage);
-            let newField;
 
+            let newField;
             switch(realType){
                 case Eagle.DataType_Boolean:
                     newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);

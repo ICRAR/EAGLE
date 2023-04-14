@@ -97,6 +97,10 @@
             {% include 'node_inspector_application_parameters.html' %}
             <!-- /ko -->
 
+            <!-- ko if: selectedNode().canHaveConstructParameters() -->
+            {% include 'node_inspector_construct_parameters.html' %}
+            <!-- /ko -->
+
             <!-- input application type -->
             <!-- ko if: selectedNode().canHaveInputApplication() -->
             {% include 'node_inspector_input_application.html' %}
