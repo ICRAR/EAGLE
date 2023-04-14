@@ -2347,6 +2347,10 @@ export class Eagle {
         Utils.hideSettingsModal();
     }
 
+    closeErrorsModal = () : void => {
+        Utils.closeErrorsModal();
+    }
+
     smartToggleModal = (modal:string) : void => {
         //used for keyboard shortcuts, preventing opening several modals at once
         if($('.modal.show').length>0){

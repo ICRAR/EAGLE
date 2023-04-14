@@ -27,7 +27,7 @@
                                 <td data-bind="text: $root.currentFileInfo().getText()"></td>
                             <!-- /ko -->
                         </tr>
-                        <tr>
+                        <tr id="modelDataDescription">
                             <td data-bind="text: 'Short Descripton', eagleTooltip: 'A one-line description of the purpose of this file'"></td>
                             <!-- ko if: $root.currentFileInfo -->
                             <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
@@ -49,7 +49,7 @@
                             <!-- /ko -->
                             <!-- /ko -->
                         </tr>
-                        <tr>
+                        <tr id="modelDataEagleVersion">
                             <td data-bind="text: 'Eagle Version', eagleTooltip: ''"></td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._eagleVersion"></td>

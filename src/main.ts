@@ -51,7 +51,10 @@ import {SideWindow} from "./SideWindow";
 import {TutorialSystem} from "./Tutorial";
 
 import * as quickStart from './tutorials/quickStart'
+import * as graphBuilding from './tutorials/graphBuilding'
+
 console.assert(quickStart != null) //this is needed to run the tutorial file
+console.assert(graphBuilding != null) //this is needed to run the tutorial file
 
 let eagle : Eagle;
 
