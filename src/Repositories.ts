@@ -153,9 +153,8 @@ export class Repositories {
         }
     }
 
-    // TODO: the name seems weird here, does it need to be 
     static sort = () : void => {
-        Repositories.repositories().sort(Repository.repositoriesSortFunc);
+        Repositories.repositories.sort(Repository.repositoriesSortFunc);
     }
 
     static getList = (service : Eagle.RepositoryService) : Repository[] => {
