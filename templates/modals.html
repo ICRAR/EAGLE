@@ -241,7 +241,7 @@
                         </div>
                         <div class="col">
                             <div class="input-group mb-3 has-validation">
-                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryNameInput">
+                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryNameInput" placeholder="joe-bloggs/graph-repository">
                             </div>
                         </div>
                     </div>
@@ -251,7 +251,14 @@
                         </div>
                         <div class="col">
                             <div class="input-group mb-3 has-validation">
-                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryBranchInput">
+                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryBranchInput" placeholder="master">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-info" role="alert">
+                                EAGLE has a known bug concerning repositories. If a repository is completely empty, i.e. contains no files, then the repository cannot be opened. Please ensure your repository contains at least one file before attempting to open and browse its contents in EAGLE.
                             </div>
                         </div>
                     </div>
