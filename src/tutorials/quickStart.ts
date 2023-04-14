@@ -1,7 +1,6 @@
 import {TutorialStep, TutorialSystem} from '../Tutorial';
 
-console.log('RUNNING')
-const newTut = TutorialSystem.newTutorial('Quick Start Tutorial', 'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.')
+const newTut = TutorialSystem.newTutorial('Quick Start', 'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.')
 
 newTut.newTutStep("Welcome to Eagle!", "Welcome to the basic UI tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", function(){return $("#eagleAndVersion a")})
 
@@ -19,7 +18,7 @@ newTut.newTutStep("Keyboard Shortcuts", "Many of the major functions are availab
     .setBackPreFunction(function(eagle){eagle.openShortcuts()})
     .setPreFunction(function(eagle){eagle.openShortcuts()})
 
-newTut.newTutStep("Click To Open Settings", "The settings modal allows to cusomize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <b>To continue the tutorial please click the settings button!</b>", function(){return $("#settings")})
+newTut.newTutStep("Click To Open Settings", "The settings modal allows to cusomize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <em>To continue the tutorial please click the highlighted settings icon button!</em>", function(){return $("#settings")})
     .setType(TutorialStep.Type.Press)
     .setPreFunction(function(eagle){eagle.closeShortcuts();})
     .setBackPreFunction(function(eagle){eagle.closeSettings();})
@@ -46,7 +45,7 @@ newTut.newTutStep("Click To Save Settings", "Press 'Ok' (or hit Enter) to save y
     .setType(TutorialStep.Type.Press)
     .setWaitType(TutorialStep.Wait.Modal)
     .setPreFunction(function(eagle){$('#settingsModalNegativeButton').on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');})
-    .setBackPreFunction(function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); $('#settingsModalNegativeButton').on('click.tutButtonListener',eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');})
+    .setBackPreFunction(function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); $('#settingsModalNegativeButton').on('click.tutButtonListener',eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');$("#settingsModalAffirmativeButton").focus();})
 
 newTut.newTutStep("Help Menu", "This menu allows you view the various help and documentation options.", function(){return $("#navbarDropdownHelp")})
 
@@ -55,3 +54,5 @@ newTut.newTutStep("Palette Menu", "This menu allows you to load a palette. If th
 newTut.newTutStep("Graph Menu", "This menu allows you to load, save or create new graphs", function(){return $("#navbarDropdownGraph")})
 
 newTut.newTutStep("Translate Button", "Once configured, you are able to translate the constructed graph quickly by using this button", function(){return $("#navDeployBtn")})
+
+newTut.newTutStep("Well Done!", "You have completed the quick introduction tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance. To continue to our tutorial on graph building press <a  onclick='TutorialSystem.initiateTutorial(`Graph Building`)' href='#'>here!</a>", function(){return $("#logicalGraphParent")})

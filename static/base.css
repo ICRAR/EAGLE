@@ -568,6 +568,10 @@ td:first-child input {
     right: 100%;
 }
 
+.dropDropDown .dropdown-item:focus{
+    background-color: #004d91;
+}
+
 .dropDropDownParent:hover .dropDropDown {
     visibility: visible;
 }
@@ -1602,6 +1606,16 @@ select.form-control{
     display: none !important;
 }
 
+.forceShow{
+    display: block !important;
+    visibility: visible !important;
+}
+
+.tutorialContent em{
+    font-style: normal;
+    color:springgreen;
+}
+
 .nodeInspectorDropdownDiv{
     position: static;
     position: relative;
@@ -2338,7 +2352,7 @@ palette-component input.form-control.selected {
 
 .tutorialHighlight{
     position:absolute;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index:2000;
     transition: 0.5s ease;
 }
@@ -2350,6 +2364,7 @@ palette-component input.form-control.selected {
     z-index:2001;
     color:white;
     font-family:'Comic Neue';
+    pointer-events: none;
 }
 
 #tutorialInfoPopUp .tutorialArrowContainer{
@@ -2382,9 +2397,10 @@ palette-component input.form-control.selected {
 }
 
 .tutorialContent{
-    background: rgba(1,1,1,0.3);
+    background: rgba(1,1,1,0.5);
     border-radius: 10px;
-    box-shadow: 0px 0px 25px 25px rgba(1,1,1,0.3);
+    box-shadow: 0px 0px 25px 25px rgba(1,1,1,0.5);
+    pointer-events: all;
 }
 
 #tutorialInfoPopUp.tutorialRight .tutorialContent,#tutorialInfoPopUp.tutorialRightTop .tutorialContent{
@@ -2483,6 +2499,7 @@ palette-component input.form-control.selected {
 #tutorialInfoPopUp .tutEndBtn{
     position: absolute;
     right: 0px;
+    color: #ff3e3e !important;
 }
 
 

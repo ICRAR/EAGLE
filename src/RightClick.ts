@@ -2,6 +2,7 @@ import {Eagle} from './Eagle';
 import {Edge} from './Edge';
 import {Node} from './Node';
 import { Palette } from './Palette';
+import { TutorialSystem } from './Tutorial';
 
 export class RightClick {
 
@@ -89,10 +90,14 @@ export class RightClick {
     static closeCustomContextMenu = (force:boolean) : void => {
         if(force){
             $("#customContextMenu").remove()
-        }else{
+        }else {
             setTimeout(function() {
                 if($("#customContextMenu:hover").length === 0){
-                    $("#customContextMenu").remove()
+                    if($('#customContextMenu').hasClass('forceShow')){
+                        return
+                    }else {
+                        $("#customContextMenu").remove()
+                    }
                 }
             }, 300);
         }
@@ -258,8 +263,8 @@ export class RightClick {
         const eagle: Eagle = Eagle.getInstance();
 
         const thisEvent = event as MouseEvent
-        const mouseX = thisEvent.clientX
-        const mouseY = thisEvent.clientY
+        const mouseX = thisEvent.clientX+2
+        const mouseY = thisEvent.clientY+2
 
         if(data instanceof Node||data instanceof Edge || data instanceof Palette){
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
