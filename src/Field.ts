@@ -359,7 +359,7 @@ export class Field {
 
     static toOJSJson = (field : Field) : object => {
         const result : any = {
-            text:field.displayText(),
+            name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
@@ -379,7 +379,7 @@ export class Field {
 
     static toV3Json = (field : Field) : object => {
         const result : any =  {
-            text:field.displayText(),
+            name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
@@ -400,7 +400,7 @@ export class Field {
     static toOJSJsonPort = (field : Field) : object => {
         return {
             Id:field.id(),
-            text:field.displayText(),
+            name:field.displayText(),
             event:field.isEvent(),
             type:field.type(),
             description:field.description(),
@@ -410,7 +410,7 @@ export class Field {
 
     static fromOJSJson = (data : any) : Field => {
         let id: string = Utils.uuidv4();
-        let text: string = "";
+        let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
         let type: string = Eagle.DataType_Unknown;
@@ -426,8 +426,8 @@ export class Field {
 
         if (typeof data.id !== 'undefined')
             id = data.id;
-        if (typeof data.text !== 'undefined')
-            text = data.text;
+        if (typeof data.name !== 'undefined')
+            name = data.name;
         if (typeof data.description !== 'undefined')
             description = data.description;
         if (typeof data.readonly !== 'undefined')
@@ -484,20 +484,20 @@ export class Field {
             event = data.event;
         if (typeof data.keyAttribute !== 'undefined')
             keyAttribute = data.keyAttribute;
-        const result = new Field(id, text, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
+        const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
         result.setIsEvent(isEvent);
         return result;
     }
 
     static fromOJSJsonPort = (data : any) : Field => {
-        let text: string = "";
+        let name: string = "";
         let event: boolean = false;
         let type: string;
         let description: string = "";
         let keyAttribute: boolean = false;
 
-        if (typeof data.text !== 'undefined')
-            text = data.text;
+        if (typeof data.name !== 'undefined')
+            name = data.name;
         if (typeof data.event !== 'undefined')
             event = data.event;
         if (typeof data.type !== 'undefined')
@@ -508,11 +508,11 @@ export class Field {
             keyAttribute = data.keyAttribute;
 
         // avoid empty text fields if we can
-        if (text === ""){
-            text = data.IdText;
+        if (name === ""){
+            name = data.IdText;
         }
      
-        const f = new Field(data.Id, text, "", "", description, false, type, false, [], false, Eagle.ParameterType.Unknown, Eagle.ParameterUsage.NoPort, keyAttribute);
+        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Eagle.ParameterType.Unknown, Eagle.ParameterUsage.NoPort, keyAttribute);
         f.setIsEvent(event);
         return f;
     }
