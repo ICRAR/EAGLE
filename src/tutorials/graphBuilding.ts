@@ -97,10 +97,14 @@ newTut.newTutStep("Quickly adding nodes", "If you already know what you want you
 newTut.newTutStep("Connecting nodes", "To save the output of the hello world app onto the file we need to draw an edge from the 'Hello World' node's output port to the 'File' node's input port.", function(){return $("#logicalGraphParent")})
 
 newTut.newTutStep("Node Ports", "This is the output port of the Hello world app, Output ports are always shown on the right side of the node.",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp').parent().find('.outputPorts').find('circle')})
+.setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
+.setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
 .setWaitType(TutorialStep.Wait.Element)
 
 newTut.newTutStep("Node Ports", "And this is the input port for the file storage node, Iutput ports are always shown on the left side of the node.",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File').parent().find('.inputPorts').find('circle')})
+.setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
+.setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File')})
 .setWaitType(TutorialStep.Wait.Element)
 
