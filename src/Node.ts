@@ -1350,10 +1350,14 @@ export class Node {
 
     static fromOJSJson = (nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node => {
         let name = "";
-        if (typeof nodeData.text !== 'undefined'){
-            name = nodeData.text;
+        if (typeof nodeData.name !== 'undefined'){
+            name = nodeData.name;
         } else {
-            errorsWarnings.errors.push(Errors.Message("Node " + nodeData.key + " has undefined text " + nodeData + "!"));
+            if (typeof nodeData.text !== 'undefined'){
+                name = nodeData.text;
+            } else {
+                errorsWarnings.errors.push(Errors.Message("Node " + nodeData.key + " has undefined text and name " + nodeData + "!"));
+            }
         }
 
         let x = 0;
@@ -1806,7 +1810,7 @@ export class Node {
         result.categoryType = node.categoryType();
 
         result.key = node.key();
-        result.text = node.name();
+        result.name = node.name();
         result.description = node.description();
 
         result.repositoryUrl = node.repositoryUrl();
@@ -1883,7 +1887,7 @@ export class Node {
         result.drawOrderHint = node.drawOrderHint();
 
         result.key = node.key();
-        result.text = node.name();
+        result.name = node.name();
         result.description = node.description();
         result.x = node.x;
         result.y = node.y;
@@ -1956,6 +1960,7 @@ export class Node {
         return result;
     }
 
+    /*
     // display/visualisation data
     static toV3NodeJson = (node : Node, index : number) : object => {
         const result : any = {};
@@ -2006,6 +2011,7 @@ export class Node {
 
         return result;
     }
+    */
 
     // graph data
     // "name" and "description" are considered part of the structure of the graph, it would be hard to add them to the display part (parameters would have to be treated the same way)
