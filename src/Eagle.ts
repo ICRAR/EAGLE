@@ -2354,8 +2354,13 @@ export class Eagle {
         Utils.hideSettingsModal();
     }
 
+    closeErrorsModal = () : void => {
+        Utils.closeErrorsModal();
+    }
+
     smartToggleModal = (modal:string) : void => {
         //used for keyboard shortcuts, preventing opening several modals at once
+        console.log($('.modal.show').attr('id'),modal)
         if($('.modal.show').length>0){
             if($('.modal.show').attr('id')===modal){
                 $('#'+modal).modal('hide')
@@ -2374,7 +2379,11 @@ export class Eagle {
 
     openParamsTableModal = (mode:string,selectType:string) : void => {
         if($('.modal.show').length>0){
-            return
+            if($('.modal.show').attr('id')==='parameterTableModal'){
+                $('#parameterTableModal').modal('hide')
+            }else{
+                return
+            }
         }
         this.showTableModal(true)
         if(selectType === 'rightClick'){

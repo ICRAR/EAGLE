@@ -552,6 +552,17 @@ export class LogicalGraph {
         return null;
     }
 
+    findNodeGraphIdByNodeName = (name:string) :string =>{
+        const eagle: Eagle = Eagle.getInstance();
+        let graphNodeId:string
+        eagle.logicalGraph().getNodes().forEach(function(node){
+            if(node.getName() === name){
+                graphNodeId = node.getGraphNodeId()
+            }
+        })
+        return graphNodeId
+    }
+
     removeNode = (node: Node) : void => {
         const key = node.getKey();
 

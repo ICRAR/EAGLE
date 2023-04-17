@@ -826,13 +826,19 @@ export class Utils {
             return false;
         }
 
-        // check name
+        // check if name is empty
         if (repositoryName.trim() == ""){
             $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
             return false;
         }
 
-        // check branch
+        // check if name starts with http:// or https://, or ends with .git
+        if (repositoryName.startsWith('http://') || repositoryName.startsWith('https://') || repositoryName.endsWith('.git')){
+            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+            return false;
+        }
+
+        // check if branch is empty
         if (repositoryBranch.trim() == ""){
             $('#gitCustomRepositoryModalRepositoryBranchInput').addClass('is-invalid');
             return false;
@@ -881,6 +887,10 @@ export class Utils {
 
     static closeShortcutsModal() : void {
         $('#shortcutsModal').modal("hide");
+    }
+
+    static closeErrorsModal() : void {
+        $('#errorsModal').modal("hide");
     }
 
     static showPalettesModal(eagle: Eagle) : void {
