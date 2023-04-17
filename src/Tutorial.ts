@@ -79,7 +79,7 @@ export class TutorialSystem {
         TutorialSystem.cooldown = true
         setTimeout(function () {
             TutorialSystem.cooldown = false
-        }, 500)
+        }, 700)
     }
 
     static newTutorial = (title:string, description:string) : Tutorial => {
@@ -199,6 +199,7 @@ export class Tutorial {
                     clearTimeout(TutorialSystem.waitForElementTimer);
                     TutorialSystem.waitForElementTimer = null;
                     console.warn('waiting for next tutorial step element timed out')
+                    TutorialSystem.cooldown = false
                     that.tutButtonPrev()
                 }
             }, 2000)
