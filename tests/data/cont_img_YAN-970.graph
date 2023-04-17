@@ -836,7 +836,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Major Cycle",
+            "name": "Major Cycle",
             "width": 1148,
             "x": 1240.7261681137575,
             "y": 788.6537628444374
@@ -915,7 +915,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "update skycomponents",
+            "name": "update skycomponents",
             "width": 1605.897275108981,
             "x": 824.1310170273241,
             "y": 262.0270649542362
@@ -1054,7 +1054,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Config",
+            "name": "Config",
             "width": 200,
             "x": 838.5083897005038,
             "y": -36.563483842101604
@@ -1224,7 +1224,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Self-CalConverge?",
+            "name": "Self-CalConverge?",
             "width": 200,
             "x": 1411.1155175215815,
             "y": 557.0743743828905
@@ -1604,7 +1604,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "solve_gaintable",
+            "name": "solve_gaintable",
             "width": 200,
             "x": 1418.7181158093372,
             "y": 339.3691009941565
@@ -1864,7 +1864,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "apply_gaintable",
+            "name": "apply_gaintable",
             "width": 200,
             "x": 1796.9366535932584,
             "y": 421.9653462791549
@@ -2109,7 +2109,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "subtract_visibility",
+            "name": "subtract_visibility",
             "width": 200,
             "x": 2047.3331051646974,
             "y": 363.36619654623297
@@ -2384,7 +2384,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "flagging_blockvisibility",
+            "name": "flagging_blockvisibility",
             "width": 200,
             "x": 2010.697811366693,
             "y": 518.6702258276079
@@ -2629,7 +2629,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "find_skycomponent_matches",
+            "name": "find_skycomponent_matches",
             "width": 200,
             "x": 859.9216757029075,
             "y": 1071.5671002656059
@@ -2874,7 +2874,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "grid_blockvisibility_to_griddata",
+            "name": "grid_blockvisibility_to_griddata",
             "width": 200,
             "x": 2054.138444987199,
             "y": 869.2308531545385
@@ -3104,7 +3104,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "fft_griddata_to_image",
+            "name": "fft_griddata_to_image",
             "width": 200,
             "x": 2026.9904228590274,
             "y": 1023.6293843445791
@@ -3349,7 +3349,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "subtract_visibility",
+            "name": "subtract_visibility",
             "width": 200,
             "x": 1628.175980511002,
             "y": 870.4001187342502
@@ -3638,7 +3638,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "create_low_test_skycomponents_from_gleam",
+            "name": "create_low_test_skycomponents_from_gleam",
             "width": 200,
             "x": 846.5739680230777,
             "y": 128.19118544862857
@@ -3762,7 +3762,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Obs. Vis. Data ",
+            "name": "Obs. Vis. Data ",
             "width": 200,
             "x": 1232.9581892137537,
             "y": 129.448153091536
@@ -3887,7 +3887,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "sc",
+            "name": "sc",
             "width": 200,
             "x": 952.0676001613889,
             "y": 323.85136834967835
@@ -4012,7 +4012,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "gt",
+            "name": "gt",
             "width": 200,
             "x": 1525.917206568935,
             "y": 339.1856705523541
@@ -4137,7 +4137,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "gt",
+            "name": "gt",
             "width": 200,
             "x": 1707.6612674662067,
             "y": 502.5350760076449
@@ -4262,7 +4262,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "vis",
+            "name": "vis",
             "width": 200,
             "x": 1928.4417497475285,
             "y": 413.7397553517987
@@ -4387,7 +4387,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "vis",
+            "name": "vis",
             "width": 200,
             "x": 1939.381840522243,
             "y": 652.8359642087366
@@ -4512,7 +4512,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "griddata",
+            "name": "griddata",
             "width": 200,
             "x": 2012.8784168116474,
             "y": 951.480209182692
@@ -4637,7 +4637,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "im",
+            "name": "im",
             "width": 200,
             "x": 2011.5760472306886,
             "y": 1125.1254963006795
@@ -4897,7 +4897,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "flagging_blockvisibility",
+            "name": "flagging_blockvisibility",
             "width": 200,
             "x": 1804.1044729383732,
             "y": 871.2112514853821
@@ -5022,7 +5022,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "vis",
+            "name": "vis",
             "width": 200,
             "x": 1713.41554791033,
             "y": 870.8017287210079
@@ -5147,7 +5147,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "vis",
+            "name": "vis",
             "width": 200,
             "x": 1903.2675129768038,
             "y": 871.5225130797271
@@ -5272,7 +5272,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "vis",
+            "name": "vis",
             "width": 200,
             "x": 2117.1881125344,
             "y": 426.5603199484168
@@ -5352,7 +5352,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Minor Cycle",
+            "name": "Minor Cycle",
             "width": 542.302134001231,
             "x": 1501.4019207006957,
             "y": 1025.5672645230316
@@ -5597,7 +5597,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "find_skycomponents",
+            "name": "find_skycomponents",
             "width": 200,
             "x": 1837.656449078046,
             "y": 1086.7207597554989
@@ -5737,7 +5737,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "sc_ref",
+            "name": "sc_ref",
             "width": 200,
             "x": 952.7339594277172,
             "y": 623.3495715851152
@@ -5862,7 +5862,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "sc",
+            "name": "sc",
             "width": 200,
             "x": 1705.3986263404936,
             "y": 1085.6079141567802
@@ -5987,7 +5987,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "modelvis",
+            "name": "modelvis",
             "width": 200,
             "x": 1554.0954969297977,
             "y": 872.1810833300509
@@ -6112,7 +6112,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "sc",
+            "name": "sc",
             "width": 200,
             "x": 1309.4881325227352,
             "y": 1043.2510570391098
@@ -6282,7 +6282,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "New Components?",
+            "name": "New Components?",
             "width": 200,
             "x": 1536.3623327766534,
             "y": 1101.844527234212
@@ -6452,7 +6452,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "New Components?",
+            "name": "New Components?",
             "width": 200,
             "x": 1276.4427859123941,
             "y": 1110.3033129165528
@@ -6577,7 +6577,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "comp_major",
+            "name": "comp_major",
             "width": 200,
             "x": 1005.9590156262367,
             "y": 1076.036533653468
@@ -6702,7 +6702,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "sc",
+            "name": "sc",
             "width": 200,
             "x": 1215.0187264048398,
             "y": 844.5133068476356
@@ -6932,7 +6932,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "fft_griddata_to_image",
+            "name": "fft_griddata_to_image",
             "width": 200,
             "x": 2155.7614367193755,
             "y": 1118.8324749142623
@@ -7057,7 +7057,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "griddata",
+            "name": "griddata",
             "width": 200,
             "x": 2192.0893606723444,
             "y": 999.6480731961184
@@ -7272,7 +7272,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "grid_blockvisibility_weight_to_griddata",
+            "name": "grid_blockvisibility_weight_to_griddata",
             "width": 200,
             "x": 2175.218961037033,
             "y": 917.0815851103567
@@ -7397,7 +7397,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "sc",
+            "name": "sc",
             "width": 200,
             "x": 807.1748008197102,
             "y": 929.5313377004105
@@ -7686,7 +7686,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "create_convolutionfunction_from_image",
+            "name": "create_convolutionfunction_from_image",
             "width": 200,
             "x": 1545.4309824935306,
             "y": 151.6739464605007
@@ -7811,7 +7811,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "cg",
+            "name": "cg",
             "width": 200,
             "x": 1714.0011861236335,
             "y": 586.3574131895944
@@ -8056,7 +8056,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "subtract PSF, using add_image",
+            "name": "subtract PSF, using add_image",
             "width": 200,
             "x": 1841.382004221108,
             "y": 1201.9420390551963
@@ -8181,7 +8181,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "sc",
+            "name": "sc",
             "width": 200,
             "x": 1664.4056124280814,
             "y": 1194.7465541629865
@@ -8306,7 +8306,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "psf",
+            "name": "psf",
             "width": 200,
             "x": 2048.615979541451,
             "y": 1200.1517453281388
@@ -8431,7 +8431,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "im",
+            "name": "im",
             "width": 200,
             "x": 1479.6665655663217,
             "y": 1213.2174705687025
@@ -8706,7 +8706,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Restore_and_CopyApp",
+            "name": "Restore_and_CopyApp",
             "width": 200,
             "x": 826.9667727358643,
             "y": 758.5412038572699
@@ -8875,7 +8875,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "gt",
+            "name": "gt",
             "width": 200,
             "x": 611.6847907259732,
             "y": 702.8685624898989
@@ -9029,7 +9029,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Image",
+            "name": "Image",
             "width": 200,
             "x": 596.6955439015367,
             "y": 395.68635489948264
@@ -9183,7 +9183,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "PSF",
+            "name": "PSF",
             "width": 200,
             "x": 603.3038194277251,
             "y": 478.52370336139285
@@ -9337,7 +9337,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "SkyComponent",
+            "name": "SkyComponent",
             "width": 200,
             "x": 609.3038194277249,
             "y": 549.0367017423514
@@ -9491,7 +9491,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Residual Image",
+            "name": "Residual Image",
             "width": 200,
             "x": 608.9659944682015,
             "y": 620.5631750018816
@@ -9736,7 +9736,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "dft_skycomponent_visibility",
+            "name": "dft_skycomponent_visibility",
             "width": 200,
             "x": 1016.8890958848453,
             "y": 408.73035378057557
@@ -9981,7 +9981,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "dft_skycomponent_visibility",
+            "name": "dft_skycomponent_visibility",
             "width": 200,
             "x": 1342.5868119239678,
             "y": 845.1618424539998
@@ -10015,7 +10015,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Comment",
+            "name": "Comment",
             "width": 200,
             "x": 807.9751456955864,
             "y": 245.63249093751327
@@ -10049,7 +10049,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Comment",
+            "name": "Comment",
             "width": 200,
             "x": 1299.7994673226524,
             "y": 788.19748542079
@@ -10083,7 +10083,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Comment",
+            "name": "Comment",
             "width": 200,
             "x": 1574.613999160286,
             "y": 1029.295655947799
@@ -10343,7 +10343,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "degrid_blockvisibility_from_griddata",
+            "name": "degrid_blockvisibility_from_griddata",
             "width": 200,
             "x": 1092.1528195068345,
             "y": 596.8842944741247
@@ -10603,7 +10603,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "degrid_blockvisibility_from_griddata",
+            "name": "degrid_blockvisibility_from_griddata",
             "width": 200,
             "x": 1327.6707378706749,
             "y": 935.1060968575824
@@ -10728,7 +10728,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "griddata",
+            "name": "griddata",
             "width": 200,
             "x": 1166.0228770629287,
             "y": 639.9366002809882
@@ -11047,7 +11047,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "create_blockvisibility_from_ms",
+            "name": "create_blockvisibility_from_ms",
             "width": 200,
             "x": 1094.8477608032115,
             "y": 45.61867995169179
@@ -11247,7 +11247,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "fft_image_to_griddata",
+            "name": "fft_image_to_griddata",
             "width": 200,
             "x": 1280.0677527010462,
             "y": 1223.288946477341
@@ -11372,7 +11372,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "griddata",
+            "name": "griddata",
             "width": 200,
             "x": 1252.1489764712378,
             "y": 987.8126436620706
@@ -11617,7 +11617,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "add_visibility",
+            "name": "add_visibility",
             "width": 200,
             "x": 1236.708168451233,
             "y": 434.92667490557454
@@ -11742,7 +11742,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "modelvis",
+            "name": "modelvis",
             "width": 200,
             "x": 1320.2884352107326,
             "y": 338.1028801539912
@@ -11867,7 +11867,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "modelvis",
+            "name": "modelvis",
             "width": 200,
             "x": 1095.8334888012598,
             "y": 478.67241658929265
@@ -11992,7 +11992,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "modelvis",
+            "name": "modelvis",
             "width": 200,
             "x": 1101.6307044716386,
             "y": 408.40075507053683
@@ -12117,7 +12117,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "modelvis",
+            "name": "modelvis",
             "width": 200,
             "x": 1799.8331051646976,
             "y": 358.1503565152773
@@ -12242,7 +12242,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "modelvis",
+            "name": "modelvis",
             "width": 200,
             "x": 1434.1645696386277,
             "y": 844.8462034253281
@@ -12367,7 +12367,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "modelvis",
+            "name": "modelvis",
             "width": 200,
             "x": 1399.7010949436765,
             "y": 935.3183306271193
@@ -12612,7 +12612,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "add_visibility",
+            "name": "add_visibility",
             "width": 200,
             "x": 1492.5445471565845,
             "y": 910.8662765871685
@@ -12646,7 +12646,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Comment",
+            "name": "Comment",
             "width": 200,
             "x": 789.4582202076829,
             "y": 321.7691308136901
@@ -12680,7 +12680,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Comment",
+            "name": "Comment",
             "width": 200,
             "x": 1801.599141052215,
             "y": 1141.082402827089
@@ -12714,7 +12714,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Comment",
+            "name": "Comment",
             "width": 200,
             "x": 1227.5991410522151,
             "y": 1191.0824028270893
@@ -12748,7 +12748,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Comment",
+            "name": "Comment",
             "width": 200,
             "x": 1350.599141052215,
             "y": 969.0824028270889
@@ -12782,7 +12782,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "Comment",
+            "name": "Comment",
             "width": 200,
             "x": 1214.9861232989667,
             "y": 298.63121075053044
@@ -12907,7 +12907,7 @@
             "paletteDownloadUrl": "",
             "repositoryUrl": "",
             "subject": null,
-            "text": "fg",
+            "name": "fg",
             "width": 200,
             "x": 1553.54998846651,
             "y": 448.3253712192815
